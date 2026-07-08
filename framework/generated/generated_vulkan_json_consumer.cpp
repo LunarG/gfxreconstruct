@@ -7462,6 +7462,191 @@ void VulkanExportJsonConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCreateGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaSessionCreateInfoAMD>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkGpaSessionAMD>*      pGpaSession)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCreateGpaSessionAMD");
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        FieldToJson(args["pCreateInfo"], pCreateInfo);
+        FieldToJson(args["pAllocator"], pAllocator);
+        HandleToJson(args["pGpaSession"], pGpaSession);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkDestroyGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkDestroyGpaSessionAMD");
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        HandleToJson(args["gpaSession"], gpaSession);
+        FieldToJson(args["pAllocator"], pAllocator);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkSetGpaDeviceClockModeAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaDeviceClockModeInfoAMD>* pInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkSetGpaDeviceClockModeAMD");
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        FieldToJson(args["pInfo"], pInfo);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetGpaDeviceClockInfoAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaDeviceGetClockInfoAMD>* pInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetGpaDeviceClockInfoAMD");
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        FieldToJson(args["pInfo"], pInfo);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBeginGpaSessionAMD");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["commandBuffer"], commandBuffer);
+        HandleToJson(args["gpaSession"], gpaSession);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdEndGpaSessionAMD");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["commandBuffer"], commandBuffer);
+        HandleToJson(args["gpaSession"], gpaSession);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
+    PointerDecoder<uint32_t>*                   pSampleID)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBeginGpaSampleAMD");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["commandBuffer"], commandBuffer);
+        HandleToJson(args["gpaSession"], gpaSession);
+        FieldToJson(args["pGpaSampleBeginInfo"], pGpaSampleBeginInfo);
+        FieldToJson(args["pSampleID"], pSampleID);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdEndGpaSampleAMD");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["commandBuffer"], commandBuffer);
+        HandleToJson(args["gpaSession"], gpaSession);
+        args["sampleID"] = sampleID;
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetGpaSessionStatusAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetGpaSessionStatusAMD");
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        HandleToJson(args["gpaSession"], gpaSession);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID,
+    PointerDecoder<size_t>*                     pSizeInBytes,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetGpaSessionResultsAMD");
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        HandleToJson(args["gpaSession"], gpaSession);
+        args["sampleID"] = sampleID;
+        FieldToJson(args["pSizeInBytes"], pSizeInBytes);
+        FieldToJson(args["pData"], pData);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkResetGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkResetGpaSessionAMD");
+    jdata[format::kNameReturn] = returnValue;
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["device"], device);
+        HandleToJson(args["gpaSession"], gpaSession);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdCopyGpaSessionResultsAMD");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);
+    auto& args = jdata[format::kNameArgs];
+        HandleToJson(args["commandBuffer"], commandBuffer);
+        HandleToJson(args["gpaSession"], gpaSession);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

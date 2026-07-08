@@ -62,6 +62,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::EventWrapper* wrapper) { return InsertEntry(id, wrapper, vk_event_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::FenceWrapper* wrapper) { return InsertEntry(id, wrapper, vk_fence_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::FramebufferWrapper* wrapper) { return InsertEntry(id, wrapper, vk_framebuffer_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::GpaSessionAMDWrapper* wrapper) { return InsertEntry(id, wrapper, vk_gpaSessionAMD_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::ImageWrapper* wrapper) { return InsertEntry(id, wrapper, vk_image_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::ImageViewWrapper* wrapper) { return InsertEntry(id, wrapper, vk_imageView_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* wrapper) { return InsertEntry(id, wrapper, vk_indirectCommandsLayoutEXT_map_); }
@@ -112,6 +113,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::EventWrapper* wrapper) { return RemoveEntry(wrapper, vk_event_map_); }
     bool RemoveWrapper(const vulkan_wrappers::FenceWrapper* wrapper) { return RemoveEntry(wrapper, vk_fence_map_); }
     bool RemoveWrapper(const vulkan_wrappers::FramebufferWrapper* wrapper) { return RemoveEntry(wrapper, vk_framebuffer_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::GpaSessionAMDWrapper* wrapper) { return RemoveEntry(wrapper, vk_gpaSessionAMD_map_); }
     bool RemoveWrapper(const vulkan_wrappers::ImageWrapper* wrapper) { return RemoveEntry(wrapper, vk_image_map_); }
     bool RemoveWrapper(const vulkan_wrappers::ImageViewWrapper* wrapper) { return RemoveEntry(wrapper, vk_imageView_map_); }
     bool RemoveWrapper(const vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* wrapper) { return RemoveEntry(wrapper, vk_indirectCommandsLayoutEXT_map_); }
@@ -162,6 +164,7 @@ class VulkanStateTable : VulkanStateTableBase
     const vulkan_wrappers::EventWrapper* GetVulkanEventWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::EventWrapper>(id, vk_event_map_); }
     const vulkan_wrappers::FenceWrapper* GetVulkanFenceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::FenceWrapper>(id, vk_fence_map_); }
     const vulkan_wrappers::FramebufferWrapper* GetVulkanFramebufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::FramebufferWrapper>(id, vk_framebuffer_map_); }
+    const vulkan_wrappers::GpaSessionAMDWrapper* GetVulkanGpaSessionAMDWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::GpaSessionAMDWrapper>(id, vk_gpaSessionAMD_map_); }
     const vulkan_wrappers::ImageWrapper* GetVulkanImageWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, vk_image_map_); }
     const vulkan_wrappers::ImageViewWrapper* GetVulkanImageViewWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageViewWrapper>(id, vk_imageView_map_); }
     const vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* GetVulkanIndirectCommandsLayoutEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(id, vk_indirectCommandsLayoutEXT_map_); }
@@ -212,6 +215,7 @@ class VulkanStateTable : VulkanStateTableBase
     vulkan_wrappers::EventWrapper* GetVulkanEventWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::EventWrapper>(id, vk_event_map_); }
     vulkan_wrappers::FenceWrapper* GetVulkanFenceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::FenceWrapper>(id, vk_fence_map_); }
     vulkan_wrappers::FramebufferWrapper* GetVulkanFramebufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::FramebufferWrapper>(id, vk_framebuffer_map_); }
+    vulkan_wrappers::GpaSessionAMDWrapper* GetVulkanGpaSessionAMDWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::GpaSessionAMDWrapper>(id, vk_gpaSessionAMD_map_); }
     vulkan_wrappers::ImageWrapper* GetVulkanImageWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, vk_image_map_); }
     vulkan_wrappers::ImageViewWrapper* GetVulkanImageViewWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageViewWrapper>(id, vk_imageView_map_); }
     vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* GetVulkanIndirectCommandsLayoutEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(id, vk_indirectCommandsLayoutEXT_map_); }
@@ -262,6 +266,7 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(vulkan_wrappers::EventWrapper*)> visitor) const { for (auto entry : vk_event_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::FenceWrapper*)> visitor) const { for (auto entry : vk_fence_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::FramebufferWrapper*)> visitor) const { for (auto entry : vk_framebuffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::GpaSessionAMDWrapper*)> visitor) const { for (auto entry : vk_gpaSessionAMD_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::ImageWrapper*)> visitor) const { for (auto entry : vk_image_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::ImageViewWrapper*)> visitor) const { for (auto entry : vk_imageView_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::IndirectCommandsLayoutEXTWrapper*)> visitor) const { for (auto entry : vk_indirectCommandsLayoutEXT_map_) { visitor(entry.second); } }
@@ -313,6 +318,7 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, vulkan_wrappers::EventWrapper*> vk_event_map_;
     std::map<format::HandleId, vulkan_wrappers::FenceWrapper*> vk_fence_map_;
     std::map<format::HandleId, vulkan_wrappers::FramebufferWrapper*> vk_framebuffer_map_;
+    std::map<format::HandleId, vulkan_wrappers::GpaSessionAMDWrapper*> vk_gpaSessionAMD_map_;
     std::map<format::HandleId, vulkan_wrappers::ImageWrapper*> vk_image_map_;
     std::map<format::HandleId, vulkan_wrappers::ImageViewWrapper*> vk_imageView_map_;
     std::map<format::HandleId, vulkan_wrappers::IndirectCommandsLayoutEXTWrapper*> vk_indirectCommandsLayoutEXT_map_;
@@ -370,6 +376,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool InsertWrapper(vulkan_wrappers::EventWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_event_map_); }
     bool InsertWrapper(vulkan_wrappers::FenceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_fence_map_); }
     bool InsertWrapper(vulkan_wrappers::FramebufferWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_framebuffer_map_); }
+    bool InsertWrapper(vulkan_wrappers::GpaSessionAMDWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_gpaSessionAMD_map_); }
     bool InsertWrapper(vulkan_wrappers::ImageWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_image_map_); }
     bool InsertWrapper(vulkan_wrappers::ImageViewWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_imageView_map_); }
     bool InsertWrapper(vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_indirectCommandsLayoutEXT_map_); }
@@ -482,6 +489,10 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::FramebufferWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, vk_framebuffer_map_);
+    }
+    bool RemoveWrapper(const vulkan_wrappers::GpaSessionAMDWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, vk_gpaSessionAMD_map_);
     }
     bool RemoveWrapper(const vulkan_wrappers::ImageWrapper* wrapper) {
          if (wrapper == nullptr) return false;
@@ -622,6 +633,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     std::unordered_map<VkEvent, vulkan_wrappers::EventWrapper*> vk_event_map_;
     std::unordered_map<VkFence, vulkan_wrappers::FenceWrapper*> vk_fence_map_;
     std::unordered_map<VkFramebuffer, vulkan_wrappers::FramebufferWrapper*> vk_framebuffer_map_;
+    std::unordered_map<VkGpaSessionAMD, vulkan_wrappers::GpaSessionAMDWrapper*> vk_gpaSessionAMD_map_;
     std::unordered_map<VkImage, vulkan_wrappers::ImageWrapper*> vk_image_map_;
     std::unordered_map<VkImageView, vulkan_wrappers::ImageViewWrapper*> vk_imageView_map_;
     std::unordered_map<VkIndirectCommandsLayoutEXT, vulkan_wrappers::IndirectCommandsLayoutEXTWrapper*> vk_indirectCommandsLayoutEXT_map_;
@@ -673,6 +685,7 @@ template<> inline const vulkan_wrappers::DisplayModeKHRWrapper* VulkanStateHandl
 template<> inline const vulkan_wrappers::EventWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::EventWrapper>(VkEvent handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_event_map_); }
 template<> inline const vulkan_wrappers::FenceWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::FenceWrapper>(VkFence handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_fence_map_); }
 template<> inline const vulkan_wrappers::FramebufferWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::FramebufferWrapper>(VkFramebuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_framebuffer_map_); }
+template<> inline const vulkan_wrappers::GpaSessionAMDWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::GpaSessionAMDWrapper>(VkGpaSessionAMD handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_gpaSessionAMD_map_); }
 template<> inline const vulkan_wrappers::ImageWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ImageWrapper>(VkImage handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_image_map_); }
 template<> inline const vulkan_wrappers::ImageViewWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ImageViewWrapper>(VkImageView handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_imageView_map_); }
 template<> inline const vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(VkIndirectCommandsLayoutEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_indirectCommandsLayoutEXT_map_); }
@@ -723,6 +736,7 @@ template<> inline vulkan_wrappers::DisplayModeKHRWrapper* VulkanStateHandleTable
 template<> inline vulkan_wrappers::EventWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::EventWrapper>(VkEvent handle) { return VulkanStateTableBase::GetWrapper(handle, vk_event_map_); }
 template<> inline vulkan_wrappers::FenceWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::FenceWrapper>(VkFence handle) { return VulkanStateTableBase::GetWrapper(handle, vk_fence_map_); }
 template<> inline vulkan_wrappers::FramebufferWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::FramebufferWrapper>(VkFramebuffer handle) { return VulkanStateTableBase::GetWrapper(handle, vk_framebuffer_map_); }
+template<> inline vulkan_wrappers::GpaSessionAMDWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::GpaSessionAMDWrapper>(VkGpaSessionAMD handle) { return VulkanStateTableBase::GetWrapper(handle, vk_gpaSessionAMD_map_); }
 template<> inline vulkan_wrappers::ImageWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ImageWrapper>(VkImage handle) { return VulkanStateTableBase::GetWrapper(handle, vk_image_map_); }
 template<> inline vulkan_wrappers::ImageViewWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ImageViewWrapper>(VkImageView handle) { return VulkanStateTableBase::GetWrapper(handle, vk_imageView_map_); }
 template<> inline vulkan_wrappers::IndirectCommandsLayoutEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(VkIndirectCommandsLayoutEXT handle) { return VulkanStateTableBase::GetWrapper(handle, vk_indirectCommandsLayoutEXT_map_); }

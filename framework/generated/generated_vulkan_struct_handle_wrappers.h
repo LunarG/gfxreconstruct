@@ -1077,6 +1077,12 @@ void UnwrapStructHandles(VkPhysicalDeviceMaintenance9PropertiesKHR* value, Handl
 
 void UnwrapStructHandles(VkQueueFamilyOwnershipTransferPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkVideoEncodeFeedback2CapabilitiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceDepthClampZeroOneFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceRobustness2FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -1084,6 +1090,14 @@ void UnwrapStructHandles(VkPhysicalDeviceRobustness2FeaturesKHR* value, HandleUn
 void UnwrapStructHandles(VkPhysicalDeviceRobustness2PropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkAccelerationStructureGeometryMicromapDataKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceOpacityMicromapFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceOpacityMicromapPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkAccelerationStructureTrianglesOpacityMicromapKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceMaintenance10FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -1098,6 +1112,20 @@ void UnwrapStructHandles(VkResolveImageModeInfoKHR* value, HandleUnwrapMemory* u
 void UnwrapStructHandles(VkPhysicalDeviceMaintenance11FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkFormatProperties4KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageUsageFlags2CreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageCreateFlags2CreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageViewUsage2CreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceExtendedFlagsFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageStencilUsage2CreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSharedPresentSurfaceCapabilities2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDebugReportCallbackCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -1219,6 +1247,20 @@ void UnwrapStructHandles(VkExternalFormatANDROID* value, HandleUnwrapMemory* unw
 
 void UnwrapStructHandles(VkAndroidHardwareBufferFormatProperties2ANDROID* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceGpaFeaturesAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceGpaPropertiesAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceGpaProperties2AMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaSampleBeginInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaDeviceClockModeInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaDeviceGetClockInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaSessionCreateInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkAttachmentSampleCountInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSampleLocationsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -1302,6 +1344,8 @@ void UnwrapStructHandles(VkPhysicalDeviceImageViewImageFormatInfoEXT* value, Han
 void UnwrapStructHandles(VkFilterCubicImageViewImageFormatPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImportMemoryHostPointerInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -1514,6 +1558,16 @@ void UnwrapStructHandles(VkPerfHintInfoQCOM* value, HandleUnwrapMemory* unwrap_m
 void UnwrapStructHandles(VkPhysicalDeviceQueuePerfHintFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceQueuePerfHintPropertiesQCOM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceImageProcessing3FeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceShaderSplitBarrierFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceShaderSplitBarrierPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceTileShadingFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -2003,6 +2057,10 @@ void UnwrapStructHandles(VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* va
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkTensorRollingBackingCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorExplicitTilingFormatPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderFloat8FeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceRayTracingValidationFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);
@@ -2107,6 +2165,10 @@ void UnwrapStructHandles(VkSetPresentConfigNV* value, HandleUnwrapMemory* unwrap
 
 void UnwrapStructHandles(VkPhysicalDevicePresentMeteringFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSwapchainFlagsSurfaceCapabilitiesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShader64BitIndexingFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -2135,6 +2197,8 @@ void UnwrapStructHandles(VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* val
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkThrottleHintSubmitInfoSEC* value, HandleUnwrapMemory* unwrap_memory);
@@ -2148,6 +2212,8 @@ void UnwrapStructHandles(VkDataGraphPipelineNeuralStatisticsCreateInfoARM* value
 void UnwrapStructHandles(VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
 

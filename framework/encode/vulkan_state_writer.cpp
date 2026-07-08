@@ -218,6 +218,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     StandardCreateWrite<vulkan_wrappers::MicromapEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::OpticalFlowSessionNVWrapper>(state_table);
+    StandardCreateWrite<vulkan_wrappers::GpaSessionAMDWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::VideoSessionKHRWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::VideoSessionParametersKHRWrapper>(state_table);
 
@@ -2037,6 +2038,7 @@ void VulkanStateWriter::UpdateAddresses(encode::AccelerationStructureKHRBuildCom
             case VK_GEOMETRY_TYPE_SPHERES_NV:
             case VK_GEOMETRY_TYPE_LINEAR_SWEPT_SPHERES_NV:
             case VK_GEOMETRY_TYPE_DENSE_GEOMETRY_FORMAT_TRIANGLES_AMDX:
+            case VK_GEOMETRY_TYPE_MICROMAP_KHR:
                 GFXRECON_LOG_WARNING("Geometry type not supported at " __FILE__ ", line: %d.", __LINE__);
                 break;
             case VK_GEOMETRY_TYPE_MAX_ENUM_KHR:
@@ -4678,6 +4680,8 @@ bool VulkanStateWriter::CheckCommandHandle(vulkan_state_info::CommandHandleType 
             return (state_table.GetVulkanMicromapEXTWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::OpticalFlowSessionNVHandle:
             return (state_table.GetVulkanOpticalFlowSessionNVWrapper(handle_id) != nullptr);
+        case vulkan_state_info::CommandHandleType::GpaSessionAMDHandle:
+            return (state_table.GetVulkanGpaSessionAMDWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::VideoSessionKHRHandle:
             return (state_table.GetVulkanVideoSessionKHRWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::VideoSessionParametersKHRHandle:

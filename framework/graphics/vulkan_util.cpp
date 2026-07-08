@@ -107,16 +107,37 @@ VkDeviceSize GetBufferImageCopyOffsetAlignment(VkFormat format, VkImageAspectFla
         if (compatible_format != VK_FORMAT_UNDEFINED)
         {
             const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(compatible_format);
-            GFXRECON_ASSERT(format_info.block_size > 0);
-            return format_info.block_size;
+            GFXRECON_ASSERT(format_info.texel_block_size > 0);
+            return format_info.texel_block_size;
         }
 
         return 1;
     }
 
     const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(format);
-    GFXRECON_ASSERT(format_info.block_size > 0);
-    return format_info.block_size;
+    GFXRECON_ASSERT(format_info.texel_block_size > 0);
+    return format_info.texel_block_size;
+}
+
+uint32_t GetFormatElementSizeWithAspect(VkFormat format, VkImageAspectFlagBits aspectMask)
+{
+    // Depth/Stencil aspect have separate helper functions
+    if (aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT)
+    {
+        return vkuFormatStencilSize(format) / 8;
+    }
+    else if (aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT)
+    {
+        return vkuFormatDepthSize(format) / 8;
+    }
+    else if (vkuFormatIsMultiplane(format))
+    {
+        // Element of entire multiplane format is not useful,
+        // Want to get just a single plane as the lookup format
+        format = vkuFindMultiplaneCompatibleFormat(format, aspectMask);
+    }
+
+    return vkuFormatTexelBlockSize(format);
 }
 
 uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families)

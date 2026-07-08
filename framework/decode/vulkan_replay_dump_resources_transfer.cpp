@@ -713,7 +713,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
             // Calculations are based on §22.3. Copying Data Between Buffers and Images
             const uint32_t row_extent = std::ceil(std::max(pRegions[i].bufferRowLength, pRegions[i].imageExtent.width) /
                                                   img_format_info.block_extent.width) *
-                                        img_format_info.block_size;
+                                        img_format_info.texel_block_size;
 
             const uint32_t slice_extent =
                 std::ceil(std::max(pRegions[i].bufferImageHeight, pRegions[i].imageExtent.height) /

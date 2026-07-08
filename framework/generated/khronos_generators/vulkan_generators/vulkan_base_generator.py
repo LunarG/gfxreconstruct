@@ -427,7 +427,8 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             else:
                 if value.is_pointer or value.is_array:
                     count = value.pointer_count
-                    param_type = 'const ' + type_name + '*'
+                    const_prefix = 'const ' if 'const' in value.full_type else ''
+                    param_type = const_prefix + type_name + '*'
                     if count > 1:
                         param_type += ' const *' * (count - 1)
                 else:

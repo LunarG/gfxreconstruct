@@ -940,7 +940,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         {
             // Calculate AHB's stride. desc.stride is in pixels
             const VKU_FORMAT_INFO linear_format_info = vkuGetFormatInfo(host_image_format);
-            const uint32_t        ahb_stride = (desc.stride ? desc.stride : desc.width) * linear_format_info.block_size;
+            const uint32_t ahb_stride = (desc.stride ? desc.stride : desc.width) * linear_format_info.texel_block_size;
 
             // Query the stride of the host image we created
             VkSubresourceLayout      host_mem_layout;

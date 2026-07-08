@@ -1153,6 +1153,37 @@ class VulkanReferencedBlockConsumer : public VulkanReferencedBlockConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo) override;
 
+    void Process_vkCmdBeginGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession) override;
+
+    void Process_vkCmdEndGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession) override;
+
+    void Process_vkCmdBeginGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession,
+        StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
+        PointerDecoder<uint32_t>*                   pSampleID) override;
+
+    void Process_vkCmdEndGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession,
+        uint32_t                                    sampleID) override;
+
+    void Process_vkCmdCopyGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession) override;
+
     void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

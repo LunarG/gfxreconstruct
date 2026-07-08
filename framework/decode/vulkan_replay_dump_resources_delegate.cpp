@@ -418,7 +418,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                 VkFormatToImageWriterDataFormat(dumped_image.dumped_format, sub_res.aspect);
             assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
 
-            const uint32_t texel_size = vkuFormatElementSizeWithAspect(dumped_image.dumped_format, sub_res.aspect);
+            const uint32_t texel_size =
+                graphics::GetFormatElementSizeWithAspect(dumped_image.dumped_format, sub_res.aspect);
             const uint32_t stride     = texel_size * sub_res.scaled_extent.width;
 
             if (output_image_format == kFormatBMP)

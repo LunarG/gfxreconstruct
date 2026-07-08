@@ -11637,6 +11637,281 @@ void VulkanCppConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     Generate_vkGetMemoryAndroidHardwareBufferANDROID(returnValue, device, pInfo, pBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
 }
+void VulkanCppConsumer::Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
+    PointerDecoder<uint32_t>*                   pSampleID)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pgpa_sample_begin_info;
+    std::string pgpa_sample_begin_info_struct = GenerateStruct_VkGpaSampleBeginInfoAMD(stream_pgpa_sample_begin_info,
+                                                                                       pGpaSampleBeginInfo->GetPointer(),
+                                                                                       pGpaSampleBeginInfo->GetMetaStructPointer(),
+                                                                                       *this);
+    fprintf(file, "%s", stream_pgpa_sample_begin_info.str().c_str());
+    std::string psample_i_d_name = "NULL";
+    if (!pSampleID->IsNull()) {
+        psample_i_d_name = "pSampleID_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", psample_i_d_name.c_str(), util::ToString(*pSampleID->GetPointer()).c_str());
+        psample_i_d_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkCmdBeginGpaSampleAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCmdBeginGpaSampleAMD(%s, %s, &%s, %s), %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            pgpa_sample_begin_info_struct.c_str(),
+            psample_i_d_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginGpaSampleAMD);
+}
+
+void VulkanCppConsumer::Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkCmdBeginGpaSessionAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCmdBeginGpaSessionAMD(%s, %s), %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginGpaSessionAMD);
+}
+
+void VulkanCppConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkCmdCopyGpaSessionResultsAMD");
+    fprintf(file,
+            "\t\tloaded_vkCmdCopyGpaSessionResultsAMD(%s, %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            this->GetHandle(gpaSession).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyGpaSessionResultsAMD);
+}
+
+void VulkanCppConsumer::Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkCmdEndGpaSampleAMD");
+    fprintf(file,
+            "\t\tloaded_vkCmdEndGpaSampleAMD(%s, %s, %u);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            sampleID);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdEndGpaSampleAMD);
+}
+
+void VulkanCppConsumer::Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkCmdEndGpaSessionAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCmdEndGpaSessionAMD(%s, %s), %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdEndGpaSessionAMD);
+}
+
+void VulkanCppConsumer::Process_vkCreateGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaSessionCreateInfoAMD>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkGpaSessionAMD>*      pGpaSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcreate_info;
+    std::string pcreate_info_struct = GenerateStruct_VkGpaSessionCreateInfoAMD(stream_pcreate_info,
+                                                                               pCreateInfo->GetPointer(),
+                                                                               pCreateInfo->GetMetaStructPointer(),
+                                                                               *this);
+    fprintf(file, "%s", stream_pcreate_info.str().c_str());
+    std::string pgpa_session_name = "pGpaSession_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_GPA_SESSION_AMD));
+    AddKnownVariables("VkGpaSessionAMD", pgpa_session_name, pGpaSession->GetPointer());
+    if (returnValue == VK_SUCCESS) {
+        this->AddHandles(pgpa_session_name,
+                         pGpaSession->GetPointer());
+    }
+    pfn_loader_.AddMethodName("vkCreateGpaSessionAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCreateGpaSessionAMD(%s, &%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pcreate_info_struct.c_str(),
+            "nullptr",
+            pgpa_session_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCreateGpaSessionAMD);
+}
+
+void VulkanCppConsumer::Process_vkDestroyGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkDestroyGpaSessionAMD");
+    fprintf(file,
+            "\t\tloaded_vkDestroyGpaSessionAMD(%s, %s, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            "nullptr");
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkDestroyGpaSessionAMD);
+}
+
+void VulkanCppConsumer::Process_vkGetGpaDeviceClockInfoAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaDeviceGetClockInfoAMD>* pInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pinfo_name = "NULL";
+    if (!pInfo->IsNull()) {
+        pinfo_name = "pInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkGpaDeviceGetClockInfoAMD %s = {};\n", pinfo_name.c_str());
+        pinfo_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetGpaDeviceClockInfoAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetGpaDeviceClockInfoAMD(%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pinfo_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetGpaDeviceClockInfoAMD);
+}
+
+void VulkanCppConsumer::Process_vkGetGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID,
+    PointerDecoder<size_t>*                     pSizeInBytes,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string psize_in_bytes_name = "NULL";
+    if (!pSizeInBytes->IsNull()) {
+        psize_in_bytes_name = "pSizeInBytes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tsize_t %s = %s;\n", psize_in_bytes_name.c_str(), util::ToString(*pSizeInBytes->GetPointer()).c_str());
+        psize_in_bytes_name.insert(0, "&");
+    }
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        size_t* in_psize_in_bytes = pSizeInBytes->GetPointer();
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_psize_in_bytes));
+    }
+    pfn_loader_.AddMethodName("vkGetGpaSessionResultsAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetGpaSessionResultsAMD(%s, %s, %u, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            sampleID,
+            psize_in_bytes_name.c_str(),
+            pdata_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetGpaSessionResultsAMD);
+}
+
+void VulkanCppConsumer::Process_vkGetGpaSessionStatusAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkGetGpaSessionStatusAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetGpaSessionStatusAMD(%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetGpaSessionStatusAMD);
+}
+
+void VulkanCppConsumer::Process_vkResetGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkResetGpaSessionAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkResetGpaSessionAMD(%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(gpaSession).c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkResetGpaSessionAMD);
+}
+
+void VulkanCppConsumer::Process_vkSetGpaDeviceClockModeAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaDeviceClockModeInfoAMD>* pInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pinfo_name = "NULL";
+    if (!pInfo->IsNull()) {
+        pinfo_name = "pInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkGpaDeviceClockModeInfoAMD %s = {};\n", pinfo_name.c_str());
+        pinfo_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkSetGpaDeviceClockModeAMD");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkSetGpaDeviceClockModeAMD(%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pinfo_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkSetGpaDeviceClockModeAMD);
+}
 void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

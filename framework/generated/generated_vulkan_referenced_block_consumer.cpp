@@ -2146,6 +2146,65 @@ void VulkanReferencedBlockConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
+    PointerDecoder<uint32_t>*                   pSampleID)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
+    GFXRECON_UNREFERENCED_PARAMETER(pGpaSampleBeginInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(pSampleID);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
+    GFXRECON_UNREFERENCED_PARAMETER(sampleID);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

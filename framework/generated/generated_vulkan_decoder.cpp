@@ -10170,6 +10170,258 @@ size_t VulkanDecoder::Decode_vkGetMemoryAndroidHardwareBufferANDROID(const ApiCa
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCreateGpaSessionAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGpaSessionCreateInfoAMD> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkGpaSessionAMD> pGpaSession;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGpaSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateGpaSessionAMD(call_info, return_value, device, &pCreateInfo, &pAllocator, &pGpaSession);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkDestroyGpaSessionAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId gpaSession;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDestroyGpaSessionAMD(call_info, device, gpaSession, &pAllocator);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkSetGpaDeviceClockModeAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGpaDeviceClockModeInfoAMD> pInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkSetGpaDeviceClockModeAMD(call_info, return_value, device, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetGpaDeviceClockInfoAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGpaDeviceGetClockInfoAMD> pInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetGpaDeviceClockInfoAMD(call_info, return_value, device, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBeginGpaSessionAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBeginGpaSessionAMD(call_info, return_value, commandBuffer, gpaSession);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdEndGpaSessionAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdEndGpaSessionAMD(call_info, return_value, commandBuffer, gpaSession);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBeginGpaSampleAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD> pGpaSampleBeginInfo;
+    PointerDecoder<uint32_t> pSampleID;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += pGpaSampleBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSampleID.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBeginGpaSampleAMD(call_info, return_value, commandBuffer, gpaSession, &pGpaSampleBeginInfo, &pSampleID);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdEndGpaSampleAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+    uint32_t sampleID;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &sampleID);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdEndGpaSampleAMD(call_info, commandBuffer, gpaSession, sampleID);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetGpaSessionStatusAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId gpaSession;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetGpaSessionStatusAMD(call_info, return_value, device, gpaSession);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetGpaSessionResultsAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId gpaSession;
+    uint32_t sampleID;
+    PointerDecoder<size_t> pSizeInBytes;
+    PointerDecoder<uint8_t> pData;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &sampleID);
+    bytes_read += pSizeInBytes.DecodeSizeT((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetGpaSessionResultsAMD(call_info, return_value, device, gpaSession, sampleID, &pSizeInBytes, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkResetGpaSessionAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId gpaSession;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkResetGpaSessionAMD(call_info, return_value, device, gpaSession);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyGpaSessionResultsAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &gpaSession);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyGpaSessionResultsAMD(call_info, commandBuffer, gpaSession);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdSetSampleLocationsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -17161,6 +17413,42 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID:
         Decode_vkGetMemoryAndroidHardwareBufferANDROID(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreateGpaSessionAMD:
+        Decode_vkCreateGpaSessionAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkDestroyGpaSessionAMD:
+        Decode_vkDestroyGpaSessionAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkSetGpaDeviceClockModeAMD:
+        Decode_vkSetGpaDeviceClockModeAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetGpaDeviceClockInfoAMD:
+        Decode_vkGetGpaDeviceClockInfoAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBeginGpaSessionAMD:
+        Decode_vkCmdBeginGpaSessionAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdEndGpaSessionAMD:
+        Decode_vkCmdEndGpaSessionAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBeginGpaSampleAMD:
+        Decode_vkCmdBeginGpaSampleAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdEndGpaSampleAMD:
+        Decode_vkCmdEndGpaSampleAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetGpaSessionStatusAMD:
+        Decode_vkGetGpaSessionStatusAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetGpaSessionResultsAMD:
+        Decode_vkGetGpaSessionResultsAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkResetGpaSessionAMD:
+        Decode_vkResetGpaSessionAMD(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyGpaSessionResultsAMD:
+        Decode_vkCmdCopyGpaSessionResultsAMD(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT:
         Decode_vkCmdSetSampleLocationsEXT(call_info, parameter_buffer, buffer_size);
