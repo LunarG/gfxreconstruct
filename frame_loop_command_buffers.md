@@ -2,74 +2,74 @@
 
 During frame looping, GFXReconstruct replays a specific range of frames (from `loop_start_frame` to `loop_end_frame`) repeatedly. This document describes how Vulkan command buffers (CBs) are managed across loop iterations.
 
-## The Problem: Boundary-Spanning Command Buffers
+## The Problem
 
 Vulkan command buffers can be classified into two categories based on their lifetime relative to the loop boundary:
 
 1.  **Loop-Internal CBs**: These command buffers are fully contained within the loop. Their lifecycle is:
     `vkBeginCommandBuffer` -> `vkCmd...` -> `vkEndCommandBuffer` -> `vkQueueSubmit` (all occurring inside the loop).
-    Replaying these is straightforward: every loop iteration naturally replays the entire sequence, re-recording and submitting the CB.
+    Replaying these is straightforward: every loop iteration naturally replays the entire sequence, re-recording and submitting the CB. However, we must reset the command pools at the loop boundary to prevent memory leaks from accumulating allocations.
 
 2.  **Boundary-Spanning CBs**: These command buffers are begun *before* the loop start (in the setup phase), but have commands recorded, are ended, or are submitted *inside* the loop.
     *   **Iteration 1**: Replays normally (since setup occurred).
     *   **Iteration 2+**: Since the setup phase is skipped, `vkBeginCommandBuffer` is **not** replayed. However, any `vkCmd...` or `vkEndCommandBuffer` calls that occurred inside the loop range **are** replayed.
-    *   If we reset the command pool at the loop boundary, these CBs are reset to the initial state. Replaying `vkCmd...` on them without `vkBeginCommandBuffer` causes Vulkan validation errors or crashes.
-
-## Current Approaches and Their Limitations
-
-### Approach A: Render Pass Filtering
-Only command buffers that are actively recording inside an open render pass (`active_render_pass_id != format::kNullHandleId`) at loop start are preserved.
-*   **Pros**: Works for traditional render-pass-based games where setup CBs (like staging copies) are executed outside render passes and can be safely recreated/re-begun.
-*   **Cons**: 
-    *   Breaks modern games using **Dynamic Rendering** (`vkCmdBeginRendering`) or compute-heavy workloads, where `active_render_pass_id` is always null (e.g., *Honkai: Star Rail*).
-    *   Causes rendering regressions in games like *Alien: Isolation* where secondary command buffers (`17722`) containing pre-recorded draw calls are ended inside the loop. Since they are filtered out, they are recreated and re-begun, but ended empty inside the loop, losing their pre-recorded drawing commands.
-
-### Approach B: Preserve All Recording CBs
-All command buffers recording at loop start are preserved (added to `loop_start_recording_cbs_`), and their recording commands are ignored during loop iterations 2+.
-*   **Pros**: Avoids crashes in dynamic rendering games.
-*   **Cons**: Causes rendering regressions in games like *Alien: Isolation*. Since we reset the active command pools (like the pool of `7590` and `17722`) at the loop boundary, these preserved command buffers are implicitly reset to their initial state. Because we ignore their recording commands, we do not re-record them, and they are submitted empty.
+    *   If we reset the command pool of a boundary-spanning CB at the loop boundary, it is reset to the initial state, wiping any commands recorded before the loop. Replaying `vkCmd...` on it without `vkBeginCommandBuffer` causes Vulkan validation errors or crashes. If we ignore the commands, it is submitted empty.
 
 ---
 
-## Proposed Design: Shadow Command Pools (Primary Solution)
+## Implemented Hybrid Solution
 
-To handle boundary-spanning command buffers correctly without memory leaks or losing pre-recorded drawing commands (as in *Alien: Isolation*), we propose a **Shadow Command Pool** allocation strategy.
+To support all gaming workloads (including Dynamic Rendering and Compute-heavy workloads) without memory leaks or rendering regressions, GFXReconstruct implements a hybrid strategy combining **Shadow Command Pools** and **Explicit Classification with Selective Recreation**.
 
-### Key Concepts
-1.  **Preservation of Boundary-Spanning CBs**: Instead of resetting or recreating boundary-spanning command buffers at the loop boundary, we preserve their recorded state and handles across all loop iterations.
-2.  **Shadow Pools for In-Loop Allocations**: To prevent memory leaks from loop-internal command buffers without wiping the boundary-spanning ones, we segregate allocations.
+```mermaid
+graph TD
+    A[vkAllocateCommandBuffers] --> B{Is Looping & Pool needs Shadow?}
+    B -- Yes --> C[Redirect allocation to Shadow Pool]
+    B -- No --> D[Allocate from Original Pool]
+    
+    E[OnLoopStart] --> F[Capture recording_cbs_ as loop_start_recording_cbs_]
+    
+    G[vkBeginCommandBuffer] --> H{Is CB in loop_start_recording_cbs_?}
+    H -- Yes --> I[Erase from loop_start_recording_cbs_ to stop ignoring]
+    H -- No --> J[Process normally]
+    
+    K[Loop Rewind] --> L[Reset Shadow Pools only]
+    K --> M[Recreate CBs marked for recreation]
+```
 
-### How it Works
-1.  **Detection**: At `OnLoopStart`, identify all command pools that contain boundary-spanning command buffers (i.e. command buffers in the `recording_cbs_` set at the loop start boundary) and track them as requiring shadowing.
-2.  **Lazy Shadow Pool Creation**: If the replayer intercepts a `vkAllocateCommandBuffers` call *inside* the frame loop targeting a pool marked as requiring shadowing, lazily create a corresponding "shadow" command pool (if it does not already exist) on the same logical device and queue family.
-3.  **Allocation Redirection**: Redirect the allocation call to the shadow pool instead of the original pool.
-4.  **Selective Pool Reset**: At the loop boundary (on every loop iteration), call `vkResetCommandPool` only on the **shadow pools** that were actually created (wiping the loop-internal command buffers). The original pools are **not** reset.
-5.  **Ignored Recording Commands**: For preserved boundary-spanning command buffers, we continue to ignore any recording commands (`vkCmd...`, `vkBeginCommandBuffer`, `vkEndCommandBuffer`) replayed inside the loop using `ShouldIgnoreRecordingCommand`.
-6.  **Normal Submission**: Replayed `vkQueueSubmit` calls submitting these preserved command buffers are executed normally, submitting the original recorded commands.
+### 1. Shadow Command Pools (For Loop-Internal Allocations)
 
-### Feasibility and Limitations
-*   **Feasibility**: This works perfectly when boundary-spanning command buffers render to offscreen resources (like G-buffers or shadow maps) and the swapchain rendering is done in loop-internal command buffers (which is the case in *Alien: Isolation*).
-*   **Limitation**: If a boundary-spanning command buffer directly references a swapchain image, the framebuffer bindings inside it cannot be dynamically updated to reflect swapchain image index changes without re-recording. (In such cases, re-recording is unavoidable).
+To prevent memory leaks from loop-internal allocations without wiping the boundary-spanning command buffers, we segregate allocations using shadow pools:
+
+*   **Detection**: At `OnLoopStart`, identify all command pools containing boundary-spanning command buffers (i.e., command buffers in the `recording_cbs_` set at the loop boundary) and mark them as requiring shadowing.
+*   **Lazy Shadow Pool Creation**: If the replayer intercepts `vkAllocateCommandBuffers` *inside* the frame loop targeting a pool requiring shadowing, it lazily creates a corresponding "shadow" command pool.
+*   **Allocation Redirection**: Redirect the allocation call to the shadow pool. All command buffers allocated inside the loop from this pool are marked as redirected.
+*   **Selective Pool Reset**: At the loop boundary (on every loop iteration), call `vkResetCommandPool` only on the **shadow pools** (wiping the loop-internal command buffers). The original pools (containing boundary-spanning command buffers) are **not** reset, preserving their pre-recorded commands.
+
+### 2. Explicit Classification & Selective Recreation (For Boundary-Spanning CBs)
+
+For command buffers allocated *before* the loop (in the original pools), we classify them at the loop boundary based on whether the game re-records them inside the loop:
+
+*   **Case A: True Cross-Boundary CBs (Preserved)**
+    *   *Definition*: Command buffers that are open at loop start, ended/submitted inside the loop, but **never** re-begun (no `vkBeginCommandBuffer` is called on them inside the loop).
+    *   *Handling*: We keep them in `loop_start_recording_cbs_`. On Iteration 2+, we **ignore** all recording commands on them (`vkCmd...`, `vkEndCommandBuffer`) using `ShouldIgnoreRecordingCommand`. Since their original pool is not reset, they retain their pre-recorded commands and can be submitted normally on every iteration.
+
+*   **Case B: Re-recorded Boundary-Spanning CBs (Recreated)**
+    *   *Definition*: Command buffers that are open at loop start, but the game calls `vkBeginCommandBuffer` on them inside the loop to reset and re-record them.
+    *   *Handling*: When `vkBeginCommandBuffer` is called on a loop-start recording CB, we **erase** it from `loop_start_recording_cbs_` so we do not ignore its recording commands. At loop rewind, since the original pool is not reset, we **synthetically recreate and re-begin** it to reset its state to `INITIAL` (executable).
 
 ---
 
-## Alternative: Explicit Classification and Synthetic Recreation
+## Workload Case Studies
 
-An alternative approach is to classify and recreate command buffers at the loop boundary.
+### 1. Loop-Internal Allocations (e.g., Dynamic Rendering)
+*   **Workload Pattern**: Allocates and records many command buffers inside the frame loop (common in modern render pipelines utilizing dynamic rendering).
+*   **Handling**: These are classified as loop-internal. They are redirected to shadow pools and wiped on every iteration at the loop boundary, preventing memory leaks.
 
-### How it Works
-We classify any command buffer recording at loop start (`initial_loop_recording_cbs_`) into:
-1.  **Static Setup/Staging CBs**: CBs performing one-time data uploads/transitions before the loop. We ignore their submissions (`vkQueueSubmit`) in iteration 2+.
-2.  **Active Frame-Rendering CBs (including Dynamic Rendering)**: CBs actively recording geometry at the loop boundary. We synthetically recreate and re-begin them at the loop boundary, and replay their `vkCmd...` calls in iteration 2+.
+### 2. Pre-recorded Secondary Command Buffers
+*   **Workload Pattern**: A secondary command buffer containing pre-recorded draw calls (recorded during the setup phase) is ended and executed inside the loop.
+*   **Handling**: Classified as a *True Cross-Boundary CB*. It is not recreated, and its recording commands are ignored. The original pool is not reset, preserving its draw calls across all loop iterations.
 
-### Detection Heuristic for Dynamic Rendering
-To detect active rendering state:
-*   `cb_info->active_render_pass_id != format::kNullHandleId` **OR**
-*   `cb_info->in_render_pass` (if tracked) **OR**
-*   The command buffer has recorded draw calls or compute dispatches before the loop start.
-
-### Limitations
-*   **Secondary CB Draw Loss**: If a secondary command buffer contains pre-recorded draw calls (recorded before loop start in `save_state`) but is ended inside the loop (as in *Alien: Isolation*), recreation will result in an empty command buffer, losing the drawing geometry entirely.
-*   **Setup Command Loss**: Recreating and re-beginning a command buffer at the loop boundary results in a clean, empty command buffer. Any commands recorded in it during the setup/save-state phase (before the loop start) are completely lost unless the replayer caches and manually re-records them. Replaying only the target-frame commands (recorded inside the loop range) is insufficient because the command buffer will be missing essential state (like bound pipelines, descriptor sets, or vertex buffers) established during the setup phase.
-
-
+### 3. Re-recorded Boundary-Spanning Command Buffers
+*   **Workload Pattern**: A command buffer is open at loop start, ended, and then re-begun/re-recorded in the middle of the frame loop.
+*   **Handling**: Classified as a *Re-recorded Boundary-Spanning CB*. It is erased from `loop_start_recording_cbs_` upon `vkBeginCommandBuffer`, and recreated/re-begun on loop rewind so it starts subsequent iterations in a clean state to receive new recording commands.
