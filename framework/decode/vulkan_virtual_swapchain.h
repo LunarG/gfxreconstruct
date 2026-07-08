@@ -121,13 +121,12 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                            application::Application*                  application,
                            const std::optional<std::array<float, 2>>& scale) override;
 
-    virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
-                                                      VulkanSwapchainKHRInfo* swapchain_info,
-                                                      uint32_t                last_presented_image,
-                                                      const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                      const CommonObjectInfoTable& object_info_table,
-                                                      SwapchainImageTracker&       swapchain_image_tracker) override
-    {}
+    void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo*                             device_info,
+                                              VulkanSwapchainKHRInfo*                             swapchain_info,
+                                              uint32_t                                            last_presented_image,
+                                              const std::vector<format::SwapchainImageStateInfo>& image_infos,
+                                              const CommonObjectInfoTable&                        object_info_table,
+                                              SwapchainImageTracker& swapchain_image_tracker) override;
 
   protected:
     // Structure necessary to track the necessary information related to the virtual swapchain images
@@ -154,7 +153,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     struct SwapchainResourceData
     {
         bool              forced_offscreen{ false };
-        bool              deferred_alloc{ false };
         std::vector<bool> image_index_transitioned;
 
         // Create a map that correlates copy command data with a queue family index.
@@ -187,7 +185,9 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                       const VulkanSwapchainKHRInfo*           swapchain_info,
                                       std::unique_ptr<SwapchainResourceData>& swapchain_resources,
                                       uint32_t                                image_index,
-                                      uint32_t                                image_count);
+                                      uint32_t                                image_count,
+                                      VkSemaphore                             acquire_semaphore,
+                                      VkFence                                 acquire_fence);
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
