@@ -19,8 +19,8 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-#ifndef GFXRECON_DECODE_VULKAN_COMMAND_SPLITTER_H
-#define GFXRECON_DECODE_VULKAN_COMMAND_SPLITTER_H
+#ifndef GFXRECON_DECODE_VULKAN_COMMAND_BUFFER_UTIL_H
+#define GFXRECON_DECODE_VULKAN_COMMAND_BUFFER_UTIL_H
 
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
@@ -35,7 +35,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 /// This helper class manages command buffer handles addressing cases where a single command buffer is reset and
 /// recorded multiple times. In such cases, after splitting the command buffer for the first time, a reset is expected
 /// before the next recording, and we want to avoid splitting again and instead reuse the handles of the first split.
-class VulkanCommandBufferSplitInfo
+class VulkanCommandBufferAssociatedInfo
 {
   private:
     const VulkanDeviceInfo*            device_info_  = nullptr;
@@ -63,42 +63,46 @@ class VulkanCommandBufferSplitInfo
     std::vector<VkCommandBuffer> split_handles_;
 
   public:
-    VulkanCommandBufferSplitInfo(const VulkanDeviceInfo*            device_info,
-                                 const graphics::VulkanDeviceTable* device_table,
-                                 CommonObjectInfoTable*             object_table,
-                                 format::HandleId                   command_buffer_id);
+    VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*            device_info,
+                                      const graphics::VulkanDeviceTable* device_table,
+                                      CommonObjectInfoTable*             object_table,
+                                      format::HandleId                   command_buffer_id);
 
-    VulkanCommandBufferSplitInfo(const VulkanCommandBufferSplitInfo&)            = delete;
-    VulkanCommandBufferSplitInfo& operator=(const VulkanCommandBufferSplitInfo&) = delete;
-    VulkanCommandBufferSplitInfo(VulkanCommandBufferSplitInfo&&)                 = default;
-    VulkanCommandBufferSplitInfo& operator=(VulkanCommandBufferSplitInfo&&)      = default;
-    ~VulkanCommandBufferSplitInfo()                                              = default;
+    VulkanCommandBufferAssociatedInfo(const VulkanCommandBufferAssociatedInfo&)            = delete;
+    VulkanCommandBufferAssociatedInfo& operator=(const VulkanCommandBufferAssociatedInfo&) = delete;
+    VulkanCommandBufferAssociatedInfo(VulkanCommandBufferAssociatedInfo&&)                 = default;
+    VulkanCommandBufferAssociatedInfo& operator=(VulkanCommandBufferAssociatedInfo&&)      = default;
+    ~VulkanCommandBufferAssociatedInfo()                                                   = default;
 
-    [[nodiscard]] VkCommandBuffer GetNextHandle(const VulkanCommandBufferInfo* command_buffer_info);
-
+    void ReplaceWithNewHandle(VulkanCommandBufferInfo* command_buffer_info);
+    
     [[nodiscard]] const std::vector<VkCommandBuffer>& GetAssociatedHandles() const { return associated_handles_; }
+
+    void PushSplitHandle(VkCommandBuffer handle) { split_handles_.push_back(handle); }
     [[nodiscard]] const std::vector<VkCommandBuffer>& GetSplitHandles() const { return split_handles_; }
 
-    [[nodiscard]] VkCommandBuffer ResetSplitHandles();
+    [[nodiscard]] VkCommandBuffer ResetAssociatedHandles();
 
     [[nodiscard]] VulkanInjectedSemaphore& GetSplitSemaphore() { return split_semaphore_; }
 
     void FreeCommandBuffers(VkCommandPool pool);
 };
 
-class VulkanCommandSplitter
+class VulkanCommandBufferUtil
 {
   public:
-    VulkanCommandSplitter(const VulkanDeviceInfo*            device_info,
-                          const graphics::VulkanDeviceTable* device_table,
-                          CommonObjectInfoTable*             object_table);
+    VulkanCommandBufferUtil(const VulkanDeviceInfo*            device_info,
+                            const graphics::VulkanDeviceTable* device_table,
+                            CommonObjectInfoTable*             object_table);
 
-    ~VulkanCommandSplitter() = default;
+    ~VulkanCommandBufferUtil() = default;
 
-    VulkanCommandSplitter(const VulkanCommandSplitter&)            = delete;
-    VulkanCommandSplitter& operator=(const VulkanCommandSplitter&) = delete;
-    VulkanCommandSplitter(VulkanCommandSplitter&&)                 = default;
-    VulkanCommandSplitter& operator=(VulkanCommandSplitter&&)      = default;
+    VulkanCommandBufferUtil(const VulkanCommandBufferUtil&)            = delete;
+    VulkanCommandBufferUtil& operator=(const VulkanCommandBufferUtil&) = delete;
+    VulkanCommandBufferUtil(VulkanCommandBufferUtil&&)                 = default;
+    VulkanCommandBufferUtil& operator=(VulkanCommandBufferUtil&&)      = default;
+
+    void ReplaceWithAssociatedCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
     void SplitCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
@@ -131,23 +135,23 @@ class VulkanCommandSplitter
     std::vector<std::vector<VkCommandBuffer>>
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span);
 
-    VulkanCommandBufferSplitInfo& GetOrCreateSplitInfo(format::HandleId command_buffer_id);
-    VulkanCommandBufferSplitInfo* GetSplitInfo(format::HandleId command_buffer_id);
+    VulkanCommandBufferAssociatedInfo& GetOrCreateAssociatedInfo(format::HandleId command_buffer_id);
+    VulkanCommandBufferAssociatedInfo* GetAssociatedInfo(format::HandleId command_buffer_id);
 
     const VulkanDeviceInfo*            device_info_  = nullptr;
     const graphics::VulkanDeviceTable* device_table_ = nullptr;
     CommonObjectInfoTable*             object_table_ = nullptr;
 
     /// Map from the command buffer ID to the structure representing the split.
-    std::unordered_map<format::HandleId, VulkanCommandBufferSplitInfo> split_infos_;
+    std::unordered_map<format::HandleId, VulkanCommandBufferAssociatedInfo> split_infos_;
 
     /// Map from the command buffer handles to the original ID.
     std::unordered_map<VkCommandBuffer, format::HandleId> original_command_buffer_id_;
 };
 
-using VulkanPerDeviceCommandSplitters = std::unordered_map<const VulkanDeviceInfo*, VulkanCommandSplitter>;
+using VulkanPerDeviceCommandBufferUtils = std::unordered_map<const VulkanDeviceInfo*, VulkanCommandBufferUtil>;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_COMMAND_SPLITTER_H
+#endif // GFXRECON_DECODE_VULKAN_COMMAND_BUFFER_UTIL_H

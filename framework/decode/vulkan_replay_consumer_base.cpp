@@ -318,7 +318,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     // free replacer internal vulkan-resources
     device_address_replacers_.clear();
-    device_command_splitters_.clear();
+    device_command_buffer_utils_.clear();
 
     // free frame warm up resources
     device_frame_warmups_.clear();
@@ -3800,7 +3800,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         // free replacer internal vulkan-resources for the device
         device_address_replacers_.erase(device_info);
 
-        device_command_splitters_.erase(device_info);
+        device_command_buffer_utils_.erase(device_info);
 
         // free potential swapchain-resources for the device
         GFXRECON_ASSERT(swapchain_)
@@ -4407,7 +4407,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (options_.isolate_render_passes)
     {
-        auto& command_splitter = GetDeviceCommandSplitter(device_info);
+        auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
         plan.Push(0,
                   [&command_splitter, &current_submits_span, queue_info](
                       const std::span<graphics::VulkanSemaphore> wait_semaphores) {
@@ -4671,7 +4671,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if (options_.isolate_render_passes)
     {
-        auto& command_splitter = GetDeviceCommandSplitter(device_info);
+        auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
         plan.Push(0,
                   [&command_splitter, &current_submits_span, queue_info](
                       const std::span<graphics::VulkanSemaphore> wait_semaphores) {
@@ -5659,7 +5659,7 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
     if (options_.isolate_render_passes)
     {
         auto command_buffers = std::span(pCommandBuffers->GetHandlePointer(), command_buffer_count);
-        GetDeviceCommandSplitter(device_info).FreeCommandBuffers(command_pool_info->handle, command_buffers);
+        GetDeviceCommandBufferUtil(device_info).FreeCommandBuffers(command_pool_info->handle, command_buffers);
     }
 
     const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
@@ -10303,7 +10303,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     {
         auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
         GFXRECON_ASSERT(device_info != nullptr);
-        GetDeviceCommandSplitter(device_info).BeginCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).BeginCommandBuffer(command_buffer_info);
     }
 
     ClearCommandBufferInfo(command_buffer_info);
@@ -10359,7 +10359,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
     if (options_.isolate_render_passes)
     {
         auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).ResetCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(command_buffer_info);
     }
 
     return result;
@@ -10637,7 +10637,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     if (options_.isolate_render_passes)
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
     }
 
     MaybeInjectExecutionBarrier(command_buffer_info);
@@ -10673,7 +10673,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     if (options_.isolate_render_passes)
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
     }
 
     MaybeInjectExecutionBarrier(command_buffer_info);
@@ -10751,7 +10751,7 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass  
     if (options_.isolate_render_passes)
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
     }
 }
 
@@ -10771,7 +10771,7 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
     if (options_.isolate_render_passes)
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
     }
 }
 
@@ -10785,7 +10785,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     if (options_.isolate_render_passes)
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
     }
 
     MaybeInjectExecutionBarrier(command_buffer_info);
@@ -10804,7 +10804,7 @@ void VulkanReplayConsumerBase::OverrideCmdEndRendering(PFN_vkCmdEndRendering    
     if (options_.isolate_render_passes)
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
     }
 }
 
@@ -11850,15 +11850,15 @@ VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDe
     return new_it->second;
 }
 
-VulkanCommandSplitter& VulkanReplayConsumerBase::GetDeviceCommandSplitter(const VulkanDeviceInfo* device_info)
+VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info)
 {
-    if (auto it = device_command_splitters_.find(device_info); it != device_command_splitters_.end())
+    if (auto it = device_command_buffer_utils_.find(device_info); it != device_command_buffer_utils_.end())
     {
         return it->second;
     }
 
-    auto [new_it, success] = device_command_splitters_.insert(
-        { device_info, VulkanCommandSplitter(device_info, GetDeviceTable(device_info->handle), object_info_table_) });
+    auto [new_it, success] = device_command_buffer_utils_.insert(
+        { device_info, VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
