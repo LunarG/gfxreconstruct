@@ -180,9 +180,10 @@ void FpsInfo::LogMeasurements()
     uint64_t measured_frames = measurement_end_frame_ - measurement_start_frame_;
     double   measured_fps    = (measured_time > 0.0) ? static_cast<double>(measured_frames) / measured_time : 0.0;
 
-    GFXRECON_WRITE_CONSOLE("Load time:  %f seconds (frame %lu)", load_time, replay_start_frame_);
+    GFXRECON_WRITE_CONSOLE("Load time:  %f seconds (frame %" PRIu64 ")", load_time, replay_start_frame_);
     GFXRECON_WRITE_CONSOLE("Total time: %f seconds", total_time);
-    GFXRECON_WRITE_CONSOLE("Measured FPS: %f fps, %f seconds, %lu frame%s, 1 loop, framerange [%lu-%lu)",
+    GFXRECON_WRITE_CONSOLE("Measured FPS: %f fps, %f seconds, %" PRIu64 " frame%s, 1 loop, framerange [%" PRIu64
+                           "-%" PRIu64 ")",
                            measured_fps,
                            measured_time,
                            measured_frames,
