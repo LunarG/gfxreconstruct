@@ -33,6 +33,7 @@ argc = len(sys.argv)
 valid_commands = [
     'install-apk',
     'legacy-replay',
+    'quest-replay',
     'replay'
 ]
 
@@ -40,11 +41,13 @@ valid_commands = [
 # gfxrecon install-apk <file>
 # gfxrecon replay [-p | --push-file <file-on-desktop>] <file-on-device>
 # gfxrecon legacy-replay [-p | --push-file <file-on-desktop>] <file-on-device>
+# gfxrecon quest-replay [-p | --push-file <file-on-desktop>] <file-on-device>
 
 # Application info
 app_name = 'com.lunarg.gfxreconstruct.replay'
 app_activity = '"com.lunarg.gfxreconstruct.replay/.ReplayActivity"'
 legacy_app_activity = '"com.lunarg.gfxreconstruct.replay/.LegacyReplayActivity"'
+quest_app_activity = '"com.lunarg.gfxreconstruct.replay/.QuestReplayActivity"'
 app_action = 'android.intent.action.MAIN'
 
 # ADB commands
@@ -433,6 +436,9 @@ def Replay(replay_args):
 def LegacyReplay(replay_args):
     ReplayCommon(replay_args, legacy_app_activity)
 
+def QuestReplay(replay_args):
+    ReplayCommon(replay_args, quest_app_activity)
+
 if __name__ == '__main__':
     devices = QueryAvailableDevices()
 
@@ -445,3 +451,5 @@ if __name__ == '__main__':
         Replay(command.args)
     elif command.command == 'legacy-replay':
         LegacyReplay(command.args)
+    elif command.command == 'quest-replay':
+        QuestReplay(command.args)
