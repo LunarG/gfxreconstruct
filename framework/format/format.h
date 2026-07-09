@@ -171,6 +171,7 @@ enum class MetaDataType : uint16_t
     kInitializeMetaCommand                              = 36,
     kSetOpaqueCaptureDescriptorDataCommand              = 37,
     kInitDx12AccelerationStructureCommand2              = 38,
+    kReserved39                                         = 39,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U

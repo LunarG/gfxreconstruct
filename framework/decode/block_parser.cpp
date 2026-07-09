@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     format::BlockHeader block_header;
-    BlockIOError  status = kErrorNone;
+    BlockIOError        status = kErrorNone;
 
     const size_t peeked_bytes = input_stream->PeekBytes(&block_header, sizeof(block_header));
     if (peeked_bytes == 0)
@@ -1695,7 +1695,8 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     else
     {
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||
-            meta_data_type == format::MetaDataType::kReserved23 || meta_data_type == format::MetaDataType::kReserved25)
+            meta_data_type == format::MetaDataType::kReserved23 ||
+            meta_data_type == format::MetaDataType::kReserved25 || meta_data_type == format::MetaDataType::kReserved39)
         {
             // Only log a warning once if the capture file contains blocks that are a "reserved" meta data type.
             GFXRECON_LOG_WARNING_ONCE("This capture file contains meta-data block(s) with reserved type(s) that are "
