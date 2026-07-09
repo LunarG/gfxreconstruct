@@ -1,10 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-GFXReconstruct is a set of tools for capturing and replaying graphics API calls (Vulkan, D3D12, OpenXR). It records graphics commands to a `.gfxr` capture file that can be replayed later. The main branch for active development is `dev`.
+GFXReconstruct is a set of tools for capturing and replaying graphics API calls (Vulkan, D3D12, OpenXR). It records graphics commands to a `.gfxr` capture file that can be replayed later.
 
 ## Architectural Principles
 
@@ -15,7 +13,7 @@ GFXReconstruct is a set of tools for capturing and replaying graphics API calls 
 - **PERFORMANCE**: Especially in the capture layer, avoid locks and repeated small allocations.
 - **Backward compatibility**: Existing capture files stay readable (deprecate block IDs, never repurpose them), frozen Consumer/base-class and `framework/util` interfaces keep their signatures, existing environment variables and command-line options are never deleted, default tool behavior does not change, and convert's JSON key names/value types are not changed.
 
-If a change must conflict with a principle, document the well-considered reason.
+If a change must conflict with a principle, explain the reason in the commit message and PR description.
 
 ## Build Commands
 
@@ -30,13 +28,11 @@ CMAKE_BUILD_PARALLEL_LEVEL=8 python scripts/build.py --skip-check-code-style --s
 ```
 
 ### Build script options
-- `-a {x64,x86,arm,arm64}` - target architecture (default: x64)
 - `-c {release,debug}` - configuration (default: release)
 - `--skip-d3d12-support` - omit D3D12 components
 - `--test-apps` - build test apps
-- `--code-style` - apply clang-format before compiling
-- `--lint` - run static analysis
-- `--build-launcher` - build launcher/interceptor
+
+Run `python scripts/build.py --help` for the full option list.
 
 Build output goes to `build/windows/x64/cmake_output` (release) or `dbuild/...` (debug).
 
@@ -71,8 +67,6 @@ Generator hierarchy: `base_generators/` -> `khronos_generators/` -> API-specific
 
 Changes to shared Khronos generator code (`khronos_generators/` or `base_generators/`) affect both Vulkan and OpenXR — regenerate and commit both.
 
-Minimum Python version: 3.10.
-
 ## Architecture
 
 ### Capture path (encode)
@@ -92,23 +86,18 @@ Decoding uses a consumer pattern: `Decoder` reads blocks from the capture file a
 - `VulkanCppConsumer` - generates C++ replay code (tocpp)
 
 ### Tools (`tools/`)
-Each tool is a separate executable: `replay`, `convert` (to JSON), `info`, `compress`, `extract` (SPIR-V), `optimize`, `tocpp`, `capture`/`capture-vulkan`.
-
 Multi-API tools (`replay`, `convert`, `info`, `extract`, `optimize`) split API-specific functionality into per-API "feature" modules (e.g. `tools/optimize/optimize_vulkan_feature.cpp`, `optimize_dx12_feature.cpp`) behind a common feature interface, keeping `main.cpp` API-agnostic. New API-specific tool functionality should follow this pattern.
-
-### Replay event plugin
-Replay can load external plugins through a versioned C ABI that receives frame and queue-submit events during replay; the plugin contract is documented in `docs/PLUGIN_replay_event.md`.
 
 ## Coding Conventions
 
 - Use `GFXRECON_ASSERT` instead of `assert`
 - Explicitly compare pointers against `nullptr` (e.g., `if (ptr == nullptr)`)
-- C++ style: Google C++ Style Guide with ClangFormat 14 (`.clang-format` at repo root); also follow the C++ Core Guidelines and SOLID design principles
+- C++ style: Google C++ Style Guide with ClangFormat 14 (`.clang-format` at repo root)
 - Python style: PEP 8 with yapf (`.style.yapf` at repo root)
 - C++20 standard
 - Avoid editing code unrelated to the change — commits should be cleanly revertible
 - PRs target the `dev` branch
-- Keep PRs small and single-purpose: no unrelated bug fixes or style changes; separate refactors from bug fixes (two PRs may reference each other)
+- Keep PRs small and single-purpose: no unrelated bug fixes or style changes; separate refactors from bug fixes
 - Branch names describe the fix (e.g. `fix-createinstance-crash`, not `fix-1234`); put "Fixes #1234" in the PR description or final commit message so the issue auto-closes on merge
 
 ### Changing capture file blocks
@@ -120,7 +109,7 @@ Do not alter existing capture file block structs or IDs. Instead:
 4. Handle the new metacommand on replay
 5. Log a note when replaying the deprecated metacommand if it implies limited or incorrect operation
 
-Also do not change options or external class/function signatures covered by the backward compatibility guarantees (see Architectural Principles above).
+The other backward compatibility guarantees also apply (see Architectural Principles above).
 
 ### Commits
 
