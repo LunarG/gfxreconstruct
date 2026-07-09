@@ -1054,6 +1054,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
         options.create_dummy_allocations = true;
     }
 
+    if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
+    {
+        options.remove_unsupported_features = true;
+    }
+
     if (arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption) ||
         arg_parser.IsOptionSet(kOmitNullHardwareBuffersShortOption))
     {
@@ -1159,11 +1164,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!override_gpu_group.empty())
     {
         replay_options.override_gpu_group_index = std::stoi(override_gpu_group);
-    }
-
-    if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
-    {
-        replay_options.remove_unsupported_features = true;
     }
 
     if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
