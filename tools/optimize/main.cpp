@@ -35,6 +35,7 @@
 #include "util/logging.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -57,7 +58,7 @@ static std::vector<std::unique_ptr<gfxrecon::optimize::OptimizeFeature>> g_optim
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
 
     // Build synopsis from feature fragments so it stays in sync automatically.
     std::string synopsis = app_name + " [-h | --help] [--version]";

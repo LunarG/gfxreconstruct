@@ -31,6 +31,8 @@
 #include "util/file_path.h"
 #include "util/logging.h"
 
+#include <filesystem>
+
 struct CommandLineArgument
 {
     bool       required;
@@ -122,7 +124,8 @@ const std::string path_assets = "app/src/main/assets/";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to Vulkan source.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
