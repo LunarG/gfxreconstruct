@@ -170,20 +170,26 @@ void PatchFileFormatInfo(const std::string& input_filename)
 
 int main(int argc, const char** argv)
 {
-    gfxrecon::util::Log::Init();
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -200,6 +206,5 @@ int main(int argc, const char** argv)
 
     PatchFileFormatInfo(input_filename);
 
-    gfxrecon::util::Log::Release();
     return 0;
 }

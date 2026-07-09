@@ -680,7 +680,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 {
                     WriteOutput("A failure has occurred during file processing");
                     gfxrecon::util::Log::Release();
-                    exit(-1);
+                    exit(EXIT_FAILURE);
                 }
                 else
                 {
@@ -741,7 +741,15 @@ static std::string GetEnumGpuIndicesText()
 
 int main(int argc, const char** argv)
 {
-    gfxrecon::util::Log::Init();
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
 
     // Query the module registry for registered modules, and
     // call each generator here and put the unique_ptr into our
@@ -766,8 +774,7 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintUsage(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsOptionSet(kVersionOption))
     {
@@ -777,14 +784,12 @@ int main(int argc, const char** argv)
             GFXRECON_WRITE_CONSOLE(feature->CompiledHeaderVersionString().c_str());
         }
 
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -812,8 +817,7 @@ int main(int argc, const char** argv)
         if (!g_output_file.is_open())
         {
             GFXRECON_LOG_ERROR("Failed to open output file '%s'", output_filename.c_str());
-            gfxrecon::util::Log::Release();
-            exit(EXIT_FAILURE);
+            return EXIT_FAILURE;
         }
     }
 
@@ -840,6 +844,5 @@ int main(int argc, const char** argv)
         success = GatherAndPrintAllInfo(input_filename, arg_parser.IsOptionSet(kVerboseOption));
     }
 
-    gfxrecon::util::Log::Release();
     return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

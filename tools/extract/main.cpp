@@ -65,7 +65,15 @@ static void PrintUsage(const char* exe_name)
 
 int main(int argc, const char** argv)
 {
-    gfxrecon::util::Log::Init();
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
 
     std::vector<std::unique_ptr<gfxrecon::extract::ExtractFeatureBase>> features;
     for (const auto& creator :
@@ -79,14 +87,12 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -124,7 +130,7 @@ int main(int argc, const char** argv)
             {
                 GFXRECON_WRITE_CONSOLE("Error while creating directory %s: Already exists as file",
                                        extract_dir.c_str());
-                exit(-1);
+                return EXIT_FAILURE;
             }
         }
         else
@@ -133,7 +139,7 @@ int main(int argc, const char** argv)
             if (result < 0)
             {
                 GFXRECON_WRITE_CONSOLE("Error while creating directory %s: Could not open", extract_dir.c_str());
-                exit(-1);
+                return EXIT_FAILURE;
             }
         }
 
@@ -157,8 +163,7 @@ int main(int argc, const char** argv)
         if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-            gfxrecon::util::Log::Release();
-            exit(-1);
+            return EXIT_FAILURE;
         }
         else if (file_processor.GetCurrentFrameNumber() == 0)
         {
@@ -166,6 +171,5 @@ int main(int argc, const char** argv)
         }
     }
 
-    gfxrecon::util::Log::Release();
-    return 0;
+    return EXIT_SUCCESS;
 }

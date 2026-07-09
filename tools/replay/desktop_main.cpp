@@ -73,11 +73,17 @@ const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 
 int main(int argc, const char** argv)
 {
-    int return_code = 0;
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init(gfxrecon::decode::kDefaultLogLevel);
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
 
-    // Default initialize logging to report issues while loading settings.
-    gfxrecon::util::Log::Init(gfxrecon::decode::kDefaultLogLevel);
-    gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+    int return_code = EXIT_SUCCESS;
 
     std::vector<std::unique_ptr<gfxrecon::replay::ReplayFeatureBase>> features;
     gfxrecon::replay::LoadFeatures(features);
@@ -86,14 +92,12 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintVersion(argv[0], arg_parser) || CheckOptionPrintUsage(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -122,28 +126,26 @@ int main(int argc, const char** argv)
                                          gfxrecon::util::platform::GetEnv(kLayerEnvVar),
                                          make_application))
         {
-            return_code = -1;
+            return_code = EXIT_FAILURE;
         }
     }
     catch (const std::runtime_error& error)
     {
         GFXRECON_WRITE_CONSOLE("Replay has encountered a fatal error and cannot continue: %s", error.what());
-        return_code = -1;
+        return_code = EXIT_FAILURE;
     }
     catch (const std::exception& error)
     {
         GFXRECON_WRITE_CONSOLE("Replay has encountered a fatal error and cannot continue: %s", error.what());
-        return_code = -1;
+        return_code = EXIT_FAILURE;
     }
     catch (...)
     {
         GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
-        return_code = -1;
+        return_code = EXIT_FAILURE;
     }
 
     WaitForExit();
-
-    gfxrecon::util::Log::Release();
 
     return return_code;
 }

@@ -97,20 +97,26 @@ static std::string GetCompressionTypeName(uint32_t type)
 
 int main(int argc, const char** argv)
 {
-    gfxrecon::util::Log::Init();
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 3))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -147,8 +153,7 @@ int main(int argc, const char** argv)
         {
             GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", dst_compression_string.c_str());
             PrintUsage(argv[0]);
-            gfxrecon::util::Log::Release();
-            exit(-1);
+            return EXIT_FAILURE;
         }
     }
 
@@ -203,18 +208,14 @@ int main(int argc, const char** argv)
         else
         {
             GFXRECON_WRITE_CONSOLE("Capture file %s could not be converted.", input_filename.c_str());
-            gfxrecon::util::Log::Release();
-            exit(-1);
+            return EXIT_FAILURE;
         }
     }
     else
     {
         GFXRECON_WRITE_CONSOLE("CompressionConverter could not be initialized.");
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
 
-    gfxrecon::util::Log::Release();
-
-    return 0;
+    return EXIT_SUCCESS;
 }

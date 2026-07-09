@@ -71,8 +71,16 @@ extern "C"
 
 void android_main(struct android_app* app)
 {
-    gfxrecon::util::Log::Init();
-    gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
+
     GFXRECON_WRITE_CONSOLE("====== Entering android_main");
 
     // Keep screen on while window is active.
@@ -138,8 +146,6 @@ void android_main(struct android_app* app)
     }
 
     GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
-
-    gfxrecon::util::Log::Release();
 
     gfxrecon::util::DestroyActivity(app);
 

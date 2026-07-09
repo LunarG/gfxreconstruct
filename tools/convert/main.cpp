@@ -178,10 +178,18 @@ std::string FormatFrameNumber(uint32_t frame_number)
 
 int main(int argc, const char** argv)
 {
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
+
     int                                                                 ret_code = 0;
     std::vector<std::unique_ptr<gfxrecon::convert::ConvertFeatureBase>> convert_features;
-
-    gfxrecon::util::Log::Init();
 
     // Query the module registry for registered modules, and
     // call each generator here and put the unique_ptr into our
@@ -197,20 +205,17 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(1);
+        return EXIT_FAILURE;
     }
     if (arg_parser.IsArgumentSet(kOutput) && arg_parser.GetArgumentValue(kOutput).empty())
     {
         GFXRECON_LOG_ERROR("Empty string given for argument \"--output\"; must be a valid path or 'stdout'");
-        gfxrecon::util::Log::Release();
-        exit(1);
+        return EXIT_FAILURE;
     }
 #if defined(WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
@@ -364,7 +369,7 @@ int main(int argc, const char** argv)
                             GFXRECON_LOG_INFO("Capture file does not contain detectable API content.  "
                                               "Platform-specific content may be present but "
                                               "gfxrecon-convert is not currently compiled to support it.");
-                            goto exit;
+                            return EXIT_FAILURE;
                         }
                         check_detection = false;
                     }
@@ -413,7 +418,7 @@ int main(int argc, const char** argv)
                         else
                         {
                             GFXRECON_LOG_ERROR("Failed to create file: '%s'.", json_filename.c_str());
-                            ret_code = 1;
+                            return EXIT_FAILURE;
                         }
                     }
                 }
@@ -436,12 +441,10 @@ int main(int argc, const char** argv)
             if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
             {
                 GFXRECON_LOG_ERROR("Failed to process trace.");
-                ret_code = 1;
+                return EXIT_FAILURE;
             }
         }
     }
 
-exit:
-    gfxrecon::util::Log::Release();
-    return ret_code;
+    return EXIT_SUCCESS;
 }

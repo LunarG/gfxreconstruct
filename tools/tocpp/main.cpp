@@ -238,7 +238,7 @@ uint32_t ValidateAndConvertNumericArgument(const std::string& argument, const st
         {
             GFXRECON_LOG_ERROR(error_msg.c_str());
             gfxrecon::util::Log::Release();
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -329,6 +329,16 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
 
 int main(int argc, const char** argv)
 {
+    struct LogGuard
+    {
+        LogGuard()
+        {
+            gfxrecon::util::Log::Init();
+            gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
+        }
+        ~LogGuard() { gfxrecon::util::Log::Release(); }
+    } log_guard;
+
     std::string input_filename;
 
     // Generate the entire list of valid arguments/options
@@ -365,8 +375,6 @@ int main(int argc, const char** argv)
     }
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options_string, arguments_string);
 
-    gfxrecon::util::Log::Init();
-
     // --output
     output_dirname = arg_parser.GetArgumentValue(g_output_argument.short_option);
 
@@ -402,26 +410,22 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintVersion(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
+        return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else if (!OutputDirectoryIsValid(output_dirname))
     {
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else if (target_platform == gfxrecon::decode::GfxToCppPlatform::PLATFORM_ANDROID &&
              !AndroidDirsExist(android_template_root))
     {
         GFXRECON_LOG_ERROR("The specified path to --android-template option is missing or wrong!");
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -491,6 +495,5 @@ int main(int argc, const char** argv)
         GFXRECON_LOG_INFO("Failed to process capture file")
     }
 
-    gfxrecon::util::Log::Release();
-    return 0;
+    return EXIT_SUCCESS;
 }
