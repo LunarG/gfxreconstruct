@@ -78,6 +78,7 @@ struct ReplayOptions
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
     uint32_t                     screenshot_width, screenshot_height;
     bool                         screenshot_ignore_frameBoundaryAndroid{ false };
+    bool                         screenshot_apply_prerotation{ false };
     int32_t                      num_pipeline_creation_jobs{ 0 };
     std::string                  asset_file_path;
     bool                         enable_dump_resources{ false };

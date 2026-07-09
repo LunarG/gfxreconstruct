@@ -2771,19 +2771,21 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
                 for (uint32_t layer = 0; layer < num_layers; ++layer)
                 {
-                    screenshot_handler_->WriteImage(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
-                                                                   : filename_prefix,
-                                                    device_info,
-                                                    GetDeviceTable(device_info->handle),
-                                                    memory_properties,
-                                                    device_info->allocator.get(),
-                                                    image,
-                                                    image_format,
-                                                    image_width,
-                                                    image_height,
-                                                    layer,
-                                                    screenshot_scale,
-                                                    image_layout);
+                    screenshot_handler_->WriteImage(
+                        num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
+                        device_info,
+                        GetDeviceTable(device_info->handle),
+                        memory_properties,
+                        device_info->allocator.get(),
+                        image,
+                        image_format,
+                        image_width,
+                        image_height,
+                        layer,
+                        screenshot_scale,
+                        image_layout,
+                        options_.screenshot_apply_prerotation ? swapchain_info->pre_transform
+                                                              : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
         }
@@ -2863,7 +2865,8 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                         image_info->extent.height,
                         0,
                         screenshot_scale,
-                        image_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+                        image_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
+                        VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
         }
@@ -8293,6 +8296,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     swapchain_info->width              = modified_create_info.imageExtent.width;
     swapchain_info->height             = modified_create_info.imageExtent.height;
     swapchain_info->format             = modified_create_info.imageFormat;
+
+    // Track the application's original intended pre-transform instead of modified_create_info.preTransform.
+    // When replaying Android traces on Desktop, the WSI layer may override the transform to IDENTITY since Desktop
+    // surfaces often don't support rotation. However, the captured drawing commands remain rotated, so we must
+    // save the original transform to ensure screenshots are correctly un-rotated during Desktop playback.
+    swapchain_info->pre_transform = replay_create_info->preTransform;
 
     if ((result == VK_SUCCESS) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
