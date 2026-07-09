@@ -39,6 +39,7 @@ class VulkanConvertFeature
 {
   public:
     VulkanConvertFeature() : ConvertFeature(decode::VulkanDetectionConsumer::kNoBlockLimit) {}
+    std::string Label() const override { return "Vulkan"; }
     bool WasDetected() const final { return detect_consumer_.WasVulkanAPIDetected(); }
 };
 

@@ -57,6 +57,15 @@ inline void PrintVersionHeader(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
 }
 
+/// Prints the "<app name> module info:" and then lists all available
+/// modules in this tool.
+inline void PrintModuleListHeader(const char* exe_name)
+{
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
+    GFXRECON_WRITE_CONSOLE("%s Supported Module Info:", app_name.c_str());
+}
+
 static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))

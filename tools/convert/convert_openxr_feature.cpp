@@ -41,6 +41,7 @@ class OpenXrConvertFeature
 {
   public:
     OpenXrConvertFeature() {}
+    std::string Label() const override { return "OpenXR"; }
     bool WasDetected() const final { return detect_consumer_.WasOpenXrAPIDetected(); }
 };
 

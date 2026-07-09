@@ -41,6 +41,7 @@ class Dx12ConvertFeature
 {
   public:
     Dx12ConvertFeature() : ConvertFeature(decode::Dx12DetectionConsumer::kNoBlockLimit) {}
+    std::string Label() const override { return "D3D12"; }
     bool WasDetected() const final { return detect_consumer_.WasD3D12APIDetected(); }
 };
 

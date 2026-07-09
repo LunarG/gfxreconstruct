@@ -35,11 +35,13 @@
 
 #include "convert_feature.h"
 
+#include <algorithm>
 #include <filesystem>
 
 using gfxrecon::util::JsonFormat;
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
+const char kOptions[] =
+    "-h|--help,--version,--list-modules,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
 const char kArguments[] = "--output,--format,--log-level,--frame-range";
 
@@ -50,13 +52,14 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert the contents of GFXReconstruct capture files to JSON.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--list-modules] <file>\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
     GFXRECON_WRITE_CONSOLE("        \t\tto text.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --list-modules\tList API/Feature modules supported by this application");
     GFXRECON_WRITE_CONSOLE("  --output file\t\t'stdout' or a path to a file to write JSON output");
     GFXRECON_WRITE_CONSOLE("        \t\tto. Default is the input filepath with \"gfxr\" replaced by \"json\".");
     GFXRECON_WRITE_CONSOLE("  --format <format>\tJSON format to write.");
@@ -208,6 +211,22 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
+        return EXIT_SUCCESS;
+    }
+    else if (arg_parser.IsOptionSet(kListModulesOption))
+    {
+        PrintModuleListHeader(argv[0]);
+        std::vector<std::string> module_feature_list;
+        for (auto& feature : convert_features)
+        {
+            module_feature_list.push_back(feature->Label());
+        }
+        std::ranges::sort(module_feature_list);
+        for (auto& feature_string : module_feature_list)
+        {
+            GFXRECON_WRITE_CONSOLE("   %s", feature_string.c_str());
+        }
+
         return EXIT_SUCCESS;
     }
     if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))

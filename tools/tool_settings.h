@@ -68,6 +68,7 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
+const char kListModulesOption[]                  = "--list-modules";
 const char kLogLevelArgument[]                   = "--log-level";
 const char kLogTimestampsOption[]                = "--log-timestamps";
 const char kDebugMessageSeverityArgument[]       = "--debug-messenger-level";

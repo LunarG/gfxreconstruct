@@ -37,6 +37,8 @@ class ConvertFeatureBase
   public:
     virtual ~ConvertFeatureBase() = default;
 
+    virtual std::string Label() const = 0;
+
     virtual void Initialize(decode::FileProcessor& file_processor, decode::JsonWriter* json_writer) = 0;
     virtual bool WasDetected() const                                                                = 0;
     virtual void Destroy()                                                                          = 0;

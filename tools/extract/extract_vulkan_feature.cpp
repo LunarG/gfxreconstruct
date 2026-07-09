@@ -185,6 +185,8 @@ class VulkanExtractFeature : public ExtractFeatureBase
   public:
     VulkanExtractFeature() : detect_consumer_(decode::VulkanDetectionConsumer::kNoBlockLimit) {}
 
+    std::string Label() const override { return "Vulkan"; }
+
     void Initialize(decode::FileProcessor& file_processor, const std::string& extract_dir) override
     {
         extract_consumer_ = std::make_unique<VulkanExtractConsumer>(extract_dir);

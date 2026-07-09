@@ -179,6 +179,8 @@ class Dx12ExtractFeature : public ExtractFeatureBase
   public:
     Dx12ExtractFeature() : detect_consumer_(decode::Dx12DetectionConsumer::kNoBlockLimit) {}
 
+    std::string Label() const override { return "D3D12"; }
+
     void Initialize(decode::FileProcessor& file_processor, const std::string& extract_dir) override
     {
         extract_consumer_ = std::make_unique<Dx12ExtractConsumer>(extract_dir);

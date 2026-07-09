@@ -36,6 +36,8 @@ class ExtractFeatureBase
   public:
     virtual ~ExtractFeatureBase() = default;
 
+    virtual std::string Label() const = 0;
+
     virtual void Initialize(decode::FileProcessor& file_processor, const std::string& extract_dir) = 0;
     virtual bool WasDetected() const                                                               = 0;
 };

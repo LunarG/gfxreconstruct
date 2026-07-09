@@ -61,7 +61,7 @@ static void PrintUsage(const char* exe_name)
     std::string app_name = std::filesystem::path(exe_name).stem().string();
 
     // Build synopsis from feature fragments so it stays in sync automatically.
-    std::string synopsis = app_name + " [-h | --help] [--version]";
+    std::string synopsis = app_name + " [-h | --help] [--version] [--list-modules]";
     for (const auto& feature : g_optimize_features)
     {
         const std::string fragment = feature->GetSynopsisFragment();
@@ -88,6 +88,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("Optional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --list-modules\t\tList API/Feature modules supported by this application");
 
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\t\tDisable the 'Abort, Retry, Ignore' message box");
@@ -129,7 +130,7 @@ int32_t main(int32_t argc, const char** argv)
     }
 
     // Aggregate option flags and argument keys from all features plus common flags.
-    std::string options   = "-h|--help,--version";
+    std::string options   = "-h|--help,--version,--list-modules";
     std::string arguments = "";
 
 #if defined(WIN32) && defined(_DEBUG)
@@ -158,6 +159,22 @@ int32_t main(int32_t argc, const char** argv)
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
+        return EXIT_SUCCESS;
+    }
+    else if (arg_parser.IsOptionSet(kListModulesOption))
+    {
+        PrintModuleListHeader(argv[0]);
+        std::vector<std::string> module_feature_list;
+        for (auto& feature : g_optimize_features)
+        {
+            module_feature_list.push_back(feature->Label());
+        }
+        std::ranges::sort(module_feature_list);
+        for (auto& feature_string : module_feature_list)
+        {
+            GFXRECON_WRITE_CONSOLE("   %s", feature_string.c_str());
+        }
+
         return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 2))

@@ -30,6 +30,7 @@
 #include "util/logging.h"
 #include "parse_dump_resources_cli.h"
 
+#include <algorithm>
 #include <exception>
 #include <memory>
 #include <stdexcept>
@@ -92,6 +93,22 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintVersion(argv[0], arg_parser) || CheckOptionPrintUsage(argv[0], arg_parser))
     {
+        return EXIT_SUCCESS;
+    }
+    else if (arg_parser.IsOptionSet(kListModulesOption))
+    {
+        PrintModuleListHeader(argv[0]);
+        std::vector<std::string> module_feature_list;
+        for (auto& feature : features)
+        {
+            module_feature_list.push_back(feature->Label());
+        }
+        std::ranges::sort(module_feature_list);
+        for (auto& feature_string : module_feature_list)
+        {
+            GFXRECON_WRITE_CONSOLE("   %s", feature_string.c_str());
+        }
+
         return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))

@@ -37,6 +37,7 @@
 #include <android/log.h>
 #include <android/window.h>
 
+#include <algorithm>
 #include <cstdlib>
 #include <exception>
 #include <memory>
@@ -98,6 +99,22 @@ void android_main(struct android_app* app)
 
     if (CheckOptionPrintUsage(kApplicationName, arg_parser) || CheckOptionPrintVersion(kApplicationName, arg_parser))
     {
+        run = false;
+    }
+    else if (arg_parser.IsOptionSet(kListModulesOption))
+    {
+        PrintModuleListHeader(kApplicationName);
+        std::vector<std::string> module_feature_list;
+        for (auto& feature : g_features)
+        {
+            module_feature_list.push_back(feature->Label());
+        }
+        std::ranges::sort(module_feature_list);
+        for (auto& feature_string : module_feature_list)
+        {
+            GFXRECON_WRITE_CONSOLE("   %s", feature_string.c_str());
+        }
+
         run = false;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() > 1))

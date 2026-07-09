@@ -31,6 +31,7 @@
 #include "util/file_path.h"
 #include "util/logging.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <memory>
@@ -39,7 +40,7 @@
 
 const char kDirectoryArgument[] = "--dir";
 
-const char kOptions[]   = "-h|--help,--version,--no-debug-popup";
+const char kOptions[]   = "-h|--help,--version,--list-modules,--no-debug-popup";
 const char kArguments[] = "--dir";
 
 static void PrintUsage(const char* exe_name)
@@ -48,12 +49,13 @@ static void PrintUsage(const char* exe_name)
 
     GFXRECON_WRITE_CONSOLE("\n%s - Extract shaders from a GFXReconstruct capture file.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--dir <dir>] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--list-modules] [--dir <dir>] <file>\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tThe GFXReconstruct capture file to be processed.");
     GFXRECON_WRITE_CONSOLE("Optional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --list-modules\tList API/Feature modules supported by this application");
     GFXRECON_WRITE_CONSOLE("  --dir <dir>\t\tPlace extracted shaders into directory <dir>. Otherwise");
     GFXRECON_WRITE_CONSOLE("             \t\tuse <file>.shaders in working directory. Create directory");
     GFXRECON_WRITE_CONSOLE("             \t\tif necessary. Each shader is placed in individual file");
@@ -89,6 +91,22 @@ int main(int argc, const char** argv)
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
+        return EXIT_SUCCESS;
+    }
+    else if (arg_parser.IsOptionSet(kListModulesOption))
+    {
+        PrintModuleListHeader(argv[0]);
+        std::vector<std::string> module_feature_list;
+        for (auto& feature : features)
+        {
+            module_feature_list.push_back(feature->Label());
+        }
+        std::ranges::sort(module_feature_list);
+        for (auto& feature_string : module_feature_list)
+        {
+            GFXRECON_WRITE_CONSOLE("   %s", feature_string.c_str());
+        }
+
         return EXIT_SUCCESS;
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))

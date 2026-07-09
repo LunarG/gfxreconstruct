@@ -48,6 +48,7 @@
 #include "tool_settings.h"
 #include "tool_command_line.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdarg>
 #include <cstdlib>
@@ -66,8 +67,9 @@ const char kFileFormatOnlyOption[] = "--file-format-only";
 const char kVerboseOption[]        = "--verbose";
 const char kOutputFileArgument[]   = "--output";
 
-const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,"
-                          "--verbose";
+const char kOptions[] =
+    "-h|--help,--version,--list-modules,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,"
+    "--verbose";
 const char kArguments[] = "--output,--log-level";
 
 #if defined(D3D12_SUPPORT)
@@ -187,13 +189,15 @@ static void PrintUsage(const char* exe_name)
 
     WriteOutput("\n%s - Print statistics for a GFXReconstruct capture file.\n", app_name.c_str());
     WriteOutput("Usage:");
-    WriteOutput("  %s [-h | --help] [--version] [--exe-info-only] [--verbose] [--output <file>] <capture-file>\n",
+    WriteOutput("  %s [-h | --help] [--version] [--list-modules] [--exe-info-only] [--verbose] [--output <file>] "
+                "<capture-file>\n",
                 app_name.c_str());
     WriteOutput("Required arguments:");
     WriteOutput("  <capture-file>\tThe GFXReconstruct capture file to be processed.");
     WriteOutput("\nOptional arguments:");
     WriteOutput("  -h\t\t\tPrint usage information and exit (same as --help).");
     WriteOutput("  --version\t\tPrint version information and exit.");
+    WriteOutput("  --list-modules\tList API/Feature modules supported by this application");
     WriteOutput("  --exe-info-only\tQuickly exit after extracting captured application's executable name");
     WriteOutput("  --file-format-only\tQuickly exit after extracting file format information");
     WriteOutput("  --env-vars-only\tQuickly exit after extracting captured application's environment variables");
@@ -778,6 +782,22 @@ int main(int argc, const char** argv)
         for (auto& feature : g_info_features)
         {
             GFXRECON_WRITE_CONSOLE(feature->CompiledHeaderVersionString().c_str());
+        }
+
+        return EXIT_SUCCESS;
+    }
+    else if (arg_parser.IsOptionSet(kListModulesOption))
+    {
+        PrintModuleListHeader(argv[0]);
+        std::vector<std::string> module_feature_list;
+        for (auto& feature : g_info_features)
+        {
+            module_feature_list.push_back(feature->Label());
+        }
+        std::ranges::sort(module_feature_list);
+        for (auto& feature_string : module_feature_list)
+        {
+            GFXRECON_WRITE_CONSOLE("   %s", feature_string.c_str());
         }
 
         return EXIT_SUCCESS;
