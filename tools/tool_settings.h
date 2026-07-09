@@ -154,6 +154,7 @@ const char kWaitBeforeFrame[]                     = "--wait-before-frame";
 const char kAsyncProcessingOption[]               = "--async-processing";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
+const char kScreenshotApplyPrerotationArgument[]    = "--screenshot-apply-prerotation";
 
 #if defined(WIN32)
 const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
@@ -1298,6 +1299,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
     {
         replay_options.screenshot_ignore_frameBoundaryAndroid = true;
+    }
+
+    if (arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument))
+    {
+        replay_options.screenshot_apply_prerotation = true;
     }
 
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
