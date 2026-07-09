@@ -39,36 +39,22 @@
 #include "openxr/openxr.h"
 #endif
 
+#include <filesystem>
 #include <string>
 
 const char kHelpShortOption[] = "-h";
 const char kHelpLongOption[]  = "--help";
 const char kVersionOption[]   = "--version";
 
-/// @return exe_name with any leading directory components removed, and the
-/// GFXRECON_APP_NAME_PREFIX configured at build time (see project_version.h.in) applied.
-inline std::string GetApplicationName(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-
-    if (dir_location != std::string::npos)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-
-    return GFXRECON_APP_NAME_PREFIX + app_name;
-}
-
 /// Prints the "<app name> version info:" / "GFXReconstruct Version x.x.x" lines common to every
 /// tool's --version output. Tools that report additional version information (e.g. per-API
 /// header versions) print it after calling this.
 inline void PrintVersionHeader(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
 
     GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("  " GFXRECON_APP_NAME_PREFIX "GFXReconstruct Version %s", GetProjectVersionString());
+    GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
 }
 
 static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
