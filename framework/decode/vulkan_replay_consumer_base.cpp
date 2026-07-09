@@ -3477,6 +3477,36 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         // Fake VK_GOOGLE_display_timing if requested, but not supported
         sanitize_faked_extension(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME);
 
+        if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+        {
+            if (graphics::feature_util::IsSupportedExtension(available_extensions,
+                                                             VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME) &&
+                graphics::feature_util::IsSupportedExtension(available_extensions,
+                                                             VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME))
+            {
+                if (!graphics::feature_util::IsSupportedExtension(modified_extensions,
+                                                                  VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME))
+                {
+                    modified_extensions.push_back(VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME);
+                }
+
+                if (!graphics::feature_util::IsSupportedExtension(modified_extensions,
+                                                                  VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME))
+                {
+                    modified_extensions.push_back(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME);
+                }
+
+                create_state.external_sync_type = VulkanSwapchain::ExternalSyncType::FileDescriptor;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Synchronization primitives import are not available on the replay device. "
+                                     "Offscreen swapchain may introduce additional synchronizations and slowdowns.");
+
+                create_state.external_sync_type = VulkanSwapchain::ExternalSyncType::QueueSubmit;
+            }
+        }
+
         if (options_.remove_unsupported_features)
         {
             graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
@@ -3647,6 +3677,11 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
 
     // Restore modified property/feature create info values to the original application values
     create_state.device_util.RestoreModifiedPhysicalDeviceFeatures();
+
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        swapchain_->SetExternalSyncType(replay_device, create_state.external_sync_type);
+    }
 
     return VK_SUCCESS;
 }
