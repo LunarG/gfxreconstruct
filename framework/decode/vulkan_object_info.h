@@ -789,6 +789,7 @@ struct VulkanDescriptorSetBindingInfo
 {
     VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
     VkShaderStageFlags stage_flags{ 0 };
+    uint32_t           count{ 0 };
 
     // Use a map to represent array as many entries can be left unpopulated.
     // Use a sorted map so that array indices are printed in order in the json output

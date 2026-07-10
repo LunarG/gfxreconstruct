@@ -68,9 +68,37 @@ void HandleDescriptorUpdate(CommonObjectInfoTable&                              
             continue;
         }
 
+        uint32_t binding_index = write->dstBinding;
+        uint32_t arr_idx       = write->dstArrayElement;
+        auto     binding_it    = descriptor_bindings_info.find(binding_index);
+
         for (uint32_t i = 0; i < write_meta.decoded_value->descriptorCount; ++i)
         {
-            const uint32_t arr_idx = write->dstArrayElement + i;
+            if (binding_it != descriptor_bindings_info.end() && binding_it->second.count != 0 &&
+                arr_idx >= binding_it->second.count)
+            {
+                // Advance to next non zero count binding
+                do
+                {
+                    ++binding_it;
+                } while (binding_it != descriptor_bindings_info.end() && binding_it->second.count == 0);
+
+                if (binding_it == descriptor_bindings_info.end())
+                {
+                    break;
+                }
+                binding_index = binding_it->first;
+                arr_idx       = 0;
+            }
+
+            auto& descriptor_set_binding_info     = (binding_it != descriptor_bindings_info.end())
+                                                        ? binding_it->second
+                                                        : descriptor_bindings_info[binding_index];
+            descriptor_set_binding_info.desc_type = write->descriptorType;
+            if (stage_flags != VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
+            {
+                descriptor_set_binding_info.stage_flags = stage_flags;
+            }
 
             switch (write->descriptorType)
             {
@@ -129,6 +157,8 @@ void HandleDescriptorUpdate(CommonObjectInfoTable&                              
                 default:
                     break;
             }
+
+            ++arr_idx;
         }
     }
 }
