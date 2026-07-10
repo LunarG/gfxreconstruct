@@ -4231,7 +4231,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
                                                           const VulkanDeviceInfo* device_info,
                                                           const VulkanFenceInfo*  fence_info)
 {
-    assert((device_info != nullptr) && (fence_info != nullptr));
+    if ((device_info == nullptr) || (fence_info == nullptr))
+    {
+        return VK_SUCCESS;
+    }
 
     VkResult result = VK_SUCCESS;
     VkDevice device = device_info->handle;
@@ -4339,6 +4342,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
+
+    if (fence != VK_NULL_HANDLE)
+    {
+        GetDeviceTable(device_info->handle)->ResetFences(device_info->handle, 1, &fence);
+    }
 
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
@@ -4614,6 +4622,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
 
+    if (fence != VK_NULL_HANDLE)
+    {
+        GetDeviceTable(device_info->handle)->ResetFences(device_info->handle, 1, &fence);
+    }
+
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
@@ -4885,6 +4898,12 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
 
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
+
+    if (fence != VK_NULL_HANDLE)
+    {
+        GetDeviceTable(device_info->handle)->ResetFences(device_info->handle, 1, &fence);
+    }
+
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 

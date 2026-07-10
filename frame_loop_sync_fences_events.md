@@ -24,6 +24,13 @@ At the loop boundary (`ResetLoopBoundary`), before restarting the next iteration
     *   **Case B (Signaled -> Unsignaled)**: If the fence was initially signaled (`VK_SUCCESS`) but is now unsignaled (`VK_NOT_READY`), the replayer must synthetically signal it. This is done by calling `vkQueueSubmit` on an active queue with zero command buffers but specifying the fence as the signal target.
 3.  Fences that did not change state are skipped.
 
+### In-Loop Submission Safeguards
+While boundary restoration handles general fence states, strict Vulkan drivers (e.g., Qualcomm Adreno) and the Khronos Validation Layer will abort if a fence is submitted in a signaled state (`VUID-vkQueueSubmit-fence-00063`). Because an application's original `vkResetFences` call might fall outside the captured loop range, fences can remain signaled on subsequent iterations.
+To provide a robust safeguard against this undefined behavior:
+*   Immediately before executing any queue submission command (`vkQueueSubmit`, `vkQueueSubmit2`, or `vkQueueBindSparse`), GFXReconstruct explicitly intercepts the provided fence parameter.
+*   If a valid fence handle is provided, `vkResetFences` is invoked on that fence right before the submission call.
+*   Since `vkResetFences` has no effect on already-unsignaled fences, this safely guarantees the fence is strictly unsignaled before the driver processes the submission, preventing driver hangs and validation layer crashes during frame looping.
+
 ---
 
 ## 2. Event State Restoration
