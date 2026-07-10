@@ -201,11 +201,11 @@ static void PrintUsage(const char* exe_name)
     WriteOutput("  --exe-info-only\tQuickly exit after extracting captured application's executable name");
     WriteOutput("  --file-format-only\tQuickly exit after extracting file format information");
     WriteOutput("  --env-vars-only\tQuickly exit after extracting captured application's environment variables");
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     WriteOutput("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     WriteOutput("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
-#if defined(WIN32)
+#if defined(_WIN32)
     WriteOutput("  --enum-gpu-indices\tPrint GPU indices and exit");
 #endif
     WriteOutput("  --verbose\t\tOutput more information in JSON format");
@@ -788,7 +788,7 @@ int main(int argc, const char** argv)
     }
     else
     {
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
             _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);

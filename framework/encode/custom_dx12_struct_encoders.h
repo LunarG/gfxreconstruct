@@ -26,7 +26,7 @@
 #include "encode/parameter_encoder.h"
 #include "util/defines.h"
 
-#ifdef WIN32
+#if defined(_WIN32)
 #include <d3d12.h>
 #include <dxgi1_5.h>
 #endif

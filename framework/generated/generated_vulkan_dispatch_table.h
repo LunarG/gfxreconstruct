@@ -47,7 +47,7 @@
 
 #include <unordered_map>
 
-#ifdef WIN32
+#if defined(_WIN32)
 #ifdef CreateEvent
 #undef CreateEvent
 #endif

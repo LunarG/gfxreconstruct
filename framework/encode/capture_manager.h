@@ -53,7 +53,7 @@
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <dirent.h>
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #include <windows.h>
 #include <TlHelp32.h>
 #endif

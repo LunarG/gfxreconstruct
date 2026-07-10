@@ -34,7 +34,7 @@
 #include <limits>
 #include <math.h>
 #include <memory>
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #include <unistd.h>
 #endif
 
@@ -66,7 +66,7 @@ uint8_t* GFXRECON_zlib_compress2(uint8_t* data, int32_t data_len, int32_t* out_l
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_STATIC
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #define __STDC_LIB_EXT1__
 #endif
 

@@ -30,7 +30,7 @@
 
 #if defined(D3D12_SUPPORT)
 
-#ifdef WIN32
+#if defined(_WIN32)
 #include <dxgiformat.h>
 #include <d3d12.h>
 #include <d3dcommon.h>

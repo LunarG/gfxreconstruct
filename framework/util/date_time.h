@@ -32,7 +32,7 @@
 #include <ctime>
 #include <string>
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -43,7 +43,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(datetime)
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 ///@ Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
 inline int64_t GetTimestamp()
@@ -61,7 +61,7 @@ inline int64_t GetTimestamp()
     return (static_cast<int64_t>(StartingTime.QuadPart) * 1000);
 }
 
-#else // !defined(WIN32)
+#else // !defined(_WIN32)
 
 ///@ Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
 inline int64_t GetTimestamp()
@@ -118,7 +118,7 @@ std::string UtcString(const time_t seconds_since_epoch);
 /// rfc3339.
 std::string UtcNowString();
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 // Time in seconds since boot
 inline double GetBootTime()
@@ -136,7 +136,7 @@ inline double GetProcessTime()
     return (static_cast<double>(CycleTime) / CLOCKS_PER_SEC);
 }
 
-#else // !defined(WIN32)
+#else // !defined(_WIN32)
 
 // Time in seconds since boot
 inline double GetBootTime()

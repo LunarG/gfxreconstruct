@@ -34,7 +34,7 @@
 #include "vulkan/vulkan.h"
 
 // System types for WIN32 platform extensions.
-#if defined(WIN32)
+#if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -170,7 +170,7 @@ static inline int64_t pack_luid(LUID luid)
 typedef void* jobject;
 #endif
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #if defined(XR_USE_PLATFORM_XLIB)
 #include <X11/Xlib.h>
 #endif

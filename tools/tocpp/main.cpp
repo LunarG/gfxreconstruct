@@ -105,7 +105,7 @@ CommandLineArgument g_captured_swapchain_argument = {
 
 std::vector<CommandLineArgument> g_argument_list;
 
-#if defined(WIN32)
+#if defined(_WIN32)
 const char kPathSep = '\\';
 #else
 const char kPathSep = '/';

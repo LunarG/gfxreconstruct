@@ -25,7 +25,7 @@
 
 #include "util/date_time.h"
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -46,7 +46,7 @@ GFXRECON_BEGIN_NAMESPACE(filepath)
 
 bool Exists(const std::string& path)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     return (GetFileAttributesA(path.c_str()) != INVALID_FILE_ATTRIBUTES);
 #else
     struct stat info;
@@ -68,7 +68,7 @@ bool IsFile(const std::string& path)
 {
     bool is_file = false;
 
-#if defined(WIN32)
+#if defined(_WIN32)
     DWORD attribs = GetFileAttributesA(path.c_str());
     if ((attribs != INVALID_FILE_ATTRIBUTES) && ((attribs & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY))
     {
@@ -89,7 +89,7 @@ bool IsDirectory(const std::string& path)
 {
     bool is_dir = false;
 
-#if defined(WIN32)
+#if defined(_WIN32)
     DWORD attribs = GetFileAttributesA(path.c_str());
     if ((attribs != INVALID_FILE_ATTRIBUTES) && ((attribs & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY))
     {
@@ -119,7 +119,7 @@ std::string Join(const std::string& lhs, const std::string& rhs)
             bool lhs_has_sep = (lhs.back() == kPathSep);
             bool rhs_has_sep = (rhs.front() == kPathSep);
 
-#if defined(WIN32)
+#if defined(_WIN32)
             // For Windows, we can accept either path separator.
             lhs_has_sep = lhs_has_sep || (lhs.back() == kAltPathSep);
             rhs_has_sep = rhs_has_sep || (rhs.front() == kAltPathSep);
@@ -189,7 +189,7 @@ std::string GetBasedir(const std::string& path)
 {
     std::string basedir    = "";
     size_t      suffix_pos = path.rfind(kPathSepStr);
-#if defined(WIN32)
+#if defined(_WIN32)
     size_t alt_suffix_pos = path.rfind(kAltPathSepStr);
     if (suffix_pos != std::string::npos)
     {
@@ -213,7 +213,7 @@ std::string GetBasedir(const std::string& path)
 std::string GetFilename(const std::string& path)
 {
     size_t suffix_pos = path.rfind(kPathSepStr);
-#if defined(WIN32)
+#if defined(_WIN32)
     size_t alt_suffix_pos = path.rfind(kAltPathSepStr);
     if (suffix_pos != std::string::npos)
     {
@@ -258,7 +258,7 @@ std::string GetFilenameExtension(const std::string& path)
 
 bool MakeDirectory(const std::string& path)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     return _mkdir(path.c_str()) == 0;
 #else
     return mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX) == 0;
@@ -278,7 +278,7 @@ std::string GenerateTimestampedFilename(const std::string& filename, bool use_gm
 
 bool GetWindowsSystemLibrariesPath(std::string& base_path)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     std::string windows_dir = util::platform::GetEnv("WINDIR");
 
     char module_name[MAX_PATH] = {};
@@ -309,7 +309,7 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path)
 
 void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, FileInfo& info)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     if (member == kExeInfoCompanyName)
     {
         strncpy_s(info.CompanyName, sizeof(info.CompanyName), value.c_str(), value.length());
@@ -345,7 +345,7 @@ bool QueryStringFileInfo(
     const void* ver_data, std::string& ver_ret_val, uint32_t& query_size, uint32_t len, const char* predef_strings)
 {
     bool found = false;
-#if defined(WIN32)
+#if defined(_WIN32)
     PSTR ver_ret_val_;
     char query_str[4096] = {};
     sprintf_s(query_str, "\\StringFileInfo\\%04X%04X\\%s", GetUserDefaultLangID(), len, predef_strings);
@@ -360,7 +360,7 @@ bool QueryStringFileInfo(
 
 void GetFileInfo(FileInfo& file_info, const std::string& file_path)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     DWORD ver_size = GetFileVersionInfoSize(file_path.c_str(), nullptr);
 
     if (ver_size > 0)
@@ -437,7 +437,7 @@ void GetFileInfo(FileInfo& file_info, const std::string& file_path)
 
 void GetApplicationInfo(FileInfo& file_info)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     char        module_name[MAX_PATH] = {};
     auto        size_path             = GetModuleFileNameA(nullptr, module_name, MAX_PATH);
     std::string filepath              = "";
@@ -477,7 +477,7 @@ void GetApplicationInfo(FileInfo& file_info)
 
 void CheckReplayerName(const std::string& exe_info_name)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     static bool warning_printed = false;
 
     if (!warning_printed)
@@ -553,7 +553,7 @@ std::string FindModulePath(const std::string& target_module, bool case_sensitive
 {
     std::string target_module_path = "";
 
-#if defined(WIN32)
+#if defined(_WIN32)
     HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetCurrentProcessId());
 
     if (process != nullptr)

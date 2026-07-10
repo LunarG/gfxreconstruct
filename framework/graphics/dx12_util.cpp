@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
-#ifdef WIN32
+#if defined(_WIN32)
 
 static uint64_t FindSubresourcePixelByteSize(DXGI_FORMAT format)
 {
@@ -1151,7 +1151,7 @@ bool VerifyAgilitySDKRuntime()
     bool        detected_runtime = false;
     std::string tool_executable_path;
 
-#if defined(D3D12_SUPPORT) && defined(WIN32)
+#if defined(D3D12_SUPPORT) && defined(_WIN32)
     std::vector<char> module_name(MAX_PATH);
 
     auto ret = GetModuleFileNameA(nullptr, module_name.data(), MAX_PATH);
@@ -1183,7 +1183,7 @@ bool VerifyAgilitySDKRuntime()
     return detected_runtime;
 }
 
-#ifdef WIN32
+#if defined(_WIN32)
 bool GetAdapterAndIndexbyLUID(LUID                              luid,
                               IDXGIAdapter*&                    adapter_ptr,
                               uint32_t&                         index,
@@ -1570,7 +1570,7 @@ bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTUR
     return is_texture_with_unknown_layout;
 }
 
-#ifdef WIN32
+#if defined(_WIN32)
 void RobustGetCopyableFootprint(ID3D12Device*                       device,
                                 ID3D12Resource*                     resource,
                                 const D3D12_RESOURCE_DESC*          pResourceDesc,

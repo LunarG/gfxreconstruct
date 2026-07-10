@@ -62,7 +62,7 @@ class VulkanDispatchTableGeneratorOptions(VulkanBaseGeneratorOptions):
         self.begin_end_file_data.system_headers.append('unordered_map')
 
         self.begin_end_file_data.pre_namespace_code.extend((
-            '#ifdef WIN32',
+            '#if defined(_WIN32)',
             '#ifdef CreateEvent',
             '#undef CreateEvent',
             '#endif',
