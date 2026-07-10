@@ -610,6 +610,49 @@ bool WriteBmpImageSeparateAlpha(const std::string& filename,
     return success;
 }
 
+#ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
+static bool WritePngData(
+    const std::string& filename, uint32_t width, uint32_t height, int components, const uint8_t* bytes, int row_pitch)
+{
+    bool success = false;
+
+    if (util::RemoteChannel::IsActive())
+    {
+        std::vector<uint8_t> png_data;
+        auto                 write_cb = [](void* ctx, void* buf, int sz) {
+            auto* vec = static_cast<std::vector<uint8_t>*>(ctx);
+            vec->insert(vec->end(), static_cast<uint8_t*>(buf), static_cast<uint8_t*>(buf) + sz);
+        };
+        if (1 ==
+            stbi_write_png_to_func(
+                write_cb, &png_data, static_cast<int>(width), static_cast<int>(height), components, bytes, row_pitch))
+        {
+            util::RemoteChannel::SendActiveFile(filename, png_data.data(), png_data.size());
+            success = true;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("%s() Failed writing PNG to memory", __func__);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+        if (1 == stbi_write_png(
+                     filename.c_str(), static_cast<int>(width), static_cast<int>(height), components, bytes, row_pitch))
+        {
+            success = true;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("%s() Failed writing file", __func__);
+        }
+    }
+
+    return success;
+}
+#endif
+
 bool WritePngImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
@@ -636,46 +679,7 @@ bool WritePngImage(const std::string& filename,
     const int png_components         = static_cast<int>(write_alpha ? kImageBpp : kImageBppNoAlpha);
     const int png_row_pitch          = static_cast<int>(width) * png_components;
 
-    if (util::RemoteChannel::IsActive())
-    {
-        std::vector<uint8_t> png_data;
-        auto                 write_cb = [](void* ctx, void* buf, int sz) {
-            auto* vec = static_cast<std::vector<uint8_t>*>(ctx);
-            vec->insert(vec->end(), static_cast<uint8_t*>(buf), static_cast<uint8_t*>(buf) + sz);
-        };
-        if (1 == stbi_write_png_to_func(write_cb,
-                                        &png_data,
-                                        static_cast<int>(width),
-                                        static_cast<int>(height),
-                                        png_components,
-                                        bytes,
-                                        png_row_pitch))
-        {
-            util::RemoteChannel::SendActiveFile(filename, png_data.data(), png_data.size());
-            success = true;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("%s() Failed writing PNG to memory", __func__);
-        }
-    }
-    else
-    {
-        GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
-        if (1 == stbi_write_png(filename.c_str(),
-                                static_cast<int>(width),
-                                static_cast<int>(height),
-                                png_components,
-                                bytes,
-                                png_row_pitch))
-        {
-            success = true;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("%s() Failed writing file", __func__);
-        }
-    }
+    success = WritePngData(filename, width, height, png_components, bytes, png_row_pitch);
 #endif
 
     return success;
@@ -696,13 +700,9 @@ bool WritePngImageSeparateAlpha(const std::string& filename,
     {
         const std::string alpha_filename = util::filepath::InsertFilenamePostfix(filename, "_alpha");
         const uint8_t*    alpha_channel  = ExtractAlphaChannel(width, height, data, data_pitch, false);
-        const size_t      alpha_pitch    = width;
-        success                          = stbi_write_png(alpha_filename.c_str(),
-                                 static_cast<int>(width),
-                                 static_cast<int>(height),
-                                 1,
-                                 alpha_channel,
-                                 static_cast<int>(alpha_pitch));
+        const int         alpha_pitch    = static_cast<int>(width);
+
+        success = WritePngData(alpha_filename, width, height, 1, alpha_channel, alpha_pitch);
 
         if (!success)
         {
