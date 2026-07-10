@@ -366,6 +366,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_setti
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
 {
+#if defined(GFXRECON_ENABLE_VULKAN)
     assert(options != nullptr);
 
     std::string settings_filename = util::settings::FindLayerSettingsFile();
@@ -385,6 +386,7 @@ void CaptureSettings::LoadOptionsFile(OptionsMap* options)
             GFXRECON_LOG_INFO("Failed to load settings from file (errno = %d)", result);
         }
     }
+#endif // defined(GFXRECON_ENABLE_VULKAN)
 }
 
 void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* settings, bool process_log_settings)
