@@ -43,6 +43,24 @@ jobs:
           exit 1
         fi
 
+  clang-tidy:
+    name: "Check code quality with clang-tidy"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy-18 libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - name: Configure
+      run: cmake -S . -B tidy-build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - name: Run clang-tidy
+      run: |
+        run-clang-tidy-18 -p tidy-build -quiet \
+          -warnings-as-errors='*' \
+          'framework/|tools/|layer/'
 
   linux:
     name: ${{ matrix.config.name }}
