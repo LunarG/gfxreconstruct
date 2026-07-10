@@ -636,7 +636,7 @@ VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice              
         return result;
     }
 
-    result = device_table_->QueueWaitIdle(initial_copy_queue_[device]);
+    result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, UINT64_MAX);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed waiting for internal command buffer %d "
