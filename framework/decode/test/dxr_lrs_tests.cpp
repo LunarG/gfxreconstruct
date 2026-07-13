@@ -180,6 +180,22 @@ TEST_CASE("In-DXIL LRS resolver binds an explicitly associated local root signat
                         { { 0, ResourceValueType::kGpuVirtualAddress }, { 8, ResourceValueType::kGpuVirtualAddress } });
 }
 
+TEST_CASE("In-DXIL LRS resolver accumulates association records and their export lists", "[dxr][lrs][rdat]")
+{
+    // One LRS named by two association records, the second listing two exports.
+    auto resolved = ResolveFixture("multi_association.cso");
+    CHECK(resolved.default_infos.empty());
+    // SharedLRS: two SRVs, resolved onto all three exports.
+    for (const wchar_t* export_name : { L"RayGen", L"Miss", L"ClosestHit" })
+    {
+        INFO("export: " << Narrow(export_name));
+        REQUIRE(resolved.export_infos.count(export_name) == 1);
+        CheckResourceValues(
+            resolved.export_infos.at(export_name),
+            { { 0, ResourceValueType::kGpuVirtualAddress }, { 8, ResourceValueType::kGpuVirtualAddress } });
+    }
+}
+
 TEST_CASE("In-DXIL LRS resolver handles an associated and a default local root signature together", "[dxr][lrs][rdat]")
 {
     auto resolved = ResolveFixture("two_lrs.cso");

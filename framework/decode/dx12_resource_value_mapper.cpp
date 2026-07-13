@@ -335,14 +335,15 @@ void GetDxilLibraryInDxilLrsInfo(const void*                                    
             }
             case hlsl::DXIL::SubobjectKind::SubobjectToExportsAssociation:
             {
-                auto                     association = subobject.getSubobjectToExportsAssociation();
-                auto                     exports     = association.getExports();
-                std::vector<std::string> export_list;
+                // The spec allows multiple association records to reference the same subobject, so accumulate the
+                // exports across records.
+                auto  association = subobject.getSubobjectToExportsAssociation();
+                auto  exports     = association.getExports();
+                auto& export_list = associations[association.getSubobject()];
                 for (uint32_t e = 0; e < exports.Count(); ++e)
                 {
                     export_list.push_back(exports[e]);
                 }
-                associations[association.getSubobject()] = std::move(export_list);
                 break;
             }
             default:

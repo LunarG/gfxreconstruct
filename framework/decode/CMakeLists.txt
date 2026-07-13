@@ -506,7 +506,8 @@ if (${RUN_TESTS})
         get_filename_component(DXC_BIN_DIR "${DXC_DLL_PATH}" DIRECTORY)
         set(DXR_LRS_FIXTURE_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/test/dxr_lrs_fixtures)
         set(DXR_LRS_FIXTURE_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/dxr_lrs_fixtures)
-        set(DXR_LRS_FIXTURES default_lrs associated_lrs two_lrs global_and_local mixed_lrs no_subobjects)
+        set(DXR_LRS_FIXTURES default_lrs associated_lrs multi_association two_lrs global_and_local mixed_lrs
+            no_subobjects)
         set(DXR_LRS_FIXTURE_OUTPUTS "")
         foreach(fixture ${DXR_LRS_FIXTURES})
             add_custom_command(
