@@ -7171,6 +7171,100 @@ struct CmdSetCoverageReductionModeNV
 };
 
 
+struct CreateTensorARM
+{
+    VkResult result;
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkTensorCreateInfoARM> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkTensorARM> pTensor;
+
+    auto GetTuple() const { return std::tie(result, device, pCreateInfo, pAllocator, pTensor); }
+};
+
+
+struct DestroyTensorARM
+{
+    format::HandleId device;
+    format::HandleId tensor;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    auto GetTuple() const { return std::tie(device, tensor, pAllocator); }
+};
+
+
+struct CreateTensorViewARM
+{
+    VkResult result;
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkTensorViewARM> pView;
+
+    auto GetTuple() const { return std::tie(result, device, pCreateInfo, pAllocator, pView); }
+};
+
+
+struct DestroyTensorViewARM
+{
+    format::HandleId device;
+    format::HandleId tensorView;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    auto GetTuple() const { return std::tie(device, tensorView, pAllocator); }
+};
+
+
+struct GetTensorMemoryRequirementsARM
+{
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkTensorMemoryRequirementsInfoARM> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    auto GetTuple() const { return std::tie(device, pInfo, pMemoryRequirements); }
+};
+
+
+struct BindTensorMemoryARM
+{
+    VkResult result;
+    format::HandleId device;
+    uint32_t bindInfoCount;
+    StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM> pBindInfos;
+
+    auto GetTuple() const { return std::tie(result, device, bindInfoCount, pBindInfos); }
+};
+
+
+struct GetDeviceTensorMemoryRequirementsARM
+{
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceTensorMemoryRequirementsARM> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    auto GetTuple() const { return std::tie(device, pInfo, pMemoryRequirements); }
+};
+
+
+struct CmdCopyTensorARM
+{
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyTensorInfoARM> pCopyTensorInfo;
+
+    auto GetTuple() const { return std::tie(commandBuffer, pCopyTensorInfo); }
+};
+
+
+struct GetPhysicalDeviceExternalTensorPropertiesARM
+{
+    format::HandleId physicalDevice;
+    StructPointerDecoder<Decoded_VkPhysicalDeviceExternalTensorInfoARM> pExternalTensorInfo;
+    StructPointerDecoder<Decoded_VkExternalTensorPropertiesARM> pExternalTensorProperties;
+
+    auto GetTuple() const { return std::tie(physicalDevice, pExternalTensorInfo, pExternalTensorProperties); }
+};
+
+
 struct GetShaderModuleIdentifierEXT
 {
     format::HandleId device;
@@ -7761,6 +7855,32 @@ struct CmdBeginCustomResolveEXT
     StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT> pBeginCustomResolveInfo;
 
     auto GetTuple() const { return std::tie(commandBuffer, pBeginCustomResolveInfo); }
+};
+
+
+struct GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
+{
+    VkResult result;
+    format::HandleId physicalDevice;
+    uint32_t queueFamilyIndex;
+    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM> pQueueFamilyDataGraphProperties;
+    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatInfoARM> pOpticalFlowImageFormatInfo;
+    PointerDecoder<uint32_t> pFormatCount;
+    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM> pImageFormatProperties;
+
+    auto GetTuple() const { return std::tie(result, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties); }
+};
+
+
+struct GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
+{
+    VkResult result;
+    format::HandleId physicalDevice;
+    uint32_t queueFamilyIndex;
+    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM> pQueueFamilyDataGraphProperties;
+    StructPointerDecoder<Decoded_VkBaseOutStructure> pProperties;
+
+    auto GetTuple() const { return std::tie(result, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties); }
 };
 
 

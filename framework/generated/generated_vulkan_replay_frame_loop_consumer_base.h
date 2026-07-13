@@ -544,38 +544,23 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
 
     void Process_vkCreateTensorARM(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkTensorCreateInfoARM>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkTensorARM>*          pTensor) override;
+        args::CreateTensorARM&                      args) override;
 
     void Process_vkDestroyTensorARM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            tensor,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+        args::DestroyTensorARM&                     args) override;
 
     void Process_vkCreateTensorViewARM(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkTensorViewARM>*      pView) override;
+        args::CreateTensorViewARM&                  args) override;
 
     void Process_vkDestroyTensorViewARM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            tensorView,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+        args::DestroyTensorViewARM&                 args) override;
 
     void Process_vkBindTensorMemoryARM(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        uint32_t                                    bindInfoCount,
-        StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM>* pBindInfos) override;
+        args::BindTensorMemoryARM&                  args) override;
 
     void Process_vkCreateOpticalFlowSessionNV(
         const ApiCallInfo&                          call_info,

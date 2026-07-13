@@ -12460,21 +12460,17 @@ size_t VulkanDecoder::Decode_vkCreateTensorARM(const ApiCallInfo& call_info, con
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    StructPointerDecoder<Decoded_VkTensorCreateInfoARM> pCreateInfo;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-    HandlePointerDecoder<VkTensorARM> pTensor;
-    VkResult return_value;
+    args::CreateTensorARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pTensor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += args.pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pTensor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkCreateTensorARM(call_info, return_value, device, &pCreateInfo, &pAllocator, &pTensor);
+        consumer->Process_vkCreateTensorARM(call_info, args);
     }
 
     return bytes_read;
@@ -12484,17 +12480,15 @@ size_t VulkanDecoder::Decode_vkDestroyTensorARM(const ApiCallInfo& call_info, co
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    format::HandleId tensor;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    args::DestroyTensorARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &tensor);
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.tensor);
+    bytes_read += args.pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkDestroyTensorARM(call_info, device, tensor, &pAllocator);
+        consumer->Process_vkDestroyTensorARM(call_info, args);
     }
 
     return bytes_read;
@@ -12504,21 +12498,17 @@ size_t VulkanDecoder::Decode_vkCreateTensorViewARM(const ApiCallInfo& call_info,
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM> pCreateInfo;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-    HandlePointerDecoder<VkTensorViewARM> pView;
-    VkResult return_value;
+    args::CreateTensorViewARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pView.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += args.pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pView.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkCreateTensorViewARM(call_info, return_value, device, &pCreateInfo, &pAllocator, &pView);
+        consumer->Process_vkCreateTensorViewARM(call_info, args);
     }
 
     return bytes_read;
@@ -12528,17 +12518,15 @@ size_t VulkanDecoder::Decode_vkDestroyTensorViewARM(const ApiCallInfo& call_info
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    format::HandleId tensorView;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    args::DestroyTensorViewARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &tensorView);
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.tensorView);
+    bytes_read += args.pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkDestroyTensorViewARM(call_info, device, tensorView, &pAllocator);
+        consumer->Process_vkDestroyTensorViewARM(call_info, args);
     }
 
     return bytes_read;
@@ -12548,17 +12536,15 @@ size_t VulkanDecoder::Decode_vkGetTensorMemoryRequirementsARM(const ApiCallInfo&
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    StructPointerDecoder<Decoded_VkTensorMemoryRequirementsInfoARM> pInfo;
-    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+    args::GetTensorMemoryRequirementsARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkGetTensorMemoryRequirementsARM(call_info, device, &pInfo, &pMemoryRequirements);
+        consumer->Process_vkGetTensorMemoryRequirementsARM(call_info, args);
     }
 
     return bytes_read;
@@ -12568,19 +12554,16 @@ size_t VulkanDecoder::Decode_vkBindTensorMemoryARM(const ApiCallInfo& call_info,
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    uint32_t bindInfoCount;
-    StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM> pBindInfos;
-    VkResult return_value;
+    args::BindTensorMemoryARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
-    bytes_read += pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.bindInfoCount);
+    bytes_read += args.pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkBindTensorMemoryARM(call_info, return_value, device, bindInfoCount, &pBindInfos);
+        consumer->Process_vkBindTensorMemoryARM(call_info, args);
     }
 
     return bytes_read;
@@ -12590,17 +12573,15 @@ size_t VulkanDecoder::Decode_vkGetDeviceTensorMemoryRequirementsARM(const ApiCal
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    StructPointerDecoder<Decoded_VkDeviceTensorMemoryRequirementsARM> pInfo;
-    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+    args::GetDeviceTensorMemoryRequirementsARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkGetDeviceTensorMemoryRequirementsARM(call_info, device, &pInfo, &pMemoryRequirements);
+        consumer->Process_vkGetDeviceTensorMemoryRequirementsARM(call_info, args);
     }
 
     return bytes_read;
@@ -12610,15 +12591,14 @@ size_t VulkanDecoder::Decode_vkCmdCopyTensorARM(const ApiCallInfo& call_info, co
 {
     size_t bytes_read = 0;
 
-    format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCopyTensorInfoARM> pCopyTensorInfo;
+    args::CmdCopyTensorARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pCopyTensorInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+    bytes_read += args.pCopyTensorInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkCmdCopyTensorARM(call_info, commandBuffer, &pCopyTensorInfo);
+        consumer->Process_vkCmdCopyTensorARM(call_info, args);
     }
 
     return bytes_read;
@@ -12628,17 +12608,15 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalTensorPropertiesARM(cons
 {
     size_t bytes_read = 0;
 
-    format::HandleId physicalDevice;
-    StructPointerDecoder<Decoded_VkPhysicalDeviceExternalTensorInfoARM> pExternalTensorInfo;
-    StructPointerDecoder<Decoded_VkExternalTensorPropertiesARM> pExternalTensorProperties;
+    args::GetPhysicalDeviceExternalTensorPropertiesARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalTensorInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalTensorProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
+    bytes_read += args.pExternalTensorInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pExternalTensorProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(call_info, physicalDevice, &pExternalTensorInfo, &pExternalTensorProperties);
+        consumer->Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(call_info, args);
     }
 
     return bytes_read;
@@ -13681,25 +13659,19 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowI
 {
     size_t bytes_read = 0;
 
-    format::HandleId physicalDevice;
-    uint32_t queueFamilyIndex;
-    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM> pQueueFamilyDataGraphProperties;
-    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatInfoARM> pOpticalFlowImageFormatInfo;
-    PointerDecoder<uint32_t> pFormatCount;
-    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM> pImageFormatProperties;
-    VkResult return_value;
+    args::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queueFamilyIndex);
-    bytes_read += pQueueFamilyDataGraphProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pOpticalFlowImageFormatInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pFormatCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pImageFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queueFamilyIndex);
+    bytes_read += args.pQueueFamilyDataGraphProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pOpticalFlowImageFormatInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pFormatCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pImageFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(call_info, return_value, physicalDevice, queueFamilyIndex, &pQueueFamilyDataGraphProperties, &pOpticalFlowImageFormatInfo, &pFormatCount, &pImageFormatProperties);
+        consumer->Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(call_info, args);
     }
 
     return bytes_read;
@@ -13709,21 +13681,17 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperat
 {
     size_t bytes_read = 0;
 
-    format::HandleId physicalDevice;
-    uint32_t queueFamilyIndex;
-    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM> pQueueFamilyDataGraphProperties;
-    StructPointerDecoder<Decoded_VkBaseOutStructure> pProperties;
-    VkResult return_value;
+    args::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM args;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queueFamilyIndex);
-    bytes_read += pQueueFamilyDataGraphProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queueFamilyIndex);
+    bytes_read += args.pQueueFamilyDataGraphProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(call_info, return_value, physicalDevice, queueFamilyIndex, &pQueueFamilyDataGraphProperties, &pProperties);
+        consumer->Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(call_info, args);
     }
 
     return bytes_read;

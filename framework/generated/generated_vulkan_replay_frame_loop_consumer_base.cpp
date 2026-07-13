@@ -2991,24 +2991,20 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateTensorARM(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkTensorCreateInfoARM>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkTensorARM>*          pTensor)
+    args::CreateTensorARM&                      args)
 {
     // Check for null cases
-    if (pTensor == nullptr || pTensor->IsNull())
+    if (args.pTensor.IsNull())
     {
         return;
     }
-    format::HandleId handle = *pTensor->GetPointer();
+    format::HandleId handle = *args.pTensor.GetPointer();
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
     if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
-        VulkanReplayConsumer::Process_vkCreateTensorARM(call_info, returnValue, device, pCreateInfo, pAllocator, pTensor);
+        VulkanReplayConsumer::Process_vkCreateTensorARM(call_info, args);
         // If we are looping, save the handle in allocatedLoopResources
         if (getFrameLoopInfo().IsLooping())
         {
@@ -3019,59 +3015,53 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateTensorARM(
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorARM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            device,
-    format::HandleId                            tensor,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+    args::DestroyTensorARM&                     args)
 {
     // Skip for loop iterations 1-(n-1).
     // Skip if looping and if not final iteration
-    // Execute if tensor is in allocatedLoopResources
+    // Execute if args.tensor is in allocatedLoopResources
 
     // Call Process_vkDestroyTensorARM if:
     //    We are not looping
-    //    We are looping and tensor is in allocatedLoopResources
+    //    We are looping and args.tensor is in allocatedLoopResources
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!allocatedLoopResources.contains(tensor))
-        VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, device, tensor, pAllocator);
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.tensor))
+        VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, args);
     }
-    else if (allocatedLoopResources.contains(tensor))
+    else if (allocatedLoopResources.contains(args.tensor))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
-        VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, device, tensor, pAllocator);
-        allocatedLoopResources.erase(tensor);
+        VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, args);
+        allocatedLoopResources.erase(args.tensor);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
         // Looping special case:
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
-        VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, device, tensor, pAllocator);
+        VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, args);
     }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateTensorViewARM(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkTensorViewARM>*      pView)
+    args::CreateTensorViewARM&                  args)
 {
     // Check for null cases
-    if (pView == nullptr || pView->IsNull())
+    if (args.pView.IsNull())
     {
         return;
     }
-    format::HandleId handle = *pView->GetPointer();
+    format::HandleId handle = *args.pView.GetPointer();
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
     if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
-        VulkanReplayConsumer::Process_vkCreateTensorViewARM(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
+        VulkanReplayConsumer::Process_vkCreateTensorViewARM(call_info, args);
         // If we are looping, save the handle in allocatedLoopResources
         if (getFrameLoopInfo().IsLooping())
         {
@@ -3082,52 +3072,47 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateTensorViewARM(
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorViewARM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            device,
-    format::HandleId                            tensorView,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+    args::DestroyTensorViewARM&                 args)
 {
     // Skip for loop iterations 1-(n-1).
     // Skip if looping and if not final iteration
-    // Execute if tensorView is in allocatedLoopResources
+    // Execute if args.tensorView is in allocatedLoopResources
 
     // Call Process_vkDestroyTensorViewARM if:
     //    We are not looping
-    //    We are looping and tensorView is in allocatedLoopResources
+    //    We are looping and args.tensorView is in allocatedLoopResources
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!allocatedLoopResources.contains(tensorView))
-        VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, device, tensorView, pAllocator);
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.tensorView))
+        VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, args);
     }
-    else if (allocatedLoopResources.contains(tensorView))
+    else if (allocatedLoopResources.contains(args.tensorView))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
-        VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, device, tensorView, pAllocator);
-        allocatedLoopResources.erase(tensorView);
+        VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, args);
+        allocatedLoopResources.erase(args.tensorView);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
         // Looping special case:
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
-        VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, device, tensorView, pAllocator);
+        VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, args);
     }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    uint32_t                                    bindInfoCount,
-    StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM>* pBindInfos)
+    args::BindTensorMemoryARM&                  args)
 {
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
         return;
     }
-    VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, returnValue, device, bindInfoCount, pBindInfos);
+    VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateOpticalFlowSessionNV(

@@ -1917,12 +1917,9 @@ void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageReductionModeNV(
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyTensorARM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyTensorInfoARM>* pCopyTensorInfo)
+    args::CmdCopyTensorARM&                     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pCopyTensorInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdOpticalFlowExecuteNV(
