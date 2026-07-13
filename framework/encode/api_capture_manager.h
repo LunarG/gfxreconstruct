@@ -134,6 +134,7 @@ class ApiCaptureManager
         common_manager_->PostQueueSubmit(api_family_, current_lock);
     }
 
+    bool ScreenshotsEnabled() { return common_manager_->ScreenshotsEnabled(); }
     bool ShouldTriggerScreenshot() { return common_manager_->ShouldTriggerScreenshot(); }
 
     void CheckContinueCaptureForWriteMode(uint32_t                                               current_boundary_count,
