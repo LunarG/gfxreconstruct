@@ -74,8 +74,7 @@ void HandleDescriptorUpdate(CommonObjectInfoTable&                              
 
         for (uint32_t i = 0; i < write_meta.decoded_value->descriptorCount; ++i)
         {
-            if (binding_it != descriptor_bindings_info.end() && binding_it->second.count != 0 &&
-                arr_idx >= binding_it->second.count)
+            if (binding_it->second.count != 0 && arr_idx >= binding_it->second.count)
             {
                 // Advance to next non zero count binding
                 do
