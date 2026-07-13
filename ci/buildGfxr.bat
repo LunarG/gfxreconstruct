@@ -29,4 +29,4 @@ echo creating Python virtual environment in %WORKSPACE%\python-venv...
 python -m venv "%WORKSPACE%\python-venv"
 "%WORKSPACE%\python-venv\Scripts\python" -m pip install --no-cache-dir -r VulkanTests\requirements.txt > "%WORKSPACE%\python-venv.txt" 2>&1 || exit /b
 
-"%WORKSPACE%\python-venv\Scripts\python" VulkanTests\gfxrecontest.py --no-test --compiler vs2022 --build-mode %BUILD_MODE% --bits %BITS% --result-dir "%RESULTS_DIR%-build"
+"%WORKSPACE%\python-venv\Scripts\python" VulkanTests\gfxrecontest.py --no-test --compiler vs2022 --build-mode %BUILD_MODE% --bits 64 --result-dir "%RESULTS_DIR%-build"
