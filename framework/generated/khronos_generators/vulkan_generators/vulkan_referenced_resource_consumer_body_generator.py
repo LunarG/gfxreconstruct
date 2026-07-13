@@ -115,20 +115,9 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
                     cmddef += '{\n'
                     indent = self.INDENT_SIZE * ' '
 
-                    # Add unreferenced parameter macros.
-                    unref_count = 0
-                    for param in params[1:]:
-                        if param not in handles:
-                            cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(
-                                param.name
-                            )
-                            unref_count += 1
-                    if unref_count > 0:
-                        cmddef += '\n'
-
                     for index, handle in enumerate(handles):
                         cmddef += self.track_command_handle(
-                            index, params[0].name, handle, indent=indent
+                            index, params[0].name, handle, param_prefix=params[0].prefix, value_prefix=params[0].prefix, indent=indent
                         )
                     cmddef += '}'
 
@@ -150,7 +139,7 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
 
 
     def track_command_handle(
-        self, index, command_param_name, value, value_prefix='', indent=''
+        self, index, command_param_name, value, param_prefix='', value_prefix='', indent=''
     ):
         body = ''
         tail = ''
@@ -165,11 +154,8 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
             if index > 0:
                 body += '\n'
 
-            access_operator = '->'
-            if not value_prefix:
-                # If there is no prefix, this is the pointer parameter received by the function, which should never be null.
-                body += indent + 'GFXRECON_ASSERT({} != nullptr);\n'.format(value.name)
-                body += '\n'
+            access_operator = '.'
+            if value_prefix == value.prefix:
                 # Add IsNull and HasData checks for the pointer decoder, before accessing its data.
                 # Note that this does not handle the decoded struct member cases for static arrays, which would need to use '.' instead of '->'.
                 body += indent + 'if (!{prefix}{name}{op}IsNull() && ({prefix}{name}{op}HasData()))\n'.format(
@@ -182,6 +168,7 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
                 # If there is a prefix, this is a struct member.  We need to determine the type of access operator to use
                 # for the member of a 'decoded' struct type, where handle member types will be HandlePointerDecoder, but
                 # struct member types will be unique_ptr<StructPointerDecoder>.
+                access_operator = '->'
                 if is_handle:
                     access_operator = '.'
 
@@ -228,15 +215,15 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
 
             if value.base_type in self.CONTAINER_HANDLE_TYPES:
                 body += indent + 'GetTable().AddContainerToUser({}, {});\n'.format(
-                    command_param_name, value_name
+                    param_prefix + command_param_name, value_name
                 )
             elif value.base_type in self.USER_HANDLE_TYPES:
                 body += indent + 'GetTable().AddUserToUser({}, {});\n'.format(
-                    command_param_name, value_name
+                    param_prefix + command_param_name, value_name
                 )
             else:
                 body += indent + 'GetTable().AddResourceToUser({}, {});\n'.format(
-                    command_param_name, value_name
+                    param_prefix + command_param_name, value_name
                 )
 
         elif self.is_struct(
@@ -274,7 +261,8 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
                                     'ext_struct_info', ext_struct,
                                     'const {} *'.format(ext_struct), 1
                                 ),
-                                '',
+                                param_prefix=param_prefix,
+                                value_prefix='',
                                 indent=indent
                             )
                             indent = indent[:-self.INDENT_SIZE]
@@ -284,8 +272,8 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
                             body += indent + '}\n'
                 else:
                     body += self.track_command_handle(
-                        index, command_param_name, entry,
-                        value_name + access_operator, indent
+                        index, command_param_name, entry, param_prefix=param_prefix,
+                        value_prefix = value_name + access_operator, indent=indent
                     )
 
         return body + tail

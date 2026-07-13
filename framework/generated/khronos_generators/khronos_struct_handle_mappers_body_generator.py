@@ -466,21 +466,21 @@ class KhronosStructHandleMappersBodyGenerator():
                 func_id = self.get_extended_struct_func_prefix()
                 body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
-                body += f'            Set{func_id}StructHandleLengths(wrapper->{member.name}->GetPointer(), wrapper->{member.name}->GetMetaStructPointer());\n'
+                body += f'            Set{func_id}StructHandleLengths(wrapper->{member.prefixed_name}{member.op}GetPointer(), wrapper->{member.prefixed_name}{member.op}GetMetaStructPointer());\n'
                 body += '        }\n'
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength());\n'.format(
-                        member.base_type, name=member.name
+                    body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}{op}GetMetaStructPointer(), wrapper->{name}{op}GetLength());\n'.format(
+                        member.base_type, name=member.prefixed_name, op=member.op
                     )
                 elif member.is_pointer:
-                    body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), 1);\n'.format(
-                        member.base_type, name=member.name
+                    body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}{op}GetMetaStructPointer(), 1);\n'.format(
+                        member.base_type, name=member.prefixed_name, op=member.op
                     )
                 else:
                     body += '        SetStructHandleLengths(wrapper->{name});\n'.format(
-                        name=member.name
+                        name=member.prefixed_name
                     )
             else:
                 # If it is an array or pointer, add with the utility function.

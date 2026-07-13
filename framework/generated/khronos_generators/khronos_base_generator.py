@@ -263,6 +263,8 @@ class ValueInfo():
 
     Members:
       name - Parameter/struct member name of the value.
+      prefix - The prefix to use for the value when generating code.  This is used to identify the variable as a member of an args struct, a pointer decoder, etc.
+      prefixed_name - The name of the value with the args prefix.
       base_type - Undecorated typename of the value.
       full_type - Fully qualified typename of the value.
       pointer_count - Number of '*' characters in the type declaration.
@@ -294,13 +296,25 @@ class ValueInfo():
         bitfield_width=None,
         is_const=False,
         is_optional=False,
-        is_com_outptr=False
+        is_com_outptr=False,
+        prefix='',
+        op='->',
     ):
         self.name = name
+        self.prefix = prefix
+        self.op = op
+        self.prefixed_name = f'{self.prefix}{name}'
         self.base_type = base_type
         self.full_type = full_type
         self.pointer_count = pointer_count
         self.array_length = array_length
+        self.prefixed_array_length = array_length
+        if not array_length is None:
+            if array_length.startswith('('):
+                # Edge case for array length expressions.
+                self.prefixed_array_length = f'({self.prefix}{array_length[1:]}'
+            elif not array_length.isdigit():
+                self.prefixed_array_length = f'{self.prefix}{array_length}'
         self.array_length_value = array_length_value
         self.array_capacity = array_capacity
         self.array_dimension = array_dimension
@@ -1782,7 +1796,9 @@ class KhronosBaseGenerator(OutputGenerator):
                     platform_base_type=platform_base_type,
                     platform_full_type=platform_full_type,
                     bitfield_width=bitfield_width,
-                    is_optional=is_optional
+                    is_optional=is_optional,
+                    prefix=self.get_param_prefix(),
+                    op=self.get_param_accessor()
                 )
             )
 
@@ -2280,6 +2296,17 @@ class KhronosBaseGenerator(OutputGenerator):
         )
         param_decls.append(param_decl)
 
+        param_decls.extend(self.make_param_decls(return_type, name, values))
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return 'void {}()'.format(name)
+
+    def make_param_decls(self, return_type, name, values):
+        """make_param_decls - return list of parameter declarations for an API call consumer function."""
+        param_decls = []
+
         if return_type != 'void':
             param_decl = self.make_aligned_param_decl(
                 return_type, 'returnValue', self.INDENT_SIZE,
@@ -2299,10 +2326,7 @@ class KhronosBaseGenerator(OutputGenerator):
             )
             param_decls.append(param_decl)
 
-        if param_decls:
-            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
-
-        return 'void {}()'.format(name)
+        return param_decls
 
     def make_structure_type_enum(self, typeinfo, typename):
         """Generate the VkStructureType enumeration value for the specified structure type."""
@@ -2520,3 +2544,9 @@ class KhronosBaseGenerator(OutputGenerator):
             if child in self.structs_with_handles:
                 return True
         return False
+
+    def get_param_prefix(self):
+        return ''
+
+    def get_param_accessor(self):
+        return '->'

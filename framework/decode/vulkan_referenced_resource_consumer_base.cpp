@@ -26,24 +26,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallInfo& call_info,
-                                                                 VkResult           returnValue,
-                                                                 format::HandleId   queue,
-                                                                 uint32_t           submitCount,
-                                                                 StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                                                 format::HandleId                            fence)
+void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(queue);
-    GFXRECON_UNREFERENCED_PARAMETER(submitCount);
-    GFXRECON_UNREFERENCED_PARAMETER(fence);
-
-    GFXRECON_ASSERT(pSubmits != nullptr);
-
-    if (!pSubmits->IsNull() && pSubmits->HasData())
+    if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
     {
-        size_t     submit_count = pSubmits->GetLength();
-        const auto submits      = pSubmits->GetMetaStructPointer();
+        size_t     submit_count = args.pSubmits.GetLength();
+        const auto submits      = args.pSubmits.GetMetaStructPointer();
 
         for (size_t i = 0; i < submit_count; ++i)
         {
@@ -58,24 +46,13 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallInfo& call_info,
-                                                                  VkResult           returnValue,
-                                                                  format::HandleId   queue,
-                                                                  uint32_t           submitCount,
-                                                                  StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                                                  format::HandleId                             fence)
+void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallInfo&  call_info,
+                                                                  args::QueueSubmit2& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(queue);
-    GFXRECON_UNREFERENCED_PARAMETER(submitCount);
-    GFXRECON_UNREFERENCED_PARAMETER(fence);
-
-    GFXRECON_ASSERT(pSubmits != nullptr);
-
-    if (!pSubmits->IsNull() && pSubmits->HasData())
+    if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
     {
-        size_t     submit_count = pSubmits->GetLength();
-        const auto submits      = pSubmits->GetMetaStructPointer();
+        size_t     submit_count = args.pSubmits.GetLength();
+        const auto submits      = args.pSubmits.GetMetaStructPointer();
 
         for (size_t i = 0; i < submit_count; ++i)
         {
@@ -90,133 +67,66 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallI
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
-    const ApiCallInfo&                                   call_info,
-    VkResult                                             returnValue,
-    format::HandleId                                     device,
-    StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkBuffer>*                      pBuffer)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(const ApiCallInfo&  call_info,
+                                                                  args::CreateBuffer& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    GFXRECON_ASSERT(pBuffer != nullptr);
-
-    if (!pBuffer->IsNull() && pBuffer->HasData())
+    if (!args.pBuffer.IsNull() && args.pBuffer.HasData())
     {
-        table_.AddResource(*pBuffer->GetPointer());
+        table_.AddResource(*args.pBuffer.GetPointer());
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateBufferView(
-    const ApiCallInfo&                                    call_info,
-    VkResult                                              returnValue,
-    format::HandleId                                      device,
-    StructPointerDecoder<Decoded_VkBufferViewCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
-    HandlePointerDecoder<VkBufferView>*                   pView)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateBufferView(const ApiCallInfo&      call_info,
+                                                                      args::CreateBufferView& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    GFXRECON_ASSERT(pCreateInfo != nullptr && pView != nullptr);
-
-    if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pView->IsNull() && pView->HasData())
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pView.IsNull() && args.pView.HasData())
     {
-        const auto create_info = pCreateInfo->GetMetaStructPointer();
-        table_.AddResource(create_info->buffer, *pView->GetPointer());
+        const auto create_info = args.pCreateInfo.GetMetaStructPointer();
+        table_.AddResource(create_info->buffer, *args.pView.GetPointer());
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(
-    const ApiCallInfo&                                   call_info,
-    VkResult                                             returnValue,
-    format::HandleId                                     device,
-    StructPointerDecoder<Decoded_VkImageCreateInfo>*     pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkImage>*                       pImage)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    GFXRECON_ASSERT(pImage != nullptr);
-
-    if (!pImage->IsNull() && pImage->HasData())
+    if (!args.pImage.IsNull() && args.pImage.HasData())
     {
-        table_.AddResource(*pImage->GetPointer());
+        table_.AddResource(*args.pImage.GetPointer());
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateImageView(
-    const ApiCallInfo&                                   call_info,
-    VkResult                                             returnValue,
-    format::HandleId                                     device,
-    StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkImageView>*                   pView)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateImageView(const ApiCallInfo&     call_info,
+                                                                     args::CreateImageView& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    GFXRECON_ASSERT(pCreateInfo != nullptr && pView != nullptr);
-
-    if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pView->IsNull() && pView->HasData())
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pView.IsNull() && args.pView.HasData())
     {
-        const auto create_info = pCreateInfo->GetMetaStructPointer();
-        table_.AddResource(create_info->image, *pView->GetPointer());
+        const auto create_info = args.pCreateInfo.GetMetaStructPointer();
+        table_.AddResource(create_info->image, *args.pView.GetPointer());
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateFramebuffer(
-    const ApiCallInfo&                                     call_info,
-    VkResult                                               returnValue,
-    format::HandleId                                       device,
-    StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
-    HandlePointerDecoder<VkFramebuffer>*                   pFramebuffer)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateFramebuffer(const ApiCallInfo&       call_info,
+                                                                       args::CreateFramebuffer& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    GFXRECON_ASSERT(pCreateInfo != nullptr && pFramebuffer != nullptr);
-
-    if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pFramebuffer->IsNull() && pFramebuffer->HasData())
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pFramebuffer.IsNull() &&
+        args.pFramebuffer.HasData())
     {
-        const auto create_info = pCreateInfo->GetMetaStructPointer();
+        const auto create_info = args.pCreateInfo.GetMetaStructPointer();
         auto       view_count  = create_info->pAttachments.GetLength();
         const auto views       = create_info->pAttachments.GetPointer();
 
-        table_.AddResource(view_count, views, *pFramebuffer->GetPointer());
+        table_.AddResource(view_count, views, *args.pFramebuffer.GetPointer());
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
-    const ApiCallInfo&                                             call_info,
-    VkResult                                                       returnValue,
-    format::HandleId                                               device,
-    StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
-    HandlePointerDecoder<VkDescriptorSetLayout>*                   pSetLayout)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(const ApiCallInfo& call_info,
+                                                                               args::CreateDescriptorSetLayout& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    GFXRECON_ASSERT(pCreateInfo != nullptr && pSetLayout != nullptr);
-
-    if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pSetLayout->IsNull() && pSetLayout->HasData())
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pSetLayout.IsNull() &&
+        args.pSetLayout.HasData())
     {
-        const auto  create_info = pCreateInfo->GetPointer();
+        const auto  create_info = args.pCreateInfo.GetPointer();
         const auto& bindings    = create_info->pBindings;
-        auto        layout_id   = (*pSetLayout->GetPointer());
+        auto        layout_id   = (*args.pSetLayout.GetPointer());
 
         for (uint32_t i = 0; i < create_info->bindingCount; ++i)
         {
@@ -227,53 +137,26 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTemplate(
-    const ApiCallInfo&                                                  call_info,
-    VkResult                                                            returnValue,
-    format::HandleId                                                    device,
-    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-    HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
+    const ApiCallInfo& call_info, args::CreateDescriptorUpdateTemplate& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    CreateDescriptorUpdateTemplate(pCreateInfo, pDescriptorUpdateTemplate);
+    CreateDescriptorUpdateTemplate(&args.pCreateInfo, &args.pDescriptorUpdateTemplate);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTemplateKHR(
-    const ApiCallInfo&                                                  call_info,
-    VkResult                                                            returnValue,
-    format::HandleId                                                    device,
-    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-    HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
+    const ApiCallInfo& call_info, args::CreateDescriptorUpdateTemplateKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    CreateDescriptorUpdateTemplate(pCreateInfo, pDescriptorUpdateTemplate);
+    CreateDescriptorUpdateTemplate(&args.pCreateInfo, &args.pDescriptorUpdateTemplate);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateAccelerationStructureKHR(
-    const ApiCallInfo&                                                  call_info,
-    VkResult                                                            returnValue,
-    format::HandleId                                                    device,
-    StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-    HandlePointerDecoder<VkAccelerationStructureKHR>*                   pAccelerationStructure)
+    const ApiCallInfo& call_info, args::CreateAccelerationStructureKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(call_info);
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if (!pCreateInfo->IsNull() && pCreateInfo->HasData())
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData())
     {
-        const auto meta_create_info = pCreateInfo->GetMetaStructPointer();
+        const auto meta_create_info = args.pCreateInfo.GetMetaStructPointer();
 
-        table_.AddResource(*pAccelerationStructure->GetPointer());
-        table_.AddResource(*pAccelerationStructure->GetPointer(), meta_create_info->buffer, true);
+        table_.AddResource(*args.pAccelerationStructure.GetPointer());
+        table_.AddResource(*args.pAccelerationStructure.GetPointer(), meta_create_info->buffer, true);
     }
 }
 
@@ -286,130 +169,87 @@ void VulkanReferencedResourceConsumerBase::ProcessSetOpaqueAddressCommand(format
     dev_address_to_resource_map_[object_id] = address;
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkBindBufferMemory(const ApiCallInfo& call_info,
-                                                                      VkResult           returnValue,
-                                                                      format::HandleId   device,
-                                                                      format::HandleId   buffer,
-                                                                      format::HandleId   memory,
-                                                                      VkDeviceSize       memoryOffset)
+void VulkanReferencedResourceConsumerBase::Process_vkBindBufferMemory(const ApiCallInfo&      call_info,
+                                                                      args::BindBufferMemory& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(call_info);
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    const auto dev_mem_dev_addr = dev_address_to_resource_map_.find(memory);
+    const auto dev_mem_dev_addr = dev_address_to_resource_map_.find(args.memory);
     if (dev_mem_dev_addr != dev_address_to_resource_map_.end())
     {
-        const VkDeviceAddress address        = dev_mem_dev_addr->second + memoryOffset;
-        dev_address_to_buffers_map_[address] = buffer;
+        const VkDeviceAddress address        = dev_mem_dev_addr->second + args.memoryOffset;
+        dev_address_to_buffers_map_[address] = args.buffer;
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(
-    const ApiCallInfo&                                             call_info,
-    format::HandleId                                               commandBuffer,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-    uint32_t                                                       width,
-    uint32_t                                                       height,
-    uint32_t                                                       depth)
+void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(const ApiCallInfo&     call_info,
+                                                                     args::CmdTraceRaysKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(call_info);
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
-    GFXRECON_UNREFERENCED_PARAMETER(depth);
-
-    if (!pRaygenShaderBindingTable->IsNull() && pRaygenShaderBindingTable->HasData())
+    if (!args.pRaygenShaderBindingTable.IsNull() && args.pRaygenShaderBindingTable.HasData())
     {
-        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pRaygenShaderBindingTable->GetMetaStructPointer();
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = args.pRaygenShaderBindingTable.GetMetaStructPointer();
         const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
         if (buffer != dev_address_to_buffers_map_.end())
         {
-            table_.AddResourceToUser(commandBuffer, buffer->second);
+            table_.AddResourceToUser(args.commandBuffer, buffer->second);
         }
     }
 
-    if (!pMissShaderBindingTable->IsNull() && pMissShaderBindingTable->HasData())
+    if (!args.pMissShaderBindingTable.IsNull() && args.pMissShaderBindingTable.HasData())
     {
-        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pMissShaderBindingTable->GetMetaStructPointer();
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = args.pMissShaderBindingTable.GetMetaStructPointer();
         const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
         if (buffer != dev_address_to_buffers_map_.end())
         {
-            table_.AddResourceToUser(commandBuffer, buffer->second);
+            table_.AddResourceToUser(args.commandBuffer, buffer->second);
         }
     }
 
-    if (!pHitShaderBindingTable->IsNull() && pHitShaderBindingTable->HasData())
+    if (!args.pHitShaderBindingTable.IsNull() && args.pHitShaderBindingTable.HasData())
     {
-        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pHitShaderBindingTable->GetMetaStructPointer();
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = args.pHitShaderBindingTable.GetMetaStructPointer();
         const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
         if (buffer != dev_address_to_buffers_map_.end())
         {
-            table_.AddResourceToUser(commandBuffer, buffer->second);
+            table_.AddResourceToUser(args.commandBuffer, buffer->second);
         }
     }
 
-    if (!pCallableShaderBindingTable->IsNull() && pCallableShaderBindingTable->HasData())
+    if (!args.pCallableShaderBindingTable.IsNull() && args.pCallableShaderBindingTable.HasData())
     {
-        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pCallableShaderBindingTable->GetMetaStructPointer();
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = args.pCallableShaderBindingTable.GetMetaStructPointer();
         const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
         if (buffer != dev_address_to_buffers_map_.end())
         {
-            table_.AddResourceToUser(commandBuffer, buffer->second);
+            table_.AddResourceToUser(args.commandBuffer, buffer->second);
         }
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     device,
-    format::HandleId                                     descriptorPool,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,
+                                                                           args::DestroyDescriptorPool& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    table_.ClearContainers(descriptorPool);
+    table_.ClearContainers(args.descriptorPool);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
-                                                                         VkResult                   returnValue,
-                                                                         format::HandleId           device,
-                                                                         format::HandleId           descriptorPool,
-                                                                         VkDescriptorPoolResetFlags flags)
+                                                                         args::ResetDescriptorPool& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    table_.ClearContainers(descriptorPool);
+    table_.ClearContainers(args.descriptorPool);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
-    const ApiCallInfo&                                         call_info,
-    VkResult                                                   returnValue,
-    format::HandleId                                           device,
-    StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-    HandlePointerDecoder<VkDescriptorSet>*                     pDescriptorSets)
+void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(const ApiCallInfo&            call_info,
+                                                                            args::AllocateDescriptorSets& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    GFXRECON_ASSERT(pAllocateInfo != nullptr && pDescriptorSets != nullptr);
-
-    if (!pAllocateInfo->IsNull() && pAllocateInfo->HasData() && !pDescriptorSets->IsNull() &&
-        pDescriptorSets->HasData())
+    if (!args.pAllocateInfo.IsNull() && args.pAllocateInfo.HasData() && !args.pDescriptorSets.IsNull() &&
+        args.pDescriptorSets.HasData())
     {
-        const auto alloc_info      = pAllocateInfo->GetPointer();
-        const auto alloc_meta_info = pAllocateInfo->GetMetaStructPointer();
-        const auto sets            = pDescriptorSets->GetPointer();
+        const auto alloc_info      = args.pAllocateInfo.GetPointer();
+        const auto alloc_meta_info = args.pAllocateInfo.GetMetaStructPointer();
+        const auto sets            = args.pDescriptorSets.GetPointer();
         const auto layouts         = alloc_meta_info->pSetLayouts.GetPointer();
         auto       pool            = alloc_meta_info->descriptorPool;
         auto       count           = alloc_info->descriptorSetCount;
 
-        GFXRECON_ASSERT(pDescriptorSets->GetLength() == count && alloc_meta_info->pSetLayouts.GetLength() == count);
+        GFXRECON_ASSERT(args.pDescriptorSets.GetLength() == count && alloc_meta_info->pSetLayouts.GetLength() == count);
 
         for (uint32_t i = 0; i < count; ++i)
         {
@@ -420,49 +260,29 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkFreeDescriptorSets(
-    const ApiCallInfo&                     call_info,
-    VkResult                               returnValue,
-    format::HandleId                       device,
-    format::HandleId                       descriptorPool,
-    uint32_t                               descriptorSetCount,
-    HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets)
+void VulkanReferencedResourceConsumerBase::Process_vkFreeDescriptorSets(const ApiCallInfo&        call_info,
+                                                                        args::FreeDescriptorSets& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorPool);
-
-    GFXRECON_ASSERT(pDescriptorSets != nullptr);
-
-    if (!pDescriptorSets->IsNull() && pDescriptorSets->HasData())
+    if (!args.pDescriptorSets.IsNull() && args.pDescriptorSets.HasData())
     {
-        const auto sets = pDescriptorSets->GetPointer();
+        const auto sets = args.pDescriptorSets.GetPointer();
 
-        for (uint32_t i = 0; i < descriptorSetCount; ++i)
+        for (uint32_t i = 0; i < args.descriptorSetCount; ++i)
         {
             table_.RemoveContainer(sets[i]);
         }
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
-    const ApiCallInfo&                                  call_info,
-    format::HandleId                                    device,
-    uint32_t                                            descriptorWriteCount,
-    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
-    uint32_t                                            descriptorCopyCount,
-    StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies)
+void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(const ApiCallInfo&          call_info,
+                                                                          args::UpdateDescriptorSets& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    GFXRECON_ASSERT(pDescriptorWrites != nullptr && pDescriptorCopies != nullptr);
-
-    if (!pDescriptorWrites->IsNull() && pDescriptorWrites->HasData())
+    if (!args.pDescriptorWrites.IsNull() && args.pDescriptorWrites.HasData())
     {
-        const auto writes      = pDescriptorWrites->GetPointer();
-        const auto meta_writes = pDescriptorWrites->GetMetaStructPointer();
+        const auto writes      = args.pDescriptorWrites.GetPointer();
+        const auto meta_writes = args.pDescriptorWrites.GetMetaStructPointer();
 
-        for (uint32_t i = 0; i < descriptorWriteCount; ++i)
+        for (uint32_t i = 0; i < args.descriptorWriteCount; ++i)
         {
             switch (writes[i].descriptorType)
             {
@@ -550,12 +370,12 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
         }
     }
 
-    if (!pDescriptorCopies->IsNull() && pDescriptorCopies->HasData())
+    if (!args.pDescriptorCopies.IsNull() && args.pDescriptorCopies.HasData())
     {
-        const auto copies      = pDescriptorCopies->GetPointer();
-        const auto meta_copies = pDescriptorCopies->GetMetaStructPointer();
+        const auto copies      = args.pDescriptorCopies.GetPointer();
+        const auto meta_copies = args.pDescriptorCopies.GetMetaStructPointer();
 
-        for (uint32_t i = 0; i < descriptorCopyCount; ++i)
+        for (uint32_t i = 0; i < args.descriptorCopyCount; ++i)
         {
             const auto& copy      = copies[i];
             const auto& meta_copy = meta_copies[i];
@@ -600,98 +420,54 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
-    const ApiCallInfo&               call_info,
-    format::HandleId                 device,
-    format::HandleId                 descriptorSet,
-    format::HandleId                 descriptorUpdateTemplate,
-    DescriptorUpdateTemplateDecoder* pData)
+    const ApiCallInfo& call_info, args::UpdateDescriptorSetWithTemplate& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    UpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
+    UpdateDescriptorSetWithTemplate(args.descriptorSet, args.descriptorUpdateTemplate, &args.pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    const ApiCallInfo&               call_info,
-    format::HandleId                 commandBuffer,
-    format::HandleId                 descriptorUpdateTemplate,
-    format::HandleId                 layout,
-    uint32_t                         set,
-    DescriptorUpdateTemplateDecoder* pData)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(set);
-
-    PushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, pData);
+    PushDescriptorSetWithTemplate(args.commandBuffer, args.descriptorUpdateTemplate, &args.pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                                                 call_info,
-    format::HandleId                                                   commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
 {
-    Decoded_VkPushDescriptorSetWithTemplateInfo* info = pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
+    Decoded_VkPushDescriptorSetWithTemplateInfo* info = args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
     format::HandleId                             descriptorUpdateTemplate = info->descriptorUpdateTemplate;
     DescriptorUpdateTemplateDecoder              pData                    = info->pData;
 
-    PushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, &pData);
+    PushDescriptorSetWithTemplate(args.commandBuffer, descriptorUpdateTemplate, &pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
-    const ApiCallInfo&               call_info,
-    format::HandleId                 device,
-    format::HandleId                 descriptorSet,
-    format::HandleId                 descriptorUpdateTemplate,
-    DescriptorUpdateTemplateDecoder* pData)
+    const ApiCallInfo& call_info, args::UpdateDescriptorSetWithTemplateKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    UpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
+    UpdateDescriptorSetWithTemplate(args.descriptorSet, args.descriptorUpdateTemplate, &args.pData);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkDestroyCommandPool(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     device,
-    format::HandleId                                     commandPool,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReferencedResourceConsumerBase::Process_vkDestroyCommandPool(const ApiCallInfo&        call_info,
+                                                                        args::DestroyCommandPool& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    table_.ClearUsers(commandPool);
+    table_.ClearUsers(args.commandPool);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkResetCommandPool(const ApiCallInfo&      call_info,
-                                                                      VkResult                returnValue,
-                                                                      format::HandleId        device,
-                                                                      format::HandleId        commandPool,
-                                                                      VkCommandPoolResetFlags flags)
+                                                                      args::ResetCommandPool& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    table_.ResetUsers(commandPool);
+    table_.ResetUsers(args.commandPool);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkAllocateCommandBuffers(
-    const ApiCallInfo&                                         call_info,
-    VkResult                                                   returnValue,
-    format::HandleId                                           device,
-    StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
-    HandlePointerDecoder<VkCommandBuffer>*                     pCommandBuffers)
+void VulkanReferencedResourceConsumerBase::Process_vkAllocateCommandBuffers(const ApiCallInfo&            call_info,
+                                                                            args::AllocateCommandBuffers& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    GFXRECON_ASSERT((pAllocateInfo != nullptr) && (pCommandBuffers != nullptr));
-
-    if (!pAllocateInfo->IsNull() && pAllocateInfo->HasData() && !pCommandBuffers->IsNull() &&
-        pCommandBuffers->HasData())
+    if (!args.pAllocateInfo.IsNull() && args.pAllocateInfo.HasData() && !args.pCommandBuffers.IsNull() &&
+        args.pCommandBuffers.HasData())
     {
-        const auto alloc_info      = pAllocateInfo->GetPointer();
-        const auto alloc_meta_info = pAllocateInfo->GetMetaStructPointer();
-        const auto command_buffers = pCommandBuffers->GetPointer();
+        const auto alloc_info      = args.pAllocateInfo.GetPointer();
+        const auto alloc_meta_info = args.pAllocateInfo.GetMetaStructPointer();
+        const auto command_buffers = args.pCommandBuffers.GetPointer();
         auto       pool            = alloc_meta_info->commandPool;
         auto       count           = alloc_info->commandBufferCount;
 
@@ -702,50 +478,30 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateCommandBuffers(
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkFreeCommandBuffers(
-    const ApiCallInfo&                     call_info,
-    format::HandleId                       device,
-    format::HandleId                       commandPool,
-    uint32_t                               commandBufferCount,
-    HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers)
+void VulkanReferencedResourceConsumerBase::Process_vkFreeCommandBuffers(const ApiCallInfo&        call_info,
+                                                                        args::FreeCommandBuffers& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(commandPool);
-
-    GFXRECON_ASSERT(pCommandBuffers != nullptr);
-
-    if (!pCommandBuffers->IsNull() && pCommandBuffers->HasData())
+    if (!args.pCommandBuffers.IsNull() && args.pCommandBuffers.HasData())
     {
-        const auto command_buffers = pCommandBuffers->GetPointer();
+        const auto command_buffers = args.pCommandBuffers.GetPointer();
 
-        for (uint32_t i = 0; i < commandBufferCount; ++i)
+        for (uint32_t i = 0; i < args.commandBufferCount; ++i)
         {
             table_.RemoveUser(command_buffers[i]);
         }
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkBeginCommandBuffer(
-    const ApiCallInfo&                                      call_info,
-    VkResult                                                returnValue,
-    format::HandleId                                        commandBuffer,
-    StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
+void VulkanReferencedResourceConsumerBase::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
+                                                                        args::BeginCommandBuffer& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(pBeginInfo);
-
-    table_.ResetUser(commandBuffer);
+    table_.ResetUser(args.commandBuffer);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
-                                                                        VkResult                  returnValue,
-                                                                        format::HandleId          commandBuffer,
-                                                                        VkCommandBufferResetFlags flags)
+                                                                        args::ResetCommandBuffer& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    table_.ResetUser(commandBuffer);
+    table_.ResetUser(args.commandBuffer);
 }
 
 void VulkanReferencedResourceConsumerBase::ProcessSetTlasToBlasRelationCommand(
@@ -1130,7 +886,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddress(
     format::HandleId                                         device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    if (pInfo != nullptr && pInfo->GetMetaStructPointer() != nullptr)
+    if (pInfo->GetMetaStructPointer() != nullptr)
     {
         if (const auto* buffer_device_address = pInfo->GetMetaStructPointer())
         {
@@ -1139,62 +895,41 @@ void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddress(
     }
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressKHR(
-    const ApiCallInfo&                                       call_info,
-    VkDeviceAddress                                          returnValue,
-    format::HandleId                                         device,
-    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddress(const ApiCallInfo&            call_info,
+                                                                            args::GetBufferDeviceAddress& args)
 {
-    Process_vkGetBufferDeviceAddress(call_info, returnValue, device, pInfo);
+    Process_vkGetBufferDeviceAddress(call_info, args.result, args.device, &args.pInfo);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressEXT(
-    const ApiCallInfo&                                       call_info,
-    VkDeviceAddress                                          returnValue,
-    format::HandleId                                         device,
-    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressKHR(const ApiCallInfo& call_info,
+                                                                               args::GetBufferDeviceAddressKHR& args)
 {
-    Process_vkGetBufferDeviceAddress(call_info, returnValue, device, pInfo);
+    Process_vkGetBufferDeviceAddress(call_info, args.result, args.device, &args.pInfo);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateGraphicsPipelines(
-    const ApiCallInfo&                                          call_info,
-    VkResult                                                    returnValue,
-    format::HandleId                                            device,
-    format::HandleId                                            pipelineCache,
-    uint32_t                                                    createInfoCount,
-    StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
-    HandlePointerDecoder<VkPipeline>*                           pPipelines)
+void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressEXT(const ApiCallInfo& call_info,
+                                                                               args::GetBufferDeviceAddressEXT& args)
 {
-    Process_vkCreatePipelines(createInfoCount, pCreateInfos, pPipelines);
+    Process_vkGetBufferDeviceAddress(call_info, args.result, args.device, &args.pInfo);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkCreateComputePipelines(
-    const ApiCallInfo&                                         call_info,
-    VkResult                                                   returnValue,
-    format::HandleId                                           device,
-    format::HandleId                                           pipelineCache,
-    uint32_t                                                   createInfoCount,
-    StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-    HandlePointerDecoder<VkPipeline>*                          pPipelines)
+void VulkanReferencedResourceConsumerBase::Process_vkCreateGraphicsPipelines(const ApiCallInfo&             call_info,
+                                                                             args::CreateGraphicsPipelines& args)
 {
-    Process_vkCreatePipelines(createInfoCount, pCreateInfos, pPipelines);
+    Process_vkCreatePipelines(args.createInfoCount, &args.pCreateInfos, &args.pPipelines);
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateComputePipelines(const ApiCallInfo&            call_info,
+                                                                            args::CreateComputePipelines& args)
+
+{
+    Process_vkCreatePipelines(args.createInfoCount, &args.pCreateInfos, &args.pPipelines);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
-    const ApiCallInfo&                                               call_info,
-    VkResult                                                         returnValue,
-    format::HandleId                                                 device,
-    format::HandleId                                                 deferredOperation,
-    format::HandleId                                                 pipelineCache,
-    uint32_t                                                         createInfoCount,
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-    HandlePointerDecoder<VkPipeline>*                                pPipelines)
+    const ApiCallInfo& call_info, args::CreateRayTracingPipelinesKHR& args)
 {
-    Process_vkCreatePipelines(createInfoCount, pCreateInfos, pPipelines);
+    Process_vkCreatePipelines(args.createInfoCount, &args.pCreateInfos, &args.pPipelines);
 }
 
 GFXRECON_END_NAMESPACE(decode)

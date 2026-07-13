@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from khronos_base_generator import write
+from khronos_base_generator import ValueInfo, write
 
 
 class KhronosReplayConsumerBodyGenerator():
@@ -30,7 +30,7 @@ class KhronosReplayConsumerBodyGenerator():
     def get_parent_id(self, api_data, value, values):
         """Get the ID of the parent object when creating a handle.  The instance type is does not have a parent object."""
         if value.base_type != api_data.instance_type:
-            return values[0].name
+            return values[0].prefixed_name
         return 'format::kNullHandleId'
 
     def use_instance_table(self, api_data, name, typename):
@@ -75,8 +75,8 @@ class KhronosReplayConsumerBodyGenerator():
 
     def handle_custom_return_type(self, name, dispatch_func, arg_list):
         """Method may be overriden. """
-        return '{}({}, call_info.index, returnValue, {})'.format(
-            self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
+        return '{}({}, call_info.index, {}, {})'.format(
+            self.REPLAY_OVERRIDES[name], dispatch_func, self.get_return_value(), arg_list
         )
 
     def is_custom_dump_resource_type(self, is_dump_resources, is_override, name, value):
@@ -97,15 +97,15 @@ class KhronosReplayConsumerBodyGenerator():
             for val in values:
                 if val.is_pointer and self.is_struct(val.base_type):
                     if is_dr_override:
-                        dump_resource_arglist += val.name
+                        dump_resource_arglist += f'&{val.prefixed_name}'
                     else:
-                        dump_resource_arglist += val.name + '->GetPointer()'
+                        dump_resource_arglist += f'{val.prefixed_name}{val.op}GetPointer()'
                 elif self.is_handle(val.base_type):
                     if val.is_pointer:
                         if is_dr_override and val.base_type != "VkCommandBuffer":
-                            dump_resource_arglist += val.name
+                            dump_resource_arglist += f'&{val.prefixed_name}'
                         else:
-                            dump_resource_arglist += val.name + '->GetHandlePointer()'
+                            dump_resource_arglist += f'{val.prefixed_name}{val.op}GetHandlePointer()'
                     elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
                         dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
                     else:
@@ -117,9 +117,9 @@ class KhronosReplayConsumerBodyGenerator():
                     if val.is_pointer and val.base_type in ["void", "uint32_t"]:
                         # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
                         # -> dump-resource API expects raw void*
-                        dump_resource_arglist += val.name + '->GetPointer()'
+                        dump_resource_arglist += f'{val.prefixed_name}{val.op}GetPointer()'
                     else:
-                        dump_resource_arglist += val.name
+                        dump_resource_arglist += val.prefixed_name
                 dump_resource_arglist += ', '
             dump_resource_arglist = dump_resource_arglist[:-2]
         else:
@@ -127,15 +127,17 @@ class KhronosReplayConsumerBodyGenerator():
                 for val in values:
                     if val.is_pointer and not self.is_handle(val.base_type):
                         if self.is_struct(val.base_type):
-                            dump_resource_arglist += val.name
+                            dump_resource_arglist += f'&{val.prefixed_name}'
                         else:
                             dump_resource_arglist += 'in_' + val.name
                     elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
                         dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
                     elif self.is_handle(val.base_type) and not val.is_pointer:
-                        dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.name + ")"
+                        dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.prefixed_name + ")"
+                    elif self.is_handle(val.base_type):
+                        dump_resource_arglist += f'&{val.prefixed_name}'
                     else:
-                        dump_resource_arglist += val.name
+                        dump_resource_arglist += f'{val.prefixed_name}'
                     dump_resource_arglist += ', '
                 dump_resource_arglist = dump_resource_arglist[:-2]
             else:
@@ -158,7 +160,7 @@ class KhronosReplayConsumerBodyGenerator():
 
         call_expr += '    {\n'
         if return_type == api_data.return_type_enum:
-            call_expr += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            call_expr += '        resource_dumper_->Process_{}(call_info, {}, {}, {});\n'.format(name, dispatchfunc, self.get_return_value(), dump_resource_arglist)
         else:
             call_expr += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
 
@@ -217,10 +219,12 @@ class KhronosReplayConsumerBodyGenerator():
 
         call_expr = ''
 
+        return_value = self.get_return_value()
+        
         if is_override:
             if self.is_core_create_command(name, True):
-                call_expr = '{}(returnValue, {})'.format(
-                    self.REPLAY_OVERRIDES[name], arglist
+                call_expr = '{}({}, {})'.format(
+                    self.REPLAY_OVERRIDES[name], return_value, arglist
                 )
             elif self.is_custom_return_type(api_data, return_type):
                 call_expr = self.handle_custom_return_type(name, dispatchfunc, arglist)
@@ -247,7 +251,7 @@ class KhronosReplayConsumerBodyGenerator():
             if is_async:
                 body += '    if (UseAsyncOperations())\n'
                 body += '    {\n'
-                body += '        auto task = {}({}, returnValue, call_info, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], dispatchfunc, arglist)
+                body += '        auto task = {}({}, {}, call_info, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], dispatchfunc, return_value, arglist)
                 body += '        if(task)\n'
                 body += '        {\n'
                 body += '           {}\n'.format(postexpr[0])
@@ -258,7 +262,7 @@ class KhronosReplayConsumerBodyGenerator():
 
             body += push_handleid_expr[0]
             body += '    {} replay_result = {};\n'.format(api_data.return_type_enum, call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
+            body += '    CheckResult("{}", {}, replay_result, call_info);\n'.format(name, return_value)
         else:
             body += push_handleid_expr[0]
             body += '    {};\n'.format(call_expr)
@@ -283,6 +287,10 @@ class KhronosReplayConsumerBodyGenerator():
             body += '    {}\n'.format(cleanup_expr)
 
         return body
+
+    def get_return_value(self):
+        """Method may be overridden."""
+        return 'returnValue'
 
     def generate_replay_consumer_content(self, api_data):
         """Performs C++ code generation for the replay consumer."""
@@ -464,7 +472,7 @@ class KhronosReplayConsumerBodyGenerator():
         if self.needs_remove_handle_expression(command):
             value = self.determine_handle_to_remove_value(command, values)
             return 'RemoveHandle({}, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
-                value.name, basetype=value.base_type
+                value.prefixed_name, basetype=value.base_type
             )
 
     def generate_custom_call(self, name, return_type, values):
@@ -491,9 +499,10 @@ class KhronosReplayConsumerBodyGenerator():
             handle_value.base_type
         )
 
-        return 'if ({}->IsNull()) {{ SetOutputArrayCount<{}>({}, {}, {}, {}); }}'.format(
-            value.name, handle_type, handle_value.name, index_id, length_name,
-            info_func
+        args_handle_value_name = f'args.{handle_value.name}'
+        return 'if ({}{op}IsNull()) {{ SetOutputArrayCount<{}>({}, {}, {}, {}); }}'.format(
+            value.prefixed_name, handle_type, args_handle_value_name, index_id, length_name,
+            info_func, op=value.op
         )
 
     def make_variable_length_array_get_count_call(
@@ -506,7 +515,7 @@ class KhronosReplayConsumerBodyGenerator():
         api_data = self.get_api_data()
         return_value = api_data.return_type_success_value
         if (return_type == api_data.return_type_enum):
-            return_value = 'returnValue'
+            return_value = self.get_return_value()
 
         handle_value = values[0]
         if self.is_handle_like(values[1].base_type):
@@ -515,7 +524,7 @@ class KhronosReplayConsumerBodyGenerator():
         array_name = None
         for v in values:
             if v.array_length == value.name:
-                array_name = v.name
+                array_name = v.prefixed_name
 
         if not array_name:
             print(
@@ -531,9 +540,10 @@ class KhronosReplayConsumerBodyGenerator():
             handle_value.base_type
         )
 
-        return 'GetOutputArrayCount<{}, {}>("{}", {}, {}, {}, {}, {}, {})'.format(
+        args_handle_value_name = handle_value.prefixed_name
+        return 'GetOutputArrayCount<{}, {}>("{}", {}, {}, {}, &{}, &{}, {})'.format(
             value.base_type, handle_type, name, return_value,
-            handle_value.name, index_id, value.name, array_name, info_func
+            args_handle_value_name, index_id, value.prefixed_name, array_name, info_func
         )
 
     def is_allocation_callback_type(self, struct):
@@ -564,7 +574,7 @@ class KhronosReplayConsumerBodyGenerator():
         """ Method may be overridden. """
         return False
 
-    def make_body_expression(self, api_data, return_type, name, values, is_override):
+    def make_body_expression(self, api_data, return_type, name, values: list[ValueInfo], is_override):
         """"
         Generating expressions for mapping decoded parameters to arguments used in the API call.
         For array lengths that are stored in pointers, this will map the original parameter name
@@ -634,7 +644,7 @@ class KhronosReplayConsumerBodyGenerator():
                         # The 'array_lengths' dictionary contains a mapping of the original parameter name to the
                         # intermediate value name.  For this case, we need to use the intermediate value for array
                         # allocations.
-                        length_name = array_lengths[length_name]
+                        length_name = f'{array_lengths[length_name]}'
                         is_variable_length = True
                     elif '->' in length_name:
                         # Some counts are members of an allocate info struct.  Similar to the above PointerDecoder<T> case,
@@ -645,12 +655,18 @@ class KhronosReplayConsumerBodyGenerator():
                         if need_temp_value:
                             length_name = 'in_' + length_name
                         else:
+                            length_name = f'{value.prefix}{length_name}'
                             length_name = length_name.replace(
-                                '->', '->GetPointer()->'
+                                '->', f'{value.op}GetPointer()->'
                             )
+                    else:
+                        length_name = f'{value.prefix}{length_name}'
 
                 if not need_temp_value:
-                    args.append(value.name)
+                    if value.is_pointer:
+                        args.append(f'&{value.prefixed_name}')
+                    else:
+                        args.append(value.prefixed_name)
                 else:
                     # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
                     if is_input:
@@ -673,36 +689,35 @@ class KhronosReplayConsumerBodyGenerator():
                         if value.platform_full_type:
                             expr += 'static_cast<{}>(PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}"));'.format(
                                 value.platform_full_type,
-                                value.name,
+                                value.prefixed_name,
                                 name=name
                             )
                         else:
                             expr += 'PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(
-                                value.name, name=name
+                                value.prefixed_name, name=name
                             )
                     elif self.is_allocation_callback_type(value.base_type):
                         if need_temp_value:
                             # The replay consumer needs to override the allocation callbacks used by the captured application.
-                            expr += 'GetAllocationCallbacks({});'.format(
-                                value.name
-                            )
+                            expr += f'GetAllocationCallbacks(&{value.prefixed_name});'
                     elif self.is_handle_like(value.base_type):
                         # We received an array of 64-bit integer IDs from the decoder.
-                        expr += 'MapHandles<{info_type}>({}, {}, &CommonObjectInfoTable::Get{base_type}Info);'.format(
-                            value.name,
+                        expr += 'MapHandles<{info_type}>(&{}, {}, &CommonObjectInfoTable::Get{base_type}Info);'.format(
+                            value.prefixed_name,
                             length_name,
                             info_type=info_type,
                             base_type=value.base_type
                         )
                     else:
                         if need_temp_value:
-                            expr += '{}->GetPointer();'.format(value.name)
+                            expr += f'{value.prefixed_name}{value.op}GetPointer();'
 
                         if self.struct_might_have_handles(value.base_type):
                             preexpr.append(expr)
                             if value.is_array:
-                                expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(
-                                    name=value.name
+                                expr = 'MapStructArrayHandles({name}{op}GetMetaStructPointer(), {name}{op}GetLength(), GetObjectInfoTable());'.format(
+                                    name=value.prefixed_name,
+                                    op=value.op
                                 )
                             elif self.is_special_case_value(value, is_override):
                                 preexpr_special = self.handle_special_case_pointer_array(
@@ -712,8 +727,9 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr = ''
 
                             else:
-                                expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
-                                    value.name
+                                expr = 'MapStructHandles({name}{op}GetMetaStructPointer(), GetObjectInfoTable());'.format(
+                                    name=value.prefixed_name,
+                                    op=value.op
                                 )
                 else:
                     # Initialize output pointer.
@@ -729,20 +745,20 @@ class KhronosReplayConsumerBodyGenerator():
                         if value.base_type in self.EXTERNAL_OBJECT_TYPES:
                             # This is effectively an array with type void*, which was encoded as an array of bytes.
                             if need_temp_value:
-                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(
-                                    length_name, name=value.name
+                                expr += '{name}{op}IsNull() ? nullptr : {name}{op}AllocateOutputData({});'.format(
+                                    length_name, name=value.prefixed_name, op=value.op
                                 )
                             else:
-                                expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(
-                                    length_name, name=value.name
+                                expr = 'if (!{name}{op}IsNull()) {{ {name}{op}AllocateOutputData({}); }}'.format(
+                                    length_name, name=value.prefixed_name, op=value.op
                                 )
                         elif self.is_handle_like(value.base_type):
-                            push_handleid_expr[0] = "    PushRecaptureHandleIds({}->GetPointer(), {}->GetLength());\n".format(value.name, value.name)
+                            push_handleid_expr[0] = "    PushRecaptureHandleIds({0}{1}GetPointer(), {0}{1}GetLength());\n".format(value.prefixed_name, value.op)
                             push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                             # Add mappings for the newly created handles.
                             preexpr.append(
-                                'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
-                                .format(length_name, paramname=value.name)
+                                'if (!{paramname}{op}IsNull()) {{ {paramname}{op}SetHandleLength({}); }}'
+                                .format(length_name, paramname=value.prefixed_name, op=value.op)
                             )
                             if self.needs_pipeline_customization(name):
                                 preexpr.append(
@@ -750,33 +766,36 @@ class KhronosReplayConsumerBodyGenerator():
                                     handle_pipeline_customization(length_name)
                                 )
                             if need_temp_value:
-                                expr += '{}->GetHandlePointer();'.format(
-                                    value.name
+                                expr += '{}{}GetHandlePointer();'.format(
+                                    value.prefixed_name, value.op
                                 )
                                 if api_data.has_pool_allocations and self.is_pool_allocation(name):
                                     postexpr.append(
-                                        'AddPoolHandles<{pool_info_type}, {info_type}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
+                                        'AddPoolHandles<{pool_info_type}, {info_type}>({}, handle_mapping::GetPoolId({}{op}GetMetaStructPointer()), {paramname}{op}GetPointer(), {paramname}{op}GetLength(), {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             self.get_parent_id(api_data, value, values),
-                                            values[1].name,
+                                            values[1].prefixed_name,
                                             arg_name,
                                             length_name,
-                                            paramname=value.name,
+                                            paramname=value.prefixed_name,
                                             info_type=info_type,
                                             basetype=value.base_type,
                                             pool_info_type=pool_info_type,
-                                            poolbasetype=pool_alloc_type
+                                            poolbasetype=pool_alloc_type,
+                                            op=value.op
                                         )
                                     )
                                 else:
+                                    parent_id = self.get_parent_id(api_data, value, values)
                                     postexpr.append(
-                                        'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Add{basetype}Info);'
+                                        'AddHandles<{}>({}, {paramname}{op}GetPointer(), {paramname}{op}GetLength(), {}, {}, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             info_type,
-                                            self.get_parent_id(api_data, value, values),
+                                            parent_id,
                                             arg_name,
                                             length_name,
-                                            paramname=value.name,
+                                            paramname=value.prefixed_name,
+                                            op=value.op,
                                             basetype=value.base_type
                                         )
                                     )
@@ -786,19 +805,20 @@ class KhronosReplayConsumerBodyGenerator():
                                         info_type, length_name
                                     )
                                 )
-                                expr = 'for (size_t i = 0; i < {}; ++i) {{ {}->SetConsumerData(i, &handle_info[i]); }}'.format(
-                                    length_name, value.name
+                                expr = 'for (size_t i = 0; i < {}; ++i) {{ {}.SetConsumerData(i, &handle_info[i]); }}'.format(
+                                    length_name, value.prefixed_name
                                 )
                                 if api_data.has_pool_allocations and self.is_pool_allocation(name):
                                     postexpr.append(
-                                        'AddPoolHandles<{}, {}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
+                                        'AddPoolHandles<{}, {}>({}, handle_mapping::GetPoolId({}{op}GetMetaStructPointer()), {paramname}{op}GetPointer(), {paramname}{op}GetLength(), {paramname}{op}GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             pool_info_type,
                                             info_type,
                                             self.get_parent_id(api_data, value, values),
-                                            values[1].name,
+                                            values[1].prefixed_name,
                                             length_name,
-                                            paramname=value.name,
+                                            paramname=value.prefixed_name,
+                                            op=value.op,
                                             basetype=value.base_type,
                                             poolbasetype=pool_alloc_type
                                         )
@@ -806,26 +826,26 @@ class KhronosReplayConsumerBodyGenerator():
                                 else:
                                     # additionally add an asynchronous flavour to postexpr, so both are available later
                                     if name in self.REPLAY_ASYNC_OVERRIDES:
+                                        parent_id = self.get_parent_id(api_data, value, values)
                                         postexpr.append(
-                                            'AddHandlesAsync<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info, std::move(task));'
+                                            'AddHandlesAsync<{}>({}, {paramname}{op}GetPointer(), {paramname}{op}GetLength(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info, std::move(task));'
                                             .format(
                                                 info_type,
-                                                self.get_parent_id(
-                                                    api_data, value, values
-                                                ),
-                                                arg_name,
-                                                length_name,
-                                                paramname=value.name,
+                                                parent_id,
+                                                paramname=value.prefixed_name,
+                                                op=value.op,
                                                 basetype=value.base_type
                                             )
                                         )
+                                    parent_id = self.get_parent_id(api_data, value, values)
                                     postexpr.append(
-                                        'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
+                                        'AddHandles<{}>({}, {paramname}{op}GetPointer(), {paramname}{op}GetLength(), {paramname}{op}GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             info_type,
-                                            self.get_parent_id(api_data, value, values),
+                                            parent_id,
                                             length_name,
-                                            paramname=value.name,
+                                            paramname=value.prefixed_name,
+                                            op=value.op,
                                             basetype=value.base_type
                                         )
                                     )
@@ -846,149 +866,153 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
 
                             if need_temp_value:
-                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->{}'.format(
-                                    alloc_expr, paramname=value.name
+                                expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}{}'.format(
+                                    alloc_expr, paramname=value.prefixed_name, op=value.op
                                 )
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
-                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), this);\n".format(paramname=value.name)
+                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength(), this);\n".format(paramname=value.prefixed_name, op=value.op)
                                     push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
-                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength());'
                                             .format(
                                                 value.base_type,
-                                                paramname=value.name
+                                                paramname=value.prefixed_name,
+                                                op=value.op
                                             )
                                         )
                                     postexpr.append(
-                                        'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, &GetObjectInfoTable());'
+                                        'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength(), {}, {}, &GetObjectInfoTable());'
                                         .format(
                                             self.get_parent_id(api_data, value, values),
                                             arg_name,
                                             length_name,
-                                            paramname=value.name,
-                                            basetype=value.base_type
+                                            paramname=value.prefixed_name,
+                                            basetype=value.base_type,
+                                            op=value.op
                                         )
                                     )
                             else:
-                                expr += 'if (!{paramname}->IsNull()) {{ {paramname}->{} }}'.format(
-                                    alloc_expr, paramname=value.name
+                                expr += 'if (!{paramname}{op}IsNull()) {{ {paramname}{op}{} }}'.format(
+                                    alloc_expr, paramname=value.prefixed_name, op=value.op
                                 )
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
-                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), this);\n".format(paramname=value.name)
+                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength(), this);\n".format(paramname=value.prefixed_name, op=value.op)
                                     push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
-                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength());'
                                             .format(
                                                 value.base_type,
-                                                paramname=value.name
+                                                paramname=value.prefixed_name,
+                                                op=value.op
                                             )
                                         )
                                     postexpr.append(
-                                        'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, &GetObjectInfoTable());'
+                                        'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength(), {paramname}{op}GetOutputPointer(), {}, &GetObjectInfoTable());'
                                         .format(
                                             self.get_parent_id(api_data, value, values),
                                             length_name,
-                                            paramname=value.name,
-                                            basetype=value.base_type
+                                            paramname=value.prefixed_name,
+                                            basetype=value.base_type,
+                                            op=value.op
                                         )
                                     )
                         elif value.base_type in ['char', 'wchar_t']:
                             # TODO: Does this need to be re-allocated?  The decoder should read in the proper size. But needs verification.
-                            expr += '{paramname}->GetPointer();'.format(
-                                length_name, paramname=value.name
-                            )
+                            expr += f'{value.prefixed_name}{value.op}GetPointer();'
 
                         else:
                             if need_temp_value:
-                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(
-                                    length_name, paramname=value.name
+                                expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}AllocateOutputData({});'.format(
+                                    length_name, paramname=value.prefixed_name, op=value.op
                                 )
                             else:
-                                expr = 'if ({paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(
-                                    length_name, paramname=value.name
+                                expr = 'if ({paramname}{op}IsNull()) {{ {paramname}{op}AllocateOutputData({}); }}'.format(
+                                    length_name, paramname=value.prefixed_name, op=value.op
                                 )
                     else:
                         if is_external_object:
                             # Map the object ID to the new object
                             if value.platform_full_type:
-                                expr += '{paramname}->IsNull() ? nullptr : reinterpret_cast<{}>({paramname}->AllocateOutputData(1));'.format(
-                                    full_type, paramname=value.name
+                                expr += '{paramname}{op}IsNull() ? nullptr : reinterpret_cast<{}>({paramname}{op}AllocateOutputData(1));'.format(
+                                    full_type, paramname=value.prefixed_name, op=value.op
                                 )
                                 if return_type != 'void':
                                     postexpr.append(
-                                        'PostProcessExternalObject(replay_result, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        'PostProcessExternalObject(replay_result, (*{}{op}GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(
-                                            value.name, arg_name, name=name
+                                            value.prefixed_name, arg_name, name=name, op=value.op
                                         )
                                     )
                                 else:
                                     postexpr.append(
-                                        'PostProcessExternalObject({}, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        'PostProcessExternalObject({}, (*{}{op}GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(
                                             api_data.return_type_success_value,
-                                            value.name,
+                                            value.prefixed_name,
                                             arg_name,
-                                            name=name
+                                            name=name,
+                                            op=value.op
                                         )
                                     )
                             else:
-                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
-                                    paramname=value.name
+                                expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}AllocateOutputData(1);'.format(
+                                    paramname=value.prefixed_name,
+                                    op=value.op
                                 )
                                 if return_type != 'void':
                                     postexpr.append(
-                                        'PostProcessExternalObject(replay_result, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        'PostProcessExternalObject(replay_result, (*{paramname}{op}GetPointer()), *{paramname}{op}GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(
-                                            paramname=value.name, name=name
+                                            paramname=value.prefixed_name, name=name, op=value.op
                                         )
                                     )
                                 else:
                                     postexpr.append(
-                                        'PostProcessExternalObject({}, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        'PostProcessExternalObject({}, (*{paramname}{op}GetPointer()), *{paramname}{op}GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(
                                             api_data.return_type_success_value,
-                                            paramname=value.name,
+                                            paramname=value.prefixed_name,
+                                            op=value.op,
                                             name=name
                                         )
                                     )
                         elif self.is_handle_like(value.base_type):
-                            push_handleid_expr[0] = "    PushRecaptureHandleId({}->GetPointer());\n".format(value.name)
+                            push_handleid_expr[0] = f"    PushRecaptureHandleId({value.prefixed_name}{value.op}GetPointer());\n"
                             push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                             # Add mapping for the newly created handle
                             preexpr.append(
-                                'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength(1); }}'
-                                .format(paramname=value.name)
+                                'if (!{paramname}{op}IsNull()) {{ {paramname}{op}SetHandleLength(1); }}'
+                                .format(paramname=value.prefixed_name, op=value.op)
                             )
                             if need_temp_value:
-                                expr += '{}->GetHandlePointer();'.format(
-                                    value.name
-                                )
+                                expr += f'{value.prefixed_name}{value.op}GetHandlePointer();'
+                                parent_id = self.get_parent_id(api_data, value, values)
                                 postexpr.append(
-                                    'AddHandle<{}>({}, {}->GetPointer(), {}, &CommonObjectInfoTable::Add{}Info);'
+                                    'AddHandle<{}>({}, {}{op}GetPointer(), {}, &CommonObjectInfoTable::Add{}Info);'
                                     .format(
                                         info_type,
-                                        self.get_parent_id(api_data, value, values),
-                                        value.name, arg_name, value.base_type
+                                        parent_id,
+                                        value.prefixed_name, arg_name, value.base_type, op=value.op
                                     )
                                 )
                             else:
                                 preexpr.append(
                                     '{} handle_info;'.format(info_type)
                                 )
-                                expr = '{}->SetConsumerData(0, &handle_info);'.format(
-                                    value.name
-                                )
+                                expr = f'{value.prefixed_name}.SetConsumerData(0, &handle_info);'
+                                parent_id = self.get_parent_id(api_data, value, values)
                                 postexpr.append(
-                                    'AddHandle<{}>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
+                                    'AddHandle<{}>({}, {paramname}{op}GetPointer(), {paramname}{op}GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                     .format(
                                         info_type,
-                                        self.get_parent_id(api_data, value, values),
-                                        paramname=value.name,
-                                        basetype=value.base_type
+                                        parent_id,
+                                        paramname=value.prefixed_name,
+                                        basetype=value.base_type,
+                                        op=value.op
                                     )
                                 )
 
@@ -1004,8 +1028,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 array_len_expr = self.make_variable_length_array_get_count_call(
                                     return_type, name, value, values
                                 )
-                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {});'.format(
-                                    array_len_expr, paramname=value.name
+                                expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}AllocateOutputData(1, {});'.format(
+                                    array_len_expr, paramname=value.prefixed_name, op=value.op
                                 )
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
                                 if need_temp_value:
@@ -1014,60 +1038,61 @@ class KhronosReplayConsumerBodyGenerator():
                                 else:
                                     array_lengths[
                                         value.name
-                                    ] = '*{}->GetOutputPointer()'.format(
-                                        value.name
-                                    )
+                                    ] = f'*{value.prefixed_name}.GetOutputPointer()'
                             elif self.is_struct(value.base_type) or self.treat_as_struct(value):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.base_type in self.struct_type_names:
-                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(
+                                    expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}AllocateOutputData(1, {{ {}, nullptr }});'.format(
                                         self.struct_type_names[value.base_type],
-                                        paramname=value.name
+                                        paramname=value.prefixed_name,
+                                        op=value.op
                                     )
-                                    need_initialize_output_pnext_struct = value.name
+                                    need_initialize_output_pnext_struct = value.prefixed_name
                                 else:
-                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
-                                        paramname=value.name
+                                    expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}AllocateOutputData(1);'.format(
+                                        paramname=value.prefixed_name,
+                                        op=value.op
                                     )
 
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
-                                    push_handleid_expr[0] = "    PushRecaptureStructHandleIds({}->GetMetaStructPointer(), this);\n".format(value.name)
+                                    push_handleid_expr[0] = "    PushRecaptureStructHandleIds({}{op}GetMetaStructPointer(), this);\n".format(value.prefixed_name, op=value.op)
                                     push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
-                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}{op}GetMetaStructPointer(), {paramname}{op}GetLength());'
                                             .format(
                                                 value.base_type,
-                                                paramname=value.name
+                                                paramname=value.prefixed_name,
+                                                op=value.op
                                             )
                                         )
                                     if need_temp_value:
                                         postexpr.append(
-                                            'AddStructHandles({}, {name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'
+                                            'AddStructHandles({}, {name}{op}GetMetaStructPointer(), {}, &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     api_data, value, values
                                                 ),
                                                 arg_name,
-                                                name=value.name,
-                                                basetype=value.base_type
+                                                name=value.prefixed_name,
+                                                op=value.op
                                             )
                                         )
                                     else:
                                         postexpr.append(
-                                            'AddStructHandles({}, {name}->GetMetaStructPointer(), {name}->GetOutputPointer(), &GetObjectInfoTable());'
+                                            'AddStructHandles({}, {name}{op}GetMetaStructPointer(), {name}{op}GetOutputPointer(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     api_data, value, values
                                                 ),
-                                                name=value.name,
-                                                basetype=value.base_type
+                                                name=value.prefixed_name,
+                                                op=value.op
                                             )
                                         )
                             else:
-                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, static_cast<{}>(0));'.format(
-                                    value.base_type, paramname=value.name
+                                expr += '{paramname}{op}IsNull() ? nullptr : {paramname}{op}AllocateOutputData(1, static_cast<{}>(0));'.format(
+                                    value.base_type, paramname=value.prefixed_name, op=value.op
                                 )
                 if expr:
                     preexpr.append(expr)
@@ -1078,7 +1103,7 @@ class KhronosReplayConsumerBodyGenerator():
                 if is_override:
                     # We use auto in case the compiler can determine if the value should be const or non-const based on the override function signature.
                     expr = 'auto {} = GetObjectInfoTable().Get{}Info({});'.format(
-                        arg_name, value.base_type, value.name
+                        arg_name, value.base_type, value.prefixed_name
                     )
                     preexpr.append(expr)
 
@@ -1090,7 +1115,7 @@ class KhronosReplayConsumerBodyGenerator():
                 else:
                     expr = '{} {} = '.format(value.full_type, arg_name)
                     expr += 'MapHandle<{}>({}, &CommonObjectInfoTable::Get{}Info);'.format(
-                        info_type, value.name, value.base_type
+                        info_type, value.prefixed_name, value.base_type
                     )
                     preexpr.append(expr)
 
@@ -1104,8 +1129,9 @@ class KhronosReplayConsumerBodyGenerator():
                 arg_name = 'in_' + value.name
                 args.append(arg_name)
                 expr = '{} {} = '.format(value.full_type, arg_name)
-                expr += 'MapHandle({}, {});'.format(
-                    value.name,
+                expr += 'MapHandle({}, {}{});'.format(
+                    value.prefixed_name,
+                    value.prefix,
                     self.get_generic_cmd_handle_type_value(name, value.name)
                 )
                 preexpr.append(expr)
@@ -1125,11 +1151,15 @@ class KhronosReplayConsumerBodyGenerator():
 
             else:
                 # Only need to append the parameter name to the args list; no other expressions are necessary.
-                args.append(value.name)
+                args.append(value.prefixed_name)
 
             if len(need_initialize_output_pnext_struct) > 0:
+                op = ''
+                if value.prefix != '':
+                    op = '&'
+
                 preexpr.append(
-                    'InitializeOutputStruct{}({});'.
-                    format(api_data.extended_struct_func_prefix, need_initialize_output_pnext_struct)
+                    'InitializeOutputStruct{}({}{});'.
+                    format(api_data.extended_struct_func_prefix, op, need_initialize_output_pnext_struct)
                 )
         return args, preexpr, postexpr, push_handleid_expr

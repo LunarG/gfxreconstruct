@@ -54,1894 +54,1191 @@ class VulkanReferencedBlockConsumer : public VulkanReferencedBlockConsumerBase
 
     void Process_vkBeginCommandBuffer(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo) override;
+        args::BeginCommandBuffer&                   args) override;
 
     void Process_vkEndCommandBuffer(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer) override;
+        args::EndCommandBuffer&                     args) override;
 
     void Process_vkResetCommandBuffer(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        VkCommandBufferResetFlags                   flags) override;
+        args::ResetCommandBuffer&                   args) override;
 
     void Process_vkCmdCopyBuffer(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            srcBuffer,
-        format::HandleId                            dstBuffer,
-        uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkBufferCopy>* pRegions) override;
+        args::CmdCopyBuffer&                        args) override;
 
     void Process_vkCmdCopyImage(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            srcImage,
-        VkImageLayout                               srcImageLayout,
-        format::HandleId                            dstImage,
-        VkImageLayout                               dstImageLayout,
-        uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkImageCopy>*  pRegions) override;
+        args::CmdCopyImage&                         args) override;
 
     void Process_vkCmdCopyBufferToImage(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            srcBuffer,
-        format::HandleId                            dstImage,
-        VkImageLayout                               dstImageLayout,
-        uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions) override;
+        args::CmdCopyBufferToImage&                 args) override;
 
     void Process_vkCmdCopyImageToBuffer(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            srcImage,
-        VkImageLayout                               srcImageLayout,
-        format::HandleId                            dstBuffer,
-        uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions) override;
+        args::CmdCopyImageToBuffer&                 args) override;
 
     void Process_vkCmdUpdateBuffer(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            dstBuffer,
-        VkDeviceSize                                dstOffset,
-        VkDeviceSize                                dataSize,
-        PointerDecoder<uint8_t>*                    pData) override;
+        args::CmdUpdateBuffer&                      args) override;
 
     void Process_vkCmdFillBuffer(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            dstBuffer,
-        VkDeviceSize                                dstOffset,
-        VkDeviceSize                                size,
-        uint32_t                                    data) override;
+        args::CmdFillBuffer&                        args) override;
 
     void Process_vkCmdPipelineBarrier(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineStageFlags                        srcStageMask,
-        VkPipelineStageFlags                        dstStageMask,
-        VkDependencyFlags                           dependencyFlags,
-        uint32_t                                    memoryBarrierCount,
-        StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
-        uint32_t                                    bufferMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-        uint32_t                                    imageMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers) override;
+        args::CmdPipelineBarrier&                   args) override;
 
     void Process_vkCmdBeginQuery(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    query,
-        VkQueryControlFlags                         flags) override;
+        args::CmdBeginQuery&                        args) override;
 
     void Process_vkCmdEndQuery(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    query) override;
+        args::CmdEndQuery&                          args) override;
 
     void Process_vkCmdResetQueryPool(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery,
-        uint32_t                                    queryCount) override;
+        args::CmdResetQueryPool&                    args) override;
 
     void Process_vkCmdWriteTimestamp(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineStageFlagBits                     pipelineStage,
-        format::HandleId                            queryPool,
-        uint32_t                                    query) override;
+        args::CmdWriteTimestamp&                    args) override;
 
     void Process_vkCmdCopyQueryPoolResults(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery,
-        uint32_t                                    queryCount,
-        format::HandleId                            dstBuffer,
-        VkDeviceSize                                dstOffset,
-        VkDeviceSize                                stride,
-        VkQueryResultFlags                          flags) override;
+        args::CmdCopyQueryPoolResults&              args) override;
 
     void Process_vkCmdExecuteCommands(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    commandBufferCount,
-        HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers) override;
+        args::CmdExecuteCommands&                   args) override;
 
     void Process_vkCmdBindPipeline(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            pipeline) override;
+        args::CmdBindPipeline&                      args) override;
 
     void Process_vkCmdBindDescriptorSets(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            layout,
-        uint32_t                                    firstSet,
-        uint32_t                                    descriptorSetCount,
-        HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
-        uint32_t                                    dynamicOffsetCount,
-        PointerDecoder<uint32_t>*                   pDynamicOffsets) override;
+        args::CmdBindDescriptorSets&                args) override;
 
     void Process_vkCmdClearColorImage(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            image,
-        VkImageLayout                               imageLayout,
-        StructPointerDecoder<Decoded_VkClearColorValue>* pColor,
-        uint32_t                                    rangeCount,
-        StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges) override;
+        args::CmdClearColorImage&                   args) override;
 
     void Process_vkCmdDispatch(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    groupCountX,
-        uint32_t                                    groupCountY,
-        uint32_t                                    groupCountZ) override;
+        args::CmdDispatch&                          args) override;
 
     void Process_vkCmdDispatchIndirect(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset) override;
+        args::CmdDispatchIndirect&                  args) override;
 
     void Process_vkCmdSetEvent(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            event,
-        VkPipelineStageFlags                        stageMask) override;
+        args::CmdSetEvent&                          args) override;
 
     void Process_vkCmdResetEvent(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            event,
-        VkPipelineStageFlags                        stageMask) override;
+        args::CmdResetEvent&                        args) override;
 
     void Process_vkCmdWaitEvents(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    eventCount,
-        HandlePointerDecoder<VkEvent>*              pEvents,
-        VkPipelineStageFlags                        srcStageMask,
-        VkPipelineStageFlags                        dstStageMask,
-        uint32_t                                    memoryBarrierCount,
-        StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
-        uint32_t                                    bufferMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-        uint32_t                                    imageMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers) override;
+        args::CmdWaitEvents&                        args) override;
 
     void Process_vkCmdPushConstants(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            layout,
-        VkShaderStageFlags                          stageFlags,
-        uint32_t                                    offset,
-        uint32_t                                    size,
-        PointerDecoder<uint8_t>*                    pValues) override;
+        args::CmdPushConstants&                     args) override;
 
     void Process_vkCmdSetViewport(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstViewport,
-        uint32_t                                    viewportCount,
-        StructPointerDecoder<Decoded_VkViewport>*   pViewports) override;
+        args::CmdSetViewport&                       args) override;
 
     void Process_vkCmdSetScissor(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstScissor,
-        uint32_t                                    scissorCount,
-        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) override;
+        args::CmdSetScissor&                        args) override;
 
     void Process_vkCmdSetLineWidth(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        float                                       lineWidth) override;
+        args::CmdSetLineWidth&                      args) override;
 
     void Process_vkCmdSetDepthBias(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        float                                       depthBiasConstantFactor,
-        float                                       depthBiasClamp,
-        float                                       depthBiasSlopeFactor) override;
+        args::CmdSetDepthBias&                      args) override;
 
     void Process_vkCmdSetBlendConstants(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        PointerDecoder<float>*                      blendConstants) override;
+        args::CmdSetBlendConstants&                 args) override;
 
     void Process_vkCmdSetDepthBounds(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        float                                       minDepthBounds,
-        float                                       maxDepthBounds) override;
+        args::CmdSetDepthBounds&                    args) override;
 
     void Process_vkCmdSetStencilCompareMask(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkStencilFaceFlags                          faceMask,
-        uint32_t                                    compareMask) override;
+        args::CmdSetStencilCompareMask&             args) override;
 
     void Process_vkCmdSetStencilWriteMask(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkStencilFaceFlags                          faceMask,
-        uint32_t                                    writeMask) override;
+        args::CmdSetStencilWriteMask&               args) override;
 
     void Process_vkCmdSetStencilReference(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkStencilFaceFlags                          faceMask,
-        uint32_t                                    reference) override;
+        args::CmdSetStencilReference&               args) override;
 
     void Process_vkCmdBindIndexBuffer(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        VkIndexType                                 indexType) override;
+        args::CmdBindIndexBuffer&                   args) override;
 
     void Process_vkCmdBindVertexBuffers(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstBinding,
-        uint32_t                                    bindingCount,
-        HandlePointerDecoder<VkBuffer>*             pBuffers,
-        PointerDecoder<VkDeviceSize>*               pOffsets) override;
+        args::CmdBindVertexBuffers&                 args) override;
 
     void Process_vkCmdDraw(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    vertexCount,
-        uint32_t                                    instanceCount,
-        uint32_t                                    firstVertex,
-        uint32_t                                    firstInstance) override;
+        args::CmdDraw&                              args) override;
 
     void Process_vkCmdDrawIndexed(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    indexCount,
-        uint32_t                                    instanceCount,
-        uint32_t                                    firstIndex,
-        int32_t                                     vertexOffset,
-        uint32_t                                    firstInstance) override;
+        args::CmdDrawIndexed&                       args) override;
 
     void Process_vkCmdDrawIndirect(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        uint32_t                                    drawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndirect&                      args) override;
 
     void Process_vkCmdDrawIndexedIndirect(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        uint32_t                                    drawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndexedIndirect&               args) override;
 
     void Process_vkCmdBlitImage(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            srcImage,
-        VkImageLayout                               srcImageLayout,
-        format::HandleId                            dstImage,
-        VkImageLayout                               dstImageLayout,
-        uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
-        VkFilter                                    filter) override;
+        args::CmdBlitImage&                         args) override;
 
     void Process_vkCmdClearDepthStencilImage(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            image,
-        VkImageLayout                               imageLayout,
-        StructPointerDecoder<Decoded_VkClearDepthStencilValue>* pDepthStencil,
-        uint32_t                                    rangeCount,
-        StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges) override;
+        args::CmdClearDepthStencilImage&            args) override;
 
     void Process_vkCmdClearAttachments(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    attachmentCount,
-        StructPointerDecoder<Decoded_VkClearAttachment>* pAttachments,
-        uint32_t                                    rectCount,
-        StructPointerDecoder<Decoded_VkClearRect>*  pRects) override;
+        args::CmdClearAttachments&                  args) override;
 
     void Process_vkCmdResolveImage(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            srcImage,
-        VkImageLayout                               srcImageLayout,
-        format::HandleId                            dstImage,
-        VkImageLayout                               dstImageLayout,
-        uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkImageResolve>* pRegions) override;
+        args::CmdResolveImage&                      args) override;
 
     void Process_vkCmdBeginRenderPass(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-        VkSubpassContents                           contents) override;
+        args::CmdBeginRenderPass&                   args) override;
 
     void Process_vkCmdNextSubpass(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkSubpassContents                           contents) override;
+        args::CmdNextSubpass&                       args) override;
 
     void Process_vkCmdEndRenderPass(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        args::CmdEndRenderPass&                     args) override;
 
     void Process_vkCmdSetDeviceMask(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    deviceMask) override;
+        args::CmdSetDeviceMask&                     args) override;
 
     void Process_vkCmdDispatchBase(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    baseGroupX,
-        uint32_t                                    baseGroupY,
-        uint32_t                                    baseGroupZ,
-        uint32_t                                    groupCountX,
-        uint32_t                                    groupCountY,
-        uint32_t                                    groupCountZ) override;
+        args::CmdDispatchBase&                      args) override;
 
     void Process_vkCmdDrawIndirectCount(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndirectCount&                 args) override;
 
     void Process_vkCmdDrawIndexedIndirectCount(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndexedIndirectCount&          args) override;
 
     void Process_vkCmdBeginRenderPass2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
+        args::CmdBeginRenderPass2&                  args) override;
 
     void Process_vkCmdNextSubpass2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
-        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+        args::CmdNextSubpass2&                      args) override;
 
     void Process_vkCmdEndRenderPass2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+        args::CmdEndRenderPass2&                    args) override;
 
     void Process_vkCmdPipelineBarrier2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+        args::CmdPipelineBarrier2&                  args) override;
 
     void Process_vkCmdWriteTimestamp2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineStageFlags2                       stage,
-        format::HandleId                            queryPool,
-        uint32_t                                    query) override;
+        args::CmdWriteTimestamp2&                   args) override;
 
     void Process_vkCmdCopyBuffer2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo) override;
+        args::CmdCopyBuffer2&                       args) override;
 
     void Process_vkCmdCopyImage2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo) override;
+        args::CmdCopyImage2&                        args) override;
 
     void Process_vkCmdCopyBufferToImage2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo) override;
+        args::CmdCopyBufferToImage2&                args) override;
 
     void Process_vkCmdCopyImageToBuffer2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo) override;
+        args::CmdCopyImageToBuffer2&                args) override;
 
     void Process_vkCmdSetEvent2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            event,
-        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+        args::CmdSetEvent2&                         args) override;
 
     void Process_vkCmdResetEvent2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            event,
-        VkPipelineStageFlags2                       stageMask) override;
+        args::CmdResetEvent2&                       args) override;
 
     void Process_vkCmdWaitEvents2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    eventCount,
-        HandlePointerDecoder<VkEvent>*              pEvents,
-        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos) override;
+        args::CmdWaitEvents2&                       args) override;
 
     void Process_vkCmdBlitImage2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo) override;
+        args::CmdBlitImage2&                        args) override;
 
     void Process_vkCmdResolveImage2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
+        args::CmdResolveImage2&                     args) override;
 
     void Process_vkCmdBeginRendering(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
+        args::CmdBeginRendering&                    args) override;
 
     void Process_vkCmdEndRendering(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        args::CmdEndRendering&                      args) override;
 
     void Process_vkCmdSetCullMode(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCullModeFlags                             cullMode) override;
+        args::CmdSetCullMode&                       args) override;
 
     void Process_vkCmdSetFrontFace(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkFrontFace                                 frontFace) override;
+        args::CmdSetFrontFace&                      args) override;
 
     void Process_vkCmdSetPrimitiveTopology(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPrimitiveTopology                         primitiveTopology) override;
+        args::CmdSetPrimitiveTopology&              args) override;
 
     void Process_vkCmdSetViewportWithCount(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    viewportCount,
-        StructPointerDecoder<Decoded_VkViewport>*   pViewports) override;
+        args::CmdSetViewportWithCount&              args) override;
 
     void Process_vkCmdSetScissorWithCount(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    scissorCount,
-        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) override;
+        args::CmdSetScissorWithCount&               args) override;
 
     void Process_vkCmdBindVertexBuffers2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstBinding,
-        uint32_t                                    bindingCount,
-        HandlePointerDecoder<VkBuffer>*             pBuffers,
-        PointerDecoder<VkDeviceSize>*               pOffsets,
-        PointerDecoder<VkDeviceSize>*               pSizes,
-        PointerDecoder<VkDeviceSize>*               pStrides) override;
+        args::CmdBindVertexBuffers2&                args) override;
 
     void Process_vkCmdSetDepthTestEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthTestEnable) override;
+        args::CmdSetDepthTestEnable&                args) override;
 
     void Process_vkCmdSetDepthWriteEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthWriteEnable) override;
+        args::CmdSetDepthWriteEnable&               args) override;
 
     void Process_vkCmdSetDepthCompareOp(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCompareOp                                 depthCompareOp) override;
+        args::CmdSetDepthCompareOp&                 args) override;
 
     void Process_vkCmdSetDepthBoundsTestEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthBoundsTestEnable) override;
+        args::CmdSetDepthBoundsTestEnable&          args) override;
 
     void Process_vkCmdSetStencilTestEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    stencilTestEnable) override;
+        args::CmdSetStencilTestEnable&              args) override;
 
     void Process_vkCmdSetStencilOp(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkStencilFaceFlags                          faceMask,
-        VkStencilOp                                 failOp,
-        VkStencilOp                                 passOp,
-        VkStencilOp                                 depthFailOp,
-        VkCompareOp                                 compareOp) override;
+        args::CmdSetStencilOp&                      args) override;
 
     void Process_vkCmdSetRasterizerDiscardEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    rasterizerDiscardEnable) override;
+        args::CmdSetRasterizerDiscardEnable&        args) override;
 
     void Process_vkCmdSetDepthBiasEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthBiasEnable) override;
+        args::CmdSetDepthBiasEnable&                args) override;
 
     void Process_vkCmdSetPrimitiveRestartEnable(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    primitiveRestartEnable) override;
+        args::CmdSetPrimitiveRestartEnable&         args) override;
 
     void Process_vkCmdPushDescriptorSet(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            layout,
-        uint32_t                                    set,
-        uint32_t                                    descriptorWriteCount,
-        StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) override;
+        args::CmdPushDescriptorSet&                 args) override;
 
     void Process_vkCmdBindDescriptorSets2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo) override;
+        args::CmdBindDescriptorSets2&               args) override;
 
     void Process_vkCmdPushConstants2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo) override;
+        args::CmdPushConstants2&                    args) override;
 
     void Process_vkCmdPushDescriptorSet2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo) override;
+        args::CmdPushDescriptorSet2&                args) override;
 
     void Process_vkCmdSetLineStipple(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    lineStippleFactor,
-        uint16_t                                    lineStipplePattern) override;
+        args::CmdSetLineStipple&                    args) override;
 
     void Process_vkCmdBindIndexBuffer2(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        VkDeviceSize                                size,
-        VkIndexType                                 indexType) override;
+        args::CmdBindIndexBuffer2&                  args) override;
 
     void Process_vkCmdSetRenderingAttachmentLocations(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo) override;
+        args::CmdSetRenderingAttachmentLocations&   args) override;
 
     void Process_vkCmdSetRenderingInputAttachmentIndices(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo) override;
+        args::CmdSetRenderingInputAttachmentIndices& args) override;
 
     void Process_vkCmdBeginVideoCodingKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo) override;
+        args::CmdBeginVideoCodingKHR&               args) override;
 
     void Process_vkCmdEndVideoCodingKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo) override;
+        args::CmdEndVideoCodingKHR&                 args) override;
 
     void Process_vkCmdControlVideoCodingKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo) override;
+        args::CmdControlVideoCodingKHR&             args) override;
 
     void Process_vkCmdDecodeVideoKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo) override;
+        args::CmdDecodeVideoKHR&                    args) override;
 
     void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
+        args::CmdBeginRenderingKHR&                 args) override;
 
     void Process_vkCmdEndRenderingKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        args::CmdEndRenderingKHR&                   args) override;
 
     void Process_vkCmdSetDeviceMaskKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    deviceMask) override;
+        args::CmdSetDeviceMaskKHR&                  args) override;
 
     void Process_vkCmdDispatchBaseKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    baseGroupX,
-        uint32_t                                    baseGroupY,
-        uint32_t                                    baseGroupZ,
-        uint32_t                                    groupCountX,
-        uint32_t                                    groupCountY,
-        uint32_t                                    groupCountZ) override;
+        args::CmdDispatchBaseKHR&                   args) override;
 
     void Process_vkCmdPushDescriptorSetKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            layout,
-        uint32_t                                    set,
-        uint32_t                                    descriptorWriteCount,
-        StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) override;
+        args::CmdPushDescriptorSetKHR&              args) override;
 
     void Process_vkCmdBeginRenderPass2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
+        args::CmdBeginRenderPass2KHR&               args) override;
 
     void Process_vkCmdNextSubpass2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
-        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+        args::CmdNextSubpass2KHR&                   args) override;
 
     void Process_vkCmdEndRenderPass2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+        args::CmdEndRenderPass2KHR&                 args) override;
 
     void Process_vkCmdDrawIndirectCountKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndirectCountKHR&              args) override;
 
     void Process_vkCmdDrawIndexedIndirectCountKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndexedIndirectCountKHR&       args) override;
 
     void Process_vkCmdSetFragmentShadingRateKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
-        PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
+        args::CmdSetFragmentShadingRateKHR&         args) override;
 
     void Process_vkCmdSetRenderingAttachmentLocationsKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo) override;
+        args::CmdSetRenderingAttachmentLocationsKHR& args) override;
 
     void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo) override;
+        args::CmdSetRenderingInputAttachmentIndicesKHR& args) override;
 
     void Process_vkCmdEncodeVideoKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo) override;
+        args::CmdEncodeVideoKHR&                    args) override;
 
     void Process_vkCmdSetEvent2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            event,
-        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+        args::CmdSetEvent2KHR&                      args) override;
 
     void Process_vkCmdResetEvent2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            event,
-        VkPipelineStageFlags2                       stageMask) override;
+        args::CmdResetEvent2KHR&                    args) override;
 
     void Process_vkCmdWaitEvents2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    eventCount,
-        HandlePointerDecoder<VkEvent>*              pEvents,
-        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos) override;
+        args::CmdWaitEvents2KHR&                    args) override;
 
     void Process_vkCmdPipelineBarrier2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+        args::CmdPipelineBarrier2KHR&               args) override;
 
     void Process_vkCmdWriteTimestamp2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineStageFlags2                       stage,
-        format::HandleId                            queryPool,
-        uint32_t                                    query) override;
+        args::CmdWriteTimestamp2KHR&                args) override;
 
     void Process_vkCmdBindIndexBuffer3KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBindIndexBuffer3InfoKHR>* pInfo) override;
+        args::CmdBindIndexBuffer3KHR&               args) override;
 
     void Process_vkCmdBindVertexBuffers3KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstBinding,
-        uint32_t                                    bindingCount,
-        StructPointerDecoder<Decoded_VkBindVertexBuffer3InfoKHR>* pBindingInfos) override;
+        args::CmdBindVertexBuffers3KHR&             args) override;
 
     void Process_vkCmdDrawIndirect2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo) override;
+        args::CmdDrawIndirect2KHR&                  args) override;
 
     void Process_vkCmdDrawIndexedIndirect2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo) override;
+        args::CmdDrawIndexedIndirect2KHR&           args) override;
 
     void Process_vkCmdDispatchIndirect2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDispatchIndirect2InfoKHR>* pInfo) override;
+        args::CmdDispatchIndirect2KHR&              args) override;
 
     void Process_vkCmdCopyMemoryKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyDeviceMemoryInfoKHR>* pCopyMemoryInfo) override;
+        args::CmdCopyMemoryKHR&                     args) override;
 
     void Process_vkCmdCopyMemoryToImageKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo) override;
+        args::CmdCopyMemoryToImageKHR&              args) override;
 
     void Process_vkCmdCopyImageToMemoryKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo) override;
+        args::CmdCopyImageToMemoryKHR&              args) override;
 
     void Process_vkCmdUpdateMemoryKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
-        VkAddressCommandFlagsKHR                    dstFlags,
-        VkDeviceSize                                dataSize,
-        PointerDecoder<uint8_t>*                    pData) override;
+        args::CmdUpdateMemoryKHR&                   args) override;
 
     void Process_vkCmdFillMemoryKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
-        VkAddressCommandFlagsKHR                    dstFlags,
-        uint32_t                                    data) override;
+        args::CmdFillMemoryKHR&                     args) override;
 
     void Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery,
-        uint32_t                                    queryCount,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
-        VkAddressCommandFlagsKHR                    dstFlags,
-        VkQueryResultFlags                          queryResultFlags) override;
+        args::CmdCopyQueryPoolResultsToMemoryKHR&   args) override;
 
     void Process_vkCmdDrawIndirectCount2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo) override;
+        args::CmdDrawIndirectCount2KHR&             args) override;
 
     void Process_vkCmdDrawIndexedIndirectCount2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo) override;
+        args::CmdDrawIndexedIndirectCount2KHR&      args) override;
 
     void Process_vkCmdBeginConditionalRendering2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfo2EXT>* pConditionalRenderingBegin) override;
+        args::CmdBeginConditionalRendering2EXT&     args) override;
 
     void Process_vkCmdBindTransformFeedbackBuffers2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstBinding,
-        uint32_t                                    bindingCount,
-        StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pBindingInfos) override;
+        args::CmdBindTransformFeedbackBuffers2EXT&  args) override;
 
     void Process_vkCmdBeginTransformFeedback2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstCounterRange,
-        uint32_t                                    counterRangeCount,
-        StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos) override;
+        args::CmdBeginTransformFeedback2EXT&        args) override;
 
     void Process_vkCmdEndTransformFeedback2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstCounterRange,
-        uint32_t                                    counterRangeCount,
-        StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos) override;
+        args::CmdEndTransformFeedback2EXT&          args) override;
 
     void Process_vkCmdDrawIndirectByteCount2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    instanceCount,
-        uint32_t                                    firstInstance,
-        StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfo,
-        uint32_t                                    counterOffset,
-        uint32_t                                    vertexStride) override;
+        args::CmdDrawIndirectByteCount2EXT&         args) override;
 
     void Process_vkCmdDrawMeshTasksIndirect2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo) override;
+        args::CmdDrawMeshTasksIndirect2EXT&         args) override;
 
     void Process_vkCmdDrawMeshTasksIndirectCount2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo) override;
+        args::CmdDrawMeshTasksIndirectCount2EXT&    args) override;
 
     void Process_vkCmdWriteMarkerToMemoryAMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkMemoryMarkerInfoAMD>* pInfo) override;
+        args::CmdWriteMarkerToMemoryAMD&            args) override;
 
     void Process_vkCmdCopyBuffer2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo) override;
+        args::CmdCopyBuffer2KHR&                    args) override;
 
     void Process_vkCmdCopyImage2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo) override;
+        args::CmdCopyImage2KHR&                     args) override;
 
     void Process_vkCmdCopyBufferToImage2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo) override;
+        args::CmdCopyBufferToImage2KHR&             args) override;
 
     void Process_vkCmdCopyImageToBuffer2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo) override;
+        args::CmdCopyImageToBuffer2KHR&             args) override;
 
     void Process_vkCmdBlitImage2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo) override;
+        args::CmdBlitImage2KHR&                     args) override;
 
     void Process_vkCmdResolveImage2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
+        args::CmdResolveImage2KHR&                  args) override;
 
     void Process_vkCmdTraceRaysIndirect2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkDeviceAddress                             indirectDeviceAddress) override;
+        args::CmdTraceRaysIndirect2KHR&             args) override;
 
     void Process_vkCmdBindIndexBuffer2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        VkDeviceSize                                size,
-        VkIndexType                                 indexType) override;
+        args::CmdBindIndexBuffer2KHR&               args) override;
 
     void Process_vkCmdSetLineStippleKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    lineStippleFactor,
-        uint16_t                                    lineStipplePattern) override;
+        args::CmdSetLineStippleKHR&                 args) override;
 
     void Process_vkCmdBindDescriptorSets2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo) override;
+        args::CmdBindDescriptorSets2KHR&            args) override;
 
     void Process_vkCmdPushConstants2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo) override;
+        args::CmdPushConstants2KHR&                 args) override;
 
     void Process_vkCmdPushDescriptorSet2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo) override;
+        args::CmdPushDescriptorSet2KHR&             args) override;
 
     void Process_vkCmdSetDescriptorBufferOffsets2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT>* pSetDescriptorBufferOffsetsInfo) override;
+        args::CmdSetDescriptorBufferOffsets2EXT&    args) override;
 
     void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo) override;
+        args::CmdBindDescriptorBufferEmbeddedSamplers2EXT& args) override;
 
     void Process_vkCmdCopyMemoryIndirectKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo) override;
+        args::CmdCopyMemoryIndirectKHR&             args) override;
 
     void Process_vkCmdCopyMemoryToImageIndirectKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo) override;
+        args::CmdCopyMemoryToImageIndirectKHR&      args) override;
 
     void Process_vkCmdEndRendering2KHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo) override;
+        args::CmdEndRendering2KHR&                  args) override;
 
     void Process_vkCmdDebugMarkerBeginEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo) override;
+        args::CmdDebugMarkerBeginEXT&               args) override;
 
     void Process_vkCmdDebugMarkerEndEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        args::CmdDebugMarkerEndEXT&                 args) override;
 
     void Process_vkCmdDebugMarkerInsertEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo) override;
+        args::CmdDebugMarkerInsertEXT&              args) override;
 
     void Process_vkCmdBindTransformFeedbackBuffersEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstBinding,
-        uint32_t                                    bindingCount,
-        HandlePointerDecoder<VkBuffer>*             pBuffers,
-        PointerDecoder<VkDeviceSize>*               pOffsets,
-        PointerDecoder<VkDeviceSize>*               pSizes) override;
+        args::CmdBindTransformFeedbackBuffersEXT&   args) override;
 
     void Process_vkCmdBeginTransformFeedbackEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstCounterBuffer,
-        uint32_t                                    counterBufferCount,
-        HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
-        PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets) override;
+        args::CmdBeginTransformFeedbackEXT&         args) override;
 
     void Process_vkCmdEndTransformFeedbackEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstCounterBuffer,
-        uint32_t                                    counterBufferCount,
-        HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
-        PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets) override;
+        args::CmdEndTransformFeedbackEXT&           args) override;
 
     void Process_vkCmdBeginQueryIndexedEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    query,
-        VkQueryControlFlags                         flags,
-        uint32_t                                    index) override;
+        args::CmdBeginQueryIndexedEXT&              args) override;
 
     void Process_vkCmdEndQueryIndexedEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            queryPool,
-        uint32_t                                    query,
-        uint32_t                                    index) override;
+        args::CmdEndQueryIndexedEXT&                args) override;
 
     void Process_vkCmdDrawIndirectByteCountEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    instanceCount,
-        uint32_t                                    firstInstance,
-        format::HandleId                            counterBuffer,
-        VkDeviceSize                                counterBufferOffset,
-        uint32_t                                    counterOffset,
-        uint32_t                                    vertexStride) override;
+        args::CmdDrawIndirectByteCountEXT&          args) override;
 
     void Process_vkCmdDrawIndirectCountAMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndirectCountAMD&              args) override;
 
     void Process_vkCmdDrawIndexedIndirectCountAMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawIndexedIndirectCountAMD&       args) override;
 
     void Process_vkCmdBeginConditionalRenderingEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin) override;
+        args::CmdBeginConditionalRenderingEXT&      args) override;
 
     void Process_vkCmdEndConditionalRenderingEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        args::CmdEndConditionalRenderingEXT&        args) override;
 
     void Process_vkCmdSetViewportWScalingNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstViewport,
-        uint32_t                                    viewportCount,
-        StructPointerDecoder<Decoded_VkViewportWScalingNV>* pViewportWScalings) override;
+        args::CmdSetViewportWScalingNV&             args) override;
 
     void Process_vkCmdSetDiscardRectangleEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstDiscardRectangle,
-        uint32_t                                    discardRectangleCount,
-        StructPointerDecoder<Decoded_VkRect2D>*     pDiscardRectangles) override;
+        args::CmdSetDiscardRectangleEXT&            args) override;
 
     void Process_vkCmdSetDiscardRectangleEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    discardRectangleEnable) override;
+        args::CmdSetDiscardRectangleEnableEXT&      args) override;
 
     void Process_vkCmdSetDiscardRectangleModeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkDiscardRectangleModeEXT                   discardRectangleMode) override;
+        args::CmdSetDiscardRectangleModeEXT&        args) override;
 
     void Process_vkCmdBeginDebugUtilsLabelEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo) override;
+        args::CmdBeginDebugUtilsLabelEXT&           args) override;
 
     void Process_vkCmdEndDebugUtilsLabelEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        args::CmdEndDebugUtilsLabelEXT&             args) override;
 
     void Process_vkCmdInsertDebugUtilsLabelEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo) override;
+        args::CmdInsertDebugUtilsLabelEXT&          args) override;
 
     void Process_vkCmdBeginGpaSessionAMD(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            gpaSession) override;
+        args::CmdBeginGpaSessionAMD&                args) override;
 
     void Process_vkCmdEndGpaSessionAMD(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            gpaSession) override;
+        args::CmdEndGpaSessionAMD&                  args) override;
 
     void Process_vkCmdBeginGpaSampleAMD(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            gpaSession,
-        StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
-        PointerDecoder<uint32_t>*                   pSampleID) override;
+        args::CmdBeginGpaSampleAMD&                 args) override;
 
     void Process_vkCmdEndGpaSampleAMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            gpaSession,
-        uint32_t                                    sampleID) override;
+        args::CmdEndGpaSampleAMD&                   args) override;
 
     void Process_vkCmdCopyGpaSessionResultsAMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            gpaSession) override;
+        args::CmdCopyGpaSessionResultsAMD&          args) override;
 
     void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT>* pSampleLocationsInfo) override;
+        args::CmdSetSampleLocationsEXT&             args) override;
 
     void Process_vkCmdBindShadingRateImageNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            imageView,
-        VkImageLayout                               imageLayout) override;
+        args::CmdBindShadingRateImageNV&            args) override;
 
     void Process_vkCmdSetViewportShadingRatePaletteNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstViewport,
-        uint32_t                                    viewportCount,
-        StructPointerDecoder<Decoded_VkShadingRatePaletteNV>* pShadingRatePalettes) override;
+        args::CmdSetViewportShadingRatePaletteNV&   args) override;
 
     void Process_vkCmdSetCoarseSampleOrderNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCoarseSampleOrderTypeNV                   sampleOrderType,
-        uint32_t                                    customSampleOrderCount,
-        StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>* pCustomSampleOrders) override;
+        args::CmdSetCoarseSampleOrderNV&            args) override;
 
     void Process_vkCmdBuildAccelerationStructureNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>* pInfo,
-        format::HandleId                            instanceData,
-        VkDeviceSize                                instanceOffset,
-        VkBool32                                    update,
-        format::HandleId                            dst,
-        format::HandleId                            src,
-        format::HandleId                            scratch,
-        VkDeviceSize                                scratchOffset) override;
+        args::CmdBuildAccelerationStructureNV&      args) override;
 
     void Process_vkCmdCopyAccelerationStructureNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            dst,
-        format::HandleId                            src,
-        VkCopyAccelerationStructureModeKHR          mode) override;
+        args::CmdCopyAccelerationStructureNV&       args) override;
 
     void Process_vkCmdTraceRaysNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            raygenShaderBindingTableBuffer,
-        VkDeviceSize                                raygenShaderBindingOffset,
-        format::HandleId                            missShaderBindingTableBuffer,
-        VkDeviceSize                                missShaderBindingOffset,
-        VkDeviceSize                                missShaderBindingStride,
-        format::HandleId                            hitShaderBindingTableBuffer,
-        VkDeviceSize                                hitShaderBindingOffset,
-        VkDeviceSize                                hitShaderBindingStride,
-        format::HandleId                            callableShaderBindingTableBuffer,
-        VkDeviceSize                                callableShaderBindingOffset,
-        VkDeviceSize                                callableShaderBindingStride,
-        uint32_t                                    width,
-        uint32_t                                    height,
-        uint32_t                                    depth) override;
+        args::CmdTraceRaysNV&                       args) override;
 
     void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    accelerationStructureCount,
-        HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
-        VkQueryType                                 queryType,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery) override;
+        args::CmdWriteAccelerationStructuresPropertiesNV& args) override;
 
     void Process_vkCmdWriteBufferMarkerAMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineStageFlagBits                     pipelineStage,
-        format::HandleId                            dstBuffer,
-        VkDeviceSize                                dstOffset,
-        uint32_t                                    marker) override;
+        args::CmdWriteBufferMarkerAMD&              args) override;
 
     void Process_vkCmdWriteBufferMarker2AMD(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineStageFlags2                       stage,
-        format::HandleId                            dstBuffer,
-        VkDeviceSize                                dstOffset,
-        uint32_t                                    marker) override;
+        args::CmdWriteBufferMarker2AMD&             args) override;
 
     void Process_vkCmdDrawMeshTasksNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    taskCount,
-        uint32_t                                    firstTask) override;
+        args::CmdDrawMeshTasksNV&                   args) override;
 
     void Process_vkCmdDrawMeshTasksIndirectNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        uint32_t                                    drawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawMeshTasksIndirectNV&           args) override;
 
     void Process_vkCmdDrawMeshTasksIndirectCountNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawMeshTasksIndirectCountNV&      args) override;
 
     void Process_vkCmdSetExclusiveScissorEnableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstExclusiveScissor,
-        uint32_t                                    exclusiveScissorCount,
-        PointerDecoder<VkBool32>*                   pExclusiveScissorEnables) override;
+        args::CmdSetExclusiveScissorEnableNV&       args) override;
 
     void Process_vkCmdSetExclusiveScissorNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstExclusiveScissor,
-        uint32_t                                    exclusiveScissorCount,
-        StructPointerDecoder<Decoded_VkRect2D>*     pExclusiveScissors) override;
+        args::CmdSetExclusiveScissorNV&             args) override;
 
     void Process_vkCmdSetCheckpointNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint64_t                                    pCheckpointMarker) override;
+        args::CmdSetCheckpointNV&                   args) override;
 
     void Process_vkCmdSetPerformanceMarkerINTEL(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>* pMarkerInfo) override;
+        args::CmdSetPerformanceMarkerINTEL&         args) override;
 
     void Process_vkCmdSetPerformanceStreamMarkerINTEL(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>* pMarkerInfo) override;
+        args::CmdSetPerformanceStreamMarkerINTEL&   args) override;
 
     void Process_vkCmdSetPerformanceOverrideINTEL(
         const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>* pOverrideInfo) override;
+        args::CmdSetPerformanceOverrideINTEL&       args) override;
 
     void Process_vkCmdSetLineStippleEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    lineStippleFactor,
-        uint16_t                                    lineStipplePattern) override;
+        args::CmdSetLineStippleEXT&                 args) override;
 
     void Process_vkCmdSetCullModeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCullModeFlags                             cullMode) override;
+        args::CmdSetCullModeEXT&                    args) override;
 
     void Process_vkCmdSetFrontFaceEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkFrontFace                                 frontFace) override;
+        args::CmdSetFrontFaceEXT&                   args) override;
 
     void Process_vkCmdSetPrimitiveTopologyEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPrimitiveTopology                         primitiveTopology) override;
+        args::CmdSetPrimitiveTopologyEXT&           args) override;
 
     void Process_vkCmdSetViewportWithCountEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    viewportCount,
-        StructPointerDecoder<Decoded_VkViewport>*   pViewports) override;
+        args::CmdSetViewportWithCountEXT&           args) override;
 
     void Process_vkCmdSetScissorWithCountEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    scissorCount,
-        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) override;
+        args::CmdSetScissorWithCountEXT&            args) override;
 
     void Process_vkCmdBindVertexBuffers2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstBinding,
-        uint32_t                                    bindingCount,
-        HandlePointerDecoder<VkBuffer>*             pBuffers,
-        PointerDecoder<VkDeviceSize>*               pOffsets,
-        PointerDecoder<VkDeviceSize>*               pSizes,
-        PointerDecoder<VkDeviceSize>*               pStrides) override;
+        args::CmdBindVertexBuffers2EXT&             args) override;
 
     void Process_vkCmdSetDepthTestEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthTestEnable) override;
+        args::CmdSetDepthTestEnableEXT&             args) override;
 
     void Process_vkCmdSetDepthWriteEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthWriteEnable) override;
+        args::CmdSetDepthWriteEnableEXT&            args) override;
 
     void Process_vkCmdSetDepthCompareOpEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCompareOp                                 depthCompareOp) override;
+        args::CmdSetDepthCompareOpEXT&              args) override;
 
     void Process_vkCmdSetDepthBoundsTestEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthBoundsTestEnable) override;
+        args::CmdSetDepthBoundsTestEnableEXT&       args) override;
 
     void Process_vkCmdSetStencilTestEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    stencilTestEnable) override;
+        args::CmdSetStencilTestEnableEXT&           args) override;
 
     void Process_vkCmdSetStencilOpEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkStencilFaceFlags                          faceMask,
-        VkStencilOp                                 failOp,
-        VkStencilOp                                 passOp,
-        VkStencilOp                                 depthFailOp,
-        VkCompareOp                                 compareOp) override;
+        args::CmdSetStencilOpEXT&                   args) override;
 
     void Process_vkCmdPreprocessGeneratedCommandsNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
+        args::CmdPreprocessGeneratedCommandsNV&     args) override;
 
     void Process_vkCmdExecuteGeneratedCommandsNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    isPreprocessed,
-        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
+        args::CmdExecuteGeneratedCommandsNV&        args) override;
 
     void Process_vkCmdBindPipelineShaderGroupNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            pipeline,
-        uint32_t                                    groupIndex) override;
+        args::CmdBindPipelineShaderGroupNV&         args) override;
 
     void Process_vkCmdSetDepthBias2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo) override;
+        args::CmdSetDepthBias2EXT&                  args) override;
 
     void Process_vkCmdDispatchTileQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo) override;
+        args::CmdDispatchTileQCOM&                  args) override;
 
     void Process_vkCmdBeginPerTileExecutionQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPerTileBeginInfoQCOM>* pPerTileBeginInfo) override;
+        args::CmdBeginPerTileExecutionQCOM&         args) override;
 
     void Process_vkCmdEndPerTileExecutionQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM>* pPerTileEndInfo) override;
+        args::CmdEndPerTileExecutionQCOM&           args) override;
 
     void Process_vkCmdBindDescriptorBuffersEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    bufferCount,
-        StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos) override;
+        args::CmdBindDescriptorBuffersEXT&          args) override;
 
     void Process_vkCmdSetDescriptorBufferOffsetsEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            layout,
-        uint32_t                                    firstSet,
-        uint32_t                                    setCount,
-        PointerDecoder<uint32_t>*                   pBufferIndices,
-        PointerDecoder<VkDeviceSize>*               pOffsets) override;
+        args::CmdSetDescriptorBufferOffsetsEXT&     args) override;
 
     void Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            layout,
-        uint32_t                                    set) override;
+        args::CmdBindDescriptorBufferEmbeddedSamplersEXT& args) override;
 
     void Process_vkCmdSetFragmentShadingRateEnumNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkFragmentShadingRateNV                     shadingRate,
-        PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
+        args::CmdSetFragmentShadingRateEnumNV&      args) override;
 
     void Process_vkCmdSetVertexInputEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    vertexBindingDescriptionCount,
-        StructPointerDecoder<Decoded_VkVertexInputBindingDescription2EXT>* pVertexBindingDescriptions,
-        uint32_t                                    vertexAttributeDescriptionCount,
-        StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions) override;
+        args::CmdSetVertexInputEXT&                 args) override;
 
     void Process_vkCmdBindInvocationMaskHUAWEI(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            imageView,
-        VkImageLayout                               imageLayout) override;
+        args::CmdBindInvocationMaskHUAWEI&          args) override;
 
     void Process_vkCmdSetPatchControlPointsEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    patchControlPoints) override;
+        args::CmdSetPatchControlPointsEXT&          args) override;
 
     void Process_vkCmdSetRasterizerDiscardEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    rasterizerDiscardEnable) override;
+        args::CmdSetRasterizerDiscardEnableEXT&     args) override;
 
     void Process_vkCmdSetDepthBiasEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthBiasEnable) override;
+        args::CmdSetDepthBiasEnableEXT&             args) override;
 
     void Process_vkCmdSetLogicOpEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkLogicOp                                   logicOp) override;
+        args::CmdSetLogicOpEXT&                     args) override;
 
     void Process_vkCmdSetPrimitiveRestartEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    primitiveRestartEnable) override;
+        args::CmdSetPrimitiveRestartEnableEXT&      args) override;
 
     void Process_vkCmdSetColorWriteEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    attachmentCount,
-        PointerDecoder<VkBool32>*                   pColorWriteEnables) override;
+        args::CmdSetColorWriteEnableEXT&            args) override;
 
     void Process_vkCmdDrawMultiEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    drawCount,
-        StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
-        uint32_t                                    instanceCount,
-        uint32_t                                    firstInstance,
-        uint32_t                                    stride) override;
+        args::CmdDrawMultiEXT&                      args) override;
 
     void Process_vkCmdDrawMultiIndexedEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    drawCount,
-        StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
-        uint32_t                                    instanceCount,
-        uint32_t                                    firstInstance,
-        uint32_t                                    stride,
-        PointerDecoder<int32_t>*                    pVertexOffset) override;
+        args::CmdDrawMultiIndexedEXT&               args) override;
 
     void Process_vkCmdBuildMicromapsEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos) override;
+        args::CmdBuildMicromapsEXT&                 args) override;
 
     void Process_vkCmdCopyMicromapEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo) override;
+        args::CmdCopyMicromapEXT&                   args) override;
 
     void Process_vkCmdCopyMicromapToMemoryEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo) override;
+        args::CmdCopyMicromapToMemoryEXT&           args) override;
 
     void Process_vkCmdCopyMemoryToMicromapEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo) override;
+        args::CmdCopyMemoryToMicromapEXT&           args) override;
 
     void Process_vkCmdWriteMicromapsPropertiesEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    micromapCount,
-        HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
-        VkQueryType                                 queryType,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery) override;
+        args::CmdWriteMicromapsPropertiesEXT&       args) override;
 
     void Process_vkCmdDrawClusterHUAWEI(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    groupCountX,
-        uint32_t                                    groupCountY,
-        uint32_t                                    groupCountZ) override;
+        args::CmdDrawClusterHUAWEI&                 args) override;
 
     void Process_vkCmdDrawClusterIndirectHUAWEI(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset) override;
+        args::CmdDrawClusterIndirectHUAWEI&         args) override;
 
     void Process_vkCmdSetDispatchParametersARM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDispatchParametersARM>* pDispatchParameters) override;
+        args::CmdSetDispatchParametersARM&          args) override;
 
     void Process_vkCmdUpdatePipelineIndirectBufferNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPipelineBindPoint                         pipelineBindPoint,
-        format::HandleId                            pipeline) override;
+        args::CmdUpdatePipelineIndirectBufferNV&    args) override;
 
     void Process_vkCmdSetDepthClampEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthClampEnable) override;
+        args::CmdSetDepthClampEnableEXT&            args) override;
 
     void Process_vkCmdSetPolygonModeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkPolygonMode                               polygonMode) override;
+        args::CmdSetPolygonModeEXT&                 args) override;
 
     void Process_vkCmdSetRasterizationSamplesEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkSampleCountFlagBits                       rasterizationSamples) override;
+        args::CmdSetRasterizationSamplesEXT&        args) override;
 
     void Process_vkCmdSetSampleMaskEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkSampleCountFlagBits                       samples,
-        PointerDecoder<VkSampleMask>*               pSampleMask) override;
+        args::CmdSetSampleMaskEXT&                  args) override;
 
     void Process_vkCmdSetAlphaToCoverageEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    alphaToCoverageEnable) override;
+        args::CmdSetAlphaToCoverageEnableEXT&       args) override;
 
     void Process_vkCmdSetAlphaToOneEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    alphaToOneEnable) override;
+        args::CmdSetAlphaToOneEnableEXT&            args) override;
 
     void Process_vkCmdSetLogicOpEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    logicOpEnable) override;
+        args::CmdSetLogicOpEnableEXT&               args) override;
 
     void Process_vkCmdSetColorBlendEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstAttachment,
-        uint32_t                                    attachmentCount,
-        PointerDecoder<VkBool32>*                   pColorBlendEnables) override;
+        args::CmdSetColorBlendEnableEXT&            args) override;
 
     void Process_vkCmdSetColorBlendEquationEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstAttachment,
-        uint32_t                                    attachmentCount,
-        StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations) override;
+        args::CmdSetColorBlendEquationEXT&          args) override;
 
     void Process_vkCmdSetColorWriteMaskEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstAttachment,
-        uint32_t                                    attachmentCount,
-        PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks) override;
+        args::CmdSetColorWriteMaskEXT&              args) override;
 
     void Process_vkCmdSetTessellationDomainOriginEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkTessellationDomainOrigin                  domainOrigin) override;
+        args::CmdSetTessellationDomainOriginEXT&    args) override;
 
     void Process_vkCmdSetRasterizationStreamEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    rasterizationStream) override;
+        args::CmdSetRasterizationStreamEXT&         args) override;
 
     void Process_vkCmdSetConservativeRasterizationModeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkConservativeRasterizationModeEXT          conservativeRasterizationMode) override;
+        args::CmdSetConservativeRasterizationModeEXT& args) override;
 
     void Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        float                                       extraPrimitiveOverestimationSize) override;
+        args::CmdSetExtraPrimitiveOverestimationSizeEXT& args) override;
 
     void Process_vkCmdSetDepthClipEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    depthClipEnable) override;
+        args::CmdSetDepthClipEnableEXT&             args) override;
 
     void Process_vkCmdSetSampleLocationsEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    sampleLocationsEnable) override;
+        args::CmdSetSampleLocationsEnableEXT&       args) override;
 
     void Process_vkCmdSetColorBlendAdvancedEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstAttachment,
-        uint32_t                                    attachmentCount,
-        StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced) override;
+        args::CmdSetColorBlendAdvancedEXT&          args) override;
 
     void Process_vkCmdSetProvokingVertexModeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkProvokingVertexModeEXT                    provokingVertexMode) override;
+        args::CmdSetProvokingVertexModeEXT&         args) override;
 
     void Process_vkCmdSetLineRasterizationModeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkLineRasterizationModeEXT                  lineRasterizationMode) override;
+        args::CmdSetLineRasterizationModeEXT&       args) override;
 
     void Process_vkCmdSetLineStippleEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    stippledLineEnable) override;
+        args::CmdSetLineStippleEnableEXT&           args) override;
 
     void Process_vkCmdSetDepthClipNegativeOneToOneEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    negativeOneToOne) override;
+        args::CmdSetDepthClipNegativeOneToOneEXT&   args) override;
 
     void Process_vkCmdSetViewportWScalingEnableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    viewportWScalingEnable) override;
+        args::CmdSetViewportWScalingEnableNV&       args) override;
 
     void Process_vkCmdSetViewportSwizzleNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    firstViewport,
-        uint32_t                                    viewportCount,
-        StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles) override;
+        args::CmdSetViewportSwizzleNV&              args) override;
 
     void Process_vkCmdSetCoverageToColorEnableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    coverageToColorEnable) override;
+        args::CmdSetCoverageToColorEnableNV&        args) override;
 
     void Process_vkCmdSetCoverageToColorLocationNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    coverageToColorLocation) override;
+        args::CmdSetCoverageToColorLocationNV&      args) override;
 
     void Process_vkCmdSetCoverageModulationModeNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCoverageModulationModeNV                  coverageModulationMode) override;
+        args::CmdSetCoverageModulationModeNV&       args) override;
 
     void Process_vkCmdSetCoverageModulationTableEnableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    coverageModulationTableEnable) override;
+        args::CmdSetCoverageModulationTableEnableNV& args) override;
 
     void Process_vkCmdSetCoverageModulationTableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    coverageModulationTableCount,
-        PointerDecoder<float>*                      pCoverageModulationTable) override;
+        args::CmdSetCoverageModulationTableNV&      args) override;
 
     void Process_vkCmdSetShadingRateImageEnableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    shadingRateImageEnable) override;
+        args::CmdSetShadingRateImageEnableNV&       args) override;
 
     void Process_vkCmdSetRepresentativeFragmentTestEnableNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    representativeFragmentTestEnable) override;
+        args::CmdSetRepresentativeFragmentTestEnableNV& args) override;
 
     void Process_vkCmdSetCoverageReductionModeNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkCoverageReductionModeNV                   coverageReductionMode) override;
+        args::CmdSetCoverageReductionModeNV&        args) override;
 
     void Process_vkCmdOpticalFlowExecuteNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            session,
-        StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo) override;
+        args::CmdOpticalFlowExecuteNV&              args) override;
 
     void Process_vkCmdBindShadersEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    stageCount,
-        PointerDecoder<VkShaderStageFlagBits>*      pStages,
-        HandlePointerDecoder<VkShaderEXT>*          pShaders) override;
+        args::CmdBindShadersEXT&                    args) override;
 
     void Process_vkCmdSetDepthClampRangeEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkDepthClampModeEXT                         depthClampMode,
-        StructPointerDecoder<Decoded_VkDepthClampRangeEXT>* pDepthClampRange) override;
+        args::CmdSetDepthClampRangeEXT&             args) override;
 
     void Process_vkCmdConvertCooperativeVectorMatrixNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkConvertCooperativeVectorMatrixInfoNV>* pInfos) override;
+        args::CmdConvertCooperativeVectorMatrixNV&  args) override;
 
     void Process_vkCmdDispatchDataGraphARM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            session,
-        StructPointerDecoder<Decoded_VkDataGraphPipelineDispatchInfoARM>* pInfo) override;
+        args::CmdDispatchDataGraphARM&              args) override;
 
     void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkImageAspectFlags                          aspectMask) override;
+        args::CmdSetAttachmentFeedbackLoopEnableEXT& args) override;
 
     void Process_vkCmdBindTileMemoryQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM>* pTileMemoryBindInfo) override;
+        args::CmdBindTileMemoryQCOM&                args) override;
 
     void Process_vkCmdDecompressMemoryEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDecompressMemoryInfoEXT>* pDecompressMemoryInfoEXT) override;
+        args::CmdDecompressMemoryEXT&               args) override;
 
     void Process_vkCmdDecompressMemoryIndirectCountEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkMemoryDecompressionMethodFlagsEXT         decompressionMethod,
-        VkDeviceAddress                             indirectCommandsAddress,
-        VkDeviceAddress                             indirectCommandsCountAddress,
-        uint32_t                                    maxDecompressionCount,
-        uint32_t                                    stride) override;
+        args::CmdDecompressMemoryIndirectCountEXT&  args) override;
 
     void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBuildPartitionedAccelerationStructureInfoNV>* pBuildInfo) override;
+        args::CmdBuildPartitionedAccelerationStructuresNV& args) override;
 
     void Process_vkCmdPreprocessGeneratedCommandsEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
-        format::HandleId                            stateCommandBuffer) override;
+        args::CmdPreprocessGeneratedCommandsEXT&    args) override;
 
     void Process_vkCmdExecuteGeneratedCommandsEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkBool32                                    isPreprocessed,
-        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo) override;
+        args::CmdExecuteGeneratedCommandsEXT&       args) override;
 
     void Process_vkCmdEndRendering2EXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo) override;
+        args::CmdEndRendering2EXT&                  args) override;
 
     void Process_vkCmdBeginCustomResolveEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT>* pBeginCustomResolveInfo) override;
+        args::CmdBeginCustomResolveEXT&             args) override;
 
     void Process_vkCmdSetComputeOccupancyPriorityNV(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters) override;
+        args::CmdSetComputeOccupancyPriorityNV&     args) override;
 
     void Process_vkCmdSetPrimitiveRestartIndexEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    primitiveRestartIndex) override;
+        args::CmdSetPrimitiveRestartIndexEXT&       args) override;
 
     void Process_vkCmdBuildAccelerationStructuresKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) override;
+        args::CmdBuildAccelerationStructuresKHR&    args) override;
 
     void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
-        PointerDecoder<uint32_t>*                   pIndirectStrides,
-        PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts) override;
+        args::CmdBuildAccelerationStructuresIndirectKHR& args) override;
 
     void Process_vkCmdCopyAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) override;
+        args::CmdCopyAccelerationStructureKHR&      args) override;
 
     void Process_vkCmdCopyAccelerationStructureToMemoryKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo) override;
+        args::CmdCopyAccelerationStructureToMemoryKHR& args) override;
 
     void Process_vkCmdCopyMemoryToAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo) override;
+        args::CmdCopyMemoryToAccelerationStructureKHR& args) override;
 
     void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    accelerationStructureCount,
-        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
-        VkQueryType                                 queryType,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery) override;
+        args::CmdWriteAccelerationStructuresPropertiesKHR& args) override;
 
     void Process_vkCmdTraceRaysKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-        uint32_t                                    width,
-        uint32_t                                    height,
-        uint32_t                                    depth) override;
+        args::CmdTraceRaysKHR&                      args) override;
 
     void Process_vkCmdTraceRaysIndirectKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-        VkDeviceAddress                             indirectDeviceAddress) override;
+        args::CmdTraceRaysIndirectKHR&              args) override;
 
     void Process_vkCmdSetRayTracingPipelineStackSizeKHR(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    pipelineStackSize) override;
+        args::CmdSetRayTracingPipelineStackSizeKHR& args) override;
 
     void Process_vkCmdDrawMeshTasksEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    groupCountX,
-        uint32_t                                    groupCountY,
-        uint32_t                                    groupCountZ) override;
+        args::CmdDrawMeshTasksEXT&                  args) override;
 
     void Process_vkCmdDrawMeshTasksIndirectEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        uint32_t                                    drawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawMeshTasksIndirectEXT&          args) override;
 
     void Process_vkCmdDrawMeshTasksIndirectCountEXT(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset,
-        format::HandleId                            countBuffer,
-        VkDeviceSize                                countBufferOffset,
-        uint32_t                                    maxDrawCount,
-        uint32_t                                    stride) override;
+        args::CmdDrawMeshTasksIndirectCountEXT&     args) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

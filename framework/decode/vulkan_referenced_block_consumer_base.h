@@ -42,60 +42,23 @@ class VulkanReferencedBlockConsumerBase : public VulkanConsumer
 
     const std::unordered_set<uint64_t>& GetUnreferencedBlocks() const { return unreferenced_blocks_; }
 
-    void Process_vkCreateGraphicsPipelines(const ApiCallInfo&                                          call_info,
-                                           VkResult                                                    returnValue,
-                                           format::HandleId                                            device,
-                                           format::HandleId                                            pipelineCache,
-                                           uint32_t                                                    createInfoCount,
-                                           StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
-                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
-                                           HandlePointerDecoder<VkPipeline>* pPipelines) override;
+    void Process_vkCreateGraphicsPipelines(const ApiCallInfo& call_info, args::CreateGraphicsPipelines& args) override;
 
-    void Process_vkCreateComputePipelines(const ApiCallInfo&                                         call_info,
-                                          VkResult                                                   returnValue,
-                                          format::HandleId                                           device,
-                                          format::HandleId                                           pipelineCache,
-                                          uint32_t                                                   createInfoCount,
-                                          StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
-                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-                                          HandlePointerDecoder<VkPipeline>* pPipelines) override;
+    void Process_vkCreateComputePipelines(const ApiCallInfo& call_info, args::CreateComputePipelines& args) override;
 
-    void Process_vkCreateRayTracingPipelinesKHR(
-        const ApiCallInfo&                                               call_info,
-        VkResult                                                         returnValue,
-        format::HandleId                                                 device,
-        format::HandleId                                                 deferredOperation,
-        format::HandleId                                                 pipelineCache,
-        uint32_t                                                         createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
+                                                args::CreateRayTracingPipelinesKHR& args) override;
 
-    void Process_vkDestroyPipeline(const ApiCallInfo&                                   call_info,
-                                   format::HandleId                                     device,
-                                   format::HandleId                                     pipeline,
-                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+    void Process_vkDestroyPipeline(const ApiCallInfo& call_info, args::DestroyPipeline& args) override;
 
-    void Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
-                                                      VkResult                 returnValue,
-                                                      format::HandleId         device,
-                                                      format::HandleId         pipeline,
-                                                      uint32_t                 firstGroup,
-                                                      uint32_t                 groupCount,
-                                                      size_t                   dataSize,
-                                                      PointerDecoder<uint8_t>* pData) override;
+    void Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&                        call_info,
+                                                      args::GetRayTracingShaderGroupHandlesKHR& args) override;
 
-    void Process_vkSetDebugUtilsObjectNameEXT(
-        const ApiCallInfo&                                           call_info,
-        VkResult                                                     returnValue,
-        format::HandleId                                             device,
-        StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo) override;
+    void Process_vkSetDebugUtilsObjectNameEXT(const ApiCallInfo&                call_info,
+                                              args::SetDebugUtilsObjectNameEXT& args) override;
 
-    void
-    Process_vkSetDebugUtilsObjectTagEXT(const ApiCallInfo&                                          call_info,
-                                        VkResult                                                    returnValue,
-                                        format::HandleId                                            device,
-                                        StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo) override;
+    void Process_vkSetDebugUtilsObjectTagEXT(const ApiCallInfo&               call_info,
+                                             args::SetDebugUtilsObjectTagEXT& args) override;
 
   protected:
     // check if a handle_id is not used throughout the entire capture

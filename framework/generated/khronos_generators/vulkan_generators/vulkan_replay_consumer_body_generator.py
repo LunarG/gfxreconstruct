@@ -182,7 +182,7 @@ class VulkanReplayConsumerBodyGenerator(
     def handle_instance_device_items(self):
         """Method override."""
         device_items = []
-        device_items.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
+        device_items.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(args.device);")
         device_items.append("VkPhysicalDevice  physical_device = device_info->parent;")
         return 'physical_device', device_items
 
@@ -195,11 +195,11 @@ class VulkanReplayConsumerBodyGenerator(
         # Override functions receive the decoded return value in addition to parameters.
         call_expr = ''
         if name not in ['vkQueueSubmit', 'vkQueueSubmit2', 'vkQueueSubmit2KHR', 'vkBeginCommandBuffer']:
-            call_expr = '{}({}, returnValue, {})'.format(
+            call_expr = '{}({}, args.result, {})'.format(
                 self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
             )
         else:
-            call_expr = '{}({}, call_info.index, returnValue, {})'.format(
+            call_expr = '{}({}, call_info.index, args.result, {})'.format(
                 self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
             )
         return call_expr
@@ -248,7 +248,7 @@ class VulkanReplayConsumerBodyGenerator(
             else:
                 # Pools require special case processing to cleanup objects allocated from them.
                 expr = 'RemovePoolHandle<Vulkan{type}Info>({}, &CommonObjectInfoTable::Get{basetype}Info, &CommonObjectInfoTable::Remove{basetype}Info, &CommonObjectInfoTable::Remove{}Info);'.format(
-                    value.name,
+                    value.prefixed_name,
                     self.POOL_OBJECT_ASSOCIATIONS[value.base_type],
                     type=value.base_type[2:],
                     basetype=value.base_type
@@ -256,10 +256,10 @@ class VulkanReplayConsumerBodyGenerator(
         elif name.startswith('vkFree'):
             # For pool based vkFreeCommandBuffers and vkFreeDescriptorSets, the pool handle is the second parameter, the array count is the third parameter and the array of handles to free is the fourth parameter.
             value = values[3]
-            expr = 'RemovePoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
-                values[1].name,
-                value.name,
-                values[2].name,
+            expr = 'RemovePoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, &{}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
+                values[1].prefixed_name,
+                value.prefixed_name,
+                values[2].prefixed_name,
                 type=value.base_type[2:],
                 basetype=value.base_type,
                 pooltype=self.POOL_OBJECT_ASSOCIATIONS[value.base_type][2:],
@@ -291,19 +291,19 @@ class VulkanReplayConsumerBodyGenerator(
         # If surface was not created, need to automatically ignore for non-overrides queries
         # Swapchain also need to check if a dummy swapchain was created instead
         if value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR':
-            expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
-                value.name
+            expr = 'MapStructHandles({}{op}GetMetaStructPointer(), GetObjectInfoTable());'.format(
+                value.prefixed_name, op=value.op
             )
             preexpr.append(expr)
 
-            expr = 'if ({}->GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
-                value.name
+            expr = 'if ({}{op}GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
+                value.prefixed_name, op=value.op
             )
             preexpr.append(expr)
 
             var_name = 'in_' + value.name + '_meta'
-            expr = 'auto {} = {}->GetMetaStructPointer();'.format(
-                var_name, value.name
+            expr = 'auto {} = {}{op}GetMetaStructPointer();'.format(
+                var_name, value.prefixed_name, op=value.op
             )
             preexpr.append(expr)
 
@@ -325,18 +325,18 @@ class VulkanReplayConsumerBodyGenerator(
                 preexpr.append(expr)
             else:
                 expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}) == nullptr || '.format(
-                    value.name
+                    value.prefixed_name
                 )
                 expr += 'GetObjectInfoTable().GetVkSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
-                    value.name
+                    value.prefixed_name
                 )
                 preexpr.append(expr)
         elif value.base_type == 'VkSwapchainKHR' and not is_override:
             expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id) == nullptr || '.format(
-                value.base_type, value.name
+                value.base_type, value.prefixed_name
             )
             expr += 'GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
-                value.base_type, value.name
+                value.base_type, value.prefixed_name
             )
             preexpr.append(expr)
         return preexpr
@@ -348,4 +348,8 @@ class VulkanReplayConsumerBodyGenerator(
 
     def handle_pipeline_customization(self, length_name):
         """Method override."""
-        return 'if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'.format(length_name)
+        return 'if (omitted_pipeline_cache_data_) {{ AllowCompileDuringPipelineCreation({}, args.pCreateInfos.GetPointer()); }}'.format(length_name)
+
+    def get_return_value(self):
+        """Method may be overridden."""
+        return 'args.result'

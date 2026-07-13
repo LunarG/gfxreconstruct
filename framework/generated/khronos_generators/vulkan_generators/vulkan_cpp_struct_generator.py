@@ -392,11 +392,11 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
                 handleObjectType = makeObjectType(arg.base_type)
 
             local_header.append(makeGenVar(strArrayName, None, handleObjectType, locals(), indent, useThis=False))
-            local_header.append(makeGenCond(f'metaInfo->{arg.name}.GetPointer() != NULL && {lengths[0]} > 0', [
+            local_header.append(makeGenCond(f'metaInfo->{arg.name}{arg.op}GetPointer() != NULL && {lengths[0]} > 0', [
                 makeGenVar(strArrayName, strArrayName, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
                 makeGenVarCall('std::string', strArrayValuesName, 'toStringJoin',
-                                [f'metaInfo->{arg.name}.GetPointer()',
-                                f'metaInfo->{arg.name}.GetPointer() + {lengths[0]}',
+                                [f'metaInfo->{arg.name}{arg.op}GetPointer()',
+                                f'metaInfo->{arg.name}{arg.op}GetPointer() + {lengths[0]}',
                                 '[&](const format::HandleId current) {{ return consumer.GetHandle(current); }}',
                                 '", "'], locals(), indent + 4),
                 makeGenConditions([

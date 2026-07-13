@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_PRE_PROCESS_CONSUMER_H
 
 #include "generated/generated_vulkan_consumer.h"
+#include "generated/generated_vulkan_decoder_args.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -90,12 +91,7 @@ class VulkanPreProcessConsumer : public VulkanConsumer
 
     bool WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
 
-    virtual void Process_vkCreateDevice(const ApiCallInfo&         call_info,
-                                        VkResult                   returnValue,
-                                        gfxrecon::format::HandleId physicalDevice,
-                                        StructPointerDecoder<Decoded_VkDeviceCreateInfo>*,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
-                                        HandlePointerDecoder<VkDevice>*) override
+    void Process_vkCreateDevice(const ApiCallInfo& call_info, args::CreateDevice& args) override
     {
         vulkan_consumer_usage_                = true;
         check_vulkan_consumer_usage_complete_ = true;
@@ -167,97 +163,67 @@ class VulkanPreProcessConsumer : public VulkanConsumer
         return dump_resources_block_indices;
     }
 
-    virtual void
-    Process_vkAllocateCommandBuffers(const ApiCallInfo&                                         call_info,
-                                     VkResult                                                   returnValue,
-                                     format::HandleId                                           device,
-                                     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
-                                     HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override
+    virtual void Process_vkAllocateCommandBuffers(const ApiCallInfo&            call_info,
+                                                  args::AllocateCommandBuffers& args) override
     {
-        auto                     cmd_buf_handle_id = pCommandBuffers->GetPointer();
+        auto                     cmd_buf_handle_id = args.pCommandBuffers.GetPointer();
         VkTrackDumpCommandBuffer cmd_buf_info{};
         track_cmd_buf_infos_[*cmd_buf_handle_id] = cmd_buf_info;
     }
 
-    virtual void Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
-                                              VkResult                  returnValue,
-                                              format::HandleId          commandBuffer,
-                                              VkCommandBufferResetFlags flags) override
+    virtual void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override
     {
-        auto it = track_cmd_buf_infos_.find(commandBuffer);
+        auto it = track_cmd_buf_infos_.find(args.commandBuffer);
         if (it != track_cmd_buf_infos_.end())
         {
             it->second.Clear();
         }
     }
 
-    virtual void
-    Process_vkBeginCommandBuffer(const ApiCallInfo&                                      call_info,
-                                 VkResult                                                returnValue,
-                                 format::HandleId                                        commandBuffer,
-                                 StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo) override
+    virtual void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override
     {
-        auto it = track_cmd_buf_infos_.find(commandBuffer);
+        auto it = track_cmd_buf_infos_.find(args.commandBuffer);
         if (it != track_cmd_buf_infos_.end())
         {
             it->second.begin_block_index = call_info.index;
         }
     }
 
-    virtual void Process_vkCmdBeginRenderPass(const ApiCallInfo&                                   call_info,
-                                              format::HandleId                                     commandBuffer,
-                                              StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                              VkSubpassContents                                    contents) override
+    virtual void Process_vkCmdBeginRenderPass(const ApiCallInfo& call_info, args::CmdBeginRenderPass& args) override
     {
-        BeginRenderPass(commandBuffer, call_info.index);
+        BeginRenderPass(args.commandBuffer, call_info.index);
     }
 
-    virtual void
-    Process_vkCmdBeginRenderPass2(const ApiCallInfo&                                   call_info,
-                                  format::HandleId                                     commandBuffer,
-                                  StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                  StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    pSubpassBeginInfo) override
+    virtual void Process_vkCmdBeginRenderPass2(const ApiCallInfo& call_info, args::CmdBeginRenderPass2& args) override
     {
-        BeginRenderPass(commandBuffer, call_info.index);
+        BeginRenderPass(args.commandBuffer, call_info.index);
     }
 
-    virtual void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, format::HandleId commandBuffer) override
+    virtual void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, args::CmdEndRenderPass& args) override
     {
-        EndRenderPass(commandBuffer, call_info.index);
+        EndRenderPass(args.commandBuffer, call_info.index);
     }
 
-    virtual void Process_vkCmdEndRenderPass2(const ApiCallInfo&                              call_info,
-                                             format::HandleId                                commandBuffer,
-                                             StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override
+    virtual void Process_vkCmdEndRenderPass2(const ApiCallInfo& call_info, args::CmdEndRenderPass2& args) override
     {
-        EndRenderPass(commandBuffer, call_info.index);
+        EndRenderPass(args.commandBuffer, call_info.index);
     }
 
-    virtual void Process_vkCmdNextSubpass(const ApiCallInfo& call_info,
-                                          format::HandleId   commandBuffer,
-                                          VkSubpassContents  contents) override
+    virtual void Process_vkCmdNextSubpass(const ApiCallInfo& call_info, args::CmdNextSubpass& args) override
     {
-        NextSubpass(commandBuffer, call_info.index);
+        NextSubpass(args.commandBuffer, call_info.index);
     }
 
-    virtual void Process_vkCmdNextSubpass2(const ApiCallInfo&                                call_info,
-                                           format::HandleId                                  commandBuffer,
-                                           StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
-                                           StructPointerDecoder<Decoded_VkSubpassEndInfo>*   pSubpassEndInfo) override
+    virtual void Process_vkCmdNextSubpass2(const ApiCallInfo& call_info, args::CmdNextSubpass2& args) override
     {
-        NextSubpass(commandBuffer, call_info.index);
+        NextSubpass(args.commandBuffer, call_info.index);
     }
 
-    virtual void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
-                                       VkResult                                    returnValue,
-                                       format::HandleId                            queue,
-                                       uint32_t                                    submitCount,
-                                       StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                       format::HandleId                            fence) override
+    virtual void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override
     {
         std::vector<format::HandleId> cmd_bufs;
-        auto                          submit_info_data = pSubmits->GetMetaStructPointer();
-        for (auto i = 0; i < submitCount; ++i)
+        auto                          submit_info_data = args.pSubmits.GetMetaStructPointer();
+        for (auto i = 0; i < args.submitCount; ++i)
         {
             const auto cmd_buf_count = submit_info_data[i].pCommandBuffers.GetLength();
             const auto cmd_buf_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
@@ -269,16 +235,11 @@ class VulkanPreProcessConsumer : public VulkanConsumer
         QueueSubmit(cmd_bufs, call_info.index);
     }
 
-    virtual void Process_vkQueueSubmit2(const ApiCallInfo&                           call_info,
-                                        VkResult                                     returnValue,
-                                        format::HandleId                             queue,
-                                        uint32_t                                     submitCount,
-                                        StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                        format::HandleId                             fence) override
+    virtual void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override
     {
         std::vector<format::HandleId> cmd_bufs;
-        auto                          submit_info_data = pSubmits->GetMetaStructPointer();
-        for (auto i = 0; i < submitCount; ++i)
+        auto                          submit_info_data = args.pSubmits.GetMetaStructPointer();
+        for (auto i = 0; i < args.submitCount; ++i)
         {
             const auto cmd_buf_count = submit_info_data[i].pCommandBufferInfos->GetLength();
             const auto cmd_buf_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
@@ -290,16 +251,11 @@ class VulkanPreProcessConsumer : public VulkanConsumer
         QueueSubmit(cmd_bufs, call_info.index);
     }
 
-    virtual void Process_vkQueueSubmit2KHR(const ApiCallInfo&                           call_info,
-                                           VkResult                                     returnValue,
-                                           format::HandleId                             queue,
-                                           uint32_t                                     submitCount,
-                                           StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                           format::HandleId                             fence) override
+    virtual void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override
     {
         std::vector<format::HandleId> cmd_bufs;
-        auto                          submit_info_data = pSubmits->GetMetaStructPointer();
-        for (auto i = 0; i < submitCount; ++i)
+        auto                          submit_info_data = args.pSubmits.GetMetaStructPointer();
+        for (auto i = 0; i < args.submitCount; ++i)
         {
             const auto cmd_buf_count = submit_info_data[i].pCommandBufferInfos->GetLength();
             const auto cmd_buf_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
@@ -311,324 +267,164 @@ class VulkanPreProcessConsumer : public VulkanConsumer
         QueueSubmit(cmd_bufs, call_info.index);
     }
 
-    virtual void Process_vkCmdDraw(const ApiCallInfo& call_info,
-                                   format::HandleId   commandBuffer,
-                                   uint32_t           vertexCount,
-                                   uint32_t           instanceCount,
-                                   uint32_t           firstVertex,
-                                   uint32_t           firstInstance) override
+    virtual void Process_vkCmdDraw(const ApiCallInfo& call_info, args::CmdDraw& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndexed(const ApiCallInfo& call_info,
-                                          format::HandleId   commandBuffer,
-                                          uint32_t           indexCount,
-                                          uint32_t           instanceCount,
-                                          uint32_t           firstIndex,
-                                          int32_t            vertexOffset,
-                                          uint32_t           firstInstance) override
+    virtual void Process_vkCmdDrawIndexed(const ApiCallInfo& call_info, args::CmdDrawIndexed& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndirect(const ApiCallInfo& call_info,
-                                           format::HandleId   commandBuffer,
-                                           format::HandleId   buffer,
-                                           VkDeviceSize       offset,
-                                           uint32_t           drawCount,
-                                           uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndirect(const ApiCallInfo& call_info, args::CmdDrawIndirect& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndexedIndirect(const ApiCallInfo& call_info,
-                                                  format::HandleId   commandBuffer,
-                                                  format::HandleId   buffer,
-                                                  VkDeviceSize       offset,
-                                                  uint32_t           drawCount,
-                                                  uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndexedIndirect(const ApiCallInfo&            call_info,
+                                                  args::CmdDrawIndexedIndirect& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndirectCount(const ApiCallInfo& call_info,
-                                                format::HandleId   commandBuffer,
-                                                format::HandleId   buffer,
-                                                VkDeviceSize       offset,
-                                                format::HandleId   countBuffer,
-                                                VkDeviceSize       countBufferOffset,
-                                                uint32_t           maxDrawCount,
-                                                uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndirectCount(const ApiCallInfo& call_info, args::CmdDrawIndirectCount& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndirectCountKHR(const ApiCallInfo& call_info,
-                                                   format::HandleId   commandBuffer,
-                                                   format::HandleId   buffer,
-                                                   VkDeviceSize       offset,
-                                                   format::HandleId   countBuffer,
-                                                   VkDeviceSize       countBufferOffset,
-                                                   uint32_t           maxDrawCount,
-                                                   uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndirectCountKHR(const ApiCallInfo&             call_info,
+                                                   args::CmdDrawIndirectCountKHR& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndexedIndirectCount(const ApiCallInfo& call_info,
-                                                       format::HandleId   commandBuffer,
-                                                       format::HandleId   buffer,
-                                                       VkDeviceSize       offset,
-                                                       format::HandleId   countBuffer,
-                                                       VkDeviceSize       countBufferOffset,
-                                                       uint32_t           maxDrawCount,
-                                                       uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndexedIndirectCount(const ApiCallInfo&                 call_info,
+                                                       args::CmdDrawIndexedIndirectCount& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndexedIndirectCountKHR(const ApiCallInfo& call_info,
-                                                          format::HandleId   commandBuffer,
-                                                          format::HandleId   buffer,
-                                                          VkDeviceSize       offset,
-                                                          format::HandleId   countBuffer,
-                                                          VkDeviceSize       countBufferOffset,
-                                                          uint32_t           maxDrawCount,
-                                                          uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndexedIndirectCountKHR(const ApiCallInfo&                    call_info,
+                                                          args::CmdDrawIndexedIndirectCountKHR& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndirectByteCountEXT(const ApiCallInfo& call_info,
-                                                       format::HandleId   commandBuffer,
-                                                       uint32_t           instanceCount,
-                                                       uint32_t           firstInstance,
-                                                       format::HandleId   counterBuffer,
-                                                       VkDeviceSize       counterBufferOffset,
-                                                       uint32_t           counterOffset,
-                                                       uint32_t           vertexStride) override
+    virtual void Process_vkCmdDrawIndirectByteCountEXT(const ApiCallInfo&                 call_info,
+                                                       args::CmdDrawIndirectByteCountEXT& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndirectCountAMD(const ApiCallInfo& call_info,
-                                                   format::HandleId   commandBuffer,
-                                                   format::HandleId   buffer,
-                                                   VkDeviceSize       offset,
-                                                   format::HandleId   countBuffer,
-                                                   VkDeviceSize       countBufferOffset,
-                                                   uint32_t           maxDrawCount,
-                                                   uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndirectCountAMD(const ApiCallInfo&             call_info,
+                                                   args::CmdDrawIndirectCountAMD& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawIndexedIndirectCountAMD(const ApiCallInfo& call_info,
-                                                          format::HandleId   commandBuffer,
-                                                          format::HandleId   buffer,
-                                                          VkDeviceSize       offset,
-                                                          format::HandleId   countBuffer,
-                                                          VkDeviceSize       countBufferOffset,
-                                                          uint32_t           maxDrawCount,
-                                                          uint32_t           stride) override
+    virtual void Process_vkCmdDrawIndexedIndirectCountAMD(const ApiCallInfo&                    call_info,
+                                                          args::CmdDrawIndexedIndirectCountAMD& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMeshTasksEXT(const ApiCallInfo& call_info,
-                                               format::HandleId   commandBuffer,
-                                               uint32_t           groupCountX,
-                                               uint32_t           groupCountY,
-                                               uint32_t           groupCountZ) override
+    virtual void Process_vkCmdDrawMeshTasksEXT(const ApiCallInfo& call_info, args::CmdDrawMeshTasksEXT& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMeshTasksNV(const ApiCallInfo& call_info,
-                                              format::HandleId   commandBuffer,
-                                              uint32_t           taskCount,
-                                              uint32_t           firstTask) override
+    virtual void Process_vkCmdDrawMeshTasksNV(const ApiCallInfo& call_info, args::CmdDrawMeshTasksNV& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo& call_info,
-                                                       format::HandleId   commandBuffer,
-                                                       format::HandleId   buffer,
-                                                       VkDeviceSize       offset,
-                                                       uint32_t           drawCount,
-                                                       uint32_t           stride) override
+    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo&                 call_info,
+                                                       args::CmdDrawMeshTasksIndirectEXT& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo& call_info,
-                                                      format::HandleId   commandBuffer,
-                                                      format::HandleId   buffer,
-                                                      VkDeviceSize       offset,
-                                                      uint32_t           drawCount,
-                                                      uint32_t           stride) override
+    virtual void Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo&                call_info,
+                                                      args::CmdDrawMeshTasksIndirectNV& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInfo& call_info,
-                                                            format::HandleId   commandBuffer,
-                                                            format::HandleId   buffer,
-                                                            VkDeviceSize       offset,
-                                                            format::HandleId   countBuffer,
-                                                            VkDeviceSize       countBufferOffset,
-                                                            uint32_t           maxDrawCount,
-                                                            uint32_t           stride) override
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInfo&                      call_info,
+                                                            args::CmdDrawMeshTasksIndirectCountEXT& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMeshTasksIndirectCountNV(const ApiCallInfo& call_info,
-                                                           format::HandleId   commandBuffer,
-                                                           format::HandleId   buffer,
-                                                           VkDeviceSize       offset,
-                                                           format::HandleId   countBuffer,
-                                                           VkDeviceSize       countBufferOffset,
-                                                           uint32_t           maxDrawCount,
-                                                           uint32_t           stride) override
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountNV(const ApiCallInfo&                     call_info,
+                                                           args::CmdDrawMeshTasksIndirectCountNV& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMultiEXT(const ApiCallInfo&                                call_info,
-                                           format::HandleId                                  commandBuffer,
-                                           uint32_t                                          drawCount,
-                                           StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
-                                           uint32_t                                          instanceCount,
-                                           uint32_t                                          firstInstance,
-                                           uint32_t                                          stride) override
+    virtual void Process_vkCmdDrawMultiEXT(const ApiCallInfo& call_info, args::CmdDrawMultiEXT& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawMultiIndexedEXT(const ApiCallInfo& call_info,
-                                                  format::HandleId   commandBuffer,
-                                                  uint32_t           drawCount,
-                                                  StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
-                                                  uint32_t                 instanceCount,
-                                                  uint32_t                 firstInstance,
-                                                  uint32_t                 stride,
-                                                  PointerDecoder<int32_t>* pVertexOffset) override
+    virtual void Process_vkCmdDrawMultiIndexedEXT(const ApiCallInfo&            call_info,
+                                                  args::CmdDrawMultiIndexedEXT& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawClusterHUAWEI(const ApiCallInfo& call_info,
-                                                format::HandleId   commandBuffer,
-                                                uint32_t           groupCountX,
-                                                uint32_t           groupCountY,
-                                                uint32_t           groupCountZ) override
+    virtual void Process_vkCmdDrawClusterHUAWEI(const ApiCallInfo& call_info, args::CmdDrawClusterHUAWEI& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo& call_info,
-                                                        format::HandleId   commandBuffer,
-                                                        format::HandleId   buffer,
-                                                        VkDeviceSize       offset) override
+    virtual void Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo&                  call_info,
+                                                        args::CmdDrawClusterIndirectHUAWEI& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDraw);
     }
 
-    virtual void Process_vkCmdDispatch(const ApiCallInfo& call_info,
-                                       format::HandleId   commandBuffer,
-                                       uint32_t           groupCountX,
-                                       uint32_t           groupCountY,
-                                       uint32_t           groupCountZ) override
+    virtual void Process_vkCmdDispatch(const ApiCallInfo& call_info, args::CmdDispatch& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
     }
 
-    virtual void Process_vkCmdDispatchIndirect(const ApiCallInfo& call_info,
-                                               format::HandleId   commandBuffer,
-                                               format::HandleId   buffer,
-                                               VkDeviceSize       offset) override
+    virtual void Process_vkCmdDispatchIndirect(const ApiCallInfo& call_info, args::CmdDispatchIndirect& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
     }
 
-    virtual void Process_vkCmdDispatchBase(const ApiCallInfo& call_info,
-                                           format::HandleId   commandBuffer,
-                                           uint32_t           baseGroupX,
-                                           uint32_t           baseGroupY,
-                                           uint32_t           baseGroupZ,
-                                           uint32_t           groupCountX,
-                                           uint32_t           groupCountY,
-                                           uint32_t           groupCountZ) override
+    virtual void Process_vkCmdDispatchBase(const ApiCallInfo& call_info, args::CmdDispatchBase& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
     }
 
-    virtual void Process_vkCmdDispatchBaseKHR(const ApiCallInfo& call_info,
-                                              format::HandleId   commandBuffer,
-                                              uint32_t           baseGroupX,
-                                              uint32_t           baseGroupY,
-                                              uint32_t           baseGroupZ,
-                                              uint32_t           groupCountX,
-                                              uint32_t           groupCountY,
-                                              uint32_t           groupCountZ) override
+    virtual void Process_vkCmdDispatchBaseKHR(const ApiCallInfo& call_info, args::CmdDispatchBaseKHR& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kDispatch);
     }
 
-    virtual void Process_vkCmdTraceRaysKHR(
-        const ApiCallInfo&                                             call_info,
-        format::HandleId                                               commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-        uint32_t                                                       width,
-        uint32_t                                                       height,
-        uint32_t                                                       depth) override
+    virtual void Process_vkCmdTraceRaysKHR(const ApiCallInfo& call_info, args::CmdTraceRaysKHR& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
     }
 
-    virtual void Process_vkCmdTraceRaysNV(const ApiCallInfo& call_info,
-                                          format::HandleId   commandBuffer,
-                                          format::HandleId   raygenShaderBindingTableBuffer,
-                                          VkDeviceSize       raygenShaderBindingOffset,
-                                          format::HandleId   missShaderBindingTableBuffer,
-                                          VkDeviceSize       missShaderBindingOffset,
-                                          VkDeviceSize       missShaderBindingStride,
-                                          format::HandleId   hitShaderBindingTableBuffer,
-                                          VkDeviceSize       hitShaderBindingOffset,
-                                          VkDeviceSize       hitShaderBindingStride,
-                                          format::HandleId   callableShaderBindingTableBuffer,
-                                          VkDeviceSize       callableShaderBindingOffset,
-                                          VkDeviceSize       callableShaderBindingStride,
-                                          uint32_t           width,
-                                          uint32_t           height,
-                                          uint32_t           depth) override
+    virtual void Process_vkCmdTraceRaysNV(const ApiCallInfo& call_info, args::CmdTraceRaysNV& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
     }
 
-    virtual void Process_vkCmdTraceRaysIndirectKHR(
-        const ApiCallInfo&                                             call_info,
-        format::HandleId                                               commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-        VkDeviceAddress                                                indirectDeviceAddress) override
+    virtual void Process_vkCmdTraceRaysIndirectKHR(const ApiCallInfo&             call_info,
+                                                   args::CmdTraceRaysIndirectKHR& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
     }
 
-    virtual void Process_vkCmdTraceRaysIndirect2KHR(const ApiCallInfo& call_info,
-                                                    format::HandleId   commandBuffer,
-                                                    VkDeviceAddress    indirectDeviceAddress) override
+    virtual void Process_vkCmdTraceRaysIndirect2KHR(const ApiCallInfo&              call_info,
+                                                    args::CmdTraceRaysIndirect2KHR& args) override
     {
-        DrawCall(commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
+        DrawCall(args.commandBuffer, call_info.index, VkDumpDrawCallType::kTraceRays);
     }
 
     virtual bool IsComplete(uint64_t block_index) override

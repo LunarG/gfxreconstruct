@@ -506,24 +506,16 @@ def printOutStream(values, arguments=None, indent=4):
         arguments = {}
     return (' ' * indent) + 'out << "\\t\\t" << %s << std::endl;\n' % ' << '.join(values).format(**arguments)
 
-def replacePointerInLength(inString):
+def replacePointerInLength(inString, op):
     if inString == '':
         return ''
     if inString[:2] == '->':
-        new_string = '->GetPointer()->'
+        new_string = f'{op}GetPointer()->'
         next_index = 2
     else:
         new_string = inString[0]
         next_index = 1
-    return new_string + replacePointerInLength(inString[next_index:])
-
-def makeParamList(cmdInfo, additionalParams):
-    paramList = [param.name for param in cmdInfo[2]]
-    if cmdInfo[0] != 'void':
-        paramList.insert(0, 'returnValue')
-    paramList.extend(additionalParams)
-    return ', '.join(paramList)
-
+    return new_string + replacePointerInLength(inString[next_index:], op)
 
 class VulkanCppConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP source generation"""
@@ -601,6 +593,20 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
         write(*args, **kwargs, file=self.outFile)
 
 
+    def makeParamList(self, cmdInfo, additionalParams):
+        paramList = []
+        if cmdInfo[0] != 'void':
+            paramList.append('args.result')
+        for param in cmdInfo[2]:
+            # AHB is uint64_t on a certain Process_ call.
+            if (param.is_pointer and not param.base_type == 'void') or param.pointer_count > 1 or param.is_array:
+                paramList.append(f'&{param.prefixed_name}')
+            else:
+                paramList.append(param.prefixed_name)
+        paramList.extend(additionalParams)
+        return ', '.join(paramList)
+
+
     #
     # Performs C++ code generation for the feature.
     def generate_feature(self):
@@ -627,15 +633,13 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
             # If we need to intercept the function early and store some specific data or make a
             # certain API call before the rest of the function continues, do so.
             if cmd in CPP_APICALL_INTERCEPT_LIST:
-                paramList = makeParamList(info, [])
-                cmddef += makeGen('Intercept_{cmd}({paramList});', locals(), indent=4)
+                cmddef += makeGen(f'Intercept_{cmd}(args);', indent=4)
 
 
             # If we have a manually generated function, use that, otherwise generate the appropriate
             # information.
             if cmd in CPP_APICALL_GENERATE:
-                paramList = makeParamList(info, [])
-                cmddef += makeGen('Generate_{cmd}({paramList});', locals(), indent=4)
+                cmddef += makeGen(f'Generate_{cmd}(args);', indent=4)
             else:
                 cmddef += makeGen("FILE* file = GetFrameFile();", indent=4)
 
@@ -666,9 +670,9 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
         """
         arrayElementType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
 
-        if '->' in arg.array_length:
-            new_array_length = replacePointerInLength(arg.array_length)
-            arg.array_length = new_array_length
+        if '->' in arg.prefixed_array_length:
+            new_array_length = replacePointerInLength(arg.prefixed_array_length, arg.op)
+            arg.prefixed_array_length = new_array_length
 
         to_string_type = 'current'
         if arg.is_pointer and arg.pointer_count > 1:
@@ -678,9 +682,9 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
         if arg.base_type in self.handle_names:
             handleObjectType = makeObjectType(arg.base_type)
 
-        conditional_arg = f'{arg.array_length} > 0'
+        conditional_arg = f'{arg.prefixed_array_length} > 0'
         if arg.is_optional:
-            conditional_arg += f' && {arg.name}->GetPointer() != nullptr'
+            conditional_arg += f' && {arg.prefixed_name}{arg.op}GetPointer() != nullptr'
 
         arrayVarName = makeSnakeCaseName(arg.name + 'Array')
         valuesVarName = makeSnakeCaseName(arg.name + 'Values')
@@ -689,7 +693,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
             makeGenVar(arrayVarName, arg.name, handleObjectType, locals(), indent=indent),
             makeGenCond('{conditional_arg}', [
                     makeGenVarCall('std::string', valuesVarName, 'toStringJoin',
-                                [f'{arg.name}->GetPointer()', '{arg.name}->GetPointer() + {arg.array_length}',
+                                [f'{arg.prefixed_name}{arg.op}GetPointer()', '{arg.prefixed_name}{arg.op}GetPointer() + {arg.prefixed_array_length}',
                                     f'[&](const auto current) {{{{ return std::to_string({to_string_type}) + "{valueSuffix}"; }}}}',
                                     '", "'], locals(), indent=indent+4),
                     makeCppArray('{arrayElementType}', arrayVarName, valuesVarName, locals(), indent=indent + 4)
@@ -774,7 +778,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                         pair_string = "*pair.t1, *pair.t2"
 
                     # TODO: maybe only do this if there is any contents to process in the cpp:
-                    body += makeGen(f'PointerPairContainer<decltype({arg.name}->GetPointer()), decltype({arg.name}->GetMetaStructPointer())> {pairName}{{{{ {arg.name}->GetPointer(), {arg.name}->GetMetaStructPointer(), {arg.array_length} }}}};', locals(), indent=4)
+                    body += makeGen(f'PointerPairContainer<decltype({arg.prefixed_name}{arg.op}GetPointer()), decltype({arg.prefixed_name}{arg.op}GetMetaStructPointer())> {pairName}{{{{ {arg.prefixed_name}{arg.op}GetPointer(), {arg.prefixed_name}{arg.op}GetMetaStructPointer(), {arg.prefixed_array_length} }}}};', locals(), indent=4)
                     body += makeGenVarCall('std::string', arrayElementNames, 'toStringJoin',
                                            [f'{pairName}.begin()',
                                             f'{pairName}.end()',
@@ -784,8 +788,8 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     body += makeGenCond(f'{streamName}.str().length() > 0', [
                                         makeCppOutputStream(streamName, indent=8),
                                         makeGenConditions([
-                                                [f'{arg.array_length} == 1', [makeGen('{arrayVarName} = "&" + {arrayElementNames};', locals(), indent=12)]],
-                                                [f'{arg.array_length} > 1', [
+                                                [f'{arg.prefixed_array_length} == 1', [makeGen('{arrayVarName} = "&" + {arrayElementNames};', locals(), indent=12)]],
+                                                [f'{arg.prefixed_array_length} > 1', [
                                                     makeGenVar(arrayVarName, arg.name, None, locals(), indent=12, addType=False), # generate the CPP name
                                                     makeCppArray(arg.base_type, arrayVarName, arrayElementNames, locals(), indent=12)]],
                                         ], locals(), indent=8)
@@ -799,8 +803,8 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     body += makeGenVarCall('std::string', structVarName,
                                            f'GenerateStruct_{arg.base_type}',
                                            [streamName,
-                                            f'{arg.name}->GetPointer()',
-                                            f'{arg.name}->GetMetaStructPointer()',
+                                            f'{arg.prefixed_name}{arg.op}GetPointer()',
+                                            f'{arg.prefixed_name}{arg.op}GetMetaStructPointer()',
                                             '*this'],
                                            locals(), indent=4)
                     body += makeCppOutputStream(streamName)
@@ -818,12 +822,12 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     arrayInfo = '[%d]'
                     arrayFuncDelimiter = ', '
                     count_arg = next(filter(lambda x : x.name == arg.array_length, values), None)
-                    if '->' in arg.array_length:
-                        arrayValue = arg.array_length.replace('->', '->GetPointer()->')
+                    if '->' in arg.prefixed_array_length:
+                        arrayValue = arg.prefixed_array_length.replace('->', f'{arg.op}GetPointer()->')
                     elif count_arg is not None and count_arg.is_pointer:
-                        arrayValue = '*' + arg.array_length + '->GetPointer()'
+                        arrayValue = '*' + arg.prefixed_array_length + f'{arg.op}GetPointer()'
                     else:
-                        arrayValue = arg.array_length
+                        arrayValue = arg.prefixed_array_length
                 else:
                     callTempl.append('&%s')
                     arrayInfo = ''
@@ -835,12 +839,12 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
 
                 if returnType == 'VkResult':
                     # TODO: This also needs to consider scenarios where VK_INCOMPLETE or other non-Error codes are used
-                    body += makeGenCond('returnValue == VK_SUCCESS', [
-                                makeGenCall('this->AddHandles', [varName, f'{arg.name}->GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=8),
+                    body += makeGenCond('args.result == VK_SUCCESS', [
+                                makeGenCall('this->AddHandles', [varName, f'{arg.prefixed_name}{arg.op}GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=8),
                             ], [],
                             locals(), indent=4)
                 else:
-                    body += makeGenCall('this->AddHandles', [varName, f'{arg.name}->GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=4)
+                    body += makeGenCall('this->AddHandles', [varName, f'{arg.prefixed_name}{arg.op}GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=4)
 
             # TODO: Create a separate function for common parts.
             elif arg.is_pointer and self.is_output_parameter(arg):
@@ -852,7 +856,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
 
                 varDef = []
                 if arg.is_array:
-                    arrayValue = f', {arg.array_length}'
+                    arrayValue = f', {arg.prefixed_array_length}'
                     if arg.array_length_value.base_type == 'size_t':
                         arrayInfo = '[%" PRIu64 "]'
                     else:
@@ -861,16 +865,16 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     if arg.array_length_value.is_pointer:
                         arrayLenVarName = makeSnakeCaseName(f'in_{arg.array_length_value.name}')
                         if arg.array_length_value.base_type != 'size_t':
-                            varDef += makeGen(f'const uint32_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=8)
+                            varDef += makeGen(f'const uint32_t* {arrayLenVarName} = {arg.array_length_value.prefixed_name}{arg.op}GetPointer();',locals(), indent=8)
                             arrayValue = f', *{arrayLenVarName}'
                         else:
-                            varDef += makeGen(f'size_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=8)
+                            varDef += makeGen(f'size_t* {arrayLenVarName} = {arg.array_length_value.prefixed_name}{arg.op}GetPointer();',locals(), indent=8)
                             arrayValue = f', util::platform::SizeTtoUint64(*{arrayLenVarName})'
                     else:
                         if arg.array_length_value.base_type == 'size_t':
-                            arrayValue = f', util::platform::SizeTtoUint64({arg.array_length_value.name})'
+                            arrayValue = f', util::platform::SizeTtoUint64({arg.array_length_value.prefixed_name})'
                         else:
-                            arrayValue = f', {arg.array_length_value.name}'
+                            arrayValue = f', {arg.array_length_value.prefixed_name}'
 
                     varDef += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=8, addType=False)
                     # zero-initialize array in case it contains pointers
@@ -884,12 +888,12 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                         varDef += makeGen(f'fprintf(file, "\\t\\t{varType} %s = {{{{}}}};\\n", {varName}.c_str());', locals(), indent=8)
                     else:
                         # scalar output args are often in+out (vkGet*, vkEnum*) so initialize them using the capture value
-                        varDef += makeGen(f'fprintf(file, "\\t\\t{varType} %s = %s;\\n", {varName}.c_str(), util::ToString(*{arg.name}->GetPointer()).c_str());', locals(), indent=8)
+                        varDef += makeGen(f'fprintf(file, "\\t\\t{varType} %s = %s;\\n", {varName}.c_str(), util::ToString(*{arg.prefixed_name}{arg.op}GetPointer()).c_str());', locals(), indent=8)
                     varDef += makeGen('{varName}.insert(0, "&");', locals(), indent=8)
 
                 # only define a local output variable if the captured pointer is non-null
                 body += makeGenVar(varName, None, handleObjectType, locals(), indent=4)
-                body += makeGenCond(f'!{arg.name}->IsNull()',varDef, [], locals(), indent=4)
+                body += makeGenCond(f'!{arg.prefixed_name}{arg.op}IsNull()',varDef, [], locals(), indent=4)
 
                 callTempl.append('%s')
                 callArgs.append(f'{varName}.c_str()')
@@ -902,14 +906,14 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
 
                     body += makeGenVar(strArrayVarName, None, handleObjectType, locals(), indent=4)
                     body += makeGenVarCall('std::string', strValuesVarName, 'toStringJoin',
-                                           [f'{arg.name}->GetPointer()',
-                                            f'{arg.name}->GetPointer() + {arg.array_length}',
+                                           [f'{arg.prefixed_name}{arg.op}GetPointer()',
+                                            f'{arg.prefixed_name}{arg.op}GetPointer() + {arg.prefixed_array_length}',
                                             '[&](const format::HandleId current) {{ return this->GetHandle(current); }}',
                                             '", "'], locals(), indent=4)
 
                     body += makeGenConditions([
-                                ['{arg.array_length} == 1 && {strValuesVarName} != "VK_NULL_HANDLE"', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
-                                ['{arg.array_length} > 1', [
+                                ['{arg.prefixed_array_length} == 1 && {strValuesVarName} != "VK_NULL_HANDLE"', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
+                                ['{arg.prefixed_array_length} > 1', [
                                     makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
                                     makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)]],
                             ], locals(), indent=4)
@@ -917,7 +921,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     callArgs.append('{0}.c_str()'.format(strArrayVarName))
                     callTempl.append('%s')
                 else:
-                    callArgs.append(f'this->GetHandle({arg.name}).c_str()')
+                    callArgs.append(f'this->GetHandle({arg.prefixed_name}).c_str()')
                     callTempl.append('%s')
             elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
                 if arg.is_array:
@@ -926,16 +930,16 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
 
                     body += makeGenVar(strArrayVarName, strArrayVarName, handleObjectType, locals(), indent=4)
                     body += makeGenVarCall('std::string', strValuesVarName, 'toStringJoin',
-                                           [f'{arg.name}->GetPointer()',
-                                            f'{arg.name}->GetPointer() + {arg.array_length}',
+                                           [f'{arg.prefixed_name}{arg.op}GetPointer()',
+                                            f'{arg.prefixed_name}{arg.op}GetPointer() + {arg.prefixed_array_length}',
                                             '[&](const {arg.base_type} current) {{ return util::ToString(current); }}',
                                             '", "'], locals(), indent=4)
                     if arg.array_length.isnumeric() or arg.array_length.isupper():
                         body += makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=4)
                     else:
                         body += makeGenConditions([
-                                    ['{arg.array_length} == 1', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
-                                    ['{arg.array_length} > 1', [
+                                    ['{arg.prefixed_array_length} == 1', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
+                                    ['{arg.prefixed_array_length} > 1', [
                                         makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
                                         makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)]],
                                 ], locals(), indent=4)
@@ -943,7 +947,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     callArgs.append('{0}.c_str()'.format(strArrayVarName))
                     callTempl.append('%s')
                 else:
-                    callArgs.append(f'util::ToString<{arg.base_type}>({arg.name}).c_str()')
+                    callArgs.append(f'util::ToString<{arg.base_type}>({arg.prefixed_name}).c_str()')
                     callTempl.append('%s')
 
             elif self.is_input_pointer(arg):
@@ -956,11 +960,11 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     newArray, callArg, callTemplate = self.buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
                     body += newArray
                 elif arg.base_type != 'void':
-                    callArg = f'{arg.name}->GetPointer()'
+                    callArg = f'{arg.prefixed_name}{arg.op}GetPointer()'
                     callTemplate = "%p"
                 else:
                     # encoding void* inputs is tricky at the moment, hope for the best
-                    body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
+                    body += makeGenVar(varName, arg.prefixed_name, handleObjectType, locals(), indent=4)
                     body += makeGen(f'fprintf(file, "\\t\\tvoid* %s;\\n", {varName}.c_str());', locals(), indent=4)
 
                     callArg = f'{varName}.c_str()'
@@ -970,7 +974,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                 callTempl.append(callTemplate)
             elif arg.is_pointer:
                 assert self.is_output_parameter(arg)
-                body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
+                body += makeGenVar(varName, arg.prefixed_name, handleObjectType, locals(), indent=4)
                 body += makeGen(f'fprintf(file, "\\t\\t{arg.base_type} %s;\\n", {varName}.c_str());', locals(), indent=4)
 
                 callArgs.append(f'{varName}.c_str()')
@@ -980,9 +984,9 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
                 valueFormat = valueFormatDict[arg.base_type]
                 if arg.base_type == "size_t":
-                    callArgs.append(f'util::platform::SizeTtoUint64({arg.name})')
+                    callArgs.append(f'util::platform::SizeTtoUint64({arg.prefixed_name})')
                 else:
-                    callArgs.append(f'{arg.name}')
+                    callArgs.append(f'{arg.prefixed_name}')
                 callTempl.append(valueFormat + valueSuffix)
 
         # Build the vk* function call with arguments
@@ -998,7 +1002,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
             else:
                 # wrap function call into a macro call
                 functionCall = 'VK_CALL_CHECK({}, %s)'.format(functionCall)  # '%s' is the captured 'VkResult returnValue'
-                callArgs.append('util::ToString<VkResult>(returnValue).c_str()')
+                callArgs.append('util::ToString<VkResult>(args.result).c_str()')
 
         fprintfArgs = [
             'file',
@@ -1038,11 +1042,11 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
         ]
 
         if self.is_output_parameter(arg) or arg.is_pointer:
-            params.append('%s->GetPointer()' % arg.name)
+            params.append(f'{arg.prefixed_name}{arg.op}GetPointer()')
             if arg.is_array:
                 params.append(arrayValue)
         else:
-            params.append(arg.name)
+            params.append(arg.prefixed_name)
 
         return (' ' * indent) + object + 'AddKnownVariables(%s);\n' % ', '.join(params)
 
@@ -1083,9 +1087,9 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                 arguments = ['GetCurrentFrameNumber()',
                              'GetCurrentFrameSplitNumber()',]
                 if member.is_pointer or member.is_array:
-                    arguments.append(argument + '.GetPointer()')
+                    arguments.append(f'{argument}{member.op}GetPointer()')
                     if member.is_array:
-                        arguments.append(argument + '.GetLength()')
+                        arguments.append(f'{argument}{member.op}GetLength()')
                 else: # elif not member.is_array and not member.is_pointer:
                     arguments.append(argument)
 

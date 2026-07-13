@@ -144,132 +144,54 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
 
     // Custom code generation commands
-    void Generate_vkEnumeratePhysicalDevices(VkResult                                returnValue,
-                                             format::HandleId                        instance,
-                                             PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
-                                             HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices);
+    void Generate_vkEnumeratePhysicalDevices(args::EnumeratePhysicalDevices& args);
 
-    void Generate_vkCreateSwapchainKHR(VkResult                                                returnValue,
-                                       format::HandleId                                        device,
-                                       StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
-                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                                       HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain);
+    void Generate_vkCreateSwapchainKHR(args::CreateSwapchainKHR& args);
 
-    void Generate_vkDestroySwapchainKHR(format::HandleId                                     device,
-                                        format::HandleId                                     swapchain,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void Generate_vkDestroySwapchainKHR(args::DestroySwapchainKHR& args);
 
-    void Generate_vkGetSwapchainImagesKHR(VkResult                       returnValue,
-                                          format::HandleId               device,
-                                          format::HandleId               swapchain,
-                                          PointerDecoder<uint32_t>*      pSwapchainImageCount,
-                                          HandlePointerDecoder<VkImage>* pSwapchainImages);
+    void Generate_vkGetSwapchainImagesKHR(args::GetSwapchainImagesKHR& args);
 
-    void
-    Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(VkResult                                          returnValue,
-                                                  format::HandleId                                  physicalDevice,
-                                                  format::HandleId                                  surface,
-                                                  PointerDecoder<uint32_t>*                         pSurfaceFormatCount,
-                                                  StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats);
+    void Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(args::GetPhysicalDeviceSurfaceFormatsKHR& args);
 
-    void Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(VkResult                          returnValue,
-                                                            format::HandleId                  physicalDevice,
-                                                            format::HandleId                  surface,
-                                                            PointerDecoder<uint32_t>*         pPresentModeCount,
-                                                            PointerDecoder<VkPresentModeKHR>* pPresentModes);
+    void Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(args::GetPhysicalDeviceSurfacePresentModesKHR& args);
 
-    void Generate_vkGetPhysicalDeviceQueueFamilyProperties(
-        format::HandleId                                       physicalDevice,
-        PointerDecoder<uint32_t>*                              pQueueFamilyPropertyCount,
-        StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties);
+    void Generate_vkGetPhysicalDeviceQueueFamilyProperties(args::GetPhysicalDeviceQueueFamilyProperties& args);
 
     void Generate_vkGetPhysicalDeviceQueueFamilyProperties(VkResult         returnValue,
                                                            format::HandleId physicalDevice,
                                                            uint32_t         queueFamilyIndex,
                                                            uint64_t         connection,
                                                            uint32_t         visual_id);
-    void Generate_vkCreateDevice(VkResult                                             returnValue,
-                                 format::HandleId                                     physicalDevice,
-                                 StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
-                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                 HandlePointerDecoder<VkDevice>*                      pDevice);
-    void Generate_vkDestroyDevice(format::HandleId                                     device,
-                                  StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void Generate_vkCreateDevice(args::CreateDevice& args);
+    void Generate_vkDestroyDevice(args::DestroyDevice& args);
 
-    void Generate_vkGetImageMemoryRequirements(format::HandleId                                    device,
-                                               format::HandleId                                    image,
-                                               StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements);
+    void Generate_vkGetImageMemoryRequirements(args::GetImageMemoryRequirements& args);
 
-    void
-    Generate_vkGetBufferMemoryRequirements(format::HandleId                                    device,
-                                           format::HandleId                                    buffer,
-                                           StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements);
+    void Generate_vkGetBufferMemoryRequirements(args::GetBufferMemoryRequirements& args);
 
-    void Generate_vkGetImageSparseMemoryRequirements(
-        format::HandleId                                               device,
-        format::HandleId                                               image,
-        PointerDecoder<uint32_t>*                                      pSparseMemoryRequirementCount,
-        StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements>* pSparseMemoryRequirements);
+    void Generate_vkGetImageSparseMemoryRequirements(args::GetImageSparseMemoryRequirements& args);
 
-    void
-    Generate_vkGetImageMemoryRequirements2(format::HandleId                                              device,
-                                           StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
-                                           StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements,
-                                           const char*                                          extension = "");
-    void
-    Generate_vkGetImageMemoryRequirements2KHR(format::HandleId                                              device,
-                                              StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
-                                              StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
+    void Generate_vkGetImageMemoryRequirements2(args::GetImageMemoryRequirements2& args, const char* extension = "");
+    void Generate_vkGetImageMemoryRequirements2KHR(args::GetImageMemoryRequirements2KHR& args);
 
-    void
-         Generate_vkGetBufferMemoryRequirements2(format::HandleId                                               device,
-                                                 StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
-                                                 StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements,
-                                                 const char*                                          extension = "");
-    void Generate_vkGetBufferMemoryRequirements2KHR(
-        format::HandleId                                               device,
-        StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
-        StructPointerDecoder<Decoded_VkMemoryRequirements2>*           pMemoryRequirements);
+    void Generate_vkGetBufferMemoryRequirements2(args::GetBufferMemoryRequirements2& args, const char* extension = "");
+    void Generate_vkGetBufferMemoryRequirements2KHR(args::GetBufferMemoryRequirements2KHR& args);
 
-    void Generate_vkGetFenceStatus(VkResult returnValue, format::HandleId device, format::HandleId fence);
+    void Generate_vkGetFenceStatus(args::GetFenceStatus& args);
 
-    void Generate_vkMapMemory(VkResult                         returnValue,
-                              format::HandleId                 device,
-                              format::HandleId                 memory,
-                              VkDeviceSize                     offset,
-                              VkDeviceSize                     size,
-                              VkMemoryMapFlags                 flags,
-                              PointerDecoder<uint64_t, void*>* ppData);
+    void Generate_vkMapMemory(args::MapMemory& args);
 
-    void Generate_vkUnmapMemory(format::HandleId device, format::HandleId memory);
+    void Generate_vkUnmapMemory(args::UnmapMemory& args);
 
-    void Generate_vkAllocateMemory(VkResult                                             returnValue,
-                                   format::HandleId                                     device,
-                                   StructPointerDecoder<Decoded_VkMemoryAllocateInfo>*  pAllocateInfo,
-                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                   HandlePointerDecoder<VkDeviceMemory>*                pMemory);
-    void Generate_vkCreateBuffer(VkResult                                             returnValue,
-                                 format::HandleId                                     device,
-                                 StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
-                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                 HandlePointerDecoder<VkBuffer>*                      pBuffer);
+    void Generate_vkAllocateMemory(args::AllocateMemory& args);
+    void Generate_vkCreateBuffer(args::CreateBuffer& args);
 
-    void Generate_vkCreateInstance(VkResult                                             returnValue,
-                                   StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
-                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                   HandlePointerDecoder<VkInstance>*                    pInstance);
+    void Generate_vkCreateInstance(args::CreateInstance& args);
 
-    void Generate_vkCreateShaderModule(VkResult                                                returnValue,
-                                       format::HandleId                                        device,
-                                       StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
-                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                                       HandlePointerDecoder<VkShaderModule>*                   pShaderModule);
+    void Generate_vkCreateShaderModule(args::CreateShaderModule& args);
 
-    void Generate_vkCreatePipelineCache(VkResult                                                 returnValue,
-                                        format::HandleId                                         device,
-                                        StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
-                                        HandlePointerDecoder<VkPipelineCache>*                   pPipelineCache);
+    void Generate_vkCreatePipelineCache(args::CreatePipelineCache& args);
 
     void GenerateSurfaceCreation(GfxToCppPlatform        platform,
                                  VkResult                returnValue,
@@ -277,306 +199,120 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                  void*                   pSurfaceCreateInfo,
                                  const format::HandleId* surface);
 
-    void Generate_vkCreateAndroidSurfaceKHR(VkResult                                                     returnValue,
-                                            format::HandleId                                             instance,
-                                            StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
-                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
-                                            HandlePointerDecoder<VkSurfaceKHR>*                          pSurface);
+    void Generate_vkCreateAndroidSurfaceKHR(args::CreateAndroidSurfaceKHR& args);
 
-    void Generate_vkCreateMetalSurfaceEXT(VkResult                                                   returnValue,
-                                          format::HandleId                                           instance,
-                                          StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>* pCreateInfo,
-                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-                                          HandlePointerDecoder<VkSurfaceKHR>*                        pSurface);
+    void Generate_vkCreateMetalSurfaceEXT(args::CreateMetalSurfaceEXT& args);
 
-    void Generate_vkCreateWaylandSurfaceKHR(VkResult                                                     returnValue,
-                                            format::HandleId                                             instance,
-                                            StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>* pCreateInfo,
-                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
-                                            HandlePointerDecoder<VkSurfaceKHR>*                          pSurface);
+    void Generate_vkCreateWaylandSurfaceKHR(args::CreateWaylandSurfaceKHR& args);
 
-    void Generate_vkCreateWin32SurfaceKHR(VkResult                                                   returnValue,
-                                          format::HandleId                                           instance,
-                                          StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>* pCreateInfo,
-                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-                                          HandlePointerDecoder<VkSurfaceKHR>*                        pSurface);
+    void Generate_vkCreateWin32SurfaceKHR(args::CreateWin32SurfaceKHR& args);
 
-    void Generate_vkCreateXcbSurfaceKHR(VkResult                                                 returnValue,
-                                        format::HandleId                                         instance,
-                                        StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
-                                        HandlePointerDecoder<VkSurfaceKHR>*                      pSurface);
+    void Generate_vkCreateXcbSurfaceKHR(args::CreateXcbSurfaceKHR& args);
 
-    void Generate_vkCreateXlibSurfaceKHR(VkResult                                                  returnValue,
-                                         format::HandleId                                          instance,
-                                         StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>* pCreateInfo,
-                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
-                                         HandlePointerDecoder<VkSurfaceKHR>*                       pSurface);
+    void Generate_vkCreateXlibSurfaceKHR(args::CreateXlibSurfaceKHR& args);
 
-    void Generate_vkAcquireNextImageKHR(VkResult                  returnValue,
-                                        format::HandleId          device,
-                                        format::HandleId          swapchain,
-                                        uint64_t                  timeout,
-                                        format::HandleId          semaphore,
-                                        format::HandleId          fence,
-                                        PointerDecoder<uint32_t>* pImageIndex);
+    void Generate_vkAcquireNextImageKHR(args::AcquireNextImageKHR& args);
 
-    void Generate_vkAcquireNextImage2KHR(VkResult                                                 returnValue,
-                                         format::HandleId                                         device,
-                                         StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
-                                         PointerDecoder<uint32_t>*                                pImageIndex);
+    void Generate_vkAcquireNextImage2KHR(args::AcquireNextImage2KHR& args);
 
-    void Generate_vkWaitForFences(VkResult                       returnValue,
-                                  format::HandleId               device,
-                                  uint32_t                       fenceCount,
-                                  HandlePointerDecoder<VkFence>* pFences,
-                                  VkBool32                       waitAll,
-                                  uint64_t                       timeout);
+    void Generate_vkWaitForFences(args::WaitForFences& args);
 
-    void Generate_vkGetQueryPoolResults(VkResult                 returnValue,
-                                        format::HandleId         device,
-                                        format::HandleId         queryPool,
-                                        uint32_t                 firstQuery,
-                                        uint32_t                 queryCount,
-                                        size_t                   dataSize,
-                                        PointerDecoder<uint8_t>* pData,
-                                        VkDeviceSize             stride,
-                                        VkQueryResultFlags       flags);
+    void Generate_vkGetQueryPoolResults(args::GetQueryPoolResults& args);
 
-    void Generate_vkSetDebugUtilsObjectNameEXT(VkResult                                                     returnValue,
-                                               format::HandleId                                             device,
-                                               StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo);
-    void Generate_vkSetDebugUtilsObjectTagEXT(VkResult                                                    returnValue,
-                                              format::HandleId                                            device,
-                                              StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo);
-    void
-         Generate_vkDebugMarkerSetObjectNameEXT(VkResult                                                      returnValue,
-                                                format::HandleId                                              device,
-                                                StructPointerDecoder<Decoded_VkDebugMarkerObjectNameInfoEXT>* pNameInfo);
-    void Generate_vkDebugMarkerSetObjectTagEXT(VkResult                                                     returnValue,
-                                               format::HandleId                                             device,
-                                               StructPointerDecoder<Decoded_VkDebugMarkerObjectTagInfoEXT>* pTagInfo);
+    void Generate_vkSetDebugUtilsObjectNameEXT(args::SetDebugUtilsObjectNameEXT& args);
+    void Generate_vkSetDebugUtilsObjectTagEXT(args::SetDebugUtilsObjectTagEXT& args);
+    void Generate_vkDebugMarkerSetObjectNameEXT(args::DebugMarkerSetObjectNameEXT& args);
+    void Generate_vkDebugMarkerSetObjectTagEXT(args::DebugMarkerSetObjectTagEXT& args);
 
-    void Generate_vkCreateDescriptorUpdateTemplate(
-        VkResult                                                            returnValue,
-        format::HandleId                                                    device,
-        StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate,
-        const char*                                                         extension = "");
+    void Generate_vkCreateDescriptorUpdateTemplate(args::CreateDescriptorUpdateTemplate& args,
+                                                   const char*                           extension = "");
 
-    void Generate_vkCreateDescriptorUpdateTemplateKHR(
-        VkResult                                                            returnValue,
-        format::HandleId                                                    device,
-        StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
+    void Generate_vkCreateDescriptorUpdateTemplateKHR(args::CreateDescriptorUpdateTemplateKHR& args)
     {
-        Generate_vkCreateDescriptorUpdateTemplate(
-            returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate, "KHR");
+        Generate_vkCreateDescriptorUpdateTemplate(reinterpret_cast<args::CreateDescriptorUpdateTemplate&>(args), "KHR");
     }
 
-    void Generate_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
-                                                    format::HandleId                 descriptorSet,
-                                                    format::HandleId                 descriptorUpdateTemplate,
-                                                    DescriptorUpdateTemplateDecoder* pData,
-                                                    const char*                      extension = "");
+    void Generate_vkUpdateDescriptorSetWithTemplate(args::UpdateDescriptorSetWithTemplate& args,
+                                                    const char*                            extension = "");
 
-    void Generate_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
-                                                       format::HandleId                 descriptorSet,
-                                                       format::HandleId                 descriptorUpdateTemplate,
-                                                       DescriptorUpdateTemplateDecoder* pData)
+    void Generate_vkUpdateDescriptorSetWithTemplateKHR(args::UpdateDescriptorSetWithTemplateKHR& args)
     {
-        Generate_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData, "KHR");
+        Generate_vkUpdateDescriptorSetWithTemplate(reinterpret_cast<args::UpdateDescriptorSetWithTemplate&>(args),
+                                                   "KHR");
     }
 
-    void Generate_vkCreateGraphicsPipelines(VkResult                                                    returnValue,
-                                            format::HandleId                                            device,
-                                            format::HandleId                                            pipelineCache,
-                                            uint32_t                                                    createInfoCount,
-                                            StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
-                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
-                                            HandlePointerDecoder<VkPipeline>*                           pPipelines);
-    void Generate_vkCreateComputePipelines(VkResult                                                   returnValue,
-                                           format::HandleId                                           device,
-                                           format::HandleId                                           pipelineCache,
-                                           uint32_t                                                   createInfoCount,
-                                           StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
-                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-                                           HandlePointerDecoder<VkPipeline>*                          pPipelines);
-    void Generate_vkCreateRayTracingPipelinesKHR(
-        VkResult                                                         returnValue,
-        format::HandleId                                                 deferredOperation,
-        format::HandleId                                                 device,
-        format::HandleId                                                 pipelineCache,
-        uint32_t                                                         createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines);
+    void Generate_vkCreateGraphicsPipelines(args::CreateGraphicsPipelines& args);
+    void Generate_vkCreateComputePipelines(args::CreateComputePipelines& args);
+    void Generate_vkCreateRayTracingPipelinesKHR(args::CreateRayTracingPipelinesKHR& args);
 
-    void Generate_vkGetAndroidHardwareBufferPropertiesANDROID(
-        VkResult                                                                returnValue,
-        format::HandleId                                                        device,
-        uint64_t                                                                buffer,
-        StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties);
-    void Generate_vkGetDeviceQueue(format::HandleId               device,
-                                   uint32_t                       queueFamilyIndex,
-                                   uint32_t                       queueIndex,
-                                   HandlePointerDecoder<VkQueue>* pQueue);
-    void Generate_vkGetMemoryAndroidHardwareBufferANDROID(
-        VkResult                                                                   returnValue,
-        format::HandleId                                                           device,
-        StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
-        PointerDecoder<uint64_t, void*>*                                           pBuffer);
-    void Generate_vkGetSemaphoreWin32HandleKHR(
-        VkResult                                                        returnValue,
-        format::HandleId                                                device,
-        StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
-        PointerDecoder<uint64_t, void*>*                                pHandle);
-    void Generate_vkImportSemaphoreWin32HandleKHR(
-        VkResult                                                           returnValue,
-        format::HandleId                                                   device,
-        StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo);
-    void Generate_vkGetSemaphoreFdKHR(VkResult                                               returnValue,
-                                      format::HandleId                                       device,
-                                      StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
-                                      PointerDecoder<int>*                                   pFd);
-    void
-    Generate_vkImportSemaphoreFdKHR(VkResult                                                  returnValue,
-                                    format::HandleId                                          device,
-                                    StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo);
+    void Generate_vkGetAndroidHardwareBufferPropertiesANDROID(args::GetAndroidHardwareBufferPropertiesANDROID& args);
+    void Generate_vkGetDeviceQueue(args::GetDeviceQueue& args);
+    void Generate_vkGetMemoryAndroidHardwareBufferANDROID(args::GetMemoryAndroidHardwareBufferANDROID& args);
+    void Generate_vkGetSemaphoreWin32HandleKHR(args::GetSemaphoreWin32HandleKHR& args);
+    void Generate_vkImportSemaphoreWin32HandleKHR(args::ImportSemaphoreWin32HandleKHR& args);
+    void Generate_vkGetSemaphoreFdKHR(args::GetSemaphoreFdKHR& args);
+    void Generate_vkImportSemaphoreFdKHR(args::ImportSemaphoreFdKHR& args);
 
-    void Generate_vkQueueSubmit(VkResult                                    returnValue,
-                                format::HandleId                            queue,
-                                uint32_t                                    submitCount,
-                                StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                format::HandleId                            fence);
+    void Generate_vkQueueSubmit(args::QueueSubmit& args);
 
-    void Generate_vkQueueSubmit2(VkResult                                     returnValue,
-                                 format::HandleId                             queue,
-                                 uint32_t                                     submitCount,
-                                 StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                 format::HandleId                             fence,
-                                 const char*                                  extension = "");
+    void Generate_vkQueueSubmit2(args::QueueSubmit2& args, const char* extension = "");
 
-    void Generate_vkQueueSubmit2KHR(VkResult                                     returnValue,
-                                    format::HandleId                             queue,
-                                    uint32_t                                     submitCount,
-                                    StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                    format::HandleId                             fence)
+    void Generate_vkQueueSubmit2KHR(args::QueueSubmit2KHR& args)
     {
-        Generate_vkQueueSubmit2(returnValue, queue, submitCount, pSubmits, fence, "KHR");
+        Generate_vkQueueSubmit2(reinterpret_cast<args::QueueSubmit2&>(args), "KHR");
     }
 
-    void Generate_vkQueueBindSparse(VkResult                                        returnValue,
-                                    format::HandleId                                queue,
-                                    uint32_t                                        bindInfoCount,
-                                    StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
-                                    format::HandleId                                fence);
+    void Generate_vkQueueBindSparse(args::QueueBindSparse& args);
 
-    void Generate_vkQueuePresentKHR(VkResult                                        returnValue,
-                                    format::HandleId                                queue,
-                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
+    void Generate_vkQueuePresentKHR(args::QueuePresentKHR& args);
 
     // Intercept commands that perform additional work prior to the standard code generation
-    void Intercept_vkBindImageMemory(VkResult         returnValue,
-                                     format::HandleId device,
-                                     format::HandleId image,
-                                     format::HandleId memory,
-                                     VkDeviceSize     memoryOffset);
+    void Intercept_vkBindImageMemory(args::BindImageMemory& args);
 
-    void Intercept_vkBindImageMemory2(VkResult                                             returnValue,
-                                      format::HandleId                                     device,
-                                      uint32_t                                             bindInfoCount,
-                                      StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos);
+    void Intercept_vkBindImageMemory2(args::BindImageMemory2& args, const char* extension = "");
 
-    void Intercept_vkBindImageMemory2KHR(VkResult                                             returnValue,
-                                         format::HandleId                                     device,
-                                         uint32_t                                             bindInfoCount,
-                                         StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
+    void Intercept_vkBindImageMemory2KHR(args::BindImageMemory2KHR& args)
     {
-        Intercept_vkBindImageMemory2(returnValue, device, bindInfoCount, pBindInfos);
+        Intercept_vkBindImageMemory2(reinterpret_cast<args::BindImageMemory2&>(args), "KHR");
     }
 
-    void Intercept_vkBindBufferMemory(VkResult         returnValue,
-                                      format::HandleId device,
-                                      format::HandleId buffer,
-                                      format::HandleId memory,
-                                      VkDeviceSize     memoryOffset);
+    void Intercept_vkBindBufferMemory(args::BindBufferMemory& args);
 
-    void Intercept_vkBindBufferMemory2(VkResult                                              returnValue,
-                                       format::HandleId                                      device,
-                                       uint32_t                                              bindInfoCount,
-                                       StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos);
+    void Intercept_vkBindBufferMemory2(args::BindBufferMemory2& args);
 
-    void Intercept_vkBindBufferMemory2KHR(VkResult                                              returnValue,
-                                          format::HandleId                                      device,
-                                          uint32_t                                              bindInfoCount,
-                                          StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
+    void Intercept_vkBindBufferMemory2KHR(args::BindBufferMemory2KHR& args)
     {
-        Intercept_vkBindBufferMemory2(returnValue, device, bindInfoCount, pBindInfos);
+        Intercept_vkBindBufferMemory2(reinterpret_cast<args::BindBufferMemory2&>(args));
     }
 
-    void Intercept_vkCmdBeginRenderPass(format::HandleId                                     commandBuffer,
-                                        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                        VkSubpassContents                                    contents);
+    void Intercept_vkCmdBeginRenderPass(args::CmdBeginRenderPass& args);
 
-    void Intercept_vkCreateFramebuffer(VkResult                                               returnValue,
-                                       format::HandleId                                       device,
-                                       StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
-                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
-                                       HandlePointerDecoder<VkFramebuffer>*                   pFramebuffer);
+    void Intercept_vkCreateFramebuffer(args::CreateFramebuffer& args);
 
-    void Intercept_vkCreateSwapchainKHR(VkResult                                                returnValue,
-                                        format::HandleId                                        device,
-                                        StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain);
+    void Intercept_vkCreateSwapchainKHR(args::CreateSwapchainKHR& args);
 
-    void Intercept_vkDestroySemaphore(format::HandleId                                     device,
-                                      format::HandleId                                     semaphore,
-                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void Intercept_vkDestroySemaphore(args::DestroySemaphore& args);
 
     // Complete manual process functions
-    void Process_vkCreateRayTracingPipelinesKHR(
-        const ApiCallInfo&                                               call_info,
-        VkResult                                                         returnValue,
-        format::HandleId                                                 device,
-        format::HandleId                                                 deferredOperation,
-        format::HandleId                                                 pipelineCache,
-        uint32_t                                                         createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
+                                                args::CreateRayTracingPipelinesKHR& args) override;
 
-    void Process_vkDeferredOperationJoinKHR(const ApiCallInfo& call_info,
-                                            VkResult           returnValue,
-                                            format::HandleId   device,
-                                            format::HandleId   operation) override;
+    void Process_vkDeferredOperationJoinKHR(const ApiCallInfo&              call_info,
+                                            args::DeferredOperationJoinKHR& args) override;
 
-    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                   format::HandleId                 device,
-                                                   format::HandleId                 descriptorSet,
-                                                   format::HandleId                 descriptorUpdateTemplate,
-                                                   DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
+                                                   args::UpdateDescriptorSetWithTemplate& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer,
-                                                               format::HandleId   descriptorUpdateTemplate,
-                                                               format::HandleId   layout,
-                                                               uint32_t           set,
-                                                               DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void
+    Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
+                                                  args::CmdPushDescriptorSetWithTemplateKHR& args) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                              format::HandleId                 device,
-                                                              format::HandleId                 descriptorSet,
-                                                              format::HandleId                 descriptorUpdateTemplate,
-                                                              DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
+                                                              args::UpdateDescriptorSetWithTemplateKHR& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-        const ApiCallInfo&                                                 call_info,
-        format::HandleId                                                   commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
+    virtual void
+    Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
+                                                   args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
 
     // String utilities
     static std::string ToEscape(const char* value);

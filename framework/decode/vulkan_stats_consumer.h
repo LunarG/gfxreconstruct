@@ -30,6 +30,7 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "generated/generated_vulkan_decoder_args.h"
 #include "util/defines.h"
 
 // vulkan_hash.hpp includes <ciso646>, which is deprecated on C++17 and
@@ -181,20 +182,14 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         trimmed_frame_ = static_cast<uint32_t>(frame_number);
     }
 
-    virtual void Process_vkCreateInstance(
-        const gfxrecon::decode::ApiCallInfo&                                                     call_info,
-        VkResult                                                                                 returnValue,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkInstanceCreateInfo>*  pCreateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* allocCb,
-        gfxrecon::decode::HandlePointerDecoder<VkInstance>*                                      pInstance) override
+    void Process_vkCreateInstance(const gfxrecon::decode::ApiCallInfo& call_info, args::CreateInstance& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(allocCb);
-        if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
+        if ((args.result >= 0) && !args.pCreateInfo.IsNull())
         {
-            auto                  create_info = pCreateInfo->GetPointer();
+            auto                  create_info = args.pCreateInfo.GetPointer();
             auto                  app_info    = create_info->pApplicationInfo;
-            const VkInstance      inst        = reinterpret_cast<const VkInstance>(*pInstance->GetPointer());
+            const VkInstance      inst        = reinterpret_cast<const VkInstance>(*args.pInstance.GetPointer());
             VulkanInstanceTracker instance_tracker(
                 app_info, create_info->enabledExtensionCount, create_info->ppEnabledExtensionNames, inst);
             instance_info_[inst]   = std::move(instance_tracker);
@@ -202,21 +197,17 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkEnumeratePhysicalDevices(const ApiCallInfo&                      call_info,
-                                                    VkResult                                returnValue,
-                                                    format::HandleId                        instance,
-                                                    PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
-                                                    HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices) override
+    void Process_vkEnumeratePhysicalDevices(const ApiCallInfo& call_info, args::EnumeratePhysicalDevices& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        if (returnValue >= 0 && *pPhysicalDeviceCount->GetPointer() > 0 && pPhysicalDevices->GetPointer())
+        if (args.result >= 0 && *args.pPhysicalDeviceCount.GetPointer() > 0 && args.pPhysicalDevices.GetPointer())
         {
-            uint32_t   pd_count    = *pPhysicalDeviceCount->GetPointer();
-            VkInstance actual_inst = reinterpret_cast<VkInstance>(instance);
+            uint32_t   pd_count    = *args.pPhysicalDeviceCount.GetPointer();
+            VkInstance actual_inst = reinterpret_cast<VkInstance>(args.instance);
             GFXRECON_ASSERT(instance_info_.find(actual_inst) != instance_info_.end());
             for (uint32_t pd = 0; pd < pd_count; ++pd)
             {
-                VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(pPhysicalDevices->GetPointer()[pd]);
+                VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(args.pPhysicalDevices.GetPointer()[pd]);
                 if (std::find(instance_info_[actual_inst].physical_devices.begin(),
                               instance_info_[actual_inst].physical_devices.end(),
                               phys_dev) == instance_info_[actual_inst].physical_devices.end())
@@ -228,21 +219,17 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkEnumeratePhysicalDeviceGroups(
-        const ApiCallInfo&                                             call_info,
-        VkResult                                                       returnValue,
-        format::HandleId                                               instance,
-        PointerDecoder<uint32_t>*                                      pPhysicalDeviceGroupCount,
-        StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties) override
+    void Process_vkEnumeratePhysicalDeviceGroups(const ApiCallInfo&                   call_info,
+                                                 args::EnumeratePhysicalDeviceGroups& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        if (returnValue >= 0 && *pPhysicalDeviceGroupCount->GetPointer() > 0 &&
-            pPhysicalDeviceGroupProperties->GetPointer())
+        if (args.result >= 0 && *args.pPhysicalDeviceGroupCount.GetPointer() > 0 &&
+            args.pPhysicalDeviceGroupProperties.GetPointer())
         {
             const Decoded_VkPhysicalDeviceGroupProperties* meta_info =
-                pPhysicalDeviceGroupProperties->GetMetaStructPointer();
-            size_t     physdev_group_count = pPhysicalDeviceGroupProperties->GetLength();
-            VkInstance actual_inst         = reinterpret_cast<VkInstance>(instance);
+                args.pPhysicalDeviceGroupProperties.GetMetaStructPointer();
+            size_t     physdev_group_count = args.pPhysicalDeviceGroupProperties.GetLength();
+            VkInstance actual_inst         = reinterpret_cast<VkInstance>(args.instance);
             GFXRECON_ASSERT(instance_info_.find(actual_inst) != instance_info_.end());
 
             for (size_t pdg = 0; pdg < physdev_group_count; ++pdg)
@@ -266,79 +253,63 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkGetPhysicalDeviceProperties(
-        const gfxrecon::decode::ApiCallInfo&                                                          call_info,
-        gfxrecon::format::HandleId                                                                    physicalDevice,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkPhysicalDeviceProperties>* pProperties)
-        override
+    virtual void Process_vkGetPhysicalDeviceProperties(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                       args::GetPhysicalDeviceProperties&   args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        if ((pProperties != nullptr) && !pProperties->IsNull())
+        if (!args.pProperties.IsNull())
         {
-            physical_device_properties_[physicalDevice] = *pProperties->GetPointer();
+            physical_device_properties_[args.physicalDevice] = *args.pProperties.GetPointer();
         }
     }
 
-    virtual void Process_vkGetPhysicalDeviceProperties2(
-        const gfxrecon::decode::ApiCallInfo&                                                           call_info,
-        gfxrecon::format::HandleId                                                                     physicalDevice,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkPhysicalDeviceProperties2>* pProperties)
-        override
+    virtual void Process_vkGetPhysicalDeviceProperties2(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                        args::GetPhysicalDeviceProperties2&  args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        if ((pProperties != nullptr) && !pProperties->IsNull())
+        if (!args.pProperties.IsNull())
         {
-            auto properties2 = pProperties->GetPointer();
+            auto properties2 = args.pProperties.GetPointer();
             if (PhysicalDevicePropertiesValid(properties2->properties))
             {
-                physical_device_properties_[physicalDevice] = properties2->properties;
+                physical_device_properties_[args.physicalDevice] = properties2->properties;
             }
         }
     }
 
-    virtual void Process_vkGetPhysicalDeviceProperties2KHR(
-        const gfxrecon::decode::ApiCallInfo&                                                           call_info,
-        gfxrecon::format::HandleId                                                                     physicalDevice,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkPhysicalDeviceProperties2>* pProperties)
-        override
+    virtual void Process_vkGetPhysicalDeviceProperties2KHR(const gfxrecon::decode::ApiCallInfo&   call_info,
+                                                           args::GetPhysicalDeviceProperties2KHR& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        if ((pProperties != nullptr) && !pProperties->IsNull())
+        if (!args.pProperties.IsNull())
         {
-            auto properties2 = pProperties->GetPointer();
+            auto properties2 = args.pProperties.GetPointer();
             if (PhysicalDevicePropertiesValid(properties2->properties))
             {
-                physical_device_properties_[physicalDevice] = properties2->properties;
+                physical_device_properties_[args.physicalDevice] = properties2->properties;
             }
         }
     }
 
-    virtual void Process_vkCreateDevice(
-        const gfxrecon::decode::ApiCallInfo&                                                     call_info,
-        VkResult                                                                                 returnValue,
-        gfxrecon::format::HandleId                                                               physicalDevice,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>*    pCreateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* allocCb,
-        gfxrecon::decode::HandlePointerDecoder<VkDevice>*                                        pDevice) override
+    void Process_vkCreateDevice(const gfxrecon::decode::ApiCallInfo& call_info, args::CreateDevice& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(allocCb);
-        if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
+        if ((args.result >= 0) && !args.pCreateInfo.IsNull())
         {
-            auto create_info = pCreateInfo->GetPointer();
+            auto create_info = args.pCreateInfo.GetPointer();
 
-            VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(physicalDevice);
+            VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(args.physicalDevice);
             VkInstance       instance = physical_device_to_instance_map_[phys_dev];
 
             if (std::find(instance_info_[instance].used_physical_devices.begin(),
                           instance_info_[instance].used_physical_devices.end(),
                           phys_dev) == instance_info_[instance].used_physical_devices.end())
             {
-                used_physical_devices_.insert(physicalDevice);
+                used_physical_devices_.insert(args.physicalDevice);
                 instance_info_[instance].used_physical_devices.push_back(phys_dev);
             }
 
-            const VkDevice device           = reinterpret_cast<const VkDevice>(*pDevice->GetPointer());
+            const VkDevice device           = reinterpret_cast<const VkDevice>(*args.pDevice.GetPointer());
             device_to_instance_map_[device] = instance;
 
             if (physical_device_info_.find(phys_dev) == physical_device_info_.end())
@@ -358,315 +329,208 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkCreateGraphicsPipelines(
-        const gfxrecon::decode::ApiCallInfo& call_info,
-        VkResult                             returnValue,
-        format::HandleId                     device,
-        format::HandleId                     pipelineCache,
-        uint32_t                             createInfoCount,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkGraphicsPipelineCreateInfo>*,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
-        gfxrecon::decode::HandlePointerDecoder<VkPipeline>*) override
+    void Process_vkCreateGraphicsPipelines(const gfxrecon::decode::ApiCallInfo& call_info,
+                                           args::CreateGraphicsPipelines&       args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
-        if (returnValue >= 0)
+        if (args.result >= 0)
         {
-            total_graphics_pipelines_ += createInfoCount;
+            total_graphics_pipelines_ += args.createInfoCount;
 
-            VkDevice dev = reinterpret_cast<VkDevice>(device);
-            device_info_[dev].graphics_pipelines += createInfoCount;
+            VkDevice dev = reinterpret_cast<VkDevice>(args.device);
+            device_info_[dev].graphics_pipelines += args.createInfoCount;
         }
     }
 
-    virtual void Process_vkCreateComputePipelines(
-        const gfxrecon::decode::ApiCallInfo& call_info,
-        VkResult                             returnValue,
-        format::HandleId                     device,
-        format::HandleId                     pipelineCache,
-        uint32_t                             createInfoCount,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkComputePipelineCreateInfo>*,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
-        gfxrecon::decode::HandlePointerDecoder<VkPipeline>*) override
+    void Process_vkCreateComputePipelines(const gfxrecon::decode::ApiCallInfo& call_info,
+                                          args::CreateComputePipelines&        args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
-        if (returnValue >= 0)
+        if (args.result >= 0)
         {
-            total_compute_pipelines_ += createInfoCount;
+            total_compute_pipelines_ += args.createInfoCount;
 
-            VkDevice dev = reinterpret_cast<VkDevice>(device);
-            device_info_[dev].compute_pipelines += createInfoCount;
+            VkDevice dev = reinterpret_cast<VkDevice>(args.device);
+            device_info_[dev].compute_pipelines += args.createInfoCount;
         }
     }
 
-    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo& call_info,
-                                                VkResult           returnValue,
-                                                format::HandleId   device,
-                                                format::HandleId   deferredOperation,
-                                                format::HandleId   pipelineCache,
-                                                uint32_t           createInfoCount,
-                                                StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>*,
-                                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
-                                                HandlePointerDecoder<VkPipeline>*) override
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
+                                                args::CreateRayTracingPipelinesKHR& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(deferredOperation);
-        GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
-        if (returnValue >= 0)
+        if (args.result >= 0)
         {
-            total_raytracing_pipelines_ += createInfoCount;
+            total_raytracing_pipelines_ += args.createInfoCount;
 
-            VkDevice dev = reinterpret_cast<VkDevice>(device);
-            device_info_[dev].raytracing_pipelines += createInfoCount;
+            VkDevice dev = reinterpret_cast<VkDevice>(args.device);
+            device_info_[dev].raytracing_pipelines += args.createInfoCount;
         }
     }
 
-    virtual void Process_vkCmdDraw(const gfxrecon::decode::ApiCallInfo& call_info,
-                                   gfxrecon::format::HandleId,
-                                   uint32_t,
-                                   uint32_t,
-                                   uint32_t,
-                                   uint32_t) override
+    virtual void Process_vkCmdDraw(const gfxrecon::decode::ApiCallInfo& call_info, args::CmdDraw& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndexed(const gfxrecon::decode::ApiCallInfo& call_info,
-                                          gfxrecon::format::HandleId,
-                                          uint32_t,
-                                          uint32_t,
-                                          uint32_t,
-                                          int32_t,
-                                          uint32_t) override
+                                          args::CmdDrawIndexed&                args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndirect(const gfxrecon::decode::ApiCallInfo& call_info,
-                                           gfxrecon::format::HandleId,
-                                           gfxrecon::format::HandleId,
-                                           VkDeviceSize,
-                                           uint32_t,
-                                           uint32_t) override
+                                           args::CmdDrawIndirect&               args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndexedIndirect(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                  gfxrecon::format::HandleId,
-                                                  gfxrecon::format::HandleId,
-                                                  VkDeviceSize,
-                                                  uint32_t,
-                                                  uint32_t) override
+                                                  args::CmdDrawIndexedIndirect&        args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndirectCountKHR(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                   gfxrecon::format::HandleId,
-                                                   gfxrecon::format::HandleId,
-                                                   VkDeviceSize,
-                                                   gfxrecon::format::HandleId,
-                                                   VkDeviceSize,
-                                                   uint32_t,
-                                                   uint32_t) override
+                                                   args::CmdDrawIndirectCountKHR&       args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndirectCount(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                gfxrecon::format::HandleId,
-                                                gfxrecon::format::HandleId,
-                                                VkDeviceSize,
-                                                gfxrecon::format::HandleId,
-                                                VkDeviceSize,
-                                                uint32_t,
-                                                uint32_t) override
+                                                args::CmdDrawIndirectCount&          args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
-    virtual void Process_vkCmdDrawIndexedIndirectCountKHR(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                          gfxrecon::format::HandleId,
-                                                          gfxrecon::format::HandleId,
-                                                          VkDeviceSize,
-                                                          gfxrecon::format::HandleId,
-                                                          VkDeviceSize,
-                                                          uint32_t,
-                                                          uint32_t) override
+    virtual void Process_vkCmdDrawIndexedIndirectCountKHR(const gfxrecon::decode::ApiCallInfo&  call_info,
+                                                          args::CmdDrawIndexedIndirectCountKHR& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndexedIndirectCount(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                       gfxrecon::format::HandleId,
-                                                       gfxrecon::format::HandleId,
-                                                       VkDeviceSize,
-                                                       gfxrecon::format::HandleId,
-                                                       VkDeviceSize,
-                                                       uint32_t,
-                                                       uint32_t) override
+                                                       args::CmdDrawIndexedIndirectCount&   args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndirectByteCountEXT(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                       gfxrecon::format::HandleId,
-                                                       uint32_t,
-                                                       uint32_t,
-                                                       gfxrecon::format::HandleId,
-                                                       VkDeviceSize,
-                                                       uint32_t,
-                                                       uint32_t) override
+                                                       args::CmdDrawIndirectByteCountEXT&   args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawIndirectCountAMD(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                   gfxrecon::format::HandleId,
-                                                   gfxrecon::format::HandleId,
-                                                   VkDeviceSize,
-                                                   gfxrecon::format::HandleId,
-                                                   VkDeviceSize,
-                                                   uint32_t,
-                                                   uint32_t) override
+                                                   args::CmdDrawIndirectCountAMD&       args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
-    virtual void Process_vkCmdDrawIndexedIndirectCountAMD(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                          gfxrecon::format::HandleId,
-                                                          gfxrecon::format::HandleId,
-                                                          VkDeviceSize,
-                                                          gfxrecon::format::HandleId,
-                                                          VkDeviceSize,
-                                                          uint32_t,
-                                                          uint32_t) override
+    virtual void Process_vkCmdDrawIndexedIndirectCountAMD(const gfxrecon::decode::ApiCallInfo&  call_info,
+                                                          args::CmdDrawIndexedIndirectCountAMD& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawMeshTasksEXT(const gfxrecon::decode::ApiCallInfo& call_info,
-                                               gfxrecon::format::HandleId,
-                                               uint32_t,
-                                               uint32_t,
-                                               uint32_t) override
+                                               args::CmdDrawMeshTasksEXT&           args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawMeshTasksIndirectEXT(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                       gfxrecon::format::HandleId,
-                                                       gfxrecon::format::HandleId,
-                                                       VkDeviceSize,
-                                                       uint32_t,
-                                                       uint32_t) override
+                                                       args::CmdDrawMeshTasksIndirectEXT&   args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
-    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                            gfxrecon::format::HandleId,
-                                                            gfxrecon::format::HandleId,
-                                                            VkDeviceSize,
-                                                            gfxrecon::format::HandleId,
-                                                            VkDeviceSize,
-                                                            uint32_t,
-                                                            uint32_t) override
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(const gfxrecon::decode::ApiCallInfo&    call_info,
+                                                            args::CmdDrawMeshTasksIndirectCountEXT& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawMeshTasksNV(const gfxrecon::decode::ApiCallInfo& call_info,
-                                              gfxrecon::format::HandleId,
-                                              uint32_t,
-                                              uint32_t) override
+                                              args::CmdDrawMeshTasksNV&            args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
     virtual void Process_vkCmdDrawMeshTasksIndirectNV(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                      gfxrecon::format::HandleId,
-                                                      gfxrecon::format::HandleId,
-                                                      VkDeviceSize,
-                                                      uint32_t,
-                                                      uint32_t) override
+                                                      args::CmdDrawMeshTasksIndirectNV&    args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
-    virtual void Process_vkCmdDrawMeshTasksIndirectCountNV(const gfxrecon::decode::ApiCallInfo& call_info,
-                                                           gfxrecon::format::HandleId,
-                                                           gfxrecon::format::HandleId,
-                                                           VkDeviceSize,
-                                                           gfxrecon::format::HandleId,
-                                                           VkDeviceSize,
-                                                           uint32_t,
-                                                           uint32_t) override
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountNV(const gfxrecon::decode::ApiCallInfo&   call_info,
+                                                           args::CmdDrawMeshTasksIndirectCountNV& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_draw_count_;
     }
 
-    virtual void Process_vkCmdDispatch(const gfxrecon::decode::ApiCallInfo& call_info,
-                                       gfxrecon::format::HandleId,
-                                       uint32_t,
-                                       uint32_t,
-                                       uint32_t) override
+    virtual void Process_vkCmdDispatch(const gfxrecon::decode::ApiCallInfo& call_info, args::CmdDispatch& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_dispatch_count_;
     }
 
     virtual void Process_vkCmdDispatchIndirect(const gfxrecon::decode::ApiCallInfo& call_info,
-                                               gfxrecon::format::HandleId,
-                                               gfxrecon::format::HandleId,
-                                               VkDeviceSize) override
+                                               args::CmdDispatchIndirect&           args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_dispatch_count_;
     }
 
     virtual void Process_vkCmdDispatchBase(const gfxrecon::decode::ApiCallInfo& call_info,
-                                           gfxrecon::format::HandleId,
-                                           uint32_t,
-                                           uint32_t,
-                                           uint32_t,
-                                           uint32_t,
-                                           uint32_t,
-                                           uint32_t) override
+                                           args::CmdDispatchBase&               args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_dispatch_count_;
     }
 
     virtual void Process_vkCmdDispatchBaseKHR(const gfxrecon::decode::ApiCallInfo& call_info,
-                                              gfxrecon::format::HandleId,
-                                              uint32_t,
-                                              uint32_t,
-                                              uint32_t,
-                                              uint32_t,
-                                              uint32_t,
-                                              uint32_t) override
+                                              args::CmdDispatchBaseKHR&            args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(args);
         ++total_dispatch_count_;
     }
 
@@ -700,27 +564,21 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkAllocateMemory(
-        const gfxrecon::decode::ApiCallInfo&                                                    call_info,
-        VkResult                                                                                returnValue,
-        gfxrecon::format::HandleId                                                              device,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkMemoryAllocateInfo>* pAllocateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
-        gfxrecon::decode::HandlePointerDecoder<VkDeviceMemory>*) override
+    virtual void Process_vkAllocateMemory(const gfxrecon::decode::ApiCallInfo& call_info,
+                                          args::AllocateMemory&                args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        assert(pAllocateInfo != nullptr);
 
-        if (returnValue >= 0)
+        if (args.result >= 0)
         {
-            VkDevice dev = reinterpret_cast<VkDevice>(device);
+            VkDevice dev = reinterpret_cast<VkDevice>(args.device);
 
             total_allocation_count_++;
             device_info_[dev].allocation_count += 1;
 
-            if (!pAllocateInfo->IsNull())
+            if (!args.pAllocateInfo.IsNull())
             {
-                auto allocate_info = pAllocateInfo->GetPointer();
+                auto allocate_info = args.pAllocateInfo.GetPointer();
 
                 if (allocate_info->allocationSize < total_min_allocation_size_)
                 {
@@ -745,43 +603,28 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkCreateSwapchainKHR(
-        const gfxrecon::decode::ApiCallInfo&                                                        call_info,
-        VkResult                                                                                    returnValue,
-        gfxrecon::format::HandleId                                                                  device,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
-        gfxrecon::decode::HandlePointerDecoder<VkSwapchainKHR>*                                     pSwapchain) override
+    virtual void Process_vkCreateSwapchainKHR(const gfxrecon::decode::ApiCallInfo& call_info,
+                                              args::CreateSwapchainKHR&            args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-        GFXRECON_UNREFERENCED_PARAMETER(pSwapchain);
-        if (returnValue >= 0 && !pCreateInfo->IsNull())
+        if (args.result >= 0 && !args.pCreateInfo.IsNull())
         {
-            const auto& extent   = pCreateInfo->GetPointer()->imageExtent;
-            VkInstance  instance = device_to_instance_map_[reinterpret_cast<VkDevice>(device)];
+            const auto& extent   = args.pCreateInfo.GetPointer()->imageExtent;
+            VkInstance  instance = device_to_instance_map_[reinterpret_cast<VkDevice>(args.device)];
             instance_info_[instance].resolutions.insert(extent);
         }
     }
 
-    virtual void
-    Process_vkCreateSharedSwapchainsKHR(const ApiCallInfo&                                      call_info,
-                                        VkResult                                                returnValue,
-                                        format::HandleId                                        device,
-                                        uint32_t                                                swapchainCount,
-                                        StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfos,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchains) override
+    virtual void Process_vkCreateSharedSwapchainsKHR(const ApiCallInfo&               call_info,
+                                                     args::CreateSharedSwapchainsKHR& args) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-        GFXRECON_UNREFERENCED_PARAMETER(pSwapchains);
-        if (returnValue >= 0 && !pCreateInfos->IsNull())
+        if (args.result >= 0 && !args.pCreateInfos.IsNull())
         {
-            for (uint32_t i = 0; i < swapchainCount; ++i)
+            for (uint32_t i = 0; i < args.swapchainCount; ++i)
             {
-                const auto& extent   = pCreateInfos->GetPointer()[i].imageExtent;
-                VkInstance  instance = device_to_instance_map_[reinterpret_cast<VkDevice>(device)];
+                const auto& extent   = args.pCreateInfos.GetPointer()[i].imageExtent;
+                VkInstance  instance = device_to_instance_map_[reinterpret_cast<VkDevice>(args.device)];
                 instance_info_[instance].resolutions.insert(extent);
             }
         }
