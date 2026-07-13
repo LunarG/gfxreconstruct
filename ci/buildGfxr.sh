@@ -26,4 +26,4 @@ echo creating Python virtual environment in "$WORKSPACE/python-venv"...
 python3 -m venv "$WORKSPACE/python-venv"
 "$WORKSPACE/python-venv/bin/python3" -m pip install --no-cache-dir -r VulkanTests/requirements.txt > "$WORKSPACE/python-venv.txt" 2>&1
 
-"$WORKSPACE/python-venv/bin/python3" VulkanTests/gfxrecontest.py --no-test --build-mode "$BUILD_MODE" --bits 64 --result-dir "$RESULTS_DIR-build"
+"$WORKSPACE/python-venv/bin/python3" VulkanTests/gfxrecontest.py --no-test --build-mode "$BUILD_MODE" --bits "$BITS" --result-dir "$RESULTS_DIR-build"

@@ -67,6 +67,7 @@ def gfxrTestWindows(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
+                                "BITS=64",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
@@ -143,6 +144,7 @@ def gfxrTestLinux(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
+                                "BITS=64",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
@@ -219,6 +221,7 @@ def gfxrTestAndroid(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
+                                "BITS=64",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
@@ -270,6 +273,7 @@ def gfxrTestWindowsManual(
     String stageName,
     String nodeLabel,
     String buildMode,
+    String bits,
     String testSuite,
     String projectRepo,
     String projectBranch,
@@ -313,6 +317,7 @@ def gfxrTestWindowsManual(
                                 "TEST_SUITE_REPO=${testSuiteRepo}",
                                 "TEST_SUITE_BRANCH=${testSuiteBranch}",
                                 "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
@@ -349,6 +354,7 @@ def gfxrTestLinuxManual(
     String stageName,
     String nodeLabel,
     String buildMode,
+    String bits,
     String testSuite,
     String projectRepo,
     String projectBranch,
@@ -392,6 +398,7 @@ def gfxrTestLinuxManual(
                                 "TEST_SUITE_REPO=${testSuiteRepo}",
                                 "TEST_SUITE_BRANCH=${testSuiteBranch}",
                                 "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
@@ -428,6 +435,7 @@ def gfxrTestAndroidManual(
     String stageName,
     String nodeLabel,
     String buildMode,
+    String bits,
     String testSuite,
     String projectRepo,
     String projectBranch,
@@ -471,6 +479,7 @@ def gfxrTestAndroidManual(
                                 "TEST_SUITE_REPO=${testSuiteRepo}",
                                 "TEST_SUITE_BRANCH=${testSuiteBranch}",
                                 "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
