@@ -75,7 +75,7 @@ class VulkanCommandBufferAssociatedInfo
     ~VulkanCommandBufferAssociatedInfo()                                                   = default;
 
     void ReplaceWithNewHandle(VulkanCommandBufferInfo* command_buffer_info);
-    
+
     [[nodiscard]] const std::vector<VkCommandBuffer>& GetAssociatedHandles() const { return associated_handles_; }
 
     void PushSplitHandle(VkCommandBuffer handle) { split_handles_.push_back(handle); }

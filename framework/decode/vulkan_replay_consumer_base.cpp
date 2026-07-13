@@ -3507,6 +3507,27 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
             }
         }
 
+        if (options_.serialize_queue_submissions || options_.isolate_render_passes)
+        {
+            if (graphics::feature_util::IsSupportedExtension(available_extensions,
+                                                             VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
+            {
+                if (!graphics::feature_util::IsSupportedExtension(modified_extensions,
+                                                                  VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
+                {
+                    // Make sure to add the timeline semaphore extension name to the list of modified extensions.
+                    // This is necessary for enabling the necessary features by EnableRequiredPhysicalDeviceFeatures.
+                    modified_extensions.push_back(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("--serialize-queue-submissions or --isolate-render-passes was enabled, but the "
+                                   "replay device does not support timeline semaphores.");
+                std::abort();
+            }
+        }
+
         if (options_.remove_unsupported_features)
         {
             graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
