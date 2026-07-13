@@ -476,7 +476,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineConstantAR
             gfxrecon::graphics::vulkan_struct_get_pnext<VkTensorDescriptionARM>(&value);
         if (description != nullptr)
         {
-            uint64_t size = vkuGetFormatInfo(description->format).block_size;
+            uint64_t size = vkuGetFormatInfo(description->format).texel_block_size;
             if (description->format == VK_FORMAT_R8_BOOL_ARM)
             {
                 size = 1;
