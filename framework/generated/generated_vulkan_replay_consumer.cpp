@@ -9808,6 +9808,134 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageReductionModeNV(
     }
 }
 
+void VulkanReplayConsumer::Process_vkCreateTensorARM(
+    const ApiCallInfo&                          call_info,
+    args::CreateTensorARM&                      args)
+{
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
+    MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    if (!args.pTensor.IsNull()) { args.pTensor.SetHandleLength(1); }
+    VulkanTensorARMInfo handle_info;
+    args.pTensor.SetConsumerData(0, &handle_info);
+
+    PushRecaptureHandleId(args.pTensor.GetPointer());
+    VkResult replay_result = OverrideCreateTensorARM(GetDeviceTable(in_device->handle)->CreateTensorARM, args.result, in_device, &args.pCreateInfo, &args.pAllocator, &args.pTensor);
+    CheckResult("vkCreateTensorARM", args.result, replay_result, call_info);
+    ClearRecaptureHandleIds();
+
+    AddHandle<VulkanTensorARMInfo>(args.device, args.pTensor.GetPointer(), args.pTensor.GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkTensorARMInfo);
+}
+
+void VulkanReplayConsumer::Process_vkDestroyTensorARM(
+    const ApiCallInfo&                          call_info,
+    args::DestroyTensorARM&                     args)
+{
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_tensor = GetObjectInfoTable().GetVkTensorARMInfo(args.tensor);
+
+    OverrideDestroyTensorARM(GetDeviceTable(in_device->handle)->DestroyTensorARM, in_device, in_tensor, &args.pAllocator);
+    RemoveHandle(args.tensor, &CommonObjectInfoTable::RemoveVkTensorARMInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCreateTensorViewARM(
+    const ApiCallInfo&                          call_info,
+    args::CreateTensorViewARM&                  args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkTensorViewCreateInfoARM* in_pCreateInfo = args.pCreateInfo.GetPointer();
+    MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
+    if (!args.pView.IsNull()) { args.pView.SetHandleLength(1); }
+    VkTensorViewARM* out_pView = args.pView.GetHandlePointer();
+
+    PushRecaptureHandleId(args.pView.GetPointer());
+    VkResult replay_result = GetDeviceTable(in_device)->CreateTensorViewARM(in_device, in_pCreateInfo, in_pAllocator, out_pView);
+    CheckResult("vkCreateTensorViewARM", args.result, replay_result, call_info);
+    ClearRecaptureHandleIds();
+
+    AddHandle<VulkanTensorViewARMInfo>(args.device, args.pView.GetPointer(), out_pView, &CommonObjectInfoTable::AddVkTensorViewARMInfo);
+}
+
+void VulkanReplayConsumer::Process_vkDestroyTensorViewARM(
+    const ApiCallInfo&                          call_info,
+    args::DestroyTensorViewARM&                 args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkTensorViewARM in_tensorView = MapHandle<VulkanTensorViewARMInfo>(args.tensorView, &CommonObjectInfoTable::GetVkTensorViewARMInfo);
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
+
+    GetDeviceTable(in_device)->DestroyTensorViewARM(in_device, in_tensorView, in_pAllocator);
+    RemoveHandle(args.tensorView, &CommonObjectInfoTable::RemoveVkTensorViewARMInfo);
+}
+
+void VulkanReplayConsumer::Process_vkGetTensorMemoryRequirementsARM(
+    const ApiCallInfo&                          call_info,
+    args::GetTensorMemoryRequirementsARM&       args)
+{
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
+    MapStructHandles(args.pInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    args.pMemoryRequirements.IsNull() ? nullptr : args.pMemoryRequirements.AllocateOutputData(1, { VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2, nullptr });
+    InitializeOutputStructPNext(&args.pMemoryRequirements);
+
+    OverrideGetTensorMemoryRequirementsARM(GetDeviceTable(in_device->handle)->GetTensorMemoryRequirementsARM, in_device, &args.pInfo, &args.pMemoryRequirements);
+}
+
+void VulkanReplayConsumer::Process_vkBindTensorMemoryARM(
+    const ApiCallInfo&                          call_info,
+    args::BindTensorMemoryARM&                  args)
+{
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
+    MapStructArrayHandles(args.pBindInfos.GetMetaStructPointer(), args.pBindInfos.GetLength(), GetObjectInfoTable());
+
+    VkResult replay_result = OverrideBindTensorMemoryARM(GetDeviceTable(in_device->handle)->BindTensorMemoryARM, args.result, in_device, args.bindInfoCount, &args.pBindInfos);
+    CheckResult("vkBindTensorMemoryARM", args.result, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkGetDeviceTensorMemoryRequirementsARM(
+    const ApiCallInfo&                          call_info,
+    args::GetDeviceTensorMemoryRequirementsARM& args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkDeviceTensorMemoryRequirementsARM* in_pInfo = args.pInfo.GetPointer();
+    MapStructHandles(args.pInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    VkMemoryRequirements2* out_pMemoryRequirements = args.pMemoryRequirements.IsNull() ? nullptr : args.pMemoryRequirements.AllocateOutputData(1, { VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2, nullptr });
+    InitializeOutputStructPNext(&args.pMemoryRequirements);
+
+    GetDeviceTable(in_device)->GetDeviceTensorMemoryRequirementsARM(in_device, in_pInfo, out_pMemoryRequirements);
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyTensorARM(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyTensorARM&                     args)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkCopyTensorInfoARM* in_pCopyTensorInfo = args.pCopyTensorInfo.GetPointer();
+    MapStructHandles(args.pCopyTensorInfo.GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyTensorARM(in_commandBuffer, in_pCopyTensorInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdCopyTensorARM(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyTensorARM, in_commandBuffer, in_pCopyTensorInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceExternalTensorPropertiesARM& args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+    const VkPhysicalDeviceExternalTensorInfoARM* in_pExternalTensorInfo = args.pExternalTensorInfo.GetPointer();
+    MapStructHandles(args.pExternalTensorInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    VkExternalTensorPropertiesARM* out_pExternalTensorProperties = args.pExternalTensorProperties.IsNull() ? nullptr : args.pExternalTensorProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM, nullptr });
+    InitializeOutputStructPNext(&args.pExternalTensorProperties);
+
+    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceExternalTensorPropertiesARM(in_physicalDevice, in_pExternalTensorInfo, out_pExternalTensorProperties);
+}
+
 void VulkanReplayConsumer::Process_vkGetShaderModuleIdentifierEXT(
     const ApiCallInfo&                          call_info,
     args::GetShaderModuleIdentifierEXT&         args)
@@ -10166,40 +10294,40 @@ void VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(
     const ApiCallInfo&                          call_info,
     args::CreateDataGraphPipelinesARM&          args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkDeferredOperationKHR in_deferredOperation = MapHandle<VulkanDeferredOperationKHRInfo>(args.deferredOperation, &CommonObjectInfoTable::GetVkDeferredOperationKHRInfo);
-    VkPipelineCache in_pipelineCache = MapHandle<VulkanPipelineCacheInfo>(args.pipelineCache, &CommonObjectInfoTable::GetVkPipelineCacheInfo);
-    const VkDataGraphPipelineCreateInfoARM* in_pCreateInfos = args.pCreateInfos.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_deferredOperation = GetObjectInfoTable().GetVkDeferredOperationKHRInfo(args.deferredOperation);
+    auto in_pipelineCache = GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache);
+
     MapStructArrayHandles(args.pCreateInfos.GetMetaStructPointer(), args.pCreateInfos.GetLength(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
     if (!args.pPipelines.IsNull()) { args.pPipelines.SetHandleLength(args.createInfoCount); }
-    VkPipeline* out_pPipelines = args.pPipelines.GetHandlePointer();
+    std::vector<VulkanPipelineInfo> handle_info(args.createInfoCount);
+    for (size_t i = 0; i < args.createInfoCount; ++i) { args.pPipelines.SetConsumerData(i, &handle_info[i]); }
 
     PushRecaptureHandleIds(args.pPipelines.GetPointer(), args.pPipelines.GetLength());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateDataGraphPipelinesARM(in_device, in_deferredOperation, in_pipelineCache, args.createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
+    VkResult replay_result = OverrideCreateDataGraphPipelinesARM(GetDeviceTable(in_device->handle)->CreateDataGraphPipelinesARM, args.result, in_device, in_deferredOperation, in_pipelineCache, args.createInfoCount, &args.pCreateInfos, &args.pAllocator, &args.pPipelines);
     CheckResult("vkCreateDataGraphPipelinesARM", args.result, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandles<VulkanPipelineInfo>(args.device, args.pPipelines.GetPointer(), args.pPipelines.GetLength(), out_pPipelines, args.createInfoCount, &CommonObjectInfoTable::AddVkPipelineInfo);
+    AddHandles<VulkanPipelineInfo>(args.device, args.pPipelines.GetPointer(), args.pPipelines.GetLength(), args.pPipelines.GetHandlePointer(), args.createInfoCount, std::move(handle_info), &CommonObjectInfoTable::AddVkPipelineInfo);
 }
 
 void VulkanReplayConsumer::Process_vkCreateDataGraphPipelineSessionARM(
     const ApiCallInfo&                          call_info,
     args::CreateDataGraphPipelineSessionARM&    args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkDataGraphPipelineSessionCreateInfoARM* in_pCreateInfo = args.pCreateInfo.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
     if (!args.pSession.IsNull()) { args.pSession.SetHandleLength(1); }
-    VkDataGraphPipelineSessionARM* out_pSession = args.pSession.GetHandlePointer();
+    VulkanDataGraphPipelineSessionARMInfo handle_info;
+    args.pSession.SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(args.pSession.GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateDataGraphPipelineSessionARM(in_device, in_pCreateInfo, in_pAllocator, out_pSession);
+    VkResult replay_result = OverrideCreateDataGraphPipelineSessionARM(GetDeviceTable(in_device->handle)->CreateDataGraphPipelineSessionARM, args.result, in_device, &args.pCreateInfo, &args.pAllocator, &args.pSession);
     CheckResult("vkCreateDataGraphPipelineSessionARM", args.result, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanDataGraphPipelineSessionARMInfo>(args.device, args.pSession.GetPointer(), out_pSession, &CommonObjectInfoTable::AddVkDataGraphPipelineSessionARMInfo);
+    AddHandle<VulkanDataGraphPipelineSessionARMInfo>(args.device, args.pSession.GetPointer(), args.pSession.GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkDataGraphPipelineSessionARMInfo);
 }
 
 void VulkanReplayConsumer::Process_vkGetDataGraphPipelineSessionBindPointRequirementsARM(
@@ -10235,11 +10363,11 @@ void VulkanReplayConsumer::Process_vkBindDataGraphPipelineSessionMemoryARM(
     const ApiCallInfo&                          call_info,
     args::BindDataGraphPipelineSessionMemoryARM& args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkBindDataGraphPipelineSessionMemoryInfoARM* in_pBindInfos = args.pBindInfos.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructArrayHandles(args.pBindInfos.GetMetaStructPointer(), args.pBindInfos.GetLength(), GetObjectInfoTable());
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindDataGraphPipelineSessionMemoryARM(in_device, args.bindInfoCount, in_pBindInfos);
+    VkResult replay_result = OverrideBindDataGraphPipelineSessionMemoryARM(GetDeviceTable(in_device->handle)->BindDataGraphPipelineSessionMemoryARM, args.result, in_device, args.bindInfoCount, &args.pBindInfos);
     CheckResult("vkBindDataGraphPipelineSessionMemoryARM", args.result, replay_result, call_info);
 }
 
@@ -10247,11 +10375,10 @@ void VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(
     const ApiCallInfo&                          call_info,
     args::DestroyDataGraphPipelineSessionARM&   args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkDataGraphPipelineSessionARM in_session = MapHandle<VulkanDataGraphPipelineSessionARMInfo>(args.session, &CommonObjectInfoTable::GetVkDataGraphPipelineSessionARMInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_session = GetObjectInfoTable().GetVkDataGraphPipelineSessionARMInfo(args.session);
 
-    GetDeviceTable(in_device)->DestroyDataGraphPipelineSessionARM(in_device, in_session, in_pAllocator);
+    OverrideDestroyDataGraphPipelineSessionARM(GetDeviceTable(in_device->handle)->DestroyDataGraphPipelineSessionARM, in_device, in_session, &args.pAllocator);
     RemoveHandle(args.session, &CommonObjectInfoTable::RemoveVkDataGraphPipelineSessionARMInfo);
 }
 
@@ -10635,6 +10762,37 @@ void VulkanReplayConsumer::Process_vkCmdBeginCustomResolveEXT(
     {
         resource_dumper_->Process_vkCmdBeginCustomResolveEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginCustomResolveEXT, in_commandBuffer, in_pBeginCustomResolveInfo);
     }
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM& args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+    const VkQueueFamilyDataGraphPropertiesARM* in_pQueueFamilyDataGraphProperties = args.pQueueFamilyDataGraphProperties.GetPointer();
+    MapStructHandles(args.pQueueFamilyDataGraphProperties.GetMetaStructPointer(), GetObjectInfoTable());
+    const VkDataGraphOpticalFlowImageFormatInfoARM* in_pOpticalFlowImageFormatInfo = args.pOpticalFlowImageFormatInfo.GetPointer();
+    MapStructHandles(args.pOpticalFlowImageFormatInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    uint32_t* out_pFormatCount = args.pFormatCount.IsNull() ? nullptr : args.pFormatCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM", args.result, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM, &args.pFormatCount, &args.pImageFormatProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
+    VkDataGraphOpticalFlowImageFormatPropertiesARM* out_pImageFormatProperties = args.pImageFormatProperties.IsNull() ? nullptr : args.pImageFormatProperties.AllocateOutputData(*out_pFormatCount, VkDataGraphOpticalFlowImageFormatPropertiesARM{ VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM, nullptr });
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(in_physicalDevice, args.queueFamilyIndex, in_pQueueFamilyDataGraphProperties, in_pOpticalFlowImageFormatInfo, out_pFormatCount, out_pImageFormatProperties);
+    CheckResult("vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM", args.result, replay_result, call_info);
+
+    if (args.pImageFormatProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM, *out_pFormatCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM& args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+    const VkQueueFamilyDataGraphPropertiesARM* in_pQueueFamilyDataGraphProperties = args.pQueueFamilyDataGraphProperties.GetPointer();
+    MapStructHandles(args.pQueueFamilyDataGraphProperties.GetMetaStructPointer(), GetObjectInfoTable());
+    VkBaseOutStructure* out_pProperties = args.pProperties.IsNull() ? nullptr : args.pProperties.AllocateOutputData(1);
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(in_physicalDevice, args.queueFamilyIndex, in_pQueueFamilyDataGraphProperties, out_pProperties);
+    CheckResult("vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM", args.result, replay_result, call_info);
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
@@ -15496,6 +15654,126 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDirectDriverLoadingListLUNARG>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorDescriptionARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorViewCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorMemoryRequirementsInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBindTensorMemoryInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkWriteDescriptorSetTensorARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorFormatPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceTensorPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorMemoryBarrierARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorDependencyInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceTensorFeaturesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceTensorMemoryRequirementsARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_COPY_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorCopyARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCopyTensorInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryDedicatedAllocateInfoTensorARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceExternalTensorInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkExternalTensorPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkExternalMemoryTensorCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferTensorFeaturesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferTensorPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDescriptorGetTensorInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorCaptureDescriptorDataInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorViewCaptureDescriptorDataInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkFrameBoundaryTensorsARM>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>());
@@ -16314,6 +16592,51 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDataGraphModelFeaturesQCOM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueueFamilyDataGraphOpticalFlowPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineOpticalFlowCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphOpticalFlowImageFormatPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphOpticalFlowImageFormatInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineOpticalFlowDispatchInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineResourceInfoImageLayoutARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CONNECTION_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineSingleNodeConnectionARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineSingleNodeCreateInfoARM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT:

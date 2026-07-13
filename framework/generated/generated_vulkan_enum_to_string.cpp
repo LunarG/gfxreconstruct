@@ -1458,6 +1458,88 @@ template <> std::string ToString<VkDataGraphModelCacheTypeQCOM>(const VkDataGrap
     return "Unhandled VkDataGraphModelCacheTypeQCOM";
 }
 
+template <> std::string ToString<VkDataGraphOpticalFlowCreateFlagBitsARM>(const VkDataGraphOpticalFlowCreateFlagBitsARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphOpticalFlowCreateFlagBitsARM";
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowCreateFlagBitsARM>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDataGraphOpticalFlowCreateFlagBitsARM>(vkFlags);
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowExecuteFlagBitsARM>(const VkDataGraphOpticalFlowExecuteFlagBitsARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_IS_PREVIOUS_REFERENCE_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_IS_PREVIOUS_REFERENCE_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_IS_PREVIOUS_INPUT_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_IS_PREVIOUS_INPUT_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphOpticalFlowExecuteFlagBitsARM";
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowExecuteFlagBitsARM>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDataGraphOpticalFlowExecuteFlagBitsARM>(vkFlags);
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowGridSizeFlagBitsARM>(const VkDataGraphOpticalFlowGridSizeFlagBitsARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphOpticalFlowGridSizeFlagBitsARM";
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowGridSizeFlagBitsARM>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDataGraphOpticalFlowGridSizeFlagBitsARM>(vkFlags);
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowImageUsageFlagBitsARM>(const VkDataGraphOpticalFlowImageUsageFlagBitsARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_HINT_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_HINT_BIT_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_COST_BIT_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_COST_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphOpticalFlowImageUsageFlagBitsARM";
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowImageUsageFlagBitsARM>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDataGraphOpticalFlowImageUsageFlagBitsARM>(vkFlags);
+}
+
+template <> std::string ToString<VkDataGraphOpticalFlowPerformanceLevelARM>(const VkDataGraphOpticalFlowPerformanceLevelARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_ARM";
+    case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_ARM: return "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphOpticalFlowPerformanceLevelARM";
+}
+
 std::string VkDataGraphPipelineDispatchFlagBitsARMToString(const VkDataGraphPipelineDispatchFlagBitsARM value)
 {
     return "Unhandled VkDataGraphPipelineDispatchFlagBitsARM";
@@ -1466,6 +1548,28 @@ std::string VkDataGraphPipelineDispatchFlagBitsARMToString(const VkDataGraphPipe
 std::string VkDataGraphPipelineDispatchFlagsARMToString(VkFlags64 vkFlags)
 {
     return BitmaskToString<VkDataGraphPipelineDispatchFlagBitsARM>(vkFlags, VkDataGraphPipelineDispatchFlagBitsARMToString);
+}
+
+template <> std::string ToString<VkDataGraphPipelineNodeConnectionTypeARM>(const VkDataGraphPipelineNodeConnectionTypeARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_INPUT_ARM: return "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_INPUT_ARM";
+    case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_REFERENCE_ARM: return "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_REFERENCE_ARM";
+    case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_HINT_ARM: return "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_HINT_ARM";
+    case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_FLOW_VECTOR_ARM: return "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_FLOW_VECTOR_ARM";
+    case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_COST_ARM: return "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_COST_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphPipelineNodeConnectionTypeARM";
+}
+
+template <> std::string ToString<VkDataGraphPipelineNodeTypeARM>(const VkDataGraphPipelineNodeTypeARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_PIPELINE_NODE_TYPE_OPTICAL_FLOW_ARM: return "VK_DATA_GRAPH_PIPELINE_NODE_TYPE_OPTICAL_FLOW_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphPipelineNodeTypeARM";
 }
 
 template <> std::string ToString<VkDataGraphPipelinePropertyARM>(const VkDataGraphPipelinePropertyARM& value, ToStringFlags, uint32_t, uint32_t)
@@ -6745,6 +6849,70 @@ template <> std::string ToString<VkSystemAllocationScope>(const VkSystemAllocati
     default: break;
     }
     return "Unhandled VkSystemAllocationScope";
+}
+
+std::string VkTensorCreateFlagBitsARMToString(const VkTensorCreateFlagBitsARM value)
+{
+    switch (value) {
+    case VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM: return "VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM";
+    case VK_TENSOR_CREATE_PROTECTED_BIT_ARM: return "VK_TENSOR_CREATE_PROTECTED_BIT_ARM";
+    case VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM: return "VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM";
+    case VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM: return "VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkTensorCreateFlagBitsARM";
+}
+
+std::string VkTensorCreateFlagsARMToString(VkFlags64 vkFlags)
+{
+    return BitmaskToString<VkTensorCreateFlagBitsARM>(vkFlags, VkTensorCreateFlagBitsARMToString);
+}
+
+template <> std::string ToString<VkTensorTilingARM>(const VkTensorTilingARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_TENSOR_TILING_OPTIMAL_ARM: return "VK_TENSOR_TILING_OPTIMAL_ARM";
+    case VK_TENSOR_TILING_LINEAR_ARM: return "VK_TENSOR_TILING_LINEAR_ARM";
+    case VK_TENSOR_TILING_BRICK_16_WIDE_ARM: return "VK_TENSOR_TILING_BRICK_16_WIDE_ARM";
+    case VK_TENSOR_TILING_BRICK_8_WIDE_ARM: return "VK_TENSOR_TILING_BRICK_8_WIDE_ARM";
+    case VK_TENSOR_TILING_BRICK_4_WIDE_ARM: return "VK_TENSOR_TILING_BRICK_4_WIDE_ARM";
+    case VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM: return "VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM";
+    case VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM: return "VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM";
+    default: break;
+    }
+    return "Unhandled VkTensorTilingARM";
+}
+
+std::string VkTensorUsageFlagBitsARMToString(const VkTensorUsageFlagBitsARM value)
+{
+    switch (value) {
+    case VK_TENSOR_USAGE_SHADER_BIT_ARM: return "VK_TENSOR_USAGE_SHADER_BIT_ARM";
+    case VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM: return "VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM";
+    case VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM: return "VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM";
+    case VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM: return "VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM";
+    case VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM: return "VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkTensorUsageFlagBitsARM";
+}
+
+std::string VkTensorUsageFlagsARMToString(VkFlags64 vkFlags)
+{
+    return BitmaskToString<VkTensorUsageFlagBitsARM>(vkFlags, VkTensorUsageFlagBitsARMToString);
+}
+
+std::string VkTensorViewCreateFlagBitsARMToString(const VkTensorViewCreateFlagBitsARM value)
+{
+    switch (value) {
+    case VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM: return "VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkTensorViewCreateFlagBitsARM";
+}
+
+std::string VkTensorViewCreateFlagsARMToString(VkFlags64 vkFlags)
+{
+    return BitmaskToString<VkTensorViewCreateFlagBitsARM>(vkFlags, VkTensorViewCreateFlagBitsARMToString);
 }
 
 template <> std::string ToString<VkTessellationDomainOrigin>(const VkTessellationDomainOrigin& value, ToStringFlags, uint32_t, uint32_t)

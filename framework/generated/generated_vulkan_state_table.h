@@ -88,6 +88,8 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::ShaderModuleWrapper* wrapper) { return InsertEntry(id, wrapper, vk_shaderModule_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::SurfaceKHRWrapper* wrapper) { return InsertEntry(id, wrapper, vk_surfaceKHR_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::SwapchainKHRWrapper* wrapper) { return InsertEntry(id, wrapper, vk_swapchainKHR_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::TensorARMWrapper* wrapper) { return InsertEntry(id, wrapper, vk_tensorARM_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::TensorViewARMWrapper* wrapper) { return InsertEntry(id, wrapper, vk_tensorViewARM_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) { return InsertEntry(id, wrapper, vk_validationCacheEXT_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::VideoSessionKHRWrapper* wrapper) { return InsertEntry(id, wrapper, vk_videoSessionKHR_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::VideoSessionParametersKHRWrapper* wrapper) { return InsertEntry(id, wrapper, vk_videoSessionParametersKHR_map_); }
@@ -139,6 +141,8 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::ShaderModuleWrapper* wrapper) { return RemoveEntry(wrapper, vk_shaderModule_map_); }
     bool RemoveWrapper(const vulkan_wrappers::SurfaceKHRWrapper* wrapper) { return RemoveEntry(wrapper, vk_surfaceKHR_map_); }
     bool RemoveWrapper(const vulkan_wrappers::SwapchainKHRWrapper* wrapper) { return RemoveEntry(wrapper, vk_swapchainKHR_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::TensorARMWrapper* wrapper) { return RemoveEntry(wrapper, vk_tensorARM_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::TensorViewARMWrapper* wrapper) { return RemoveEntry(wrapper, vk_tensorViewARM_map_); }
     bool RemoveWrapper(const vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) { return RemoveEntry(wrapper, vk_validationCacheEXT_map_); }
     bool RemoveWrapper(const vulkan_wrappers::VideoSessionKHRWrapper* wrapper) { return RemoveEntry(wrapper, vk_videoSessionKHR_map_); }
     bool RemoveWrapper(const vulkan_wrappers::VideoSessionParametersKHRWrapper* wrapper) { return RemoveEntry(wrapper, vk_videoSessionParametersKHR_map_); }
@@ -190,6 +194,8 @@ class VulkanStateTable : VulkanStateTableBase
     const vulkan_wrappers::ShaderModuleWrapper* GetVulkanShaderModuleWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(id, vk_shaderModule_map_); }
     const vulkan_wrappers::SurfaceKHRWrapper* GetVulkanSurfaceKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, vk_surfaceKHR_map_); }
     const vulkan_wrappers::SwapchainKHRWrapper* GetVulkanSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, vk_swapchainKHR_map_); }
+    const vulkan_wrappers::TensorARMWrapper* GetVulkanTensorARMWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::TensorARMWrapper>(id, vk_tensorARM_map_); }
+    const vulkan_wrappers::TensorViewARMWrapper* GetVulkanTensorViewARMWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(id, vk_tensorViewARM_map_); }
     const vulkan_wrappers::ValidationCacheEXTWrapper* GetVulkanValidationCacheEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(id, vk_validationCacheEXT_map_); }
     const vulkan_wrappers::VideoSessionKHRWrapper* GetVulkanVideoSessionKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(id, vk_videoSessionKHR_map_); }
     const vulkan_wrappers::VideoSessionParametersKHRWrapper* GetVulkanVideoSessionParametersKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(id, vk_videoSessionParametersKHR_map_); }
@@ -241,6 +247,8 @@ class VulkanStateTable : VulkanStateTableBase
     vulkan_wrappers::ShaderModuleWrapper* GetVulkanShaderModuleWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(id, vk_shaderModule_map_); }
     vulkan_wrappers::SurfaceKHRWrapper* GetVulkanSurfaceKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, vk_surfaceKHR_map_); }
     vulkan_wrappers::SwapchainKHRWrapper* GetVulkanSwapchainKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, vk_swapchainKHR_map_); }
+    vulkan_wrappers::TensorARMWrapper* GetVulkanTensorARMWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::TensorARMWrapper>(id, vk_tensorARM_map_); }
+    vulkan_wrappers::TensorViewARMWrapper* GetVulkanTensorViewARMWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(id, vk_tensorViewARM_map_); }
     vulkan_wrappers::ValidationCacheEXTWrapper* GetVulkanValidationCacheEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(id, vk_validationCacheEXT_map_); }
     vulkan_wrappers::VideoSessionKHRWrapper* GetVulkanVideoSessionKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(id, vk_videoSessionKHR_map_); }
     vulkan_wrappers::VideoSessionParametersKHRWrapper* GetVulkanVideoSessionParametersKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(id, vk_videoSessionParametersKHR_map_); }
@@ -292,6 +300,8 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(vulkan_wrappers::ShaderModuleWrapper*)> visitor) const { for (auto entry : vk_shaderModule_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::SurfaceKHRWrapper*)> visitor) const { for (auto entry : vk_surfaceKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::SwapchainKHRWrapper*)> visitor) const { for (auto entry : vk_swapchainKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::TensorARMWrapper*)> visitor) const { for (auto entry : vk_tensorARM_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::TensorViewARMWrapper*)> visitor) const { for (auto entry : vk_tensorViewARM_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::ValidationCacheEXTWrapper*)> visitor) const { for (auto entry : vk_validationCacheEXT_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::VideoSessionKHRWrapper*)> visitor) const { for (auto entry : vk_videoSessionKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::VideoSessionParametersKHRWrapper*)> visitor) const { for (auto entry : vk_videoSessionParametersKHR_map_) { visitor(entry.second); } }
@@ -344,6 +354,8 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, vulkan_wrappers::ShaderModuleWrapper*> vk_shaderModule_map_;
     std::map<format::HandleId, vulkan_wrappers::SurfaceKHRWrapper*> vk_surfaceKHR_map_;
     std::map<format::HandleId, vulkan_wrappers::SwapchainKHRWrapper*> vk_swapchainKHR_map_;
+    std::map<format::HandleId, vulkan_wrappers::TensorARMWrapper*> vk_tensorARM_map_;
+    std::map<format::HandleId, vulkan_wrappers::TensorViewARMWrapper*> vk_tensorViewARM_map_;
     std::map<format::HandleId, vulkan_wrappers::ValidationCacheEXTWrapper*> vk_validationCacheEXT_map_;
     std::map<format::HandleId, vulkan_wrappers::VideoSessionKHRWrapper*> vk_videoSessionKHR_map_;
     std::map<format::HandleId, vulkan_wrappers::VideoSessionParametersKHRWrapper*> vk_videoSessionParametersKHR_map_;
@@ -402,6 +414,8 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool InsertWrapper(vulkan_wrappers::ShaderModuleWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_shaderModule_map_); }
     bool InsertWrapper(vulkan_wrappers::SurfaceKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_surfaceKHR_map_); }
     bool InsertWrapper(vulkan_wrappers::SwapchainKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_swapchainKHR_map_); }
+    bool InsertWrapper(vulkan_wrappers::TensorARMWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_tensorARM_map_); }
+    bool InsertWrapper(vulkan_wrappers::TensorViewARMWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_tensorViewARM_map_); }
     bool InsertWrapper(vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_validationCacheEXT_map_); }
     bool InsertWrapper(vulkan_wrappers::VideoSessionKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_videoSessionKHR_map_); }
     bool InsertWrapper(vulkan_wrappers::VideoSessionParametersKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_videoSessionParametersKHR_map_); }
@@ -594,6 +608,14 @@ class VulkanStateHandleTable : VulkanStateTableBase
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, vk_swapchainKHR_map_);
     }
+    bool RemoveWrapper(const vulkan_wrappers::TensorARMWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, vk_tensorARM_map_);
+    }
+    bool RemoveWrapper(const vulkan_wrappers::TensorViewARMWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, vk_tensorViewARM_map_);
+    }
     bool RemoveWrapper(const vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, vk_validationCacheEXT_map_);
@@ -659,6 +681,8 @@ class VulkanStateHandleTable : VulkanStateTableBase
     std::unordered_map<VkShaderModule, vulkan_wrappers::ShaderModuleWrapper*> vk_shaderModule_map_;
     std::unordered_map<VkSurfaceKHR, vulkan_wrappers::SurfaceKHRWrapper*> vk_surfaceKHR_map_;
     std::unordered_map<VkSwapchainKHR, vulkan_wrappers::SwapchainKHRWrapper*> vk_swapchainKHR_map_;
+    std::unordered_map<VkTensorARM, vulkan_wrappers::TensorARMWrapper*> vk_tensorARM_map_;
+    std::unordered_map<VkTensorViewARM, vulkan_wrappers::TensorViewARMWrapper*> vk_tensorViewARM_map_;
     std::unordered_map<VkValidationCacheEXT, vulkan_wrappers::ValidationCacheEXTWrapper*> vk_validationCacheEXT_map_;
     std::unordered_map<VkVideoSessionKHR, vulkan_wrappers::VideoSessionKHRWrapper*> vk_videoSessionKHR_map_;
     std::unordered_map<VkVideoSessionParametersKHR, vulkan_wrappers::VideoSessionParametersKHRWrapper*> vk_videoSessionParametersKHR_map_;
@@ -711,6 +735,8 @@ template<> inline const vulkan_wrappers::ShaderEXTWrapper* VulkanStateHandleTabl
 template<> inline const vulkan_wrappers::ShaderModuleWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(VkShaderModule handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_shaderModule_map_); }
 template<> inline const vulkan_wrappers::SurfaceKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(VkSurfaceKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_surfaceKHR_map_); }
 template<> inline const vulkan_wrappers::SwapchainKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(VkSwapchainKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_swapchainKHR_map_); }
+template<> inline const vulkan_wrappers::TensorARMWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::TensorARMWrapper>(VkTensorARM handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_tensorARM_map_); }
+template<> inline const vulkan_wrappers::TensorViewARMWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(VkTensorViewARM handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_tensorViewARM_map_); }
 template<> inline const vulkan_wrappers::ValidationCacheEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(VkValidationCacheEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_validationCacheEXT_map_); }
 template<> inline const vulkan_wrappers::VideoSessionKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(VkVideoSessionKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_videoSessionKHR_map_); }
 template<> inline const vulkan_wrappers::VideoSessionParametersKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(VkVideoSessionParametersKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_videoSessionParametersKHR_map_); }
@@ -762,6 +788,8 @@ template<> inline vulkan_wrappers::ShaderEXTWrapper* VulkanStateHandleTable::Get
 template<> inline vulkan_wrappers::ShaderModuleWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(VkShaderModule handle) { return VulkanStateTableBase::GetWrapper(handle, vk_shaderModule_map_); }
 template<> inline vulkan_wrappers::SurfaceKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(VkSurfaceKHR handle) { return VulkanStateTableBase::GetWrapper(handle, vk_surfaceKHR_map_); }
 template<> inline vulkan_wrappers::SwapchainKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(VkSwapchainKHR handle) { return VulkanStateTableBase::GetWrapper(handle, vk_swapchainKHR_map_); }
+template<> inline vulkan_wrappers::TensorARMWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::TensorARMWrapper>(VkTensorARM handle) { return VulkanStateTableBase::GetWrapper(handle, vk_tensorARM_map_); }
+template<> inline vulkan_wrappers::TensorViewARMWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(VkTensorViewARM handle) { return VulkanStateTableBase::GetWrapper(handle, vk_tensorViewARM_map_); }
 template<> inline vulkan_wrappers::ValidationCacheEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(VkValidationCacheEXT handle) { return VulkanStateTableBase::GetWrapper(handle, vk_validationCacheEXT_map_); }
 template<> inline vulkan_wrappers::VideoSessionKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(VkVideoSessionKHR handle) { return VulkanStateTableBase::GetWrapper(handle, vk_videoSessionKHR_map_); }
 template<> inline vulkan_wrappers::VideoSessionParametersKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(VkVideoSessionParametersKHR handle) { return VulkanStateTableBase::GetWrapper(handle, vk_videoSessionParametersKHR_map_); }

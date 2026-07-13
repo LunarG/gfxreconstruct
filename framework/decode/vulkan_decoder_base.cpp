@@ -308,6 +308,20 @@ void VulkanDecoderBase::DispatchInitBufferCommand(format::ThreadId thread_id,
     }
 }
 
+void VulkanDecoderBase::DispatchInitTensorCommand(format::ThreadId thread_id,
+                                                  format::HandleId device_id,
+                                                  format::HandleId tensor_id,
+                                                  uint64_t         data_size,
+                                                  const uint8_t*   data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitTensorCommand(device_id, tensor_id, data_size, data);
+    }
+}
+
 void VulkanDecoderBase::DispatchInitImageCommand(format::ThreadId             thread_id,
                                                  format::HandleId             device_id,
                                                  format::HandleId             image_id,

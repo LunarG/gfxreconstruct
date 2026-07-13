@@ -2689,6 +2689,42 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdSetCoverageReductionModeNV&        args) override;
 
+    virtual void Process_vkCreateTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorARM&                      args) override;
+
+    virtual void Process_vkDestroyTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorARM&                     args) override;
+
+    virtual void Process_vkCreateTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorViewARM&                  args) override;
+
+    virtual void Process_vkDestroyTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorViewARM&                 args) override;
+
+    virtual void Process_vkGetTensorMemoryRequirementsARM(
+        const ApiCallInfo&                          call_info,
+        args::GetTensorMemoryRequirementsARM&       args) override;
+
+    virtual void Process_vkBindTensorMemoryARM(
+        const ApiCallInfo&                          call_info,
+        args::BindTensorMemoryARM&                  args) override;
+
+    virtual void Process_vkGetDeviceTensorMemoryRequirementsARM(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceTensorMemoryRequirementsARM& args) override;
+
+    virtual void Process_vkCmdCopyTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyTensorARM&                     args) override;
+
+    virtual void Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalTensorPropertiesARM& args) override;
+
     virtual void Process_vkGetShaderModuleIdentifierEXT(
         const ApiCallInfo&                          call_info,
         args::GetShaderModuleIdentifierEXT&         args) override;
@@ -2908,6 +2944,14 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
     virtual void Process_vkCmdBeginCustomResolveEXT(
         const ApiCallInfo&                          call_info,
         args::CmdBeginCustomResolveEXT&             args) override;
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM& args) override;
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM& args) override;
 
     virtual void Process_vkCmdSetComputeOccupancyPriorityNV(
         const ApiCallInfo&                          call_info,

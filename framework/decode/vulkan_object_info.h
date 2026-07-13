@@ -195,6 +195,22 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
     std::optional<VkPhysicalDeviceDescriptorBufferPropertiesEXT>      descriptor_buffer_properties;
 
+    struct DataGraphOpticalFlowInfo
+    {
+        uint32_t                            queue_family_index{ 0 };
+        VkQueueFamilyDataGraphPropertiesARM queue_family_data_graph_properties{
+            VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM, nullptr
+        };
+        std::optional<VkQueueFamilyDataGraphOpticalFlowPropertiesARM> optical_flow_properties;
+        std::vector<VkFormat>                                         input_formats;
+        std::vector<VkFormat>                                         output_formats;
+        std::vector<VkFormat>                                         hint_formats;
+        std::vector<VkFormat>                                         cost_formats;
+    };
+
+    bool                                  data_graph_optical_flow_initialized{ false };
+    std::vector<DataGraphOpticalFlowInfo> data_graph_optical_flow_infos;
+
     bool IsPropertiesNull() const
     {
         // Not include memory properties.
@@ -778,10 +794,32 @@ struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAcceleratio
     VkMemoryPropertyFlags memory_property_flags{ 0 };
 };
 
+struct VulkanTensorARMInfo : public VulkanObjectInfo<VkTensorARM>
+{
+    // The following values are only used for memory portability.
+    VulkanResourceAllocator::ResourceData allocator_data{ 0 };
+
+    // This is only used when loading the initial state for trimmed files.
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+    VkTensorTilingARM     tiling{};
+    VkFormat              format{};
+    uint32_t              dimensionCount{};
+    VkTensorUsageFlagsARM usage{};
+    std::vector<int64_t>  pDimensions{};
+    std::vector<int64_t>  pStrides{};
+
+    VkDeviceSize size{ 0 };
+    uint32_t     queue_family_index{ 0 };
+};
+
+struct VulkanTensorViewARMInfo : public VulkanObjectInfo<VkTensorViewARM>
+{};
+
 struct VulkanDataGraphPipelineSessionARMInfo : public VulkanObjectInfo<VkDataGraphPipelineSessionARM>
 {
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData    allocator_data{ 0 };
+    VkMemoryPropertyFlags                    memory_property_flags{ 0 };
     VkDataGraphPipelineSessionCreateFlagsARM flags{};
 };
 

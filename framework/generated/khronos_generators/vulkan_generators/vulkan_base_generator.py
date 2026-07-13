@@ -64,7 +64,6 @@ _emit_extensions = []
 # be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
     "VK_AMDX_shader_enqueue",
-    "VK_ARM_tensors",
     "VK_EXT_metal_objects",
     "VK_EXT_pipeline_properties",
     "VK_FUCHSIA_buffer_collection",
@@ -86,7 +85,6 @@ _remove_extensions = [
     "VK_EXT_descriptor_heap",
     "VK_SEC_ubm_surface",
     "VK_ARM_shader_instrumentation",
-    "VK_ARM_data_graph_optical_flow",
     "VK_ARM_data_graph_instruction_set_tosa",
 ]
 
@@ -227,6 +225,30 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
       components that encode and decode Vulkan API parameters.
     Base class for Vulkan API parameter encoding and decoding generators.
     """
+
+    BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES = {
+        ('vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM', 'pProperties'): (
+            'VkQueueFamilyDataGraphOpticalFlowPropertiesARM',
+            'VkQueueFamilyDataGraphProcessingEnginePropertiesARM',
+        ),
+    }
+
+    def get_base_out_structure_type_info_overrides(self):
+        return self.BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES
+
+    def get_base_out_structure_type_info_list(self):
+        entries = []
+        seen = set()
+
+        for structs in self.get_base_out_structure_type_info_overrides().values():
+            for struct in structs:
+                if not struct or struct in seen or struct not in self.struct_type_names:
+                    continue
+
+                seen.add(struct)
+                entries.append((struct, self.struct_type_names[struct]))
+
+        return entries
 
     def __init__(
         self,

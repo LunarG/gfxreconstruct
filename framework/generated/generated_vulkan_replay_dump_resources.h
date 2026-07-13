@@ -2068,6 +2068,12 @@ void Process_vkCmdSetCoverageReductionModeNV(
     VkCommandBuffer                             commandBuffer,
     VkCoverageReductionModeNV                   coverageReductionMode);
 
+void Process_vkCmdCopyTensorARM(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyTensorARM                      func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyTensorInfoARM*                  pCopyTensorInfo);
+
 void Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdOpticalFlowExecuteNV               func,

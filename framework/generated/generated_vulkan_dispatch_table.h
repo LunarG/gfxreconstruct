@@ -175,12 +175,15 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(VkInstance, con
 inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice, uint32_t, IDirectFB*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceDirectFBPresentationSupportEXT was called, resulting in no-op behavior."); return VK_TRUE; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(VkInstance, const VkScreenSurfaceCreateInfoQNX*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateScreenSurfaceQNX was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(VkPhysicalDevice, uint32_t, struct _screen_window*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceScreenPresentationSupportQNX was called, resulting in no-op behavior."); return VK_TRUE; }
+inline VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalTensorPropertiesARM(VkPhysicalDevice, const VkPhysicalDeviceExternalTensorInfoARM*, VkExternalTensorPropertiesARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceExternalTensorPropertiesARM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceOpticalFlowImageFormatsNV(VkPhysicalDevice, const VkOpticalFlowImageFormatInfoNV*, uint32_t*, VkOpticalFlowImageFormatPropertiesNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceOpticalFlowImageFormatsNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeVectorPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeVectorPropertiesNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCooperativeVectorPropertiesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(VkPhysicalDevice, uint32_t, uint32_t*, VkQueueFamilyDataGraphPropertiesARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(VkPhysicalDevice, const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM*, VkQueueFamilyDataGraphProcessingEnginePropertiesARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixFlexibleDimensionsPropertiesNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM(VkPhysicalDevice, uint32_t, uint32_t*, VkPerformanceCounterARM*, VkPerformanceCounterDescriptionARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(VkPhysicalDevice, uint32_t, const VkQueueFamilyDataGraphPropertiesARM*, const VkDataGraphOpticalFlowImageFormatInfoARM*, uint32_t*, VkDataGraphOpticalFlowImageFormatPropertiesARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(VkPhysicalDevice, uint32_t, const VkQueueFamilyDataGraphPropertiesARM*, VkBaseOutStructure*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice, const char*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceProcAddr was called, resulting in no-op behavior."); return nullptr; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyDevice was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceQueue was called, resulting in no-op behavior."); }
@@ -752,6 +755,16 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableNV(VkCommandBuf
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetShadingRateImageEnableNV(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetShadingRateImageEnableNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetRepresentativeFragmentTestEnableNV(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRepresentativeFragmentTestEnableNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageReductionModeNV(VkCommandBuffer, VkCoverageReductionModeNV) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetCoverageReductionModeNV was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateTensorARM(VkDevice, const VkTensorCreateInfoARM*, const VkAllocationCallbacks*, VkTensorARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateTensorARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkDestroyTensorARM(VkDevice, VkTensorARM, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyTensorARM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateTensorViewARM(VkDevice, const VkTensorViewCreateInfoARM*, const VkAllocationCallbacks*, VkTensorViewARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateTensorViewARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkDestroyTensorViewARM(VkDevice, VkTensorViewARM, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyTensorViewARM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkGetTensorMemoryRequirementsARM(VkDevice, const VkTensorMemoryRequirementsInfoARM*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetTensorMemoryRequirementsARM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkBindTensorMemoryARM(VkDevice, uint32_t, const VkBindTensorMemoryInfoARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkBindTensorMemoryARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkGetDeviceTensorMemoryRequirementsARM(VkDevice, const VkDeviceTensorMemoryRequirementsARM*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceTensorMemoryRequirementsARM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdCopyTensorARM(VkCommandBuffer, const VkCopyTensorInfoARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyTensorARM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorCaptureDescriptorDataInfoARM*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetTensorOpaqueCaptureDescriptorDataARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetTensorViewOpaqueCaptureDescriptorDataARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleIdentifierEXT(VkDevice, VkShaderModule, VkShaderModuleIdentifierEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetShaderModuleIdentifierEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleCreateInfoIdentifierEXT(VkDevice, const VkShaderModuleCreateInfo*, VkShaderModuleIdentifierEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetShaderModuleCreateInfoIdentifierEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateOpticalFlowSessionNV(VkDevice, const VkOpticalFlowSessionCreateInfoNV*, const VkAllocationCallbacks*, VkOpticalFlowSessionNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateOpticalFlowSessionNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -944,12 +957,15 @@ struct VulkanInstanceTable
     PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT GetPhysicalDeviceDirectFBPresentationSupportEXT{ noop::vkGetPhysicalDeviceDirectFBPresentationSupportEXT };
     PFN_vkCreateScreenSurfaceQNX CreateScreenSurfaceQNX{ noop::vkCreateScreenSurfaceQNX };
     PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX GetPhysicalDeviceScreenPresentationSupportQNX{ noop::vkGetPhysicalDeviceScreenPresentationSupportQNX };
+    PFN_vkGetPhysicalDeviceExternalTensorPropertiesARM GetPhysicalDeviceExternalTensorPropertiesARM{ noop::vkGetPhysicalDeviceExternalTensorPropertiesARM };
     PFN_vkGetPhysicalDeviceOpticalFlowImageFormatsNV GetPhysicalDeviceOpticalFlowImageFormatsNV{ noop::vkGetPhysicalDeviceOpticalFlowImageFormatsNV };
     PFN_vkGetPhysicalDeviceCooperativeVectorPropertiesNV GetPhysicalDeviceCooperativeVectorPropertiesNV{ noop::vkGetPhysicalDeviceCooperativeVectorPropertiesNV };
     PFN_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM{ noop::vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM };
     PFN_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM{ noop::vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM };
     PFN_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV{ noop::vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV };
     PFN_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM{ noop::vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM };
+    PFN_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM{ noop::vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM };
+    PFN_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM{ noop::vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM };
 };
 
 struct VulkanDeviceTable
@@ -1525,6 +1541,16 @@ struct VulkanDeviceTable
     PFN_vkCmdSetShadingRateImageEnableNV CmdSetShadingRateImageEnableNV{ noop::vkCmdSetShadingRateImageEnableNV };
     PFN_vkCmdSetRepresentativeFragmentTestEnableNV CmdSetRepresentativeFragmentTestEnableNV{ noop::vkCmdSetRepresentativeFragmentTestEnableNV };
     PFN_vkCmdSetCoverageReductionModeNV CmdSetCoverageReductionModeNV{ noop::vkCmdSetCoverageReductionModeNV };
+    PFN_vkCreateTensorARM CreateTensorARM{ noop::vkCreateTensorARM };
+    PFN_vkDestroyTensorARM DestroyTensorARM{ noop::vkDestroyTensorARM };
+    PFN_vkCreateTensorViewARM CreateTensorViewARM{ noop::vkCreateTensorViewARM };
+    PFN_vkDestroyTensorViewARM DestroyTensorViewARM{ noop::vkDestroyTensorViewARM };
+    PFN_vkGetTensorMemoryRequirementsARM GetTensorMemoryRequirementsARM{ noop::vkGetTensorMemoryRequirementsARM };
+    PFN_vkBindTensorMemoryARM BindTensorMemoryARM{ noop::vkBindTensorMemoryARM };
+    PFN_vkGetDeviceTensorMemoryRequirementsARM GetDeviceTensorMemoryRequirementsARM{ noop::vkGetDeviceTensorMemoryRequirementsARM };
+    PFN_vkCmdCopyTensorARM CmdCopyTensorARM{ noop::vkCmdCopyTensorARM };
+    PFN_vkGetTensorOpaqueCaptureDescriptorDataARM GetTensorOpaqueCaptureDescriptorDataARM{ noop::vkGetTensorOpaqueCaptureDescriptorDataARM };
+    PFN_vkGetTensorViewOpaqueCaptureDescriptorDataARM GetTensorViewOpaqueCaptureDescriptorDataARM{ noop::vkGetTensorViewOpaqueCaptureDescriptorDataARM };
     PFN_vkGetShaderModuleIdentifierEXT GetShaderModuleIdentifierEXT{ noop::vkGetShaderModuleIdentifierEXT };
     PFN_vkGetShaderModuleCreateInfoIdentifierEXT GetShaderModuleCreateInfoIdentifierEXT{ noop::vkGetShaderModuleCreateInfoIdentifierEXT };
     PFN_vkCreateOpticalFlowSessionNV CreateOpticalFlowSessionNV{ noop::vkCreateOpticalFlowSessionNV };
@@ -1722,12 +1748,15 @@ static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance in
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceDirectFBPresentationSupportEXT", &table->GetPhysicalDeviceDirectFBPresentationSupportEXT);
     LoadVulkanFunction(gpa, instance, "vkCreateScreenSurfaceQNX", &table->CreateScreenSurfaceQNX);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceScreenPresentationSupportQNX", &table->GetPhysicalDeviceScreenPresentationSupportQNX);
+    LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceExternalTensorPropertiesARM", &table->GetPhysicalDeviceExternalTensorPropertiesARM);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceOpticalFlowImageFormatsNV", &table->GetPhysicalDeviceOpticalFlowImageFormatsNV);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeVectorPropertiesNV", &table->GetPhysicalDeviceCooperativeVectorPropertiesNV);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM", &table->GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM", &table->GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV", &table->GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV);
     LoadVulkanFunction(gpa, instance, "vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM", &table->EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM);
+    LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM", &table->GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM);
+    LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM", &table->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM);
 }
 
 static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
@@ -2305,6 +2334,16 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdSetShadingRateImageEnableNV", &table->CmdSetShadingRateImageEnableNV);
     LoadVulkanFunction(gpa, device, "vkCmdSetRepresentativeFragmentTestEnableNV", &table->CmdSetRepresentativeFragmentTestEnableNV);
     LoadVulkanFunction(gpa, device, "vkCmdSetCoverageReductionModeNV", &table->CmdSetCoverageReductionModeNV);
+    LoadVulkanFunction(gpa, device, "vkCreateTensorARM", &table->CreateTensorARM);
+    LoadVulkanFunction(gpa, device, "vkDestroyTensorARM", &table->DestroyTensorARM);
+    LoadVulkanFunction(gpa, device, "vkCreateTensorViewARM", &table->CreateTensorViewARM);
+    LoadVulkanFunction(gpa, device, "vkDestroyTensorViewARM", &table->DestroyTensorViewARM);
+    LoadVulkanFunction(gpa, device, "vkGetTensorMemoryRequirementsARM", &table->GetTensorMemoryRequirementsARM);
+    LoadVulkanFunction(gpa, device, "vkBindTensorMemoryARM", &table->BindTensorMemoryARM);
+    LoadVulkanFunction(gpa, device, "vkGetDeviceTensorMemoryRequirementsARM", &table->GetDeviceTensorMemoryRequirementsARM);
+    LoadVulkanFunction(gpa, device, "vkCmdCopyTensorARM", &table->CmdCopyTensorARM);
+    LoadVulkanFunction(gpa, device, "vkGetTensorOpaqueCaptureDescriptorDataARM", &table->GetTensorOpaqueCaptureDescriptorDataARM);
+    LoadVulkanFunction(gpa, device, "vkGetTensorViewOpaqueCaptureDescriptorDataARM", &table->GetTensorViewOpaqueCaptureDescriptorDataARM);
     LoadVulkanFunction(gpa, device, "vkGetShaderModuleIdentifierEXT", &table->GetShaderModuleIdentifierEXT);
     LoadVulkanFunction(gpa, device, "vkGetShaderModuleCreateInfoIdentifierEXT", &table->GetShaderModuleCreateInfoIdentifierEXT);
     LoadVulkanFunction(gpa, device, "vkCreateOpticalFlowSessionNV", &table->CreateOpticalFlowSessionNV);

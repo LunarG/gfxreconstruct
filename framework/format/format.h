@@ -171,6 +171,7 @@ enum class MetaDataType : uint16_t
     kInitializeMetaCommand                              = 36,
     kSetOpaqueCaptureDescriptorDataCommand              = 37,
     kInitDx12AccelerationStructureCommand2              = 38,
+    kInitTensorCommand                                  = 39,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -532,6 +533,15 @@ struct InitImageCommandHeader
     uint32_t         aspect;
     uint32_t         layout;
     uint32_t         level_count;
+};
+
+struct InitTensorCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId tensor_id;
+    uint64_t         data_size;
 };
 
 struct InitSubresourceCommandHeader

@@ -542,6 +542,26 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroyMicromapEXT&                   args) override;
 
+    void Process_vkCreateTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorARM&                      args) override;
+
+    void Process_vkDestroyTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorARM&                     args) override;
+
+    void Process_vkCreateTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorViewARM&                  args) override;
+
+    void Process_vkDestroyTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorViewARM&                 args) override;
+
+    void Process_vkBindTensorMemoryARM(
+        const ApiCallInfo&                          call_info,
+        args::BindTensorMemoryARM&                  args) override;
+
     void Process_vkCreateOpticalFlowSessionNV(
         const ApiCallInfo&                          call_info,
         args::CreateOpticalFlowSessionNV&           args) override;

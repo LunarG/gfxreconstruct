@@ -2705,6 +2705,42 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdSetCoverageReductionModeNV&        args) {}
 
+    virtual void Process_vkCreateTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorARM&                      args) {}
+
+    virtual void Process_vkDestroyTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorARM&                     args) {}
+
+    virtual void Process_vkCreateTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorViewARM&                  args) {}
+
+    virtual void Process_vkDestroyTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorViewARM&                 args) {}
+
+    virtual void Process_vkGetTensorMemoryRequirementsARM(
+        const ApiCallInfo&                          call_info,
+        args::GetTensorMemoryRequirementsARM&       args) {}
+
+    virtual void Process_vkBindTensorMemoryARM(
+        const ApiCallInfo&                          call_info,
+        args::BindTensorMemoryARM&                  args) {}
+
+    virtual void Process_vkGetDeviceTensorMemoryRequirementsARM(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceTensorMemoryRequirementsARM& args) {}
+
+    virtual void Process_vkCmdCopyTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyTensorARM&                     args) {}
+
+    virtual void Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalTensorPropertiesARM& args) {}
+
     virtual void Process_vkGetShaderModuleIdentifierEXT(
         const ApiCallInfo&                          call_info,
         args::GetShaderModuleIdentifierEXT&         args) {}
@@ -2924,6 +2960,14 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkCmdBeginCustomResolveEXT(
         const ApiCallInfo&                          call_info,
         args::CmdBeginCustomResolveEXT&             args) {}
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM& args) {}
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM& args) {}
 
     virtual void Process_vkCmdSetComputeOccupancyPriorityNV(
         const ApiCallInfo&                          call_info,

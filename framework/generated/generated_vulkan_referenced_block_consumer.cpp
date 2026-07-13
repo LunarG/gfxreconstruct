@@ -1915,6 +1915,13 @@ void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageReductionModeNV(
     if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyTensorARM(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyTensorARM&                     args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,
     args::CmdOpticalFlowExecuteNV&              args)

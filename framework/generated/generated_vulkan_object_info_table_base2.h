@@ -88,6 +88,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddVkShaderModuleInfo(VulkanShaderModuleInfo&& info) { AddVkObjectInfo(std::move(info), &shaderModule_map_); }
     void AddVkSurfaceKHRInfo(VulkanSurfaceKHRInfo&& info) { AddVkObjectInfo(std::move(info), &surfaceKHR_map_); }
     void AddVkSwapchainKHRInfo(VulkanSwapchainKHRInfo&& info) { AddVkObjectInfo(std::move(info), &swapchainKHR_map_); }
+    void AddVkTensorARMInfo(VulkanTensorARMInfo&& info) { AddVkObjectInfo(std::move(info), &tensorARM_map_); }
+    void AddVkTensorViewARMInfo(VulkanTensorViewARMInfo&& info) { AddVkObjectInfo(std::move(info), &tensorViewARM_map_); }
     void AddVkValidationCacheEXTInfo(VulkanValidationCacheEXTInfo&& info) { AddVkObjectInfo(std::move(info), &validationCacheEXT_map_); }
     void AddVkVideoSessionKHRInfo(VulkanVideoSessionKHRInfo&& info) { AddVkObjectInfo(std::move(info), &videoSessionKHR_map_); }
     void AddVkVideoSessionParametersKHRInfo(VulkanVideoSessionParametersKHRInfo&& info) { AddVkObjectInfo(std::move(info), &videoSessionParametersKHR_map_); }
@@ -139,6 +141,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemoveVkShaderModuleInfo(format::HandleId id) { shaderModule_map_.erase(id); }
     void RemoveVkSurfaceKHRInfo(format::HandleId id) { surfaceKHR_map_.erase(id); }
     void RemoveVkSwapchainKHRInfo(format::HandleId id) { swapchainKHR_map_.erase(id); }
+    void RemoveVkTensorARMInfo(format::HandleId id) { tensorARM_map_.erase(id); }
+    void RemoveVkTensorViewARMInfo(format::HandleId id) { tensorViewARM_map_.erase(id); }
     void RemoveVkValidationCacheEXTInfo(format::HandleId id) { validationCacheEXT_map_.erase(id); }
     void RemoveVkVideoSessionKHRInfo(format::HandleId id) { videoSessionKHR_map_.erase(id); }
     void RemoveVkVideoSessionParametersKHRInfo(format::HandleId id) { videoSessionParametersKHR_map_.erase(id); }
@@ -190,6 +194,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const VulkanShaderModuleInfo* GetVkShaderModuleInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanShaderModuleInfo>(id, &shaderModule_map_); }
     const VulkanSurfaceKHRInfo* GetVkSurfaceKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSurfaceKHRInfo>(id, &surfaceKHR_map_); }
     const VulkanSwapchainKHRInfo* GetVkSwapchainKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSwapchainKHRInfo>(id, &swapchainKHR_map_); }
+    const VulkanTensorARMInfo* GetVkTensorARMInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanTensorARMInfo>(id, &tensorARM_map_); }
+    const VulkanTensorViewARMInfo* GetVkTensorViewARMInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanTensorViewARMInfo>(id, &tensorViewARM_map_); }
     const VulkanValidationCacheEXTInfo* GetVkValidationCacheEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
     const VulkanVideoSessionKHRInfo* GetVkVideoSessionKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanVideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
     const VulkanVideoSessionParametersKHRInfo* GetVkVideoSessionParametersKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanVideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
@@ -241,6 +247,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     VulkanShaderModuleInfo* GetVkShaderModuleInfo(format::HandleId id) { return GetVkObjectInfo<VulkanShaderModuleInfo>(id, &shaderModule_map_); }
     VulkanSurfaceKHRInfo* GetVkSurfaceKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSurfaceKHRInfo>(id, &surfaceKHR_map_); }
     VulkanSwapchainKHRInfo* GetVkSwapchainKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSwapchainKHRInfo>(id, &swapchainKHR_map_); }
+    VulkanTensorARMInfo* GetVkTensorARMInfo(format::HandleId id) { return GetVkObjectInfo<VulkanTensorARMInfo>(id, &tensorARM_map_); }
+    VulkanTensorViewARMInfo* GetVkTensorViewARMInfo(format::HandleId id) { return GetVkObjectInfo<VulkanTensorViewARMInfo>(id, &tensorViewARM_map_); }
     VulkanValidationCacheEXTInfo* GetVkValidationCacheEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
     VulkanVideoSessionKHRInfo* GetVkVideoSessionKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanVideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
     VulkanVideoSessionParametersKHRInfo* GetVkVideoSessionParametersKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanVideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
@@ -292,6 +300,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitVkShaderModuleInfo(std::function<void(const VulkanShaderModuleInfo*)> visitor) const {  for (const auto& entry : shaderModule_map_) { visitor(&entry.second); }  }
     void VisitVkSurfaceKHRInfo(std::function<void(const VulkanSurfaceKHRInfo*)> visitor) const {  for (const auto& entry : surfaceKHR_map_) { visitor(&entry.second); }  }
     void VisitVkSwapchainKHRInfo(std::function<void(const VulkanSwapchainKHRInfo*)> visitor) const {  for (const auto& entry : swapchainKHR_map_) { visitor(&entry.second); }  }
+    void VisitVkTensorARMInfo(std::function<void(const VulkanTensorARMInfo*)> visitor) const {  for (const auto& entry : tensorARM_map_) { visitor(&entry.second); }  }
+    void VisitVkTensorViewARMInfo(std::function<void(const VulkanTensorViewARMInfo*)> visitor) const {  for (const auto& entry : tensorViewARM_map_) { visitor(&entry.second); }  }
     void VisitVkValidationCacheEXTInfo(std::function<void(const VulkanValidationCacheEXTInfo*)> visitor) const {  for (const auto& entry : validationCacheEXT_map_) { visitor(&entry.second); }  }
     void VisitVkVideoSessionKHRInfo(std::function<void(const VulkanVideoSessionKHRInfo*)> visitor) const {  for (const auto& entry : videoSessionKHR_map_) { visitor(&entry.second); }  }
     void VisitVkVideoSessionParametersKHRInfo(std::function<void(const VulkanVideoSessionParametersKHRInfo*)> visitor) const {  for (const auto& entry : videoSessionParametersKHR_map_) { visitor(&entry.second); }  }
@@ -344,6 +354,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, VulkanShaderModuleInfo> shaderModule_map_;
      std::unordered_map<format::HandleId, VulkanSurfaceKHRInfo> surfaceKHR_map_;
      std::unordered_map<format::HandleId, VulkanSwapchainKHRInfo> swapchainKHR_map_;
+     std::unordered_map<format::HandleId, VulkanTensorARMInfo> tensorARM_map_;
+     std::unordered_map<format::HandleId, VulkanTensorViewARMInfo> tensorViewARM_map_;
      std::unordered_map<format::HandleId, VulkanValidationCacheEXTInfo> validationCacheEXT_map_;
      std::unordered_map<format::HandleId, VulkanVideoSessionKHRInfo> videoSessionKHR_map_;
      std::unordered_map<format::HandleId, VulkanVideoSessionParametersKHRInfo> videoSessionParametersKHR_map_;

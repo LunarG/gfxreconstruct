@@ -382,6 +382,18 @@ class VulkanStateTracker
                                  VkDeviceSize   memoryOffset,
                                  const void*    bind_info_pnext = nullptr);
 
+    void TrackTensorMemoryBinding(VkDevice       device,
+                                  VkTensorARM    tensor,
+                                  VkDeviceMemory memory,
+                                  VkDeviceSize   memoryOffset,
+                                  const void*    bind_info_pnext = nullptr);
+
+    void TrackDataGraphPipelineSessionMemoryBinding(VkDevice                      device,
+                                                    VkDataGraphPipelineSessionARM session,
+                                                    VkDeviceMemory                memory,
+                                                    VkDeviceSize                  memoryOffset,
+                                                    const void*                   bind_info_pnext = nullptr);
+
     void TrackMappedMemory(VkDevice         device,
                            VkDeviceMemory   memory,
                            void*            mapped_data,
@@ -844,6 +856,12 @@ class VulkanStateTracker
     void DestroyState(vulkan_wrappers::SamplerWrapper* wrapper);
 
     void DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::TensorARMWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::TensorViewARMWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper);
 
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
 

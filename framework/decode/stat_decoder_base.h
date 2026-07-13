@@ -179,6 +179,12 @@ class StatDecoderBase : public ApiDecoder
                                            uint64_t         data_size,
                                            const uint8_t*   data) override
     {}
+    void DispatchInitTensorCommand(format::ThreadId thread_id,
+                                   format::HandleId device_id,
+                                   format::HandleId tensor_id,
+                                   uint64_t         data_size,
+                                   const uint8_t*   data) override
+    {}
 
     virtual void DispatchInitImageCommand(format::ThreadId             thread_id,
                                           format::HandleId             device_id,
