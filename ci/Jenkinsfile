@@ -54,7 +54,7 @@ pipeline {
                             artifactDaysToKeepStr: '14'
                         ))
                         : buildDiscarder(logRotator(
-                            daysToKeepStr: '14',
+                            daysToKeepStr: '30',
                             artifactNumToKeepStr: '3'
                         ))
                     properties([discarder])
