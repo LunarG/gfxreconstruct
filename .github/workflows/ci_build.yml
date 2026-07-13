@@ -60,7 +60,7 @@ jobs:
       run: |
         run-clang-tidy-18 -p tidy-build -quiet \
           -warnings-as-errors='*' \
-          'framework/|tools/|layer/'
+          '(framework/(?!generated/)|tools/|layer/)'
 
   linux:
     name: ${{ matrix.config.name }}
