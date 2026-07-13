@@ -88,7 +88,8 @@ void android_main(struct android_app* app)
 
     bool run = true;
 
-    if (CheckOptionPrintUsage(kApplicationName, arg_parser) || CheckOptionPrintVersion(kApplicationName, arg_parser))
+    if (CheckOptionPrintUsage(kApplicationName, arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(kApplicationName, arg_parser))
     {
         run = false;
     }
