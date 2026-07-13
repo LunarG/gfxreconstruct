@@ -26,6 +26,7 @@
 #include "decode/file_processor.h"
 #include "generated/generated_vulkan_referenced_block_consumer.h"
 #include "generated/generated_vulkan_referenced_resource_consumer.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 #include "util/logging.h"
 
@@ -36,6 +37,15 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
 
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(OptimizeFeature, OptimizeVulkanFeature)
+
+std::string OptimizeVulkanFeature::CompiledHeaderVersionString() const
+{
+#if defined(GFXRECON_ENABLE_VULKAN)
+    return util::GetVulkanHeaderVersionString();
+#else
+    return "";
+#endif
+}
 
 void OptimizeVulkanFeature::RegisterDetectionDecoder(decode::FileProcessor& file_processor, uint64_t block_limit)
 {

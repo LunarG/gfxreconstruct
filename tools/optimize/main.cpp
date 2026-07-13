@@ -25,11 +25,12 @@
 
 #include "optimize_feature.h"
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include "decode/decode_api_detection.h"
 #include "decode/file_processor.h"
 #include "util/argument_parser.h"
+#include "util/d3d12_agility_sdk_version.h"
 #include "util/date_time.h"
 #include "util/feature_module_registry.h"
 #include "util/logging.h"
@@ -43,7 +44,7 @@
 #if defined(_WIN32)
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 618;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = gfxrecon::util::kD3D12AgilitySdkVersion;
 }
 extern "C"
 {
@@ -155,7 +156,8 @@ int32_t main(int32_t argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::optimize::OptimizeFeature>(argv[0], arg_parser))
     {
         return EXIT_SUCCESS;
     }

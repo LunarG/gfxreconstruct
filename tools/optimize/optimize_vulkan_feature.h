@@ -43,6 +43,7 @@ class OptimizeVulkanFeature : public OptimizeFeature
     ~OptimizeVulkanFeature() override = default;
 
     std::string Label() const override { return "Vulkan"; }
+    std::string CompiledHeaderVersionString() const override;
 
     void RegisterDetectionDecoder(decode::FileProcessor& file_processor, uint64_t block_limit) override;
     bool WasDetected() const override;
