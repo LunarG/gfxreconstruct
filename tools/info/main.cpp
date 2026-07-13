@@ -46,7 +46,7 @@
 
 #include "info_feature.h"
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include <cassert>
 #include <cstdarg>
@@ -764,19 +764,9 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::info::InfoFeature>(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
-    }
-    else if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        PrintVersionHeader(argv[0]);
-        for (auto& feature : g_info_features)
-        {
-            GFXRECON_WRITE_CONSOLE(feature->CompiledHeaderVersionString().c_str());
-        }
-
         gfxrecon::util::Log::Release();
         exit(0);
     }
