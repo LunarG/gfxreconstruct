@@ -22,7 +22,7 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include "decode/file_processor.h"
 #include "extract_feature.h"
@@ -77,7 +77,8 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::extract::ExtractFeatureBase>(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();
         exit(0);

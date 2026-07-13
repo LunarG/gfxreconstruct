@@ -25,17 +25,16 @@
 
 #include "decode/file_processor.h"
 #include "util/defines.h"
+#include "util/feature_base.h"
 
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(extract)
 
-class ExtractFeatureBase
+class ExtractFeatureBase : public util::FeatureBase
 {
   public:
-    virtual ~ExtractFeatureBase() = default;
-
     virtual void Initialize(decode::FileProcessor& file_processor, const std::string& extract_dir) = 0;
     virtual bool WasDetected() const                                                               = 0;
 };
