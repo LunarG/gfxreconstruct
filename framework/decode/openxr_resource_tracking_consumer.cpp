@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 const std::vector<std::string> kLoaderLibNames = {
-#if defined(WIN32)
+#if defined(_WIN32)
     "openxr-1.dll"
 #elif defined(__APPLE__)
     "libopenxr.dylib", "libopenxr.1.dylib", "libMoltenVK.dylib"

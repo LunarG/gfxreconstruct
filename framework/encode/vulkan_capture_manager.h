@@ -46,6 +46,7 @@
 #include <cassert>
 #include <memory>
 #include <mutex>
+#include <algorithm>
 #include <set>
 #include <unordered_map>
 
@@ -301,6 +302,11 @@ class VulkanCaptureManager : public ApiCaptureManager
                                   const VkBufferCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkBuffer*                    pBuffer);
+
+    VkResult OverrideCreateTensorARM(VkDevice                     device,
+                                     const VkTensorCreateInfoARM* pCreateInfo,
+                                     const VkAllocationCallbacks* pAllocator,
+                                     VkTensorARM*                 pTensor);
 
     VkResult OverrideCreateImage(VkDevice                     device,
                                  const VkImageCreateInfo*     pCreateInfo,
@@ -1755,6 +1761,91 @@ class VulkanCaptureManager : public ApiCaptureManager
                                              uint32_t                               transitionCount,
                                              const VkHostImageLayoutTransitionInfo* pTransitions);
 
+    void
+    PostProcess_vkBindDataGraphPipelineSessionMemoryARM(VkResult,
+                                                        VkDevice device,
+                                                        uint32_t bindInfoCount,
+                                                        const VkBindDataGraphPipelineSessionMemoryInfoARM* pBindInfos)
+    {
+        if (!IsCaptureModeTrack())
+        {
+            return;
+        }
+
+        for (uint32_t i = 0; i < bindInfoCount; i++)
+        {
+            state_tracker_->TrackDataGraphPipelineSessionMemoryBinding(
+                device, pBindInfos[i].session, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
+            auto* wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(pBindInfos[i].session);
+            GFXRECON_ASSERT(wrapper != nullptr);
+
+            if (wrapper != nullptr)
+            {
+                const format::HandleId memory_id =
+                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
+                auto it = std::find_if(
+                    wrapper->memory_bindings.begin(),
+                    wrapper->memory_bindings.end(),
+                    [&](const vulkan_wrappers::DataGraphPipelineSessionARMWrapper::MemoryBinding& b) {
+                        return b.bind_point == pBindInfos[i].bindPoint && b.object_index == pBindInfos[i].objectIndex;
+                    });
+                if (it != wrapper->memory_bindings.end())
+                {
+                    it->bind_memory_id = memory_id;
+                    it->bind_offset    = pBindInfos[i].memoryOffset;
+                }
+                else
+                {
+                    wrapper->memory_bindings.push_back(
+                        { pBindInfos[i].bindPoint, pBindInfos[i].objectIndex, memory_id, pBindInfos[i].memoryOffset });
+                }
+            }
+        }
+    }
+
+    void PostProcess_vkBindTensorMemoryARM(VkResult,
+                                           VkDevice                         device,
+                                           uint32_t                         bindInfoCount,
+                                           const VkBindTensorMemoryInfoARM* pBindInfos)
+    {
+        if (!IsCaptureModeTrack())
+        {
+            return;
+        }
+
+        for (uint32_t i = 0; i < bindInfoCount; i++)
+        {
+            state_tracker_->TrackTensorMemoryBinding(
+                device, pBindInfos[i].tensor, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
+        }
+    }
+
+    void PostProcess_vkCreateTensorViewARM(VkResult result,
+                                           VkDevice,
+                                           const VkTensorViewCreateInfoARM* pCreateInfo,
+                                           const VkAllocationCallbacks*,
+                                           VkTensorViewARM* pView)
+    {
+        if (!IsCaptureModeTrack() || (result != VK_SUCCESS))
+        {
+            return;
+        }
+
+        auto view   = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(*pView);
+        auto tensor = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorARMWrapper>(pCreateInfo->tensor);
+        if ((view != nullptr) && (tensor != nullptr))
+        {
+            tensor->tensor_views.insert(view);
+            view->tensor = tensor;
+        }
+    }
+
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
+    {
+        return layer_settings_;
+    }
+
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
@@ -1780,11 +1871,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
                              const std::string*      asset_file_name,
                              util::ThreadData*       thread_data) override;
-
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
-    {
-        return layer_settings_;
-    }
 
   private:
     struct HardwareBufferInfo

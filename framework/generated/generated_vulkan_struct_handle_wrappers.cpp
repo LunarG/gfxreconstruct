@@ -1976,12 +1976,12 @@ void UnwrapStructHandles(VkDependencyInfo* value, HandleUnwrapMemory* unwrap_mem
 {
     if (value != nullptr)
     {
-        value->pBufferMemoryBarriers = UnwrapStructArrayHandles(value->pBufferMemoryBarriers, value->bufferMemoryBarrierCount, unwrap_memory);
-        value->pImageMemoryBarriers = UnwrapStructArrayHandles(value->pImageMemoryBarriers, value->imageMemoryBarrierCount, unwrap_memory);
         if (value->pNext != nullptr)
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
+        value->pBufferMemoryBarriers = UnwrapStructArrayHandles(value->pBufferMemoryBarriers, value->bufferMemoryBarrierCount, unwrap_memory);
+        value->pImageMemoryBarriers = UnwrapStructArrayHandles(value->pImageMemoryBarriers, value->imageMemoryBarrierCount, unwrap_memory);
         value->pMemoryBarriers = UnwrapStructArrayHandles(value->pMemoryBarriers, value->memoryBarrierCount, unwrap_memory);
     }
 }
@@ -10016,6 +10016,275 @@ void UnwrapStructHandles(VkDirectDriverLoadingListLUNARG* value, HandleUnwrapMem
     }
 }
 
+void UnwrapStructHandles(VkTensorDescriptionARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+        value->pDescription = UnwrapStructPtrHandles(value->pDescription, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkTensorViewCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorMemoryRequirementsInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkBindTensorMemoryInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkWriteDescriptorSetTensorARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorFormatPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorMemoryBarrierARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorDependencyInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pTensorMemoryBarriers = UnwrapStructArrayHandles(value->pTensorMemoryBarriers, value->tensorMemoryBarrierCount, unwrap_memory);
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceTensorFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDeviceTensorMemoryRequirementsARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+        value->pCreateInfo = UnwrapStructPtrHandles(value->pCreateInfo, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkTensorCopyARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkCopyTensorInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+        value->pRegions = UnwrapStructArrayHandles(value->pRegions, value->regionCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkMemoryDedicatedAllocateInfoTensorARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceExternalTensorInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+        value->pDescription = UnwrapStructPtrHandles(value->pDescription, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkExternalTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkExternalMemoryTensorCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDescriptorGetTensorInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorCaptureDescriptorDataInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkTensorViewCaptureDescriptorDataInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkFrameBoundaryTensorsARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -10579,17 +10848,6 @@ void UnwrapStructHandles(VkPhysicalDeviceDataGraphFeaturesARM* value, HandleUnwr
     }
 }
 
-void UnwrapStructHandles(VkDataGraphPipelineConstantARM* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
-    }
-}
-
 void UnwrapStructHandles(VkDataGraphPipelineResourceInfoARM* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -10632,7 +10890,6 @@ void UnwrapStructHandles(VkDataGraphPipelineShaderModuleCreateInfoARM* value, Ha
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pConstants = UnwrapStructArrayHandles(value->pConstants, value->constantCount, unwrap_memory);
     }
 }
 
@@ -11804,6 +12061,106 @@ void UnwrapStructHandles(VkPhysicalDeviceDataGraphModelFeaturesQCOM* value, Hand
     }
 }
 
+void UnwrapStructHandles(VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkQueueFamilyDataGraphOpticalFlowPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphPipelineOpticalFlowCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphOpticalFlowImageFormatPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphOpticalFlowImageFormatInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphPipelineOpticalFlowDispatchInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphPipelineResourceInfoImageLayoutARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphPipelineSingleNodeConnectionARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkDataGraphPipelineSingleNodeCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+        value->pConnections = UnwrapStructArrayHandles(value->pConnections, value->connectionCount, unwrap_memory);
+    }
+}
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderLongVectorFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -12380,6 +12737,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindSparseInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindTensorMemoryInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_BIND_TRANSFORM_FEEDBACK_BUFFER_2_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindTransformFeedbackBuffer2InfoEXT*>(base), 1, unwrap_memory));
         break;
@@ -12551,20 +12911,26 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMicromapToMemoryInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyTensorInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_CUSTOM_RESOLVE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCustomResolveCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkD3D12FenceSubmitInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphOpticalFlowImageFormatInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphOpticalFlowImageFormatPropertiesARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_BUILTIN_MODEL_CREATE_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineBuiltinModelCreateInfoQCOM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineCompilerControlCreateInfoARM*>(base), 1, unwrap_memory));
-        break;
-    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_ARM:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineConstantARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM*>(base), 1, unwrap_memory));
@@ -12584,11 +12950,20 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineNeuralStatisticsCreateInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineOpticalFlowCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineOpticalFlowDispatchInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelinePropertyQueryResultARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineResourceInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineResourceInfoImageLayoutARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSessionBindPointRequirementARM*>(base), 1, unwrap_memory));
@@ -12607,6 +12982,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineShaderModuleCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CONNECTION_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSingleNodeConnectionARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSingleNodeCreateInfoARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphProcessingEngineCreateInfoARM*>(base), 1, unwrap_memory));
@@ -12667,6 +13048,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorGetTensorInfoARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorPoolCreateInfo*>(base), 1, unwrap_memory));
@@ -12797,6 +13181,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceQueueShaderCoreControlCreateInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceTensorMemoryRequirementsARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDirectDriverLoadingInfoLUNARG*>(base), 1, unwrap_memory));
         break;
@@ -12917,8 +13304,14 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalMemoryImageCreateInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalMemoryTensorCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalSemaphoreProperties*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalTensorPropertiesARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFenceCreateInfo*>(base), 1, unwrap_memory));
@@ -12946,6 +13339,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFrameBoundaryEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFrameBoundaryTensorsARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFramebufferAttachmentImageInfo*>(base), 1, unwrap_memory));
@@ -13237,6 +13633,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryDedicatedAllocateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryDedicatedAllocateInfoTensorARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryDedicatedRequirements*>(base), 1, unwrap_memory));
@@ -13550,6 +13949,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(base), 1, unwrap_memory));
         break;
@@ -13579,6 +13981,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingFeatures*>(base), 1, unwrap_memory));
@@ -13690,6 +14098,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalSemaphoreInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalTensorInfoARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(base), 1, unwrap_memory));
@@ -14450,6 +14861,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSynchronization2Features*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTensorFeaturesARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTensorPropertiesARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -14834,6 +15251,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyDataGraphProcessingEnginePropertiesARM*>(base), 1, unwrap_memory));
         break;
@@ -15173,11 +15593,41 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainTimingPropertiesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorCaptureDescriptorDataInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_COPY_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorCopyARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorDependencyInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorDescriptionARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorExplicitTilingFormatPropertiesARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorFormatPropertiesARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorMemoryBarrierARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorMemoryRequirementsInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorRollingBackingCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorViewCaptureDescriptorDataInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTensorViewCreateInfoARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base), 1, unwrap_memory));
@@ -15485,6 +15935,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_PARTITIONED_ACCELERATION_STRUCTURE_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteDescriptorSetPartitionedAccelerationStructureNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteDescriptorSetTensorARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(base), 1, unwrap_memory));
         break;
@@ -15560,6 +16013,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkBindSparseInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindTensorMemoryInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkBindVideoSessionMemoryInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2:
@@ -15618,6 +16073,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMicromapInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMicromapToMemoryInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyTensorInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CREATE_INFO_ARM:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineCreateInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM:
@@ -15638,6 +16095,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorBufferBindingInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorGetTensorInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorSetAllocateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
@@ -15672,6 +16131,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkFenceGetWin32HandleInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkFrameBoundaryEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkFrameBoundaryTensorsARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkFramebufferCreateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT:
@@ -15752,6 +16213,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryAllocateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryDedicatedAllocateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryDedicatedAllocateInfoTensorARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
@@ -15864,6 +16327,18 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkSwapchainCreateInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkSwapchainPresentFenceInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkTensorCaptureDescriptorDataInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkTensorDependencyInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkTensorMemoryBarrierARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkTensorMemoryRequirementsInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkTensorViewCaptureDescriptorDataInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkTensorViewCreateInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR:
@@ -15892,6 +16367,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetTensorARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT:

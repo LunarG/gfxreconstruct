@@ -526,6 +526,7 @@ return [
     AndroidLabel : 'Linux-Android-GFXR',
     LinuxMesaLabel : 'Linux-Mesa-6800-stable',
     LinuxNvidiaLabel : 'Linux-NVIDIA-950',
+    LinuxMesa9070Label : 'Linux-Mesa-9070-stable',
     LinuxNvidia5080Label : 'Linux-NVIDIA-5080',
     MacLabel : 'Mac-M2',
     WinAMDLabel : 'Windows-AMD-6800-64G-RAID',

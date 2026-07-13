@@ -72,7 +72,7 @@ class Dx12StructDecodersForwardGenerator(
         code = ("#include \"util/defines.h\"\n")
         code += "\n"
         code += ("#include <cstdint>\n")
-        code += "\n#ifndef WIN32\n"
+        code += "\n#if !defined(_WIN32)\n"
         code += ("#include <cstddef>\n")
         code += "#endif\n"
         write(code, file=self.outFile)

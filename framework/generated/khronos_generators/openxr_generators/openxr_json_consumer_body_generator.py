@@ -110,7 +110,7 @@ class OpenXrExportJsonConsumerBodyGenerator(OpenXrBaseGenerator, KhronosExportJs
         """Method may be overridden."""
         to_json = ''
         if self.has_special_case_json_export(name):
-            to_json = 'FieldToJson(args["{0}"], *{0}->GetPointer())'
+            to_json = 'FieldToJson(args["{0}"], *{0}{op}GetPointer())'
 
         return to_json
     # yapf: disable

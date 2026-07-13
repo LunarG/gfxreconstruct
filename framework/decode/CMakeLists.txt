@@ -240,8 +240,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_referenced_block_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_command_splitter.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_command_splitter.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_command_buffer_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_command_buffer_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_options.h
@@ -276,6 +276,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain_format.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.cpp
@@ -310,6 +312,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder_args.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_json.h

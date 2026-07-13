@@ -72,7 +72,7 @@ bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
     int ret = gfxrecon::util::platform::FileOpen(&file_, filename.c_str(), "w");
     if (ret || file_ == nullptr)
     {
-#if defined(WIN32)
+#if defined(_WIN32)
         GFXRECON_LOG_FATAL("Could not open dump resources output json file %s", filename.c_str());
 #else
         GFXRECON_LOG_FATAL("Could not open dump resources output json file %s (%s)", filename.c_str(), strerror(ret));

@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <cctype>
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 #if !defined(WIN32_LEAN_AND_MEAN)
 #define WIN32_LEAN_AND_MEAN
@@ -87,4 +87,4 @@ extern "C"
     __declspec(allocate(".CRT$XCT")) DWORD gfxrecon_disable_popup_result = DisableDebugPopup();
 }
 
-#endif /* defined(WIN32) */
+#endif /* defined(_WIN32) */

@@ -78,7 +78,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify highest level message to log. Options are:");
     GFXRECON_WRITE_CONSOLE("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
@@ -212,7 +212,7 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(1);
     }
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
     {
         _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);

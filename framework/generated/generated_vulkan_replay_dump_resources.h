@@ -32,6 +32,8 @@
 
 #include "decode/vulkan_replay_dump_resources.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_decoder_args.h"
+#include "generated/generated_vulkan_decoder_args.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -2065,6 +2067,12 @@ void Process_vkCmdSetCoverageReductionModeNV(
     PFN_vkCmdSetCoverageReductionModeNV         func,
     VkCommandBuffer                             commandBuffer,
     VkCoverageReductionModeNV                   coverageReductionMode);
+
+void Process_vkCmdCopyTensorARM(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyTensorARM                      func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyTensorInfoARM*                  pCopyTensorInfo);
 
 void Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,

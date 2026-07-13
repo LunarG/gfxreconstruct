@@ -34,3657 +34,2088 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanReferencedBlockConsumer::Process_vkBeginCommandBuffer(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
+    args::BeginCommandBuffer&                   args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkEndCommandBuffer(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer)
+    args::EndCommandBuffer&                     args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkResetCommandBuffer(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    VkCommandBufferResetFlags                   flags)
+    args::ResetCommandBuffer&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBuffer(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcBuffer,
-    format::HandleId                            dstBuffer,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkBufferCopy>* pRegions)
+    args::CmdCopyBuffer&                        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImage(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcImage,
-    VkImageLayout                               srcImageLayout,
-    format::HandleId                            dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkImageCopy>*  pRegions)
+    args::CmdCopyImage&                         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(srcImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBufferToImage(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcBuffer,
-    format::HandleId                            dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
+    args::CmdCopyBufferToImage&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImageToBuffer(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcImage,
-    VkImageLayout                               srcImageLayout,
-    format::HandleId                            dstBuffer,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
+    args::CmdCopyImageToBuffer&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(srcImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdUpdateBuffer(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                dataSize,
-    PointerDecoder<uint8_t>*                    pData)
+    args::CmdUpdateBuffer&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
-    GFXRECON_UNREFERENCED_PARAMETER(pData);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdFillBuffer(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                size,
-    uint32_t                                    data)
+    args::CmdFillBuffer&                        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
-    GFXRECON_UNREFERENCED_PARAMETER(data);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPipelineBarrier(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlags                        srcStageMask,
-    VkPipelineStageFlags                        dstStageMask,
-    VkDependencyFlags                           dependencyFlags,
-    uint32_t                                    memoryBarrierCount,
-    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
-    uint32_t                                    bufferMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-    uint32_t                                    imageMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
+    args::CmdPipelineBarrier&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(dependencyFlags);
-    GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
-    GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginQuery(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    query,
-    VkQueryControlFlags                         flags)
+    args::CmdBeginQuery&                        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndQuery(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    query)
+    args::CmdEndQuery&                          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResetQueryPool(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery,
-    uint32_t                                    queryCount)
+    args::CmdResetQueryPool&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteTimestamp(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlagBits                     pipelineStage,
-    format::HandleId                            queryPool,
-    uint32_t                                    query)
+    args::CmdWriteTimestamp&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineStage);
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyQueryPoolResults(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery,
-    uint32_t                                    queryCount,
-    format::HandleId                            dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                stride,
-    VkQueryResultFlags                          flags)
+    args::CmdCopyQueryPoolResults&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdExecuteCommands(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    commandBufferCount,
-    HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
+    args::CmdExecuteCommands&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(commandBufferCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindPipeline(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            pipeline)
+    args::CmdBindPipeline&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindDescriptorSets(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            layout,
-    uint32_t                                    firstSet,
-    uint32_t                                    descriptorSetCount,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
-    uint32_t                                    dynamicOffsetCount,
-    PointerDecoder<uint32_t>*                   pDynamicOffsets)
+    args::CmdBindDescriptorSets&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(firstSet);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorSetCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dynamicOffsetCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pDynamicOffsets);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdClearColorImage(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            image,
-    VkImageLayout                               imageLayout,
-    StructPointerDecoder<Decoded_VkClearColorValue>* pColor,
-    uint32_t                                    rangeCount,
-    StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
+    args::CmdClearColorImage&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(pColor);
-    GFXRECON_UNREFERENCED_PARAMETER(rangeCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRanges);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatch(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    groupCountX,
-    uint32_t                                    groupCountY,
-    uint32_t                                    groupCountZ)
+    args::CmdDispatch&                          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountX);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountY);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountZ);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatchIndirect(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset)
+    args::CmdDispatchIndirect&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetEvent(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            event,
-    VkPipelineStageFlags                        stageMask)
+    args::CmdSetEvent&                          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(event);
-    GFXRECON_UNREFERENCED_PARAMETER(stageMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResetEvent(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            event,
-    VkPipelineStageFlags                        stageMask)
+    args::CmdResetEvent&                        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(event);
-    GFXRECON_UNREFERENCED_PARAMETER(stageMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWaitEvents(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    eventCount,
-    HandlePointerDecoder<VkEvent>*              pEvents,
-    VkPipelineStageFlags                        srcStageMask,
-    VkPipelineStageFlags                        dstStageMask,
-    uint32_t                                    memoryBarrierCount,
-    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
-    uint32_t                                    bufferMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-    uint32_t                                    imageMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
+    args::CmdWaitEvents&                        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(eventCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pEvents);
-    GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
-    GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushConstants(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            layout,
-    VkShaderStageFlags                          stageFlags,
-    uint32_t                                    offset,
-    uint32_t                                    size,
-    PointerDecoder<uint8_t>*                    pValues)
+    args::CmdPushConstants&                     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(stageFlags);
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
-    GFXRECON_UNREFERENCED_PARAMETER(pValues);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewport(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstViewport,
-    uint32_t                                    viewportCount,
-    StructPointerDecoder<Decoded_VkViewport>*   pViewports)
+    args::CmdSetViewport&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstViewport);
-    GFXRECON_UNREFERENCED_PARAMETER(viewportCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pViewports);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetScissor(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstScissor,
-    uint32_t                                    scissorCount,
-    StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
+    args::CmdSetScissor&                        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstScissor);
-    GFXRECON_UNREFERENCED_PARAMETER(scissorCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pScissors);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLineWidth(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    float                                       lineWidth)
+    args::CmdSetLineWidth&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(lineWidth);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBias(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    float                                       depthBiasConstantFactor,
-    float                                       depthBiasClamp,
-    float                                       depthBiasSlopeFactor)
+    args::CmdSetDepthBias&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthBiasConstantFactor);
-    GFXRECON_UNREFERENCED_PARAMETER(depthBiasClamp);
-    GFXRECON_UNREFERENCED_PARAMETER(depthBiasSlopeFactor);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetBlendConstants(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    PointerDecoder<float>*                      blendConstants)
+    args::CmdSetBlendConstants&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(blendConstants);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBounds(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    float                                       minDepthBounds,
-    float                                       maxDepthBounds)
+    args::CmdSetDepthBounds&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(minDepthBounds);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDepthBounds);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilCompareMask(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkStencilFaceFlags                          faceMask,
-    uint32_t                                    compareMask)
+    args::CmdSetStencilCompareMask&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(faceMask);
-    GFXRECON_UNREFERENCED_PARAMETER(compareMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilWriteMask(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkStencilFaceFlags                          faceMask,
-    uint32_t                                    writeMask)
+    args::CmdSetStencilWriteMask&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(faceMask);
-    GFXRECON_UNREFERENCED_PARAMETER(writeMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilReference(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkStencilFaceFlags                          faceMask,
-    uint32_t                                    reference)
+    args::CmdSetStencilReference&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(faceMask);
-    GFXRECON_UNREFERENCED_PARAMETER(reference);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindIndexBuffer(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    VkIndexType                                 indexType)
+    args::CmdBindIndexBuffer&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(indexType);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindVertexBuffers(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    HandlePointerDecoder<VkBuffer>*             pBuffers,
-    PointerDecoder<VkDeviceSize>*               pOffsets)
+    args::CmdBindVertexBuffers&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDraw(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    vertexCount,
-    uint32_t                                    instanceCount,
-    uint32_t                                    firstVertex,
-    uint32_t                                    firstInstance)
+    args::CmdDraw&                              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(vertexCount);
-    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstVertex);
-    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexed(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    indexCount,
-    uint32_t                                    instanceCount,
-    uint32_t                                    firstIndex,
-    int32_t                                     vertexOffset,
-    uint32_t                                    firstInstance)
+    args::CmdDrawIndexed&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(indexCount);
-    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstIndex);
-    GFXRECON_UNREFERENCED_PARAMETER(vertexOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirect(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    uint32_t                                    drawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndirect&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirect(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    uint32_t                                    drawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndexedIndirect&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBlitImage(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcImage,
-    VkImageLayout                               srcImageLayout,
-    format::HandleId                            dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
-    VkFilter                                    filter)
+    args::CmdBlitImage&                         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(srcImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-    GFXRECON_UNREFERENCED_PARAMETER(filter);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdClearDepthStencilImage(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            image,
-    VkImageLayout                               imageLayout,
-    StructPointerDecoder<Decoded_VkClearDepthStencilValue>* pDepthStencil,
-    uint32_t                                    rangeCount,
-    StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
+    args::CmdClearDepthStencilImage&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(pDepthStencil);
-    GFXRECON_UNREFERENCED_PARAMETER(rangeCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRanges);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdClearAttachments(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    attachmentCount,
-    StructPointerDecoder<Decoded_VkClearAttachment>* pAttachments,
-    uint32_t                                    rectCount,
-    StructPointerDecoder<Decoded_VkClearRect>*  pRects)
+    args::CmdClearAttachments&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(attachmentCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pAttachments);
-    GFXRECON_UNREFERENCED_PARAMETER(rectCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRects);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResolveImage(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcImage,
-    VkImageLayout                               srcImageLayout,
-    format::HandleId                            dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkImageResolve>* pRegions)
+    args::CmdResolveImage&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(srcImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginRenderPass(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    VkSubpassContents                           contents)
+    args::CmdBeginRenderPass&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(contents);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdNextSubpass(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkSubpassContents                           contents)
+    args::CmdNextSubpass&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(contents);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRenderPass(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    args::CmdEndRenderPass&                     args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDeviceMask(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    deviceMask)
+    args::CmdSetDeviceMask&                     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(deviceMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatchBase(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    baseGroupX,
-    uint32_t                                    baseGroupY,
-    uint32_t                                    baseGroupZ,
-    uint32_t                                    groupCountX,
-    uint32_t                                    groupCountY,
-    uint32_t                                    groupCountZ)
+    args::CmdDispatchBase&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(baseGroupX);
-    GFXRECON_UNREFERENCED_PARAMETER(baseGroupY);
-    GFXRECON_UNREFERENCED_PARAMETER(baseGroupZ);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountX);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountY);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountZ);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectCount(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndirectCount&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirectCount(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndexedIndirectCount&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginRenderPass2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
+    args::CmdBeginRenderPass2&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdNextSubpass2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
-    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+    args::CmdNextSubpass2&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRenderPass2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+    args::CmdEndRenderPass2&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPipelineBarrier2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+    args::CmdPipelineBarrier2&                  args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteTimestamp2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlags2                       stage,
-    format::HandleId                            queryPool,
-    uint32_t                                    query)
+    args::CmdWriteTimestamp2&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stage);
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBuffer2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
+    args::CmdCopyBuffer2&                       args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImage2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
+    args::CmdCopyImage2&                        args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBufferToImage2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
+    args::CmdCopyBufferToImage2&                args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImageToBuffer2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
+    args::CmdCopyImageToBuffer2&                args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetEvent2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            event,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+    args::CmdSetEvent2&                         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(event);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResetEvent2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            event,
-    VkPipelineStageFlags2                       stageMask)
+    args::CmdResetEvent2&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(event);
-    GFXRECON_UNREFERENCED_PARAMETER(stageMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWaitEvents2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    eventCount,
-    HandlePointerDecoder<VkEvent>*              pEvents,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
+    args::CmdWaitEvents2&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(eventCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pEvents);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBlitImage2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
+    args::CmdBlitImage2&                        args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResolveImage2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
+    args::CmdResolveImage2&                     args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginRendering(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
+    args::CmdBeginRendering&                    args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRendering(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    args::CmdEndRendering&                      args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCullMode(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCullModeFlags                             cullMode)
+    args::CmdSetCullMode&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(cullMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetFrontFace(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkFrontFace                                 frontFace)
+    args::CmdSetFrontFace&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(frontFace);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveTopology(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPrimitiveTopology                         primitiveTopology)
+    args::CmdSetPrimitiveTopology&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(primitiveTopology);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewportWithCount(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    viewportCount,
-    StructPointerDecoder<Decoded_VkViewport>*   pViewports)
+    args::CmdSetViewportWithCount&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(viewportCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pViewports);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetScissorWithCount(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    scissorCount,
-    StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
+    args::CmdSetScissorWithCount&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(scissorCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pScissors);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindVertexBuffers2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    HandlePointerDecoder<VkBuffer>*             pBuffers,
-    PointerDecoder<VkDeviceSize>*               pOffsets,
-    PointerDecoder<VkDeviceSize>*               pSizes,
-    PointerDecoder<VkDeviceSize>*               pStrides)
+    args::CmdBindVertexBuffers2&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
-    GFXRECON_UNREFERENCED_PARAMETER(pSizes);
-    GFXRECON_UNREFERENCED_PARAMETER(pStrides);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthTestEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthTestEnable)
+    args::CmdSetDepthTestEnable&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthWriteEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthWriteEnable)
+    args::CmdSetDepthWriteEnable&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthWriteEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthCompareOp(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCompareOp                                 depthCompareOp)
+    args::CmdSetDepthCompareOp&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthCompareOp);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBoundsTestEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthBoundsTestEnable)
+    args::CmdSetDepthBoundsTestEnable&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthBoundsTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilTestEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    stencilTestEnable)
+    args::CmdSetStencilTestEnable&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stencilTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilOp(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkStencilFaceFlags                          faceMask,
-    VkStencilOp                                 failOp,
-    VkStencilOp                                 passOp,
-    VkStencilOp                                 depthFailOp,
-    VkCompareOp                                 compareOp)
+    args::CmdSetStencilOp&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(faceMask);
-    GFXRECON_UNREFERENCED_PARAMETER(failOp);
-    GFXRECON_UNREFERENCED_PARAMETER(passOp);
-    GFXRECON_UNREFERENCED_PARAMETER(depthFailOp);
-    GFXRECON_UNREFERENCED_PARAMETER(compareOp);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRasterizerDiscardEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    rasterizerDiscardEnable)
+    args::CmdSetRasterizerDiscardEnable&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(rasterizerDiscardEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBiasEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthBiasEnable)
+    args::CmdSetDepthBiasEnable&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthBiasEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveRestartEnable(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    primitiveRestartEnable)
+    args::CmdSetPrimitiveRestartEnable&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(primitiveRestartEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushDescriptorSet(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            layout,
-    uint32_t                                    set,
-    uint32_t                                    descriptorWriteCount,
-    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites)
+    args::CmdPushDescriptorSet&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(set);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindDescriptorSets2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
+    args::CmdBindDescriptorSets2&               args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushConstants2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
+    args::CmdPushConstants2&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pPushConstantsInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushDescriptorSet2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
+    args::CmdPushDescriptorSet2&                args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLineStipple(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    lineStippleFactor,
-    uint16_t                                    lineStipplePattern)
+    args::CmdSetLineStipple&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(lineStippleFactor);
-    GFXRECON_UNREFERENCED_PARAMETER(lineStipplePattern);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindIndexBuffer2(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    VkDeviceSize                                size,
-    VkIndexType                                 indexType)
+    args::CmdBindIndexBuffer2&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
-    GFXRECON_UNREFERENCED_PARAMETER(indexType);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRenderingAttachmentLocations(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo)
+    args::CmdSetRenderingAttachmentLocations&   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pLocationInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRenderingInputAttachmentIndices(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo)
+    args::CmdSetRenderingInputAttachmentIndices& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInputAttachmentIndexInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
+    args::CmdBeginVideoCodingKHR&               args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndVideoCodingKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo)
+    args::CmdEndVideoCodingKHR&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pEndCodingInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdControlVideoCodingKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo)
+    args::CmdControlVideoCodingKHR&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pCodingControlInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDecodeVideoKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
+    args::CmdDecodeVideoKHR&                    args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
+    args::CmdBeginRenderingKHR&                 args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    args::CmdEndRenderingKHR&                   args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDeviceMaskKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    deviceMask)
+    args::CmdSetDeviceMaskKHR&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(deviceMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatchBaseKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    baseGroupX,
-    uint32_t                                    baseGroupY,
-    uint32_t                                    baseGroupZ,
-    uint32_t                                    groupCountX,
-    uint32_t                                    groupCountY,
-    uint32_t                                    groupCountZ)
+    args::CmdDispatchBaseKHR&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(baseGroupX);
-    GFXRECON_UNREFERENCED_PARAMETER(baseGroupY);
-    GFXRECON_UNREFERENCED_PARAMETER(baseGroupZ);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountX);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountY);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountZ);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushDescriptorSetKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            layout,
-    uint32_t                                    set,
-    uint32_t                                    descriptorWriteCount,
-    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites)
+    args::CmdPushDescriptorSetKHR&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(set);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginRenderPass2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
+    args::CmdBeginRenderPass2KHR&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdNextSubpass2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
-    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+    args::CmdNextSubpass2KHR&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRenderPass2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+    args::CmdEndRenderPass2KHR&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSubpassEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectCountKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndirectCountKHR&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndexedIndirectCountKHR&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
-    PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
+    args::CmdSetFragmentShadingRateKHR&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pFragmentSize);
-    GFXRECON_UNREFERENCED_PARAMETER(combinerOps);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo)
+    args::CmdSetRenderingAttachmentLocationsKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pLocationInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo)
+    args::CmdSetRenderingInputAttachmentIndicesKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInputAttachmentIndexInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
+    args::CmdEncodeVideoKHR&                    args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetEvent2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            event,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+    args::CmdSetEvent2KHR&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(event);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResetEvent2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            event,
-    VkPipelineStageFlags2                       stageMask)
+    args::CmdResetEvent2KHR&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(event);
-    GFXRECON_UNREFERENCED_PARAMETER(stageMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWaitEvents2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    eventCount,
-    HandlePointerDecoder<VkEvent>*              pEvents,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
+    args::CmdWaitEvents2KHR&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(eventCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pEvents);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPipelineBarrier2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+    args::CmdPipelineBarrier2KHR&               args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteTimestamp2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlags2                       stage,
-    format::HandleId                            queryPool,
-    uint32_t                                    query)
+    args::CmdWriteTimestamp2KHR&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stage);
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindIndexBuffer3KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBindIndexBuffer3InfoKHR>* pInfo)
+    args::CmdBindIndexBuffer3KHR&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindVertexBuffers3KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    StructPointerDecoder<Decoded_VkBindVertexBuffer3InfoKHR>* pBindingInfos)
+    args::CmdBindVertexBuffers3KHR&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pBindingInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+    args::CmdDrawIndirect2KHR&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+    args::CmdDrawIndexedIndirect2KHR&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatchIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDispatchIndirect2InfoKHR>* pInfo)
+    args::CmdDispatchIndirect2KHR&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyDeviceMemoryInfoKHR>* pCopyMemoryInfo)
+    args::CmdCopyMemoryKHR&                     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pCopyMemoryInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryToImageKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+    args::CmdCopyMemoryToImageKHR&              args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImageToMemoryKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+    args::CmdCopyImageToMemoryKHR&              args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdUpdateMemoryKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
-    VkAddressCommandFlagsKHR                    dstFlags,
-    VkDeviceSize                                dataSize,
-    PointerDecoder<uint8_t>*                    pData)
+    args::CmdUpdateMemoryKHR&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pDstRange);
-    GFXRECON_UNREFERENCED_PARAMETER(dstFlags);
-    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
-    GFXRECON_UNREFERENCED_PARAMETER(pData);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdFillMemoryKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
-    VkAddressCommandFlagsKHR                    dstFlags,
-    uint32_t                                    data)
+    args::CmdFillMemoryKHR&                     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pDstRange);
-    GFXRECON_UNREFERENCED_PARAMETER(dstFlags);
-    GFXRECON_UNREFERENCED_PARAMETER(data);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery,
-    uint32_t                                    queryCount,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
-    VkAddressCommandFlagsKHR                    dstFlags,
-    VkQueryResultFlags                          queryResultFlags)
+    args::CmdCopyQueryPoolResultsToMemoryKHR&   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pDstRange);
-    GFXRECON_UNREFERENCED_PARAMETER(dstFlags);
-    GFXRECON_UNREFERENCED_PARAMETER(queryResultFlags);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectCount2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+    args::CmdDrawIndirectCount2KHR&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirectCount2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+    args::CmdDrawIndexedIndirectCount2KHR&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginConditionalRendering2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfo2EXT>* pConditionalRenderingBegin)
+    args::CmdBeginConditionalRendering2EXT&     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pConditionalRenderingBegin);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindTransformFeedbackBuffers2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pBindingInfos)
+    args::CmdBindTransformFeedbackBuffers2EXT&  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pBindingInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginTransformFeedback2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstCounterRange,
-    uint32_t                                    counterRangeCount,
-    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos)
+    args::CmdBeginTransformFeedback2EXT&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstCounterRange);
-    GFXRECON_UNREFERENCED_PARAMETER(counterRangeCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pCounterInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndTransformFeedback2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstCounterRange,
-    uint32_t                                    counterRangeCount,
-    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos)
+    args::CmdEndTransformFeedback2EXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstCounterRange);
-    GFXRECON_UNREFERENCED_PARAMETER(counterRangeCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pCounterInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectByteCount2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    instanceCount,
-    uint32_t                                    firstInstance,
-    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfo,
-    uint32_t                                    counterOffset,
-    uint32_t                                    vertexStride)
+    args::CmdDrawIndirectByteCount2EXT&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
-    GFXRECON_UNREFERENCED_PARAMETER(pCounterInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(counterOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(vertexStride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirect2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+    args::CmdDrawMeshTasksIndirect2EXT&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirectCount2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+    args::CmdDrawMeshTasksIndirectCount2EXT&    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteMarkerToMemoryAMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkMemoryMarkerInfoAMD>* pInfo)
+    args::CmdWriteMarkerToMemoryAMD&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
+    args::CmdCopyBuffer2KHR&                    args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImage2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
+    args::CmdCopyImage2KHR&                     args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBufferToImage2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
+    args::CmdCopyBufferToImage2KHR&             args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyImageToBuffer2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
+    args::CmdCopyImageToBuffer2KHR&             args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBlitImage2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
+    args::CmdBlitImage2KHR&                     args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdResolveImage2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
+    args::CmdResolveImage2KHR&                  args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkDeviceAddress                             indirectDeviceAddress)
+    args::CmdTraceRaysIndirect2KHR&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(indirectDeviceAddress);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    VkDeviceSize                                size,
-    VkIndexType                                 indexType)
+    args::CmdBindIndexBuffer2KHR&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
-    GFXRECON_UNREFERENCED_PARAMETER(indexType);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    lineStippleFactor,
-    uint16_t                                    lineStipplePattern)
+    args::CmdSetLineStippleKHR&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(lineStippleFactor);
-    GFXRECON_UNREFERENCED_PARAMETER(lineStipplePattern);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindDescriptorSets2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
+    args::CmdBindDescriptorSets2KHR&            args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushConstants2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
+    args::CmdPushConstants2KHR&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pPushConstantsInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPushDescriptorSet2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
+    args::CmdPushDescriptorSet2KHR&             args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT>* pSetDescriptorBufferOffsetsInfo)
+    args::CmdSetDescriptorBufferOffsets2EXT&    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSetDescriptorBufferOffsetsInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo)
+    args::CmdBindDescriptorBufferEmbeddedSamplers2EXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pBindDescriptorBufferEmbeddedSamplersInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryIndirectKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo)
+    args::CmdCopyMemoryIndirectKHR&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pCopyMemoryIndirectInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
+    args::CmdCopyMemoryToImageIndirectKHR&      args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRendering2KHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo)
+    args::CmdEndRendering2KHR&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pRenderingEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
+    args::CmdDebugMarkerBeginEXT&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pMarkerInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDebugMarkerEndEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    args::CmdDebugMarkerEndEXT&                 args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDebugMarkerInsertEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
+    args::CmdDebugMarkerInsertEXT&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pMarkerInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    HandlePointerDecoder<VkBuffer>*             pBuffers,
-    PointerDecoder<VkDeviceSize>*               pOffsets,
-    PointerDecoder<VkDeviceSize>*               pSizes)
+    args::CmdBindTransformFeedbackBuffersEXT&   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
-    GFXRECON_UNREFERENCED_PARAMETER(pSizes);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstCounterBuffer,
-    uint32_t                                    counterBufferCount,
-    HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
-    PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
+    args::CmdBeginTransformFeedbackEXT&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstCounterBuffer);
-    GFXRECON_UNREFERENCED_PARAMETER(counterBufferCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pCounterBufferOffsets);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndTransformFeedbackEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstCounterBuffer,
-    uint32_t                                    counterBufferCount,
-    HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
-    PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
+    args::CmdEndTransformFeedbackEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstCounterBuffer);
-    GFXRECON_UNREFERENCED_PARAMETER(counterBufferCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pCounterBufferOffsets);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    query,
-    VkQueryControlFlags                         flags,
-    uint32_t                                    index)
+    args::CmdBeginQueryIndexedEXT&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-    GFXRECON_UNREFERENCED_PARAMETER(index);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    query,
-    uint32_t                                    index)
+    args::CmdEndQueryIndexedEXT&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(query);
-    GFXRECON_UNREFERENCED_PARAMETER(index);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectByteCountEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    instanceCount,
-    uint32_t                                    firstInstance,
-    format::HandleId                            counterBuffer,
-    VkDeviceSize                                counterBufferOffset,
-    uint32_t                                    counterOffset,
-    uint32_t                                    vertexStride)
+    args::CmdDrawIndirectByteCountEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
-    GFXRECON_UNREFERENCED_PARAMETER(counterBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(counterOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(vertexStride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndirectCountAMD&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawIndexedIndirectCountAMD&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
+    args::CmdBeginConditionalRenderingEXT&      args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    args::CmdEndConditionalRenderingEXT&        args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewportWScalingNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstViewport,
-    uint32_t                                    viewportCount,
-    StructPointerDecoder<Decoded_VkViewportWScalingNV>* pViewportWScalings)
+    args::CmdSetViewportWScalingNV&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstViewport);
-    GFXRECON_UNREFERENCED_PARAMETER(viewportCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pViewportWScalings);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDiscardRectangleEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstDiscardRectangle,
-    uint32_t                                    discardRectangleCount,
-    StructPointerDecoder<Decoded_VkRect2D>*     pDiscardRectangles)
+    args::CmdSetDiscardRectangleEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstDiscardRectangle);
-    GFXRECON_UNREFERENCED_PARAMETER(discardRectangleCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pDiscardRectangles);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    discardRectangleEnable)
+    args::CmdSetDiscardRectangleEnableEXT&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(discardRectangleEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDiscardRectangleModeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkDiscardRectangleModeEXT                   discardRectangleMode)
+    args::CmdSetDiscardRectangleModeEXT&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(discardRectangleMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
+    args::CmdBeginDebugUtilsLabelEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pLabelInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    args::CmdEndDebugUtilsLabelEXT&             args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
+    args::CmdInsertDebugUtilsLabelEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pLabelInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginGpaSessionAMD(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            gpaSession)
+    args::CmdBeginGpaSessionAMD&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndGpaSessionAMD(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            gpaSession)
+    args::CmdEndGpaSessionAMD&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginGpaSampleAMD(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            gpaSession,
-    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
-    PointerDecoder<uint32_t>*                   pSampleID)
+    args::CmdBeginGpaSampleAMD&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
-    GFXRECON_UNREFERENCED_PARAMETER(pGpaSampleBeginInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(pSampleID);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndGpaSampleAMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            gpaSession,
-    uint32_t                                    sampleID)
+    args::CmdEndGpaSampleAMD&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
-    GFXRECON_UNREFERENCED_PARAMETER(sampleID);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            gpaSession)
+    args::CmdCopyGpaSessionResultsAMD&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(gpaSession);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT>* pSampleLocationsInfo)
+    args::CmdSetSampleLocationsEXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pSampleLocationsInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindShadingRateImageNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            imageView,
-    VkImageLayout                               imageLayout)
+    args::CmdBindShadingRateImageNV&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstViewport,
-    uint32_t                                    viewportCount,
-    StructPointerDecoder<Decoded_VkShadingRatePaletteNV>* pShadingRatePalettes)
+    args::CmdSetViewportShadingRatePaletteNV&   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstViewport);
-    GFXRECON_UNREFERENCED_PARAMETER(viewportCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pShadingRatePalettes);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoarseSampleOrderNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCoarseSampleOrderTypeNV                   sampleOrderType,
-    uint32_t                                    customSampleOrderCount,
-    StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>* pCustomSampleOrders)
+    args::CmdSetCoarseSampleOrderNV&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(sampleOrderType);
-    GFXRECON_UNREFERENCED_PARAMETER(customSampleOrderCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pCustomSampleOrders);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBuildAccelerationStructureNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>* pInfo,
-    format::HandleId                            instanceData,
-    VkDeviceSize                                instanceOffset,
-    VkBool32                                    update,
-    format::HandleId                            dst,
-    format::HandleId                            src,
-    format::HandleId                            scratch,
-    VkDeviceSize                                scratchOffset)
+    args::CmdBuildAccelerationStructureNV&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(instanceOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(update);
-    GFXRECON_UNREFERENCED_PARAMETER(dst);
-    GFXRECON_UNREFERENCED_PARAMETER(src);
-    GFXRECON_UNREFERENCED_PARAMETER(scratchOffset);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyAccelerationStructureNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            dst,
-    format::HandleId                            src,
-    VkCopyAccelerationStructureModeKHR          mode)
+    args::CmdCopyAccelerationStructureNV&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(dst);
-    GFXRECON_UNREFERENCED_PARAMETER(src);
-    GFXRECON_UNREFERENCED_PARAMETER(mode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            raygenShaderBindingTableBuffer,
-    VkDeviceSize                                raygenShaderBindingOffset,
-    format::HandleId                            missShaderBindingTableBuffer,
-    VkDeviceSize                                missShaderBindingOffset,
-    VkDeviceSize                                missShaderBindingStride,
-    format::HandleId                            hitShaderBindingTableBuffer,
-    VkDeviceSize                                hitShaderBindingOffset,
-    VkDeviceSize                                hitShaderBindingStride,
-    format::HandleId                            callableShaderBindingTableBuffer,
-    VkDeviceSize                                callableShaderBindingOffset,
-    VkDeviceSize                                callableShaderBindingStride,
-    uint32_t                                    width,
-    uint32_t                                    height,
-    uint32_t                                    depth)
+    args::CmdTraceRaysNV&                       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(raygenShaderBindingOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(missShaderBindingOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(missShaderBindingStride);
-    GFXRECON_UNREFERENCED_PARAMETER(hitShaderBindingOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(hitShaderBindingStride);
-    GFXRECON_UNREFERENCED_PARAMETER(callableShaderBindingOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(callableShaderBindingStride);
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
-    GFXRECON_UNREFERENCED_PARAMETER(depth);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    accelerationStructureCount,
-    HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
-    VkQueryType                                 queryType,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery)
+    args::CmdWriteAccelerationStructuresPropertiesNV& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(accelerationStructureCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pAccelerationStructures);
-    GFXRECON_UNREFERENCED_PARAMETER(queryType);
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteBufferMarkerAMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlagBits                     pipelineStage,
-    format::HandleId                            dstBuffer,
-    VkDeviceSize                                dstOffset,
-    uint32_t                                    marker)
+    args::CmdWriteBufferMarkerAMD&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineStage);
-    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(marker);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteBufferMarker2AMD(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlags2                       stage,
-    format::HandleId                            dstBuffer,
-    VkDeviceSize                                dstOffset,
-    uint32_t                                    marker)
+    args::CmdWriteBufferMarker2AMD&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stage);
-    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(marker);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    taskCount,
-    uint32_t                                    firstTask)
+    args::CmdDrawMeshTasksNV&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(taskCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstTask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    uint32_t                                    drawCount,
-    uint32_t                                    stride)
+    args::CmdDrawMeshTasksIndirectNV&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawMeshTasksIndirectCountNV&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstExclusiveScissor,
-    uint32_t                                    exclusiveScissorCount,
-    PointerDecoder<VkBool32>*                   pExclusiveScissorEnables)
+    args::CmdSetExclusiveScissorEnableNV&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstExclusiveScissor);
-    GFXRECON_UNREFERENCED_PARAMETER(exclusiveScissorCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pExclusiveScissorEnables);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetExclusiveScissorNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstExclusiveScissor,
-    uint32_t                                    exclusiveScissorCount,
-    StructPointerDecoder<Decoded_VkRect2D>*     pExclusiveScissors)
+    args::CmdSetExclusiveScissorNV&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstExclusiveScissor);
-    GFXRECON_UNREFERENCED_PARAMETER(exclusiveScissorCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pExclusiveScissors);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCheckpointNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint64_t                                    pCheckpointMarker)
+    args::CmdSetCheckpointNV&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pCheckpointMarker);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>* pMarkerInfo)
+    args::CmdSetPerformanceMarkerINTEL&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pMarkerInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>* pMarkerInfo)
+    args::CmdSetPerformanceStreamMarkerINTEL&   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pMarkerInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
     const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>* pOverrideInfo)
+    args::CmdSetPerformanceOverrideINTEL&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pOverrideInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLineStippleEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    lineStippleFactor,
-    uint16_t                                    lineStipplePattern)
+    args::CmdSetLineStippleEXT&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(lineStippleFactor);
-    GFXRECON_UNREFERENCED_PARAMETER(lineStipplePattern);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCullModeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCullModeFlags                             cullMode)
+    args::CmdSetCullModeEXT&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(cullMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetFrontFaceEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkFrontFace                                 frontFace)
+    args::CmdSetFrontFaceEXT&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(frontFace);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPrimitiveTopology                         primitiveTopology)
+    args::CmdSetPrimitiveTopologyEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(primitiveTopology);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewportWithCountEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    viewportCount,
-    StructPointerDecoder<Decoded_VkViewport>*   pViewports)
+    args::CmdSetViewportWithCountEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(viewportCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pViewports);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetScissorWithCountEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    scissorCount,
-    StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
+    args::CmdSetScissorWithCountEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(scissorCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pScissors);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindVertexBuffers2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    HandlePointerDecoder<VkBuffer>*             pBuffers,
-    PointerDecoder<VkDeviceSize>*               pOffsets,
-    PointerDecoder<VkDeviceSize>*               pSizes,
-    PointerDecoder<VkDeviceSize>*               pStrides)
+    args::CmdBindVertexBuffers2EXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
-    GFXRECON_UNREFERENCED_PARAMETER(pSizes);
-    GFXRECON_UNREFERENCED_PARAMETER(pStrides);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthTestEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthTestEnable)
+    args::CmdSetDepthTestEnableEXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthWriteEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthWriteEnable)
+    args::CmdSetDepthWriteEnableEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthWriteEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthCompareOpEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCompareOp                                 depthCompareOp)
+    args::CmdSetDepthCompareOpEXT&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthCompareOp);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthBoundsTestEnable)
+    args::CmdSetDepthBoundsTestEnableEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthBoundsTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilTestEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    stencilTestEnable)
+    args::CmdSetStencilTestEnableEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stencilTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetStencilOpEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkStencilFaceFlags                          faceMask,
-    VkStencilOp                                 failOp,
-    VkStencilOp                                 passOp,
-    VkStencilOp                                 depthFailOp,
-    VkCompareOp                                 compareOp)
+    args::CmdSetStencilOpEXT&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(faceMask);
-    GFXRECON_UNREFERENCED_PARAMETER(failOp);
-    GFXRECON_UNREFERENCED_PARAMETER(passOp);
-    GFXRECON_UNREFERENCED_PARAMETER(depthFailOp);
-    GFXRECON_UNREFERENCED_PARAMETER(compareOp);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
+    args::CmdPreprocessGeneratedCommandsNV&     args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    isPreprocessed,
-    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
+    args::CmdExecuteGeneratedCommandsNV&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindPipelineShaderGroupNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            pipeline,
-    uint32_t                                    groupIndex)
+    args::CmdBindPipelineShaderGroupNV&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(groupIndex);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBias2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo)
+    args::CmdSetDepthBias2EXT&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pDepthBiasInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo)
+    args::CmdDispatchTileQCOM&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pDispatchTileInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginPerTileExecutionQCOM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPerTileBeginInfoQCOM>* pPerTileBeginInfo)
+    args::CmdBeginPerTileExecutionQCOM&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pPerTileBeginInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndPerTileExecutionQCOM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM>* pPerTileEndInfo)
+    args::CmdEndPerTileExecutionQCOM&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pPerTileEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindDescriptorBuffersEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    bufferCount,
-    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+    args::CmdBindDescriptorBuffersEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(bufferCount);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDescriptorBufferOffsetsEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            layout,
-    uint32_t                                    firstSet,
-    uint32_t                                    setCount,
-    PointerDecoder<uint32_t>*                   pBufferIndices,
-    PointerDecoder<VkDeviceSize>*               pOffsets)
+    args::CmdSetDescriptorBufferOffsetsEXT&     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(firstSet);
-    GFXRECON_UNREFERENCED_PARAMETER(setCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pBufferIndices);
-    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            layout,
-    uint32_t                                    set)
+    args::CmdBindDescriptorBufferEmbeddedSamplersEXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(set);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkFragmentShadingRateNV                     shadingRate,
-    PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
+    args::CmdSetFragmentShadingRateEnumNV&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(shadingRate);
-    GFXRECON_UNREFERENCED_PARAMETER(combinerOps);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetVertexInputEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    vertexBindingDescriptionCount,
-    StructPointerDecoder<Decoded_VkVertexInputBindingDescription2EXT>* pVertexBindingDescriptions,
-    uint32_t                                    vertexAttributeDescriptionCount,
-    StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions)
+    args::CmdSetVertexInputEXT&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(vertexBindingDescriptionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pVertexBindingDescriptions);
-    GFXRECON_UNREFERENCED_PARAMETER(vertexAttributeDescriptionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pVertexAttributeDescriptions);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            imageView,
-    VkImageLayout                               imageLayout)
+    args::CmdBindInvocationMaskHUAWEI&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPatchControlPointsEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    patchControlPoints)
+    args::CmdSetPatchControlPointsEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(patchControlPoints);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    rasterizerDiscardEnable)
+    args::CmdSetRasterizerDiscardEnableEXT&     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(rasterizerDiscardEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthBiasEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthBiasEnable)
+    args::CmdSetDepthBiasEnableEXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthBiasEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLogicOpEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkLogicOp                                   logicOp)
+    args::CmdSetLogicOpEXT&                     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(logicOp);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    primitiveRestartEnable)
+    args::CmdSetPrimitiveRestartEnableEXT&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(primitiveRestartEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetColorWriteEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    attachmentCount,
-    PointerDecoder<VkBool32>*                   pColorWriteEnables)
+    args::CmdSetColorWriteEnableEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(attachmentCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pColorWriteEnables);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMultiEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    drawCount,
-    StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
-    uint32_t                                    instanceCount,
-    uint32_t                                    firstInstance,
-    uint32_t                                    stride)
+    args::CmdDrawMultiEXT&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pVertexInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMultiIndexedEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    drawCount,
-    StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
-    uint32_t                                    instanceCount,
-    uint32_t                                    firstInstance,
-    uint32_t                                    stride,
-    PointerDecoder<int32_t>*                    pVertexOffset)
+    args::CmdDrawMultiIndexedEXT&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pIndexInfo);
-    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
-    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-    GFXRECON_UNREFERENCED_PARAMETER(pVertexOffset);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBuildMicromapsEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    infoCount,
-    StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
+    args::CmdBuildMicromapsEXT&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(infoCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMicromapEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
+    args::CmdCopyMicromapEXT&                   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMicromapToMemoryEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
+    args::CmdCopyMicromapToMemoryEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryToMicromapEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
+    args::CmdCopyMemoryToMicromapEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteMicromapsPropertiesEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    micromapCount,
-    HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
-    VkQueryType                                 queryType,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery)
+    args::CmdWriteMicromapsPropertiesEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(micromapCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pMicromaps);
-    GFXRECON_UNREFERENCED_PARAMETER(queryType);
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawClusterHUAWEI(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    groupCountX,
-    uint32_t                                    groupCountY,
-    uint32_t                                    groupCountZ)
+    args::CmdDrawClusterHUAWEI&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountX);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountY);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountZ);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset)
+    args::CmdDrawClusterIndirectHUAWEI&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDispatchParametersARM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDispatchParametersARM>* pDispatchParameters)
+    args::CmdSetDispatchParametersARM&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pDispatchParameters);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            pipeline)
+    args::CmdUpdatePipelineIndirectBufferNV&    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthClampEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthClampEnable)
+    args::CmdSetDepthClampEnableEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthClampEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPolygonModeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPolygonMode                               polygonMode)
+    args::CmdSetPolygonModeEXT&                 args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(polygonMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRasterizationSamplesEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkSampleCountFlagBits                       rasterizationSamples)
+    args::CmdSetRasterizationSamplesEXT&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(rasterizationSamples);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetSampleMaskEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkSampleCountFlagBits                       samples,
-    PointerDecoder<VkSampleMask>*               pSampleMask)
+    args::CmdSetSampleMaskEXT&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(samples);
-    GFXRECON_UNREFERENCED_PARAMETER(pSampleMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    alphaToCoverageEnable)
+    args::CmdSetAlphaToCoverageEnableEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(alphaToCoverageEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetAlphaToOneEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    alphaToOneEnable)
+    args::CmdSetAlphaToOneEnableEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(alphaToOneEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLogicOpEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    logicOpEnable)
+    args::CmdSetLogicOpEnableEXT&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(logicOpEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetColorBlendEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstAttachment,
-    uint32_t                                    attachmentCount,
-    PointerDecoder<VkBool32>*                   pColorBlendEnables)
+    args::CmdSetColorBlendEnableEXT&            args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstAttachment);
-    GFXRECON_UNREFERENCED_PARAMETER(attachmentCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pColorBlendEnables);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetColorBlendEquationEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstAttachment,
-    uint32_t                                    attachmentCount,
-    StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations)
+    args::CmdSetColorBlendEquationEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstAttachment);
-    GFXRECON_UNREFERENCED_PARAMETER(attachmentCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pColorBlendEquations);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetColorWriteMaskEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstAttachment,
-    uint32_t                                    attachmentCount,
-    PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks)
+    args::CmdSetColorWriteMaskEXT&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstAttachment);
-    GFXRECON_UNREFERENCED_PARAMETER(attachmentCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pColorWriteMasks);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkTessellationDomainOrigin                  domainOrigin)
+    args::CmdSetTessellationDomainOriginEXT&    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(domainOrigin);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRasterizationStreamEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    rasterizationStream)
+    args::CmdSetRasterizationStreamEXT&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(rasterizationStream);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetConservativeRasterizationModeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkConservativeRasterizationModeEXT          conservativeRasterizationMode)
+    args::CmdSetConservativeRasterizationModeEXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(conservativeRasterizationMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    float                                       extraPrimitiveOverestimationSize)
+    args::CmdSetExtraPrimitiveOverestimationSizeEXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(extraPrimitiveOverestimationSize);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthClipEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    depthClipEnable)
+    args::CmdSetDepthClipEnableEXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthClipEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetSampleLocationsEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    sampleLocationsEnable)
+    args::CmdSetSampleLocationsEnableEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(sampleLocationsEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetColorBlendAdvancedEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstAttachment,
-    uint32_t                                    attachmentCount,
-    StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced)
+    args::CmdSetColorBlendAdvancedEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstAttachment);
-    GFXRECON_UNREFERENCED_PARAMETER(attachmentCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pColorBlendAdvanced);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetProvokingVertexModeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkProvokingVertexModeEXT                    provokingVertexMode)
+    args::CmdSetProvokingVertexModeEXT&         args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(provokingVertexMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLineRasterizationModeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkLineRasterizationModeEXT                  lineRasterizationMode)
+    args::CmdSetLineRasterizationModeEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(lineRasterizationMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetLineStippleEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    stippledLineEnable)
+    args::CmdSetLineStippleEnableEXT&           args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stippledLineEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    negativeOneToOne)
+    args::CmdSetDepthClipNegativeOneToOneEXT&   args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(negativeOneToOne);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewportWScalingEnableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    viewportWScalingEnable)
+    args::CmdSetViewportWScalingEnableNV&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(viewportWScalingEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetViewportSwizzleNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstViewport,
-    uint32_t                                    viewportCount,
-    StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles)
+    args::CmdSetViewportSwizzleNV&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(firstViewport);
-    GFXRECON_UNREFERENCED_PARAMETER(viewportCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pViewportSwizzles);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageToColorEnableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    coverageToColorEnable)
+    args::CmdSetCoverageToColorEnableNV&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(coverageToColorEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageToColorLocationNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    coverageToColorLocation)
+    args::CmdSetCoverageToColorLocationNV&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(coverageToColorLocation);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageModulationModeNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCoverageModulationModeNV                  coverageModulationMode)
+    args::CmdSetCoverageModulationModeNV&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(coverageModulationMode);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageModulationTableEnableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    coverageModulationTableEnable)
+    args::CmdSetCoverageModulationTableEnableNV& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(coverageModulationTableEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageModulationTableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    coverageModulationTableCount,
-    PointerDecoder<float>*                      pCoverageModulationTable)
+    args::CmdSetCoverageModulationTableNV&      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(coverageModulationTableCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pCoverageModulationTable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetShadingRateImageEnableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    shadingRateImageEnable)
+    args::CmdSetShadingRateImageEnableNV&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(shadingRateImageEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRepresentativeFragmentTestEnableNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    representativeFragmentTestEnable)
+    args::CmdSetRepresentativeFragmentTestEnableNV& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(representativeFragmentTestEnable);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetCoverageReductionModeNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkCoverageReductionModeNV                   coverageReductionMode)
+    args::CmdSetCoverageReductionModeNV&        args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(coverageReductionMode);
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
 
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyTensorARM(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyTensorARM&                     args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            session,
-    StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo)
+    args::CmdOpticalFlowExecuteNV&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(session);
-    GFXRECON_UNREFERENCED_PARAMETER(pExecuteInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    stageCount,
-    PointerDecoder<VkShaderStageFlagBits>*      pStages,
-    HandlePointerDecoder<VkShaderEXT>*          pShaders)
+    args::CmdBindShadersEXT&                    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(stageCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pStages);
-    GFXRECON_UNREFERENCED_PARAMETER(pShaders);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetDepthClampRangeEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkDepthClampModeEXT                         depthClampMode,
-    StructPointerDecoder<Decoded_VkDepthClampRangeEXT>* pDepthClampRange)
+    args::CmdSetDepthClampRangeEXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(depthClampMode);
-    GFXRECON_UNREFERENCED_PARAMETER(pDepthClampRange);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdConvertCooperativeVectorMatrixNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    infoCount,
-    StructPointerDecoder<Decoded_VkConvertCooperativeVectorMatrixInfoNV>* pInfos)
+    args::CmdConvertCooperativeVectorMatrixNV&  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(infoCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDispatchDataGraphARM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            session,
-    StructPointerDecoder<Decoded_VkDataGraphPipelineDispatchInfoARM>* pInfo)
+    args::CmdDispatchDataGraphARM&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(session);
-    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkImageAspectFlags                          aspectMask)
+    args::CmdSetAttachmentFeedbackLoopEnableEXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(aspectMask);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBindTileMemoryQCOM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM>* pTileMemoryBindInfo)
+    args::CmdBindTileMemoryQCOM&                args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pTileMemoryBindInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDecompressMemoryEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDecompressMemoryInfoEXT>* pDecompressMemoryInfoEXT)
+    args::CmdDecompressMemoryEXT&               args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pDecompressMemoryInfoEXT);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDecompressMemoryIndirectCountEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkMemoryDecompressionMethodFlagsEXT         decompressionMethod,
-    VkDeviceAddress                             indirectCommandsAddress,
-    VkDeviceAddress                             indirectCommandsCountAddress,
-    uint32_t                                    maxDecompressionCount,
-    uint32_t                                    stride)
+    args::CmdDecompressMemoryIndirectCountEXT&  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(decompressionMethod);
-    GFXRECON_UNREFERENCED_PARAMETER(indirectCommandsAddress);
-    GFXRECON_UNREFERENCED_PARAMETER(indirectCommandsCountAddress);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDecompressionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBuildPartitionedAccelerationStructuresNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBuildPartitionedAccelerationStructureInfoNV>* pBuildInfo)
+    args::CmdBuildPartitionedAccelerationStructuresNV& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pBuildInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdPreprocessGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
-    format::HandleId                            stateCommandBuffer)
+    args::CmdPreprocessGeneratedCommandsEXT&    args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    isPreprocessed,
-    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
+    args::CmdExecuteGeneratedCommandsEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdEndRendering2EXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo)
+    args::CmdEndRendering2EXT&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pRenderingEndInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBeginCustomResolveEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT>* pBeginCustomResolveInfo)
+    args::CmdBeginCustomResolveEXT&             args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pBeginCustomResolveInfo);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters)
+    args::CmdSetComputeOccupancyPriorityNV&     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pParameters);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    primitiveRestartIndex)
+    args::CmdSetPrimitiveRestartIndexEXT&       args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(primitiveRestartIndex);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    infoCount,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
+    args::CmdBuildAccelerationStructuresKHR&    args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(infoCount);
-    GFXRECON_UNREFERENCED_PARAMETER(ppBuildRangeInfos);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    infoCount,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-    PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
-    PointerDecoder<uint32_t>*                   pIndirectStrides,
-    PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts)
+    args::CmdBuildAccelerationStructuresIndirectKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(infoCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pIndirectDeviceAddresses);
-    GFXRECON_UNREFERENCED_PARAMETER(pIndirectStrides);
-    GFXRECON_UNREFERENCED_PARAMETER(ppMaxPrimitiveCounts);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyAccelerationStructureKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
+    args::CmdCopyAccelerationStructureKHR&      args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
+    args::CmdCopyAccelerationStructureToMemoryKHR& args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
+    args::CmdCopyMemoryToAccelerationStructureKHR& args)
 {
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    accelerationStructureCount,
-    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
-    VkQueryType                                 queryType,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery)
+    args::CmdWriteAccelerationStructuresPropertiesKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(accelerationStructureCount);
-    GFXRECON_UNREFERENCED_PARAMETER(queryType);
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-    uint32_t                                    width,
-    uint32_t                                    height,
-    uint32_t                                    depth)
+    args::CmdTraceRaysKHR&                      args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pRaygenShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(pMissShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(pHitShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(pCallableShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
-    GFXRECON_UNREFERENCED_PARAMETER(depth);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysIndirectKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-    VkDeviceAddress                             indirectDeviceAddress)
+    args::CmdTraceRaysIndirectKHR&              args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pRaygenShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(pMissShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(pHitShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(pCallableShaderBindingTable);
-    GFXRECON_UNREFERENCED_PARAMETER(indirectDeviceAddress);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    pipelineStackSize)
+    args::CmdSetRayTracingPipelineStackSizeKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineStackSize);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    groupCountX,
-    uint32_t                                    groupCountY,
-    uint32_t                                    groupCountZ)
+    args::CmdDrawMeshTasksEXT&                  args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountX);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountY);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCountZ);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    uint32_t                                    drawCount,
-    uint32_t                                    stride)
+    args::CmdDrawMeshTasksIndirectEXT&          args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    format::HandleId                            countBuffer,
-    VkDeviceSize                                countBufferOffset,
-    uint32_t                                    maxDrawCount,
-    uint32_t                                    stride)
+    args::CmdDrawMeshTasksIndirectCountEXT&     args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
 GFXRECON_END_NAMESPACE(decode)

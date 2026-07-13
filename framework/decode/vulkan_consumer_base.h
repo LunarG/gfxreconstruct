@@ -33,7 +33,9 @@
 #include "decode/pointer_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_decoder_args.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "generated/generated_vulkan_decoder_args.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
 
@@ -53,44 +55,24 @@ class VulkanConsumerBase : public CommonConsumerBase
 
     virtual void StartLooping() {}
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                           format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData)
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
+                                                           args::UpdateDescriptorSetWithTemplate& args)
     {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer,
-                                                               format::HandleId   descriptorUpdateTemplate,
-                                                               format::HandleId   layout,
-                                                               uint32_t           set,
-                                                               DescriptorUpdateTemplateDecoder* pData)
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
+                                                               args::CmdPushDescriptorSetWithTemplateKHR& args)
     {}
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                              format::HandleId                 device,
-                                                              format::HandleId                 descriptorSet,
-                                                              format::HandleId                 descriptorUpdateTemplate,
-                                                              DescriptorUpdateTemplateDecoder* pData)
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
+                                                              args::UpdateDescriptorSetWithTemplateKHR& args)
     {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-        const ApiCallInfo&                                                 call_info,
-        format::HandleId                                                   commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
+                                                                args::CmdPushDescriptorSetWithTemplate2KHR& args)
     {}
 
-    virtual void Process_vkCreateRayTracingPipelinesKHR(
-        const ApiCallInfo&                                               call_info,
-        VkResult                                                         returnValue,
-        format::HandleId                                                 device,
-        format::HandleId                                                 deferredOperation,
-        format::HandleId                                                 pipelineCache,
-        uint32_t                                                         createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines)
+    virtual void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
+                                                        args::CreateRayTracingPipelinesKHR& args)
     {}
 
     virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)

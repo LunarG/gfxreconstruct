@@ -30,135 +30,64 @@ VulkanReferencedBlockConsumerBase::VulkanReferencedBlockConsumerBase(
     unreferenced_ids_(std::move(unreferenced_ids))
 {}
 
-void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(
-    const ApiCallInfo&                                          call_info,
-    VkResult                                                    returnValue,
-    format::HandleId                                            device,
-    format::HandleId                                            pipelineCache,
-    uint32_t                                                    createInfoCount,
-    StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
-    HandlePointerDecoder<VkPipeline>*                           pPipelines)
+void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(const ApiCallInfo&             call_info,
+                                                                          args::CreateGraphicsPipelines& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
-    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfos);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
+    if (check_handle_ids_unused(args.pPipelines.GetPointer(), args.createInfoCount))
     {
         set_block_index_unused(call_info.index);
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkCreateComputePipelines(
-    const ApiCallInfo&                                         call_info,
-    VkResult                                                   returnValue,
-    format::HandleId                                           device,
-    format::HandleId                                           pipelineCache,
-    uint32_t                                                   createInfoCount,
-    StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-    HandlePointerDecoder<VkPipeline>*                          pPipelines)
+void VulkanReferencedBlockConsumerBase::Process_vkCreateComputePipelines(const ApiCallInfo&            call_info,
+                                                                         args::CreateComputePipelines& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
-    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfos);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
+    if (check_handle_ids_unused(args.pPipelines.GetPointer(), args.createInfoCount))
     {
         set_block_index_unused(call_info.index);
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
-    const ApiCallInfo&                                               call_info,
-    VkResult                                                         returnValue,
-    format::HandleId                                                 device,
-    format::HandleId                                                 deferredOperation,
-    format::HandleId                                                 pipelineCache,
-    uint32_t                                                         createInfoCount,
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-    HandlePointerDecoder<VkPipeline>*                                pPipelines)
+void VulkanReferencedBlockConsumerBase::Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo& call_info,
+                                                                               args::CreateRayTracingPipelinesKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
-    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfos);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
+    if (check_handle_ids_unused(args.pPipelines.GetPointer(), args.createInfoCount))
     {
         set_block_index_unused(call_info.index);
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkDestroyPipeline(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     device,
-    format::HandleId                                     pipeline,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReferencedBlockConsumerBase::Process_vkDestroyPipeline(const ApiCallInfo&     call_info,
+                                                                  args::DestroyPipeline& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if (check_handle_id_unused(pipeline))
+    if (check_handle_id_unused(args.pipeline))
     {
         set_block_index_unused(call_info.index);
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo& call_info,
-                                                                                     VkResult           returnValue,
-                                                                                     format::HandleId   device,
-                                                                                     format::HandleId   pipeline,
-                                                                                     uint32_t           firstGroup,
-                                                                                     uint32_t           groupCount,
-                                                                                     size_t             dataSize,
-                                                                                     PointerDecoder<uint8_t>* pData)
+void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandlesKHR(
+    const ApiCallInfo& call_info, args::GetRayTracingShaderGroupHandlesKHR& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(firstGroup);
-    GFXRECON_UNREFERENCED_PARAMETER(groupCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
-    GFXRECON_UNREFERENCED_PARAMETER(pData);
-
-    if (check_handle_id_unused(pipeline))
+    if (check_handle_id_unused(args.pipeline))
     {
         set_block_index_unused(call_info.index);
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkSetDebugUtilsObjectNameEXT(
-    const ApiCallInfo&                                           call_info,
-    VkResult                                                     returnValue,
-    format::HandleId                                             device,
-    StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo)
+void VulkanReferencedBlockConsumerBase::Process_vkSetDebugUtilsObjectNameEXT(const ApiCallInfo& call_info,
+                                                                             args::SetDebugUtilsObjectNameEXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    if (check_handle_id_unused(pNameInfo->GetMetaStructPointer()->objectHandle))
+    if (check_handle_id_unused(args.pNameInfo.GetMetaStructPointer()->objectHandle))
     {
         set_block_index_unused(call_info.index);
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkSetDebugUtilsObjectTagEXT(
-    const ApiCallInfo&                                          call_info,
-    VkResult                                                    returnValue,
-    format::HandleId                                            device,
-    StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo)
+void VulkanReferencedBlockConsumerBase::Process_vkSetDebugUtilsObjectTagEXT(const ApiCallInfo&               call_info,
+                                                                            args::SetDebugUtilsObjectTagEXT& args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
-    if (check_handle_id_unused(pTagInfo->GetMetaStructPointer()->objectHandle))
+    if (check_handle_id_unused(args.pTagInfo.GetMetaStructPointer()->objectHandle))
     {
         set_block_index_unused(call_info.index);
     }

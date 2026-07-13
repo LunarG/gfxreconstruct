@@ -40,7 +40,7 @@
 #include <string>
 #include <vector>
 
-#if defined(WIN32)
+#if defined(_WIN32)
 extern "C"
 {
     __declspec(dllexport) extern const UINT D3D12SDKVersion = 618;
@@ -88,7 +88,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  -h\t\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\t\tPrint version information and exit.");
 
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\t\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\t\tdisplayed when abort() is called (Windows debug only).");
 #endif
@@ -166,7 +166,7 @@ int32_t main(int32_t argc, const char** argv)
     }
     else
     {
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
             _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);

@@ -192,6 +192,31 @@ VkBool32 VulkanDeviceUtil::EnableDynamicRenderingFeatures(const VulkanInstanceUt
     return feature_struct->dynamicRendering;
 }
 
+template <typename T>
+VkBool32 VulkanDeviceUtil::EnableTimelineSemaphoreFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                           const VulkanInstanceTable*    instance_table,
+                                                           const VkPhysicalDevice        physical_device,
+                                                           T*                            feature_struct)
+{
+    // Type must be feature struct type that contains timelineSemaphore
+    static_assert(std::is_same<T, VkPhysicalDeviceVulkan12Features>::value ||
+                      std::is_same<T, VkPhysicalDeviceTimelineSemaphoreFeatures>::value,
+                  "Unexpected type for EnableTimelineSemaphoreFeatures");
+
+    // Enable timeline semaphore feature if it supported by the device
+    if (!feature_struct->timelineSemaphore)
+    {
+        T supported_features{ feature_struct->sType, nullptr };
+        GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+        if (supported_features.timelineSemaphore)
+        {
+            feature_struct->timelineSemaphore = VK_TRUE;
+        }
+    }
+
+    return feature_struct->timelineSemaphore;
+}
+
 VulkanDevicePropertyFeatureInfo
 VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo& instance_info,
                                                        const VulkanInstanceTable*    instance_table,
@@ -206,22 +231,31 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
     // If the pNext chain includes a VkPhysicalDeviceVulkan11Features structure, then it must not include a
     // VkPhysicalDeviceSamplerYcbcrConversionFeatures structure
     bool vulkan_1_1_features_found               = false;
+    bool vulkan_1_2_features_found               = false;
     bool vulkan_1_3_features_found               = false;
     bool sampler_ycbcr_conversion_features_found = false;
     bool maintenance10_found                     = false;
     bool dynamic_rendering_found                 = false;
+    bool timeline_semaphore_found                = false;
 
     while (current_struct->pNext != nullptr)
     {
         current_struct = current_struct->pNext;
         switch (current_struct->sType)
         {
-            // Enable bufferDeviceAddressCaptureReplay if bufferDeviceAddress feature is enabled
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
             {
                 auto vulkan_1_2_features = reinterpret_cast<VkPhysicalDeviceVulkan12Features*>(current_struct);
+
+                // Enable bufferDeviceAddressCaptureReplay if bufferDeviceAddress feature is enabled
                 result.feature_bufferDeviceAddressCaptureReplay = EnableRequiredBufferDeviceAddressFeatures(
                     instance_info, instance_table, physical_device, vulkan_1_2_features);
+
+                // Enable timelineSemaphore if timelineSemaphore feature is enabled
+                result.feature_timeline_semaphore = EnableTimelineSemaphoreFeatures(
+                    instance_info, instance_table, physical_device, vulkan_1_2_features);
+
+                vulkan_1_2_features_found = true;
             }
             break;
 
@@ -409,6 +443,24 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             }
             break;
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES:
+            {
+                auto* timeline_semaphore_features =
+                    reinterpret_cast<VkPhysicalDeviceTimelineSemaphoreFeatures*>(current_struct);
+                result.feature_timeline_semaphore = timeline_semaphore_features->timelineSemaphore;
+                if (result.feature_timeline_semaphore == VK_FALSE &&
+                    graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                 create_info->enabledExtensionCount,
+                                                                 VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
+                {
+                    result.feature_timeline_semaphore = EnableTimelineSemaphoreFeatures(
+                        instance_info, instance_table, physical_device, timeline_semaphore_features);
+                }
+
+                timeline_semaphore_found = true;
+            }
+            break;
+
             default:
                 break;
         }
@@ -465,6 +517,24 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
         if (dynamic_rendering_features.dynamicRendering == VK_TRUE)
         {
             current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&dynamic_rendering_features);
+            current_struct        = current_struct->pNext;
+        }
+    }
+
+    if (!vulkan_1_2_features_found && !timeline_semaphore_found &&
+        graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                     create_info->enabledExtensionCount,
+                                                     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
+    {
+        static VkPhysicalDeviceTimelineSemaphoreFeatures timeline_semaphore_features = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES
+        };
+        timeline_semaphore_features.pNext = nullptr;
+        result.feature_timeline_semaphore = EnableTimelineSemaphoreFeatures(
+            instance_info, instance_table, physical_device, &timeline_semaphore_features);
+        if (timeline_semaphore_features.timelineSemaphore == VK_TRUE)
+        {
+            current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&timeline_semaphore_features);
             current_struct        = current_struct->pNext;
         }
     }

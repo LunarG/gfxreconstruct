@@ -103,6 +103,8 @@ bool VulkanInjectedSemaphore::HasReachedTargetValue() const
         return false;
     }
 
+    GFXRECON_ASSERT(device_table_->GetSemaphoreCounterValue != nullptr);
+
     uint64_t read_value = 0;
     VkResult result = device_table_->GetSemaphoreCounterValue(device_info_->handle, semaphore_.semaphore, &read_value);
     if (result != VK_SUCCESS)

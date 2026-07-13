@@ -145,6 +145,11 @@ class VulkanResourcesUtil
     VkResult ReadFromBufferResource(
         VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
 
+    VkResult ReadFromTensorResource(VkTensorARM                   tensor,
+                                    const VkTensorDescriptionARM* desc,
+                                    uint32_t                      queue_family_index,
+                                    std::vector<uint8_t>&         data);
+
     struct BufferResource
     {
         format::HandleId handle_id          = format::kNullHandleId;
@@ -249,19 +254,29 @@ class VulkanResourcesUtil
                         const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
 
   private:
+    struct StagingMemoryContext
+    {
+        VkDeviceMemory        memory                = VK_NULL_HANDLE;
+        VkDeviceSize          size                  = 0;
+        VkMemoryPropertyFlags memory_property_flags = VkMemoryPropertyFlags(0);
+        void*                 mapped_ptr            = nullptr;
+    };
+
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
     void ResetCommandBuffer(VkCommandBuffer command_buffer);
 
     VkResult BeginCommandBuffer(VkCommandBuffer command_buffer);
 
-    VkResult MapStagingBuffer();
-
-    void UnmapStagingBuffer();
-
-    void InvalidateStagingBuffer();
+    VkResult AllocateStagingMemory(const VkMemoryRequirements& requirements, StagingMemoryContext& ctx);
+    VkResult MapStagingMemory(StagingMemoryContext& ctx);
+    void     UnmapStagingMemory(StagingMemoryContext& ctx);
+    void     InvalidateStagingMemory(const StagingMemoryContext& ctx);
 
     void DestroyStagingBuffer();
+
+    VkResult CreateStagingTensor(const VkTensorDescriptionARM* desc);
+    void     DestroyStagingTensor();
 
     void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
                                           VkImage            image,
@@ -346,13 +361,14 @@ class VulkanResourcesUtil
 
     struct StagingBufferContext
     {
-        StagingBufferContext() = default;
+        VkBuffer             buffer = VK_NULL_HANDLE;
+        StagingMemoryContext mem;
+    };
 
-        VkBuffer              buffer                = VK_NULL_HANDLE;
-        VkDeviceMemory        memory                = VK_NULL_HANDLE;
-        VkDeviceSize          size                  = 0;
-        VkMemoryPropertyFlags memory_property_flags = VkMemoryPropertyFlags(0);
-        void*                 mapped_ptr            = nullptr;
+    struct StagingTensorContext
+    {
+        VkTensorARM          tensor = VK_NULL_HANDLE;
+        StagingMemoryContext mem;
     };
 
     VkDevice                   device_;
@@ -375,6 +391,7 @@ class VulkanResourcesUtil
     // map queue-family index -> command-pool/buffer
     std::unordered_map<uint32_t, command_assets_t> command_asset_map_;
     StagingBufferContext                           staging_buffer_;
+    StagingTensorContext                           staging_tensor_;
 
     PFN_vkSetDebugUtilsObjectNameEXT set_debug_utils_object_name_fn_ = nullptr;
 };

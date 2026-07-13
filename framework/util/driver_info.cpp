@@ -25,7 +25,7 @@
 #include "util/date_time.h"
 #include "format/format.h"
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #if GFXRECON_AGS_SUPPORT
 #include "amd_ags.h"
 #endif // GFXRECON_AGS_SUPPORT
@@ -99,7 +99,7 @@ bool AMD_GetAGSInfo(std::string& driver_info)
 bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_info)
 {
     bool umd_read = false;
-#if defined(WIN32) && !defined(_M_ARM64)
+#if defined(_WIN32) && !defined(_M_ARM64)
 
     if (active_driver_path.empty() == false)
     {
@@ -122,7 +122,7 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
     return umd_read;
 }
 
-#if defined(WIN32)
+#if defined(_WIN32)
 int GetRegSubkeys(HKEY& dx_key_handle, DWORD& num_of_adapters, DWORD& sub_key_max_length)
 {
     // Fetch registry data

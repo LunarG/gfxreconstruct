@@ -98,6 +98,8 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 // Handles are unwrapped in the VkWriteDescriptorSetAccelerationStructureKHR structure in the pNext
                 // chain
+            case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                // Handles are unwrapped in the VkWriteDescriptorSetTensorARM structure in the pNext chain
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");

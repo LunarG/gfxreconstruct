@@ -43,20 +43,14 @@ class VulkanExtractConsumer : public decode::VulkanConsumer
   public:
     VulkanExtractConsumer(const std::string& extract_dir) : extract_dir_(extract_dir) {}
 
-    virtual void
-    Process_vkCreateShaderModule(const decode::ApiCallInfo&                                              call_info,
-                                 VkResult                                                                returnValue,
-                                 format::HandleId                                                        shaderModule,
-                                 decode::StructPointerDecoder<decode::Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
-                                 decode::StructPointerDecoder<decode::Decoded_VkAllocationCallbacks>*,
-                                 decode::HandlePointerDecoder<VkShaderModule>* pShaderModule) override
+    virtual void Process_vkCreateShaderModule(const decode::ApiCallInfo&        call_info,
+                                              decode::args::CreateShaderModule& args) override
     {
-        if ((returnValue >= 0) && (pCreateInfo != nullptr) && !pCreateInfo->IsNull() && (pShaderModule != nullptr) &&
-            !pShaderModule->IsNull())
+        if ((args.result >= 0) && !args.pCreateInfo.IsNull() && !args.pShaderModule.IsNull())
         {
-            const uint32_t* orig_code = pCreateInfo->GetPointer()->pCode;
-            size_t          orig_size = pCreateInfo->GetPointer()->codeSize;
-            uint64_t        handle_id = *pShaderModule->GetPointer();
+            const uint32_t* orig_code = args.pCreateInfo.GetPointer()->pCode;
+            size_t          orig_size = args.pCreateInfo.GetPointer()->codeSize;
+            uint64_t        handle_id = *args.pShaderModule.GetPointer();
             std::string     file_name = "sh" + std::to_string(handle_id);
             std::string     file_path = util::filepath::Join(extract_dir_, file_name);
 
@@ -77,23 +71,16 @@ class VulkanExtractConsumer : public decode::VulkanConsumer
         }
     }
 
-    virtual void
-    Process_vkCreateShadersEXT(const decode::ApiCallInfo&                                           call_info,
-                               VkResult                                                             returnValue,
-                               format::HandleId                                                     device,
-                               uint32_t                                                             createInfoCount,
-                               decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
-                               decode::StructPointerDecoder<decode::Decoded_VkAllocationCallbacks>* pAllocator,
-                               decode::HandlePointerDecoder<VkShaderEXT>*                           pShaders) override
+    virtual void Process_vkCreateShadersEXT(const decode::ApiCallInfo&      call_info,
+                                            decode::args::CreateShadersEXT& args) override
     {
-        if ((returnValue >= 0) && (pCreateInfos != nullptr) && !pCreateInfos->IsNull() && (pShaders != nullptr) &&
-            !pShaders->IsNull())
+        if ((args.result >= 0) && !args.pCreateInfos.IsNull() && !args.pShaders.IsNull())
         {
-            for (size_t i = 0; i < createInfoCount; i++)
+            for (size_t i = 0; i < args.createInfoCount; i++)
             {
-                const void* orig_code = pCreateInfos->GetPointer()[i].pCode;
-                size_t      orig_size = pCreateInfos->GetPointer()[i].codeSize;
-                uint64_t    handle_id = pShaders->GetPointer()[i];
+                const void* orig_code = args.pCreateInfos.GetPointer()[i].pCode;
+                size_t      orig_size = args.pCreateInfos.GetPointer()[i].codeSize;
+                uint64_t    handle_id = args.pShaders.GetPointer()[i];
                 std::string file_name = "sh" + std::to_string(handle_id);
                 std::string file_path = util::filepath::Join(extract_dir_, file_name);
 
@@ -115,21 +102,14 @@ class VulkanExtractConsumer : public decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkCreateGraphicsPipelines(
-        const decode::ApiCallInfo&                                                  call_info,
-        VkResult                                                                    returnValue,
-        format::HandleId                                                            device,
-        format::HandleId                                                            pipelineCache,
-        uint32_t                                                                    createInfoCount,
-        decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
-        decode::StructPointerDecoder<decode::Decoded_VkAllocationCallbacks>*        pAllocator,
-        decode::HandlePointerDecoder<VkPipeline>*                                   pPipelines) override
+    virtual void Process_vkCreateGraphicsPipelines(const decode::ApiCallInfo&             call_info,
+                                                   decode::args::CreateGraphicsPipelines& args) override
     {
-        if ((returnValue >= 0) && (pCreateInfos != nullptr) && !pCreateInfos->IsNull())
+        if ((args.result >= 0) && !args.pCreateInfos.IsNull())
         {
-            for (size_t create_info_index = 0; create_info_index < createInfoCount; create_info_index++)
+            for (size_t create_info_index = 0; create_info_index < args.createInfoCount; create_info_index++)
             {
-                auto& pipeline_create_info = pCreateInfos->GetPointer()[create_info_index];
+                auto& pipeline_create_info = args.pCreateInfos.GetPointer()[create_info_index];
                 for (size_t stage_index = 0; stage_index < pipeline_create_info.stageCount; stage_index++)
                 {
                     auto& stage_create_info = pipeline_create_info.pStages[stage_index];
@@ -147,7 +127,7 @@ class VulkanExtractConsumer : public decode::VulkanConsumer
                             auto*       create_info = reinterpret_cast<const VkShaderModuleCreateInfo*>(base);
                             const void* orig_code   = create_info->pCode;
                             size_t      orig_size   = create_info->codeSize;
-                            uint64_t    handle_id   = pPipelines->GetPointer()[create_info_index];
+                            uint64_t    handle_id   = args.pPipelines.GetPointer()[create_info_index];
                             std::string file_name =
                                 "sh" + std::to_string(handle_id) + "_" + std::to_string(stage_create_info.stage);
                             std::string file_path = util::filepath::Join(extract_dir_, file_name);

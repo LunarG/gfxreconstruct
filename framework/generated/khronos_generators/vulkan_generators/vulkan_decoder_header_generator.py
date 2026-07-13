@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions
 from khronos_decoder_header_generator import KhronosDecoderHeaderGenerator
 
 class VulkanDecoderHeaderGeneratorOptions(VulkanBaseGeneratorOptions):

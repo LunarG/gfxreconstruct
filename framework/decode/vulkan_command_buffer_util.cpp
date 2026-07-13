@@ -19,7 +19,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-#include "decode/vulkan_command_splitter.h"
+#include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_submit_info_helper.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/callbacks.h"
@@ -28,10 +28,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanCommandBufferSplitInfo::VulkanCommandBufferSplitInfo(const VulkanDeviceInfo*            device_info,
-                                                           const graphics::VulkanDeviceTable* device_table,
-                                                           CommonObjectInfoTable*             object_table,
-                                                           format::HandleId                   command_buffer_id) :
+VulkanCommandBufferAssociatedInfo::VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*            device_info,
+                                                                     const graphics::VulkanDeviceTable* device_table,
+                                                                     CommonObjectInfoTable*             object_table,
+                                                                     format::HandleId command_buffer_id) :
     device_info_(device_info),
     device_table_(device_table), object_table_(object_table), split_semaphore_(device_info, device_table)
 {
@@ -45,7 +45,7 @@ VulkanCommandBufferSplitInfo::VulkanCommandBufferSplitInfo(const VulkanDeviceInf
     original_handle_ = command_buffer_info->handle;
 }
 
-VkCommandBuffer VulkanCommandBufferSplitInfo::GetNextHandle(const VulkanCommandBufferInfo* command_buffer_info)
+void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBufferInfo* command_buffer_info)
 {
     VkCommandBuffer next_handle = VK_NULL_HANDLE;
 
@@ -75,15 +75,12 @@ VkCommandBuffer VulkanCommandBufferSplitInfo::GetNextHandle(const VulkanCommandB
     next_handle = associated_handles_[next_associated_index_];
     ++next_associated_index_;
 
-    // Store current handle in split vector.
-    split_handles_.push_back(command_buffer_info->handle);
-
-    return next_handle;
+    command_buffer_info->handle = next_handle;
 }
 
-VulkanCommandSplitter::VulkanCommandSplitter(const VulkanDeviceInfo*            device_info,
-                                             const graphics::VulkanDeviceTable* device_table,
-                                             CommonObjectInfoTable*             object_table) :
+VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*            device_info,
+                                                 const graphics::VulkanDeviceTable* device_table,
+                                                 CommonObjectInfoTable*             object_table) :
     device_info_(device_info),
     device_table_(device_table), object_table_(object_table)
 {
@@ -92,7 +89,8 @@ VulkanCommandSplitter::VulkanCommandSplitter(const VulkanDeviceInfo*            
     GFXRECON_ASSERT(object_table != nullptr);
 }
 
-VulkanCommandBufferSplitInfo& VulkanCommandSplitter::GetOrCreateSplitInfo(format::HandleId command_buffer_id)
+VulkanCommandBufferAssociatedInfo&
+VulkanCommandBufferUtil::GetOrCreateAssociatedInfo(format::HandleId command_buffer_id)
 {
     if (auto it = split_infos_.find(command_buffer_id); it != split_infos_.end())
     {
@@ -101,12 +99,12 @@ VulkanCommandBufferSplitInfo& VulkanCommandSplitter::GetOrCreateSplitInfo(format
 
     auto [new_it, success] = split_infos_.insert(
         { command_buffer_id,
-          VulkanCommandBufferSplitInfo(device_info_, device_table_, object_table_, command_buffer_id) });
+          VulkanCommandBufferAssociatedInfo(device_info_, device_table_, object_table_, command_buffer_id) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
 
-VulkanCommandBufferSplitInfo* VulkanCommandSplitter::GetSplitInfo(format::HandleId command_buffer_id)
+VulkanCommandBufferAssociatedInfo* VulkanCommandBufferUtil::GetAssociatedInfo(format::HandleId command_buffer_id)
 {
     if (auto it = split_infos_.find(command_buffer_id); it != split_infos_.end())
     {
@@ -115,12 +113,10 @@ VulkanCommandBufferSplitInfo* VulkanCommandSplitter::GetSplitInfo(format::Handle
     return nullptr;
 }
 
-VkCommandBuffer VulkanCommandBufferSplitInfo::ResetSplitHandles()
+VkCommandBuffer VulkanCommandBufferAssociatedInfo::ResetAssociatedHandles()
 {
-    GFXRECON_ASSERT(!split_handles_.empty());
-
-    // Reset all the handles of the split.
-    for (VkCommandBuffer handle : split_handles_)
+    // Reset all the associated command buffers.
+    for (VkCommandBuffer handle : associated_handles_)
     {
         VkResult result = device_table_->ResetCommandBuffer(handle, 0);
         GFXRECON_ASSERT(result == VK_SUCCESS);
@@ -133,7 +129,7 @@ VkCommandBuffer VulkanCommandBufferSplitInfo::ResetSplitHandles()
     return original_handle_;
 }
 
-void VulkanCommandBufferSplitInfo::FreeCommandBuffers(VkCommandPool pool)
+void VulkanCommandBufferAssociatedInfo::FreeCommandBuffers(VkCommandPool pool)
 {
     GFXRECON_ASSERT(!associated_handles_.empty());
 
@@ -141,41 +137,52 @@ void VulkanCommandBufferSplitInfo::FreeCommandBuffers(VkCommandPool pool)
         device_info_->handle, pool, static_cast<uint32_t>(associated_handles_.size()), associated_handles_.data());
 }
 
-void VulkanCommandSplitter::SplitCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
+void VulkanCommandBufferUtil::ReplaceWithAssociatedCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
     // Make sure current handle is mapped to the original command buffer ID.
     original_command_buffer_id_[command_buffer_info->handle] = command_buffer_info->capture_id;
 
+    // Update the command buffer info to use the new handle for subsequent calls.
+    GetOrCreateAssociatedInfo(command_buffer_info->capture_id).ReplaceWithNewHandle(command_buffer_info);
+
+    // Map the new handle to the original command buffer ID for future reference.
+    original_command_buffer_id_[command_buffer_info->handle] = command_buffer_info->capture_id;
+
+    // Reset the command buffer just in case it was recycled.
+    VkResult result = device_table_->ResetCommandBuffer(command_buffer_info->handle, 0);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+}
+
+void VulkanCommandBufferUtil::SplitCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
+{
     device_table_->EndCommandBuffer(command_buffer_info->handle);
 
-    // Update the command buffer info to use the new handle for subsequent calls.
-    command_buffer_info->handle =
-        GetOrCreateSplitInfo(command_buffer_info->capture_id).GetNextHandle(command_buffer_info);
-    original_command_buffer_id_[command_buffer_info->handle] = command_buffer_info->capture_id;
+    GetOrCreateAssociatedInfo(command_buffer_info->capture_id).PushSplitHandle(command_buffer_info->handle);
+    ReplaceWithAssociatedCommandBuffer(command_buffer_info);
 
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     device_table_->BeginCommandBuffer(command_buffer_info->handle, &begin_info);
 }
 
 graphics::VulkanSemaphore
-VulkanCommandSplitter::SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*        queue_info,
-                                                           const std::span<VkSubmitInfo> current_submits_span,
-                                                           const std::span<graphics::VulkanSemaphore> wait_semaphores)
+VulkanCommandBufferUtil::SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*        queue_info,
+                                                             const std::span<VkSubmitInfo> current_submits_span,
+                                                             const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
     auto submits_command_buffers = GetCommandBuffersFromSubmitInfos(current_submits_span);
     return SubmitPreviouslySplitCommandBuffers(queue_info, submits_command_buffers, wait_semaphores);
 }
 
 graphics::VulkanSemaphore
-VulkanCommandSplitter::SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*         queue_info,
-                                                           const std::span<VkSubmitInfo2> current_submits_span,
-                                                           const std::span<graphics::VulkanSemaphore> wait_semaphores)
+VulkanCommandBufferUtil::SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*         queue_info,
+                                                             const std::span<VkSubmitInfo2> current_submits_span,
+                                                             const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
     auto submits_command_buffers = GetCommandBuffersFromSubmitInfos(current_submits_span);
     return SubmitPreviouslySplitCommandBuffers(queue_info, submits_command_buffers, wait_semaphores);
 }
 
-graphics::VulkanSemaphore VulkanCommandSplitter::SubmitPreviouslySplitCommandBuffers(
+graphics::VulkanSemaphore VulkanCommandBufferUtil::SubmitPreviouslySplitCommandBuffers(
     const VulkanQueueInfo*                        queue_info,
     const std::span<std::vector<VkCommandBuffer>> current_submits_cmdbufs,
     const std::span<graphics::VulkanSemaphore>    wait_semaphores)
@@ -199,26 +206,30 @@ graphics::VulkanSemaphore VulkanCommandSplitter::SubmitPreviouslySplitCommandBuf
             VkCommandBuffer command_buffer = command_buffers[cmdbuf_index];
             if (original_command_buffer_id_.contains(command_buffer))
             {
-                // The command buffer in this submit was split,
-                // so we need to submit the previous splits before submitting this one.
+                // The command buffer in this submit has associated command buffers.
                 auto command_buffer_id = original_command_buffer_id_[command_buffer];
 
-                // Each command buffer handle will go in its own submit.
-                const VulkanCommandBufferSplitInfo* split_info    = GetSplitInfo(command_buffer_id);
-                auto&                               split_handles = split_info->GetSplitHandles();
-                GFXRECON_ASSERT(!split_handles.empty());
+                const VulkanCommandBufferAssociatedInfo* split_info = GetAssociatedInfo(command_buffer_id);
 
-                // Make enough space for the new submits.
-                size_t submit_count = std::max(prev_submits.size(), split_handles.size());
-                prev_submits.resize(submit_count);
-                prev_submits_command_buffers.resize(submit_count);
+                // Each command buffer handle created for a split will go in its own submit.
+                auto& split_handles = split_info->GetSplitHandles();
 
-                // Store each handle in the corresponding submit.
-                for (size_t split_index = 0; split_index < split_handles.size(); ++split_index)
+                // There might cases where associated command buffers have been created, but not for a split.
+                if (!split_handles.empty())
                 {
-                    auto& prev_command_buffers = prev_submits_command_buffers[split_index];
-                    // Prev submits command buffers correspond to the previous handles in order.
-                    prev_command_buffers.push_back(split_handles[split_index]);
+                    // Make enough space for the new submits.
+                    size_t submit_count = std::max(prev_submits.size(), split_handles.size());
+                    prev_submits.resize(submit_count);
+                    prev_submits_command_buffers.resize(submit_count);
+
+                    // We need to submit the previous splits before submitting this one.
+                    // Store each handle in the corresponding submit.
+                    for (size_t split_index = 0; split_index < split_handles.size(); ++split_index)
+                    {
+                        auto& prev_command_buffers = prev_submits_command_buffers[split_index];
+                        // Prev submits command buffers correspond to the previous handles in order.
+                        prev_command_buffers.push_back(split_handles[split_index]);
+                    }
                 }
             }
         }
@@ -231,8 +242,8 @@ graphics::VulkanSemaphore VulkanCommandSplitter::SubmitPreviouslySplitCommandBuf
 
         if (!prev_command_buffers.empty())
         {
-            format::HandleId              command_buffer_id = original_command_buffer_id_[prev_command_buffers[0]];
-            VulkanCommandBufferSplitInfo* split_info        = GetSplitInfo(command_buffer_id);
+            format::HandleId                   command_buffer_id = original_command_buffer_id_[prev_command_buffers[0]];
+            VulkanCommandBufferAssociatedInfo* split_info        = GetAssociatedInfo(command_buffer_id);
 
             VkSubmitInfo           submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
             VulkanSubmitInfoHelper submit_helper(submit_info);
@@ -267,7 +278,7 @@ graphics::VulkanSemaphore VulkanCommandSplitter::SubmitPreviouslySplitCommandBuf
 }
 
 std::vector<std::vector<VkCommandBuffer>>
-VulkanCommandSplitter::GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo> submits_span)
+VulkanCommandBufferUtil::GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo> submits_span)
 {
     std::vector<std::vector<VkCommandBuffer>> submits_command_buffers(submits_span.size());
 
@@ -284,7 +295,7 @@ VulkanCommandSplitter::GetCommandBuffersFromSubmitInfos(const std::span<VkSubmit
 }
 
 std::vector<std::vector<VkCommandBuffer>>
-VulkanCommandSplitter::GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span)
+VulkanCommandBufferUtil::GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span)
 {
     std::vector<std::vector<VkCommandBuffer>> submits_command_buffers(submits_span.size());
 
@@ -303,8 +314,8 @@ VulkanCommandSplitter::GetCommandBuffersFromSubmitInfos(const std::span<VkSubmit
     return submits_command_buffers;
 }
 
-void VulkanCommandSplitter::FreeCommandBuffers(VkCommandPool                          command_pool,
-                                               const std::span<const VkCommandBuffer> command_buffers)
+void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                          command_pool,
+                                                 const std::span<const VkCommandBuffer> command_buffers)
 {
     // Check whether any of the command buffers being freed are split command buffers.
     for (VkCommandBuffer command_buffer : command_buffers)
@@ -313,7 +324,7 @@ void VulkanCommandSplitter::FreeCommandBuffers(VkCommandPool                    
         {
             // This command buffer is a split command buffer, so we need to free all the splits together.
             format::HandleId command_buffer_id = original_command_buffer_id_[command_buffer];
-            auto*            split_info        = GetSplitInfo(command_buffer_id);
+            auto*            split_info        = GetAssociatedInfo(command_buffer_id);
             split_info->FreeCommandBuffers(command_pool);
 
             // Remove the associated handles from the tracking maps.
@@ -324,14 +335,14 @@ void VulkanCommandSplitter::FreeCommandBuffers(VkCommandPool                    
 
             // Update the command buffer info to use the original handle for subsequent calls.
             VulkanCommandBufferInfo* command_buffer_info = object_table_->GetVkCommandBufferInfo(command_buffer_id);
-            command_buffer_info->handle                  = split_info->ResetSplitHandles();
+            command_buffer_info->handle                  = split_info->ResetAssociatedHandles();
 
             split_infos_.erase(command_buffer_id);
         }
     }
 }
 
-void VulkanCommandSplitter::ResetCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
+void VulkanCommandBufferUtil::ResetCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
     // This command buffer is expected to be already reset at this point.
     VkCommandBuffer command_buffer = command_buffer_info->handle;
@@ -340,15 +351,15 @@ void VulkanCommandSplitter::ResetCommandBuffer(VulkanCommandBufferInfo* command_
     // If so, we need to reset all the split command buffers together and restore the command buffer info handle.
     if (original_command_buffer_id_.contains(command_buffer))
     {
-        format::HandleId              command_buffer_id = original_command_buffer_id_[command_buffer];
-        VulkanCommandBufferSplitInfo* split_info        = GetSplitInfo(command_buffer_id);
+        format::HandleId                   command_buffer_id = original_command_buffer_id_[command_buffer];
+        VulkanCommandBufferAssociatedInfo* split_info        = GetAssociatedInfo(command_buffer_id);
 
         // Update the command buffer info to use the original handle for subsequent calls.
-        command_buffer_info->handle = split_info->ResetSplitHandles();
+        command_buffer_info->handle = split_info->ResetAssociatedHandles();
     }
 }
 
-void VulkanCommandSplitter::BeginCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
+void VulkanCommandBufferUtil::BeginCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
     VulkanCommandPoolInfo* command_pool_info = object_table_->GetVkCommandPoolInfo(command_buffer_info->pool_id);
     GFXRECON_ASSERT(command_pool_info != nullptr);

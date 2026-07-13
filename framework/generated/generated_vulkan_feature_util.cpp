@@ -4964,6 +4964,71 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
+            {
+                const VkPhysicalDeviceTensorFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceTensorFeaturesARM*>(next);
+                VkPhysicalDeviceTensorFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->tensorNonPacked == VK_TRUE) && (query.tensorNonPacked == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature tensorNonPacked %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceTensorFeaturesARM*>(currentNext)->tensorNonPacked =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderTensorAccess == VK_TRUE) && (query.shaderTensorAccess == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderTensorAccess %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceTensorFeaturesARM*>(currentNext)->shaderTensorAccess =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderStorageTensorArrayDynamicIndexing == VK_TRUE) && (query.shaderStorageTensorArrayDynamicIndexing == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderStorageTensorArrayDynamicIndexing %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceTensorFeaturesARM*>(currentNext)->shaderStorageTensorArrayDynamicIndexing =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderStorageTensorArrayNonUniformIndexing == VK_TRUE) && (query.shaderStorageTensorArrayNonUniformIndexing == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderStorageTensorArrayNonUniformIndexing %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceTensorFeaturesARM*>(currentNext)->shaderStorageTensorArrayNonUniformIndexing =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->descriptorBindingStorageTensorUpdateAfterBind == VK_TRUE) && (query.descriptorBindingStorageTensorUpdateAfterBind == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorBindingStorageTensorUpdateAfterBind %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceTensorFeaturesARM*>(currentNext)->descriptorBindingStorageTensorUpdateAfterBind =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->tensors == VK_TRUE) && (query.tensors == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature tensors %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceTensorFeaturesARM*>(currentNext)->tensors =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
+            {
+                const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM*>(next);
+                VkPhysicalDeviceDescriptorBufferTensorFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->descriptorBufferTensorDescriptors == VK_TRUE) && (query.descriptorBufferTensorDescriptors == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorBufferTensorDescriptors %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorBufferTensorFeaturesARM*>(currentNext)->descriptorBufferTensorDescriptors =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
             {
                 const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(next);
@@ -5838,6 +5903,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature dataGraphModel %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(currentNext)->dataGraphModel =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM:
+            {
+                const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(next);
+                VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->dataGraphOpticalFlow == VK_TRUE) && (query.dataGraphOpticalFlow == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraphOpticalFlow %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(currentNext)->dataGraphOpticalFlow =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

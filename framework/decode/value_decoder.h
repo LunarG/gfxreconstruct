@@ -29,7 +29,7 @@
 #include "format/format.h"
 #include "util/defines.h"
 
-#ifdef WIN32
+#if defined(_WIN32)
 #include <d3dcommon.h>
 #endif
 
@@ -61,7 +61,7 @@ class ValueDecoder
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, uint32_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt32BitFieldValue(const uint8_t* buffer, size_t buffer_size, const uint32_t& value)       { return 0; }
 
-#if defined(WIN32)
+#if defined(_WIN32)
     // Overload for WIN32 LONG type.  Pointers from the LONG typedef of unsigned long are not compatible with int32_t pointers.
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
     // Overload for WIN32 DWORD type.  Pointers from the DWORD and ULONG typedef of unsigned long are not compatible with uint32_t pointers.
@@ -79,7 +79,7 @@ class ValueDecoder
 #if (defined(VK_USE_PLATFORM_XLIB_KHR) || defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)) && !defined(GFXRECON_ARCH64)
     // Overload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                 { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #if !defined(GFXRECON_ARCH64)
     // Overload for 32-bit WIN32 SIZE_T type.  Pointers from the unsigned long typedef of are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, SIZE_T* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }

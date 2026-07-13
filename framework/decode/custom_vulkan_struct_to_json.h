@@ -98,6 +98,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, VkDescriptorType discriminant, c
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorGetInfoEXT* data);
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineConstantARM* data);
+
 template <typename T>
 void FieldToJson(nlohmann::ordered_json& jdata, const std::vector<T>& data)
 {

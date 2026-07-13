@@ -347,6 +347,16 @@ struct Decoded_VkDescriptorGetInfoEXT
     Decoded_VkDescriptorDataEXT* data{ nullptr };
 };
 
+struct Decoded_VkDataGraphPipelineConstantARM
+{
+    using struct_type = VkDataGraphPipelineConstantARM;
+
+    VkDataGraphPipelineConstantARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    void*      pConstantData{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

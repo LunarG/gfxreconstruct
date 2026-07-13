@@ -34,7 +34,7 @@
 #include "format/format.h"
 #include <mutex>
 
-#ifndef WIN32
+#if !defined(_WIN32)
 #include "format/platform_types.h"
 #endif
 

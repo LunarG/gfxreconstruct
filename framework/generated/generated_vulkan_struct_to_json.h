@@ -1117,6 +1117,30 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSubpas
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectDriverLoadingInfoLUNARG* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectDriverLoadingListLUNARG* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorDescriptionARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorCreateInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorViewCreateInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorMemoryRequirementsInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindTensorMemoryInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorSetTensorARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorFormatPropertiesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTensorPropertiesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorMemoryBarrierARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorDependencyInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTensorFeaturesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceTensorMemoryRequirementsARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorCopyARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyTensorInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryDedicatedAllocateInfoTensorARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalTensorInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalTensorPropertiesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryTensorCreateInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorGetTensorInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorCaptureDescriptorDataInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTensorViewCaptureDescriptorDataInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFrameBoundaryTensorsARM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT* data);
@@ -1169,7 +1193,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainLatency
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOutOfBandQueueTypeInfoNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySurfaceCapabilitiesNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDataGraphFeaturesARM* data);
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineConstantARM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineResourceInfoARM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineCompilerControlCreateInfoARM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineCreateInfoARM* data);
@@ -1296,6 +1319,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCustomResolveCre
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCacheHeaderVersionDataGraphQCOM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineBuiltinModelCreateInfoQCOM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphOpticalFlowImageFormatInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineSingleNodeConnectionARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderLongVectorPropertiesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* data);
@@ -1341,6 +1373,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksInd
 /// Works out the type of the struct at the end of a pNext pointer and dispatches
 /// recursively to the FieldToJson for that.
 void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBaseOutStructure* data);
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

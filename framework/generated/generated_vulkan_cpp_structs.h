@@ -2192,6 +2192,54 @@ std::string GenerateStruct_VkDirectDriverLoadingInfoLUNARG(std::ostream &out, co
 
 std::string GenerateStruct_VkDirectDriverLoadingListLUNARG(std::ostream &out, const VkDirectDriverLoadingListLUNARG* structInfo, Decoded_VkDirectDriverLoadingListLUNARG* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkBindTensorMemoryInfoARM(std::ostream &out, const VkBindTensorMemoryInfoARM* structInfo, Decoded_VkBindTensorMemoryInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkCopyTensorInfoARM(std::ostream &out, const VkCopyTensorInfoARM* structInfo, Decoded_VkCopyTensorInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorGetTensorInfoARM(std::ostream &out, const VkDescriptorGetTensorInfoARM* structInfo, Decoded_VkDescriptorGetTensorInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDeviceTensorMemoryRequirementsARM(std::ostream &out, const VkDeviceTensorMemoryRequirementsARM* structInfo, Decoded_VkDeviceTensorMemoryRequirementsARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkExternalMemoryTensorCreateInfoARM(std::ostream &out, const VkExternalMemoryTensorCreateInfoARM* structInfo, Decoded_VkExternalMemoryTensorCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkExternalTensorPropertiesARM(std::ostream &out, const VkExternalTensorPropertiesARM* structInfo, Decoded_VkExternalTensorPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkFrameBoundaryTensorsARM(std::ostream &out, const VkFrameBoundaryTensorsARM* structInfo, Decoded_VkFrameBoundaryTensorsARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkMemoryDedicatedAllocateInfoTensorARM(std::ostream &out, const VkMemoryDedicatedAllocateInfoTensorARM* structInfo, Decoded_VkMemoryDedicatedAllocateInfoTensorARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM(std::ostream &out, const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* structInfo, Decoded_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM(std::ostream &out, const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM* structInfo, Decoded_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceExternalTensorInfoARM(std::ostream &out, const VkPhysicalDeviceExternalTensorInfoARM* structInfo, Decoded_VkPhysicalDeviceExternalTensorInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceTensorFeaturesARM(std::ostream &out, const VkPhysicalDeviceTensorFeaturesARM* structInfo, Decoded_VkPhysicalDeviceTensorFeaturesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceTensorPropertiesARM(std::ostream &out, const VkPhysicalDeviceTensorPropertiesARM* structInfo, Decoded_VkPhysicalDeviceTensorPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorCaptureDescriptorDataInfoARM(std::ostream &out, const VkTensorCaptureDescriptorDataInfoARM* structInfo, Decoded_VkTensorCaptureDescriptorDataInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorCopyARM(std::ostream &out, const VkTensorCopyARM* structInfo, Decoded_VkTensorCopyARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorCreateInfoARM(std::ostream &out, const VkTensorCreateInfoARM* structInfo, Decoded_VkTensorCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorDependencyInfoARM(std::ostream &out, const VkTensorDependencyInfoARM* structInfo, Decoded_VkTensorDependencyInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorDescriptionARM(std::ostream &out, const VkTensorDescriptionARM* structInfo, Decoded_VkTensorDescriptionARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorFormatPropertiesARM(std::ostream &out, const VkTensorFormatPropertiesARM* structInfo, Decoded_VkTensorFormatPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorMemoryBarrierARM(std::ostream &out, const VkTensorMemoryBarrierARM* structInfo, Decoded_VkTensorMemoryBarrierARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorMemoryRequirementsInfoARM(std::ostream &out, const VkTensorMemoryRequirementsInfoARM* structInfo, Decoded_VkTensorMemoryRequirementsInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorViewCaptureDescriptorDataInfoARM(std::ostream &out, const VkTensorViewCaptureDescriptorDataInfoARM* structInfo, Decoded_VkTensorViewCaptureDescriptorDataInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorViewCreateInfoARM(std::ostream &out, const VkTensorViewCreateInfoARM* structInfo, Decoded_VkTensorViewCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkWriteDescriptorSetTensorARM(std::ostream &out, const VkWriteDescriptorSetTensorARM* structInfo, Decoded_VkWriteDescriptorSetTensorARM* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT(std::ostream &out, const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
@@ -2297,8 +2345,6 @@ std::string GenerateStruct_VkSwapchainLatencyCreateInfoNV(std::ostream &out, con
 std::string GenerateStruct_VkBindDataGraphPipelineSessionMemoryInfoARM(std::ostream &out, const VkBindDataGraphPipelineSessionMemoryInfoARM* structInfo, Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkDataGraphPipelineCompilerControlCreateInfoARM(std::ostream &out, const VkDataGraphPipelineCompilerControlCreateInfoARM* structInfo, Decoded_VkDataGraphPipelineCompilerControlCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkDataGraphPipelineConstantARM(std::ostream &out, const VkDataGraphPipelineConstantARM* structInfo, Decoded_VkDataGraphPipelineConstantARM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM(std::ostream &out, const VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM* structInfo, Decoded_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -2549,6 +2595,24 @@ std::string GenerateStruct_VkDataGraphPipelineBuiltinModelCreateInfoQCOM(std::os
 std::string GenerateStruct_VkPhysicalDeviceDataGraphModelFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceDataGraphModelFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPipelineCacheHeaderVersionDataGraphQCOM(std::ostream &out, const VkPipelineCacheHeaderVersionDataGraphQCOM* structInfo, Decoded_VkPipelineCacheHeaderVersionDataGraphQCOM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphOpticalFlowImageFormatInfoARM(std::ostream &out, const VkDataGraphOpticalFlowImageFormatInfoARM* structInfo, Decoded_VkDataGraphOpticalFlowImageFormatInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphOpticalFlowImageFormatPropertiesARM(std::ostream &out, const VkDataGraphOpticalFlowImageFormatPropertiesARM* structInfo, Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphPipelineOpticalFlowCreateInfoARM(std::ostream &out, const VkDataGraphPipelineOpticalFlowCreateInfoARM* structInfo, Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphPipelineOpticalFlowDispatchInfoARM(std::ostream &out, const VkDataGraphPipelineOpticalFlowDispatchInfoARM* structInfo, Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphPipelineResourceInfoImageLayoutARM(std::ostream &out, const VkDataGraphPipelineResourceInfoImageLayoutARM* structInfo, Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphPipelineSingleNodeConnectionARM(std::ostream &out, const VkDataGraphPipelineSingleNodeConnectionARM* structInfo, Decoded_VkDataGraphPipelineSingleNodeConnectionARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDataGraphPipelineSingleNodeCreateInfoARM(std::ostream &out, const VkDataGraphPipelineSingleNodeCreateInfoARM* structInfo, Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM(std::ostream &out, const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* structInfo, Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkQueueFamilyDataGraphOpticalFlowPropertiesARM(std::ostream &out, const VkQueueFamilyDataGraphOpticalFlowPropertiesARM* structInfo, Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceShaderLongVectorFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderLongVectorFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 

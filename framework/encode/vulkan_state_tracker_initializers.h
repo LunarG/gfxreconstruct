@@ -571,6 +571,97 @@ InitializeGroupObjectState<VkDevice,
 }
 
 template <>
+inline void
+InitializeGroupObjectState<VkDevice,
+                           VkDeferredOperationKHR,
+                           vulkan_wrappers::PipelineWrapper,
+                           VkDataGraphPipelineCreateInfoARM>(VkDevice                                parent_handle,
+                                                             VkDeferredOperationKHR                  secondary_handle,
+                                                             vulkan_wrappers::PipelineWrapper*       wrapper,
+                                                             const VkDataGraphPipelineCreateInfoARM* create_info,
+                                                             format::ApiCallId                       create_call_id,
+                                                             vulkan_state_info::CreateParameters     create_parameters)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(create_info != nullptr);
+    GFXRECON_ASSERT(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    const VkBaseInStructure* current = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
+    while (current != nullptr)
+    {
+        if (current->sType == VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM)
+        {
+            auto shader_info = reinterpret_cast<const VkDataGraphPipelineShaderModuleCreateInfoARM*>(current);
+            if (shader_info->module != VK_NULL_HANDLE)
+            {
+                auto shader_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(shader_info->module);
+                if (shader_wrapper)
+                {
+                    vulkan_state_info::CreateDependencyInfo info{};
+                    info.handle_id         = shader_wrapper->handle_id;
+                    info.create_call_id    = shader_wrapper->create_call_id;
+                    info.create_parameters = shader_wrapper->create_parameters;
+
+                    wrapper->shader_module_dependencies.emplace_back(std::move(info));
+                }
+            }
+        }
+
+        current = current->pNext;
+    }
+
+    if (create_info->layout != VK_NULL_HANDLE)
+    {
+        auto* layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+        GFXRECON_ASSERT(layout_wrapper != nullptr);
+
+        wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+        wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+        wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+        wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+    }
+}
+
+template <>
+inline void
+InitializeState<VkDevice, vulkan_wrappers::DataGraphPipelineSessionARMWrapper, VkDataGraphPipelineSessionCreateInfoARM>(
+    VkDevice                                             parent_handle,
+    vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper,
+    const VkDataGraphPipelineSessionCreateInfoARM*       create_info,
+    format::ApiCallId                                    create_call_id,
+    vulkan_state_info::CreateParameters                  create_parameters)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    // Track pipeline dependencies so we can recreate destroyed pipelines during trimming.
+    auto* pipeline_wrapper =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(create_info->dataGraphPipeline);
+    if (pipeline_wrapper != nullptr)
+    {
+        wrapper->pipeline_dependency.handle_id         = pipeline_wrapper->handle_id;
+        wrapper->pipeline_dependency.create_call_id    = pipeline_wrapper->create_call_id;
+        wrapper->pipeline_dependency.create_parameters = pipeline_wrapper->create_parameters;
+
+        wrapper->pipeline_shader_module_dependencies = pipeline_wrapper->shader_module_dependencies;
+        wrapper->pipeline_layout_dependency          = pipeline_wrapper->layout_dependency;
+        wrapper->pipeline_layout_dependencies        = pipeline_wrapper->layout_dependencies;
+    }
+}
+
+template <>
 inline void InitializeState<VkDevice, vulkan_wrappers::DeviceMemoryWrapper, VkMemoryAllocateInfo>(
     VkDevice                              parent_handle,
     vulkan_wrappers::DeviceMemoryWrapper* wrapper,
@@ -620,6 +711,58 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
+}
+
+template <>
+inline void InitializeState<VkDevice, vulkan_wrappers::TensorARMWrapper, VkTensorCreateInfoARM>(
+    VkDevice                            parent_handle,
+    vulkan_wrappers::TensorARMWrapper*  wrapper,
+    const VkTensorCreateInfoARM*        create_info,
+    format::ApiCallId                   create_call_id,
+    vulkan_state_info::CreateParameters create_parameters)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(create_info != nullptr);
+    GFXRECON_ASSERT(create_parameters != nullptr);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    const VkTensorDescriptionARM* desc = create_info->pDescription;
+    wrapper->tiling                    = desc->tiling;
+    wrapper->format                    = desc->format;
+    wrapper->dimensionCount            = desc->dimensionCount;
+    wrapper->usage                     = desc->usage;
+    wrapper->pDimensions.reserve(desc->dimensionCount);
+    if (desc->pStrides)
+    {
+        wrapper->pStrides.reserve(desc->dimensionCount);
+    }
+    for (uint32_t i = 0; i < desc->dimensionCount; i++)
+    {
+        wrapper->pDimensions.push_back(desc->pDimensions[i]);
+        if (desc->pStrides)
+        {
+            wrapper->pStrides.push_back(desc->pStrides[i]);
+        }
+    }
+
+    // TODO: Do we need to track the queue family that the tensor is actually used with?
+    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
+    {
+        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
+    }
+
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
+    VkTensorMemoryRequirementsInfoARM  tensor_mem_req{};
+    tensor_mem_req.sType  = VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM;
+    tensor_mem_req.tensor = wrapper->handle;
+
+    VkMemoryRequirements2 mem_req_2{};
+    mem_req_2.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+
+    device_table->GetTensorMemoryRequirementsARM(parent_handle, &tensor_mem_req, &mem_req_2);
+    wrapper->size = mem_req_2.memoryRequirements.size;
 }
 
 // Images created with vkCreateImage.
@@ -913,6 +1056,9 @@ inline void InitializePoolObjectState(VkDevice                               par
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 descriptor_info.inline_uniform_block = std::make_unique<uint8_t[]>(binding_info.count);
+                break;
+            case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                descriptor_info.tensor_views = std::make_unique<VkTensorViewARM[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO

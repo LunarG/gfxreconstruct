@@ -77,6 +77,8 @@ struct VulkanDevicePropertyFeatureInfo
     bool dynamic_rendering_depth_stencil_resolve{ false };
 
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
+
+    VkBool32 feature_timeline_semaphore{ VK_FALSE };
 };
 
 class VulkanDeviceUtil
@@ -118,6 +120,12 @@ class VulkanDeviceUtil
                                             const graphics::VulkanInstanceTable* instance_table,
                                             const VkPhysicalDevice               physical_device,
                                             T*                                   feature_struct);
+
+    template <typename T>
+    VkBool32 EnableTimelineSemaphoreFeatures(const VulkanInstanceUtilInfo&        instance_info,
+                                             const graphics::VulkanInstanceTable* instance_table,
+                                             const VkPhysicalDevice               physical_device,
+                                             T*                                   feature_struct);
 
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
     VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };

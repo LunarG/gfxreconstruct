@@ -35,13 +35,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
 
     def genCallReplayConsumer(self, return_type, name, values):
-        call = f'{self.platform_type}ReplayConsumer::Process_' + name + '('
-        args=['call_info']
-        if return_type != 'void':
-            args.append('returnValue')
-        [ args.append(value.name) for value in values ]
-        call += ", ".join(args) + ');\n'
-        return call
+        return f'{self.platform_type}ReplayConsumer::Process_{name}(call_info, args);\n'
 
     def make_replay_frame_loop_consumer_func_body(self, api_data, return_type, name, values):
 
@@ -50,11 +44,11 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
         if name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES:
 
             body += '    // Check for null cases\n'
-            body += '    if (' + values[-1].name  + ' == nullptr || ' + values[-1].name  + '->IsNull())\n'
+            body += '    if (' + values[-1].prefixed_name + '.IsNull())\n'
             body += '    {\n'
             body += '        return;\n'
             body += '    }\n'
-            body += '    format::HandleId handle = *' + values[-1].name + '->GetPointer();\n\n'
+            body += '    format::HandleId handle = *' + values[-1].prefixed_name + '.GetPointer();\n\n'
             body += '    // Pass the call along if we are not looping or\n'
             body += '    // if we are looping and the handle is not in allocatedLoopResources\n'
             body += '    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))\n'
@@ -77,9 +71,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    }\n'
             body += '    else\n'
             body += '    {\n'
-            body += '        for (uint32_t i=0; i < '+values[-4].name+'; i++)\n'
+            body += '        for (uint32_t i=0; i < '+values[-4].prefixed_name+'; i++)\n'
             body += '        {\n'
-            body += '            format::HandleId handle = '+values[-1].name+'->GetPointer()[i];\n'
+            body += '            format::HandleId handle = '+values[-1].prefixed_name+'.GetPointer()[i];\n'
             body += '            if (!allocatedLoopResources.contains(handle))\n'
             body += '            {\n'
             body += '                doReplay = true;\n'
@@ -93,9 +87,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        // If we are looping, save the handles in allocatedLoopResources\n'
             body += '        if (getFrameLoopInfo().IsLooping())\n'
             body += '        {\n'
-            body += '            for (uint32_t i=0; i < '+values[-4].name+'; i++)\n'
+            body += '            for (uint32_t i=0; i < '+values[-4].prefixed_name+'; i++)\n'
             body += '            {\n'
-            body += '                format::HandleId handle = '+values[-1].name+'->GetPointer()[i];\n'
+            body += '                format::HandleId handle = '+values[-1].prefixed_name+'.GetPointer()[i];\n'
             body += '                allocatedLoopResources.insert(handle);\n'
             body += '            }\n'
             body += '        }\n'
@@ -105,23 +99,23 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
             body += '    // Skip for loop iterations 1-(n-1).\n'
             body += '    // Skip if looping and if not final iteration\n'
-            body += '    // Execute if ' + values[-2].name + ' is in allocatedLoopResources\n\n'
+            body += '    // Execute if ' + values[-2].prefixed_name + ' is in allocatedLoopResources\n\n'
             body += '    // Call Process_' + name + ' if:\n'
             body += '    //    We are not looping\n'
-            body += '    //    We are looping and ' + values[-2].name + ' is in allocatedLoopResources\n'
+            body += '    //    We are looping and ' + values[-2].prefixed_name + ' is in allocatedLoopResources\n'
             body += '    //    We are looping and this is the last iteration\n'
 
             body += '    if (!getFrameLoopInfo().IsLooping())\n'
             body += '    {\n'
-            body += '        GFXRECON_ASSERT(!allocatedLoopResources.contains(' + values[-2].name + '))\n'
+            body += '        GFXRECON_ASSERT(!allocatedLoopResources.contains(' + values[-2].prefixed_name + '))\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
             body += '    }\n'
-            body += '    else if (allocatedLoopResources.contains(' + values[-2].name + '))\n'
+            body += '    else if (allocatedLoopResources.contains(' + values[-2].prefixed_name + '))\n'
             body += '    {\n'
             body += '        // Looping special case:\n'
             body += '        // This resource has been allocated WITHIN the loop range.\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
-            body += '        allocatedLoopResources.erase(' + values[-2].name + ');\n'
+            body += '        allocatedLoopResources.erase(' + values[-2].prefixed_name + ');\n'
             body += '    }\n'
             body += '    else if (getFrameLoopInfo().IsFinalIteration())\n'
             body += '    {\n'

@@ -156,7 +156,7 @@ inline std::string HandleIdToString(format::HandleId handleId)
     return std::to_string(handleId);
 }
 
-#if defined(WIN32)
+#if defined(_WIN32)
 inline std::string WCharArrayToString(const wchar_t* pStr)
 {
     int required_size = 0;
