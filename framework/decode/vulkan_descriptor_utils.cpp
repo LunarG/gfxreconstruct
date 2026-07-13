@@ -38,13 +38,15 @@ void HandleDescriptorUpdate(CommonObjectInfoTable&                              
     const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
     for (uint32_t w = 0; w < descriptor_write_count; ++w)
     {
-        const auto& write_meta = writes_meta[w];
-        const auto* write      = write_meta.decoded_value;
+        const auto& write_meta    = writes_meta[w];
+        const auto* write         = write_meta.decoded_value;
+        uint32_t    binding_index = write->dstBinding;
 
         VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo& descriptor_bindings_info =
             (descriptor_bindings != nullptr) ? (*descriptor_bindings)
                                              : object_info_table.GetVkDescriptorSetInfo(write_meta.dstSet)->descriptors;
-        auto& descriptor_set_binding_info = descriptor_bindings_info[write->dstBinding];
+        auto  binding_it                  = descriptor_bindings_info.try_emplace(binding_index).first;
+        auto& descriptor_set_binding_info = binding_it->second;
 
         descriptor_set_binding_info.desc_type = write->descriptorType;
         if (stage_flags != VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
@@ -68,9 +70,7 @@ void HandleDescriptorUpdate(CommonObjectInfoTable&                              
             continue;
         }
 
-        uint32_t binding_index = write->dstBinding;
-        uint32_t arr_idx       = write->dstArrayElement;
-        auto     binding_it    = descriptor_bindings_info.find(binding_index);
+        uint32_t arr_idx = write->dstArrayElement;
 
         for (uint32_t i = 0; i < write_meta.decoded_value->descriptorCount; ++i)
         {
@@ -87,13 +87,11 @@ void HandleDescriptorUpdate(CommonObjectInfoTable&                              
                 {
                     break;
                 }
-                binding_index = binding_it->first;
-                arr_idx       = 0;
+                arr_idx = 0;
             }
 
-            auto& descriptor_set_binding_info     = (binding_it != descriptor_bindings_info.end())
-                                                        ? binding_it->second
-                                                        : descriptor_bindings_info[binding_index];
+            auto& descriptor_set_binding_info = binding_it->second;
+
             descriptor_set_binding_info.desc_type = write->descriptorType;
             if (stage_flags != VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
             {
