@@ -1015,6 +1015,63 @@ void to_json(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits2_t& va
     }
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkTensorCreateFlagBitsARM_t& value)
+{
+    switch (static_cast<VkTensorCreateFlagBitsARM>(value)) {
+        case VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM:
+            jdata = "VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM";
+            break;
+        case VK_TENSOR_CREATE_PROTECTED_BIT_ARM:
+            jdata = "VK_TENSOR_CREATE_PROTECTED_BIT_ARM";
+            break;
+        case VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM:
+            jdata = "VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM";
+            break;
+        case VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM:
+            jdata = "VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(static_cast<VkTensorCreateFlagBitsARM>(value));
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkTensorUsageFlagBitsARM_t& value)
+{
+    switch (static_cast<VkTensorUsageFlagBitsARM>(value)) {
+        case VK_TENSOR_USAGE_SHADER_BIT_ARM:
+            jdata = "VK_TENSOR_USAGE_SHADER_BIT_ARM";
+            break;
+        case VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM:
+            jdata = "VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM";
+            break;
+        case VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM:
+            jdata = "VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM";
+            break;
+        case VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM:
+            jdata = "VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM";
+            break;
+        case VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM:
+            jdata = "VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(static_cast<VkTensorUsageFlagBitsARM>(value));
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkTensorViewCreateFlagBitsARM_t& value)
+{
+    switch (static_cast<VkTensorViewCreateFlagBitsARM>(value)) {
+        case VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM:
+            jdata = "VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(static_cast<VkTensorViewCreateFlagBitsARM>(value));
+            break;
+    }
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkAccelerationStructureCreateFlagsKHR_t& flags)
 {
     if (!JsonOptions::expand_flags)
@@ -1760,6 +1817,106 @@ void to_json(nlohmann::ordered_json& jdata, const VkCullModeFlags_t& flags)
                 return std::string("VK_CULL_MODE_BACK_BIT");
             case VK_CULL_MODE_FRONT_AND_BACK:
                 return std::string("VK_CULL_MODE_FRONT_AND_BACK");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowCreateFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkDataGraphOpticalFlowCreateFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkDataGraphOpticalFlowCreateFlagsARM>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowExecuteFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkDataGraphOpticalFlowExecuteFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkDataGraphOpticalFlowExecuteFlagsARM>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_IS_PREVIOUS_REFERENCE_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_IS_PREVIOUS_REFERENCE_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_IS_PREVIOUS_INPUT_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_IS_PREVIOUS_INPUT_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowGridSizeFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkDataGraphOpticalFlowGridSizeFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkDataGraphOpticalFlowGridSizeFlagsARM>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowImageUsageFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkDataGraphOpticalFlowImageUsageFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkDataGraphOpticalFlowImageUsageFlagsARM>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_HINT_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_HINT_BIT_ARM");
+            case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_COST_BIT_ARM:
+                return std::string("VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_COST_BIT_ARM");
         }
         return to_hex_fixed_width(flags);
     });
@@ -5059,6 +5216,74 @@ void to_json(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagsKHR_t& f
     });
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkTensorCreateFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkTensorCreateFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkTensorCreateFlagsARM>(flags), [](VkFlags64 flags)
+    {
+        switch (flags)
+        {
+            case VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM:
+                return std::string("VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM");
+            case VK_TENSOR_CREATE_PROTECTED_BIT_ARM:
+                return std::string("VK_TENSOR_CREATE_PROTECTED_BIT_ARM");
+            case VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM:
+                return std::string("VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM");
+            case VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM:
+                return std::string("VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkTensorUsageFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkTensorUsageFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkTensorUsageFlagsARM>(flags), [](VkFlags64 flags)
+    {
+        switch (flags)
+        {
+            case VK_TENSOR_USAGE_SHADER_BIT_ARM:
+                return std::string("VK_TENSOR_USAGE_SHADER_BIT_ARM");
+            case VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM:
+                return std::string("VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM");
+            case VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM:
+                return std::string("VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM");
+            case VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM:
+                return std::string("VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM");
+            case VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM:
+                return std::string("VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkTensorViewCreateFlagsARM_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkTensorViewCreateFlagsARM>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkTensorViewCreateFlagsARM>(flags), [](VkFlags64 flags)
+    {
+        switch (flags)
+        {
+            case VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM:
+                return std::string("VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkTileShadingRenderPassFlagsQCOM_t& flags)
 {
     if (!JsonOptions::expand_flags)
@@ -8330,6 +8555,153 @@ void to_json(nlohmann::ordered_json& jdata, const VkDataGraphModelCacheTypeQCOM&
     switch (value) {
         case VK_DATA_GRAPH_MODEL_CACHE_TYPE_GENERIC_BINARY_QCOM:
             jdata = "VK_DATA_GRAPH_MODEL_CACHE_TYPE_GENERIC_BINARY_QCOM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowCreateFlagBitsARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowExecuteFlagBitsARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_IS_PREVIOUS_REFERENCE_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_IS_PREVIOUS_REFERENCE_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_IS_PREVIOUS_INPUT_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_IS_PREVIOUS_INPUT_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowGridSizeFlagBitsARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowImageUsageFlagBitsARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_HINT_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_HINT_BIT_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_COST_BIT_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_COST_BIT_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphOpticalFlowPerformanceLevelARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_ARM";
+            break;
+        case VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_ARM:
+            jdata = "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphPipelineNodeConnectionTypeARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_INPUT_ARM:
+            jdata = "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_INPUT_ARM";
+            break;
+        case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_REFERENCE_ARM:
+            jdata = "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_REFERENCE_ARM";
+            break;
+        case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_HINT_ARM:
+            jdata = "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_HINT_ARM";
+            break;
+        case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_FLOW_VECTOR_ARM:
+            jdata = "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_FLOW_VECTOR_ARM";
+            break;
+        case VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_COST_ARM:
+            jdata = "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_COST_ARM";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDataGraphPipelineNodeTypeARM& value)
+{
+    switch (value) {
+        case VK_DATA_GRAPH_PIPELINE_NODE_TYPE_OPTICAL_FLOW_ARM:
+            jdata = "VK_DATA_GRAPH_PIPELINE_NODE_TYPE_OPTICAL_FLOW_ARM";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
@@ -18756,6 +19128,36 @@ void to_json(nlohmann::ordered_json& jdata, const VkSystemAllocationScope& value
             break;
         case VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE:
             jdata = "VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkTensorTilingARM& value)
+{
+    switch (value) {
+        case VK_TENSOR_TILING_OPTIMAL_ARM:
+            jdata = "VK_TENSOR_TILING_OPTIMAL_ARM";
+            break;
+        case VK_TENSOR_TILING_LINEAR_ARM:
+            jdata = "VK_TENSOR_TILING_LINEAR_ARM";
+            break;
+        case VK_TENSOR_TILING_BRICK_16_WIDE_ARM:
+            jdata = "VK_TENSOR_TILING_BRICK_16_WIDE_ARM";
+            break;
+        case VK_TENSOR_TILING_BRICK_8_WIDE_ARM:
+            jdata = "VK_TENSOR_TILING_BRICK_8_WIDE_ARM";
+            break;
+        case VK_TENSOR_TILING_BRICK_4_WIDE_ARM:
+            jdata = "VK_TENSOR_TILING_BRICK_4_WIDE_ARM";
+            break;
+        case VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM:
+            jdata = "VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM";
+            break;
+        case VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM:
+            jdata = "VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);

@@ -1128,6 +1128,11 @@ class VulkanReferencedBlockConsumer : public VulkanReferencedBlockConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdSetCoverageReductionModeNV&        args) override;
 
+    void Process_vkCmdCopyTensorARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyTensorInfoARM>* pCopyTensorInfo) override;
+
     void Process_vkCmdOpticalFlowExecuteNV(
         const ApiCallInfo&                          call_info,
         args::CmdOpticalFlowExecuteNV&              args) override;

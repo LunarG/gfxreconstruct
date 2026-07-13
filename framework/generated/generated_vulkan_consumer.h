@@ -2705,6 +2705,64 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdSetCoverageReductionModeNV&        args) {}
 
+    virtual void Process_vkCreateTensorARM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkTensorCreateInfoARM>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkTensorARM>*          pTensor) {}
+
+    virtual void Process_vkDestroyTensorARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            tensor,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkCreateTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkTensorViewARM>*      pView) {}
+
+    virtual void Process_vkDestroyTensorViewARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            tensorView,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkGetTensorMemoryRequirementsARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkTensorMemoryRequirementsInfoARM>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
+
+    virtual void Process_vkBindTensorMemoryARM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    bindInfoCount,
+        StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM>* pBindInfos) {}
+
+    virtual void Process_vkGetDeviceTensorMemoryRequirementsARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceTensorMemoryRequirementsARM>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
+
+    virtual void Process_vkCmdCopyTensorARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyTensorInfoARM>* pCopyTensorInfo) {}
+
+    virtual void Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceExternalTensorInfoARM>* pExternalTensorInfo,
+        StructPointerDecoder<Decoded_VkExternalTensorPropertiesARM>* pExternalTensorProperties) {}
+
     virtual void Process_vkGetShaderModuleIdentifierEXT(
         const ApiCallInfo&                          call_info,
         args::GetShaderModuleIdentifierEXT&         args) {}
@@ -2924,6 +2982,24 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkCmdBeginCustomResolveEXT(
         const ApiCallInfo&                          call_info,
         args::CmdBeginCustomResolveEXT&             args) {}
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties,
+        StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatInfoARM>* pOpticalFlowImageFormatInfo,
+        PointerDecoder<uint32_t>*                   pFormatCount,
+        StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM>* pImageFormatProperties) {}
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties,
+        StructPointerDecoder<Decoded_VkBaseOutStructure>* pProperties) {}
 
     virtual void Process_vkCmdSetComputeOccupancyPriorityNV(
         const ApiCallInfo&                          call_info,
