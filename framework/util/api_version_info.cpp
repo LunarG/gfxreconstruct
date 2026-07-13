@@ -37,12 +37,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+#if defined(GFXRECON_ENABLE_VULKAN)
 std::string GetVulkanHeaderVersionString()
 {
     return std::string("Vulkan Header Version ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
            "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
+#endif
 
 #if ENABLE_OPENXR_SUPPORT
 std::string GetOpenXrHeaderVersionString()
