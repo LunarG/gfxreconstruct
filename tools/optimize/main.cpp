@@ -30,7 +30,6 @@
 #include "decode/decode_api_detection.h"
 #include "decode/file_processor.h"
 #include "util/argument_parser.h"
-#include "util/d3d12_agility_sdk_version.h"
 #include "util/date_time.h"
 #include "util/feature_module_registry.h"
 #include "util/logging.h"
@@ -42,10 +41,12 @@
 #include <string>
 #include <vector>
 
-#if defined(_WIN32)
+#if defined(D3D12_SUPPORT)
+#include "d3d12.h"
+
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = gfxrecon::util::kD3D12AgilitySdkVersion;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
 }
 extern "C"
 {

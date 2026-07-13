@@ -45,7 +45,7 @@ std::string GetOpenXrHeaderVersionString();
 #endif
 
 #if defined(D3D12_SUPPORT)
-// "D3D12 SDK Version X", sourced from util::kD3D12AgilitySdkVersion.
+// "D3D12 SDK Version X", sourced from d3d12.h's D3D12_SDK_VERSION.
 std::string GetD3D12SdkVersionString();
 #endif
 

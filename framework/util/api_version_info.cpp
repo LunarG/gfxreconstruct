@@ -31,7 +31,7 @@
 #endif
 
 #if defined(D3D12_SUPPORT)
-#include "util/d3d12_agility_sdk_version.h"
+#include "d3d12.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -56,7 +56,7 @@ std::string GetOpenXrHeaderVersionString()
 #if defined(D3D12_SUPPORT)
 std::string GetD3D12SdkVersionString()
 {
-    return std::string("D3D12 SDK Version ") + std::to_string(kD3D12AgilitySdkVersion);
+    return std::string("D3D12 SDK Version ") + std::to_string(D3D12_SDK_VERSION);
 }
 #endif
 

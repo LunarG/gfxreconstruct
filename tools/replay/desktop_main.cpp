@@ -38,11 +38,11 @@
 
 #if defined(D3D12_SUPPORT)
 
-#include "util/d3d12_agility_sdk_version.h"
+#include "d3d12.h"
 
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = gfxrecon::util::kD3D12AgilitySdkVersion;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
 }
 extern "C"
 {

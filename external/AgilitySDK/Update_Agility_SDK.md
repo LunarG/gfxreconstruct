@@ -8,7 +8,8 @@
 # Install Agility SDK
 - Extract `microsoft.direct3d.d3d12.x.xxx.x.nupkg`. `7-Zip` could do it.
 - Copy `microsoft.direct3d.d3d12.x.xxx.x\build\native` folder to `gfxreconstruct\external\AgilitySDK`.
-- Modify `D3D12SDKVersion` in `tools\optimize\main.cpp` and `tools\replay\desktop_main.cpp`. Also `D3D12SDKPath` if needed.
+- `D3D12SDKVersion` in `tools\optimize\main.cpp` and `tools\replay\desktop_main.cpp` is sourced from
+  `D3D12_SDK_VERSION` in the new `d3d12.h`, so no manual update is needed. Update `D3D12SDKPath` if needed.
 
 # Generate code
 - Run python `gfxreconstruct\framework\generated\generate_dx12.py`

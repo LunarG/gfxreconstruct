@@ -53,7 +53,6 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/clock_cache.h
                     ${CMAKE_CURRENT_LIST_DIR}/compiler_diagnostics.h
                     ${CMAKE_CURRENT_LIST_DIR}/compressor.h
-                    ${CMAKE_CURRENT_LIST_DIR}/d3d12_agility_sdk_version.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
