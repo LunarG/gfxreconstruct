@@ -295,6 +295,7 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
             auto resource_alloc_info         = new ResourceAllocInfo;
             resource_alloc_info->usage       = create_info->usage;
             resource_alloc_info->object_type = VK_OBJECT_TYPE_BUFFER;
+            resource_alloc_info->create_size = create_info->size;
             (*allocator_data)                = reinterpret_cast<uintptr_t>(resource_alloc_info);
 
             if (create_info->pNext != nullptr)
@@ -620,6 +621,104 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
     }
 }
 
+VulkanRebindAllocator::VmaMemoryInfo*
+VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_alloc_info,
+                                             VkDeviceSize                memory_offset,
+                                             VkDeviceSize                footprint,
+                                             const VkMemoryRequirements& replay_req,
+                                             bool                        requires_dedicated_allocation)
+{
+    // Without a captured byte-extent we cannot test overlap (e.g. a size-0 image with no
+    // create_size proxy); fall back to the per-resource path.
+    if (footprint == 0)
+    {
+        return nullptr;
+    }
+
+    const VkDeviceSize new_begin = memory_offset;
+    const VkDeviceSize new_end   = memory_offset + footprint;
+
+    for (const auto& range : memory_alloc_info.bound_ranges)
+    {
+        if (range.footprint == 0 || range.vma_mem_info == nullptr)
+        {
+            continue;
+        }
+
+        // Half-open captured ranges overlap => the two resources alias the same bytes.
+        if (new_begin >= range.offset + range.footprint || range.offset >= new_end)
+        {
+            continue;
+        }
+
+        VmaMemoryInfo*     existing = range.vma_mem_info;
+        const VkDeviceSize base     = existing->offset_from_original_device_memory;
+
+        // Dedicated-allocation requirements forbid sharing: the newcomer may not bind into shared
+        // memory, and the existing resource's dedicated memory may not back another resource.
+        if (requires_dedicated_allocation || existing->requires_dedicated_allocation)
+        {
+            GFXRECON_LOG_WARNING(
+                "Rebind aliasing: a dedicated allocation is required at replay; cannot reproduce the share.");
+            return nullptr;
+        }
+
+        // The existing allocation's memory type must be allowed for the newcomer at replay.
+        if ((replay_req.memoryTypeBits & (1u << existing->allocation_info.memoryType)) == 0)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: memory type %u is not supported by the resource at replay; cannot "
+                                 "reproduce the share.",
+                                 existing->allocation_info.memoryType);
+            return nullptr;
+        }
+
+        // The newcomer must sit at a non-negative offset inside the existing allocation. If it starts
+        // before the existing resource (e.g. a parent buffer binding after its sub-range), we cannot
+        // place it here; warn rather than silently drop the alias.
+        if (memory_offset < base)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: resource at captured offset %" PRIu64
+                                 " precedes the aliased resource at offset %" PRIu64 "; cannot reproduce the share.",
+                                 memory_offset,
+                                 base);
+            return nullptr;
+        }
+
+        const VkDeviceSize local = memory_offset - base;
+
+        // A VmaAllocation cannot be grown: a larger aliased resource binding after a smaller one may
+        // not fit (replay-size inflation). Detectable, not silent.
+        if (local + replay_req.size > existing->replay_mem_req.size)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: resource at relative offset %" PRIu64 " (size %" PRIu64
+                                 ") exceeds the aliased allocation size %" PRIu64 "; cannot reproduce the share.",
+                                 local,
+                                 replay_req.size,
+                                 existing->replay_mem_req.size);
+            return nullptr;
+        }
+
+        // The resulting device-memory offset must satisfy the replay resource's alignment.
+        const VkDeviceSize device_offset = existing->allocation_info.offset + local;
+        if (replay_req.alignment != 0 && device_offset % replay_req.alignment != 0)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: device offset %" PRIu64 " does not satisfy replay alignment %" PRIu64
+                                 "; cannot reproduce the share.",
+                                 device_offset,
+                                 replay_req.alignment);
+            return nullptr;
+        }
+        return existing;
+    }
+    return nullptr;
+}
+
+void VulkanRebindAllocator::RemoveBoundRange(MemoryAllocInfo& memory_alloc_info, uint64_t object_handle)
+{
+    std::erase_if(memory_alloc_info.bound_ranges,
+                  [object_handle](const BoundResourceRange& r) { return r.object_handle == object_handle; });
+}
+
 VkResult
 VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                                buffer,
                                                VkDeviceSize                            memory_offset,
@@ -654,6 +753,18 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
+    // The captured byte-extent: the memory-requirement size when recorded, else the buffer's create
+    // size (always present). Used to detect aliasing against resources already bound to this memory.
+    const VkDeviceSize footprint = capture_req.size > 0 ? capture_req.size : resource_alloc_info.create_size;
+
+    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(
+            memory_alloc_info, memory_offset, footprint, replay_req, requires_dedicated_allocation))
+    {
+        memory_alloc_info.bound_ranges.push_back({ VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, aliased });
+        *vma_mem_info = aliased;
+        return VK_SUCCESS;
+    }
+
     if (FindVmaMemoryInfo(memory_alloc_info,
                           memory_offset,
                           capture_req,
@@ -663,6 +774,8 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
                           create_info,
                           vma_mem_info))
     {
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info });
         return VK_SUCCESS;
     }
 
@@ -682,6 +795,8 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     {
         memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info });
     }
     return result;
 }
@@ -806,6 +921,10 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
                                 *vma_mem_info,
                                 *bind_memory_properties);
             }
+            else
+            {
+                RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(buffer));
+            }
         }
         else
         {
@@ -865,6 +984,10 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                                         *memory_alloc_info,
                                         *vma_mem_info,
                                         bind_memory_properties[i]);
+                    }
+                    else
+                    {
+                        RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(buffer));
                     }
                 }
                 else
@@ -950,6 +1073,18 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
+    // Images carry no flat create-size proxy, so the footprint is only known when the memory
+    // requirement size was recorded; otherwise overlap is untestable and we use the per-resource path.
+    const VkDeviceSize footprint = capture_req.size;
+
+    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(
+            memory_alloc_info, memory_offset, footprint, replay_req, requires_dedicated_allocation))
+    {
+        memory_alloc_info.bound_ranges.push_back({ VK_HANDLE_TO_UINT64(image), memory_offset, footprint, aliased });
+        *vma_mem_info = aliased;
+        return VK_SUCCESS;
+    }
+
     if (FindVmaMemoryInfo(memory_alloc_info,
                           memory_offset,
                           capture_req,
@@ -959,6 +1094,8 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
                           create_info,
                           vma_mem_info))
     {
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info });
         return VK_SUCCESS;
     }
 
@@ -978,6 +1115,8 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     {
         memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info });
     }
     return result;
 }
@@ -1048,6 +1187,10 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                                     *memory_alloc_info,
                                     *vma_mem_info,
                                     *bind_memory_properties);
+                }
+                else
+                {
+                    RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(image));
                 }
             }
             else
@@ -1129,6 +1272,10 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
                                             *memory_alloc_info,
                                             *vma_mem_info,
                                             bind_memory_properties[i]);
+                        }
+                        else
+                        {
+                            RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(image));
                         }
                     }
                     else
@@ -2840,6 +2987,10 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
             }
         }
 
+        // drop aliasing ranges for this object,
+        // so later binds to same memory do not test overlap against destroyed resources.
+        RemoveBoundRange(*mem_alc_info, object_hanlde);
+
         // All objects are destroyed and the memory is freed, so delete the MemoryAllocInfo.
         mem_alc_info->original_objects.erase(object_hanlde);
         if (mem_alc_info->is_free && mem_alc_info->original_objects.empty())
@@ -3496,6 +3647,16 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
+    const VkDeviceSize footprint = capture_req.size;
+
+    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(
+            memory_alloc_info, memory_offset, footprint, replay_req, requires_dedicated_allocation))
+    {
+        memory_alloc_info.bound_ranges.push_back({ VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, aliased });
+        *vma_mem_info = aliased;
+        return VK_SUCCESS;
+    }
+
     if (FindVmaMemoryInfo(memory_alloc_info,
                           memory_offset,
                           capture_req,
@@ -3505,6 +3666,8 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
                           create_info,
                           vma_mem_info))
     {
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info });
         return VK_SUCCESS;
     }
 
@@ -3524,6 +3687,8 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     {
         memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info });
     }
     return result;
 }
@@ -3851,12 +4016,16 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                                         *vma_mem_info,
                                         bind_memory_properties[i]);
                     }
-                    else if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
+                    else
                     {
-                        // AllocateMemoryForTensor made a new VMA allocation that was never
-                        // successfully bound; free it now to avoid a leak.
-                        vmaFreeMemory(allocator_, vma_mem_info->allocation);
-                        memory_alloc_info->vma_mem_infos.pop_back();
+                        // The bind failed: drop the recorded range, and free a new per-resource VMA
+                        // allocation that was never successfully bound to avoid a leak.
+                        RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(tensor));
+                        if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
+                        {
+                            vmaFreeMemory(allocator_, vma_mem_info->allocation);
+                            memory_alloc_info->vma_mem_infos.pop_back();
+                        }
                     }
                 }
             }
