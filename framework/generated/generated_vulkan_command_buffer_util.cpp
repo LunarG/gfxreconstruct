@@ -1849,41 +1849,6 @@ void TrackCmdBeginConditionalRenderingEXTHandles(vulkan_wrappers::CommandBufferW
     }
 }
 
-void TrackCmdBeginGpaSessionAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession)
-{
-    assert(wrapper != nullptr);
-
-    if(gpaSession != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::GpaSessionAMDHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::GpaSessionAMDWrapper>(gpaSession));
-}
-
-void TrackCmdEndGpaSessionAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession)
-{
-    assert(wrapper != nullptr);
-
-    if(gpaSession != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::GpaSessionAMDHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::GpaSessionAMDWrapper>(gpaSession));
-}
-
-void TrackCmdBeginGpaSampleAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession)
-{
-    assert(wrapper != nullptr);
-
-    if(gpaSession != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::GpaSessionAMDHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::GpaSessionAMDWrapper>(gpaSession));
-}
-
-void TrackCmdEndGpaSampleAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession)
-{
-    assert(wrapper != nullptr);
-
-    if(gpaSession != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::GpaSessionAMDHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::GpaSessionAMDWrapper>(gpaSession));
-}
-
-void TrackCmdCopyGpaSessionResultsAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession)
-{
-    assert(wrapper != nullptr);
-
-    if(gpaSession != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::GpaSessionAMDHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::GpaSessionAMDWrapper>(gpaSession));
-}
-
 void TrackCmdBindShadingRateImageNVHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImageView imageView)
 {
     assert(wrapper != nullptr);

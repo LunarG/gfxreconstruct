@@ -2550,63 +2550,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
     const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo,
     struct AHardwareBuffer**                    pBuffer);
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateGpaSessionAMD(
-    VkDevice                                    device,
-    const VkGpaSessionCreateInfoAMD*            pCreateInfo,
-    const VkAllocationCallbacks*                pAllocator,
-    VkGpaSessionAMD*                            pGpaSession);
-
-VKAPI_ATTR void VKAPI_CALL vkDestroyGpaSessionAMD(
-    VkDevice                                    device,
-    VkGpaSessionAMD                             gpaSession,
-    const VkAllocationCallbacks*                pAllocator);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkSetGpaDeviceClockModeAMD(
-    VkDevice                                    device,
-    VkGpaDeviceClockModeInfoAMD*                pInfo);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaDeviceClockInfoAMD(
-    VkDevice                                    device,
-    VkGpaDeviceGetClockInfoAMD*                 pInfo);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCmdBeginGpaSessionAMD(
-    VkCommandBuffer                             commandBuffer,
-    VkGpaSessionAMD                             gpaSession);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCmdEndGpaSessionAMD(
-    VkCommandBuffer                             commandBuffer,
-    VkGpaSessionAMD                             gpaSession);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCmdBeginGpaSampleAMD(
-    VkCommandBuffer                             commandBuffer,
-    VkGpaSessionAMD                             gpaSession,
-    const VkGpaSampleBeginInfoAMD*              pGpaSampleBeginInfo,
-    uint32_t*                                   pSampleID);
-
-VKAPI_ATTR void VKAPI_CALL vkCmdEndGpaSampleAMD(
-    VkCommandBuffer                             commandBuffer,
-    VkGpaSessionAMD                             gpaSession,
-    uint32_t                                    sampleID);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionStatusAMD(
-    VkDevice                                    device,
-    VkGpaSessionAMD                             gpaSession);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionResultsAMD(
-    VkDevice                                    device,
-    VkGpaSessionAMD                             gpaSession,
-    uint32_t                                    sampleID,
-    size_t*                                     pSizeInBytes,
-    void*                                       pData);
-
-VKAPI_ATTR VkResult VKAPI_CALL vkResetGpaSessionAMD(
-    VkDevice                                    device,
-    VkGpaSessionAMD                             gpaSession);
-
-VKAPI_ATTR void VKAPI_CALL vkCmdCopyGpaSessionResultsAMD(
-    VkCommandBuffer                             commandBuffer,
-    VkGpaSessionAMD                             gpaSession);
-
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(
     VkCommandBuffer                             commandBuffer,
     const VkSampleLocationsInfoEXT*             pSampleLocationsInfo);

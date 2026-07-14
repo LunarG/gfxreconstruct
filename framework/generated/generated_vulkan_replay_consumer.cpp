@@ -7011,179 +7011,6 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     PostProcessExternalObject(replay_result, (*args.pBuffer.GetPointer()), static_cast<void*>(*out_pBuffer), format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID, "vkGetMemoryAndroidHardwareBufferANDROID");
 }
 
-void VulkanReplayConsumer::Process_vkCreateGpaSessionAMD(
-    const ApiCallInfo&                          call_info,
-    args::CreateGpaSessionAMD&                  args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkGpaSessionCreateInfoAMD* in_pCreateInfo = args.pCreateInfo.GetPointer();
-    MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
-    if (!args.pGpaSession.IsNull()) { args.pGpaSession.SetHandleLength(1); }
-    VkGpaSessionAMD* out_pGpaSession = args.pGpaSession.GetHandlePointer();
-
-    PushRecaptureHandleId(args.pGpaSession.GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateGpaSessionAMD(in_device, in_pCreateInfo, in_pAllocator, out_pGpaSession);
-    CheckResult("vkCreateGpaSessionAMD", args.result, replay_result, call_info);
-    ClearRecaptureHandleIds();
-
-    AddHandle<VulkanGpaSessionAMDInfo>(args.device, args.pGpaSession.GetPointer(), out_pGpaSession, &CommonObjectInfoTable::AddVkGpaSessionAMDInfo);
-}
-
-void VulkanReplayConsumer::Process_vkDestroyGpaSessionAMD(
-    const ApiCallInfo&                          call_info,
-    args::DestroyGpaSessionAMD&                 args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
-
-    GetDeviceTable(in_device)->DestroyGpaSessionAMD(in_device, in_gpaSession, in_pAllocator);
-    RemoveHandle(args.gpaSession, &CommonObjectInfoTable::RemoveVkGpaSessionAMDInfo);
-}
-
-void VulkanReplayConsumer::Process_vkSetGpaDeviceClockModeAMD(
-    const ApiCallInfo&                          call_info,
-    args::SetGpaDeviceClockModeAMD&             args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkGpaDeviceClockModeInfoAMD* out_pInfo = args.pInfo.IsNull() ? nullptr : args.pInfo.AllocateOutputData(1, { VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD, nullptr });
-    InitializeOutputStructPNext(&args.pInfo);
-
-    VkResult replay_result = GetDeviceTable(in_device)->SetGpaDeviceClockModeAMD(in_device, out_pInfo);
-    CheckResult("vkSetGpaDeviceClockModeAMD", args.result, replay_result, call_info);
-}
-
-void VulkanReplayConsumer::Process_vkGetGpaDeviceClockInfoAMD(
-    const ApiCallInfo&                          call_info,
-    args::GetGpaDeviceClockInfoAMD&             args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkGpaDeviceGetClockInfoAMD* out_pInfo = args.pInfo.IsNull() ? nullptr : args.pInfo.AllocateOutputData(1, { VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD, nullptr });
-    InitializeOutputStructPNext(&args.pInfo);
-
-    VkResult replay_result = GetDeviceTable(in_device)->GetGpaDeviceClockInfoAMD(in_device, out_pInfo);
-    CheckResult("vkGetGpaDeviceClockInfoAMD", args.result, replay_result, call_info);
-}
-
-void VulkanReplayConsumer::Process_vkCmdBeginGpaSessionAMD(
-    const ApiCallInfo&                          call_info,
-    args::CmdBeginGpaSessionAMD&                args)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-
-    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdBeginGpaSessionAMD(in_commandBuffer, in_gpaSession);
-    CheckResult("vkCmdBeginGpaSessionAMD", args.result, replay_result, call_info);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdBeginGpaSessionAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginGpaSessionAMD, args.result, in_commandBuffer, in_gpaSession);
-    }
-}
-
-void VulkanReplayConsumer::Process_vkCmdEndGpaSessionAMD(
-    const ApiCallInfo&                          call_info,
-    args::CmdEndGpaSessionAMD&                  args)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-
-    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdEndGpaSessionAMD(in_commandBuffer, in_gpaSession);
-    CheckResult("vkCmdEndGpaSessionAMD", args.result, replay_result, call_info);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdEndGpaSessionAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdEndGpaSessionAMD, args.result, in_commandBuffer, in_gpaSession);
-    }
-}
-
-void VulkanReplayConsumer::Process_vkCmdBeginGpaSampleAMD(
-    const ApiCallInfo&                          call_info,
-    args::CmdBeginGpaSampleAMD&                 args)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-    const VkGpaSampleBeginInfoAMD* in_pGpaSampleBeginInfo = args.pGpaSampleBeginInfo.GetPointer();
-    MapStructHandles(args.pGpaSampleBeginInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    uint32_t* out_pSampleID = args.pSampleID.IsNull() ? nullptr : args.pSampleID.AllocateOutputData(1, static_cast<uint32_t>(0));
-
-    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdBeginGpaSampleAMD(in_commandBuffer, in_gpaSession, in_pGpaSampleBeginInfo, out_pSampleID);
-    CheckResult("vkCmdBeginGpaSampleAMD", args.result, replay_result, call_info);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdBeginGpaSampleAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginGpaSampleAMD, args.result, in_commandBuffer, in_gpaSession, in_pGpaSampleBeginInfo, out_pSampleID);
-    }
-}
-
-void VulkanReplayConsumer::Process_vkCmdEndGpaSampleAMD(
-    const ApiCallInfo&                          call_info,
-    args::CmdEndGpaSampleAMD&                   args)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-
-    GetDeviceTable(in_commandBuffer)->CmdEndGpaSampleAMD(in_commandBuffer, in_gpaSession, args.sampleID);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdEndGpaSampleAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdEndGpaSampleAMD, in_commandBuffer, in_gpaSession, args.sampleID);
-    }
-}
-
-void VulkanReplayConsumer::Process_vkGetGpaSessionStatusAMD(
-    const ApiCallInfo&                          call_info,
-    args::GetGpaSessionStatusAMD&               args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-
-    VkResult replay_result = GetDeviceTable(in_device)->GetGpaSessionStatusAMD(in_device, in_gpaSession);
-    CheckResult("vkGetGpaSessionStatusAMD", args.result, replay_result, call_info);
-}
-
-void VulkanReplayConsumer::Process_vkGetGpaSessionResultsAMD(
-    const ApiCallInfo&                          call_info,
-    args::GetGpaSessionResultsAMD&              args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-    size_t* out_pSizeInBytes = args.pSizeInBytes.IsNull() ? nullptr : args.pSizeInBytes.AllocateOutputData(1, GetOutputArrayCount<size_t, VulkanGpaSessionAMDInfo>("vkGetGpaSessionResultsAMD", args.result, args.gpaSession, kGpaSessionAMDArrayGetGpaSessionResultsAMD, &args.pSizeInBytes, &args.pData, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo));
-    void* out_pData = args.pData.IsNull() ? nullptr : args.pData.AllocateOutputData(*out_pSizeInBytes);
-
-    VkResult replay_result = GetDeviceTable(in_device)->GetGpaSessionResultsAMD(in_device, in_gpaSession, args.sampleID, out_pSizeInBytes, out_pData);
-    CheckResult("vkGetGpaSessionResultsAMD", args.result, replay_result, call_info);
-
-    if (args.pData.IsNull()) { SetOutputArrayCount<VulkanGpaSessionAMDInfo>(args.gpaSession, kGpaSessionAMDArrayGetGpaSessionResultsAMD, *out_pSizeInBytes, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo); }
-}
-
-void VulkanReplayConsumer::Process_vkResetGpaSessionAMD(
-    const ApiCallInfo&                          call_info,
-    args::ResetGpaSessionAMD&                   args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-
-    VkResult replay_result = GetDeviceTable(in_device)->ResetGpaSessionAMD(in_device, in_gpaSession);
-    CheckResult("vkResetGpaSessionAMD", args.result, replay_result, call_info);
-}
-
-void VulkanReplayConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
-    const ApiCallInfo&                          call_info,
-    args::CmdCopyGpaSessionResultsAMD&          args)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(args.gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
-
-    GetDeviceTable(in_commandBuffer)->CmdCopyGpaSessionResultsAMD(in_commandBuffer, in_gpaSession);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdCopyGpaSessionResultsAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyGpaSessionResultsAMD, in_commandBuffer, in_gpaSession);
-    }
-}
-
 void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)
@@ -13705,21 +13532,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueueFamilyOwnershipTransferPropertiesKHR>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkVideoEncodeFeedback2CapabilitiesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>());
@@ -13738,26 +13550,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAccelerationStructureGeometryMicromapDataKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceOpacityMicromapFeaturesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceOpacityMicromapPropertiesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAccelerationStructureTrianglesOpacityMicromapKHR>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR:
@@ -13793,41 +13585,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkFormatProperties4KHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageUsageFlags2CreateInfoKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageCreateFlags2CreateInfoKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageViewUsage2CreateInfoKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceExtendedFlagsFeaturesKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageStencilUsage2CreateInfoKHR>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSharedPresentSurfaceCapabilities2KHR>());
                 break;
             }
             case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -14130,41 +13887,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAndroidHardwareBufferFormatProperties2ANDROID>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceGpaFeaturesAMD>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceGpaPropertiesAMD>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceGpaProperties2AMD>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaSampleBeginInfoAMD>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaDeviceClockModeInfoAMD>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaDeviceGetClockInfoAMD>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaSessionCreateInfoAMD>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAttachmentSampleCountInfoAMD>());
@@ -14368,11 +14090,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
@@ -14898,31 +14615,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceQueuePerfHintPropertiesQCOM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceImageProcessing3FeaturesQCOM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSplitBarrierFeaturesEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSplitBarrierPropertiesEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM:
@@ -16265,16 +15957,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorRollingBackingCreateInfoARM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorExplicitTilingFormatPropertiesARM>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderFloat8FeaturesEXT>());
@@ -16545,16 +16227,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePresentMeteringFeaturesNV>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSwapchainFlagsSurfaceCapabilitiesEXT>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>());
@@ -16670,11 +16342,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE>());
@@ -16708,11 +16375,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:

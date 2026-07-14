@@ -574,18 +574,6 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer) { 
 inline VKAPI_ATTR void VKAPI_CALL vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer, const VkDebugUtilsLabelEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdInsertDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetAndroidHardwareBufferPropertiesANDROID was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryAndroidHardwareBufferANDROID was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateGpaSessionAMD(VkDevice, const VkGpaSessionCreateInfoAMD*, const VkAllocationCallbacks*, VkGpaSessionAMD*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateGpaSessionAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR void VKAPI_CALL vkDestroyGpaSessionAMD(VkDevice, VkGpaSessionAMD, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyGpaSessionAMD was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkSetGpaDeviceClockModeAMD(VkDevice, VkGpaDeviceClockModeInfoAMD*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetGpaDeviceClockModeAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaDeviceClockInfoAMD(VkDevice, VkGpaDeviceGetClockInfoAMD*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGpaDeviceClockInfoAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkCmdBeginGpaSessionAMD(VkCommandBuffer, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBeginGpaSessionAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkCmdEndGpaSessionAMD(VkCommandBuffer, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndGpaSessionAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkCmdBeginGpaSampleAMD(VkCommandBuffer, VkGpaSessionAMD, const VkGpaSampleBeginInfoAMD*, uint32_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBeginGpaSampleAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR void VKAPI_CALL vkCmdEndGpaSampleAMD(VkCommandBuffer, VkGpaSessionAMD, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndGpaSampleAMD was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionStatusAMD(VkDevice, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGpaSessionStatusAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionResultsAMD(VkDevice, VkGpaSessionAMD, uint32_t, size_t*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGpaSessionResultsAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkResetGpaSessionAMD(VkDevice, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkResetGpaSessionAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR void VKAPI_CALL vkCmdCopyGpaSessionResultsAMD(VkCommandBuffer, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyGpaSessionResultsAMD was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(VkCommandBuffer, const VkSampleLocationsInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetSampleLocationsEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetImageDrmFormatModifierPropertiesEXT(VkDevice, VkImage, VkImageDrmFormatModifierPropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageDrmFormatModifierPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateValidationCacheEXT(VkDevice, const VkValidationCacheCreateInfoEXT*, const VkAllocationCallbacks*, VkValidationCacheEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateValidationCacheEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -1360,18 +1348,6 @@ struct VulkanDeviceTable
     PFN_vkCmdInsertDebugUtilsLabelEXT CmdInsertDebugUtilsLabelEXT{ noop::vkCmdInsertDebugUtilsLabelEXT };
     PFN_vkGetAndroidHardwareBufferPropertiesANDROID GetAndroidHardwareBufferPropertiesANDROID{ noop::vkGetAndroidHardwareBufferPropertiesANDROID };
     PFN_vkGetMemoryAndroidHardwareBufferANDROID GetMemoryAndroidHardwareBufferANDROID{ noop::vkGetMemoryAndroidHardwareBufferANDROID };
-    PFN_vkCreateGpaSessionAMD CreateGpaSessionAMD{ noop::vkCreateGpaSessionAMD };
-    PFN_vkDestroyGpaSessionAMD DestroyGpaSessionAMD{ noop::vkDestroyGpaSessionAMD };
-    PFN_vkSetGpaDeviceClockModeAMD SetGpaDeviceClockModeAMD{ noop::vkSetGpaDeviceClockModeAMD };
-    PFN_vkGetGpaDeviceClockInfoAMD GetGpaDeviceClockInfoAMD{ noop::vkGetGpaDeviceClockInfoAMD };
-    PFN_vkCmdBeginGpaSessionAMD CmdBeginGpaSessionAMD{ noop::vkCmdBeginGpaSessionAMD };
-    PFN_vkCmdEndGpaSessionAMD CmdEndGpaSessionAMD{ noop::vkCmdEndGpaSessionAMD };
-    PFN_vkCmdBeginGpaSampleAMD CmdBeginGpaSampleAMD{ noop::vkCmdBeginGpaSampleAMD };
-    PFN_vkCmdEndGpaSampleAMD CmdEndGpaSampleAMD{ noop::vkCmdEndGpaSampleAMD };
-    PFN_vkGetGpaSessionStatusAMD GetGpaSessionStatusAMD{ noop::vkGetGpaSessionStatusAMD };
-    PFN_vkGetGpaSessionResultsAMD GetGpaSessionResultsAMD{ noop::vkGetGpaSessionResultsAMD };
-    PFN_vkResetGpaSessionAMD ResetGpaSessionAMD{ noop::vkResetGpaSessionAMD };
-    PFN_vkCmdCopyGpaSessionResultsAMD CmdCopyGpaSessionResultsAMD{ noop::vkCmdCopyGpaSessionResultsAMD };
     PFN_vkCmdSetSampleLocationsEXT CmdSetSampleLocationsEXT{ noop::vkCmdSetSampleLocationsEXT };
     PFN_vkGetImageDrmFormatModifierPropertiesEXT GetImageDrmFormatModifierPropertiesEXT{ noop::vkGetImageDrmFormatModifierPropertiesEXT };
     PFN_vkCreateValidationCacheEXT CreateValidationCacheEXT{ noop::vkCreateValidationCacheEXT };
@@ -2153,18 +2129,6 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdInsertDebugUtilsLabelEXT", &table->CmdInsertDebugUtilsLabelEXT);
     LoadVulkanFunction(gpa, device, "vkGetAndroidHardwareBufferPropertiesANDROID", &table->GetAndroidHardwareBufferPropertiesANDROID);
     LoadVulkanFunction(gpa, device, "vkGetMemoryAndroidHardwareBufferANDROID", &table->GetMemoryAndroidHardwareBufferANDROID);
-    LoadVulkanFunction(gpa, device, "vkCreateGpaSessionAMD", &table->CreateGpaSessionAMD);
-    LoadVulkanFunction(gpa, device, "vkDestroyGpaSessionAMD", &table->DestroyGpaSessionAMD);
-    LoadVulkanFunction(gpa, device, "vkSetGpaDeviceClockModeAMD", &table->SetGpaDeviceClockModeAMD);
-    LoadVulkanFunction(gpa, device, "vkGetGpaDeviceClockInfoAMD", &table->GetGpaDeviceClockInfoAMD);
-    LoadVulkanFunction(gpa, device, "vkCmdBeginGpaSessionAMD", &table->CmdBeginGpaSessionAMD);
-    LoadVulkanFunction(gpa, device, "vkCmdEndGpaSessionAMD", &table->CmdEndGpaSessionAMD);
-    LoadVulkanFunction(gpa, device, "vkCmdBeginGpaSampleAMD", &table->CmdBeginGpaSampleAMD);
-    LoadVulkanFunction(gpa, device, "vkCmdEndGpaSampleAMD", &table->CmdEndGpaSampleAMD);
-    LoadVulkanFunction(gpa, device, "vkGetGpaSessionStatusAMD", &table->GetGpaSessionStatusAMD);
-    LoadVulkanFunction(gpa, device, "vkGetGpaSessionResultsAMD", &table->GetGpaSessionResultsAMD);
-    LoadVulkanFunction(gpa, device, "vkResetGpaSessionAMD", &table->ResetGpaSessionAMD);
-    LoadVulkanFunction(gpa, device, "vkCmdCopyGpaSessionResultsAMD", &table->CmdCopyGpaSessionResultsAMD);
     LoadVulkanFunction(gpa, device, "vkCmdSetSampleLocationsEXT", &table->CmdSetSampleLocationsEXT);
     LoadVulkanFunction(gpa, device, "vkGetImageDrmFormatModifierPropertiesEXT", &table->GetImageDrmFormatModifierPropertiesEXT);
     LoadVulkanFunction(gpa, device, "vkCreateValidationCacheEXT", &table->CreateValidationCacheEXT);

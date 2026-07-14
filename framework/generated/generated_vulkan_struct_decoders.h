@@ -6404,33 +6404,6 @@ struct Decoded_VkQueueFamilyOwnershipTransferPropertiesKHR
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR
-{
-    using struct_type = VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR;
-
-    VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeFeedback2CapabilitiesKHR
-{
-    using struct_type = VkVideoEncodeFeedback2CapabilitiesKHR;
-
-    VkVideoEncodeFeedback2CapabilitiesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR
-{
-    using struct_type = VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR;
-
-    VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceDepthClampZeroOneFeaturesKHR;
@@ -6465,59 +6438,6 @@ struct Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR
     VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkMicromapUsageKHR
-{
-    using struct_type = VkMicromapUsageKHR;
-
-    VkMicromapUsageKHR* decoded_value{ nullptr };
-};
-
-struct Decoded_VkAccelerationStructureGeometryMicromapDataKHR
-{
-    using struct_type = VkAccelerationStructureGeometryMicromapDataKHR;
-
-    VkAccelerationStructureGeometryMicromapDataKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkMicromapUsageKHR>* pUsageCounts{ nullptr };
-    StructPointerDecoder<Decoded_VkMicromapUsageKHR*>* ppUsageCounts{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceOpacityMicromapFeaturesKHR
-{
-    using struct_type = VkPhysicalDeviceOpacityMicromapFeaturesKHR;
-
-    VkPhysicalDeviceOpacityMicromapFeaturesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceOpacityMicromapPropertiesKHR
-{
-    using struct_type = VkPhysicalDeviceOpacityMicromapPropertiesKHR;
-
-    VkPhysicalDeviceOpacityMicromapPropertiesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkMicromapTriangleKHR
-{
-    using struct_type = VkMicromapTriangleKHR;
-
-    VkMicromapTriangleKHR* decoded_value{ nullptr };
-};
-
-struct Decoded_VkAccelerationStructureTrianglesOpacityMicromapKHR
-{
-    using struct_type = VkAccelerationStructureTrianglesOpacityMicromapKHR;
-
-    VkAccelerationStructureTrianglesOpacityMicromapKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId micromap{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceMaintenance10FeaturesKHR
@@ -6582,69 +6502,6 @@ struct Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR
 
     PNextNode* pNext{ nullptr };
     Decoded_VkExtent3D* optimalImageTransferGranularity{ nullptr };
-};
-
-struct Decoded_VkFormatProperties4KHR
-{
-    using struct_type = VkFormatProperties4KHR;
-
-    VkFormatProperties4KHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkImageUsageFlags2CreateInfoKHR
-{
-    using struct_type = VkImageUsageFlags2CreateInfoKHR;
-
-    VkImageUsageFlags2CreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkImageCreateFlags2CreateInfoKHR
-{
-    using struct_type = VkImageCreateFlags2CreateInfoKHR;
-
-    VkImageCreateFlags2CreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkImageViewUsage2CreateInfoKHR
-{
-    using struct_type = VkImageViewUsage2CreateInfoKHR;
-
-    VkImageViewUsage2CreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceExtendedFlagsFeaturesKHR
-{
-    using struct_type = VkPhysicalDeviceExtendedFlagsFeaturesKHR;
-
-    VkPhysicalDeviceExtendedFlagsFeaturesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkImageStencilUsage2CreateInfoKHR
-{
-    using struct_type = VkImageStencilUsage2CreateInfoKHR;
-
-    VkImageStencilUsage2CreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkSharedPresentSurfaceCapabilities2KHR
-{
-    using struct_type = VkSharedPresentSurfaceCapabilities2KHR;
-
-    VkSharedPresentSurfaceCapabilities2KHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
@@ -7307,86 +7164,6 @@ struct Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID
     Decoded_VkComponentMapping* samplerYcbcrConversionComponents{ nullptr };
 };
 
-struct Decoded_VkGpaPerfBlockPropertiesAMD
-{
-    using struct_type = VkGpaPerfBlockPropertiesAMD;
-
-    VkGpaPerfBlockPropertiesAMD* decoded_value{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceGpaFeaturesAMD
-{
-    using struct_type = VkPhysicalDeviceGpaFeaturesAMD;
-
-    VkPhysicalDeviceGpaFeaturesAMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceGpaPropertiesAMD
-{
-    using struct_type = VkPhysicalDeviceGpaPropertiesAMD;
-
-    VkPhysicalDeviceGpaPropertiesAMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkGpaPerfBlockPropertiesAMD>* pPerfBlocks{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceGpaProperties2AMD
-{
-    using struct_type = VkPhysicalDeviceGpaProperties2AMD;
-
-    VkPhysicalDeviceGpaProperties2AMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkGpaPerfCounterAMD
-{
-    using struct_type = VkGpaPerfCounterAMD;
-
-    VkGpaPerfCounterAMD* decoded_value{ nullptr };
-};
-
-struct Decoded_VkGpaSampleBeginInfoAMD
-{
-    using struct_type = VkGpaSampleBeginInfoAMD;
-
-    VkGpaSampleBeginInfoAMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkGpaPerfCounterAMD>* pPerfCounters{ nullptr };
-};
-
-struct Decoded_VkGpaDeviceClockModeInfoAMD
-{
-    using struct_type = VkGpaDeviceClockModeInfoAMD;
-
-    VkGpaDeviceClockModeInfoAMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkGpaDeviceGetClockInfoAMD
-{
-    using struct_type = VkGpaDeviceGetClockInfoAMD;
-
-    VkGpaDeviceGetClockInfoAMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkGpaSessionCreateInfoAMD
-{
-    using struct_type = VkGpaSessionCreateInfoAMD;
-
-    VkGpaSessionCreateInfoAMD* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId secondaryCopySource{ format::kNullHandleId };
-};
-
 struct Decoded_VkAttachmentSampleCountInfoAMD
 {
     using struct_type = VkAttachmentSampleCountInfoAMD;
@@ -7887,15 +7664,6 @@ struct Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM
     using struct_type = VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM;
 
     VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM
-{
-    using struct_type = VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM;
-
-    VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -8944,51 +8712,6 @@ struct Decoded_VkPhysicalDeviceQueuePerfHintPropertiesQCOM
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceImageProcessing3FeaturesQCOM
-{
-    using struct_type = VkPhysicalDeviceImageProcessing3FeaturesQCOM;
-
-    VkPhysicalDeviceImageProcessing3FeaturesQCOM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM
-{
-    using struct_type = VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM;
-
-    VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM
-{
-    using struct_type = VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM;
-
-    VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceShaderSplitBarrierFeaturesEXT
-{
-    using struct_type = VkPhysicalDeviceShaderSplitBarrierFeaturesEXT;
-
-    VkPhysicalDeviceShaderSplitBarrierFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceShaderSplitBarrierPropertiesEXT
-{
-    using struct_type = VkPhysicalDeviceShaderSplitBarrierPropertiesEXT;
-
-    VkPhysicalDeviceShaderSplitBarrierPropertiesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM
 {
     using struct_type = VkPhysicalDeviceTileShadingFeaturesQCOM;
@@ -9930,6 +9653,13 @@ struct Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT
     StructPointerDecoder<Decoded_VkMicromapUsageEXT>* pUsageCounts{ nullptr };
     StructPointerDecoder<Decoded_VkMicromapUsageEXT*>* ppUsageCounts{ nullptr };
     format::HandleId micromap{ format::kNullHandleId };
+};
+
+struct Decoded_VkMicromapTriangleEXT
+{
+    using struct_type = VkMicromapTriangleEXT;
+
+    VkMicromapTriangleEXT* decoded_value{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV
@@ -11659,25 +11389,6 @@ struct Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkTensorRollingBackingCreateInfoARM
-{
-    using struct_type = VkTensorRollingBackingCreateInfoARM;
-
-    VkTensorRollingBackingCreateInfoARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    PointerDecoder<uint32_t> wraps;
-};
-
-struct Decoded_VkTensorExplicitTilingFormatPropertiesARM
-{
-    using struct_type = VkTensorExplicitTilingFormatPropertiesARM;
-
-    VkTensorExplicitTilingFormatPropertiesARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceShaderFloat8FeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderFloat8FeaturesEXT;
@@ -12264,24 +11975,6 @@ struct Decoded_VkPhysicalDevicePresentMeteringFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT
-{
-    using struct_type = VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT;
-
-    VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkSwapchainFlagsSurfaceCapabilitiesEXT
-{
-    using struct_type = VkSwapchainFlagsSurfaceCapabilitiesEXT;
-
-    VkSwapchainFlagsSurfaceCapabilitiesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT;
@@ -12501,15 +12194,6 @@ struct Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT
-{
-    using struct_type = VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT;
-
-    VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE
 {
     using struct_type = VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE;
@@ -12569,15 +12253,6 @@ struct Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT
     using struct_type = VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT;
 
     VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV
-{
-    using struct_type = VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV;
-
-    VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -13336,8 +13011,6 @@ typedef Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR Decoded_Vk
 typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT;
 
 typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesEXT;
-
-typedef Decoded_VkMicromapTriangleKHR Decoded_VkMicromapTriangleEXT;
 
 typedef Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT;
 
