@@ -5553,6 +5553,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
                     new_entry.first->second.desc_type   = binding_info.type;
                     new_entry.first->second.stage_flags = binding_info.stage_flags;
+                    new_entry.first->second.count       = binding_info.count;
 
                     // NOTE: unlike other descriptor-arrays, inline-uniform-block arrays are never sparse.
                     // we need to set their size appropriately.
