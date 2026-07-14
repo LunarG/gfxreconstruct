@@ -4612,6 +4612,66 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdBeginGpaSessionAMD&                args)
+{
+    // Only record command buffer commands on first iteration of looping frame.
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBeginGpaSessionAMD(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdEndGpaSessionAMD&                  args)
+{
+    // Only record command buffer commands on first iteration of looping frame.
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdEndGpaSessionAMD(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdBeginGpaSampleAMD&                 args)
+{
+    // Only record command buffer commands on first iteration of looping frame.
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBeginGpaSampleAMD(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdEndGpaSampleAMD&                   args)
+{
+    // Only record command buffer commands on first iteration of looping frame.
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdEndGpaSampleAMD(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyGpaSessionResultsAMD&          args)
+{
+    // Only record command buffer commands on first iteration of looping frame.
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdCopyGpaSessionResultsAMD(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)

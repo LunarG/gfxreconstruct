@@ -5124,6 +5124,132 @@ struct GetMemoryAndroidHardwareBufferANDROID
 };
 
 
+struct CreateGpaSessionAMD
+{
+    VkResult result;
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGpaSessionCreateInfoAMD> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkGpaSessionAMD> pGpaSession;
+
+    auto GetTuple() const { return std::tie(result, device, pCreateInfo, pAllocator, pGpaSession); }
+};
+
+
+struct DestroyGpaSessionAMD
+{
+    format::HandleId device;
+    format::HandleId gpaSession;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    auto GetTuple() const { return std::tie(device, gpaSession, pAllocator); }
+};
+
+
+struct SetGpaDeviceClockModeAMD
+{
+    VkResult result;
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGpaDeviceClockModeInfoAMD> pInfo;
+
+    auto GetTuple() const { return std::tie(result, device, pInfo); }
+};
+
+
+struct GetGpaDeviceClockInfoAMD
+{
+    VkResult result;
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGpaDeviceGetClockInfoAMD> pInfo;
+
+    auto GetTuple() const { return std::tie(result, device, pInfo); }
+};
+
+
+struct CmdBeginGpaSessionAMD
+{
+    VkResult result;
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+
+    auto GetTuple() const { return std::tie(result, commandBuffer, gpaSession); }
+};
+
+
+struct CmdEndGpaSessionAMD
+{
+    VkResult result;
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+
+    auto GetTuple() const { return std::tie(result, commandBuffer, gpaSession); }
+};
+
+
+struct CmdBeginGpaSampleAMD
+{
+    VkResult result;
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD> pGpaSampleBeginInfo;
+    PointerDecoder<uint32_t> pSampleID;
+
+    auto GetTuple() const { return std::tie(result, commandBuffer, gpaSession, pGpaSampleBeginInfo, pSampleID); }
+};
+
+
+struct CmdEndGpaSampleAMD
+{
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+    uint32_t sampleID;
+
+    auto GetTuple() const { return std::tie(commandBuffer, gpaSession, sampleID); }
+};
+
+
+struct GetGpaSessionStatusAMD
+{
+    VkResult result;
+    format::HandleId device;
+    format::HandleId gpaSession;
+
+    auto GetTuple() const { return std::tie(result, device, gpaSession); }
+};
+
+
+struct GetGpaSessionResultsAMD
+{
+    VkResult result;
+    format::HandleId device;
+    format::HandleId gpaSession;
+    uint32_t sampleID;
+    PointerDecoder<size_t> pSizeInBytes;
+    PointerDecoder<uint8_t> pData;
+
+    auto GetTuple() const { return std::tie(result, device, gpaSession, sampleID, pSizeInBytes, pData); }
+};
+
+
+struct ResetGpaSessionAMD
+{
+    VkResult result;
+    format::HandleId device;
+    format::HandleId gpaSession;
+
+    auto GetTuple() const { return std::tie(result, device, gpaSession); }
+};
+
+
+struct CmdCopyGpaSessionResultsAMD
+{
+    format::HandleId commandBuffer;
+    format::HandleId gpaSession;
+
+    auto GetTuple() const { return std::tie(commandBuffer, gpaSession); }
+};
+
+
 struct CmdSetSampleLocationsEXT
 {
     format::HandleId commandBuffer;

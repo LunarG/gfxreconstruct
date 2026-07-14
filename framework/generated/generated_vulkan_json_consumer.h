@@ -1917,6 +1917,54 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         const ApiCallInfo&                          call_info,
         args::GetMemoryAndroidHardwareBufferANDROID& args) override;
 
+    virtual void Process_vkCreateGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CreateGpaSessionAMD&                  args) override;
+
+    virtual void Process_vkDestroyGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::DestroyGpaSessionAMD&                 args) override;
+
+    virtual void Process_vkSetGpaDeviceClockModeAMD(
+        const ApiCallInfo&                          call_info,
+        args::SetGpaDeviceClockModeAMD&             args) override;
+
+    virtual void Process_vkGetGpaDeviceClockInfoAMD(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaDeviceClockInfoAMD&             args) override;
+
+    virtual void Process_vkCmdBeginGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSessionAMD&                args) override;
+
+    virtual void Process_vkCmdEndGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSessionAMD&                  args) override;
+
+    virtual void Process_vkCmdBeginGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSampleAMD&                 args) override;
+
+    virtual void Process_vkCmdEndGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSampleAMD&                   args) override;
+
+    virtual void Process_vkGetGpaSessionStatusAMD(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaSessionStatusAMD&               args) override;
+
+    virtual void Process_vkGetGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaSessionResultsAMD&              args) override;
+
+    virtual void Process_vkResetGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::ResetGpaSessionAMD&                   args) override;
+
+    virtual void Process_vkCmdCopyGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyGpaSessionResultsAMD&          args) override;
+
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) override;

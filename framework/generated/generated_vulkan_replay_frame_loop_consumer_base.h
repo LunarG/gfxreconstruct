@@ -1154,6 +1154,26 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroyDebugUtilsMessengerEXT&        args) override;
 
+    void Process_vkCmdBeginGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSessionAMD&                args) override;
+
+    void Process_vkCmdEndGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSessionAMD&                  args) override;
+
+    void Process_vkCmdBeginGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSampleAMD&                 args) override;
+
+    void Process_vkCmdEndGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSampleAMD&                   args) override;
+
+    void Process_vkCmdCopyGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyGpaSessionResultsAMD&          args) override;
+
     void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) override;

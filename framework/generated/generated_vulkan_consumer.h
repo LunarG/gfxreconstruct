@@ -1933,6 +1933,54 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         args::GetMemoryAndroidHardwareBufferANDROID& args) {}
 
+    virtual void Process_vkCreateGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CreateGpaSessionAMD&                  args) {}
+
+    virtual void Process_vkDestroyGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::DestroyGpaSessionAMD&                 args) {}
+
+    virtual void Process_vkSetGpaDeviceClockModeAMD(
+        const ApiCallInfo&                          call_info,
+        args::SetGpaDeviceClockModeAMD&             args) {}
+
+    virtual void Process_vkGetGpaDeviceClockInfoAMD(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaDeviceClockInfoAMD&             args) {}
+
+    virtual void Process_vkCmdBeginGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSessionAMD&                args) {}
+
+    virtual void Process_vkCmdEndGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSessionAMD&                  args) {}
+
+    virtual void Process_vkCmdBeginGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSampleAMD&                 args) {}
+
+    virtual void Process_vkCmdEndGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSampleAMD&                   args) {}
+
+    virtual void Process_vkGetGpaSessionStatusAMD(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaSessionStatusAMD&               args) {}
+
+    virtual void Process_vkGetGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaSessionResultsAMD&              args) {}
+
+    virtual void Process_vkResetGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        args::ResetGpaSessionAMD&                   args) {}
+
+    virtual void Process_vkCmdCopyGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyGpaSessionResultsAMD&          args) {}
+
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) {}

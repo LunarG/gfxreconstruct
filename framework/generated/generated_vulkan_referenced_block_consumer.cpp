@@ -1229,6 +1229,41 @@ void VulkanReferencedBlockConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdBeginGpaSessionAMD&                args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdEndGpaSessionAMD&                  args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdBeginGpaSampleAMD&                 args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdEndGpaSampleAMD&                   args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyGpaSessionResultsAMD&          args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)
