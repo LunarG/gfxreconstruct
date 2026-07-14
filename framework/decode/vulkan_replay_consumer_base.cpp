@@ -5736,8 +5736,8 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
 
     if (options_.isolate_render_passes)
     {
-        auto command_buffers = std::span(pCommandBuffers->GetHandlePointer(), command_buffer_count);
-        GetDeviceCommandBufferUtil(device_info).FreeCommandBuffers(command_pool_info->handle, command_buffers);
+        GetDeviceCommandBufferUtil(device_info)
+            .FreeCommandBuffers(command_pool_info->handle, pCommandBuffers->GetSpan());
     }
 
     const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
@@ -10470,16 +10470,24 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
                                                             VulkanCommandPoolInfo*  pool_info,
                                                             VkCommandPoolResetFlags flags)
 {
-    assert(device_info != nullptr && pool_info != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr && pool_info != nullptr);
 
-    if (options_.dumping_resources && original_result >= 0)
+    if (original_result >= 0)
     {
         for (auto& cb_id : pool_info->child_ids)
         {
             VulkanCommandBufferInfo* cb_info = object_info_table_->GetVkCommandBufferInfo(cb_id);
-            assert(cb_info != nullptr);
+            GFXRECON_ASSERT(cb_info != nullptr);
 
-            resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            if (options_.dumping_resources)
+            {
+                resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            }
+
+            if (options_.isolate_render_passes)
+            {
+                GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
+            }
         }
     }
 
@@ -10493,17 +10501,25 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
     VulkanCommandPoolInfo*                               pool_info,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    assert(device_info != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr);
     VkCommandPool pool_handle = pool_info ? pool_info->handle : VK_NULL_HANDLE;
 
-    if (options_.dumping_resources && pool_info != nullptr)
+    if (pool_info != nullptr)
     {
         for (auto& cb_id : pool_info->child_ids)
         {
             VulkanCommandBufferInfo* cb_info = object_info_table_->GetVkCommandBufferInfo(cb_id);
-            assert(cb_info != nullptr);
+            GFXRECON_ASSERT(cb_info != nullptr);
 
-            resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            if (options_.dumping_resources)
+            {
+                resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            }
+
+            if (options_.isolate_render_passes)
+            {
+                GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
+            }
         }
     }
 
@@ -11935,8 +11951,17 @@ VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(co
         return it->second;
     }
 
+    auto* decoder = dynamic_cast<VulkanStateRecordingDecoder*>(GetDecoder());
+    if (decoder == nullptr)
+    {
+        GFXRECON_LOG_FATAL(
+            "VulkanReplayConsumerBase::GetDeviceCommandBufferUtil() called with non-VulkanStateRecordingDecoder");
+        std::abort();
+    }
+
     auto [new_it, success] = device_command_buffer_utils_.insert(
-        { device_info, VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_) });
+        { device_info,
+          VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_, decoder) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
@@ -12035,8 +12060,8 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 {
     Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
         args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
-    VkPushDescriptorSetWithTemplateInfoKHR*      value   = in_info->decoded_value;
-    VulkanDescriptorUpdateTemplateInfo*          update_template_info =
+    VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
+    VulkanDescriptorUpdateTemplateInfo*     update_template_info =
         object_info_table_->GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
 
     VkCommandBuffer in_commandBuffer =

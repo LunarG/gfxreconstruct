@@ -107,7 +107,8 @@ template <typename ConsumerT, typename DecoderT, typename OptionsT>
 class ReplayFeature : public ReplayFeatureBase
 {
   public:
-    void* GetConsumer() override { return reinterpret_cast<void*>(replay_consumer_.get()); }
+    void*     GetConsumer() override { return replay_consumer_.get(); }
+    DecoderT* GetDecoder() { return decoder_.get(); }
     void  Destroy() override
     {
         if (replay_consumer_)
@@ -119,7 +120,7 @@ class ReplayFeature : public ReplayFeatureBase
   protected:
     OptionsT                   replay_options_;
     std::unique_ptr<ConsumerT> replay_consumer_;
-    DecoderT                   decoder_;
+    std::unique_ptr<DecoderT>  decoder_;
 
     void InitConsumer(decode::FileProcessor* file_processor, std::shared_ptr<application::Application> application)
     {
@@ -129,11 +130,13 @@ class ReplayFeature : public ReplayFeatureBase
 
     void FinalizeConsumer() {}
 
-    void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info)
+    void RegisterConsumerAndDecoder(graphics::FpsInfo*        fps_info,
+                                    std::unique_ptr<DecoderT> decoder = std::make_unique<DecoderT>())
     {
+        decoder_ = std::move(decoder);
         replay_consumer_->SetFpsInfo(fps_info);
-        decoder_.AddConsumer(replay_consumer_.get());
-        file_processor_->AddDecoder(&decoder_);
+        decoder_->AddConsumer(replay_consumer_.get());
+        file_processor_->AddDecoder(decoder_.get());
     }
 };
 
