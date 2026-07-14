@@ -66,6 +66,147 @@ inline void WriteImageFile(
     }
 }
 
+enum class ImageRotation
+{
+    DEG_0,
+    DEG_90,
+    DEG_180,
+    DEG_270
+};
+
+/**
+ * @brief Rotates and optionally mirrors image pixels on the CPU using loop tiling for cache friendliness.
+ *
+ * @tparam ROTATION Specifies the rotation angle (0, 90, 180, or 270 degrees).
+ * @tparam MIRRORED Specifies whether the image should be mirrored horizontally.
+ *
+ * @param src_pixels        Pointer to the source pixel data buffer (uint32_t representation).
+ * @param dst_pixels        Pointer to the destination pixel data buffer (uint32_t representation).
+ * @param src_width         Width of the source image in pixels.
+ * @param src_height        Height of the source image in pixels.
+ * @param dst_width         Width of the destination image in pixels.
+ * @param dst_height        Height of the destination image in pixels.
+ */
+template <ImageRotation ROTATION, bool MIRRORED = false>
+static void RotateAndMirrorPixels(const uint32_t* src_pixels,
+                                  uint32_t*       dst_pixels,
+                                  uint32_t        src_width,
+                                  uint32_t        src_height,
+                                  uint32_t        dst_width,
+                                  uint32_t        dst_height)
+{
+    // Loop Tiling (32x32 blocks) to improve CPU cache utilization when reading
+    // from the src_pixels array with a large stride during rotation.
+    constexpr uint32_t TILE_SIZE = 32;
+    for (uint32_t dst_y_block = 0; dst_y_block < dst_height; dst_y_block += TILE_SIZE)
+    {
+        for (uint32_t dst_x_block = 0; dst_x_block < dst_width; dst_x_block += TILE_SIZE)
+        {
+            uint32_t max_y = std::min(dst_y_block + TILE_SIZE, dst_height);
+            uint32_t max_x = std::min(dst_x_block + TILE_SIZE, dst_width);
+
+            for (uint32_t dst_y = dst_y_block; dst_y < max_y; ++dst_y)
+            {
+                for (uint32_t dst_x = dst_x_block; dst_x < max_x; ++dst_x)
+                {
+                    uint32_t src_x = dst_x;
+                    uint32_t src_y = dst_y;
+                    if constexpr (ROTATION == ImageRotation::DEG_90)
+                    {
+                        src_x = src_width - 1 - dst_y;
+                        src_y = dst_x;
+                    }
+                    else if constexpr (ROTATION == ImageRotation::DEG_270)
+                    {
+                        src_x = dst_y;
+                        src_y = src_height - 1 - dst_x;
+                    }
+                    else if constexpr (ROTATION == ImageRotation::DEG_180)
+                    {
+                        src_x = src_width - 1 - dst_x;
+                        src_y = src_height - 1 - dst_y;
+                    }
+
+                    if constexpr (MIRRORED)
+                    {
+                        src_x = src_width - 1 - src_x;
+                    }
+
+                    dst_pixels[dst_y * dst_width + dst_x] = src_pixels[src_y * src_width + src_x];
+                }
+            }
+        }
+    }
+}
+
+/**
+ * @brief Runtime wrapper that dispatches pixel rotation and mirroring to the template-specialized
+ * RotateAndMirrorPixels functions.
+ *
+ * @param rotation     Runtime rotation enum (0, 90, 180, or 270 degrees).
+ * @param is_mirrored  Runtime boolean flag indicating whether the image should be mirrored.
+ * @param src_pixels   Pointer to the source pixel data buffer (uint32_t representation).
+ * @param dst_pixels   Pointer to the destination pixel data buffer (uint32_t representation).
+ * @param src_width    Width of the source image in pixels.
+ * @param src_height   Height of the source image in pixels.
+ * @param dst_width    Width of the destination image in pixels.
+ * @param dst_height   Height of the destination image in pixels.
+ */
+static void RotateAndMirrorPixels(ImageRotation   rotation,
+                                  bool            is_mirrored,
+                                  const uint32_t* src_pixels,
+                                  uint32_t*       dst_pixels,
+                                  uint32_t        src_width,
+                                  uint32_t        src_height,
+                                  uint32_t        dst_width,
+                                  uint32_t        dst_height)
+{
+    if (rotation == ImageRotation::DEG_90)
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixels<ImageRotation::DEG_90, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixels<ImageRotation::DEG_90>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+    else if (rotation == ImageRotation::DEG_270)
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixels<ImageRotation::DEG_270, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixels<ImageRotation::DEG_270>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+    else if (rotation == ImageRotation::DEG_180)
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixels<ImageRotation::DEG_180, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixels<ImageRotation::DEG_180>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+    else if (is_mirrored)
+    {
+        RotateAndMirrorPixels<ImageRotation::DEG_0, /*mirrored=*/true>(
+            src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+    }
+}
+
 void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
                                    const VulkanDeviceInfo*                    device_info,
                                    const graphics::VulkanDeviceTable*         device_table,
@@ -109,29 +250,6 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         copy_height = static_cast<uint32_t>(height * std::abs(copy_scale.value()[1]));
         flip_x      = copy_scale.value()[0] < 0.f;
         flip_y      = copy_scale.value()[1] < 0.f;
-    }
-
-    switch (pre_transform)
-    {
-        case VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR:
-        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR:
-            pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-            flip_x        = !flip_x;
-            flip_y        = !flip_y;
-            break;
-        case VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR:
-        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR:
-            pre_transform = VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR;
-            break;
-        case VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR:
-        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR:
-            pre_transform = VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR;
-            break;
-        case VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
-        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR:
-        default:
-            pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-            break;
     }
 
     VkResult result = VK_SUCCESS;
@@ -455,12 +573,35 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                         uint32_t final_width  = copy_width;
                         uint32_t final_height = copy_height;
 
+                        ImageRotation rotation = ImageRotation::DEG_0;
                         if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
-                            pre_transform == VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR)
+                            pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR)
+                        {
+                            rotation = ImageRotation::DEG_90;
+                        }
+                        else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR ||
+                                 pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR)
+                        {
+                            rotation = ImageRotation::DEG_180;
+                        }
+                        else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR ||
+                                 pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR)
+                        {
+                            rotation = ImageRotation::DEG_270;
+                        }
+
+                        bool is_mirrored =
+                            (pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR ||
+                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR ||
+                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR ||
+                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR);
+
+                        if (rotation != ImageRotation::DEG_0 || is_mirrored)
                         {
                             // Note: We safely assume a 32-bit pixel format (4 bytes) because GetConversionFormat()
                             // strictly enforces VK_FORMAT_B8G8R8A8_UNORM or VK_FORMAT_B8G8R8A8_SRGB.
-                            GFXRECON_ASSERT(format == VK_FORMAT_B8G8R8A8_UNORM || format == VK_FORMAT_B8G8R8A8_SRGB);
+                            GFXRECON_ASSERT(copy_format == VK_FORMAT_B8G8R8A8_UNORM ||
+                                            copy_format == VK_FORMAT_B8G8R8A8_SRGB);
 
                             try
                             {
@@ -473,32 +614,21 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                 uint32_t*       dst_pixels = rotated_pixels_buffer_.data();
                                 write_data                 = rotated_pixels_buffer_.data();
 
-                                final_width  = copy_height;
-                                final_height = copy_width;
-                                bool is_90   = (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR);
+                                final_width  = (rotation == ImageRotation::DEG_90 || rotation == ImageRotation::DEG_270)
+                                                   ? copy_height
+                                                   : copy_width;
+                                final_height = (rotation == ImageRotation::DEG_90 || rotation == ImageRotation::DEG_270)
+                                                   ? copy_width
+                                                   : copy_height;
 
-                                // Loop Tiling (32x32 blocks) to improve CPU cache utilization when reading
-                                // from the src_pixels array with a large stride.
-                                constexpr uint32_t TILE_SIZE = 32;
-                                for (uint32_t dst_y_block = 0; dst_y_block < final_height; dst_y_block += TILE_SIZE)
-                                {
-                                    for (uint32_t dst_x_block = 0; dst_x_block < final_width; dst_x_block += TILE_SIZE)
-                                    {
-                                        uint32_t max_y = std::min(dst_y_block + TILE_SIZE, final_height);
-                                        uint32_t max_x = std::min(dst_x_block + TILE_SIZE, final_width);
-
-                                        for (uint32_t dst_y = dst_y_block; dst_y < max_y; ++dst_y)
-                                        {
-                                            for (uint32_t dst_x = dst_x_block; dst_x < max_x; ++dst_x)
-                                            {
-                                                uint32_t src_x = is_90 ? (copy_width - 1 - dst_y) : dst_y;
-                                                uint32_t src_y = is_90 ? dst_x : (copy_height - 1 - dst_x);
-                                                dst_pixels[static_cast<size_t>(dst_y) * final_width + dst_x] =
-                                                    src_pixels[static_cast<size_t>(src_y) * copy_width + src_x];
-                                            }
-                                        }
-                                    }
-                                }
+                                RotateAndMirrorPixels(rotation,
+                                                      is_mirrored,
+                                                      src_pixels,
+                                                      dst_pixels,
+                                                      copy_width,
+                                                      copy_height,
+                                                      final_width,
+                                                      final_height);
                             }
                             catch (const std::bad_alloc&)
                             {

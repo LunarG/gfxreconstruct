@@ -1301,11 +1301,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.screenshot_ignore_frameBoundaryAndroid = true;
     }
 
-    if (arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument))
-    {
-        replay_options.screenshot_apply_prerotation = true;
-    }
-
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {
         replay_options.quit_after_measurement_frame_range = true;
@@ -1399,6 +1394,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
     replay_options.isolate_render_passes      = arg_parser.IsOptionSet(kIsolateRenderPasses);
     replay_options.serialize_compute_and_transfer = arg_parser.IsOptionSet(kSerializeComputeAndTransfer);
+
+    replay_options.screenshot_apply_prerotation = arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument);
 
     return replay_options;
 }
