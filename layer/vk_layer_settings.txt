@@ -15,6 +15,13 @@
 # Default is: Empty string (hotkey capture trigger is disabled).
 lunarg_gfxreconstruct.capture_trigger =
 
+# Capture Trigger Boundary
+# =====================
+# <LayerIdentifier>.capture_trigger_boundary
+# Select the boundary where GFXReconstruct checks for capture-trigger state
+# changes. Valid values are frames and queue_submits. Default is: frames.
+lunarg_gfxreconstruct.capture_trigger_boundary = frames
+
 # Capture Specific Frames
 # =====================
 # <LayerIdentifier>.capture_frames
