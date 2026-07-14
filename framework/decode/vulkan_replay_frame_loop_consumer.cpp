@@ -274,7 +274,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& cal
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args)
 {
-    if (frame_loop_info_.IsFinalIteration())
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         if (per_device_fence_tracking_.contains(args.device))
         {
