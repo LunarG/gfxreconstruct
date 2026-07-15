@@ -1382,6 +1382,10 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                         {
                             GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: creation of shadow "
                                                "acceleration-structure failed");
+
+                            // do not keep a half-initialized entry around
+                            shadow_as_map_.erase(as_replay_address);
+                            return;
                         }
                     }
 
