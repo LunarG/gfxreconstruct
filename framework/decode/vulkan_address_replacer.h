@@ -551,6 +551,9 @@ class VulkanAddressReplacer
     // resources related to acceleration-structures
     std::unordered_map<VkDeviceAddress, acceleration_structure_asset_t> shadow_as_map_;
 
+    // replacement scratch-buffers for builds only lacking a usable scratch-buffer
+    std::unordered_map<VkAccelerationStructureKHR, buffer_context_t> shadow_scratch_map_;
+
     // currently running compaction queries. pool -> AS -> query-pool-index
     std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> as_compact_queries_;
     std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize>                              as_compact_sizes_;
