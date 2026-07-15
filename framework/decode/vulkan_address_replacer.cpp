@@ -1353,10 +1353,21 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 // now definitely requiring address-replacement
                 force_replace = true;
 
+                // drop stale entries from destroyed acceleration-structures whose device-address got recycled
+                auto stale_shadow_as_it = shadow_as_map_.find(as_replay_address);
+                if (stale_shadow_as_it != shadow_as_map_.end() &&
+                    stale_shadow_as_it->second.origin_handle != build_geometry_info.dstAccelerationStructure)
+                {
+                    util::MarkInjectedCommandsHelper mark_injected_commands_helper_erase;
+                    shadow_as_map_.erase(stale_shadow_as_it);
+                }
+
                 auto& replacement_as = shadow_as_map_[as_replay_address];
 
                 if (replacement_as.handle == VK_NULL_HANDLE)
                 {
+                    replacement_as.origin_handle = build_geometry_info.dstAccelerationStructure;
+
                     if (as_buffer_usable)
                     {
                         replacement_as.handle  = build_geometry_info.dstAccelerationStructure;
@@ -1553,7 +1564,8 @@ void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
         if (acceleration_structure_info != nullptr)
         {
             auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
-            if (shadow_as_it != shadow_as_map_.end())
+            if (shadow_as_it != shadow_as_map_.end() &&
+                shadow_as_it->second.origin_handle == acceleration_structures[i])
             {
                 acceleration_structures[i] = shadow_as_it->second.handle;
             }
@@ -1603,6 +1615,7 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
                 {
                     auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
                     if (acceleration_structure_it != shadow_as_map_.end() &&
+                        acceleration_structure_it->second.origin_handle == write_as->pAccelerationStructures[j] &&
                         acceleration_structure_it->second.storage.num_bytes > 0)
                     {
                         // we found an existing replacement-structure -> swap
@@ -2107,7 +2120,10 @@ bool VulkanAddressReplacer::swap_acceleration_structure_handle(
         if (acceleration_structure_info != nullptr)
         {
             auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
-            if (shadow_as_it != shadow_as_map_.end())
+
+            // only swap if the entry was created for this acceleration-structure,
+            // otherwise it is a stale entry left behind by a destroyed structure at a recycled device-address
+            if (shadow_as_it != shadow_as_map_.end() && shadow_as_it->second.origin_handle == handle)
             {
                 handle = shadow_as_it->second.handle;
                 return true;
@@ -2117,14 +2133,23 @@ bool VulkanAddressReplacer::swap_acceleration_structure_handle(
     return false;
 }
 
-void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR handle)
+void VulkanAddressReplacer::DestroyShadowResources(const VulkanAccelerationStructureKHRInfo* acceleration_structure_info)
 {
-    if (handle != VK_NULL_HANDLE)
+    if (acceleration_structure_info != nullptr && acceleration_structure_info->handle != VK_NULL_HANDLE)
     {
-        auto remove_as_size_it = as_compact_sizes_.find(handle);
+        auto remove_as_size_it = as_compact_sizes_.find(acceleration_structure_info->handle);
         if (remove_as_size_it != as_compact_sizes_.end())
         {
             as_compact_sizes_.erase(remove_as_size_it);
+        }
+
+        // remove a potential shadow-structure along with the tracked acceleration-structure,
+        // avoiding stale entries in case the device-address gets recycled by a future structure
+        auto remove_shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
+        if (remove_shadow_as_it != shadow_as_map_.end())
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            shadow_as_map_.erase(remove_shadow_as_it);
         }
     }
 }
@@ -2140,7 +2165,8 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo*      
             const auto& replay_address_it = acceleration_structure_map.find(capture_address);
             if (replay_address_it != acceleration_structure_map.end())
             {
-                auto remove_shadow_as_it = shadow_as_map_.find(replay_address_it->first);
+                // shadow_as_map_ is keyed by replay-addresses
+                auto remove_shadow_as_it = shadow_as_map_.find(replay_address_it->second);
                 if (remove_shadow_as_it != shadow_as_map_.end())
                 {
                     util::MarkInjectedCommandsHelper mark_injected_commands_helper;
