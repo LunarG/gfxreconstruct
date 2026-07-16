@@ -274,11 +274,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& cal
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args)
 {
-    if (frame_loop_info_.IsFinalIteration())
+    if (allocatedLoopResources.contains(args.fence))
     {
         if (per_device_fence_tracking_.contains(args.device))
         {
             FenceTracking& t = per_device_fence_tracking_[args.device];
+
+            // Remove fence tracking struct from map if
+            // fence was created and destroyed during the loop range.
             t.initial_fence_states_.erase(args.fence);
         }
     }
