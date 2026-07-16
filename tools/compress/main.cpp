@@ -32,8 +32,10 @@
 #include "util/compressor.h"
 #include "util/logging.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <filesystem>
 
 const char kNoDebugPopup[] = "--no-debug-popup";
 
@@ -47,7 +49,8 @@ const char kArgUnknown[] = "<Unknown>";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to compress/decompress GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <input_file> <output_file> <compression_format>\n",

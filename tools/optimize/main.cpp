@@ -25,7 +25,7 @@
 
 #include "optimize_feature.h"
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include "decode/decode_api_detection.h"
 #include "decode/file_processor.h"
@@ -35,15 +35,18 @@
 #include "util/logging.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#if defined(_WIN32)
+#if defined(D3D12_SUPPORT)
+#include "d3d12.h"
+
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 618;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
 }
 extern "C"
 {
@@ -57,7 +60,7 @@ static std::vector<std::unique_ptr<gfxrecon::optimize::OptimizeFeature>> g_optim
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
 
     // Build synopsis from feature fragments so it stays in sync automatically.
     std::string synopsis = app_name + " [-h | --help] [--version]";
@@ -155,7 +158,8 @@ int32_t main(int32_t argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::optimize::OptimizeFeature>(argv[0], arg_parser))
     {
         return EXIT_SUCCESS;
     }

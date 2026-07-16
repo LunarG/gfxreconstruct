@@ -27,16 +27,15 @@
 #include "decode/json_writer.h"
 #include "decode/marker_json_consumer.h"
 #include "decode/metadata_json_consumer.h"
+#include "util/feature_base.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(convert)
 
 // Base untyped interface. Used for the polymorphic feature vector in main.
-class ConvertFeatureBase
+class ConvertFeatureBase : public util::FeatureBase
 {
   public:
-    virtual ~ConvertFeatureBase() = default;
-
     virtual void Initialize(decode::FileProcessor& file_processor, decode::JsonWriter* json_writer) = 0;
     virtual bool WasDetected() const                                                                = 0;
     virtual void Destroy()                                                                          = 0;

@@ -20,46 +20,47 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_FEATURE_H
-#define GFXRECON_INFO_FEATURE_H
+#include "util/api_version_info.h"
 
-#include "decode/info_consumer.h"
-#include "decode/file_processor.h"
-#include "format/format.h"
-#include "util/argument_parser.h"
-#include "util/defines.h"
-#include "util/feature_base.h"
+#if defined(GFXRECON_ENABLE_VULKAN)
+#include "vulkan/vulkan_core.h"
+#endif
 
-#include <nlohmann/json.hpp>
+#if ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
 
-#include <functional>
-#include <iomanip>
-#include <memory>
-#include <sstream>
-#include <vector>
+#if defined(D3D12_SUPPORT)
+#include "d3d12.h"
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(info)
+GFXRECON_BEGIN_NAMESPACE(util)
 
-class InfoFeature : public util::FeatureBase
+#if defined(GFXRECON_ENABLE_VULKAN)
+std::string GetVulkanHeaderVersionString()
 {
-  public:
-    // Simple "getter" style methods
-    virtual bool        WasDetected() = 0;
-    virtual uint32_t    GetBlankFrameCount() { return 0; }
-    virtual uint32_t    GetFrameStart() const { return 0; }
+    return std::string("Vulkan Header Version ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
+           "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+           std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+}
+#endif
 
-    // Method to register this feature's decoder elements with the containers
-    // FileProcessor
-    virtual void RegisterDecodeComponents(decode::FileProcessor&      file_processor,
-                                          const decode::InfoConsumer& info_consumer) = 0;
+#if ENABLE_OPENXR_SUPPORT
+std::string GetOpenXrHeaderVersionString()
+{
+    return std::string("OpenXR Header Version ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+}
+#endif
 
-    // Output methods
-    virtual std::string    GenerateText() = 0;
-    virtual nlohmann::json GenerateJson() = 0;
-};
+#if defined(D3D12_SUPPORT)
+std::string GetD3D12SdkVersionString()
+{
+    return std::string("D3D12 SDK Version ") + std::to_string(D3D12_SDK_VERSION);
+}
+#endif
 
-GFXRECON_END_NAMESPACE(info)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_INFO_FEATURE_H

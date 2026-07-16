@@ -38,9 +38,11 @@
 
 #if defined(D3D12_SUPPORT)
 
+#include "d3d12.h"
+
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 618;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
 }
 extern "C"
 {
@@ -84,7 +86,8 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
-    if (CheckOptionPrintVersion(argv[0], arg_parser) || CheckOptionPrintUsage(argv[0], arg_parser))
+    if (CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(argv[0], arg_parser) ||
+        CheckOptionPrintUsage(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();
         exit(0);

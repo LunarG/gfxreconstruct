@@ -20,26 +20,36 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_EXTRACT_FEATURE_H
-#define GFXRECON_EXTRACT_FEATURE_H
+// Single source of the "compiled header version" strings each API's tool Features report
+// through FeatureBase::CompiledHeaderVersionString(), so every tool prints the same text for
+// the same compiled API regardless of which tool it is.
 
-#include "decode/file_processor.h"
+#ifndef GFXRECON_UTIL_API_VERSION_INFO_H
+#define GFXRECON_UTIL_API_VERSION_INFO_H
+
 #include "util/defines.h"
-#include "util/feature_base.h"
 
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(extract)
+GFXRECON_BEGIN_NAMESPACE(util)
 
-class ExtractFeatureBase : public util::FeatureBase
-{
-  public:
-    virtual void Initialize(decode::FileProcessor& file_processor, const std::string& extract_dir) = 0;
-    virtual bool WasDetected() const                                                               = 0;
-};
+#if defined(GFXRECON_ENABLE_VULKAN)
+// "Vulkan Header Version X.Y.Z", sourced from vulkan_core.h's VK_HEADER_VERSION_COMPLETE.
+std::string GetVulkanHeaderVersionString();
+#endif
 
-GFXRECON_END_NAMESPACE(extract)
+#if ENABLE_OPENXR_SUPPORT
+// "OpenXR Header Version X.Y.Z", sourced from openxr.h's XR_CURRENT_API_VERSION.
+std::string GetOpenXrHeaderVersionString();
+#endif
+
+#if defined(D3D12_SUPPORT)
+// "D3D12 SDK Version X", sourced from d3d12.h's D3D12_SDK_VERSION.
+std::string GetD3D12SdkVersionString();
+#endif
+
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_EXTRACT_FEATURE_H
+#endif // GFXRECON_UTIL_API_VERSION_INFO_H
