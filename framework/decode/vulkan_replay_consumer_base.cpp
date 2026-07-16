@@ -9722,7 +9722,7 @@ void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
         GetDeviceAddressTracker(device_info).RemoveAccelerationStructure(acceleration_structure_info);
 
         // free potential shadow-resources
-        GetDeviceAddressReplacer(device_info).DestroyShadowResources(acceleration_structure);
+        GetDeviceAddressReplacer(device_info).DestroyShadowResources(acceleration_structure_info);
 
         if (options_.dumping_resources)
         {
