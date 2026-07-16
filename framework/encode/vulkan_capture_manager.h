@@ -973,25 +973,11 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
-                                          VkSubpassContents)
-    {
-        if (IsCaptureModeTrack())
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
-        }
-    }
+                                          VkSubpassContents);
 
     void PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer              commandBuffer,
                                            const VkRenderPassBeginInfo* pRenderPassBegin,
-                                           const VkSubpassBeginInfoKHR*)
-    {
-        if (IsCaptureModeTrack())
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
-        }
-    }
+                                           const VkSubpassBeginInfoKHR*);
 
     void PostProcess_vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
     {
@@ -1061,10 +1047,38 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkResetCommandPool(VkResult result, VkDevice, VkCommandPool commandPool, VkCommandPoolResetFlags)
     {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+        if (result == VK_SUCCESS)
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackResetCommandPool(commandPool);
+            if (IsCaptureModeTrack())
+            {
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackResetCommandPool(commandPool);
+            }
+
+            if (GetUseAssetFile())
+            {
+                auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(commandPool);
+                for (const auto& entry : wrapper->child_buffers)
+                {
+                    ClearCommandBufferAssetState(entry.second);
+                }
+            }
+        }
+    }
+
+    void PostProcess_vkResetCommandBuffer(VkResult result, VkCommandBuffer command_buffer, VkCommandBufferResetFlags)
+    {
+        if (result == VK_SUCCESS)
+        {
+            if (GetUseAssetFile())
+            {
+                auto* cmd_buffer_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+                if (cmd_buffer_wrapper != nullptr)
+                {
+                    ClearCommandBufferAssetState(cmd_buffer_wrapper);
+                }
+            }
         }
     }
 
@@ -1572,10 +1586,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                  uint32_t                        rangeCount,
                                                  const VkImageSubresourceRange*  pRanges);
 
-    void PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
-                                       VkPipelineBindPoint pipelineBindPoint,
-                                       VkPipeline          pipeline);
-
     void PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
                                uint32_t        vertexCount,
                                uint32_t        instanceCount,
@@ -1841,25 +1851,20 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
-    {
-        return layer_settings_;
-    }
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override { return layer_settings_; }
+
+    void PreProcess_vkDestroyBuffer(VkDevice, VkBuffer buffer, const VkAllocationCallbacks*);
+
+    void PreProcess_vkDestroyImage(VkDevice, VkImage image, const VkAllocationCallbacks*);
 
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override
-    {
-        state_tracker_ = std::make_unique<VulkanStateTracker>();
-    }
+    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
 
-    virtual void DestroyStateTracker() override
-    {
-        state_tracker_ = nullptr;
-    }
+    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 
@@ -1927,8 +1932,36 @@ class VulkanCaptureManager : public ApiCaptureManager
     bool CheckPNextChainForFrameBoundary(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
                                          const VkBaseInStructure*                               current);
 
-  private:
     void QueueSubmitWriteFillMemoryCmd();
+
+    void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
+
+    void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
+
+    void TrackPipelineDescriptors(VkCommandBuffer command_buffer, vulkan_state_info::PipelineBindPoints ppl_bind_point);
+
+    void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
+                                  vulkan_state_info::PipelineBindPoints  ppl_bind_point);
+
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
+
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
+
+    void MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper);
+
+    void TrackAssetsInMemory(format::HandleId memory_id);
+
+    void TrackMappedAssetsWrites(format::HandleId memory_id);
+
+    void ProcessBindResourceMemory(vulkan_wrappers::AssetWrapperBase* resource,
+                                   VkDeviceMemory                     memory,
+                                   VkDeviceSize                       memoryOffset);
+
+    void ProcessUnbindResourceMemory(vulkan_wrappers::AssetWrapperBase* resource);
+
+    void MarkRenderPassAttachmentsAsModified(VkCommandBuffer commandBuffer);
+
+    void ClearCommandBufferAssetState(vulkan_wrappers::CommandBufferWrapper* wrapper);
 
     static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;

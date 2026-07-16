@@ -495,8 +495,6 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     };
     std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
 
-    const PipelineWrapper* bound_pipelines[vulkan_state_info::PipelineBindPoints::kBindPoint_count]{ nullptr };
-
     std::unordered_map<uint32_t, const DescriptorSetWrapper*>
         bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
 

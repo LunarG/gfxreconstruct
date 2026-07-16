@@ -667,6 +667,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandPool>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkResetCommandBuffer(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 {
     template <typename... Args>
@@ -763,6 +773,26 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PreProcess_vkQueueBindSparse(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroyBuffer(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImage>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroyImage(args...);
     }
 };
 
@@ -1351,16 +1381,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLab
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PostProcess_vkCmdInsertDebugUtilsLabelEXT(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_vkCmdBindPipeline(args...);
     }
 };
 
