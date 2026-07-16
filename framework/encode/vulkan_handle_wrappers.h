@@ -28,6 +28,7 @@
 #include "encode/vulkan_state_info.h"
 #include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_acceleration_structure_build_state.h"
+#include "format/api_call_log.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_util.h"
@@ -445,7 +446,7 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
     // Members for trimming state tracking.
     VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
-    util::MemoryOutputStream   command_data;
+    format::ApiCallLog<>       command_data;
     std::set<format::HandleId> command_handles[vulkan_state_info::CommandHandleType::NumHandleTypes];
 
     enum CommandBufferState

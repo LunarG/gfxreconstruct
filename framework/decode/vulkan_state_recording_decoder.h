@@ -23,25 +23,18 @@
 #ifndef GFXRECON_DECODE_VULKAN_STATE_RECORDING_DECODER_H
 #define GFXRECON_DECODE_VULKAN_STATE_RECORDING_DECODER_H
 
+#include "format/api_call_log.h"
 #include "generated/generated_vulkan_decoder.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct VulkanCommandEntry
-{
-    format::ApiCallId call_id;
-
-    /// Original block's info, replayed verbatim.
-    ApiCallInfo call_info;
-
-    /// Owned copy of the encoded parameter buffer.
-    std::vector<uint8_t> parameters;
-};
-
 class VulkanStateCommandRecorder
 {
   public:
+    /// Log of encoded API calls; each entry keeps the original block's ApiCallInfo, replayed verbatim.
+    using CommandBufferLog = format::ApiCallLog<ApiCallInfo>;
+
     /// Records the undecoded buffer of a Vulkan API call for reissuing later.
     void
     Record(format::ApiCallId call_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
@@ -50,13 +43,10 @@ class VulkanStateCommandRecorder
         format::HandleId command_buffer_id = 0;
         ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &command_buffer_id);
 
-        const auto entry = VulkanCommandEntry{ call_id,
-                                               call_info,
-                                               std::vector<uint8_t>(parameter_buffer, parameter_buffer + buffer_size) };
-        per_cb_log_[command_buffer_id].push_back(entry);
+        per_cb_log_[command_buffer_id].Append(call_id, call_info, parameter_buffer, buffer_size);
     }
 
-    const std::vector<VulkanCommandEntry>* GetCommandBufferLog(format::HandleId command_buffer_id) const
+    const CommandBufferLog* GetCommandBufferLog(format::HandleId command_buffer_id) const
     {
         const auto it = per_cb_log_.find(command_buffer_id);
         if (it != per_cb_log_.end())
@@ -70,7 +60,7 @@ class VulkanStateCommandRecorder
     void Clear() { per_cb_log_.clear(); }
 
   private:
-    std::unordered_map<format::HandleId, std::vector<VulkanCommandEntry>> per_cb_log_;
+    std::unordered_map<format::HandleId, CommandBufferLog> per_cb_log_;
 };
 
 class VulkanStateRecordingDecoder : public VulkanDecoder
@@ -108,7 +98,7 @@ class VulkanStateRecordingDecoder : public VulkanDecoder
 
     void ReissueCommandBufferState(format::HandleId command_buffer_id)
     {
-        const std::vector<VulkanCommandEntry>* command_buffer_log =
+        const VulkanStateCommandRecorder::CommandBufferLog* command_buffer_log =
             state_recorder_.GetCommandBufferLog(command_buffer_id);
         if (command_buffer_log == nullptr)
         {
@@ -117,13 +107,14 @@ class VulkanStateRecordingDecoder : public VulkanDecoder
 
         recording_ = false;
 
-        for (const VulkanCommandEntry& entry : *command_buffer_log)
-        {
-            GFXRECON_LOG_DEBUG("Reissuing Vulkan state command %" PRIu32 " for command buffer %" PRIu64,
-                               entry.call_id,
-                               command_buffer_id);
-            DecodeFunctionCall(entry.call_id, entry.call_info, entry.parameters.data(), entry.parameters.size());
-        }
+        command_buffer_log->ForEach([this, command_buffer_id](format::ApiCallId  call_id,
+                                                              const ApiCallInfo& call_info,
+                                                              const uint8_t*     parameter_buffer,
+                                                              size_t             buffer_size) {
+            GFXRECON_LOG_DEBUG(
+                "Reissuing Vulkan state command %" PRIu32 " for command buffer %" PRIu64, call_id, command_buffer_id);
+            DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
+        });
 
         recording_ = true;
     }
