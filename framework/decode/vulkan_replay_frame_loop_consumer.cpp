@@ -70,18 +70,12 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
                                                                 args::CreateCommandPool& args)
 {
-    if (frame_loop_info_.IsRepetition())
-    {
-        // Don't repeatedly recreate the command pool during the looping frame
-        return;
-    }
-
     // Set VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT in order to prevent validation
     // error regarding implicitly resetting the command buffer
     VkCommandPoolCreateInfo* create_info = args.pCreateInfo.GetPointer();
     create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-    VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, args);
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,
