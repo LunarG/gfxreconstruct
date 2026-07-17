@@ -39,6 +39,8 @@ static size_t GetSizeOfStruct(GfxrReplayEventType type)
             return sizeof(GfxrReplayFrameBeginEvent);
         case GFXR_REPLAY_EVENT_FRAME_END:
             return sizeof(GfxrReplayFrameEndEvent);
+        case GFXR_REPLAY_EVENT_STATE_LOADING_COMPLETE:
+            return sizeof(GfxrReplayStateLoadingCompleteEvent);
         default:
             GFXRECON_ASSERT(false && "Unknown event type");
             return 0;
@@ -127,6 +129,15 @@ void ReplayEventSink::FrameEnd()
     last_submit_index_  = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
 }
 
+void ReplayEventSink::StateLoadingComplete(uint64_t frame_number)
+{
+    GfxrReplayStateLoadingCompleteEvent event = {};
+    event.header                              = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_LOADING_COMPLETE);
+    event.frame_number                        = frame_number;
+
+    EmitStateLoadingComplete(event);
+}
+
 PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle library,
                                              GfxrReplayPluginV1*           plugin,
                                              CloseLibraryFunc              close_library) :
@@ -167,6 +178,11 @@ void PluginReplayEventSink::EmitFrameBegin(const GfxrReplayFrameBeginEvent& even
 }
 
 void PluginReplayEventSink::EmitFrameEnd(const GfxrReplayFrameEndEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitStateLoadingComplete(const GfxrReplayStateLoadingCompleteEvent& event)
 {
     Forward(event.header);
 }

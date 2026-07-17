@@ -399,7 +399,10 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
+    /* Android Performance Analyzer uses the frame_number parameter.
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
+    Android Performance Analyzer. */
+
     loading_trim_state_ = false;
     if (fps_info_ != nullptr)
     {
@@ -410,6 +413,11 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         resource_dumper_->ProcessStateEndMarker();
     }
+
+    // Android Performance Analyzer: Emit "State Loading" events to designate the start of
+    // the first frame when replaying a trimmed .gfxr capture, useful when exporting to RenderDoc.
+    application_->GetReplayEventSink()->StateLoadingComplete(frame_number);
+    // Android Performance Analyzer.
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)

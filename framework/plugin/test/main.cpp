@@ -33,6 +33,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
     GfxrReplayEventHeader         last_event_header     = {};
     GfxrReplayQueueSubmitEndEvent last_submit_end_event = {};
     GfxrReplayFrameEndEvent       last_frame_end_event  = {};
+    GfxrReplayStateLoadingCompleteEvent last_state_loading_complete_event = {};
 
   protected:
     void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override
@@ -67,6 +68,15 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayFrameEndEvent));
         last_event_header    = event.header;
         last_frame_end_event = event;
+    }
+
+    void EmitStateLoadingComplete(const GfxrReplayStateLoadingCompleteEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_STATE_LOADING_COMPLETE);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayStateLoadingCompleteEvent));
+        last_event_header                 = event.header;
+        last_state_loading_complete_event = event;
     }
 };
 
@@ -159,6 +169,19 @@ TEST_CASE("ReplayEventSink - global submit index", "[plugin]")
     REQUIRE(event_sink.last_event_header.frame_index == 1);
     REQUIRE(event_sink.last_frame_end_event.first_submit_index == next_submit_index);
     REQUIRE(event_sink.last_frame_end_event.last_submit_index == next_submit_index);
+}
+
+TEST_CASE("ReplayEventSink - state loading complete", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    TestReplayEventSink event_sink;
+
+    event_sink.FrameBegin(0);
+    event_sink.StateLoadingComplete(10);
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    REQUIRE(event_sink.last_state_loading_complete_event.frame_number == 10);
+    REQUIRE(event_sink.last_event_header.type == GFXR_REPLAY_EVENT_STATE_LOADING_COMPLETE);
 }
 
 static void FakeDestroy(GfxrReplayPluginV1* self)

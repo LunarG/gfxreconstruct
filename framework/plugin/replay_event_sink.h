@@ -44,6 +44,7 @@ class ReplayEventSink
 
     void FrameBegin(uint64_t frame_index);
     void FrameEnd();
+    void StateLoadingComplete(uint64_t frame_number);
 
     bool IsFrameActive() const { return frame_active_; }
 
@@ -52,6 +53,7 @@ class ReplayEventSink
     virtual void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event)     = 0;
     virtual void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event)             = 0;
     virtual void EmitFrameEnd(const GfxrReplayFrameEndEvent& event)                 = 0;
+    virtual void EmitStateLoadingComplete(const GfxrReplayStateLoadingCompleteEvent& event) = 0;
 
   private:
     GfxrReplayEventHeader CreateEventHeader(GfxrReplayEventType type);
@@ -71,6 +73,7 @@ class NullReplayEventSink final : public ReplayEventSink
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent&) override {}
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent&) override {}
     void EmitFrameEnd(const GfxrReplayFrameEndEvent&) override {}
+    void EmitStateLoadingComplete(const GfxrReplayStateLoadingCompleteEvent&) override {}
 };
 
 class PluginReplayEventSink final : public ReplayEventSink
@@ -88,6 +91,7 @@ class PluginReplayEventSink final : public ReplayEventSink
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override;
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override;
     void EmitFrameEnd(const GfxrReplayFrameEndEvent& event) override;
+    void EmitStateLoadingComplete(const GfxrReplayStateLoadingCompleteEvent& event) override;
 
   private:
     void Forward(const GfxrReplayEventHeader& event);
