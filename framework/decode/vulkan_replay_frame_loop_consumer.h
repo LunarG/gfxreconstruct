@@ -47,8 +47,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
-    void Process_vkCreateDescriptorPool(const ApiCallInfo& call_info, args::CreateDescriptorPool& args) override;
-
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -90,9 +88,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     /// A "dangling" resource is one that was either
     /// - created during the loop range but destroyed after it
     /// - or created before the loop range but destroyed during it
-    std::unordered_set<format::HandleId> dangling_create_descriptor_pools_;
     std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
-    std::unordered_set<format::HandleId> dangling_destroy_descriptor_pools_;
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
     std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
