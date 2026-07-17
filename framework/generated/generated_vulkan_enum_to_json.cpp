@@ -6931,6 +6931,12 @@ void to_json(nlohmann::ordered_json& jdata, const StdVideoH264ProfileIdc& value)
         case STD_VIDEO_H264_PROFILE_IDC_HIGH:
             jdata = "STD_VIDEO_H264_PROFILE_IDC_HIGH";
             break;
+        case STD_VIDEO_H264_PROFILE_IDC_HIGH_10:
+            jdata = "STD_VIDEO_H264_PROFILE_IDC_HIGH_10";
+            break;
+        case STD_VIDEO_H264_PROFILE_IDC_HIGH_422:
+            jdata = "STD_VIDEO_H264_PROFILE_IDC_HIGH_422";
+            break;
         case STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE:
             jdata = "STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE";
             break;

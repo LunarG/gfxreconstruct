@@ -9196,17 +9196,6 @@ void MapStructHandles(Decoded_VkDispatchTileInfoQCOM* wrapper, const CommonObjec
     }
 }
 
-void MapStructHandles(Decoded_VkQueryLowLatencySupportNV* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
 void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -16209,9 +16198,6 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
         MapStructHandles(reinterpret_cast<Decoded_VkPushDescriptorSetInfo*>(wrapper), object_info_table);
-        break;
-    case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-        MapStructHandles(reinterpret_cast<Decoded_VkQueryLowLatencySupportNV*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
         MapStructHandles(reinterpret_cast<Decoded_VkQueryPoolCreateInfo*>(wrapper), object_info_table);

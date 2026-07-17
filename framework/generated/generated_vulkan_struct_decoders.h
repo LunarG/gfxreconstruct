@@ -9046,16 +9046,6 @@ struct Decoded_VkDispatchTileInfoQCOM
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkQueryLowLatencySupportNV
-{
-    using struct_type = VkQueryLowLatencySupportNV;
-
-    VkQueryLowLatencySupportNV* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    uint64_t pQueriedLowLatencyData{ 0 };
-};
-
 struct Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT
 {
     using struct_type = VkPhysicalDeviceDescriptorBufferPropertiesEXT;

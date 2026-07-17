@@ -3065,10 +3065,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkDispatchTileInfoQCOM*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkQueryLowLatencySupportNV*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(pNext), 1, out_ptr);

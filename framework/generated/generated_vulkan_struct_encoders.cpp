@@ -8974,13 +8974,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDispatchTileInfoQCOM& value
     EncodePNextStructIfValid(encoder, value.pNext);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVoidPtr(value.pQueriedLowLatencyData);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferPropertiesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

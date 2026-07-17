@@ -3656,10 +3656,6 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPushDescriptorSetWithTemplateInfo>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkQueryLowLatencySupportNV>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
             case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkQueryPoolCreateInfo>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);

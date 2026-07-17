@@ -8484,17 +8484,6 @@ void UnwrapStructHandles(VkDispatchTileInfoQCOM* value, HandleUnwrapMemory* unwr
     }
 }
 
-void UnwrapStructHandles(VkQueryLowLatencySupportNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
-    }
-}
-
 void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -15226,9 +15215,6 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPushDescriptorSetInfo*>(base), 1, unwrap_memory));
-        break;
-    case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryLowLatencySupportNV*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryPoolCreateInfo*>(base), 1, unwrap_memory));

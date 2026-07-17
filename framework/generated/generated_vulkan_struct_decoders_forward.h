@@ -980,7 +980,6 @@ struct Decoded_VkRenderPassTileShadingCreateInfoQCOM;
 struct Decoded_VkPerTileBeginInfoQCOM;
 struct Decoded_VkPerTileEndInfoQCOM;
 struct Decoded_VkDispatchTileInfoQCOM;
-struct Decoded_VkQueryLowLatencySupportNV;
 struct Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT;
 struct Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT;
 struct Decoded_VkDescriptorAddressInfoEXT;
@@ -2319,7 +2318,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerTileBeginInfoQCOM* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerTileEndInfoQCOM* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDispatchTileInfoQCOM* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkQueryLowLatencySupportNV* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorAddressInfoEXT* wrapper);
