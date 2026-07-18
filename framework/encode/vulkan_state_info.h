@@ -197,39 +197,6 @@ static PipelineBindPoints VkPipelinePointToPipelinePoint(VkPipelineBindPoint bin
     }
 }
 
-static void VkShaderStageFlagsToPipelinePoint(VkShaderStageFlags stage_flags, std::vector<PipelineBindPoints>& points)
-{
-    if (((stage_flags & VK_SHADER_STAGE_VERTEX_BIT) == VK_SHADER_STAGE_VERTEX_BIT) ||
-        ((stage_flags & VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT) == VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT) ||
-        ((stage_flags & VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT) == VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT) ||
-        ((stage_flags & VK_SHADER_STAGE_GEOMETRY_BIT) == VK_SHADER_STAGE_GEOMETRY_BIT) ||
-        ((stage_flags & VK_SHADER_STAGE_FRAGMENT_BIT) == VK_SHADER_STAGE_FRAGMENT_BIT))
-    {
-        points.push_back(kBindPoint_graphics);
-    }
-
-    if ((stage_flags & VK_SHADER_STAGE_COMPUTE_BIT) == VK_SHADER_STAGE_COMPUTE_BIT)
-    {
-        points.push_back(kBindPoint_graphics);
-    }
-
-    if (((stage_flags & VK_SHADER_STAGE_RAYGEN_BIT_KHR) == VK_SHADER_STAGE_RAYGEN_BIT_KHR) ||
-        ((stage_flags & VK_SHADER_STAGE_ANY_HIT_BIT_KHR) == VK_SHADER_STAGE_ANY_HIT_BIT_KHR) ||
-        ((stage_flags & VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR) == VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR) ||
-        ((stage_flags & VK_SHADER_STAGE_MISS_BIT_KHR) == VK_SHADER_STAGE_MISS_BIT_KHR) ||
-        ((stage_flags & VK_SHADER_STAGE_INTERSECTION_BIT_KHR) == VK_SHADER_STAGE_INTERSECTION_BIT_KHR) ||
-        ((stage_flags & VK_SHADER_STAGE_CALLABLE_BIT_KHR) == VK_SHADER_STAGE_CALLABLE_BIT_KHR))
-    {
-        points.push_back(kBindPoint_ray_tracing);
-    }
-
-    if (((stage_flags & VK_SHADER_STAGE_TASK_BIT_EXT) == VK_SHADER_STAGE_TASK_BIT_EXT) ||
-        ((stage_flags & VK_SHADER_STAGE_MESH_BIT_EXT) == VK_SHADER_STAGE_MESH_BIT_EXT))
-    {
-        GFXRECON_LOG_ERROR("shader stages 0x%x not handled", stage_flags);
-    }
-}
-
 GFXRECON_END_NAMESPACE(vulkan_state_info)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

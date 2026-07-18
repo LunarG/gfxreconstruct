@@ -495,7 +495,18 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     };
     std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
 
-    std::unordered_map<uint32_t, const DescriptorSetWrapper*>
+    // Descriptor sets bound to this command buffer plus the dynamic offsets provided at bind time,
+    // stored per binding index and array element so consumers do not need to re-derive the
+    // spec-defined dynamic offset ordering.
+    struct BoundDescriptorSet
+    {
+        const DescriptorSetWrapper* desc_set{ nullptr };
+
+        // Binding index -> per-array-element dynamic offsets; only populated for *_DYNAMIC bindings.
+        std::unordered_map<uint32_t, std::vector<uint32_t>> dynamic_offsets;
+    };
+
+    std::unordered_map<uint32_t, BoundDescriptorSet>
         bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
 
     std::unordered_set<AssetWrapperBase*> modified_assets;

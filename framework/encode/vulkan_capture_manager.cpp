@@ -48,6 +48,7 @@
 #include "util/platform.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
+#include <algorithm>
 #include <cassert>
 #include <unordered_set>
 
@@ -4166,6 +4167,72 @@ void VulkanCaptureManager::PostProcess_vkCmdTraceRaysIndirect2KHR(VkCommandBuffe
     TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_ray_tracing);
 }
 
+void VulkanCaptureManager::UpdateCommandBufferDescriptors(VkCommandBuffer        commandBuffer,
+                                                          VkPipelineBindPoint    pipelineBindPoint,
+                                                          uint32_t               firstSet,
+                                                          uint32_t               descriptorSetCount,
+                                                          const VkDescriptorSet* pDescriptorSets,
+                                                          uint32_t               dynamicOffsetCount,
+                                                          const uint32_t*        pDynamicOffsets)
+{
+    vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+
+    if (cmd_buf_wrapper == nullptr || pDescriptorSets == nullptr)
+    {
+        return;
+    }
+
+    const vulkan_state_info::PipelineBindPoints bind_point =
+        vulkan_state_info::VkPipelinePointToPipelinePoint(pipelineBindPoint);
+
+    uint32_t dynamic_offset = 0;
+    for (uint32_t i = 0; i < descriptorSetCount; ++i)
+    {
+        const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[i]);
+
+        auto& bound    = cmd_buf_wrapper->bound_descriptors[bind_point][firstSet + i];
+        bound.desc_set = desc_set_wrapper;
+        bound.dynamic_offsets.clear();
+
+        // Elements of pDescriptorSets may be VK_NULL_HANDLE when the graphicsPipelineLibrary feature is enabled
+        if (desc_set_wrapper == nullptr)
+        {
+            continue;
+        }
+
+        // pDynamicOffsets entries apply to the sets in bind order, then within each set in
+        // increasing binding index, then array element
+        std::vector<uint32_t> dynamic_bindings;
+        for (const auto& [binding_index, binding] : desc_set_wrapper->bindings)
+        {
+            if (binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+                binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
+            {
+                dynamic_bindings.push_back(binding_index);
+            }
+        }
+        std::sort(dynamic_bindings.begin(), dynamic_bindings.end());
+
+        for (uint32_t binding_index : dynamic_bindings)
+        {
+            const vulkan_state_info::DescriptorInfo& info    = desc_set_wrapper->bindings.at(binding_index);
+            std::vector<uint32_t>&                   offsets = bound.dynamic_offsets[binding_index];
+            offsets.resize(info.count);
+            for (uint32_t ai = 0; ai < info.count; ++ai)
+            {
+                GFXRECON_ASSERT(dynamic_offset < dynamicOffsetCount);
+                offsets[ai] = (pDynamicOffsets != nullptr && dynamic_offset < dynamicOffsetCount)
+                                  ? pDynamicOffsets[dynamic_offset]
+                                  : 0;
+                ++dynamic_offset;
+            }
+        }
+    }
+    GFXRECON_ASSERT(dynamic_offset == dynamicOffsetCount);
+}
+
 void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
                                                                VkPipelineBindPoint    pipelineBindPoint,
                                                                VkPipelineLayout       layout,
@@ -4177,22 +4244,13 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets(VkCommandBuffer  
 {
     if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        if (pDescriptorSets != nullptr && commandBuffer != VK_NULL_HANDLE)
-        {
-            vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-            assert(cmd_buf_wrapper != nullptr);
-
-            for (uint32_t i = 0; i < descriptorSetCount; ++i)
-            {
-                vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[i]);
-
-                const vulkan_state_info::PipelineBindPoints bind_point =
-                    vulkan_state_info::VkPipelinePointToPipelinePoint(pipelineBindPoint);
-                cmd_buf_wrapper->bound_descriptors[bind_point][firstSet + i] = desc_set_wrapper;
-            }
-        }
+        UpdateCommandBufferDescriptors(commandBuffer,
+                                       pipelineBindPoint,
+                                       firstSet,
+                                       descriptorSetCount,
+                                       pDescriptorSets,
+                                       dynamicOffsetCount,
+                                       pDynamicOffsets);
     }
 }
 
@@ -4201,26 +4259,19 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2KHR(
 {
     if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        if (pBindDescriptorSetsInfo != nullptr && pBindDescriptorSetsInfo->pDescriptorSets != nullptr &&
-            commandBuffer != VK_NULL_HANDLE)
+        if (pBindDescriptorSetsInfo != nullptr)
         {
-            vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-            assert(cmd_buf_wrapper != nullptr);
-
-            for (uint32_t i = 0; i < pBindDescriptorSetsInfo->descriptorSetCount; ++i)
+            const std::vector<VkPipelineBindPoint> bind_points =
+                graphics::ShaderStageFlagsToPipelineBindPoints(pBindDescriptorSetsInfo->stageFlags);
+            for (const VkPipelineBindPoint bind_point : bind_points)
             {
-                vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(
-                        pBindDescriptorSetsInfo->pDescriptorSets[i]);
-
-                std::vector<vulkan_state_info::PipelineBindPoints> bind_points;
-                vulkan_state_info::VkShaderStageFlagsToPipelinePoint(pBindDescriptorSetsInfo->stageFlags, bind_points);
-                for (auto bind_point : bind_points)
-                {
-                    cmd_buf_wrapper->bound_descriptors[bind_point][pBindDescriptorSetsInfo->firstSet + i] =
-                        desc_set_wrapper;
-                }
+                UpdateCommandBufferDescriptors(commandBuffer,
+                                               bind_point,
+                                               pBindDescriptorSetsInfo->firstSet,
+                                               pBindDescriptorSetsInfo->descriptorSetCount,
+                                               pBindDescriptorSetsInfo->pDescriptorSets,
+                                               pBindDescriptorSetsInfo->dynamicOffsetCount,
+                                               pBindDescriptorSetsInfo->pDynamicOffsets);
             }
         }
     }
@@ -4527,7 +4578,7 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
 
     for (const auto& desc_set : command_wrapper->bound_descriptors[ppl_bind_point])
     {
-        const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper = desc_set.second;
+        const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper = desc_set.second.desc_set;
         if (desc_set_wrapper == nullptr)
         {
             continue;

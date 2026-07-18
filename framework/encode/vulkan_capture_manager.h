@@ -1940,6 +1940,14 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void TrackPipelineDescriptors(VkCommandBuffer command_buffer, vulkan_state_info::PipelineBindPoints ppl_bind_point);
 
+    void UpdateCommandBufferDescriptors(VkCommandBuffer        commandBuffer,
+                                        VkPipelineBindPoint    pipelineBindPoint,
+                                        uint32_t               firstSet,
+                                        uint32_t               descriptorSetCount,
+                                        const VkDescriptorSet* pDescriptorSets,
+                                        uint32_t               dynamicOffsetCount,
+                                        const uint32_t*        pDynamicOffsets);
+
     void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
                                   vulkan_state_info::PipelineBindPoints  ppl_bind_point);
 
