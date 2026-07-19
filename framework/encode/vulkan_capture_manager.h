@@ -1951,12 +1951,15 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void QueueSubmitWriteFillMemoryCmd();
 
-    void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
+    void InsertImageAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
+                                         VkImage                             image,
+                                         vulkan_wrappers::ResourceAccessType access);
 
-    void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer,
-                                          VkBuffer        buffer,
-                                          uint64_t        offset = 0,
-                                          uint64_t        size   = VK_WHOLE_SIZE);
+    void InsertBufferAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
+                                          VkBuffer                            buffer,
+                                          vulkan_wrappers::ResourceAccessType access,
+                                          uint64_t                            offset = 0,
+                                          uint64_t                            size   = VK_WHOLE_SIZE);
 
     void UpdateCommandBufferDescriptors(VkCommandBuffer        commandBuffer,
                                         VkPipelineBindPoint    pipelineBindPoint,
