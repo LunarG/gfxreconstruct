@@ -44,6 +44,7 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
 #include <set>
@@ -449,6 +450,29 @@ static uint64_t VkWholeSizeToBufferSize(const AssetWrapperBase* wrapper, uint64_
     return size;
 }
 
+enum class ResourceAccessType : uint8_t
+{
+    kUnknown = 0,
+    kRead    = 1,
+    kWrite   = 2
+};
+
+inline constexpr ResourceAccessType operator|(ResourceAccessType x, ResourceAccessType y)
+{
+    return static_cast<ResourceAccessType>(static_cast<uint8_t>(x) | static_cast<uint8_t>(y));
+}
+
+inline constexpr ResourceAccessType operator&(ResourceAccessType x, ResourceAccessType y)
+{
+    return static_cast<ResourceAccessType>(static_cast<uint8_t>(x) & static_cast<uint8_t>(y));
+}
+
+inline ResourceAccessType& operator|=(ResourceAccessType& x, ResourceAccessType y)
+{
+    x = x | y;
+    return x;
+}
+
 struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
@@ -549,22 +573,36 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
     std::vector<CommandBufferWrapper*> secondaries;
 
-    std::unordered_map<AssetWrapperBase*, util::RangeList> referenced_resources;
+    struct ReferencedResourceRange
+    {
+        ReferencedResourceRange() = delete;
+        ReferencedResourceRange(uint64_t offset, uint64_t size, ResourceAccessType access) :
+            range_list(offset, size), access_type(access)
+        {}
 
-    void ReferenceResource(AssetWrapperBase* resource, uint64_t offset, uint64_t size)
+        void SetAccessType(ResourceAccessType access) { access_type |= access; }
+
+        util::RangeList    range_list;
+        ResourceAccessType access_type;
+    };
+
+    std::unordered_map<AssetWrapperBase*, ReferencedResourceRange> referenced_ranges;
+
+    void ReferenceResource(AssetWrapperBase* resource, uint64_t offset, uint64_t size, ResourceAccessType access)
     {
         const uint64_t converted_size = VkWholeSizeToBufferSize(resource, offset, size);
 
-        auto entry = referenced_resources.find(resource);
-        if (entry == referenced_resources.end())
+        auto entry = referenced_ranges.find(resource);
+        if (entry == referenced_ranges.end())
         {
-            referenced_resources.emplace(std::piecewise_construct,
+            referenced_ranges.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(resource),
-                                         std::forward_as_tuple(offset, converted_size));
+                                         std::forward_as_tuple(offset, converted_size, access));
         }
         else
         {
-            entry->second.AddRange(offset, converted_size);
+            entry->second.range_list.AddRange(offset, converted_size);
+            entry->second.SetAccessType(access);
         }
     }
 };
