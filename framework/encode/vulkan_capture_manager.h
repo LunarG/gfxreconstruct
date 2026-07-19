@@ -39,6 +39,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
+#include "util/logging.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
@@ -1051,6 +1052,20 @@ class VulkanCaptureManager : public ApiCaptureManager
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
         }
+
+        if (IsCaptureModeTrack() && GetUseAssetFile())
+        {
+            auto primary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+            if (primary_wrapper != nullptr && commandBufferCount && pCommandBuffers != nullptr)
+            {
+                for (uint32_t i = 0; i < commandBufferCount; ++i)
+                {
+                    auto secondary_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers[i]);
+                    primary_wrapper->secondaries.push_back(secondary_wrapper);
+                }
+            }
+        }
     }
 
     void PostProcess_vkTrimCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolTrimFlags)
@@ -1068,11 +1083,11 @@ class VulkanCaptureManager : public ApiCaptureManager
         {
             if (IsCaptureModeTrack())
             {
-                assert(state_tracker_ != nullptr);
+                GFXRECON_ASSERT(state_tracker_ != nullptr);
                 state_tracker_->TrackResetCommandPool(commandPool);
             }
 
-            if (GetUseAssetFile())
+            if (IsCaptureModeTrack() && GetUseAssetFile())
             {
                 auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(commandPool);
                 for (const auto& entry : wrapper->child_buffers)

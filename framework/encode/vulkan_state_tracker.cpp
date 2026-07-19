@@ -723,8 +723,6 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
         auto secondary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[i]);
         assert(secondary_wrapper != nullptr);
 
-        primary_wrapper->secondaries.push_back(secondary_wrapper);
-
         for (const auto& layout_entry : secondary_wrapper->pending_layouts)
         {
             primary_wrapper->pending_layouts[layout_entry.first] = layout_entry.second;
