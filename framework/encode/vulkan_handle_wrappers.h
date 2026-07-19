@@ -37,6 +37,7 @@
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
+#include "util/range_list.h"
 
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
@@ -46,8 +47,10 @@
 #include <memory>
 #include <set>
 #include <map>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 #include <vector>
 #include <optional>
@@ -307,6 +310,8 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 {
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
+    VkDeviceSize     offset{ 0 };
+    VkDeviceSize     range{ 0 };
 
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
@@ -432,6 +437,16 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // TODO: Pipeline cache
 };
 
+static uint64_t VkWholeSizeToBufferSize(const AssetWrapperBase* wrapper, uint64_t offset, uint64_t size)
+{
+    if (size == VK_WHOLE_SIZE)
+    {
+        GFXRECON_ASSERT(offset <= wrapper->size);
+        return (offset < wrapper->size) ? (wrapper->size - offset) : 0;
+    }
+    return size;
+}
+
 struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
@@ -506,11 +521,50 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
         std::unordered_map<uint32_t, std::vector<uint32_t>> dynamic_offsets;
     };
 
+    uint32_t GetDynamicOffset(uint32_t                              desc_index,
+                              uint32_t                              binding_index,
+                              uint32_t                              array_index,
+                              vulkan_state_info::PipelineBindPoints ppl_bind_point) const
+    {
+        GFXRECON_ASSERT(ppl_bind_point < vulkan_state_info::kBindPoint_count);
+
+        const auto set_entry = bound_descriptors[ppl_bind_point].find(desc_index);
+        if (set_entry != bound_descriptors[ppl_bind_point].end())
+        {
+            const auto dyn_offset_entry = set_entry->second.dynamic_offsets.find(binding_index);
+            if (dyn_offset_entry != set_entry->second.dynamic_offsets.end() &&
+                array_index < dyn_offset_entry->second.size())
+            {
+                return dyn_offset_entry->second[array_index];
+            }
+        }
+
+        return 0;
+    }
+
     std::unordered_map<uint32_t, BoundDescriptorSet>
         bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
 
-    std::unordered_set<AssetWrapperBase*> modified_assets;
-    std::vector<CommandBufferWrapper*>    secondaries;
+    std::vector<CommandBufferWrapper*> secondaries;
+
+    std::unordered_map<AssetWrapperBase*, util::RangeList> referenced_resources;
+
+    void ReferenceResource(AssetWrapperBase* resource, uint64_t offset, uint64_t size)
+    {
+        const uint64_t converted_size = VkWholeSizeToBufferSize(resource, offset, size);
+
+        auto entry = referenced_resources.find(resource);
+        if (entry == referenced_resources.end())
+        {
+            referenced_resources.emplace(std::piecewise_construct,
+                                         std::forward_as_tuple(resource),
+                                         std::forward_as_tuple(offset, converted_size));
+        }
+        else
+        {
+            entry->second.AddRange(offset, converted_size);
+        }
+    }
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>

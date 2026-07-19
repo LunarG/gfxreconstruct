@@ -3343,10 +3343,10 @@ void VulkanCaptureManager::MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandB
 {
     assert(cmd_buf_wrapper != nullptr);
 
-    for (auto asset : cmd_buf_wrapper->modified_assets)
+    for (auto& [resource, range_list] : cmd_buf_wrapper->referenced_resources)
     {
-        assert(asset);
-        asset->dirty = true;
+        assert(resource);
+        resource->dirty = true;
     }
 }
 
@@ -3977,7 +3977,7 @@ void VulkanCaptureManager::ClearCommandBufferAssetState(vulkan_wrappers::Command
     GFXRECON_ASSERT(wrapper != nullptr);
     GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
 
-    wrapper->modified_assets.clear();
+    wrapper->referenced_resources.clear();
     wrapper->secondaries.clear();
     for (uint32_t point = vulkan_state_info::kBindPoint_graphics; point != vulkan_state_info::kBindPoint_count; ++point)
     {
@@ -4297,11 +4297,17 @@ void VulkanCaptureManager::InsertImageAssetInCommandBuffer(VkCommandBuffer comma
             vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
         assert(image_wrapper != nullptr);
 
-        cmd_buf_wrapper->modified_assets.insert(image_wrapper);
+        if (image_wrapper != nullptr)
+        {
+            cmd_buf_wrapper->ReferenceResource(image_wrapper, 0, image_wrapper->size);
+        }
     }
 }
 
-void VulkanCaptureManager::InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer)
+void VulkanCaptureManager::InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer,
+                                                            VkBuffer        buffer,
+                                                            uint64_t        offset,
+                                                            uint64_t        size)
 {
     GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
 
@@ -4315,7 +4321,10 @@ void VulkanCaptureManager::InsertBufferAssetInCommandBuffer(VkCommandBuffer comm
             vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
         assert(buffer_wrapper != nullptr);
 
-        cmd_buf_wrapper->modified_assets.insert(buffer_wrapper);
+        if (buffer_wrapper != nullptr)
+        {
+            cmd_buf_wrapper->ReferenceResource(buffer_wrapper, offset, size);
+        }
     }
 }
 
@@ -4327,7 +4336,13 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer(VkCommandBuffer     comma
 {
     if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
+        if (pRegions != nullptr)
+        {
+            for (uint32_t i = 0; i < regionCount; ++i)
+            {
+                InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, pRegions[i].dstOffset, pRegions[i].size);
+            }
+        }
     }
 }
 
@@ -4378,7 +4393,13 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer2(VkCommandBuffer         
     {
         if (pCopyBufferInfo != nullptr)
         {
-            InsertBufferAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
+            for (uint32_t i = 0; i < pCopyBufferInfo->regionCount; ++i)
+            {
+                InsertBufferAssetInCommandBuffer(commandBuffer,
+                                                 pCopyBufferInfo->dstBuffer,
+                                                 pCopyBufferInfo->pRegions[i].dstOffset,
+                                                 pCopyBufferInfo->pRegions[i].size);
+            }
         }
     }
 }
@@ -4484,7 +4505,7 @@ void VulkanCaptureManager::PostProcess_vkCmdUpdateBuffer(
 {
     if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
+        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, dstOffset, dataSize);
     }
 }
 
@@ -4493,7 +4514,7 @@ void VulkanCaptureManager::PostProcess_vkCmdFillBuffer(
 {
     if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
+        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, dstOffset, size);
     }
 }
 
@@ -4561,44 +4582,42 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer    
 void VulkanCaptureManager::TrackPipelineDescriptors(VkCommandBuffer                       command_buffer,
                                                     vulkan_state_info::PipelineBindPoints ppl_bind_point)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
-        TrackPipelineDescriptors(cmd_buf_wrapper, ppl_bind_point);
-    }
-}
-
-void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
-                                                    vulkan_state_info::PipelineBindPoints  ppl_bind_point)
-{
-    GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
-    GFXRECON_ASSERT(command_wrapper != nullptr);
     GFXRECON_ASSERT(ppl_bind_point < vulkan_state_info::PipelineBindPoints::kBindPoint_count);
 
-    for (const auto& desc_set : command_wrapper->bound_descriptors[ppl_bind_point])
+    if (!IsCaptureModeTrack() || !GetUseAssetFile())
     {
-        const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper = desc_set.second.desc_set;
+        return;
+    }
+
+    auto command_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    if (command_wrapper == nullptr)
+    {
+        return;
+    }
+
+    for (const auto& [desc_set_index, desc_bindings] : command_wrapper->bound_descriptors[ppl_bind_point])
+    {
+        const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper = desc_bindings.desc_set;
         if (desc_set_wrapper == nullptr)
         {
             continue;
         }
 
-        for (const auto& descriptor_binding : desc_set_wrapper->bindings)
+        for (const auto& [binding_index, descriptor_binding] : desc_set_wrapper->bindings)
         {
-            switch (descriptor_binding.second.type)
+            switch (descriptor_binding.type)
             {
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 {
-                    for (uint32_t a = 0; a < descriptor_binding.second.count; ++a)
+                    for (uint32_t ai = 0; ai < descriptor_binding.count; ++ai)
                     {
                         vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
-                                descriptor_binding.second.storage_images[a].imageView);
-
+                                descriptor_binding.storage_images[ai].imageView);
                         if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                         {
-                            command_wrapper->modified_assets.insert(img_view_wrapper->image);
+                            command_wrapper->ReferenceResource(
+                                img_view_wrapper->image, 0, img_view_wrapper->image->size);
                         }
                     }
                 }
@@ -4607,14 +4626,18 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 {
-                    for (uint32_t a = 0; a < descriptor_binding.second.count; ++a)
+                    for (uint32_t ai = 0; ai < descriptor_binding.count; ++ai)
                     {
-                        vulkan_wrappers::BufferWrapper* buf_wrapper =
-                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
-                                descriptor_binding.second.storage_buffers[a].buffer);
+                        auto* buf_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                            descriptor_binding.storage_buffers[ai].buffer);
                         if (buf_wrapper != nullptr)
                         {
-                            command_wrapper->modified_assets.insert(buf_wrapper);
+                            const uint32_t dynamic_offset =
+                                command_wrapper->GetDynamicOffset(desc_set_index, binding_index, ai, ppl_bind_point);
+                            command_wrapper->ReferenceResource(buf_wrapper,
+                                                               descriptor_binding.storage_buffers[ai].offset +
+                                                                   dynamic_offset,
+                                                               descriptor_binding.storage_buffers[ai].range);
                         }
                     }
                 }
@@ -4622,14 +4645,15 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
 
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
-                    for (uint32_t a = 0; a < descriptor_binding.second.count; ++a)
+                    for (uint32_t ai = 0; ai < descriptor_binding.count; ++ai)
                     {
                         vulkan_wrappers::BufferViewWrapper* buf_view_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
-                                descriptor_binding.second.storage_texel_buffer_views[a]);
+                                descriptor_binding.storage_texel_buffer_views[ai]);
                         if (buf_view_wrapper != nullptr && buf_view_wrapper->buffer != nullptr)
                         {
-                            command_wrapper->modified_assets.insert(buf_view_wrapper->buffer);
+                            command_wrapper->ReferenceResource(
+                                buf_view_wrapper->buffer, buf_view_wrapper->offset, buf_view_wrapper->range);
                         }
                     }
                 }
@@ -4729,7 +4753,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                     // The image view is allowed to be null
                     if (img_view_wrapper != nullptr)
                     {
-                        wrapper->modified_assets.insert(img_view_wrapper->image);
+                        wrapper->ReferenceResource(img_view_wrapper->image, 0, img_view_wrapper->image->size);
                     }
                 }
             }
@@ -4744,7 +4768,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
 
                 if (img_view_wrapper != nullptr)
                 {
-                    wrapper->modified_assets.insert(img_view_wrapper->image);
+                    wrapper->ReferenceResource(img_view_wrapper->image, 0, img_view_wrapper->image->size);
                 }
             }
 
@@ -4758,7 +4782,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
 
                 if (img_view_wrapper != nullptr)
                 {
-                    wrapper->modified_assets.insert(img_view_wrapper->image);
+                    wrapper->ReferenceResource(img_view_wrapper->image, 0, img_view_wrapper->image->size);
                 }
             }
         }
@@ -4785,7 +4809,9 @@ void VulkanCaptureManager::MarkRenderPassAttachmentsAsModified(VkCommandBuffer c
                 (has_stencil &&
                  wrapper->active_render_pass->attachment_info.stencil_store_op[i] == VK_ATTACHMENT_STORE_OP_STORE))
             {
-                wrapper->modified_assets.insert(wrapper->render_pass_framebuffer->attachments[i]);
+                wrapper->ReferenceResource(wrapper->render_pass_framebuffer->attachments[i],
+                                           0,
+                                           wrapper->render_pass_framebuffer->attachments[i]->size);
             }
         }
     }
@@ -4800,7 +4826,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass(VkCommandBuffer     
         assert(state_tracker_ != nullptr);
         state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
 
-        if (IsCaptureModeTrack() && GetUseAssetFile())
+        if (GetUseAssetFile())
         {
             MarkRenderPassAttachmentsAsModified(commandBuffer);
         }
@@ -4816,7 +4842,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer    
         assert(state_tracker_ != nullptr);
         state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
 
-        if (IsCaptureModeTrack() && GetUseAssetFile())
+        if (GetUseAssetFile())
         {
             MarkRenderPassAttachmentsAsModified(commandBuffer);
         }
