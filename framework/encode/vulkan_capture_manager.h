@@ -949,6 +949,23 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
+    void PostProcess_vkCreateBufferView(VkResult result,
+                                        VkDevice,
+                                        const VkBufferViewCreateInfo* pCreateInfo,
+                                        const VkAllocationCallbacks*,
+                                        VkBufferView* pView)
+    {
+        if (result == VK_SUCCESS && pView != nullptr && pCreateInfo != nullptr)
+        {
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(*pView);
+            if (wrapper != nullptr)
+            {
+                wrapper->offset = pCreateInfo->offset;
+                wrapper->range  = pCreateInfo->range;
+            }
+        }
+    }
+
     void PostProcess_vkCreateImage(VkResult                     result,
                                    VkDevice                     device,
                                    const VkImageCreateInfo*     pCreateInfo,
@@ -1936,9 +1953,10 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
 
-    void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
-
-    void TrackPipelineDescriptors(VkCommandBuffer command_buffer, vulkan_state_info::PipelineBindPoints ppl_bind_point);
+    void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer,
+                                          VkBuffer        buffer,
+                                          uint64_t        offset = 0,
+                                          uint64_t        size   = VK_WHOLE_SIZE);
 
     void UpdateCommandBufferDescriptors(VkCommandBuffer        commandBuffer,
                                         VkPipelineBindPoint    pipelineBindPoint,
@@ -1948,8 +1966,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                         uint32_t               dynamicOffsetCount,
                                         const uint32_t*        pDynamicOffsets);
 
-    void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
-                                  vulkan_state_info::PipelineBindPoints  ppl_bind_point);
+    void TrackPipelineDescriptors(VkCommandBuffer command_buffer, vulkan_state_info::PipelineBindPoints ppl_bind_point);
 
     void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
 
