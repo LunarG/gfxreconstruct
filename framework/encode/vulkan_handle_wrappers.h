@@ -570,7 +570,11 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
             range_list(offset, size), access_type(access)
         {}
 
-        void SetAccessType(ResourceAccessType access) { access_type |= access; }
+        void SetAccessType(ResourceAccessType access)
+        {
+            GFXRECON_ASSERT(access == ResourceAccessType::kRead || access == ResourceAccessType::kWrite);
+            access_type |= access;
+        }
 
         util::RangeList    range_list;
         ResourceAccessType access_type;
