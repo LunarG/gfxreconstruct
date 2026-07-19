@@ -440,16 +440,6 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // TODO: Pipeline cache
 };
 
-static uint64_t VkWholeSizeToBufferSize(const AssetWrapperBase* wrapper, uint64_t offset, uint64_t size)
-{
-    if (size == VK_WHOLE_SIZE)
-    {
-        GFXRECON_ASSERT(offset <= wrapper->size);
-        return (offset < wrapper->size) ? (wrapper->size - offset) : 0;
-    }
-    return size;
-}
-
 enum class ResourceAccessType : uint8_t
 {
     kUnknown = 0,
@@ -590,14 +580,16 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
     void ReferenceResource(AssetWrapperBase* resource, uint64_t offset, uint64_t size, ResourceAccessType access)
     {
-        const uint64_t converted_size = VkWholeSizeToBufferSize(resource, offset, size);
+        GFXRECON_ASSERT(offset <= resource->size);
+        const uint64_t converted_size =
+            size == VK_WHOLE_SIZE ? ((offset < resource->size) ? (resource->size - offset) : 0) : size;
 
         auto entry = referenced_ranges.find(resource);
         if (entry == referenced_ranges.end())
         {
             referenced_ranges.emplace(std::piecewise_construct,
-                                         std::forward_as_tuple(resource),
-                                         std::forward_as_tuple(offset, converted_size, access));
+                                      std::forward_as_tuple(resource),
+                                      std::forward_as_tuple(offset, converted_size, access));
         }
         else
         {
