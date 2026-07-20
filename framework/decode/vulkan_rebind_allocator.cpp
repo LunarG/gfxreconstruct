@@ -654,9 +654,16 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_
         VmaMemoryInfo*     existing = range.vma_mem_info;
         const VkDeviceSize base     = existing->offset_from_original_device_memory;
 
-        // Dedicated-allocation requirements forbid sharing: the newcomer may not bind into shared
-        // memory, and the existing resource's dedicated memory may not back another resource.
-        if (requires_dedicated_allocation || existing->requires_dedicated_allocation)
+        // A dedicated allocation backs a single resource over the whole memory object, so an existing
+        // dedicated allocation being overlapped cannot happen in a valid capture: the capture is inconsistent.
+        if (existing->requires_dedicated_allocation)
+        {
+            GFXRECON_LOG_FATAL("Rebind aliasing: captured range overlaps an existing dedicated allocation; "
+                               "the capture is inconsistent.");
+        }
+
+        // The newcomer needs a dedicated allocation at replay and therefore cannot share the existing memory.
+        if (requires_dedicated_allocation)
         {
             GFXRECON_LOG_WARNING(
                 "Rebind aliasing: a dedicated allocation is required at replay; cannot reproduce the share.");
