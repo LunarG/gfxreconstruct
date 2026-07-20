@@ -32,6 +32,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "encode/vulkan_smart_memory_tracker.h"
 #include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -1889,6 +1890,12 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PreProcess_vkDestroyImage(VkDevice, VkImage image, const VkAllocationCallbacks*);
 
+    void PostProcess_vkAllocateMemory(VkResult                     result,
+                                      VkDevice                     device,
+                                      const VkMemoryAllocateInfo*  pAllocateInfo,
+                                      const VkAllocationCallbacks* pAllocator,
+                                      VkDeviceMemory*              pMemory);
+
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
@@ -1964,7 +1971,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     bool CheckPNextChainForFrameBoundary(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
                                          const VkBaseInStructure*                               current);
 
-    void QueueSubmitWriteFillMemoryCmd();
+    void QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, const VkSubmitInfo* submits);
+
+    void QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, const VkSubmitInfo2* submits);
 
     void InsertImageAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
                                          VkImage                             image,
@@ -2006,6 +2015,15 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void ClearCommandBufferAssetState(vulkan_wrappers::CommandBufferWrapper* wrapper);
 
+    void CollectSmartTouchedMemoryRanges(const vulkan_wrappers::CommandBufferWrapper*           command_wrapper,
+                                         std::unordered_map<format::HandleId, util::RangeList>* touched_ranges) const;
+
+    std::unordered_map<format::HandleId, util::RangeList> GetSmartTouchedMemoryRanges(uint32_t            submit_count,
+                                                                                      const VkSubmitInfo* submits);
+
+    std::unordered_map<format::HandleId, util::RangeList> GetSmartTouchedMemoryRanges(uint32_t             submit_count,
+                                                                                      const VkSubmitInfo2* submits);
+
     static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;
     static graphics::VulkanLayerTable               vulkan_layer_table_;
@@ -2013,6 +2031,8 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
     std::mutex                                      deferred_operation_mutex;
+
+    VulkanSmartMemoryTracker smart_memory_tracker_;
 
     // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
     // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex

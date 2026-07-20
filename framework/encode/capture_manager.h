@@ -520,6 +520,9 @@ class CommonCaptureManager
     void WriteFillMemoryCmd(
         format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
+    void WriteFillMemoryRangeCmd(
+        format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
+
     void WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
                                    format::HandleId    device_id,
                                    uint64_t            total_copy_size,

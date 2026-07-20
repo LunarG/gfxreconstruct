@@ -221,6 +221,11 @@ class ApiCaptureManager
         common_manager_->WriteFillMemoryCmd(api_family_, memory_id, offset, size, data);
     }
 
+    void WriteFillMemoryRangeCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
+    {
+        common_manager_->WriteFillMemoryRangeCmd(api_family_, memory_id, offset, size, data);
+    }
+
     void WriteBeginResourceInitCmd(format::HandleId device_id, uint64_t total_copy_size, uint64_t max_resource_size)
     {
         common_manager_->WriteBeginResourceInitCmd(api_family_, device_id, total_copy_size, max_resource_size);
