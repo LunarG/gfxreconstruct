@@ -537,6 +537,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBufferView>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkAllocateMemory(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImage>
 {
     template <typename... Args>
