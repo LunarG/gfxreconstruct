@@ -1120,6 +1120,30 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorPool(
+    const ApiCallInfo&                          call_info,
+    args::CreateDescriptorPool&                 args)
+{
+    // Check for null cases
+    if (args.pDescriptorPool.IsNull())
+    {
+        return;
+    }
+    format::HandleId handle = *args.pDescriptorPool.GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
+    {
+        VulkanReplayConsumer::Process_vkCreateDescriptorPool(call_info, args);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                          call_info,
     args::CreateGraphicsPipelines&              args)
