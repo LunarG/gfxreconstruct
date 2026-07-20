@@ -26,6 +26,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#include "decode/screenshot_handler.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
@@ -313,3 +314,4 @@ TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslat
         REQUIRE(r_device_group->pSignalSemaphoreDeviceIndices[i] == signal_device_indices[i]);
     }
 }
+

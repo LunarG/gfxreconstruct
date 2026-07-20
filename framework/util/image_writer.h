@@ -150,6 +150,38 @@ bool WritePngImage(const std::string& filename,
 bool WritePngImageSeparateAlpha(
     const std::string& filename, uint32_t width, uint32_t height, const void* data, uint32_t pitch, DataFormats format);
 
+/**
+ * @brief Specifies the rotation angle applied to an image.
+ */
+enum class ImageRotation
+{
+    DEG_0,   ///< No rotation
+    DEG_90,  ///< 90 degrees clockwise rotation
+    DEG_180, ///< 180 degrees clockwise rotation
+    DEG_270  ///< 270 degrees clockwise rotation
+};
+
+/**
+ * @brief Rotates and optionally mirrors image pixels on the CPU using loop tiling for cache friendliness.
+ *
+ * @param rotation     Runtime rotation enum (0, 90, 180, or 270 degrees).
+ * @param is_mirrored  Runtime boolean flag indicating whether the image should be mirrored.
+ * @param src_pixels   Pointer to the source pixel data buffer (uint32_t representation).
+ * @param dst_pixels   Pointer to the destination pixel data buffer (uint32_t representation).
+ * @param src_width    Width of the source image in pixels.
+ * @param src_height   Height of the source image in pixels.
+ * @param dst_width    Width of the destination image in pixels.
+ * @param dst_height   Height of the destination image in pixels.
+ */
+void RotateAndMirrorPixels(ImageRotation   rotation,
+                           bool            is_mirrored,
+                           const uint32_t* src_pixels,
+                           uint32_t*       dst_pixels,
+                           uint32_t        src_width,
+                           uint32_t        src_height,
+                           uint32_t        dst_width,
+                           uint32_t        dst_height);
+
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
