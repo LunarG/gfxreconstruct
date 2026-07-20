@@ -66,7 +66,6 @@ inline void WriteImageFile(
     }
 }
 
-
 void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
                                    const VulkanDeviceInfo*                    device_info,
                                    const graphics::VulkanDeviceTable*         device_table,
@@ -474,10 +473,12 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                 uint32_t*       dst_pixels = rotated_pixels_buffer_.data();
                                 write_data                 = rotated_pixels_buffer_.data();
 
-                                final_width  = (rotation == util::imagewriter::ImageRotation::DEG_90 || rotation == util::imagewriter::ImageRotation::DEG_270)
+                                final_width  = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
+                                               rotation == util::imagewriter::ImageRotation::DEG_270)
                                                    ? copy_height
                                                    : copy_width;
-                                final_height = (rotation == util::imagewriter::ImageRotation::DEG_90 || rotation == util::imagewriter::ImageRotation::DEG_270)
+                                final_height = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
+                                                rotation == util::imagewriter::ImageRotation::DEG_270)
                                                    ? copy_width
                                                    : copy_height;
 

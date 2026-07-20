@@ -19,13 +19,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
     {
         std::vector<uint32_t> dst_pixels(12, 0);
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_0,
-                                                                   false,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   src_width,
-                                                                   src_height);
+                                                           false,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           src_width,
+                                                           src_height);
         const std::vector<uint32_t> expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
         REQUIRE(dst_pixels == expected);
     }
@@ -36,13 +36,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
         const uint32_t        dst_width  = 4;
         const uint32_t        dst_height = 3;
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_90,
-                                                                   false,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   dst_width,
-                                                                   dst_height);
+                                                           false,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           dst_width,
+                                                           dst_height);
         const std::vector<uint32_t> expected = { 3, 6, 9, 12, 2, 5, 8, 11, 1, 4, 7, 10 };
         REQUIRE(dst_pixels == expected);
     }
@@ -51,13 +51,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
     {
         std::vector<uint32_t> dst_pixels(12, 0);
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_180,
-                                                                   false,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   src_width,
-                                                                   src_height);
+                                                           false,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           src_width,
+                                                           src_height);
         const std::vector<uint32_t> expected = { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
         REQUIRE(dst_pixels == expected);
     }
@@ -68,13 +68,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
         const uint32_t        dst_width  = 4;
         const uint32_t        dst_height = 3;
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_270,
-                                                                   false,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   dst_width,
-                                                                   dst_height);
+                                                           false,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           dst_width,
+                                                           dst_height);
         const std::vector<uint32_t> expected = { 10, 7, 4, 1, 11, 8, 5, 2, 12, 9, 6, 3 };
         REQUIRE(dst_pixels == expected);
     }
@@ -83,13 +83,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
     {
         std::vector<uint32_t> dst_pixels(12, 0);
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_0,
-                                                                   true,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   src_width,
-                                                                   src_height);
+                                                           true,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           src_width,
+                                                           src_height);
         const std::vector<uint32_t> expected = { 3, 2, 1, 6, 5, 4, 9, 8, 7, 12, 11, 10 };
         REQUIRE(dst_pixels == expected);
     }
@@ -100,13 +100,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
         const uint32_t        dst_width  = 4;
         const uint32_t        dst_height = 3;
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_90,
-                                                                   true,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   dst_width,
-                                                                   dst_height);
+                                                           true,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           dst_width,
+                                                           dst_height);
         const std::vector<uint32_t> expected = { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 };
         REQUIRE(dst_pixels == expected);
     }
@@ -115,13 +115,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
     {
         std::vector<uint32_t> dst_pixels(12, 0);
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_180,
-                                                                   true,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   src_width,
-                                                                   src_height);
+                                                           true,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           src_width,
+                                                           src_height);
         const std::vector<uint32_t> expected = { 10, 11, 12, 7, 8, 9, 4, 5, 6, 1, 2, 3 };
         REQUIRE(dst_pixels == expected);
     }
@@ -132,13 +132,13 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
         const uint32_t        dst_width  = 4;
         const uint32_t        dst_height = 3;
         gfxrecon::util::imagewriter::RotateAndMirrorPixels(ImageRotation::DEG_270,
-                                                                   true,
-                                                                   src_pixels.data(),
-                                                                   dst_pixels.data(),
-                                                                   src_width,
-                                                                   src_height,
-                                                                   dst_width,
-                                                                   dst_height);
+                                                           true,
+                                                           src_pixels.data(),
+                                                           dst_pixels.data(),
+                                                           src_width,
+                                                           src_height,
+                                                           dst_width,
+                                                           dst_height);
         const std::vector<uint32_t> expected = { 12, 9, 6, 3, 11, 8, 5, 2, 10, 7, 4, 1 };
         REQUIRE(dst_pixels == expected);
     }

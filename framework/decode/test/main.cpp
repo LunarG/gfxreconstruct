@@ -314,4 +314,3 @@ TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslat
         REQUIRE(r_device_group->pSignalSemaphoreDeviceIndices[i] == signal_device_indices[i]);
     }
 }
-

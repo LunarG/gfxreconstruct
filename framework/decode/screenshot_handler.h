@@ -44,7 +44,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class ScreenshotHandler : public ScreenshotHandlerBase
 {
   public:
-
     ScreenshotHandler(util::ScreenshotFormat              screenshot_format,
                       const std::vector<ScreenshotRange>& screenshot_ranges,
                       uint32_t                            screenshot_interval) :
