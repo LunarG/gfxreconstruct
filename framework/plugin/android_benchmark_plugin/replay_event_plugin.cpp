@@ -55,7 +55,7 @@ struct SampleReplayPlugin
 {
     GfxrReplayPluginV1 base;
     int                sleep_around_gpu_frame_ms   = 0;
-    bool               first_queue_submit_in_frame = true;
+    bool               first_queue_submit_in_frame = false;
     uint64_t           last_frame_index            = UINT64_MAX;
     uint32_t           frame_loop_iteration        = 0;
 };
