@@ -1920,8 +1920,6 @@ void MapStructHandles(Decoded_VkPerTileEndInfoQCOM* wrapper, const CommonObjectI
 
 void MapStructHandles(Decoded_VkDispatchTileInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkQueryLowLatencySupportNV* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);

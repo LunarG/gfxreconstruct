@@ -4843,16 +4843,6 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV: {
-                auto casted_struct = reinterpret_cast<const VkQueryLowLatencySupportNV*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkQueryLowLatencySupportNV*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkQueryLowLatencySupportNV(out,
-                                           casted_struct,
-                                           decoded_struct,
-                                           consumer);
-
-                break;
-            }
             case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT: {
                 auto casted_struct = reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(pnext_meta_data->GetMetaStructPointer());

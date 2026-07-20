@@ -14531,19 +14531,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDispatchTileInfo
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryLowLatencySupportNV* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkQueryLowLatencySupportNV& decoded_value = *data->decoded_value;
-        const Decoded_VkQueryLowLatencySupportNV& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["pQueriedLowLatencyData"] = meta_struct.pQueriedLowLatencyData;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT* data)
 {
     if (data && data->decoded_value)
@@ -26617,13 +26604,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPushDescriptorSetInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueryLowLatencySupportNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }

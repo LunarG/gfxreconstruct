@@ -19015,20 +19015,6 @@ std::string GenerateStruct_VkRenderPassTileShadingCreateInfoQCOM(std::ostream &o
 }
 
 
-std::string GenerateStruct_VkQueryLowLatencySupportNV(std::ostream &out, const VkQueryLowLatencySupportNV* structInfo, Decoded_VkQueryLowLatencySupportNV* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pQueriedLowLatencyData (non-struct output) argument." << std::endl;
-    std::string variable_name = consumer.AddStruct(struct_body, "queryLowLatencySupportNV");
-    out << "\t\t" << "VkQueryLowLatencySupportNV " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkAccelerationStructureCaptureDescriptorDataInfoEXT(std::ostream &out, const VkAccelerationStructureCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);

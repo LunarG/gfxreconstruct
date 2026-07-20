@@ -1581,8 +1581,6 @@ void UnwrapStructHandles(VkPerTileEndInfoQCOM* value, HandleUnwrapMemory* unwrap
 
 void UnwrapStructHandles(VkDispatchTileInfoQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkQueryLowLatencySupportNV* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
