@@ -572,7 +572,8 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
         void SetAccessType(ResourceAccessType access)
         {
-            GFXRECON_ASSERT(access == ResourceAccessType::kRead || access == ResourceAccessType::kWrite);
+            GFXRECON_ASSERT(access == ResourceAccessType::kRead || access == ResourceAccessType::kWrite ||
+                            access == (ResourceAccessType::kRead | ResourceAccessType::kWrite));
             access_type |= access;
         }
 
