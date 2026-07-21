@@ -5144,9 +5144,13 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass(VkCommandBuffer     
                                                             const VkRenderPassBeginInfo* pRenderPassBegin,
                                                             VkSubpassContents)
 {
-    if (NeedsCommandBufferResourceTracking())
+    if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
     {
         TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+    }
+
+    if (NeedsCommandBufferResourceTracking())
+    {
         MarkRenderPassAttachmentsAsModified(commandBuffer);
     }
 }
@@ -5155,9 +5159,13 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer    
                                                              const VkRenderPassBeginInfo* pRenderPassBegin,
                                                              const VkSubpassBeginInfoKHR*)
 {
-    if (NeedsCommandBufferResourceTracking())
+    if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
     {
         TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+    }
+
+    if (NeedsCommandBufferResourceTracking())
+    {
         MarkRenderPassAttachmentsAsModified(commandBuffer);
     }
 }
