@@ -135,6 +135,19 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
 void Application::Run()
 {
     running_ = true;
+    // Doesn't work yet for async processing
+    if (!async_processing_)
+    {
+        // Process state setup blocks before the main frame loop.
+        // This executes up to the StateEnd marker (for trimmed captures) or rewinds if it's a full capture.
+        // Note: We deliberately do NOT emit a FrameBegin event here, so that plugins
+        // ignore these state setup queue submits and do not conflate them with the first actual frame's work.
+        if (!file_processor_->ProcessStateSetup())
+        {
+            running_ = false;
+            return;
+        }
+    }
 
     if (async_processing_)
     {

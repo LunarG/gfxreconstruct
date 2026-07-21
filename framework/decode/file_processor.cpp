@@ -34,6 +34,27 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+namespace
+{
+/**
+ * @brief Checks if the given parsed block is a setup-related meta block.
+ *
+ * Setup meta blocks are typically found at the beginning of a trace capture
+ * and contain initialization, configuration, and environment information
+ * rather than actual graphics API calls.
+ *
+ * @param parsed_block The parsed block to check.
+ * @return true if the block is a setup meta block, false otherwise.
+ */
+bool IsSetupMetaBlock(const ParsedBlock& parsed_block)
+{
+    return parsed_block.Holds<ExeFileArgs>() || parsed_block.Holds<AnnotationArgs>() ||
+           parsed_block.Holds<DriverArgs>() || parsed_block.Holds<SetDevicePropertiesArgs>() ||
+           parsed_block.Holds<SetDeviceMemoryPropertiesArgs>() || parsed_block.Holds<InitializeMetaArgs>() ||
+           parsed_block.Holds<SetEnvironmentVariablesArgs>() || parsed_block.Holds<DisplayMessageArgs>();
+}
+} // namespace
+
 FileProcessor::FileProcessor() :
     async_block_iterator_(), compressor_(nullptr), first_frame_(kFirstFrame + 1), file_header_({ 0, 0, 0, 0 }),
     working_uncompressed_store_(kWorkingStoreInitialSize)
@@ -121,6 +142,110 @@ bool FileProcessor::Initialize(const std::string& filename)
             success               = false;
         }
     }
+
+    return success;
+}
+
+// Processes state setup commands at the beginning of the file (typically up to the StateEndMarker).
+// If the capture does not contain state setup markers (e.g., a full capture instead of a trimmed one),
+// it will rewind to the beginning of the file so that those commands are processed as part of the first frame.
+// Returns true on success, false if an error occurred.
+bool FileProcessor::ProcessStateSetup()
+{
+    if (!IsFileValid())
+    {
+        dispatch_error_state_ = CheckFileStatus();
+        return false;
+    }
+
+    BlockBuffer     block_buffer;
+    BlockParser&    block_parser = *block_parser_.get();
+    ProcessVisitor  process_visitor(*this);
+    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
+
+    GFXRECON_ASSERT(block_parser.GetOperationMode() == BlockParser::OperationMode::kImmediate);
+
+    auto&    current_file             = GetCurrentFile();
+    uint32_t saved_remaining_commands = current_file.remaining_commands;
+    bool     saved_execute_till_eof   = current_file.execute_till_eof;
+
+    // Temporarily disable command limit during state setup check
+    current_file.execute_till_eof = true;
+
+    bool success         = true;
+    bool has_state_setup = false;
+    bool stop_checking   = false;
+    bool did_seek_back   = false;
+
+    uint64_t saved_block_index  = process_block_index_;
+    uint64_t saved_frame_number = process_frame_number_;
+
+    while (success && !stop_checking)
+    {
+        success = ReadBlockBuffer(block_parser, block_buffer);
+        if (success)
+        {
+            block_parser.SetBlockIndex(process_block_index_);
+            block_parser.SetFrameNumber(process_frame_number_);
+            ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
+
+            if (parsed_block.Holds<StateBeginMarkerArgs>())
+            {
+                has_state_setup = true;
+            }
+            else if (parsed_block.Holds<StateEndMarkerArgs>())
+            {
+                stop_checking = true;
+            }
+            else if (!IsSetupMetaBlock(parsed_block))
+            {
+                if (!has_state_setup)
+                {
+                    // This is a full trace (or trace with no state setup). Seek back to the first block!
+                    int64_t post_header_offset =
+                        sizeof(format::FileHeader) + file_header_.num_options * sizeof(format::FileOptionPair);
+                    SeekActiveFile(post_header_offset, util::platform::FileSeekOrigin::FileSeekSet);
+
+                    process_block_index_  = saved_block_index;
+                    process_frame_number_ = saved_frame_number;
+                    did_seek_back         = true;
+                    stop_checking         = true;
+                    continue;
+                }
+            }
+
+            if (parsed_block.IsVisitable())
+            {
+                std::visit(process_visitor, parsed_block.GetArgs());
+                success = process_visitor.IsSuccess();
+                if (success)
+                {
+                    dispatch_visitor.SetBlockIndex(process_block_index_);
+                    ProcessBlockState process_state = std::visit(dispatch_visitor, parsed_block.GetArgs());
+                    if (process_state == ProcessBlockState::kError)
+                    {
+                        success = false;
+                    }
+                }
+            }
+
+            if (success)
+            {
+                ++process_block_index_;
+            }
+        }
+        else
+        {
+            success = false;
+        }
+    }
+
+    // Restore command limit configuration
+    current_file.remaining_commands = saved_remaining_commands;
+    current_file.execute_till_eof   = saved_execute_till_eof;
+
+    dispatch_error_state_ = process_error_state_;
+    dispatch_block_index_ = process_block_index_;
 
     return success;
 }
