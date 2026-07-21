@@ -421,15 +421,6 @@ class VulkanStateTracker
 
     void TrackCommandBufferSubmissions2(uint32_t submit_count, const VkSubmitInfo2* submits);
 
-    void TrackUpdateDescriptorSets(uint32_t                    write_count,
-                                   const VkWriteDescriptorSet* writes,
-                                   uint32_t                    copy_count,
-                                   const VkCopyDescriptorSet*  copies);
-
-    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
-                                              const UpdateTemplateInfo* template_info,
-                                              const void*               data);
-
     void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
 
     void TrackQueryActivation(VkCommandBuffer     command_buffer,

@@ -571,8 +571,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet 
     const UpdateTemplateInfo* info = nullptr;
     if (GetDescriptorUpdateTemplateInfo(update_template, &info))
     {
-        assert(state_tracker_ != nullptr);
-        state_tracker_->TrackUpdateDescriptorSetWithTemplate(set, info, data);
+        TrackUpdateDescriptorSetWithTemplate(set, info, data);
     }
 }
 
@@ -3509,7 +3508,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
         TrackAssetsInSubmission(submitCount, pSubmits);
     }
 
-    QueueSubmitWriteFillMemoryCmd();
+    QueueSubmitWriteFillMemoryCmd(submitCount, pSubmits);
 
     PreQueueSubmit(current_lock);
 
@@ -3551,7 +3550,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
         TrackAssetsInSubmission(submitCount, pSubmits);
     }
 
-    QueueSubmitWriteFillMemoryCmd();
+    QueueSubmitWriteFillMemoryCmd(submitCount, pSubmits);
 
     PreQueueSubmit(current_lock);
 
@@ -4113,7 +4112,8 @@ void VulkanCaptureManager::PostProcess_vkGetFenceStatus(VkResult result, VkDevic
 void VulkanCaptureManager::ClearCommandBufferAssetState(vulkan_wrappers::CommandBufferWrapper* wrapper)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
-    GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
+    GFXRECON_ASSERT((IsCaptureModeTrack() && GetUseAssetFile()) ||
+                    (GetMemoryTrackingMode() == CaptureSettings::kSmart));
 
     wrapper->referenced_ranges.clear();
     wrapper->secondaries.clear();
@@ -4137,7 +4137,7 @@ void VulkanCaptureManager::PreProcess_vkBeginCommandBuffer(VkCommandBuffer      
             const_cast<VkCommandBufferBeginInfo*>(pBeginInfo)->pInheritanceInfo = nullptr;
         }
 
-        if (IsCaptureModeTrack() && GetUseAssetFile())
+        if (NeedsCommandBufferResourceTracking())
         {
             ClearCommandBufferAssetState(cmd_buffer_wrapper);
         }
@@ -4380,7 +4380,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets(VkCommandBuffer  
                                                                uint32_t               dynamicOffsetCount,
                                                                const uint32_t*        pDynamicOffsets)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         UpdateCommandBufferDescriptors(commandBuffer,
                                        pipelineBindPoint,
@@ -4395,7 +4395,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets(VkCommandBuffer  
 void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2KHR(
     VkCommandBuffer commandBuffer, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pBindDescriptorSetsInfo != nullptr)
         {
@@ -4425,7 +4425,8 @@ void VulkanCaptureManager::InsertImageAssetInCommandBuffer(VkCommandBuffer      
                                                            VkImage                             image,
                                                            vulkan_wrappers::ResourceAccessType access)
 {
-    GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
+    GFXRECON_ASSERT((IsCaptureModeTrack() && GetUseAssetFile()) ||
+                    (GetMemoryTrackingMode() == CaptureSettings::kSmart));
 
     if (command_buffer != VK_NULL_HANDLE && image != VK_NULL_HANDLE)
     {
@@ -4450,7 +4451,8 @@ void VulkanCaptureManager::InsertBufferAssetInCommandBuffer(VkCommandBuffer     
                                                             uint64_t                            offset,
                                                             uint64_t                            size)
 {
-    GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
+    GFXRECON_ASSERT((IsCaptureModeTrack() && GetUseAssetFile()) ||
+                    (GetMemoryTrackingMode() == CaptureSettings::kSmart));
 
     if (command_buffer != VK_NULL_HANDLE && buffer != VK_NULL_HANDLE)
     {
@@ -4475,7 +4477,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer(VkCommandBuffer     comma
                                                        uint32_t            regionCount,
                                                        const VkBufferCopy* pRegions)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pRegions != nullptr)
         {
@@ -4504,7 +4506,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImage(VkCommandBuffer    command
                                                       uint32_t           regionCount,
                                                       const VkImageCopy* pRegions)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
         InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
@@ -4518,7 +4520,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBufferToImage(VkCommandBuffer   
                                                               uint32_t                 regionCount,
                                                               const VkBufferImageCopy* pRegions)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertBufferAssetInCommandBuffer(commandBuffer, srcBuffer, vulkan_wrappers::ResourceAccessType::kRead);
         InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
@@ -4532,7 +4534,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImageToBuffer(VkCommandBuffer   
                                                               uint32_t                 regionCount,
                                                               const VkBufferImageCopy* pRegions)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
         InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite);
@@ -4542,7 +4544,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImageToBuffer(VkCommandBuffer   
 void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer2(VkCommandBuffer          commandBuffer,
                                                         const VkCopyBufferInfo2* pCopyBufferInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pCopyBufferInfo != nullptr)
         {
@@ -4567,7 +4569,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer2(VkCommandBuffer         
 void VulkanCaptureManager::PostProcess_vkCmdCopyImage2(VkCommandBuffer         commandBuffer,
                                                        const VkCopyImageInfo2* pCopyImageInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pCopyImageInfo != nullptr)
         {
@@ -4582,7 +4584,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImage2(VkCommandBuffer         c
 void VulkanCaptureManager::PostProcess_vkCmdCopyBufferToImage2(VkCommandBuffer                 commandBuffer,
                                                                const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pCopyBufferToImageInfo != nullptr)
         {
@@ -4597,7 +4599,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBufferToImage2(VkCommandBuffer  
 void VulkanCaptureManager::PostProcess_vkCmdCopyImageToBuffer2(VkCommandBuffer                 commandBuffer,
                                                                const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pCopyImageToBufferInfo != nullptr)
         {
@@ -4642,7 +4644,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBlitImage(VkCommandBuffer    command
                                                       const VkImageBlit* pRegions,
                                                       VkFilter           filter)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
         InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
@@ -4652,7 +4654,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBlitImage(VkCommandBuffer    command
 void VulkanCaptureManager::PostProcess_vkCmdBlitImage2(VkCommandBuffer         commandBuffer,
                                                        const VkBlitImageInfo2* pBlitImageInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pBlitImageInfo != nullptr)
         {
@@ -4667,7 +4669,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBlitImage2(VkCommandBuffer         c
 void VulkanCaptureManager::PostProcess_vkCmdBlitImage2KHR(VkCommandBuffer         commandBuffer,
                                                           const VkBlitImageInfo2* pBlitImageInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         PostProcess_vkCmdBlitImage2(commandBuffer, pBlitImageInfo);
     }
@@ -4676,7 +4678,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBlitImage2KHR(VkCommandBuffer       
 void VulkanCaptureManager::PostProcess_vkCmdUpdateBuffer(
     VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* pData)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertBufferAssetInCommandBuffer(
             commandBuffer, dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite, dstOffset, dataSize);
@@ -4686,7 +4688,7 @@ void VulkanCaptureManager::PostProcess_vkCmdUpdateBuffer(
 void VulkanCaptureManager::PostProcess_vkCmdFillBuffer(
     VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertBufferAssetInCommandBuffer(
             commandBuffer, dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite, dstOffset, size);
@@ -4700,7 +4702,7 @@ void VulkanCaptureManager::PostProcess_vkCmdClearColorImage(VkCommandBuffer     
                                                             uint32_t                       rangeCount,
                                                             const VkImageSubresourceRange* pRanges)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertImageAssetInCommandBuffer(commandBuffer, image, vulkan_wrappers::ResourceAccessType::kWrite);
     }
@@ -4713,7 +4715,7 @@ void VulkanCaptureManager::PostProcess_vkCmdClearDepthStencilImage(VkCommandBuff
                                                                    uint32_t                        rangeCount,
                                                                    const VkImageSubresourceRange*  pRanges)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertImageAssetInCommandBuffer(commandBuffer, image, vulkan_wrappers::ResourceAccessType::kWrite);
     }
@@ -4727,7 +4729,7 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage(VkCommandBuffer       c
                                                          uint32_t              regionCount,
                                                          const VkImageResolve* pRegions)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
         InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
@@ -4737,7 +4739,7 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage(VkCommandBuffer       c
 void VulkanCaptureManager::PostProcess_vkCmdResolveImage2(VkCommandBuffer            commandBuffer,
                                                           const VkResolveImageInfo2* pResolveImageInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         if (pResolveImageInfo != nullptr)
         {
@@ -4752,7 +4754,7 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage2(VkCommandBuffer       
 void VulkanCaptureManager::PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer            commandBuffer,
                                                              const VkResolveImageInfo2* pResolveImageInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         PostProcess_vkCmdResolveImage2(commandBuffer, pResolveImageInfo);
     }
@@ -4763,7 +4765,7 @@ void VulkanCaptureManager::TrackPipelineDescriptors(VkCommandBuffer             
 {
     GFXRECON_ASSERT(ppl_bind_point < vulkan_state_info::PipelineBindPoints::kBindPoint_count);
 
-    if (!IsCaptureModeTrack() || !GetUseAssetFile())
+    if (!NeedsCommandBufferResourceTracking())
     {
         return;
     }
@@ -4979,7 +4981,7 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksIndirectCountEXT(VkComm
 void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer        commandBuffer,
                                                            const VkRenderingInfo* pRenderingInfo)
 {
-    if (IsCaptureModeTrack() && GetUseAssetFile())
+    if (NeedsCommandBufferResourceTracking())
     {
         auto* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         if (wrapper != nullptr && pRenderingInfo != nullptr)
@@ -5042,7 +5044,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
 
 void VulkanCaptureManager::MarkRenderPassAttachmentsAsModified(VkCommandBuffer commandBuffer)
 {
-    GFXRECON_ASSERT(IsCaptureModeTrack() && GetUseAssetFile());
+    GFXRECON_ASSERT(NeedsCommandBufferResourceTracking());
 
     auto* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
     if (wrapper != nullptr && wrapper->render_pass_framebuffer != nullptr)
@@ -5077,11 +5079,11 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass(VkCommandBuffer     
     {
         assert(state_tracker_ != nullptr);
         state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+    }
 
-        if (GetUseAssetFile())
-        {
-            MarkRenderPassAttachmentsAsModified(commandBuffer);
-        }
+    if (NeedsCommandBufferResourceTracking())
+    {
+        MarkRenderPassAttachmentsAsModified(commandBuffer);
     }
 }
 
@@ -5093,11 +5095,11 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer    
     {
         assert(state_tracker_ != nullptr);
         state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+    }
 
-        if (GetUseAssetFile())
-        {
-            MarkRenderPassAttachmentsAsModified(commandBuffer);
-        }
+    if (NeedsCommandBufferResourceTracking())
+    {
+        MarkRenderPassAttachmentsAsModified(commandBuffer);
     }
 }
 
@@ -5287,6 +5289,891 @@ VulkanCaptureManager::GetSmartTouchedMemoryRanges(uint32_t submit_count, const V
     }
 
     return touched_ranges;
+}
+
+bool VulkanCaptureManager::NeedsCommandBufferResourceTracking() const
+{
+    return (IsCaptureModeTrack() && GetUseAssetFile()) || (GetMemoryTrackingMode() == CaptureSettings::kSmart);
+}
+
+void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                    write_count,
+                                                     const VkWriteDescriptorSet* writes,
+                                                     uint32_t                    copy_count,
+                                                     const VkCopyDescriptorSet*  copies)
+{
+    std::unique_lock<std::mutex> lock(descriptor_mutex_);
+
+    // When processing descriptor updates, we pack the unique handle ID into the stored
+    // VkWriteDescriptorSet/VkCopyDescriptorSet handles so that the state writer can determine if the object still
+    // exists at state write time by checking for the ID in the active state table.
+    if (writes != nullptr)
+    {
+        for (uint32_t wi = 0; wi < write_count; ++wi)
+        {
+            const VkWriteDescriptorSet* write = &writes[wi];
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
+            assert(wrapper != nullptr);
+
+            wrapper->dirty = true;
+
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings, where the next binding is dstBinding+1 and
+            // starting from array element 0.  Track the current count, binding, and array element to handle
+            // consecutive updates.
+            uint32_t current_count             = write->descriptorCount;
+            uint32_t current_binding           = write->dstBinding;
+            uint32_t current_dst_array_element = write->dstArrayElement;
+            uint32_t current_src_array_element = 0;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[current_binding];
+
+                // Update current and write counts for binding's descriptor count. If current count is
+                // greater than the count for the descriptor range defined by dstArrayElement through binding count,
+                // consecutive bindings are being updated.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_dst_array_element));
+
+                bool* written_start = &binding.written[current_dst_array_element];
+                std::fill(written_start, written_start + current_writes, true);
+
+                if (binding.type == VK_DESCRIPTOR_TYPE_MUTABLE_VALVE)
+                {
+                    VkDescriptorType* mutable_type_start = &binding.mutable_type[current_dst_array_element];
+                    std::fill(mutable_type_start, mutable_type_start + current_writes, write->descriptorType);
+                }
+
+                switch (write->descriptorType)
+                {
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    {
+                        format::HandleId*            dst_sampler_ids = &binding.sampler_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info        = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info        = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_sampler_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::SamplerWrapper* sampler_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            if (sampler_wrapper != nullptr)
+                            {
+                                sampler_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    {
+                        format::HandleId*            dst_sampler_ids = &binding.sampler_ids[current_dst_array_element];
+                        format::HandleId*            dst_image_ids   = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info        = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info        = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_sampler_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            dst_image_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            if (image_view_wrapper != nullptr)
+                            {
+                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+
+                            vulkan_wrappers::SamplerWrapper* sampler_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            if (sampler_wrapper != nullptr)
+                            {
+                                sampler_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        format::HandleId*            dst_image_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info      = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info      = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_image_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            if (image_view_wrapper != nullptr)
+                            {
+                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    {
+                        format::HandleId*            dst_image_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info      = &binding.storage_images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info      = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_image_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            if (image_view_wrapper != nullptr)
+                            {
+                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    {
+                        format::HandleId*             dst_buffer_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorBufferInfo*       dst_info       = &binding.buffers[current_dst_array_element];
+                        const VkDescriptorBufferInfo* src_info       = &write->pBufferInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_buffer_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
+                            if (buffer_wrapper != nullptr)
+                            {
+                                buffer_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        format::HandleId*             dst_buffer_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorBufferInfo*       dst_info = &binding.storage_buffers[current_dst_array_element];
+                        const VkDescriptorBufferInfo* src_info = &write->pBufferInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_buffer_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
+                            if (buffer_wrapper != nullptr)
+                            {
+                                buffer_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        const bool is_storage = binding.type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+
+                        format::HandleId*   dst_view_ids = &binding.handle_ids[current_dst_array_element];
+                        VkBufferView*       dst_info     = is_storage
+                                                               ? &binding.storage_texel_buffer_views[current_dst_array_element]
+                                                               : &binding.uniform_texel_buffer_views[current_dst_array_element];
+                        const VkBufferView* src_info     = &write->pTexelBufferView[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            dst_view_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
+                            dst_info[i] = src_info[i];
+
+                            vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
+                            if (buffer_view_wrapper != nullptr)
+                            {
+                                buffer_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
+                        }
+                        break;
+                    }
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        auto write_inline_uniform_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
+
+                        if (write_inline_uniform_struct != nullptr)
+                        {
+                            uint8_t*       dst_inline_uniform_data = binding.inline_uniform_block.get();
+                            const uint8_t* src_inline_uniform_data =
+                                reinterpret_cast<const uint8_t*>(write_inline_uniform_struct->pData);
+                            memcpy(dst_inline_uniform_data, src_inline_uniform_data, current_writes);
+                        }
+                    }
+                    break;
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                    {
+                        const VkWriteDescriptorSetAccelerationStructureNV* write_accel_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureNV>(write);
+
+                        if (write_accel_struct != nullptr)
+                        {
+                            const VkAccelerationStructureNV* src_accel_struct =
+                                &write_accel_struct->pAccelerationStructures[current_src_array_element];
+
+                            for (uint32_t i = 0; i < current_writes; ++i)
+                            {
+                                vulkan_wrappers::AccelerationStructureNVWrapper* accel_struct_wrapper =
+                                    vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(
+                                        src_accel_struct[i]);
+                                if (accel_struct_wrapper != nullptr)
+                                {
+                                    accel_struct_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                    {
+                        auto write_accel_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureKHR>(write);
+
+                        if (write_accel_struct != nullptr)
+                        {
+                            format::HandleId* dst_accel_struct_ids = &binding.handle_ids[current_dst_array_element];
+                            VkAccelerationStructureKHR* dst_accel_struct =
+                                &binding.acceleration_structures[current_dst_array_element];
+                            const VkAccelerationStructureKHR* src_accel_struct =
+                                &write_accel_struct->pAccelerationStructures[current_src_array_element];
+
+                            for (uint32_t i = 0; i < current_writes; ++i)
+                            {
+                                dst_accel_struct_ids[i] =
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                                        src_accel_struct[i]);
+                                dst_accel_struct[i] = src_accel_struct[i];
+
+                                vulkan_wrappers::AccelerationStructureKHRWrapper* accel_struct_wrapper =
+                                    vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                                        src_accel_struct[i]);
+                                if (accel_struct_wrapper != nullptr)
+                                {
+                                    accel_struct_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                    {
+                        auto write_tensor = graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetTensorARM>(write);
+
+                        if (write_tensor != nullptr)
+                        {
+                            format::HandleId*      dst_tensor_view_ids = &binding.handle_ids[current_dst_array_element];
+                            VkTensorViewARM*       dst_tensor_views = &binding.tensor_views[current_dst_array_element];
+                            const VkTensorViewARM* src_tensor_views =
+                                &write_tensor->pTensorViews[current_src_array_element];
+
+                            for (uint32_t i = 0; i < current_writes; ++i)
+                            {
+                                dst_tensor_view_ids[i] =
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::TensorViewARMWrapper>(
+                                        src_tensor_views[i]);
+                                dst_tensor_views[i] = src_tensor_views[i];
+
+                                if (auto* tensor_view_wrapper =
+                                        vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                                            src_tensor_views[i], false))
+                                {
+                                    tensor_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    default:
+                        GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
+                        break;
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_writes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_writes;
+                    current_binding += 1;
+                    current_dst_array_element = 0;
+                    current_src_array_element += current_writes;
+                }
+            }
+        }
+    }
+
+    if (copies != nullptr)
+    {
+        for (uint32_t i = 0; i < copy_count; ++i)
+        {
+            auto copy        = &copies[i];
+            auto dst_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->dstSet);
+            auto src_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->srcSet);
+            assert((dst_wrapper != nullptr) && (src_wrapper != nullptr));
+
+            dst_wrapper->dirty = true;
+
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to/from consecutive bindings.
+            uint32_t current_count             = copy->descriptorCount;
+            uint32_t current_dst_binding       = copy->dstBinding;
+            uint32_t current_src_binding       = copy->srcBinding;
+            uint32_t current_dst_array_element = copy->dstArrayElement;
+            uint32_t current_src_array_element = copy->srcArrayElement;
+
+            for (;;)
+            {
+                auto& dst_binding = dst_wrapper->bindings[current_dst_binding];
+                auto& src_binding = src_wrapper->bindings[current_src_binding];
+
+                assert(src_binding.type == dst_binding.type);
+
+                // Check available counts for consecutive updates.
+                uint32_t dst_copy_count = dst_binding.count - current_dst_array_element;
+                uint32_t src_copy_count = src_binding.count - current_src_array_element;
+                uint32_t current_copies = std::min(current_count, std::min(dst_copy_count, src_copy_count));
+
+                bool* written_start = &dst_binding.written[current_dst_array_element];
+                std::fill(written_start, written_start + current_copies, true);
+
+                memcpy(&dst_binding.handle_ids[current_dst_array_element],
+                       &src_binding.handle_ids[current_src_array_element],
+                       (sizeof(format::HandleId) * current_copies));
+
+                if (src_binding.images != nullptr)
+                {
+                    memcpy(&dst_binding.sampler_ids[current_dst_array_element],
+                           &src_binding.sampler_ids[current_src_array_element],
+                           (sizeof(format::HandleId) * current_copies));
+
+                    memcpy(&dst_binding.images[current_dst_array_element],
+                           &src_binding.images[current_src_array_element],
+                           (sizeof(VkDescriptorImageInfo) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                                src_binding.images[current_src_array_element + d].imageView);
+                        if (image_view_wrapper != nullptr)
+                        {
+                            image_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+
+                        vulkan_wrappers::SamplerWrapper* sampler_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(
+                                src_binding.images[current_src_array_element + d].sampler);
+                        if (sampler_wrapper != nullptr)
+                        {
+                            sampler_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+                if (src_binding.storage_images != nullptr)
+                {
+                    memcpy(&dst_binding.storage_images[current_dst_array_element],
+                           &src_binding.storage_images[current_src_array_element],
+                           (sizeof(VkDescriptorImageInfo) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                                src_binding.storage_images[current_src_array_element + d].imageView);
+                        if (image_view_wrapper != nullptr)
+                        {
+                            image_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+                if (src_binding.buffers != nullptr)
+                {
+                    memcpy(&dst_binding.buffers[current_dst_array_element],
+                           &src_binding.buffers[current_src_array_element],
+                           (sizeof(VkDescriptorBufferInfo) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                                src_binding.buffers[current_src_array_element + d].buffer);
+                        if (buffer_wrapper != nullptr)
+                        {
+                            buffer_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+                if (src_binding.storage_buffers != nullptr)
+                {
+                    memcpy(&dst_binding.storage_buffers[current_dst_array_element],
+                           &src_binding.storage_buffers[current_src_array_element],
+                           (sizeof(VkDescriptorBufferInfo) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                                src_binding.storage_buffers[current_src_array_element + d].buffer);
+                        if (buffer_wrapper != nullptr)
+                        {
+                            buffer_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+                if (src_binding.acceleration_structures != nullptr)
+                {
+                    memcpy(&dst_binding.acceleration_structures[current_dst_array_element],
+                           &src_binding.acceleration_structures[current_src_array_element],
+                           (sizeof(VkWriteDescriptorSetAccelerationStructureKHR) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::AccelerationStructureKHRWrapper* accel_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                                src_binding.acceleration_structures[current_src_array_element + d]);
+                        if (accel_wrapper != nullptr)
+                        {
+                            accel_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+                if (src_binding.inline_uniform_block != nullptr)
+                {
+                    memcpy(&dst_binding.inline_uniform_block[current_dst_array_element],
+                           &src_binding.inline_uniform_block[current_src_array_element],
+                           current_copies);
+                }
+                if (src_binding.uniform_texel_buffer_views != nullptr)
+                {
+                    memcpy(&dst_binding.uniform_texel_buffer_views[current_dst_array_element],
+                           &src_binding.uniform_texel_buffer_views[current_src_array_element],
+                           (sizeof(VkBufferView) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                                src_binding.uniform_texel_buffer_views[current_src_array_element + d]);
+                        if (buffer_view_wrapper != nullptr)
+                        {
+                            buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+                if (src_binding.storage_texel_buffer_views != nullptr)
+                {
+                    memcpy(&dst_binding.storage_texel_buffer_views[current_dst_array_element],
+                           &src_binding.storage_texel_buffer_views[current_src_array_element],
+                           (sizeof(VkBufferView) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                                src_binding.storage_texel_buffer_views[current_src_array_element + d]);
+                        if (buffer_view_wrapper != nullptr)
+                        {
+                            buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+
+                if (src_binding.tensor_views != nullptr)
+                {
+                    memcpy(&dst_binding.tensor_views[current_dst_array_element],
+                           &src_binding.tensor_views[current_src_array_element],
+                           (sizeof(VkTensorViewARM) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::TensorViewARMWrapper* tensor_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                                src_binding.tensor_views[current_src_array_element + d]);
+                        if (tensor_view_wrapper != nullptr)
+                        {
+                            tensor_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+
+                if (src_binding.mutable_type != nullptr)
+                {
+                    memcpy(&dst_binding.mutable_type[current_dst_array_element],
+                           &src_binding.mutable_type[current_src_array_element],
+                           (sizeof(VkDescriptorType) * current_copies));
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_copies)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_copies;
+
+                    if (dst_copy_count == src_copy_count)
+                    {
+                        // Both bindings must increment.
+                        current_dst_binding += 1;
+                        current_src_binding += 1;
+                        current_dst_array_element = 0;
+                        current_src_array_element = 0;
+                    }
+                    else if (dst_copy_count < src_copy_count)
+                    {
+                        // Only the destination binding must increment.
+                        current_dst_binding += 1;
+                        current_dst_array_element = 0;
+                        current_src_array_element += current_copies;
+                    }
+                    else
+                    {
+                        // Only the source binding must increment.
+                        current_src_binding += 1;
+                        current_src_array_element = 0;
+                        current_dst_array_element += current_copies;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void VulkanCaptureManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
+                                                                const UpdateTemplateInfo* template_info,
+                                                                const void*               data)
+{
+    assert(set != VK_NULL_HANDLE);
+
+    std::unique_lock<std::mutex> lock(descriptor_mutex_);
+    // When processing descriptor updates, we pack the unique handle ID into the stored
+    // VkWriteDescriptorSet/VkCopyDescriptorSet handles so that the state writer can determine if the object still
+    // exists at state write time by checking for the ID in the active state table.
+    if ((template_info != nullptr) && (data != nullptr))
+    {
+        auto           wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(set);
+        const uint8_t* bytes   = reinterpret_cast<const uint8_t*>(data);
+
+        wrapper->dirty = true;
+
+        for (const auto& entry : template_info->image_info)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[current_binding];
+
+                // Check count for consecutive updates.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_writes, true);
+
+                if (binding.type != entry.type)
+                {
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
+                }
+                const bool immutable_image = binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
+                                             binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
+                                             binding.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
+                                             binding.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+
+                assert((immutable_image && binding.images != nullptr) ||
+                       (!immutable_image && binding.storage_images != nullptr));
+
+                format::HandleId* dst_sampler_ids = nullptr;
+                if (binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
+                    binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+                {
+                    GFXRECON_ASSERT(binding.sampler_ids != nullptr);
+                    dst_sampler_ids = &binding.sampler_ids[current_array_element];
+                }
+                format::HandleId*      dst_image_ids = &binding.handle_ids[current_array_element];
+                VkDescriptorImageInfo* dst_info      = immutable_image ? &binding.images[current_array_element]
+                                                                       : &binding.storage_images[current_array_element];
+                const uint8_t*         src_address   = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
+                {
+                    auto image_info = reinterpret_cast<const VkDescriptorImageInfo*>(src_address);
+                    if ((binding.type == VK_DESCRIPTOR_TYPE_SAMPLER) ||
+                        (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
+                    {
+                        dst_sampler_ids[i] =
+                            vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(image_info->sampler);
+                    }
+
+                    if (binding.type != VK_DESCRIPTOR_TYPE_SAMPLER)
+                    {
+                        dst_image_ids[i] =
+                            vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(image_info->imageView);
+                    }
+
+                    memcpy(&dst_info[i], image_info, sizeof(dst_info[i]));
+
+                    src_address += entry.stride;
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_writes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_writes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_writes * entry.stride);
+                }
+            }
+        }
+
+        for (const auto& entry : template_info->buffer_info)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[current_binding];
+
+                if (binding.type != entry.type)
+                {
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
+                }
+                const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+                                              binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+                if (immutable_buffer)
+                {
+                    GFXRECON_ASSERT(binding.buffers != nullptr);
+                }
+                else
+                {
+                    GFXRECON_ASSERT(binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC ||
+                                    binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+                    GFXRECON_ASSERT(binding.storage_buffers != nullptr);
+                }
+
+                // Check count for consecutive updates.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_writes, true);
+
+                format::HandleId*       dst_buffer_ids = &binding.handle_ids[current_array_element];
+                VkDescriptorBufferInfo* dst_info       = immutable_buffer ? &binding.buffers[current_array_element]
+                                                                          : &binding.storage_buffers[current_array_element];
+                const uint8_t*          src_address    = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
+                {
+                    auto buffer_info = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
+                    dst_buffer_ids[i] =
+                        vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer_info->buffer);
+                    memcpy(&dst_info[i], buffer_info, sizeof(dst_info[i]));
+
+                    src_address += entry.stride;
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_writes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_writes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_writes * entry.stride);
+                }
+            }
+        }
+
+        for (const auto& entry : template_info->texel_buffer_view)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[current_binding];
+
+                // Check count for consecutive updates.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_writes, true);
+
+                if (binding.type != entry.type)
+                {
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
+                }
+                const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+
+                GFXRECON_ASSERT(immutable_buffer ? binding.uniform_texel_buffer_views != nullptr
+                                                 : binding.storage_texel_buffer_views != nullptr);
+
+                format::HandleId* dst_view_ids = &binding.handle_ids[current_array_element];
+                VkBufferView*  dst_info = immutable_buffer ? &binding.uniform_texel_buffer_views[current_array_element]
+                                                           : &binding.storage_texel_buffer_views[current_array_element];
+                const uint8_t* src_address = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
+                {
+                    auto buffer_view = reinterpret_cast<const VkBufferView*>(src_address);
+                    dst_view_ids[i]  = vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(*buffer_view);
+                    dst_info[i]      = *buffer_view;
+
+                    src_address += entry.stride;
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_writes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_writes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_writes * entry.stride);
+                }
+            }
+        }
+
+        for (const auto& entry : template_info->acceleration_structure_khr)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[current_binding];
+
+                assert(binding.acceleration_structures != nullptr);
+
+                // Check count for consecutive updates.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_writes, true);
+
+                format::HandleId*           dst_view_ids = &binding.handle_ids[current_array_element];
+                VkAccelerationStructureKHR* dst_info     = &binding.acceleration_structures[current_array_element];
+                const uint8_t*              src_address  = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
+                {
+                    const auto* accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
+                    dst_view_ids[i] =
+                        vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(*accel_struct);
+                    dst_info[i] = *accel_struct;
+
+                    src_address += entry.stride;
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_writes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_writes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_writes * entry.stride);
+                }
+            }
+        }
+        for (const auto& entry : template_info->inline_uniform_block)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[entry.binding];
+                GFXRECON_ASSERT(binding.inline_uniform_block != nullptr);
+
+                // Check count for consecutive updates.
+                const uint32_t current_num_bytes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_num_bytes, true);
+
+                const uint8_t* src_address = bytes + current_offset;
+                uint8_t*       dst_address = binding.inline_uniform_block.get() + entry.array_element;
+                memcpy(dst_address, src_address, current_num_bytes);
+
+                // Check for consecutive update.
+                if (current_count == current_num_bytes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_num_bytes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_num_bytes * entry.stride);
+                }
+            }
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

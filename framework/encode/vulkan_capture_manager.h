@@ -1209,11 +1209,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                             uint32_t                    descriptorCopyCount,
                                             const VkCopyDescriptorSet*  pDescriptorCopies)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackUpdateDescriptorSets(
-                descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+            TrackUpdateDescriptorSets(descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
         }
     }
 
@@ -1222,7 +1220,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                        VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                        const void*                pData)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
             TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
         }
@@ -1233,7 +1231,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                           const void*                pData)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
             TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
         }
@@ -2024,6 +2022,17 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unordered_map<format::HandleId, util::RangeList> GetSmartTouchedMemoryRanges(uint32_t             submit_count,
                                                                                       const VkSubmitInfo2* submits);
 
+    bool NeedsCommandBufferResourceTracking() const;
+
+    void TrackUpdateDescriptorSets(uint32_t                    write_count,
+                                   const VkWriteDescriptorSet* writes,
+                                   uint32_t                    copy_count,
+                                   const VkCopyDescriptorSet*  copies);
+
+    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
+                                              const UpdateTemplateInfo* template_info,
+                                              const void*               data);
+
     static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;
     static graphics::VulkanLayerTable               vulkan_layer_table_;
@@ -2033,6 +2042,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::mutex                                      deferred_operation_mutex;
 
     VulkanSmartMemoryTracker smart_memory_tracker_;
+    std::mutex               descriptor_mutex_;
 
     // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
     // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex
