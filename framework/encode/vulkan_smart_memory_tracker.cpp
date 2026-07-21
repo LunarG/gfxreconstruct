@@ -170,7 +170,10 @@ void VulkanSmartMemoryTracker::ProcessSubmit(
             exposed_touched.AddRanges(info.exposed_ranges.Intersect(range.begin, range.Size()));
         }
 
-        EmitMappedIntersections(info_entry, exposed_touched, handle_modified);
+        if (!exposed_touched.Empty())
+        {
+            EmitMappedIntersections(info_entry, exposed_touched, handle_modified);
+        }
     }
 }
 
@@ -230,29 +233,27 @@ void VulkanSmartMemoryTracker::EmitRange(MemoryInfoIterator        memory_info_e
         return;
     }
 
-    if (offset > std::numeric_limits<size_t>::max() || size > std::numeric_limits<size_t>::max())
+    if (offset >= std::numeric_limits<size_t>::max() || size >= std::numeric_limits<size_t>::max())
     {
         GFXRECON_LOG_ERROR(
             "Smart memory tracking range is too large to process: offset=%" PRIu64 ", size=%" PRIu64, offset, size);
         return;
     }
 
-    const size_t baseline_offset = static_cast<size_t>(offset);
-    const size_t range_size      = static_cast<size_t>(size);
-    const size_t mapped_offset   = static_cast<size_t>(offset - memory_info.mapped_offset);
+    const size_t baseline_offset   = static_cast<size_t>(offset);
+    const size_t range_size        = static_cast<size_t>(size);
+    const size_t offset_in_mapping = static_cast<size_t>(offset - memory_info.mapped_offset);
 
-    const uint8_t* data     = memory_info.mapped_data + mapped_offset;
+    const uint8_t* data     = memory_info.mapped_data + offset_in_mapping;
     uint8_t*       baseline = memory_info.baseline.data() + baseline_offset;
 
     if (!memory_info.baseline_valid_ranges.ContainsRange(offset, size))
     {
-        handle_modified(memory_info_entry->first, data, offset - memory_info.mapped_offset, size);
+        handle_modified(memory_info_entry->first, data, offset_in_mapping, size);
         util::platform::MemoryCopy(baseline, range_size, data, range_size);
         memory_info.baseline_valid_ranges.AddRange(offset, size);
         return;
     }
-
-    const uint64_t relative_base = offset - memory_info.mapped_offset;
 
     size_t cursor = 0;
     while ((range_size - cursor) >= kDiffWordSize)
@@ -278,7 +279,7 @@ void VulkanSmartMemoryTracker::EmitRange(MemoryInfoIterator        memory_info_e
 
         if (cursor > changed_begin)
         {
-            const uint64_t relative_offset = relative_base + changed_begin;
+            const uint64_t relative_offset = offset_in_mapping + changed_begin;
             const uint64_t changed_size    = cursor - changed_begin;
             handle_modified(memory_info_entry->first, data + changed_begin, relative_offset, changed_size);
         }
@@ -301,7 +302,7 @@ void VulkanSmartMemoryTracker::EmitRange(MemoryInfoIterator        memory_info_e
 
         if (cursor > changed_begin)
         {
-            const uint64_t relative_offset = relative_base + changed_begin;
+            const uint64_t relative_offset = offset_in_mapping + changed_begin;
             const uint64_t changed_size    = cursor - changed_begin;
             handle_modified(memory_info_entry->first, data + changed_begin, relative_offset, changed_size);
         }
