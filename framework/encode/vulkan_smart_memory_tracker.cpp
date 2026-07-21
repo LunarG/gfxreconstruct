@@ -83,7 +83,7 @@ void VulkanSmartMemoryTracker::MapMemory(format::HandleId memory_id,
     info.mapped_offset = offset;
     info.mapped_size   = ClampRangeSize(offset, size, info.allocation_size);
 
-    if ((info.property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0)
+    if ((info.property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
     {
         info.exposed_ranges.AddRange(offset, info.mapped_size);
     }
@@ -124,9 +124,8 @@ void VulkanSmartMemoryTracker::FlushRange(format::HandleId          memory_id,
         return;
     }
 
-    util::RangeList ranges;
-    ranges.AddRange(offset, size);
-    EmitMappedIntersections(memory_id, &info, ranges, handle_modified);
+    util::RangeList ranges(offset, size);
+    EmitMappedIntersections(entry, ranges, handle_modified);
     info.exposed_ranges.AddRange(offset, size);
 }
 
@@ -140,7 +139,7 @@ void VulkanSmartMemoryTracker::FlushMappedMemory(format::HandleId memory_id, con
     }
 
     MemoryInfo& info = entry->second;
-    EmitMappedIntersections(memory_id, &info, info.exposed_ranges, handle_modified);
+    EmitMappedIntersections(entry, info.exposed_ranges, handle_modified);
 }
 
 void VulkanSmartMemoryTracker::ProcessSubmit(
@@ -148,27 +147,30 @@ void VulkanSmartMemoryTracker::ProcessSubmit(
     const ModifiedMemoryFunc&                                    handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
-    for (const auto& entry : touched_ranges)
+
+    for (const auto& [memory_id, ranges] : touched_ranges)
     {
-        auto info_entry = memory_info_.find(entry.first);
+        auto info_entry = memory_info_.find(memory_id);
         if (info_entry == memory_info_.end())
         {
             continue;
         }
 
         MemoryInfo& info = info_entry->second;
-        if ((info.property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
+
+        // Non HOST_COHERENT ranges should have already been handled by FlushMappedMemoryRanges
+        if ((info.property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
         {
             continue;
         }
 
         util::RangeList exposed_touched;
-        for (const auto& range : entry.second.GetRanges())
+        for (const auto& range : ranges.GetRanges())
         {
             exposed_touched.AddRanges(info.exposed_ranges.Intersect(range.begin, range.Size()));
         }
 
-        EmitMappedIntersections(entry.first, &info, exposed_touched, handle_modified);
+        EmitMappedIntersections(info_entry, exposed_touched, handle_modified);
     }
 }
 
@@ -187,34 +189,32 @@ uint64_t VulkanSmartMemoryTracker::ClampRangeSize(uint64_t offset, uint64_t size
     return size;
 }
 
-bool VulkanSmartMemoryTracker::EnsureBaseline(MemoryInfo* memory_info)
+bool VulkanSmartMemoryTracker::EnsureBaseline(MemoryInfo& memory_info)
 {
-    assert(memory_info != nullptr);
-
-    if (memory_info->baseline.empty())
+    if (memory_info.baseline.empty())
     {
-        if (memory_info->allocation_size > std::numeric_limits<size_t>::max())
+        if (memory_info.allocation_size >= std::numeric_limits<size_t>::max())
         {
             GFXRECON_LOG_ERROR("Smart memory tracking cannot allocate a baseline for memory allocation size %" PRIu64,
-                               memory_info->allocation_size);
+                               memory_info.allocation_size);
             return false;
         }
 
-        memory_info->baseline.resize(static_cast<size_t>(memory_info->allocation_size), 0);
+        memory_info.baseline.resize(static_cast<size_t>(memory_info.allocation_size), 0);
     }
 
     return true;
 }
 
-void VulkanSmartMemoryTracker::EmitRange(format::HandleId          memory_id,
-                                         MemoryInfo*               memory_info,
+void VulkanSmartMemoryTracker::EmitRange(MemoryInfoIterator        memory_info_entry,
                                          uint64_t                  offset,
                                          uint64_t                  size,
                                          const ModifiedMemoryFunc& handle_modified)
 {
-    assert(memory_info != nullptr);
+    GFXRECON_ASSERT(memory_info_entry != memory_info_.end());
 
-    if (size == 0 || memory_info->mapped_data == nullptr)
+    MemoryInfo& memory_info = memory_info_entry->second;
+    if (size == 0 || memory_info.mapped_data == nullptr)
     {
         return;
     }
@@ -224,8 +224,8 @@ void VulkanSmartMemoryTracker::EmitRange(format::HandleId          memory_id,
         return;
     }
 
-    if (offset < memory_info->mapped_offset || size > memory_info->mapped_size ||
-        (offset - memory_info->mapped_offset) > (memory_info->mapped_size - size))
+    if (offset < memory_info.mapped_offset || size > memory_info.mapped_size ||
+        (offset - memory_info.mapped_offset) > (memory_info.mapped_size - size))
     {
         return;
     }
@@ -239,20 +239,20 @@ void VulkanSmartMemoryTracker::EmitRange(format::HandleId          memory_id,
 
     const size_t baseline_offset = static_cast<size_t>(offset);
     const size_t range_size      = static_cast<size_t>(size);
-    const size_t mapped_offset   = static_cast<size_t>(offset - memory_info->mapped_offset);
+    const size_t mapped_offset   = static_cast<size_t>(offset - memory_info.mapped_offset);
 
-    const uint8_t* data     = memory_info->mapped_data + mapped_offset;
-    uint8_t*       baseline = memory_info->baseline.data() + baseline_offset;
+    const uint8_t* data     = memory_info.mapped_data + mapped_offset;
+    uint8_t*       baseline = memory_info.baseline.data() + baseline_offset;
 
-    if (!memory_info->baseline_valid_ranges.ContainsRange(offset, size))
+    if (!memory_info.baseline_valid_ranges.ContainsRange(offset, size))
     {
-        handle_modified(memory_id, data, offset - memory_info->mapped_offset, size);
+        handle_modified(memory_info_entry->first, data, offset - memory_info.mapped_offset, size);
         util::platform::MemoryCopy(baseline, range_size, data, range_size);
-        memory_info->baseline_valid_ranges.AddRange(offset, size);
+        memory_info.baseline_valid_ranges.AddRange(offset, size);
         return;
     }
 
-    const uint64_t relative_base = offset - memory_info->mapped_offset;
+    const uint64_t relative_base = offset - memory_info.mapped_offset;
 
     size_t cursor = 0;
     while ((range_size - cursor) >= kDiffWordSize)
@@ -280,7 +280,7 @@ void VulkanSmartMemoryTracker::EmitRange(format::HandleId          memory_id,
         {
             const uint64_t relative_offset = relative_base + changed_begin;
             const uint64_t changed_size    = cursor - changed_begin;
-            handle_modified(memory_id, data + changed_begin, relative_offset, changed_size);
+            handle_modified(memory_info_entry->first, data + changed_begin, relative_offset, changed_size);
         }
     }
 
@@ -303,28 +303,28 @@ void VulkanSmartMemoryTracker::EmitRange(format::HandleId          memory_id,
         {
             const uint64_t relative_offset = relative_base + changed_begin;
             const uint64_t changed_size    = cursor - changed_begin;
-            handle_modified(memory_id, data + changed_begin, relative_offset, changed_size);
+            handle_modified(memory_info_entry->first, data + changed_begin, relative_offset, changed_size);
         }
     }
 }
 
-void VulkanSmartMemoryTracker::EmitMappedIntersections(format::HandleId          memory_id,
-                                                       MemoryInfo*               memory_info,
+void VulkanSmartMemoryTracker::EmitMappedIntersections(MemoryInfoIterator        memory_info_entry,
                                                        const util::RangeList&    ranges,
                                                        const ModifiedMemoryFunc& handle_modified)
 {
-    assert(memory_info != nullptr);
+    GFXRECON_ASSERT(memory_info_entry != memory_info_.end());
 
-    if (memory_info->mapped_data == nullptr || memory_info->mapped_size == 0)
+    MemoryInfo& memory_info = memory_info_entry->second;
+    if (memory_info.mapped_data == nullptr || memory_info.mapped_size == 0)
     {
         return;
     }
 
+    const uint64_t mapped_begin = memory_info.mapped_offset;
+    const uint64_t mapped_end   = mapped_begin + memory_info.mapped_size;
+
     for (const auto& range : ranges.GetRanges())
     {
-        const uint64_t mapped_begin = memory_info->mapped_offset;
-        const uint64_t mapped_end   = mapped_begin + memory_info->mapped_size;
-
         if (range.end <= mapped_begin || range.begin >= mapped_end)
         {
             continue;
@@ -332,7 +332,7 @@ void VulkanSmartMemoryTracker::EmitMappedIntersections(format::HandleId         
 
         const uint64_t begin = std::max(range.begin, mapped_begin);
         const uint64_t end   = std::min(range.end, mapped_end);
-        EmitRange(memory_id, memory_info, begin, end - begin, handle_modified);
+        EmitRange(memory_info_entry, begin, end - begin, handle_modified);
     }
 }
 
