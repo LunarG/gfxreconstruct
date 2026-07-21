@@ -1617,6 +1617,28 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                  uint32_t                        rangeCount,
                                                  const VkImageSubresourceRange*  pRanges);
 
+    void PostProcess_vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer,
+                                          VkBuffer        buffer,
+                                          VkDeviceSize    offset,
+                                          VkIndexType     indexType);
+
+    void PostProcess_vkCmdBindIndexBuffer2(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize size, VkIndexType indexType);
+
+    void PostProcess_vkCmdBindVertexBuffers(VkCommandBuffer     commandBuffer,
+                                            uint32_t            firstBinding,
+                                            uint32_t            bindingCount,
+                                            const VkBuffer*     pBuffers,
+                                            const VkDeviceSize* pOffsets);
+
+    void PostProcess_vkCmdBindVertexBuffers2(VkCommandBuffer     commandBuffer,
+                                             uint32_t            firstBinding,
+                                             uint32_t            bindingCount,
+                                             const VkBuffer*     pBuffers,
+                                             const VkDeviceSize* pOffsets,
+                                             const VkDeviceSize* pSizes,
+                                             const VkDeviceSize* pStrides);
+
     void PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
                                uint32_t        vertexCount,
                                uint32_t        instanceCount,
