@@ -71,23 +71,26 @@ class VulkanSmartMemoryTracker
         std::vector<uint8_t>  baseline;
     };
 
+    using MemoryInfoMap      = std::unordered_map<format::HandleId, MemoryInfo>;
+    using MemoryInfoIterator = MemoryInfoMap::iterator;
+
   private:
     static uint64_t ClampRangeSize(uint64_t offset, uint64_t size, uint64_t limit);
 
-    bool EnsureBaseline(MemoryInfo* memory_info);
-    void EmitRange(format::HandleId          memory_id,
-                   MemoryInfo*               memory_info,
+    bool EnsureBaseline(MemoryInfo& memory_info);
+
+    void EmitRange(MemoryInfoIterator        memory_info_entry,
                    uint64_t                  offset,
                    uint64_t                  size,
                    const ModifiedMemoryFunc& handle_modified);
-    void EmitMappedIntersections(format::HandleId          memory_id,
-                                 MemoryInfo*               memory_info,
+
+    void EmitMappedIntersections(MemoryInfoIterator        memory_info_entry,
                                  const util::RangeList&    ranges,
                                  const ModifiedMemoryFunc& handle_modified);
 
   private:
-    std::mutex                                       tracked_memory_lock_;
-    std::unordered_map<format::HandleId, MemoryInfo> memory_info_;
+    std::mutex    tracked_memory_lock_;
+    MemoryInfoMap memory_info_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
