@@ -5141,14 +5141,9 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass(VkCommandBuffer     
                                                             const VkRenderPassBeginInfo* pRenderPassBegin,
                                                             VkSubpassContents)
 {
-    if (IsCaptureModeTrack())
-    {
-        assert(state_tracker_ != nullptr);
-        state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
-    }
-
     if (NeedsCommandBufferResourceTracking())
     {
+        TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
         MarkRenderPassAttachmentsAsModified(commandBuffer);
     }
 }
@@ -5157,14 +5152,9 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer    
                                                              const VkRenderPassBeginInfo* pRenderPassBegin,
                                                              const VkSubpassBeginInfoKHR*)
 {
-    if (IsCaptureModeTrack())
-    {
-        assert(state_tracker_ != nullptr);
-        state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
-    }
-
     if (NeedsCommandBufferResourceTracking())
     {
+        TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
         MarkRenderPassAttachmentsAsModified(commandBuffer);
     }
 }
@@ -6240,6 +6230,42 @@ void VulkanCaptureManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet 
             }
         }
     }
+}
+
+void VulkanCaptureManager::TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info)
+{
+    assert((command_buffer != VK_NULL_HANDLE) && (begin_info != nullptr));
+
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    wrapper->active_render_pass =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(begin_info->renderPass);
+    wrapper->render_pass_framebuffer =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::FramebufferWrapper>(begin_info->framebuffer);
+}
+
+void VulkanCaptureManager::TrackEndRenderPass(VkCommandBuffer command_buffer)
+{
+    assert(command_buffer != VK_NULL_HANDLE);
+
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    assert((wrapper->active_render_pass != VK_NULL_HANDLE) && (wrapper->render_pass_framebuffer != VK_NULL_HANDLE));
+
+    auto render_pass_wrapper = wrapper->active_render_pass;
+    auto framebuffer_wrapper = wrapper->render_pass_framebuffer;
+    assert((framebuffer_wrapper != nullptr) && (render_pass_wrapper != nullptr));
+
+    uint32_t attachment_count = static_cast<uint32_t>(framebuffer_wrapper->attachments.size());
+    assert(attachment_count <= render_pass_wrapper->attachment_info.attachment_final_layouts.size());
+
+    for (uint32_t i = 0; i < attachment_count; ++i)
+    {
+        wrapper->pending_layouts[framebuffer_wrapper->attachments[i]] =
+            render_pass_wrapper->attachment_info.attachment_final_layouts[i];
+    }
+
+    // Clear the active render pass state now that the pass has ended.
+    wrapper->active_render_pass      = nullptr;
+    wrapper->render_pass_framebuffer = nullptr;
 }
 
 GFXRECON_END_NAMESPACE(encode)
