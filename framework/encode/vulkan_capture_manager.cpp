@@ -4144,6 +4144,64 @@ void VulkanCaptureManager::PreProcess_vkBeginCommandBuffer(VkCommandBuffer      
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer,
+                                                            VkBuffer        buffer,
+                                                            VkDeviceSize    offset,
+                                                            VkIndexType     indexType)
+{
+    if (NeedsCommandBufferResourceTracking())
+    {
+        InsertBufferAssetInCommandBuffer(commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdBindIndexBuffer2(
+    VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize size, VkIndexType indexType)
+{
+    if (NeedsCommandBufferResourceTracking())
+    {
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, size);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdBindVertexBuffers(VkCommandBuffer     commandBuffer,
+                                                              uint32_t            firstBinding,
+                                                              uint32_t            bindingCount,
+                                                              const VkBuffer*     pBuffers,
+                                                              const VkDeviceSize* pOffsets)
+{
+    if (NeedsCommandBufferResourceTracking() && pBuffers != nullptr && pOffsets != nullptr)
+    {
+        for (uint32_t i = 0; i < bindingCount; ++i)
+        {
+            InsertBufferAssetInCommandBuffer(
+                commandBuffer, pBuffers[i], vulkan_wrappers::ResourceAccessType::kRead, pOffsets[i]);
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdBindVertexBuffers2(VkCommandBuffer     commandBuffer,
+                                                               uint32_t            firstBinding,
+                                                               uint32_t            bindingCount,
+                                                               const VkBuffer*     pBuffers,
+                                                               const VkDeviceSize* pOffsets,
+                                                               const VkDeviceSize* pSizes,
+                                                               const VkDeviceSize* pStrides)
+{
+    if (NeedsCommandBufferResourceTracking() && pBuffers != nullptr && pOffsets != nullptr)
+    {
+        for (uint32_t i = 0; i < bindingCount; ++i)
+        {
+            InsertBufferAssetInCommandBuffer(commandBuffer,
+                                             pBuffers[i],
+                                             vulkan_wrappers::ResourceAccessType::kRead,
+                                             pOffsets[i],
+                                             pSizes != nullptr ? pSizes[i] : VK_WHOLE_SIZE);
+        }
+    }
+}
+
 void VulkanCaptureManager::PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
                                                  uint32_t        vertexCount,
                                                  uint32_t        instanceCount,
