@@ -401,10 +401,6 @@ class VulkanStateTracker
                            VkDeviceSize     mapped_size,
                            VkMemoryMapFlags mapped_flags);
 
-    void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
-
-    void TrackEndRenderPass(VkCommandBuffer command_buffer);
-
     void TrackExecuteCommands(VkCommandBuffer        command_buffer,
                               uint32_t               command_buffer_count,
                               const VkCommandBuffer* command_buffers);

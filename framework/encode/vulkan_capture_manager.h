@@ -1000,19 +1000,17 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackEndRenderPass(commandBuffer);
+            TrackEndRenderPass(commandBuffer);
         }
     }
 
     void PostProcess_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackEndRenderPass(commandBuffer);
+            TrackEndRenderPass(commandBuffer);
         }
     }
 
@@ -2054,6 +2052,10 @@ class VulkanCaptureManager : public ApiCaptureManager
     void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
                                               const UpdateTemplateInfo* template_info,
                                               const void*               data);
+
+    void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
+
+    void TrackEndRenderPass(VkCommandBuffer command_buffer);
 
     static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;
