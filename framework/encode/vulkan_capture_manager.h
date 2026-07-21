@@ -1000,7 +1000,7 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
     {
-        if (NeedsCommandBufferResourceTracking())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
             TrackEndRenderPass(commandBuffer);
         }
@@ -1008,7 +1008,7 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
     {
-        if (NeedsCommandBufferResourceTracking())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
             TrackEndRenderPass(commandBuffer);
         }
