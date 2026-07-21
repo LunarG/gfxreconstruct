@@ -189,7 +189,11 @@ class KhronosDecoderBodyGenerator():
                     )
             else:
                 if is_struct or is_string or is_handle_like:
-                    if type_name in self.children_structs.keys():
+                    if type_name == self.get_base_output_structure_name():
+                        main_body += '    bytes_read += {}.DecodeBaseHeader({});\n'.format(
+                            lvalue, buffer_args
+                        )
+                    elif type_name in self.children_structs.keys():
                         base_type_name = self.make_simple_var_name(value.base_type)
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
                         main_body += '                                                   (buffer_size - bytes_read),\n'
