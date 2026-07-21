@@ -4858,7 +4858,8 @@ void VulkanCaptureManager::TrackPipelineDescriptors(VkCommandBuffer             
                             command_wrapper->ReferenceResource(img_view_wrapper->image,
                                                                0,
                                                                img_view_wrapper->image->size,
-                                                               vulkan_wrappers::ResourceAccessType::kWrite);
+                                                               vulkan_wrappers::ResourceAccessType::kRead |
+                                                                   vulkan_wrappers::ResourceAccessType::kWrite);
                         }
                     }
                 }
@@ -4899,7 +4900,8 @@ void VulkanCaptureManager::TrackPipelineDescriptors(VkCommandBuffer             
                                                                descriptor_binding.storage_buffers[ai].offset +
                                                                    dynamic_offset,
                                                                descriptor_binding.storage_buffers[ai].range,
-                                                               vulkan_wrappers::ResourceAccessType::kWrite);
+                                                               vulkan_wrappers::ResourceAccessType::kRead |
+                                                                   vulkan_wrappers::ResourceAccessType::kWrite);
                         }
                     }
                 }
@@ -4937,7 +4939,8 @@ void VulkanCaptureManager::TrackPipelineDescriptors(VkCommandBuffer             
                             command_wrapper->ReferenceResource(buf_view_wrapper->buffer,
                                                                buf_view_wrapper->offset,
                                                                buf_view_wrapper->range,
-                                                               vulkan_wrappers::ResourceAccessType::kWrite);
+                                                               vulkan_wrappers::ResourceAccessType::kRead |
+                                                                   vulkan_wrappers::ResourceAccessType::kWrite);
                         }
                     }
                 }
