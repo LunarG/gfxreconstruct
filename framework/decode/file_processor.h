@@ -98,6 +98,8 @@ class FileProcessor
 
     bool Initialize(const std::string& filename);
 
+    bool ProcessStateSetup();
+
     void OnFrameBegin();
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
@@ -374,10 +376,10 @@ class FileProcessor
     FrameNumber                     quit_before_frame_{ 0 };
 };
 
-extern template file_processor::ProcessBlockState
-FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processor::PreloadProcessPolicy& policy);
-extern template file_processor::ProcessBlockState
-FileProcessor::ProcessBlocks<file_processor::AsyncProcessPolicy>(file_processor::AsyncProcessPolicy& policy);
+extern template file_processor::ProcessBlockState FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(
+    file_processor::PreloadProcessPolicy& policy);
+extern template file_processor::ProcessBlockState FileProcessor::ProcessBlocks<file_processor::AsyncProcessPolicy>(
+    file_processor::AsyncProcessPolicy& policy);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

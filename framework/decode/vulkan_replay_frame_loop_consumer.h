@@ -378,7 +378,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     /**
      * @brief Checks if the replayer is in the setup (state restoration) phase before the loop starts.
      */
-    bool IsBeforeLoop() const { return frame_loop_info_.IsLooping() && !setup_complete_; }
+    bool IsBeforeLoop() const { return frame_loop_info_.GetLoopFrame() > 0 && !setup_complete_; }
 
     /**
      * @brief Checks if the replayer is currently playing the very first iteration of the loop.
