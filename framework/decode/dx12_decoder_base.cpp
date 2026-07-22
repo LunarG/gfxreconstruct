@@ -325,6 +325,15 @@ void Dx12DecoderBase::DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCo
     }
 }
 
+void Dx12DecoderBase::DispatchD3D12CreateDeviceAdapterInfo(
+    const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessD3D12CreateDeviceAdapterInfo(adapter_info_header);
+    }
+}
+
 void Dx12DecoderBase::DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& dx12_runtime_info_header)
 {
     for (auto consumer : consumers_)

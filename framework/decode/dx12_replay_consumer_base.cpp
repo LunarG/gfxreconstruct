@@ -1430,8 +1430,24 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12DeviceFactoryCreateDevice(DxObjectI
     return replay_result;
 }
 
+void Dx12ReplayConsumerBase::ProcessD3D12CreateDeviceAdapterInfo(
+    const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header)
+{
+    capture_adapter_desc_by_id_[adapter_info_header.adapter_id] = adapter_info_header.adapter_desc;
+
+    received_create_device_adapter_info_ = true;
+}
+
 void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
+    // adapter selection and mismatch warnings are already handled at device creation
+    bool created_device_adapter_info = received_create_device_adapter_info_;
+    received_create_device_adapter_info_ = false;
+    if (created_device_adapter_info)
+    {
+        return;
+    }
+
     // Only check this if the block is not of a software adapter
     if (graphics::dx12::IsSoftwareAdapter(adapter_info_header.adapter_desc) == false)
     {
@@ -1518,14 +1534,163 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
     }
 }
 
+IUnknown* Dx12ReplayConsumerBase::MatchReplayAdapterToCaptureDesc(const format::DxgiAdapterDesc* capture_desc)
+{
+    // No capture-time desc to match against; use the default replay adapter
+    if (capture_desc == nullptr)
+    {
+        return nullptr;
+    }
+
+    IUnknown*                      matched_adapter = nullptr;
+    const format::DxgiAdapterDesc* matched_desc    = nullptr;
+    // Prefer an exact match on both vendor and device id
+    for (const auto& adapter : adapters_)
+    {
+        const format::DxgiAdapterDesc& replay_desc = adapter.second.internal_desc;
+        if ((replay_desc.VendorId == capture_desc->VendorId) && (replay_desc.DeviceId == capture_desc->DeviceId))
+        {
+            return adapter.second.adapter.GetInterfacePtr();
+        }
+        else if ((replay_desc.VendorId == capture_desc->VendorId) || (replay_desc.DeviceId == capture_desc->DeviceId))
+        {
+            matched_adapter = adapter.second.adapter.GetInterfacePtr();
+            matched_desc    = &replay_desc;
+        }
+    }
+
+    // Partial match
+    if (matched_adapter != nullptr)
+    {
+        std::string capture_adapter_str  = gfxrecon::util::WCharArrayToString(capture_desc->Description);
+        std::string selected_adapter_str = gfxrecon::util::WCharArrayToString(matched_desc->Description);
+
+        GFXRECON_LOG_WARNING("An exact replay adapter match was not found; selecting an adapter that shares the "
+                             "capture adapter's vendor or device id. Replay may fail due to device incompatibilities:");
+        GFXRECON_LOG_WARNING("  Capture adapter info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                             capture_desc->VendorId,
+                             capture_desc->DeviceId,
+                             capture_adapter_str.c_str());
+        GFXRECON_LOG_WARNING("  Replay adapter info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                             matched_desc->VendorId,
+                             matched_desc->DeviceId,
+                             selected_adapter_str.c_str());
+
+        return matched_adapter;
+    }
+
+    // No replay adapter matches the capture-time GPU, warn with available adapters
+    if ((graphics::dx12::IsSoftwareAdapter(*capture_desc) == false) && (adapters_.empty() == false))
+    {
+        std::string capture_adapter_str = gfxrecon::util::WCharArrayToString(capture_desc->Description);
+
+        GFXRECON_LOG_WARNING("No replay adapter matches the original capture adapter; replay may fail due to device "
+                             "incompatibilities:");
+        GFXRECON_LOG_WARNING("  Capture adapter info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                             capture_desc->VendorId,
+                             capture_desc->DeviceId,
+                             capture_adapter_str.c_str());
+
+        for (const auto& adapter : adapters_)
+        {
+            const format::DxgiAdapterDesc& replay_desc = adapter.second.internal_desc;
+
+            std::string replay_adapter_str = gfxrecon::util::WCharArrayToString(replay_desc.Description);
+            GFXRECON_LOG_WARNING("  Replay adapter info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                                 replay_desc.VendorId,
+                                 replay_desc.DeviceId,
+                                 replay_adapter_str.c_str());
+        }
+    }
+
+    // Use default replay adapter
+    return nullptr;
+}
+
 IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_info)
 {
-    if ((render_adapter_ == nullptr) && (adapter_info != nullptr))
+    // Capture-time adapter description recorded by a kD3D12CreateDeviceAdapterInfoCommand
+    const format::DxgiAdapterDesc* capture_desc = nullptr;
+
+    const format::HandleId lookup_id = (adapter_info != nullptr) ? adapter_info->capture_id : format::kNullHandleId;
+    auto                   desc_entry = capture_adapter_desc_by_id_.find(lookup_id);
+    if (desc_entry != capture_adapter_desc_by_id_.end())
+    {
+        capture_desc = &desc_entry->second;
+    }
+
+    // --gpu override
+    if (render_adapter_ != nullptr)
+    {
+        if (capture_desc != nullptr)
+        {
+            WarnIfGpuOverrideMismatch(*capture_desc);
+        }
+        return render_adapter_;
+    }
+
+    // No capture time desc available
+    if (capture_desc == nullptr)
+    {
+        if (adapter_info != nullptr)
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "No capture-time description is available for the adapter used to create a device, so the replay "
+                "adapter cannot be matched to the capture adapter. Reusing the adapter the application selected during "
+                "replay.");
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "No capture-time description is available for the default adapter, so the replay adapter cannot be "
+                "matched to the capture adapter. Using the default replay adapter.");
+        }
+    }
+
+    // Prefer a replay adapter whose vendor/device ids match the capture-time adapter
+    IUnknown* matched_adapter = MatchReplayAdapterToCaptureDesc(capture_desc);
+    if (matched_adapter != nullptr)
+    {
+        return matched_adapter;
+    }
+
+    // Reuse the adapter the application selected during replay
+    if (adapter_info != nullptr)
     {
         return adapter_info->object;
     }
 
-    return render_adapter_;
+    // Fallback to default replay adapter
+    return nullptr;
+}
+
+void Dx12ReplayConsumerBase::WarnIfGpuOverrideMismatch(const format::DxgiAdapterDesc& capture_desc)
+{
+    // Find the override adapter's desc so it can be compared against the capture-time adapter.
+    for (const auto& adapter : adapters_)
+    {
+        if (adapter.second.adapter.GetInterfacePtr() == render_adapter_)
+        {
+            const format::DxgiAdapterDesc& override_desc = adapter.second.internal_desc;
+            if ((override_desc.VendorId != capture_desc.VendorId) || (override_desc.DeviceId != capture_desc.DeviceId))
+            {
+                std::string capture_adapter_str  = gfxrecon::util::WCharArrayToString(capture_desc.Description);
+                std::string override_adapter_str = gfxrecon::util::WCharArrayToString(override_desc.Description);
+
+                GFXRECON_LOG_WARNING("The --gpu override adapter differs from the original capture adapter; replay may "
+                                     "fail due to device incompatibilities:");
+                GFXRECON_LOG_WARNING("  Capture adapter info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                                     capture_desc.VendorId,
+                                     capture_desc.DeviceId,
+                                     capture_adapter_str.c_str());
+                GFXRECON_LOG_WARNING("  Override adapter info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                                     override_desc.VendorId,
+                                     override_desc.DeviceId,
+                                     override_adapter_str.c_str());
+            }
+            return;
+        }
+    }
 }
 
 void Dx12ReplayConsumerBase::InitializeD3D12Device(HandlePointerDecoder<void*>* device)

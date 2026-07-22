@@ -205,6 +205,9 @@ class ApiDecoder
 
     virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
 
+    virtual void DispatchD3D12CreateDeviceAdapterInfo(
+        const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header){};
+
     virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header){};
 
     virtual void DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
