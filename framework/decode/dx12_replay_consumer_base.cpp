@@ -1441,7 +1441,7 @@ void Dx12ReplayConsumerBase::ProcessD3D12CreateDeviceAdapterInfo(
 void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
     // adapter selection and mismatch warnings are already handled at device creation
-    bool created_device_adapter_info = received_create_device_adapter_info_;
+    bool created_device_adapter_info     = received_create_device_adapter_info_;
     received_create_device_adapter_info_ = false;
     if (created_device_adapter_info)
     {
@@ -1612,7 +1612,7 @@ IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_i
     // Capture-time adapter description recorded by a kD3D12CreateDeviceAdapterInfoCommand
     const format::DxgiAdapterDesc* capture_desc = nullptr;
 
-    const format::HandleId lookup_id = (adapter_info != nullptr) ? adapter_info->capture_id : format::kNullHandleId;
+    const format::HandleId lookup_id  = (adapter_info != nullptr) ? adapter_info->capture_id : format::kNullHandleId;
     auto                   desc_entry = capture_adapter_desc_by_id_.find(lookup_id);
     if (desc_entry != capture_adapter_desc_by_id_.end())
     {
@@ -4110,7 +4110,6 @@ IDXGIAdapter* Dx12ReplayConsumerBase::GetAdapter()
 
     return adapter_found;
 }
-
 
 // Helper to initialize the resource's D3D12ResourceInfo and set its is_reserved_resource = true.
 static void SetIsReservedResource(HandlePointerDecoder<void*>* resource)

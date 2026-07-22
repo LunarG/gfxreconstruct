@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     format::BlockHeader block_header;
-    BlockIOError  status = kErrorNone;
+    BlockIOError        status = kErrorNone;
 
     const size_t peeked_bytes = input_stream->PeekBytes(&block_header, sizeof(block_header));
     if (peeked_bytes == 0)
@@ -1475,8 +1475,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         }
         else
         {
-            HandleBlockReadError(kErrorReadingBlockData,
-                                 "Failed to read create device adapter info meta-data block");
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read create device adapter info meta-data block");
         }
     }
     else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)
