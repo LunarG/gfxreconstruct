@@ -164,6 +164,8 @@ enum class ImageRotation
 /**
  * @brief Rotates and optionally mirrors image pixels on the CPU using loop tiling for cache friendliness.
  *
+ * If both mirroring and rotation are enabled, the image content is mirrored horizontally first, then rotated.
+ *
  * @param rotation     Runtime rotation enum (0, 90, 180, or 270 degrees).
  * @param is_mirrored  Runtime boolean flag indicating whether the image should be mirrored.
  * @param src_pixels   Pointer to the source pixel data buffer (uint32_t representation).

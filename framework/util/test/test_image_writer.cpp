@@ -107,7 +107,7 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
                                                            src_height,
                                                            dst_width,
                                                            dst_height);
-        const std::vector<uint32_t> expected = { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 };
+        const std::vector<uint32_t> expected = { 12, 9, 6, 3, 11, 8, 5, 2, 10, 7, 4, 1 };
         REQUIRE(dst_pixels == expected);
     }
 
@@ -139,7 +139,7 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
                                                            src_height,
                                                            dst_width,
                                                            dst_height);
-        const std::vector<uint32_t> expected = { 12, 9, 6, 3, 11, 8, 5, 2, 10, 7, 4, 1 };
+        const std::vector<uint32_t> expected = { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 };
         REQUIRE(dst_pixels == expected);
     }
 
@@ -182,9 +182,9 @@ TEST_CASE("ImageWriter::RotateAndMirrorPixels test", "[image_writer]")
         {
             for (uint32_t dx = 0; dx < h; ++dx)
             {
+                uint32_t mirrored_dx   = h - 1 - dx; // mirror in dest
                 uint32_t sx            = w - 1 - dy;
-                uint32_t sy            = dx;
-                sx                     = w - 1 - sx; // mirror
+                uint32_t sy            = mirrored_dx;
                 dst_ref_m[dy * h + dx] = src[sy * w + sx];
             }
         }

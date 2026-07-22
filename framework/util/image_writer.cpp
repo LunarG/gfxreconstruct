@@ -624,27 +624,34 @@ static void RotateAndMirrorPixelsInternal(const uint32_t* src_pixels,
             {
                 for (uint32_t dst_x = dst_x_block; dst_x < max_x; ++dst_x)
                 {
-                    uint32_t src_x = dst_x;
+                    // Conceptually, when an image is both mirrored and rotated, we define
+                    // the forward transformation as Mirror-then-Rotate.
+                    // To perform the inverse operation, we un-rotate then un-mirror
+                    // (Rotate-then-Mirror). When pulling from the source backwards, this
+                    // means we mirror our destination X coordinate first, then apply
+                    // the inverse rotation to find the corresponding source pixel.
+                    uint32_t mirrored_dst_x = dst_x;
+                    if constexpr (MIRRORED)
+                    {
+                        mirrored_dst_x = dst_width - 1 - dst_x;
+                    }
+
+                    uint32_t src_x = mirrored_dst_x;
                     uint32_t src_y = dst_y;
                     if constexpr (ROTATION == ImageRotation::DEG_90)
                     {
                         src_x = src_width - 1 - dst_y;
-                        src_y = dst_x;
+                        src_y = mirrored_dst_x;
                     }
                     else if constexpr (ROTATION == ImageRotation::DEG_270)
                     {
                         src_x = dst_y;
-                        src_y = src_height - 1 - dst_x;
+                        src_y = src_height - 1 - mirrored_dst_x;
                     }
                     else if constexpr (ROTATION == ImageRotation::DEG_180)
                     {
-                        src_x = src_width - 1 - dst_x;
+                        src_x = src_width - 1 - mirrored_dst_x;
                         src_y = src_height - 1 - dst_y;
-                    }
-
-                    if constexpr (MIRRORED)
-                    {
-                        src_x = src_width - 1 - src_x;
                     }
 
                     dst_pixels[dst_y * dst_width + dst_x] = src_pixels[src_y * src_width + src_x];
