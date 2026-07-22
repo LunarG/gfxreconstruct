@@ -110,7 +110,7 @@ void WriteOutput(const char* format_string, ...)
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE(result_string.c_str());
+            GFXRECON_WRITE_CONSOLE("%s", result_string.c_str());
         }
     }
     catch (...)
@@ -652,7 +652,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                     }
                 }
 
-                WriteOutput(json_content.dump(4, ' ', true).c_str());
+                WriteOutput("%s", json_content.dump(4, ' ', true).c_str());
             }
             else
             {
@@ -666,7 +666,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                     {
                         if ((feature->WasDetected() || force_all_api_output))
                         {
-                            WriteOutput(feature->GenerateText().c_str());
+                            WriteOutput("%s", feature->GenerateText().c_str());
                         }
                     }
 
@@ -818,7 +818,7 @@ int main(int argc, const char** argv)
 #if defined(D3D12_SUPPORT)
     else if (arg_parser.IsOptionSet(kEnumGpuIndices))
     {
-        WriteOutput(GetEnumGpuIndicesText().c_str());
+        WriteOutput("%s", GetEnumGpuIndicesText().c_str());
     }
 #endif // D3D12_SUPPORT
     else
