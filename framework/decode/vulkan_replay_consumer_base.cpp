@@ -6679,23 +6679,6 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
             has_external_format             = false;
         }
 
-        if (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
-        {
-            // If external memory exists and is for an Opaque FD, we need to strip out the structure
-            // since during replay we convert the allocate memory to a standard memory type.
-            if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
-            {
-                GFXRECON_LOG_INFO("OverrideCreateImage removing VkExternalMemoryImageCreateInfo");
-                graphics::vulkan_struct_remove_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
-                external_memory = nullptr;
-            }
-            // Otherwise, just strip out the flag
-            else
-            {
-                GFXRECON_LOG_INFO("OverrideCreateImage filtering OPAQUE_FD flag in VkExternalMemoryImageCreateInfo");
-                external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
-            }
-        }
     }
 
     VkResult result = allocator->CreateImage(
