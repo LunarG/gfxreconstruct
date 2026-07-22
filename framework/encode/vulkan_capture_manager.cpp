@@ -5301,12 +5301,13 @@ void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
         return;
     }
 
-    for (const auto& entry : command_wrapper->referenced_ranges)
+    for (const auto& [asset, ranges] : command_wrapper->referenced_ranges)
     {
-        const auto* asset = entry.first;
-        if (asset != nullptr && asset->bind_memory_id != format::kNullHandleId)
+        if (asset != nullptr && asset->bind_memory_id != format::kNullHandleId &&
+            ((ranges.access_type & vulkan_wrappers::ResourceAccessType::kRead) ==
+             vulkan_wrappers::ResourceAccessType::kRead))
         {
-            (*touched_ranges)[asset->bind_memory_id].AddRanges(entry.second.range_list, asset->bind_offset);
+            (*touched_ranges)[asset->bind_memory_id].AddRanges(ranges.range_list, asset->bind_offset);
         }
     }
 
