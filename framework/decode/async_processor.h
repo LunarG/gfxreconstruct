@@ -72,7 +72,7 @@ class AsyncProcessor
         explicit AsyncBatchIterator(AsyncProcessor& async_processor, AsyncBatchQueue& queue) :
             async_processor_(&async_processor), queue_(&queue)
         {
-            Advance();
+            AsyncBatchIterator::Advance();
         }
         void Advance() override;
 
