@@ -314,7 +314,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     }
 
     // Idle all devices before destroying other resources.
-    WaitDevicesIdle();
+    VulkanReplayConsumerBase::WaitDevicesIdle();
 
     // free replacer internal vulkan-resources
     device_address_replacers_.clear();
