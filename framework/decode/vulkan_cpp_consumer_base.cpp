@@ -665,36 +665,32 @@ void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(args::GetSwapchainI
 {
     FILE* file = GetFrameFile();
 
-    std::string swapchain_images_var_name = "NULL";
-    if (args.pSwapchainImages.GetPointer() == NULL)
+    if (args.pSwapchainImages.GetPointer() == nullptr)
     {
-        const std::string swapchain_image_count_var_name = "pSwapchainImageCount_" + std::to_string(GetNextId());
-        AddKnownVariables("uint32_t", swapchain_image_count_var_name);
-        ptr_map_[&args.pSwapchainImageCount] = swapchain_image_count_var_name;
+        return;
     }
-    else
+
+    const uint32_t captured_swapchain_count = *args.pSwapchainImageCount.GetPointer();
+
+    const std::string swapchain_image_count_var_name = "pSwapchainImageCount_" + std::to_string(GetNextId());
+    AddKnownVariables("uint32_t", swapchain_image_count_var_name);
+    fprintf(file, "\t%s = %u;\n", swapchain_image_count_var_name.c_str(), captured_swapchain_count);
+    ptr_map_[&args.pSwapchainImageCount] = swapchain_image_count_var_name;
+
+    std::string swapchain_images_var_name = "pSwapchainImages_" + std::to_string(GetNextId());
+    fprintf(file,
+            "\t%s = new VkImage[%s];\n",
+            swapchain_images_var_name.c_str(),
+            ptr_map_[&args.pSwapchainImageCount].c_str());
+    AddKnownVariables("VkImage*", swapchain_images_var_name);
+    if (args.result == VK_SUCCESS)
     {
-        swapchain_images_var_name = "pSwapchainImages_" + std::to_string(GetNextId());
-        fprintf(file,
-                "\t%s = new VkImage[%s];\n",
-                swapchain_images_var_name.c_str(),
-                ptr_map_[&args.pSwapchainImageCount].c_str());
-        AddKnownVariables("VkImage*", swapchain_images_var_name);
-        if (args.result == VK_SUCCESS)
-        {
-            AddHandles(swapchain_images_var_name,
-                       args.pSwapchainImages.GetPointer(),
-                       GFXRECON_NARROWING_CAST(uint32_t, args.pSwapchainImages.GetLength()));
-        }
+        AddHandles(swapchain_images_var_name,
+                   args.pSwapchainImages.GetPointer(),
+                   GFXRECON_NARROWING_CAST(uint32_t, args.pSwapchainImages.GetLength()));
     }
 
     pfn_loader_.AddMethodName("vkGetSwapchainImagesKHR");
-
-    uint32_t captured_swapchain_count = 0;
-    if (args.pSwapchainImageCount.GetPointer() != nullptr)
-    {
-        captured_swapchain_count = *args.pSwapchainImageCount.GetPointer();
-    }
 
     fprintf(file,
             "\tVK_CALL_CHECK(toCppGetSwapchainImagesKHR(%s, %s, %u, &%s, %s), %s);\n",
