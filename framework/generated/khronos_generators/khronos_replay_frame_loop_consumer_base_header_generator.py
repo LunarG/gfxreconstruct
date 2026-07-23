@@ -89,9 +89,6 @@ class KhronosFrameLoopConsumerBaseHeaderGenerator():
             )
             write(cmddef, file=self.outFile)
 
-        # Write private data
-
-
     def output_header_contents(self, class_name, constructor_args):
         self.write_class_setup(class_name, constructor_args)
         self.write_class_contents()

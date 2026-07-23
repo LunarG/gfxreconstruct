@@ -117,9 +117,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInf
     VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, args);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(
-    const ApiCallInfo&                                      call_info,
-    args::BeginCommandBuffer&                               args)
+void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
+                                                                 args::BeginCommandBuffer& args)
 {
     if (frame_loop_info_.IsRepetition())
     {
@@ -132,31 +131,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(
         args.pBeginInfo.GetPointer()->flags &= ~VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     }
     VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(const ApiCallInfo&          call_info,
-                                                                   args::CreateDescriptorPool& args)
-{
-    format::HandleId pool_id = *args.pDescriptorPool.GetPointer();
-    GFXRECON_ASSERT(args.pDescriptorPool.GetPointer() != nullptr);
-
-    if (frame_loop_info_.IsRepetition())
-    {
-        // Skip allocation of descriptor pools with a dangling creation
-        if (dangling_create_descriptor_pools_.contains(pool_id))
-        {
-            return;
-        }
-    }
-
-    VulkanReplayConsumer::Process_vkCreateDescriptorPool(call_info, args);
-
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        // Gather descriptor pools that are created during the loop range
-        // We will delete any pools from this set that are destroyed during the loop range
-        dangling_create_descriptor_pools_.insert(pool_id);
-    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,

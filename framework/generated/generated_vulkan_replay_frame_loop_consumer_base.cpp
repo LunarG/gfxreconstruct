@@ -632,7 +632,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::AllocateCommandBuffers&               args)
 {
-    // Return if not the first time through loop
+    // Only record command buffer commands on first iteration of looping frame.
     if (getFrameLoopInfo().IsRepetition())
     {
         return;
@@ -644,7 +644,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::FreeCommandBuffers&                   args)
 {
-    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
+    // Only record command buffer commands on first iteration of looping frame.
+    if (getFrameLoopInfo().IsRepetition())
     {
         return;
     }
