@@ -1,4 +1,4 @@
-# Build Instructions
+# Build Instructions 
 
 Instructions for building the GFXReconstruct project source code on Linux,
 Windows, and Android platforms.
