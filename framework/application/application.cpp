@@ -135,6 +135,19 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
 void Application::Run()
 {
     running_ = true;
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    auto android_wsi_context = GetWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+    if (android_wsi_context != nullptr)
+    {
+        auto android_ctx = reinterpret_cast<AndroidContext*>(android_wsi_context);
+        while (running_ && android_ctx->GetWindow() == nullptr)
+        {
+            ProcessEvents(true);
+        }
+    }
+#endif
+
     // Doesn't work yet for async processing
     if (!async_processing_)
     {
