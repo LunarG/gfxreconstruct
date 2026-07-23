@@ -1036,6 +1036,7 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(args::AllocateMemory& args
                     "\t\t\t\taddress_info.opaqueCaptureAddress = %" PRIu64 "ULL;\n",
                     dev_info->opaque_addresses[memory_handle]);
             fprintf(file, "\t\t\t}\n");
+            fprintf(file, "\t\t}\n");
             fprintf(file, "\n");
         }
     }
