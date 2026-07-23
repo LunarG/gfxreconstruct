@@ -30,6 +30,7 @@
 #include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan/vulkan_core.h"
+#include <cmath>
 #include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -1387,6 +1388,15 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         return;
     }
 
+    // we need to blit from the image, which requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+    if ((image_info->usage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) == 0)
+    {
+        GFXRECON_LOG_ERROR_ONCE("%s: image '%s' was created without VK_IMAGE_USAGE_TRANSFER_SRC_BIT, unable to present",
+                                __func__,
+                                image_info->debug_utils_name.c_str());
+        return;
+    }
+
     // retrieve device-context, create if necessary
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
     auto& ofb_data = adhoc_device_data_[device];
@@ -1413,277 +1423,336 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     }
 
     // derive output-size and orientation from provided scale
-    uint32_t window_width  = image_info->extent.width;
-    uint32_t window_height = image_info->extent.height;
-    bool     flip_x        = false;
-    bool     flip_y        = false;
+    uint32_t tile_width  = image_info->extent.width;
+    uint32_t tile_height = image_info->extent.height;
+    bool     flip_x      = false;
+    bool     flip_y      = false;
 
     if (scale)
     {
         // scales can be negative, use absolute values
-        window_width  = static_cast<uint32_t>(static_cast<float>(window_width) * std::abs(scale.value()[0]));
-        window_height = static_cast<uint32_t>(static_cast<float>(window_height) * std::abs(scale.value()[1]));
-        flip_x        = scale.value()[0] < 0.f;
-        flip_y        = scale.value()[1] < 0.f;
+        tile_width  = static_cast<uint32_t>(static_cast<float>(tile_width) * std::abs(scale.value()[0]));
+        tile_height = static_cast<uint32_t>(static_cast<float>(tile_height) * std::abs(scale.value()[1]));
+        flip_x      = scale.value()[0] < 0.f;
+        flip_y      = scale.value()[1] < 0.f;
     }
 
     // avoid: wl_surface#63: error 2: Buffer size (902x451) must be an integer multiple of the buffer_scale (2).
-    window_width += window_width % 2;
-    window_height += window_height % 2;
+    // rounding the tile-size keeps all tile-offsets even, so the composed window-size stays even as well.
+    tile_width += tile_width % 2;
+    tile_height += tile_height % 2;
 
-    uint32_t window_offset_x = 0, window_offset_y = 0;
-
-    // support multiple image-layers by presenting on multiple windows
     const uint32_t layer_count = image_info->layer_count;
-    ofb_data.swapchains.resize(layer_count);
 
-    for (uint32_t layer = 0; layer < layer_count; layer++)
+    // nothing to present
+    if (layer_count == 0)
     {
-        auto& swapchain = ofb_data.swapchains[layer];
+        return;
+    }
 
-        if (swapchain.surface_info.handle == VK_NULL_HANDLE)
-        {
-            swapchain.device        = device;
-            swapchain.device_table  = device_table;
-            swapchain.instance_info = instance_info;
-            swapchain.owner         = this;
-            swapchain.command_pool  = ofb_data.command_pool;
-            swapchain.queue         = ofb_data.queue;
+    // all image-layers are tiled into a single window. one window per array-layer would rely on
+    // Window::SetPosition, which is a no-op on wayland, headless and display-wsi, so the layers can end up
+    // overlapping and hidden there. a near-square tile-grid degenerates to a single row for 2 layers,
+    // which is what stereo/VR content wants.
+    const uint32_t num_cols = static_cast<uint32_t>(std::ceil(std::sqrt(static_cast<float>(layer_count))));
+    const uint32_t num_rows = (layer_count + num_cols - 1) / num_cols;
 
-            // Create a window and surface
-            swapchain.surface_ptr.SetHandleLength(1);
-            swapchain.surface_ptr.SetConsumerData(0, &swapchain.surface_info);
+    const uint32_t window_width  = num_cols * tile_width;
+    const uint32_t window_height = num_rows * tile_height;
 
-            // empty -> automatic wsi deduction
-            std::string wsi_extension;
+    // a non-rectangular layer-count leaves unused tiles, those need to be cleared once to avoid showing garbage
+    const bool clear_unused_tiles = num_cols * num_rows != layer_count;
 
-            result = CreateSurface(
-                VK_SUCCESS, instance_info, wsi_extension, 0, &swapchain.surface_ptr, instance_table, application);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
+    ofb_data.swapchains.resize(1);
 
-            swapchain.surface_info.handle = *swapchain.surface_ptr.GetHandlePointer();
+    auto& swapchain = ofb_data.swapchains[0];
 
-            // query available surface formats
-            uint32_t format_count = 0;
-            instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
-                device_info->parent, swapchain.surface_info.handle, &format_count, nullptr);
-            std::vector<VkSurfaceFormatKHR> surface_formats(format_count);
-            instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
-                device_info->parent, swapchain.surface_info.handle, &format_count, surface_formats.data());
-            for (const auto& [format, colorspace] : surface_formats)
-            {
-                swapchain.surface_formats.insert(format);
-            }
-        }
+    if (swapchain.surface_info.handle == VK_NULL_HANDLE)
+    {
+        swapchain.device        = device;
+        swapchain.device_table  = device_table;
+        swapchain.instance_info = instance_info;
+        swapchain.owner         = this;
+        swapchain.command_pool  = ofb_data.command_pool;
+        swapchain.queue         = ofb_data.queue;
 
-        VkExtent2D current_window_size = swapchain.surface_info.window->GetSize();
+        // Create a window and surface
+        swapchain.surface_ptr.SetHandleLength(1);
+        swapchain.surface_ptr.SetConsumerData(0, &swapchain.surface_info);
 
-        // Create/Re-create a swapchain if necessary
-        if (window_width != current_window_size.width || window_height != current_window_size.height ||
-            swapchain.handle == VK_NULL_HANDLE)
-        {
-            {
-                std::stringstream title_ss;
-                title_ss << image_info->debug_utils_name;
-                title_ss << " - " << window_width << " x " << window_height;
-                if (layer_count > 1)
-                {
-                    title_ss << " - layer: " << (layer + 1) << " / " << layer_count;
-                }
-                swapchain.surface_info.window->SetTitle(title_ss.str());
-            }
+        // empty -> automatic wsi deduction
+        std::string wsi_extension;
 
-            // position and size, tile multiple windows
-            swapchain.surface_info.window->SetSize(window_width, window_height);
-            swapchain.surface_info.window->SetPosition(window_offset_x, window_offset_y);
-            window_offset_x += window_width;
-
-            // NOTE: compensate sporadic 1px size-mismatches after window-resize (image_info->extent != window_size)
-            // mandatory to query window-size again
-            current_window_size = swapchain.surface_info.window->GetSize();
-
-            VkFormat surface_format = image_info->format;
-
-            if (!swapchain.surface_formats.contains(image_info->format))
-            {
-                GFXRECON_LOG_WARNING("%s: surface-format not available: %s",
-                                     __func__,
-                                     util::ToString<VkFormat>(image_info->format).c_str());
-
-                surface_format =
-                    SelectFallbackSurfaceFormat(swapchain.surface_formats, vkuFormatIsSRGB(image_info->format));
-            }
-
-            VkSwapchainCreateInfoKHR swapchain_create_info;
-            swapchain_create_info.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-            swapchain_create_info.pNext                 = nullptr;
-            swapchain_create_info.flags                 = 0;
-            swapchain_create_info.surface               = swapchain.surface_info.handle;
-            swapchain_create_info.minImageCount         = 3;
-            swapchain_create_info.imageFormat           = surface_format;
-            swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-            swapchain_create_info.imageExtent.width     = current_window_size.width;
-            swapchain_create_info.imageExtent.height    = current_window_size.height;
-            swapchain_create_info.imageArrayLayers      = 1;
-            swapchain_create_info.imageUsage            = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-            swapchain_create_info.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-            swapchain_create_info.queueFamilyIndexCount = 0;
-            swapchain_create_info.pQueueFamilyIndices   = nullptr;
-            swapchain_create_info.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-            swapchain_create_info.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-            swapchain_create_info.clipped               = VK_TRUE;
-            swapchain_create_info.oldSwapchain          = swapchain.handle;
-
-            switch (swapchain_options_.present_mode_option)
-            {
-                case util::PresentModeOption::kCapture:
-                    // There is no corresponding present-mode for "capture", so we fall back to FIFO.
-                    swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
-                    break;
-                case util::PresentModeOption::kImmediate:
-                    swapchain_create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-                    break;
-                case util::PresentModeOption::kMailbox:
-                    swapchain_create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-                    break;
-                case util::PresentModeOption::kFifo:
-                    swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
-                    break;
-                case util::PresentModeOption::kFifoRelaxed:
-                    swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
-                    break;
-                default:
-                    // Falling here means a case has been forgotten, it is an implementation error.
-                    assert(false);
-                    break;
-            }
-
-            VkSwapchainKHR swapchain_handle;
-            result = device_table->CreateSwapchainKHR(device, &swapchain_create_info, nullptr, &swapchain_handle);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-
-            // Destroy old swapchain resources if necessary
-            swapchain.DestroySwapchain();
-
-            swapchain.handle = swapchain_handle;
-
-            // Get swapchain images and create swapchain resources
-            uint32_t image_count = 0;
-            result               = device_table->GetSwapchainImagesKHR(device, swapchain.handle, &image_count, nullptr);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-
-            std::vector<VkImage> swapchain_images(image_count, VK_NULL_HANDLE);
-            result =
-                device_table->GetSwapchainImagesKHR(device, swapchain.handle, &image_count, swapchain_images.data());
-            GFXRECON_ASSERT((result == VK_SUCCESS) && (swapchain_images.size() == image_count));
-
-            swapchain.frame_data.resize(image_count);
-            swapchain.image_data.resize(image_count);
-
-            VkSemaphoreCreateInfo semaphore_create_info;
-            semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            semaphore_create_info.pNext = nullptr;
-            semaphore_create_info.flags = 0;
-
-            VkFenceCreateInfo fence_create_info;
-            fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-            fence_create_info.pNext = nullptr;
-            fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-            VkCommandBufferAllocateInfo command_buffer_alloc_info;
-            command_buffer_alloc_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            command_buffer_alloc_info.pNext              = nullptr;
-            command_buffer_alloc_info.commandPool        = ofb_data.command_pool;
-            command_buffer_alloc_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            command_buffer_alloc_info.commandBufferCount = 1;
-
-            for (uint32_t i = 0; i < image_count; ++i)
-            {
-                swapchain.image_data[i].image = swapchain_images[i];
-
-                result = device_table->CreateFence(device, &fence_create_info, nullptr, &swapchain.frame_data[i].fence);
-                GFXRECON_ASSERT(result == VK_SUCCESS);
-
-                result = device_table->CreateSemaphore(
-                    device, &semaphore_create_info, nullptr, &swapchain.frame_data[i].acquire_semaphore);
-                GFXRECON_ASSERT(result == VK_SUCCESS);
-
-                result = device_table->CreateSemaphore(
-                    device, &semaphore_create_info, nullptr, &swapchain.image_data[i].semaphore);
-                GFXRECON_ASSERT(result == VK_SUCCESS);
-
-                result = device_table->AllocateCommandBuffers(
-                    device, &command_buffer_alloc_info, &swapchain.frame_data[i].command_buffer);
-                GFXRECON_ASSERT(result == VK_SUCCESS);
-            }
-        }
-
-        // wait for previous frame
-        const auto& frame_data = swapchain.frame_data[swapchain.acquire_index];
-        result = device_table->WaitForFences(device, 1, &frame_data.fence, true, std::numeric_limits<uint64_t>::max());
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-        result = device_table->ResetFences(device, 1, &frame_data.fence);
+        result = CreateSurface(
+            VK_SUCCESS, instance_info, wsi_extension, 0, &swapchain.surface_ptr, instance_table, application);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
-        // Acquire next image from the swapchain
-        VkSemaphore acquire_semaphore     = frame_data.acquire_semaphore;
-        uint32_t    swapchain_image_index = 0;
+        swapchain.surface_info.handle = *swapchain.surface_ptr.GetHandlePointer();
 
-        result = device_table->AcquireNextImageKHR(
-            device, swapchain.handle, UINT64_MAX, acquire_semaphore, VK_NULL_HANDLE, &swapchain_image_index);
-
-        auto& image_data = swapchain.image_data[swapchain_image_index];
-
-        swapchain.acquire_index = (swapchain.acquire_index + 1) % swapchain.frame_data.size();
-
-        std::vector<VkSemaphore> submit_wait_semaphores = { acquire_semaphore };
-        if (semaphore != VK_NULL_HANDLE)
+        // query available surface formats
+        uint32_t format_count = 0;
+        instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+            device_info->parent, swapchain.surface_info.handle, &format_count, nullptr);
+        std::vector<VkSurfaceFormatKHR> surface_formats(format_count);
+        instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+            device_info->parent, swapchain.surface_info.handle, &format_count, surface_formats.data());
+        for (const auto& [format, colorspace] : surface_formats)
         {
-            submit_wait_semaphores.push_back(semaphore);
+            swapchain.surface_formats.insert(format);
+        }
+    }
+
+    // only request a resize when the desired size actually changed, resizing is expensive and can block
+    if (window_width != swapchain.requested_size.width || window_height != swapchain.requested_size.height)
+    {
+        {
+            std::stringstream title_ss;
+            title_ss << image_info->debug_utils_name;
+            title_ss << " - " << window_width << " x " << window_height;
+            if (layer_count > 1)
+            {
+                title_ss << " - " << layer_count << " layers";
+            }
+            swapchain.surface_info.window->SetTitle(title_ss.str());
         }
 
-        // blit image into swapchain-image
-        if (!swapchain_options_.virtual_swapchain_skip_blit)
+        swapchain.surface_info.window->SetSize(window_width, window_height);
+        swapchain.requested_size = { window_width, window_height };
+    }
+
+    const VkExtent2D current_window_size = swapchain.surface_info.window->GetSize();
+
+    // Create/Re-create a swapchain if necessary
+    if (swapchain.handle == VK_NULL_HANDLE || swapchain.image_extent.width != current_window_size.width ||
+        swapchain.image_extent.height != current_window_size.height)
+    {
+        VkFormat surface_format = image_info->format;
+
+        if (!swapchain.surface_formats.contains(image_info->format))
         {
-            // Record command buffer for copy
-            result = device_table->ResetCommandBuffer(frame_data.command_buffer, 0);
+            GFXRECON_LOG_WARNING(
+                "%s: surface-format not available: %s", __func__, util::ToString<VkFormat>(image_info->format).c_str());
+
+            surface_format =
+                SelectFallbackSurfaceFormat(swapchain.surface_formats, vkuFormatIsSRGB(image_info->format));
+        }
+
+        // NOTE: min/maxImageExtent track the current window-size, they must not be cached
+        VkSurfaceCapabilitiesKHR surface_capabilities = {};
+        result                                        = instance_table->GetPhysicalDeviceSurfaceCapabilitiesKHR(
+            device_info->parent, swapchain.surface_info.handle, &surface_capabilities);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        const VkExtent2D image_extent = { std::clamp(current_window_size.width,
+                                                     surface_capabilities.minImageExtent.width,
+                                                     surface_capabilities.maxImageExtent.width),
+                                          std::clamp(current_window_size.height,
+                                                     surface_capabilities.minImageExtent.height,
+                                                     surface_capabilities.maxImageExtent.height) };
+
+        VkSwapchainCreateInfoKHR swapchain_create_info;
+        swapchain_create_info.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchain_create_info.pNext                 = nullptr;
+        swapchain_create_info.flags                 = 0;
+        swapchain_create_info.surface               = swapchain.surface_info.handle;
+        swapchain_create_info.minImageCount         = 3;
+        swapchain_create_info.imageFormat           = surface_format;
+        swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+        swapchain_create_info.imageExtent           = image_extent;
+        swapchain_create_info.imageArrayLayers      = 1;
+        swapchain_create_info.imageUsage            = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        swapchain_create_info.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+        swapchain_create_info.queueFamilyIndexCount = 0;
+        swapchain_create_info.pQueueFamilyIndices   = nullptr;
+        swapchain_create_info.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+        swapchain_create_info.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        swapchain_create_info.clipped               = VK_TRUE;
+        swapchain_create_info.oldSwapchain          = swapchain.handle;
+
+        switch (swapchain_options_.present_mode_option)
+        {
+            case util::PresentModeOption::kCapture:
+                // There is no corresponding present-mode for "capture", so we fall back to FIFO.
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+                break;
+            case util::PresentModeOption::kImmediate:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+                break;
+            case util::PresentModeOption::kMailbox:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+                break;
+            case util::PresentModeOption::kFifo:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+                break;
+            case util::PresentModeOption::kFifoRelaxed:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+                break;
+            default:
+                // Falling here means a case has been forgotten, it is an implementation error.
+                assert(false);
+                break;
+        }
+
+        VkSwapchainKHR swapchain_handle;
+        result = device_table->CreateSwapchainKHR(device, &swapchain_create_info, nullptr, &swapchain_handle);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        // Destroy old swapchain resources if necessary
+        swapchain.DestroySwapchain();
+
+        swapchain.handle       = swapchain_handle;
+        swapchain.image_extent = swapchain_create_info.imageExtent;
+
+        // Get swapchain images and create swapchain resources
+        uint32_t image_count = 0;
+        result               = device_table->GetSwapchainImagesKHR(device, swapchain.handle, &image_count, nullptr);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        std::vector<VkImage> swapchain_images(image_count, VK_NULL_HANDLE);
+        result = device_table->GetSwapchainImagesKHR(device, swapchain.handle, &image_count, swapchain_images.data());
+        GFXRECON_ASSERT((result == VK_SUCCESS) && (swapchain_images.size() == image_count));
+
+        swapchain.frame_data.resize(image_count);
+        swapchain.image_data.resize(image_count);
+
+        VkSemaphoreCreateInfo semaphore_create_info;
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphore_create_info.pNext = nullptr;
+        semaphore_create_info.flags = 0;
+
+        VkFenceCreateInfo fence_create_info;
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_create_info.pNext = nullptr;
+        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        VkCommandBufferAllocateInfo command_buffer_alloc_info;
+        command_buffer_alloc_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        command_buffer_alloc_info.pNext              = nullptr;
+        command_buffer_alloc_info.commandPool        = ofb_data.command_pool;
+        command_buffer_alloc_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        command_buffer_alloc_info.commandBufferCount = 1;
+
+        for (uint32_t i = 0; i < image_count; ++i)
+        {
+            swapchain.image_data[i].image = swapchain_images[i];
+
+            result = device_table->CreateFence(device, &fence_create_info, nullptr, &swapchain.frame_data[i].fence);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            VkCommandBufferBeginInfo command_buffer_begin_info;
-            command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            command_buffer_begin_info.pNext            = nullptr;
-            command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            command_buffer_begin_info.pInheritanceInfo = nullptr;
-
-            result = device_table->BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info);
+            result = device_table->CreateSemaphore(
+                device, &semaphore_create_info, nullptr, &swapchain.frame_data[i].acquire_semaphore);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
-            constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
+            result = device_table->CreateSemaphore(
+                device, &semaphore_create_info, nullptr, &swapchain.image_data[i].semaphore);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            // initial layout-transition
-            if (image_data.image_layout == VK_IMAGE_LAYOUT_UNDEFINED)
+            result = device_table->AllocateCommandBuffers(
+                device, &command_buffer_alloc_info, &swapchain.frame_data[i].command_buffer);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+        }
+    }
+
+    // wait for previous frame
+    const auto& frame_data = swapchain.frame_data[swapchain.acquire_index];
+    result = device_table->WaitForFences(device, 1, &frame_data.fence, true, std::numeric_limits<uint64_t>::max());
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+    result = device_table->ResetFences(device, 1, &frame_data.fence);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    // Acquire next image from the swapchain
+    VkSemaphore acquire_semaphore     = frame_data.acquire_semaphore;
+    uint32_t    swapchain_image_index = 0;
+
+    result = device_table->AcquireNextImageKHR(
+        device, swapchain.handle, UINT64_MAX, acquire_semaphore, VK_NULL_HANDLE, &swapchain_image_index);
+
+    auto& image_data = swapchain.image_data[swapchain_image_index];
+
+    swapchain.acquire_index = (swapchain.acquire_index + 1) % swapchain.frame_data.size();
+
+    std::vector<VkSemaphore> submit_wait_semaphores = { acquire_semaphore };
+    if (semaphore != VK_NULL_HANDLE)
+    {
+        submit_wait_semaphores.push_back(semaphore);
+    }
+
+    // blit image into swapchain-image
+    if (!swapchain_options_.virtual_swapchain_skip_blit)
+    {
+        // Record command buffer for copy
+        result = device_table->ResetCommandBuffer(frame_data.command_buffer, 0);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        VkCommandBufferBeginInfo command_buffer_begin_info;
+        command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        command_buffer_begin_info.pNext            = nullptr;
+        command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        command_buffer_begin_info.pInheritanceInfo = nullptr;
+
+        result = device_table->BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
+
+        // initial layout-transition
+        if (image_data.image_layout == VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            image_data.image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+            VkImageMemoryBarrier memory_barrier{};
+            memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            memory_barrier.pNext                           = nullptr;
+            memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
+            memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
+            memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+            memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+            memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+            memory_barrier.image                           = image_data.image;
+            memory_barrier.subresourceRange.aspectMask     = aspect_color;
+            memory_barrier.subresourceRange.baseMipLevel   = 0;
+            memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+            memory_barrier.subresourceRange.baseArrayLayer = 0;
+            memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+
+            if (clear_unused_tiles)
             {
-                image_data.image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                memory_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            }
 
-                VkImageMemoryBarrier memory_barrier{};
-                memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                memory_barrier.pNext                           = nullptr;
-                memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
-                memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
-                memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-                memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-                memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                memory_barrier.image                           = image_data.image;
-                memory_barrier.subresourceRange.aspectMask     = aspect_color;
-                memory_barrier.subresourceRange.baseMipLevel   = 0;
-                memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-                memory_barrier.subresourceRange.baseArrayLayer = 0;
-                memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+            // NOTE: VK_PIPELINE_STAGE_NONE is only legal as a srcStageMask when synchronization2 is enabled
+            device_table->CmdPipelineBarrier(frame_data.command_buffer,
+                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                             VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &memory_barrier);
+
+            if (clear_unused_tiles)
+            {
+                // tiles not covered by a layer are never touched by a blit, so clearing them once is enough
+                constexpr VkClearColorValue clear_color = {};
+
+                device_table->CmdClearColorImage(frame_data.command_buffer,
+                                                 image_data.image,
+                                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                 &clear_color,
+                                                 1,
+                                                 &memory_barrier.subresourceRange);
+
+                memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+                memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                memory_barrier.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
                 device_table->CmdPipelineBarrier(frame_data.command_buffer,
-                                                 VK_PIPELINE_STAGE_NONE,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                                  0,
                                                  0,
@@ -1693,69 +1762,88 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                                                  1,
                                                  &memory_barrier);
             }
+        }
 
-            auto src_layout = image_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
-                                  ? image_info->current_layout
-                                  : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        auto src_layout = image_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
+                              ? image_info->current_layout
+                              : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            graphics::VulkanResourcesUtil::blit_image_params_t blit_params = {};
-            blit_params.src_img                                            = image;
-            blit_params.dst_img                                            = image_data.image;
-            blit_params.src_extent                                         = image_info->extent;
-            blit_params.dst_extent = { current_window_size.width, current_window_size.height, 1 };
-            blit_params.src_layout = src_layout;
-            blit_params.dst_layout = image_data.image_layout;
-            blit_params.src_layer  = layer;
-            blit_params.dst_layer  = 0;
-            blit_params.flip_axis  = { flip_x, flip_y, false };
+        graphics::VulkanResourcesUtil::blit_image_params_t blit_params = {};
+        blit_params.src_img                                            = image;
+        blit_params.dst_img                                            = image_data.image;
+        blit_params.src_extent                                         = image_info->extent;
+        blit_params.src_layout                                         = src_layout;
+        blit_params.dst_layout                                         = image_data.image_layout;
+        blit_params.dst_layer                                          = 0;
+        blit_params.flip_axis                                          = { flip_x, flip_y, false };
+
+        // derive tile-size from the swapchain-images, they can differ from the requested window-size
+        const uint32_t dst_tile_width  = swapchain.image_extent.width / num_cols;
+        const uint32_t dst_tile_height = swapchain.image_extent.height / num_rows;
+
+        for (uint32_t i = 0; i < layer_count; ++i)
+        {
+            const uint32_t col = i % num_cols;
+            const uint32_t row = i / num_cols;
+
+            // let the last column/row absorb the rounding-remainder, so the window is covered entirely
+            const uint32_t max_x = (col + 1 == num_cols) ? swapchain.image_extent.width : (col + 1) * dst_tile_width;
+            const uint32_t max_y = (row + 1 == num_rows) ? swapchain.image_extent.height : (row + 1) * dst_tile_height;
+
+            // NOTE: dst_offset/dst_extent are used as min/max corners of the destination-rect
+            blit_params.src_layer  = i;
+            blit_params.dst_offset = { static_cast<int32_t>(col * dst_tile_width),
+                                       static_cast<int32_t>(row * dst_tile_height),
+                                       0 };
+            blit_params.dst_extent = { max_x, max_y, 1 };
 
             ofb_data.copy_util->BlitImage(frame_data.command_buffer, blit_params);
-
-            result = device_table->EndCommandBuffer(frame_data.command_buffer);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-
-            // Submit copy command buffer
-            std::vector<VkPipelineStageFlags> submit_wait_stages(submit_wait_semaphores.size(),
-                                                                 VK_PIPELINE_STAGE_TRANSFER_BIT);
-
-            VkSubmitInfo submit_info;
-            submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submit_info.pNext = nullptr;
-            GFXRECON_NARROWING_ASSIGN(submit_info.waitSemaphoreCount, submit_wait_semaphores.size());
-            submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
-            submit_info.pWaitDstStageMask    = submit_wait_stages.data();
-            submit_info.commandBufferCount   = 1;
-            submit_info.pCommandBuffers      = &frame_data.command_buffer;
-            submit_info.signalSemaphoreCount = 1;
-            submit_info.pSignalSemaphores    = &image_data.semaphore;
-
-            result = device_table->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
         }
 
-        // Present image
-        VkPresentInfoKHR present_info;
-        present_info.sType          = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        present_info.pNext          = nullptr;
-        present_info.swapchainCount = 1;
-        present_info.pSwapchains    = &swapchain.handle;
-        present_info.pImageIndices  = &swapchain_image_index;
-        present_info.pResults       = nullptr;
+        result = device_table->EndCommandBuffer(frame_data.command_buffer);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
 
-        if (swapchain_options_.virtual_swapchain_skip_blit)
-        {
-            GFXRECON_NARROWING_ASSIGN(present_info.waitSemaphoreCount, submit_wait_semaphores.size());
-            present_info.pWaitSemaphores = submit_wait_semaphores.data();
-        }
-        else
-        {
-            present_info.waitSemaphoreCount = 1;
-            present_info.pWaitSemaphores    = &image_data.semaphore;
-        }
+        // Submit copy command buffer
+        std::vector<VkPipelineStageFlags> submit_wait_stages(submit_wait_semaphores.size(),
+                                                             VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-        result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
-        GFXRECON_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
+        VkSubmitInfo submit_info;
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.pNext = nullptr;
+        GFXRECON_NARROWING_ASSIGN(submit_info.waitSemaphoreCount, submit_wait_semaphores.size());
+        submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
+        submit_info.pWaitDstStageMask    = submit_wait_stages.data();
+        submit_info.commandBufferCount   = 1;
+        submit_info.pCommandBuffers      = &frame_data.command_buffer;
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores    = &image_data.semaphore;
+
+        result = device_table->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
     }
+
+    // Present image
+    VkPresentInfoKHR present_info;
+    present_info.sType          = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present_info.pNext          = nullptr;
+    present_info.swapchainCount = 1;
+    present_info.pSwapchains    = &swapchain.handle;
+    present_info.pImageIndices  = &swapchain_image_index;
+    present_info.pResults       = nullptr;
+
+    if (swapchain_options_.virtual_swapchain_skip_blit)
+    {
+        GFXRECON_NARROWING_ASSIGN(present_info.waitSemaphoreCount, submit_wait_semaphores.size());
+        present_info.pWaitSemaphores = submit_wait_semaphores.data();
+    }
+    else
+    {
+        present_info.waitSemaphoreCount = 1;
+        present_info.pWaitSemaphores    = &image_data.semaphore;
+    }
+
+    result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
+    GFXRECON_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,

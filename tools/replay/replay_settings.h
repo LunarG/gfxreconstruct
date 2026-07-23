@@ -281,9 +281,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\tAdditionally present an image identified by a substring match against its");
     GFXRECON_WRITE_CONSOLE("       \t\t\tVK_EXT_debug_utils object name (depth/stencil images are ignored). The");
     GFXRECON_WRITE_CONSOLE("       \t\t\tmatched image is presented in a dedicated swapchain on every present and");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tused for screenshot operations. Multi-layer images are presented in a");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tseparate window per array layer. If multiple images match, the most");
-    GFXRECON_WRITE_CONSOLE("       \t\t\trecently named one is used.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tused for screenshot operations. Multi-layer images are presented tiled");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tinto a single window, one tile per array layer. If multiple images");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tmatch, the most recently named one is used.");
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
