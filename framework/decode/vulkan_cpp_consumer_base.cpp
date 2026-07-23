@@ -1037,7 +1037,7 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(args::AllocateMemory& args
             fprintf(file, "\t\t\t    dev_info->features.features_1_2.bufferDeviceAddressCaptureReplay) {\n");
             fprintf(file, "\t\t\t\tcan_use_opaque_address = true;\n");
             fprintf(file,
-                    "\t\t\t\taddress_info.opaque_address = %" PRIu64 "ULL;\n",
+                    "\t\t\t\taddress_info.opaqueCaptureAddress = %" PRIu64 "ULL;\n",
                     dev_info->opaque_addresses[memory_handle]);
             fprintf(file, "\t\t\t}\n");
             fprintf(file, "\n");
@@ -1069,7 +1069,7 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(args::AllocateMemory& args
                 "\t\t\t\t// The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT\n");
         fprintf(file,
                 "\t\t\t\t// structure, VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zer\n");
-        fprintf(file, "\t\t\t\taddress_info.opaque_address = 0;\n");
+        fprintf(file, "\t\t\t\taddress_info.opaqueCaptureAddress = 0;\n");
         fprintf(file, "\t\t\t}\n");
         fprintf(file, "\t\t\taddress_info.pNext = %s.pNext;\n", alloc_info_struct_var_name.c_str());
         fprintf(file, "\t\t\t%s.pNext = &address_info;\n", alloc_info_struct_var_name.c_str());
