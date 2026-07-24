@@ -5782,9 +5782,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
         // Since the file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process
         // we create a new FD at replay by allocating an exportable allocation and importing that FD
-        // instead. 
+        // instead.
         VkDeviceMemory external_fd_backing_memory = VK_NULL_HANDLE;
-        int            replacement_import_fd       = -1;
+        int            replacement_import_fd      = -1;
         auto* import_fd_info = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
         if (import_fd_info != nullptr)
         {
@@ -5984,7 +5984,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                                      std::make_pair(external_memory_guard.release(), host_pointer_size));
         }
 
-        // Imported memory holds its own reference to the payload and the FD ownership has transferred to the driver. 
+        // Imported memory holds its own reference to the payload and the FD ownership has transferred to the driver.
         // On failure the import did not consume the FD, so close it to avoid a leak.
         if (external_fd_backing_memory != VK_NULL_HANDLE)
         {
@@ -6461,7 +6461,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto               replay_create_info   = pCreateInfo->GetPointer();
     VkBufferCreateInfo modified_create_info = *replay_create_info;
 
-
     // Check for a buffer device address.
     bool uses_address = false;
 
@@ -6727,7 +6726,6 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
             external_format->externalFormat = 0;
             has_external_format             = false;
         }
-
     }
 
     VkResult result = allocator->CreateImage(
@@ -12067,8 +12065,8 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 {
     Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
         args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
-    VkPushDescriptorSetWithTemplateInfoKHR*      value   = in_info->decoded_value;
-    VulkanDescriptorUpdateTemplateInfo*          update_template_info =
+    VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
+    VulkanDescriptorUpdateTemplateInfo*     update_template_info =
         object_info_table_->GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
 
     VkCommandBuffer in_commandBuffer =
