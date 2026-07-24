@@ -108,13 +108,7 @@ class VulkanReferencedBlockConsumerBodyGenerator(VulkanBaseGenerator):
                 cmddef += '{\n'
                 indent = self.INDENT_SIZE * ' '
 
-                for param in params[1:]:
-                    if param not in handles:
-                        cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(
-                            param.name
-                        )
-                cmddef += '\n'
-                cmddef += '    if (check_handle_id_unused({})){{ set_block_index_unused(call_info.index); }}\n'.format(params[0].name)
+                cmddef += '    if (check_handle_id_unused({})){{ set_block_index_unused(call_info.index); }}\n'.format(params[0].prefixed_name)
                 cmddef += '}'
                 write(cmddef, file=self.outFile)
 

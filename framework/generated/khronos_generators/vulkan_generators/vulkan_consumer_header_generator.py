@@ -67,6 +67,8 @@ class VulkanConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         self.begin_end_file_data.specific_headers.extend((
             'decode/{}'.format(self.base_class_header),
             'util/defines.h',
+            'generated/generated_vulkan_decoder_args.h',
+            'decode/vulkan_decoder_args.h',
         ))
 
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))

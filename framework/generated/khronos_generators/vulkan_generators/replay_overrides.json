@@ -188,6 +188,14 @@
     "vkCmdDispatch": "OverrideCmdDispatch",
     "vkCmdDispatchIndirect": "OverrideCmdDispatchIndirect",
     "vkCmdDispatchBase": "OverrideCmdDispatchBase",
-    "vkCmdDispatchBaseKHR": "OverrideCmdDispatchBase"
+    "vkCmdDispatchBaseKHR": "OverrideCmdDispatchBase",
+    "vkCreateTensorARM": "OverrideCreateTensorARM",
+    "vkDestroyTensorARM": "OverrideDestroyTensorARM",
+    "vkBindTensorMemoryARM": "OverrideBindTensorMemoryARM",
+    "vkGetTensorMemoryRequirementsARM": "OverrideGetTensorMemoryRequirementsARM",
+    "vkCreateDataGraphPipelinesARM": "OverrideCreateDataGraphPipelinesARM",
+    "vkCreateDataGraphPipelineSessionARM": "OverrideCreateDataGraphPipelineSessionARM",
+    "vkDestroyDataGraphPipelineSessionARM": "OverrideDestroyDataGraphPipelineSessionARM",
+    "vkBindDataGraphPipelineSessionMemoryARM": "OverrideBindDataGraphPipelineSessionMemoryARM"
   }
 }

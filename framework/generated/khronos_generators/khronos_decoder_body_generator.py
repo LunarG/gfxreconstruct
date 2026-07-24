@@ -21,7 +21,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import re
 from khronos_base_generator import ValueInfo, write
 from copy import deepcopy
 
@@ -153,7 +152,7 @@ class KhronosDecoderBodyGenerator():
 
         return body
 
-    def make_decode_invocation(self, value, preamble, main_body, epilogue):
+    def make_decode_invocation(self, value, preamble, main_body, epilogue, target_prefix=''):
         """Generate parameter decode function/method invocation."""
         buffer_args = '(parameter_buffer + bytes_read), (buffer_size - bytes_read)'
 
@@ -173,22 +172,28 @@ class KhronosDecoderBodyGenerator():
         elif self.is_handle_like(value.base_type):
             is_handle_like = True
 
+        lvalue = f'{target_prefix}{value.name}'
+
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
             if type_name in self.EXTERNAL_OBJECT_TYPES and not value.is_array:
                 if value.pointer_count > 1:
                     # Pointer to a pointer to an unknown object type (void**), encoded as a pointer to a 64-bit integer ID.
                     main_body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(
-                        value.name, buffer_args
+                        lvalue, buffer_args
                     )
                 else:
                     # Pointer to an unknown object type, encoded as a 64-bit integer ID.
                     main_body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
-                        buffer_args, value.name
+                        buffer_args, lvalue
                     )
             else:
                 if is_struct or is_string or is_handle_like:
-                    if type_name in self.children_structs.keys():
+                    if type_name == self.get_base_output_structure_name():
+                        main_body += '    bytes_read += {}.DecodeBaseHeader({});\n'.format(
+                            lvalue, buffer_args
+                        )
+                    elif type_name in self.children_structs.keys():
                         base_type_name = self.make_simple_var_name(value.base_type)
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
                         main_body += '                                                   (buffer_size - bytes_read),\n'
@@ -206,12 +211,12 @@ class KhronosDecoderBodyGenerator():
                             main_body += f'             case {switch_type}:\n'
                             child_var = self.make_simple_var_name(child)
                             main_body += f'                 bytes_read += {child_var}.Decode({buffer_args});\n'
-                            main_body += f'                 {value.name} = reinterpret_cast<StructPointerDecoder<Decoded_{value.base_type}>*>(&{child_var});\n'
+                            main_body += f'                 {lvalue} = reinterpret_cast<StructPointerDecoder<Decoded_{value.base_type}>*>(&{child_var});\n'
                             main_body += '                 break;\n'
 
                         main_body += '             default:\n'
                         main_body += f'                 bytes_read += {base_type_name}.Decode({buffer_args});\n'
-                        main_body += f'                 {value.name} = &{base_type_name};\n'
+                        main_body += f'                 {lvalue} = &{base_type_name};\n'
                         main_body += '                 break;\n'
                         main_body += '         }\n'
                         main_body += '     }\n'
@@ -222,50 +227,50 @@ class KhronosDecoderBodyGenerator():
                             main_body += f'    if ({value.array_length} > 0)\n'
                             main_body += '    {\n'
                             main_body += f'        {value.name}_store = new {value.base_type}[{value.array_length}];\n'
-                            main_body += f'        {value.name}.SetExternalMemory({value.name}_store, {value.array_length});\n'
+                            main_body += f'        {lvalue}.SetExternalMemory({value.name}_store, {value.array_length});\n'
                             main_body += '    }\n'
                             epilogue += f'    if ({value.name}_store != nullptr)\n'
                             epilogue += '    {\n'
                             epilogue += f'        delete[] {value.name}_store;\n'
                             epilogue += '    }\n'
                         main_body += '    bytes_read += {}.Decode({});\n'.format(
-                                value.name, buffer_args
+                                lvalue, buffer_args
                             )
                     else:
                         main_body += '    bytes_read += {}.Decode({});\n'.format(
-                            value.name, buffer_args
+                            lvalue, buffer_args
                         )
                 elif self.has_basetype(value.base_type):
                     base_type = self.get_basetype(value.base_type)
                     main_body += '    bytes_read += {}.Decode{}({});\n'.format(
-                        value.name, self.encode_types[base_type], buffer_args
+                        lvalue, self.encode_types[base_type], buffer_args
                     )
  
                 else:
                     main_body += '    bytes_read += {}.Decode{}({});\n'.format(
-                        value.name, type_name, buffer_args
+                        lvalue, type_name, buffer_args
                     )
         else:
             if is_struct:
                 main_body += '    bytes_read += DecodeStruct({}, &{});\n'.format(
-                    buffer_args, value.name
+                    buffer_args, lvalue
                 )
             elif is_funcp:
                 main_body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
-                    buffer_args, value.name
+                    buffer_args, lvalue
                 )
             elif is_handle_like:
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
-                    buffer_args, value.name
+                    buffer_args, lvalue
                 )
             elif self.has_basetype(type_name) :
                 base_type = self.get_basetype(type_name)
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
-                    self.encode_types[base_type], buffer_args, value.name
+                    self.encode_types[base_type], buffer_args, lvalue
                 )
             else:
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
-                    type_name, buffer_args, value.name
+                    type_name, buffer_args, lvalue
                 )
 
         return preamble, main_body, epilogue

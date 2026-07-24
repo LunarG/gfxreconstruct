@@ -41,10 +41,9 @@
 # The content of this file was derived from the Khronos Registry cgenerator.py
 # and related Python files found in the KhronosGroup/Vulkan-Headers GitHub repository.
 
-import os,re,sys,json
-from collections import OrderedDict
+import sys
 from khronos_base_generator import (KhronosBaseGeneratorOptions, KhronosBaseGenerator, make_re_string, ValueInfo, write)
-from generator import (OutputGenerator, noneStr, regSortFeatures)
+from generator import regSortFeatures
 from vkconventions import VulkanConventions
 
 
@@ -65,7 +64,6 @@ _emit_extensions = []
 # be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
     "VK_AMDX_shader_enqueue",
-    "VK_ARM_tensors",
     "VK_EXT_metal_objects",
     "VK_EXT_pipeline_properties",
     "VK_FUCHSIA_buffer_collection",
@@ -77,6 +75,7 @@ _remove_extensions = [
     "VK_NV_cuda_kernel_launch",
     "VK_NV_cluster_acceleration_structure",
     "VK_NV_external_compute_queue",
+    "VK_NV_low_latency",
     "VK_OHOS_surface",
     "VK_OHOS_external_memory",
     "VK_OHOS_native_buffer",
@@ -87,7 +86,6 @@ _remove_extensions = [
     "VK_EXT_descriptor_heap",
     "VK_SEC_ubm_surface",
     "VK_ARM_shader_instrumentation",
-    "VK_ARM_data_graph_optical_flow",
     "VK_ARM_data_graph_instruction_set_tosa",
 ]
 
@@ -228,6 +226,30 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
       components that encode and decode Vulkan API parameters.
     Base class for Vulkan API parameter encoding and decoding generators.
     """
+
+    BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES = {
+        ('vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM', 'pProperties'): (
+            'VkQueueFamilyDataGraphOpticalFlowPropertiesARM',
+            'VkQueueFamilyDataGraphProcessingEnginePropertiesARM',
+        ),
+    }
+
+    def get_base_out_structure_type_info_overrides(self):
+        return self.BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES
+
+    def get_base_out_structure_type_info_list(self):
+        entries = []
+        seen = set()
+
+        for structs in self.get_base_out_structure_type_info_overrides().values():
+            for struct in structs:
+                if not struct or struct in seen or struct not in self.struct_type_names:
+                    continue
+
+                seen.add(struct)
+                entries.append((struct, self.struct_type_names[struct]))
+
+        return entries
 
     def __init__(
         self,
@@ -482,3 +504,61 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
         if platform and platform in platform_dict:
             return platform_dict[platform]
         return None
+
+    @staticmethod
+    def make_args_struct_name(name: str, namespace=''):
+        """Helper to create the name of the struct for the command args."""
+        process_vk_index = name.find("Process_vk")
+        if process_vk_index != -1:
+            return f"{namespace}{name[process_vk_index + len('Process_vk'):]}"
+        elif name.startswith("vk"):
+            return f"{namespace}{name[2:]}"
+        else:
+            return f"{namespace}{name}"
+
+    def make_consumer_func_decl(self, return_type, name, values):
+        """make_consumer_decl - return API Call Consumer class member function declaration.
+        Generate API Call Consumer class member function declaration.
+        """
+        param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        param_decls.extend(self.make_param_decls(return_type, name, values))
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return f'void {name}()'
+
+    def make_param_decls(self, return_type, name, values):
+        """make_param_decls - return list of parameter declarations for an API call consumer function."""
+        param_decls = []
+
+        #if return_type != 'void':
+        #    param_decl = self.make_aligned_param_decl(
+        #        return_type, 'returnValue', self.INDENT_SIZE,
+        #        self.genOpts.align_func_param
+        #    )
+        #    param_decls.append(param_decl)
+
+        if len(values) > 0:
+            args_struct_name = self.make_args_struct_name(name, namespace='args::')
+            param_decl = self.make_aligned_param_decl(
+                f'{args_struct_name}&', 'args', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        return param_decls
+
+    def get_param_prefix(self):
+        """get_param_prefix - return parameter prefix for the current generator."""
+        return 'args.'
+
+    def get_param_accessor(self):
+        """get_param_accessor - return parameter accessor for the current generator."""
+        return '.'

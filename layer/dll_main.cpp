@@ -27,7 +27,7 @@
 #include "layer/layer_vulkan_entry.h"
 #include "generated/generated_vulkan_layer_func_table.h"
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 #include <windows.h>
 

@@ -32,8 +32,10 @@
 #include "util/compressor.h"
 #include "util/logging.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <filesystem>
 
 const char kNoDebugPopup[] = "--no-debug-popup";
 
@@ -47,7 +49,8 @@ const char kArgUnknown[] = "<Unknown>";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to compress/decompress GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <input_file> <output_file> <compression_format>\n",
@@ -70,7 +73,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
@@ -114,7 +117,7 @@ int main(int argc, const char** argv)
     }
     else
     {
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
             _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);

@@ -90,6 +90,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define QUIT_AFTER_CAPTURE_FRAMES_UPPER                      "QUIT_AFTER_CAPTURE_FRAMES"
 #define CAPTURE_TRIGGER_LOWER                                "capture_trigger"
 #define CAPTURE_TRIGGER_UPPER                                "CAPTURE_TRIGGER"
+#define CAPTURE_TRIGGER_BOUNDARY_LOWER                       "capture_trigger_boundary"
+#define CAPTURE_TRIGGER_BOUNDARY_UPPER                       "CAPTURE_TRIGGER_BOUNDARY"
 #define CAPTURE_TRIGGER_FRAMES_LOWER                         "capture_trigger_frames"
 #define CAPTURE_TRIGGER_FRAMES_UPPER                         "CAPTURE_TRIGGER_FRAMES"
 #define CAPTURE_ANDROID_TRIGGER_LOWER                        "capture_android_trigger"
@@ -316,6 +318,8 @@ class CaptureSettings
     static RuntimeTriggerState ParseAndroidRunTimeTrimState(const std::string&  value_string,
                                                             RuntimeTriggerState default_value);
 #endif
+
+    static TrimBoundary ParseTriggerBoundaryString(const std::string& value_string, TrimBoundary default_value);
 
     static format::CompressionType ParseCompressionTypeString(const std::string&      value_string,
                                                               format::CompressionType default_value);

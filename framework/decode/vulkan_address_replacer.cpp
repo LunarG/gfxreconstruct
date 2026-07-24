@@ -310,6 +310,7 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     pipeline_context_map_.clear();
     shadow_sbt_map_.clear();
     shadow_as_map_.clear();
+    shadow_scratch_map_.clear();
     submit_asset_map_.clear();
     submit_asset_ = {};
 
@@ -1350,20 +1351,29 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting "
                     "acceleration-structures using shadow-structures and -buffers");
 
-                // now definitely requiring address-replacement
-                force_replace = true;
+                // replacement scratch-buffer, either owned by a shadow acceleration-structure or standalone
+                buffer_context_t* replacement_scratch = nullptr;
 
-                auto& replacement_as = shadow_as_map_[as_replay_address];
-
-                if (replacement_as.handle == VK_NULL_HANDLE)
+                if (!as_buffer_usable)
                 {
-                    if (as_buffer_usable)
+                    // now definitely requiring address-replacement
+                    force_replace = true;
+
+                    // drop stale entries from destroyed acceleration-structures whose device-address got recycled
+                    auto stale_shadow_as_it = shadow_as_map_.find(as_replay_address);
+                    if (stale_shadow_as_it != shadow_as_map_.end() &&
+                        stale_shadow_as_it->second.origin_handle != build_geometry_info.dstAccelerationStructure)
                     {
-                        replacement_as.handle  = build_geometry_info.dstAccelerationStructure;
-                        replacement_as.address = as_replay_address;
+                        util::MarkInjectedCommandsHelper mark_injected_commands_helper_erase;
+                        shadow_as_map_.erase(stale_shadow_as_it);
                     }
-                    else
+
+                    auto& replacement_as = shadow_as_map_[as_replay_address];
+
+                    if (replacement_as.handle == VK_NULL_HANDLE)
                     {
+                        replacement_as.origin_handle = build_geometry_info.dstAccelerationStructure;
+
                         auto ret = create_acceleration_asset(replacement_as,
                                                              build_geometry_info.type,
                                                              build_size_info.accelerationStructureSize,
@@ -1372,15 +1382,26 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                         {
                             GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: creation of shadow "
                                                "acceleration-structure failed");
+
+                            // do not keep a half-initialized entry around
+                            shadow_as_map_.erase(as_replay_address);
+                            return;
                         }
                     }
+
+                    // check/correct source acceleration-structure
+                    swap_acceleration_structure_handle(build_geometry_info.srcAccelerationStructure, address_tracker);
+
+                    // hot swap acceleration-structure handle
+                    build_geometry_info.dstAccelerationStructure = replacement_as.handle;
+
+                    replacement_scratch = &replacement_as.scratch;
                 }
-
-                // check/correct source acceleration-structure
-                swap_acceleration_structure_handle(build_geometry_info.srcAccelerationStructure, address_tracker);
-
-                // hot swap acceleration-structure handle
-                build_geometry_info.dstAccelerationStructure = replacement_as.handle;
+                else
+                {
+                    // only the scratch-buffer needs replacement, keep the acceleration-structure untouched
+                    replacement_scratch = &shadow_scratch_map_[build_geometry_info.dstAccelerationStructure];
+                }
 
                 // acceleration-structure properties not populated yet, check if we missed it
                 if (!replay_acceleration_structure_properties_)
@@ -1406,7 +1427,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 {
                     // create a replacement scratch-buffer
                     if (!create_buffer(
-                            replacement_as.scratch,
+                            *replacement_scratch,
                             scratch_size,
                             0,
                             replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment,
@@ -1418,7 +1439,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     }
 
                     // hot swap scratch-buffer
-                    build_geometry_info.scratchData.deviceAddress = replacement_as.scratch.device_address;
+                    build_geometry_info.scratchData.deviceAddress = replacement_scratch->device_address;
                 }
             }
         }
@@ -1553,7 +1574,8 @@ void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
         if (acceleration_structure_info != nullptr)
         {
             auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
-            if (shadow_as_it != shadow_as_map_.end())
+            if (shadow_as_it != shadow_as_map_.end() &&
+                shadow_as_it->second.origin_handle == acceleration_structures[i])
             {
                 acceleration_structures[i] = shadow_as_it->second.handle;
             }
@@ -1603,7 +1625,7 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
                 {
                     auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
                     if (acceleration_structure_it != shadow_as_map_.end() &&
-                        acceleration_structure_it->second.storage.num_bytes > 0)
+                        acceleration_structure_it->second.origin_handle == write_as->pAccelerationStructures[j])
                     {
                         // we found an existing replacement-structure -> swap
                         auto* out_array = const_cast<VkAccelerationStructureKHR*>(write_as->pAccelerationStructures);
@@ -2107,7 +2129,10 @@ bool VulkanAddressReplacer::swap_acceleration_structure_handle(
         if (acceleration_structure_info != nullptr)
         {
             auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
-            if (shadow_as_it != shadow_as_map_.end())
+
+            // only swap if the entry was created for this acceleration-structure,
+            // otherwise it is a stale entry left behind by a destroyed structure at a recycled device-address
+            if (shadow_as_it != shadow_as_map_.end() && shadow_as_it->second.origin_handle == handle)
             {
                 handle = shadow_as_it->second.handle;
                 return true;
@@ -2117,14 +2142,32 @@ bool VulkanAddressReplacer::swap_acceleration_structure_handle(
     return false;
 }
 
-void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR handle)
+void VulkanAddressReplacer::DestroyShadowResources(
+    const VulkanAccelerationStructureKHRInfo* acceleration_structure_info)
 {
-    if (handle != VK_NULL_HANDLE)
+    if (acceleration_structure_info != nullptr && acceleration_structure_info->handle != VK_NULL_HANDLE)
     {
-        auto remove_as_size_it = as_compact_sizes_.find(handle);
+        auto remove_as_size_it = as_compact_sizes_.find(acceleration_structure_info->handle);
         if (remove_as_size_it != as_compact_sizes_.end())
         {
             as_compact_sizes_.erase(remove_as_size_it);
+        }
+
+        // remove a potential shadow-structure along with the tracked acceleration-structure,
+        // avoiding stale entries in case the device-address gets recycled by a future structure
+        auto remove_shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
+        if (remove_shadow_as_it != shadow_as_map_.end())
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            shadow_as_map_.erase(remove_shadow_as_it);
+        }
+
+        // remove a potential replacement scratch-buffer
+        auto remove_scratch_it = shadow_scratch_map_.find(acceleration_structure_info->handle);
+        if (remove_scratch_it != shadow_scratch_map_.end())
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            shadow_scratch_map_.erase(remove_scratch_it);
         }
     }
 }
@@ -2140,7 +2183,8 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo*      
             const auto& replay_address_it = acceleration_structure_map.find(capture_address);
             if (replay_address_it != acceleration_structure_map.end())
             {
-                auto remove_shadow_as_it = shadow_as_map_.find(replay_address_it->first);
+                // shadow_as_map_ is keyed by replay-addresses
+                auto remove_shadow_as_it = shadow_as_map_.find(replay_address_it->second);
                 if (remove_shadow_as_it != shadow_as_map_.end())
                 {
                     util::MarkInjectedCommandsHelper mark_injected_commands_helper;
@@ -2296,16 +2340,16 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     std::sort(storage_bda_binary_.begin(), storage_bda_binary_.end());
 
     std::unordered_set<VkBuffer> buffer_set;
-    for (uint32_t i = 0; i < addresses.size(); ++i)
+    for (const VkDeviceAddress address : addresses)
     {
-        auto buffer_info = address_tracker.GetBufferByReplayDeviceAddress(addresses[i]);
 
-        if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        if (auto* buffer_info = address_tracker.GetBufferByReplayDeviceAddress(address);
+            buffer_info != nullptr && buffer_info->replay_address != 0)
         {
             // keep track of used handles
             buffer_set.insert(buffer_info->handle);
         }
-    };
+    }
 
     // mark injected commands
     util::MarkInjectedCommandsHelper mark_injected_commands_helper;
@@ -2571,7 +2615,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
             // defer cleanup of previous control-block
             hashmap_control_block_bda_binary_prev_ = std::move(*previous_hashmap_control_block);
 
-            auto& previous_control_block =
+            const auto& previous_control_block =
                 *static_cast<gpu_array_t*>(hashmap_control_block_bda_binary_prev_.mapped_data);
 
             // create new storage- and control-blocks

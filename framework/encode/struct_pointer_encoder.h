@@ -45,6 +45,27 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+#if defined(GFXRECON_ENABLE_VULKAN)
+inline void EncodeStructPtr(ParameterEncoder*         encoder,
+                            const VkBaseOutStructure* value,
+                            bool                      omit_data = false,
+                            bool                      omit_addr = false)
+{
+    if (omit_data)
+    {
+        encoder->EncodeStructPtrPreamble(value, omit_data, omit_addr);
+    }
+    else if (util::platform::PointerIsValid(value))
+    {
+        EncodePNextStruct(encoder, value);
+    }
+    else
+    {
+        encoder->EncodeStructPtrPreamble(nullptr);
+    }
+}
+#endif
+
 template <typename T>
 void EncodeStructPtr(ParameterEncoder* encoder, const T* value, bool omit_data = false, bool omit_addr = false)
 {

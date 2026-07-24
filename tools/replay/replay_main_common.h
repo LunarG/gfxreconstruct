@@ -28,7 +28,7 @@ struct android_app;
 #endif
 
 #include "replay_feature.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include "application/application.h"
 #include "decode/file_processor.h"

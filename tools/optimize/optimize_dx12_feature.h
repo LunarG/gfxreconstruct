@@ -44,6 +44,7 @@ class OptimizeDx12Feature : public OptimizeFeature
     ~OptimizeDx12Feature() override = default;
 
     std::string Label() const override { return "D3D12"; }
+    std::string CompiledHeaderVersionString() const override;
 
     void RegisterDetectionDecoder(decode::FileProcessor& file_processor, uint64_t block_limit) override;
     bool WasDetected() const override;

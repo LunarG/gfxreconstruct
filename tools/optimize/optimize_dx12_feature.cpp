@@ -28,6 +28,7 @@
 #include "tool_settings.h"
 
 #include "dx12_optimize_util.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 #include "util/logging.h"
 
@@ -37,6 +38,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
 
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(OptimizeFeature, OptimizeDx12Feature)
+
+std::string OptimizeDx12Feature::CompiledHeaderVersionString() const
+{
+    return util::GetD3D12SdkVersionString();
+}
 
 // D3D12-specific CLI flag names, private to this translation unit.
 constexpr char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";

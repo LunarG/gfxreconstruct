@@ -306,7 +306,7 @@ bool CommonCaptureManager::ProcessMatchesCaptureName(const std::string& desired_
             }
         }
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
 
         char  ascii_name[MAX_PATH];
 #ifdef UNICODE
@@ -460,7 +460,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
 
         bool use_external_memory = trace_settings.page_guard_external_memory;
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
         if (use_external_memory)
         {
             use_external_memory = false;
@@ -547,24 +547,26 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                     capture_mode_ = kModeTrack;
                 }
             }
-            // Check if trim is enabled by hot-key trigger at the first frame.
+            // Check if trimming is controlled by a capture trigger.
             else if (!trace_settings.trim_key.empty() ||
                      trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
             {
-                // Capture key/trigger only support frames as trim boundaries.
-                GFXRECON_ASSERT(trim_boundary_ == CaptureSettings::TrimBoundary::kFrames);
+                GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
+                                (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
 
                 trim_key_                       = trace_settings.trim_key;
                 trim_key_frames_                = trace_settings.trim_key_frames;
                 previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
 
-                // Enable state tracking when hotkey pressed
+                // Enable state tracking if a capture trigger is already active.
                 if (IsTrimHotkeyPressed() ||
                     trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled ||
                     ExternalTriggerEnabled())
                 {
                     capture_mode_         = kModeWriteAndTrack;
-                    trim_key_first_frame_ = current_frame_;
+                    trim_key_first_frame_ = (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits)
+                                                ? queue_submit_count_
+                                                : current_frame_;
 
                     util::SignalTrimmingStart();
 
@@ -1017,7 +1019,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to initialize capture for hotkey trim trigger; capture has been disabled");
+            GFXRECON_LOG_ERROR("Failed to initialize capture for trim trigger; capture has been disabled");
             trim_enabled_ = false;
             capture_mode_ = kModeDisabled;
         }
@@ -1118,13 +1120,13 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_
         if (IsCaptureModeWrite())
         {
             // Currently capturing a frame range.
-            // Check for end of range or hotkey trigger to stop capture.
+            // Check for the end of a range or a capture trigger to stop capture.
             CheckContinueCaptureForWriteMode(api_family, current_frame_, current_lock);
         }
         else if (IsCaptureModeTrack())
         {
             // Capture is not active.
-            // Check for start of capture frame range or hotkey trigger to start capture
+            // Check for the start of a frame range or a capture trigger to start capture.
             CheckStartCaptureForTrackMode(api_family, current_frame_, current_lock);
         }
     }
@@ -1150,7 +1152,7 @@ void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family, std::s
     {
         if (!IsCaptureModeWrite() && IsCaptureModeTrack())
         {
-            // Capture is not active, check for start of capture frame range.
+            // Capture is not active. Check for the start of a queue-submit range or a capture trigger.
             CheckStartCaptureForTrackMode(api_family, queue_submit_count_, current_lock);
         }
     }

@@ -41,6 +41,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
@@ -9045,16 +9046,6 @@ struct Decoded_VkDispatchTileInfoQCOM
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkQueryLowLatencySupportNV
-{
-    using struct_type = VkQueryLowLatencySupportNV;
-
-    VkQueryLowLatencySupportNV* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    uint64_t pQueriedLowLatencyData{ 0 };
-};
-
 struct Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT
 {
     using struct_type = VkPhysicalDeviceDescriptorBufferPropertiesEXT;
@@ -10470,6 +10461,247 @@ struct Decoded_VkDirectDriverLoadingListLUNARG
     StructPointerDecoder<Decoded_VkDirectDriverLoadingInfoLUNARG>* pDrivers{ nullptr };
 };
 
+struct Decoded_VkTensorDescriptionARM
+{
+    using struct_type = VkTensorDescriptionARM;
+
+    VkTensorDescriptionARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<int64_t> pDimensions;
+    PointerDecoder<int64_t> pStrides;
+};
+
+struct Decoded_VkTensorCreateInfoARM
+{
+    using struct_type = VkTensorCreateInfoARM;
+
+    VkTensorCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkTensorDescriptionARM>* pDescription{ nullptr };
+    PointerDecoder<uint32_t> pQueueFamilyIndices;
+};
+
+struct Decoded_VkTensorViewCreateInfoARM
+{
+    using struct_type = VkTensorViewCreateInfoARM;
+
+    VkTensorViewCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+};
+
+struct Decoded_VkTensorMemoryRequirementsInfoARM
+{
+    using struct_type = VkTensorMemoryRequirementsInfoARM;
+
+    VkTensorMemoryRequirementsInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+};
+
+struct Decoded_VkBindTensorMemoryInfoARM
+{
+    using struct_type = VkBindTensorMemoryInfoARM;
+
+    VkBindTensorMemoryInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkWriteDescriptorSetTensorARM
+{
+    using struct_type = VkWriteDescriptorSetTensorARM;
+
+    VkWriteDescriptorSetTensorARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    HandlePointerDecoder<VkTensorViewARM> pTensorViews;
+};
+
+struct Decoded_VkTensorFormatPropertiesARM
+{
+    using struct_type = VkTensorFormatPropertiesARM;
+
+    VkTensorFormatPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTensorPropertiesARM
+{
+    using struct_type = VkPhysicalDeviceTensorPropertiesARM;
+
+    VkPhysicalDeviceTensorPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTensorMemoryBarrierARM
+{
+    using struct_type = VkTensorMemoryBarrierARM;
+
+    VkTensorMemoryBarrierARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+};
+
+struct Decoded_VkTensorDependencyInfoARM
+{
+    using struct_type = VkTensorDependencyInfoARM;
+
+    VkTensorDependencyInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkTensorMemoryBarrierARM>* pTensorMemoryBarriers{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTensorFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceTensorFeaturesARM;
+
+    VkPhysicalDeviceTensorFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDeviceTensorMemoryRequirementsARM
+{
+    using struct_type = VkDeviceTensorMemoryRequirementsARM;
+
+    VkDeviceTensorMemoryRequirementsARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkTensorCreateInfoARM>* pCreateInfo{ nullptr };
+};
+
+struct Decoded_VkTensorCopyARM
+{
+    using struct_type = VkTensorCopyARM;
+
+    VkTensorCopyARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint64_t> pSrcOffset;
+    PointerDecoder<uint64_t> pDstOffset;
+    PointerDecoder<uint64_t> pExtent;
+};
+
+struct Decoded_VkCopyTensorInfoARM
+{
+    using struct_type = VkCopyTensorInfoARM;
+
+    VkCopyTensorInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId srcTensor{ format::kNullHandleId };
+    format::HandleId dstTensor{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkTensorCopyARM>* pRegions{ nullptr };
+};
+
+struct Decoded_VkMemoryDedicatedAllocateInfoTensorARM
+{
+    using struct_type = VkMemoryDedicatedAllocateInfoTensorARM;
+
+    VkMemoryDedicatedAllocateInfoTensorARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+};
+
+struct Decoded_VkPhysicalDeviceExternalTensorInfoARM
+{
+    using struct_type = VkPhysicalDeviceExternalTensorInfoARM;
+
+    VkPhysicalDeviceExternalTensorInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkTensorDescriptionARM>* pDescription{ nullptr };
+};
+
+struct Decoded_VkExternalTensorPropertiesARM
+{
+    using struct_type = VkExternalTensorPropertiesARM;
+
+    VkExternalTensorPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExternalMemoryProperties* externalMemoryProperties{ nullptr };
+};
+
+struct Decoded_VkExternalMemoryTensorCreateInfoARM
+{
+    using struct_type = VkExternalMemoryTensorCreateInfoARM;
+
+    VkExternalMemoryTensorCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferTensorFeaturesARM;
+
+    VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferTensorPropertiesARM;
+
+    VkPhysicalDeviceDescriptorBufferTensorPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorGetTensorInfoARM
+{
+    using struct_type = VkDescriptorGetTensorInfoARM;
+
+    VkDescriptorGetTensorInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensorView{ format::kNullHandleId };
+};
+
+struct Decoded_VkTensorCaptureDescriptorDataInfoARM
+{
+    using struct_type = VkTensorCaptureDescriptorDataInfoARM;
+
+    VkTensorCaptureDescriptorDataInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+};
+
+struct Decoded_VkTensorViewCaptureDescriptorDataInfoARM
+{
+    using struct_type = VkTensorViewCaptureDescriptorDataInfoARM;
+
+    VkTensorViewCaptureDescriptorDataInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensorView{ format::kNullHandleId };
+};
+
+struct Decoded_VkFrameBoundaryTensorsARM
+{
+    using struct_type = VkFrameBoundaryTensorsARM;
+
+    VkFrameBoundaryTensorsARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    HandlePointerDecoder<VkTensorARM> pTensors;
+};
+
 struct Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT;
@@ -10956,16 +11188,6 @@ struct Decoded_VkPhysicalDeviceDataGraphFeaturesARM
     VkPhysicalDeviceDataGraphFeaturesARM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphPipelineConstantARM
-{
-    using struct_type = VkDataGraphPipelineConstantARM;
-
-    VkDataGraphPipelineConstantARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    uint64_t pConstantData{ 0 };
 };
 
 struct Decoded_VkDataGraphPipelineResourceInfoARM
@@ -12134,6 +12356,88 @@ struct Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM;
+
+    VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM
+{
+    using struct_type = VkQueueFamilyDataGraphOpticalFlowPropertiesARM;
+
+    VkQueueFamilyDataGraphOpticalFlowPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineOpticalFlowCreateInfoARM;
+
+    VkDataGraphPipelineOpticalFlowCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM
+{
+    using struct_type = VkDataGraphOpticalFlowImageFormatPropertiesARM;
+
+    VkDataGraphOpticalFlowImageFormatPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphOpticalFlowImageFormatInfoARM
+{
+    using struct_type = VkDataGraphOpticalFlowImageFormatInfoARM;
+
+    VkDataGraphOpticalFlowImageFormatInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM
+{
+    using struct_type = VkDataGraphPipelineOpticalFlowDispatchInfoARM;
+
+    VkDataGraphPipelineOpticalFlowDispatchInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM
+{
+    using struct_type = VkDataGraphPipelineResourceInfoImageLayoutARM;
+
+    VkDataGraphPipelineResourceInfoImageLayoutARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineSingleNodeConnectionARM
+{
+    using struct_type = VkDataGraphPipelineSingleNodeConnectionARM;
+
+    VkDataGraphPipelineSingleNodeConnectionARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineSingleNodeCreateInfoARM;
+
+    VkDataGraphPipelineSingleNodeCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkDataGraphPipelineSingleNodeConnectionARM>* pConnections{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderLongVectorFeaturesEXT;
@@ -13048,6 +13352,106 @@ typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysic
 typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
 
 typedef Decoded_VkRenderingEndInfoKHR Decoded_VkRenderingEndInfoEXT;
+
+struct Decoded_VkBaseOutStructure
+{
+    using struct_type = VkBaseOutStructure;
+
+    union VkBaseOutStructureSizeUnion
+    {
+        VkQueueFamilyDataGraphOpticalFlowPropertiesARM a;
+        VkQueueFamilyDataGraphProcessingEnginePropertiesARM b;
+    };
+
+    using union_size_type = VkBaseOutStructureSizeUnion;
+
+    VkBaseOutStructure* decoded_value{ nullptr };
+    PNextNode*          pNext{ nullptr };
+
+    static Decoded_VkBaseOutStructure* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_VkBaseOutStructure* return_type = nullptr;
+
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        VkStructureType vk_type = static_cast<VkStructureType>(peek_structure_type);
+
+        switch (vk_type)
+        {
+            default:
+                GFXRECON_LOG_WARNING_ONCE("Decoded_VkBaseOutStructure::AllocateAppropriate: unrecognized sType 0x%x", peek_structure_type);
+                return_type = DecodeAllocator::Allocate<Decoded_VkBaseOutStructure>(len, initialize);
+                break;
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
+                return_type = reinterpret_cast<Decoded_VkBaseOutStructure*>(DecodeAllocator::Allocate<Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM>(len, initialize));
+                break;
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
+                return_type = reinterpret_cast<Decoded_VkBaseOutStructure*>(DecodeAllocator::Allocate<Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM>(len, initialize));
+                break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOutStructure* dest)
+    {
+        size_t bytes_read = 0;
+
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        VkStructureType vk_type = static_cast<VkStructureType>(peek_structure_type);
+
+        switch (vk_type)
+        {
+            default:
+                GFXRECON_LOG_WARNING_ONCE("Decoded_VkBaseOutStructure::DecodeAppropriate: unrecognized sType 0x%x", peek_structure_type);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
+            {
+                Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM* local_dest = reinterpret_cast<Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
+            {
+                Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM* local_dest = reinterpret_cast<Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+        }
+        return bytes_read;
+    }
+
+    VkBaseOutStructure* AllocateOutputData(size_t len)
+    {
+        assert(decoded_value != nullptr);
+
+        switch (decoded_value->sType)
+        {
+            default:
+                return DecodeAllocator::Allocate<VkBaseOutStructure>(len);
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
+            {
+                auto* allocation = DecodeAllocator::Allocate<VkQueueFamilyDataGraphOpticalFlowPropertiesARM>(len);
+                for (size_t i = 0; i < len; ++i)
+                {
+                    allocation[i] = VkQueueFamilyDataGraphOpticalFlowPropertiesARM{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM, nullptr };
+                }
+                return reinterpret_cast<VkBaseOutStructure*>(allocation);
+            }
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
+            {
+                auto* allocation = DecodeAllocator::Allocate<VkQueueFamilyDataGraphProcessingEnginePropertiesARM>(len);
+                for (size_t i = 0; i < len; ++i)
+                {
+                    allocation[i] = VkQueueFamilyDataGraphProcessingEnginePropertiesARM{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM, nullptr };
+                }
+                return reinterpret_cast<VkBaseOutStructure*>(allocation);
+            }
+        }
+    }
+};
+
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

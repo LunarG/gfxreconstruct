@@ -1581,8 +1581,6 @@ void UnwrapStructHandles(VkPerTileEndInfoQCOM* value, HandleUnwrapMemory* unwrap
 
 void UnwrapStructHandles(VkDispatchTileInfoQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkQueryLowLatencySupportNV* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -1859,6 +1857,54 @@ void UnwrapStructHandles(VkDirectDriverLoadingInfoLUNARG* value, HandleUnwrapMem
 
 void UnwrapStructHandles(VkDirectDriverLoadingListLUNARG* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkTensorDescriptionARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorViewCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorMemoryRequirementsInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBindTensorMemoryInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkWriteDescriptorSetTensorARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorFormatPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorMemoryBarrierARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorDependencyInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceTensorFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDeviceTensorMemoryRequirementsARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorCopyARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyTensorInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkMemoryDedicatedAllocateInfoTensorARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceExternalTensorInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkExternalTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkExternalMemoryTensorCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferTensorFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorBufferTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorGetTensorInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorCaptureDescriptorDataInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorViewCaptureDescriptorDataInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkFrameBoundaryTensorsARM* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -1960,8 +2006,6 @@ void UnwrapStructHandles(VkOutOfBandQueueTypeInfoNV* value, HandleUnwrapMemory* 
 void UnwrapStructHandles(VkLatencySurfaceCapabilitiesNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceDataGraphFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphPipelineConstantARM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDataGraphPipelineResourceInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -2182,6 +2226,24 @@ void UnwrapStructHandles(VkCustomResolveCreateInfoEXT* value, HandleUnwrapMemory
 void UnwrapStructHandles(VkDataGraphPipelineBuiltinModelCreateInfoQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceDataGraphModelFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkQueueFamilyDataGraphOpticalFlowPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineOpticalFlowCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphOpticalFlowImageFormatPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphOpticalFlowImageFormatInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineOpticalFlowDispatchInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineResourceInfoImageLayoutARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineSingleNodeConnectionARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineSingleNodeCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderLongVectorFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 

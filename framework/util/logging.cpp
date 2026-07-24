@@ -200,7 +200,7 @@ bool LoggingManager::UpdateFileTarget(
 
 void LoggingManager::UpdateDebugViewTarget(bool enabled)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     const std::lock_guard<std::mutex> lock(target_mut_);
 
     if (enabled)
@@ -223,7 +223,7 @@ void LoggingManager::UpdateDebugViewTarget(bool enabled)
     {
         GFXRECON_LOG_ERROR("DebugView Logging target not supported on this platform");
     }
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 }
 
 GFXRECON_END_NAMESPACE(logging)

@@ -35,6 +35,7 @@
 #include "util/to_string.h"
 #include "util/platform.h"
 
+#include <filesystem>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -47,7 +48,8 @@ const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - Patch the file format version of a GFXReconstruct capture file.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -57,7 +59,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
@@ -110,6 +112,7 @@ FileFormatInfo GatherFileFormatInfo(gfxrecon::decode::FileProcessor& file_proces
     gfxrecon::decode::InfoDecoder info_decoder;
     info_decoder.AddConsumer(&info_consumer);
     file_processor.AddDecoder(&info_decoder);
+    file_processor.InitializeFrameProcessing();
     bool success = file_processor.ProcessNextFrame();
     if (success && !file_processor.UsesFrameMarkers())
     {
@@ -187,7 +190,7 @@ int main(int argc, const char** argv)
     }
     else
     {
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
             _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);

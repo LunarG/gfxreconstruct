@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,37 +20,36 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_BLOCK_SKIPPING_FILE_PROCESSOR_H
-#define GFXRECON_DECODE_BLOCK_SKIPPING_FILE_PROCESSOR_H
+// Single source of the "compiled header version" strings each API's tool Features report
+// through FeatureBase::CompiledHeaderVersionString(), so every tool prints the same text for
+// the same compiled API regardless of which tool it is.
 
-#include "decode/file_processor.h"
+#ifndef GFXRECON_UTIL_API_VERSION_INFO_H
+#define GFXRECON_UTIL_API_VERSION_INFO_H
 
-#include <unordered_set>
+#include "util/defines.h"
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
-class BlockSkippingFileProcessor : public FileProcessor
-{
-  public:
-    BlockSkippingFileProcessor() : blocks_skipped_(0) {}
+#if defined(GFXRECON_ENABLE_VULKAN)
+// "Vulkan Header Version X.Y.Z", sourced from vulkan_core.h's VK_HEADER_VERSION_COMPLETE.
+std::string GetVulkanHeaderVersionString();
+#endif
 
-    virtual ~BlockSkippingFileProcessor() {}
+#if ENABLE_OPENXR_SUPPORT
+// "OpenXR Header Version X.Y.Z", sourced from openxr.h's XR_CURRENT_API_VERSION.
+std::string GetOpenXrHeaderVersionString();
+#endif
 
-    void SetBlocksToSkip(std::unordered_set<uint64_t> blocks_to_skip);
+#if defined(D3D12_SUPPORT)
+// "D3D12 SDK Version X", sourced from d3d12.h's D3D12_SDK_VERSION.
+std::string GetD3D12SdkVersionString();
+#endif
 
-    bool IsSkippingFinished();
-
-  private:
-    bool         SkipBlockProcessing() override;
-    bool         ShouldSkipBlock();
-
-  private:
-    std::unordered_set<uint64_t> blocks_to_skip_;
-    uint64_t                     blocks_skipped_;
-};
-
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_BLOCK_SKIPPING_FILE_PROCESSOR_H
+#endif // GFXRECON_UTIL_API_VERSION_INFO_H

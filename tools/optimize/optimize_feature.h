@@ -26,19 +26,16 @@
 #include "decode/file_processor.h"
 #include "util/argument_parser.h"
 #include "util/defines.h"
+#include "util/feature_base.h"
 
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
 
-class OptimizeFeature
+class OptimizeFeature : public util::FeatureBase
 {
   public:
-    virtual ~OptimizeFeature() = default;
-
-    virtual std::string Label() const = 0;
-
     // Block-limit sentinels for the two-phase detection pass. Values match the
     // kDefaultBlockLimit / kNoBlockLimit constants on both VulkanDetectionConsumer and
     // Dx12DetectionConsumer, so main.cpp doesn't need to include those headers.

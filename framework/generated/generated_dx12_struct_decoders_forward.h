@@ -34,7 +34,7 @@
 
 #include <cstdint>
 
-#ifndef WIN32
+#if !defined(_WIN32)
 #include <cstddef>
 #endif
 

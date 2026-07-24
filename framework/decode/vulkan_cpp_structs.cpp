@@ -1605,5 +1605,17 @@ std::string GenerateStruct_VkDescriptorGetInfoEXT(std::ostream&                 
     return {};
 }
 
+std::string GenerateStruct_VkDataGraphPipelineConstantARM(std::ostream&                           out,
+                                                          const VkDataGraphPipelineConstantARM*   structInfo,
+                                                          Decoded_VkDataGraphPipelineConstantARM* metaInfo,
+                                                          VulkanCppConsumerBase&                  consumer)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(out);
+    GFXRECON_UNREFERENCED_PARAMETER(structInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(metaInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(consumer);
+    return {};
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

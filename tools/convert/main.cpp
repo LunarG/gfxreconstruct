@@ -25,7 +25,7 @@
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include "decode/json_writer.h" /// @todo move to util?
 #include "decode/decode_api_detection.h"
@@ -35,6 +35,8 @@
 
 #include "convert_feature.h"
 
+#include <filesystem>
+
 using gfxrecon::util::JsonFormat;
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
@@ -43,7 +45,8 @@ const char kArguments[] = "--output,--format,--log-level,--frame-range";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert the contents of GFXReconstruct capture files to JSON.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -78,7 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify highest level message to log. Options are:");
     GFXRECON_WRITE_CONSOLE("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
@@ -195,7 +198,8 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::convert::ConvertFeatureBase>(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();
         exit(0);
@@ -212,7 +216,7 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(1);
     }
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
     {
         _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
@@ -343,6 +347,8 @@ int main(int argc, const char** argv)
                     out_stream.Reset(tmp_file_handle);
                 }
             }
+
+            file_processor.InitializeFrameProcessing();
 
             while (success)
             {

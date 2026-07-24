@@ -110,6 +110,18 @@ class VulkanResourceAllocator
         PFN_vkGetAndroidHardwareBufferPropertiesANDROID    get_android_hardware_buffer_properties{ nullptr };
         PFN_vkCreateFence                                  create_fence{ nullptr };
         PFN_vkDestroyFence                                 destroy_fence{ nullptr };
+        PFN_vkCreateTensorARM                              create_tensor{ nullptr };
+        PFN_vkDestroyTensorARM                             destroy_tensor{ nullptr };
+        PFN_vkGetTensorMemoryRequirementsARM               get_tensor_memory_requirements{ nullptr };
+        PFN_vkBindTensorMemoryARM                          bind_tensor_memory{ nullptr };
+        PFN_vkCreateDataGraphPipelineSessionARM            create_data_graph_pipeline_session{ nullptr };
+        PFN_vkGetDataGraphPipelineSessionMemoryRequirementsARM get_data_graph_pipeline_session_memory_requirements{
+            nullptr
+        };
+        PFN_vkBindDataGraphPipelineSessionMemoryARM bind_data_graph_pipeline_session_memory{ nullptr };
+        PFN_vkDestroyDataGraphPipelineSessionARM    destroy_data_graph_pipeline_session{ nullptr };
+        PFN_vkGetDataGraphPipelineSessionBindPointRequirementsARM
+            get_data_graph_pipeline_session_bind_point_requirements{ nullptr };
     };
 
   public:
@@ -371,6 +383,57 @@ class VulkanResourceAllocator
 
     virtual bool SupportsOpaqueDeviceAddresses() = 0;
     virtual bool SupportBindVideoSessionMemory() = 0;
+
+    virtual VkResult CreateDataGraphPipelineSession(const VkDataGraphPipelineSessionCreateInfoARM* create_info,
+                                                    const VkAllocationCallbacks*                   allocation_callbacks,
+                                                    format::HandleId                               capture_id,
+                                                    VkDataGraphPipelineSessionARM* data_graph_pipeline_session,
+                                                    ResourceData*                  allocator_data) = 0;
+
+    virtual void DestroyDataGraphPipelineSession(VkDataGraphPipelineSessionARM data_graph_pipeline_session,
+                                                 const VkAllocationCallbacks*  allocation_callbacks,
+                                                 ResourceData                  allocator_data) = 0;
+
+    virtual VkResult CreateTensor(const VkTensorCreateInfoARM* create_info,
+                                  const VkAllocationCallbacks* allocation_callbacks,
+                                  format::HandleId             capture_id,
+                                  VkTensorARM*                 tensor,
+                                  ResourceData*                allocator_data) = 0;
+
+    virtual void DestroyTensor(VkTensorARM                  tensor,
+                               const VkAllocationCallbacks* allocation_callbacks,
+                               ResourceData                 allocator_data) = 0;
+
+    virtual void GetTensorMemoryRequirementsARM(VkTensorMemoryRequirementsInfoARM* tensor_memory_requirements,
+                                                VkMemoryRequirements2*             memory_requirements,
+                                                ResourceData                       allocator_data) = 0;
+
+    virtual VkResult BindDataGraphPipelineSessionMemory(uint32_t bind_info_count,
+                                                        const VkBindDataGraphPipelineSessionMemoryInfoARM* bind_infos,
+                                                        const ResourceData*    allocator_session_datas,
+                                                        const MemoryData*      allocator_memory_datas,
+                                                        VkMemoryPropertyFlags* bind_memory_properties) = 0;
+
+    virtual VkResult BindTensorMemory(uint32_t                         bind_info_count,
+                                      const VkBindTensorMemoryInfoARM* bind_infos,
+                                      const ResourceData*              allocator_tensor_datas,
+                                      const MemoryData*                allocator_memory_datas,
+                                      VkMemoryPropertyFlags*           bind_memory_properties) = 0;
+
+    virtual VkResult CreateTensorDirect(const VkTensorCreateInfoARM* create_info,
+                                        const VkAllocationCallbacks* allocation_callbacks,
+                                        VkTensorARM*                 tensor,
+                                        ResourceData*                allocator_data) = 0;
+
+    virtual void DestroyTensorDirect(VkTensorARM                  tensor,
+                                     const VkAllocationCallbacks* allocation_callbacks,
+                                     ResourceData                 allocator_data) = 0;
+
+    virtual VkResult BindTensorMemoryDirect(uint32_t                         bind_info_count,
+                                            const VkBindTensorMemoryInfoARM* bind_infos,
+                                            const ResourceData*              allocator_tensor_datas,
+                                            const MemoryData*                allocator_memory_datas,
+                                            VkMemoryPropertyFlags*           bind_memory_properties) = 0;
 
     virtual void SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data) = 0;
 

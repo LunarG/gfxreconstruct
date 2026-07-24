@@ -978,6 +978,40 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
     return result;
 }
 
+VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                     device,
+                                                       const VkTensorCreateInfoARM* pCreateInfo,
+                                                       const VkAllocationCallbacks* pAllocator,
+                                                       VkTensorARM*                 pTensor)
+{
+    auto* device_table         = vulkan_wrappers::GetDeviceTable(device);
+    auto  handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+
+    const VkTensorCreateInfoARM* pCreateInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkTensorCreateInfoARM modified_create_info = *pCreateInfo_unwrapped;
+
+    VkTensorDescriptionARM modified_desc;
+    if (IsTrimEnabled() && pCreateInfo_unwrapped->pDescription != nullptr)
+    {
+        modified_desc = *pCreateInfo_unwrapped->pDescription;
+        modified_desc.usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
+        modified_create_info.pDescription = &modified_desc;
+    }
+
+    VkResult result = device_table->CreateTensorARM(device, &modified_create_info, pAllocator, pTensor);
+
+    if (result >= 0 && pTensor != nullptr)
+    {
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
+                                             vulkan_wrappers::NoParentWrapper,
+                                             vulkan_wrappers::TensorARMWrapper>(
+            device, vulkan_wrappers::NoParentWrapper::kHandleValue, pTensor, GetUniqueId);
+    }
+
+    return result;
+}
+
 VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     device,
                                                    const VkImageCreateInfo*     pCreateInfo,
                                                    const VkAllocationCallbacks* pAllocator,

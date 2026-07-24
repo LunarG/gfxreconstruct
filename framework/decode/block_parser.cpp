@@ -56,7 +56,7 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
 
     if (status == kErrorNone)
     {
-        // NOTE: If BlockSkippingFileProcessor performance is significantly harmed we could defer the data span read
+        // NOTE: If FileProcessor block skipping performance is significantly harmed we could defer the data span read
         // here For 32bit size_t is << BlockSizeType ... but expecting support for > 4GB blocks on 32 bit platforms
         // isn't reasonable
         using BlockSizeType = decltype(format::BlockHeader::size);
@@ -138,12 +138,7 @@ const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compres
                                            size_t                        expanded_size,
                                            uint8_t*                      uncompressed_buffer) const
 {
-    GFXRECON_ASSERT(!compressed_span.empty());
-    GFXRECON_ASSERT(uncompressed_buffer != nullptr);
-    size_t uncompressed_size = compressor_->Decompress(compressed_span.size(),
-                                                       reinterpret_cast<const uint8_t*>(compressed_span.data()),
-                                                       expanded_size,
-                                                       uncompressed_buffer);
+    size_t uncompressed_size = compressor_->Decompress(compressed_span, expanded_size, uncompressed_buffer);
     if (uncompressed_size != expanded_size)
     {
         HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
@@ -1199,6 +1194,35 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         else
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init buffer data meta-data block header");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kInitTensorCommand)
+    {
+        format::InitTensorCommandHeader header;
+
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.tensor_id);
+        success = success && block_buffer.Read(header.data_size);
+
+        if (success)
+        {
+            const char*         label       = "init tensor data meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+            if (read_result.success)
+            {
+                auto* payload = Emplace<InitTensorArgs>(meta_data_id,
+                                                        header.thread_id,
+                                                        header.device_id,
+                                                        header.tensor_id,
+                                                        header.data_size,
+                                                        reinterpret_cast<const uint8_t*>(read_result.buffer.data()));
+                return MakeCompressibleParsedBlock(block_buffer, read_result, payload);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init tensor data meta-data block header");
         }
     }
     else if (meta_data_type == format::MetaDataType::kInitImageCommand)

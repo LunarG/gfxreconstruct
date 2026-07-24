@@ -157,11 +157,11 @@ class VulkanReplayDumpResourcesBodyGenerator(
                 if val.is_pointer or val.is_array:
                     count = val.pointer_count
                     if self.is_handle(val.base_type) and val.base_type != 'VkCommandBuffer':
-                        override_call_expr += '{}->GetPointer(), '.format(val.name)
+                        override_call_expr += f'{val.name}->GetPointer(), '
                     else:
-                        override_call_expr += '{}, '.format(val.name)
+                        override_call_expr += f'{val.name}, '
                 else:
-                    override_call_expr += '{}, '.format(val.name)
+                    override_call_expr += f'{val.name}, '
 
             if is_transfer:
                 override_call_expr += 'before_command'

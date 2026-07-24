@@ -53,7 +53,7 @@ const char kArguments[] =
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -88,12 +88,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-render-passes] [--wait-before-frame <milliseconds>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-queue-submissions]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]");
-#if !defined(WIN32)
+#if !defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <filename>.json]");
 #endif
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dir <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--debug-messenger-level <level>]");
-#if defined(WIN32)
+#if defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-modifiable-state-only]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-image-format <format>]");
@@ -118,7 +118,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --log-timestamps\tOutput a timestamp in front of each log message.");
     GFXRECON_WRITE_CONSOLE("  --log-file <file>\tWrite log messages to a file at the specified path.")
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: Empty string (file logging disabled).");
-#if defined(WIN32)
+#if defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
     GFXRECON_WRITE_CONSOLE(
@@ -193,7 +193,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
-#if defined(WIN32)
+#if defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("Windows only:")
     GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
@@ -344,7 +344,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tForce wait on completion of queue operations for all queues");
     GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
     GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
-#if !defined(WIN32)
+#if !defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("  --dump-resources <filename>.json");
     GFXRECON_WRITE_CONSOLE("          \t\tExtract dump resources block indices and options from the");
     GFXRECON_WRITE_CONSOLE("          \t\tspecified json file. The format for the json file is");
@@ -409,7 +409,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE(
         "          \t\tIsolate render passes by splitting the command buffer into multiple submits.");
 
-#if defined(WIN32)
+#if defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")
     GFXRECON_WRITE_CONSOLE(

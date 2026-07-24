@@ -143,7 +143,7 @@ class KhronosStructDecodersBodyGenerator():
                         main_body += '    // and then read the array attributes so we can jump right in to decoding the contents\n'
                         main_body += f'    wrapper->{value.name} = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_{value.base_type}*>>();\n'
                         main_body += f'    bytes_read += wrapper->{value.name}->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));\n'
-                        main_body += f'    value->{value.name} = wrapper->{value.name}->GetPointer();\n'
+                        main_body += f'    value->{value.name} = wrapper->{value.prefixed_name}{value.op}GetPointer();\n'
                 else:
                     if is_struct:
                         main_body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
@@ -202,7 +202,7 @@ class KhronosStructDecodersBodyGenerator():
         else:
             if is_struct:
                 if value.base_type in self.children_structs.keys():
-                    main_body += f'        switch ({value.name}->GetPointer()->type)\n'
+                    main_body += f'        switch ({value.prefixed_name}{value.op}GetPointer()->type)\n'
                     main_body += '        {\n'
                     main_body += '            default:\n'
                     main_body += '                wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(

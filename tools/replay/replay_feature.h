@@ -35,6 +35,7 @@ struct android_app;
 #include "graphics/fps_info.h"
 #include "graphics/frame_loop_info.h"
 #include "util/argument_parser.h"
+#include "util/feature_base.h"
 
 #include <memory>
 #include <stdexcept>
@@ -43,12 +44,10 @@ struct android_app;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(replay)
 
-class ReplayFeatureBase
+class ReplayFeatureBase : public util::FeatureBase
 {
   public:
     virtual ~ReplayFeatureBase() { Destroy(); }
-
-    virtual std::string Label() const = 0;
 
     // Options queries
     virtual void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) {}

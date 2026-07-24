@@ -26,7 +26,7 @@
 
 #include "decode/api_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-#if defined(WIN32)
+#if defined(_WIN32)
 #include "generated/generated_dx12_decoder.h"
 #endif
 #include "decode/stat_consumer_base.h"

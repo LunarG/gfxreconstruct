@@ -659,6 +659,24 @@ struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
     uint64_t       data{ 0 };
 };
 
+struct TensorViewARMWrapper;
+struct TensorARMWrapper : public HandleWrapper<VkTensorARM>, AssetWrapperBase
+{
+    std::set<TensorViewARMWrapper*> tensor_views;
+    VkTensorTilingARM               tiling{};
+    VkFormat                        format{};
+    uint32_t                        dimensionCount{};
+    VkTensorUsageFlagsARM           usage{};
+    std::vector<int64_t>            pDimensions{};
+    std::vector<int64_t>            pStrides{};
+};
+
+struct TensorViewARMWrapper : public HandleWrapper<VkTensorViewARM>
+{
+    TensorARMWrapper*                         tensor;
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+};
+
 struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
 {
     DeviceWrapper*            device{ nullptr };
@@ -668,8 +686,18 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
 
 struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, AssetWrapperBase
 {
-    VkDataGraphPipelineSessionBindPointARM bind_point;
-    uint32_t                               object_index;
+    struct MemoryBinding
+    {
+        VkDataGraphPipelineSessionBindPointARM bind_point{};
+        uint32_t                               object_index{ 0 };
+        format::HandleId                       bind_memory_id{ format::kNullHandleId };
+        VkDeviceSize                           bind_offset{ 0 };
+    };
+    std::vector<MemoryBinding>                                     memory_bindings;
+    vulkan_state_info::CreateDependencyInfo                        pipeline_dependency;
+    std::vector<vulkan_state_info::CreateDependencyInfo>           pipeline_shader_module_dependencies;
+    vulkan_state_info::CreateDependencyInfo                        pipeline_layout_dependency;
+    std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies> pipeline_layout_dependencies;
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.

@@ -25,6 +25,7 @@
 
 #include "info_openxr_feature.h"
 
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -35,9 +36,7 @@ GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoOpenXrFeature)
 
 std::string InfoOpenXrFeature::CompiledHeaderVersionString() const
 {
-    return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
-           std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
-           std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+    return util::GetOpenXrHeaderVersionString();
 }
 
 void InfoOpenXrFeature::RegisterDecodeComponents(decode::FileProcessor&      file_processor,

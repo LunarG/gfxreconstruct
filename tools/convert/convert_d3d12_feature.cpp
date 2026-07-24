@@ -28,6 +28,7 @@
 #include "decode/dx12_detection_consumer.h"
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_json_consumer.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -41,7 +42,9 @@ class Dx12ConvertFeature
 {
   public:
     Dx12ConvertFeature() : ConvertFeature(decode::Dx12DetectionConsumer::kNoBlockLimit) {}
-    bool WasDetected() const final { return detect_consumer_.WasD3D12APIDetected(); }
+    bool        WasDetected() const final { return detect_consumer_.WasD3D12APIDetected(); }
+    std::string Label() const final { return "D3D12"; }
+    std::string CompiledHeaderVersionString() const final { return util::GetD3D12SdkVersionString(); }
 };
 
 // Register this class as a feature in a module registry

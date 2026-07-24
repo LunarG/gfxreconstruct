@@ -27,6 +27,7 @@
 #include "util/type_traits_extras.h"
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -386,6 +387,18 @@ struct InitBufferArgs
 
     auto GetTuple() const { return std::tie(thread_id, device_id, buffer_id, data_size, data); }
 };
+struct InitTensorArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId tensor_id;
+    uint64_t         data_size;
+    const uint8_t*   data;
+
+    auto GetTuple() const { return std::tie(thread_id, device_id, tensor_id, data_size, data); }
+};
 struct InitImageArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
@@ -556,6 +569,12 @@ struct SetOpaqueDescriptorDataArgs
     auto GetTuple() const { return std::tie(thread_id, device_id, object_id, size, data); }
 };
 
+// In-band callback: enqueued by the producer thread, executed on the dispatch thread.
+struct CallbackArgs
+{
+    std::function<void()> callback;
+};
+
 // --- DispatchTraits specializations  ---
 template <typename T>
 struct DispatchTraits;
@@ -700,6 +719,12 @@ struct DispatchTraits<InitBufferArgs> : DispatchFlagTraits<InitBufferArgs>
 };
 
 template <>
+struct DispatchTraits<InitTensorArgs> : DispatchFlagTraits<InitTensorArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchInitTensorCommand;
+};
+
+template <>
 struct DispatchTraits<InitImageArgs> : DispatchFlagTraits<InitImageArgs>
 {
     static constexpr auto kDecoderMethod = &ApiDecoder::DispatchInitImageCommand;
@@ -799,6 +824,12 @@ struct DispatchTraits<file_processor::ProcessBlocksResult> : DispatchFlagTraits<
 };
 
 template <>
+struct DispatchTraits<CallbackArgs> : DispatchFlagTraits<void>
+{
+    // Not dispatched to decoders; DispatchVisitor invokes the callback directly.
+};
+
+template <>
 struct DispatchTraits<std::monostate> : DispatchFlagTraits<void>
 {
     // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
@@ -814,6 +845,7 @@ struct DispatchAlternativeTraits : DispatchTraits<DispatchAlternativeType<Altern
 // --- Variant of all payloads by reference, storage in allocator
 using DispatchArgs = std::variant<std::monostate,
                                   file_processor::ProcessBlocksResult*,
+                                  CallbackArgs*,
                                   FunctionCallArgs*,
                                   MethodCallArgs*,
                                   StateBeginMarkerArgs*,
@@ -837,6 +869,7 @@ using DispatchArgs = std::variant<std::monostate,
                                   BeginResourceInitArgs*,
                                   EndResourceInitArgs*,
                                   InitBufferArgs*,
+                                  InitTensorArgs*,
                                   InitImageArgs*,
                                   InitSubresourceArgs*,
                                   InitDx12AccelerationStructureArgs*,

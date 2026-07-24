@@ -25,6 +25,7 @@
 
 #include "info_d3d12_feature.h"
 
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -35,11 +36,7 @@ GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoD3d12Feature)
 
 std::string InfoD3d12Feature::CompiledHeaderVersionString() const
 {
-#if defined(D3D12SDKVersion)
-    return std::string("  D3D12 SDK Version      ") + D3D12SDKVersion;
-#else
-    return "";
-#endif
+    return util::GetD3D12SdkVersionString();
 }
 
 void InfoD3d12Feature::RegisterDecodeComponents(decode::FileProcessor&      file_processor,

@@ -50,6 +50,7 @@ from generator import write
 # API Call Decoders
 from vulkan_decoder_body_generator import VulkanDecoderBodyGenerator, VulkanDecoderBodyGeneratorOptions
 from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator, VulkanDecoderHeaderGeneratorOptions
+from vulkan_decoder_args_header_generator import VulkanDecoderArgsHeaderGenerator, VulkanDecoderArgsHeaderGeneratorOptions
 
 # Struct Decoders
 from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
@@ -267,6 +268,20 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_decoder_args.h'] = [
+        VulkanDecoderArgsHeaderGenerator,
+        VulkanDecoderArgsHeaderGeneratorOptions(
+            filename='generated_vulkan_decoder_args.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
             protect_feature=False,
             extra_headers=extra_headers
         )

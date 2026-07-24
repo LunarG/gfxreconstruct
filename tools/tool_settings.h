@@ -156,7 +156,7 @@ const char kAsyncProcessingOption[]               = "--async-processing";
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 const char kScreenshotApplyPrerotationArgument[]    = "--screenshot-apply-prerotation";
 
-#if defined(WIN32)
+#if defined(_WIN32)
 const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]            = "--dx12-override-object-names";
 const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
@@ -222,7 +222,7 @@ const bool kDefaultDumpResourcesModifiableStateOnly = false;
 
 static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
     {
         _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
@@ -301,6 +301,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     {
         decoder.AddConsumer(resource_tracking_consumer);
         file_processor_resource_tracking.AddDecoder(&decoder);
+        file_processor_resource_tracking.InitializeFrameProcessing();
         file_processor_resource_tracking.ProcessAllFrames();
         file_processor_resource_tracking.RemoveDecoder(&decoder);
         decoder.RemoveConsumer(resource_tracking_consumer);
@@ -1055,6 +1056,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
         options.create_dummy_allocations = true;
     }
 
+    if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
+    {
+        options.remove_unsupported_features = true;
+    }
+
     if (arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption) ||
         arg_parser.IsOptionSet(kOmitNullHardwareBuffersShortOption))
     {
@@ -1160,11 +1166,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!override_gpu_group.empty())
     {
         replay_options.override_gpu_group_index = std::stoi(override_gpu_group);
-    }
-
-    if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
-    {
-        replay_options.remove_unsupported_features = true;
     }
 
     if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||

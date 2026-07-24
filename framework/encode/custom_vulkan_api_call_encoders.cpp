@@ -950,5 +950,131 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewOpaqueCaptureDescriptorDataEXT(
     return VK_SUCCESS;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDataGraphPipelinesARM(VkDevice                                device,
+                                                             VkDeferredOperationKHR                  deferredOperation,
+                                                             VkPipelineCache                         pipelineCache,
+                                                             uint32_t                                createInfoCount,
+                                                             const VkDataGraphPipelineCreateInfoARM* pCreateInfos,
+                                                             const VkAllocationCallbacks*            pAllocator,
+                                                             VkPipeline*                             pPipelines)
+{
+    if (!VulkanCaptureManager::Get()->GetAllowPipelineCompileRequired())
+    {
+        for (uint32_t i = 0; i < createInfoCount; ++i)
+        {
+            if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+            {
+                for (uint32_t j = 0; j < createInfoCount; ++j)
+                {
+                    pPipelines[j] = VK_NULL_HANDLE;
+                }
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
+                GFXRECON_LOG_WARNING(
+                    "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't supported. Skip dispatch "
+                    "CreateDataGraphPipelinesARM and not record the call. Force to return "
+                    "VK_PIPELINE_COMPILE_REQUIRED.");
+                return VK_PIPELINE_COMPILE_REQUIRED;
+            }
+        }
+    }
+
+    auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDataGraphPipelinesARM>::Dispatch(
+        VulkanCaptureManager::Get(),
+        device,
+        deferredOperation,
+        pipelineCache,
+        createInfoCount,
+        pCreateInfos,
+        pAllocator,
+        pPipelines);
+
+    auto                                    handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    const VkDataGraphPipelineCreateInfoARM* pCreateInfos_unwrapped =
+        vulkan_wrappers::UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateDataGraphPipelinesARM(
+        device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
+                                              vulkan_wrappers::PipelineCacheWrapper,
+                                              vulkan_wrappers::PipelineWrapper>(
+            device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(
+        format::ApiCallId::ApiCall_vkCreateDataGraphPipelinesARM);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineCacheWrapper>(pipelineCache);
+        encoder->EncodeUInt32Value(createInfoCount);
+        EncodeStructArray(encoder, pCreateInfos, createInfoCount);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineWrapper>(
+            pPipelines, createInfoCount, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        VulkanCaptureManager::Get()
+            ->EndGroupCreateApiCallCapture<VkDevice,
+                                           VkDeferredOperationKHR,
+                                           vulkan_wrappers::PipelineWrapper,
+                                           VkDataGraphPipelineCreateInfoARM>(
+                result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDataGraphPipelinesARM>::Dispatch(
+        VulkanCaptureManager::Get(),
+        result,
+        device,
+        deferredOperation,
+        pipelineCache,
+        createInfoCount,
+        pCreateInfos,
+        pAllocator,
+        pPipelines);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevice,
+                                                                         const VkTensorCaptureDescriptorDataInfoARM*,
+                                                                         void*)
+{
+    GFXRECON_LOG_WARNING_ONCE(
+        "%s: skipping capture of VkPhysicalDeviceDescriptorBufferTensorFeaturesARM::descriptorBufferTensorDescriptors",
+        __func__);
+    return VK_SUCCESS;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*)
+{
+    GFXRECON_LOG_WARNING_ONCE(
+        "%s: skipping capture of VkPhysicalDeviceDescriptorBufferTensorFeaturesARM::descriptorBufferTensorDescriptors",
+        __func__);
+    return VK_SUCCESS;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

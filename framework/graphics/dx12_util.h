@@ -31,13 +31,13 @@
 #include "util/logging.h"
 #include "util/options.h"
 #include "util/platform.h"
-#ifdef WIN32
+#if defined(_WIN32)
 #include "graphics/dx12_image_renderer.h"
 #endif
 #include "format/platform_types.h"
 #include "format/format.h"
 
-#ifdef WIN32
+#if defined(_WIN32)
 #include <comdef.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -55,7 +55,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
-#ifdef WIN32
+#if defined(_WIN32)
 typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownComPtr;
 
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
@@ -174,7 +174,7 @@ struct ResourceStateInfo
 const D3D12_RANGE kZeroRange       = { 0, 0 };
 const double      kMemoryTolerance = 2.1;
 
-#ifdef WIN32
+#if defined(_WIN32)
 UINT GetTexturePitch(UINT64 width);
 
 // Take a screenshot
@@ -348,7 +348,7 @@ inline format::AdapterType ExtractAdapterType(uint32_t extra_info)
     return static_cast<format::AdapterType>((extra_info & kAdapterTypeMask));
 }
 
-#ifdef WIN32
+#if defined(_WIN32)
 void RobustGetCopyableFootprint(ID3D12Device*                       device,
                                 ID3D12Resource*                     resource,
                                 const D3D12_RESOURCE_DESC*          pResourceDesc,

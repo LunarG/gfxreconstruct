@@ -53,7 +53,7 @@
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <dirent.h>
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #include <windows.h>
 #include <TlHelp32.h>
 #endif
@@ -243,6 +243,11 @@ class CommonCaptureManager
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
     void PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
     void PostQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
+
+    bool ScreenshotsEnabled()
+    {
+        return screenshots_enabled_;
+    }
 
     bool ShouldTriggerScreenshot();
 

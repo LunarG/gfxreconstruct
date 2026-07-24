@@ -198,7 +198,8 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
         subresource_sizes.push_back(resource_desc.Width);
         subresource_offsets.push_back(0);
 
-        device->GetCopyableFootprints(&resource_desc, 0, 1, 0, layouts.data(), nullptr, nullptr, &total_size);
+        graphics::dx12::RobustGetCopyableFootprint(
+            device, resource, &resource_desc, 0, 1, 0, layouts.data(), nullptr, nullptr, &total_size);
 
         // Total resource size should be equal to buffer width and should have 0 offset.
         GFXRECON_ASSERT((total_size == resource_desc.Width) && (layouts[0].Offset == 0));

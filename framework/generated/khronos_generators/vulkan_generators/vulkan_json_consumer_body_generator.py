@@ -56,6 +56,7 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions, K
             'util/defines.h',
             'generated/generated_vulkan_json_consumer.h',
             'decode/custom_vulkan_struct_to_json.h',
+            'decode/vulkan_decoder_args.h',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
@@ -132,8 +133,12 @@ class VulkanExportJsonConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportJs
         if name in self.queueSubmit:
             body += '    jdata[format::kNameSubmitIndex] = ++submit_index_;\n'
         elif self.is_command_buffer_cmd(name):
-            body += '    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);\n'
+            body += '    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);\n'
 
         body += KhronosExportJsonConsumerBodyGenerator.make_consumer_func_body(self, return_type, name, values)
         return body
     # yapf: enable
+
+    def get_return_value_name(self):
+        """Method override."""
+        return 'args.result'

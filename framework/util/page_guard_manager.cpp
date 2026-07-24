@@ -35,7 +35,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #if !defined(WIN32_LEAN_AND_MEAN)
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -297,7 +297,7 @@ PageGuardManager::~PageGuardManager()
     }
 }
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 uint32_t PageGuardManager::signal_handler_watcher_restores_ = 0;
 
 void PageGuardManager::MarkAllTrackedMemoryAsDirty()
@@ -373,7 +373,7 @@ void* PageGuardManager::SignalHandlerWatcher(void* args)
 
     return NULL;
 }
-#endif // !defined(WIN32)
+#endif // !defined(_WIN32)
 
 void PageGuardManager::Create(bool                 enable_copy_on_map,
                               bool                 enable_separate_read,
@@ -393,7 +393,7 @@ void PageGuardManager::Create(bool                 enable_copy_on_map,
                                          signal_handler_watcher_max_restores,
                                          protection_mode);
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
         if (enable_signal_handler_watcher &&
             (signal_handler_watcher_max_restores < 0 ||
              signal_handler_watcher_restores_ < static_cast<uint32_t>(signal_handler_watcher_max_restores)))
@@ -417,7 +417,7 @@ void PageGuardManager::Destroy()
 {
     if (instance_ != nullptr)
     {
-#if !defined(WIN32)
+#if !defined(_WIN32)
         if (instance_->enable_signal_handler_watcher_)
         {
             instance_->enable_signal_handler_watcher_ = false;
@@ -463,7 +463,7 @@ void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch
 
     if (aligned_size > 0)
     {
-#ifndef WIN32
+#if !defined(_WIN32)
         if (use_write_watch)
         {
             GFXRECON_LOG_ERROR("PageGuardManager::AllocateMemory() ignored use_write_watch=true due to lack of support "
@@ -506,7 +506,7 @@ void PageGuardManager::AddExceptionHandler()
     {
         assert(exception_handler_count_ == 0);
 
-#if defined(WIN32)
+#if defined(_WIN32)
         exception_handler_ = AddVectoredExceptionHandler(1, PageGuardExceptionHandler);
         if (exception_handler_ == nullptr)
         {
@@ -631,7 +631,7 @@ void PageGuardManager::RemoveExceptionHandler()
 
 void PageGuardManager::ClearExceptionHandler(void* exception_handler)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     if (RemoveVectoredExceptionHandler(exception_handler) == 0)
     {
         GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (GetLastError() returned %d)",
@@ -701,7 +701,7 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
 {
     bool success = true;
 
-#if defined(WIN32)
+#if defined(_WIN32)
     DWORD old_setting = 0;
     if (VirtualProtect(protect_address, protect_size, protect_mask, &old_setting) == FALSE)
     {
@@ -769,7 +769,7 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
 {
     assert((memory_info != nullptr) && (memory_info->shadow_memory == nullptr));
 
-#if defined(WIN32)
+#if defined(_WIN32)
     auto      modified_addresses = memory_info->modified_addresses.get();
     ULONG_PTR modified_count     = memory_info->total_pages;
     DWORD     granularity        = 0;
@@ -1089,7 +1089,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
     }
     else
     {
-#if !defined(WIN32)
+#if !defined(_WIN32)
         if (use_write_watch)
         {
             // Only supported on Windows.

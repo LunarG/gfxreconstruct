@@ -72,7 +72,10 @@ class Application final
 
     bool IsRunning() const { return running_; }
 
-    void SetAsyncProcessing(bool async_processing) { async_processing_ = async_processing; }
+    void SetAsyncProcessing(bool async_processing);
+
+    void SetPrintBlockInfoFlag(bool enable, int64_t from, int64_t to);
+
     void Run();
 
     bool GetPaused() const { return paused_; }
@@ -87,11 +90,11 @@ class Application final
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
-    void SetFrameLoopInfo(graphics::FrameLoopInfo* frame_loop_info) { frame_loop_info_ = frame_loop_info; }
+    void SetFrameLoopInfo(graphics::FrameLoopInfo* frame_loop_info);
 
     bool InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
-#if defined(WIN32)
+#if defined(_WIN32)
     void InitializeDx12WsiContext();
 #endif
 
@@ -124,6 +127,11 @@ class Application final
     }
 
   private:
+    bool IsFrameProcessingInitialized() const
+    {
+        return file_processor_ && file_processor_->IsFrameProcessingInitialized();
+    }
+
     decode::PreloadFileProcessor* GetPreloadFileProcessor()
     {
         auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
@@ -134,7 +142,7 @@ class Application final
     // clang-format off
     std::string                                                  name_;              ///< Application name to display in window title bar.
     decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
-    bool                                                         async_processing_;  ///< Indicates that file processing is run in async mode.
+    decode::FileProcessor::FrameProcessingParams                 params_{};
     bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
     bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     graphics::FrameLoopInfo*                                     frame_loop_info_;   ///< Indicates that playback wishes to loop a certain frame

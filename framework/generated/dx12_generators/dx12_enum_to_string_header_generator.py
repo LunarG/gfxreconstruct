@@ -79,7 +79,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
 
     def write_include(self):
         code = ''
-        code += '#ifdef WIN32\n'
+        code += '#if defined(_WIN32)\n'
 
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():

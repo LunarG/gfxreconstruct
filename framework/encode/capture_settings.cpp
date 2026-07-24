@@ -95,6 +95,7 @@ const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_OPTION_S
 const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_OPTION_STR(PAGE_GUARD_SIGNAL_HANDLER_WATCHER);
 const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_OPTION_STR(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES);
 const char kCaptureTriggerEnvVar[]                           = GFXRECON_OPTION_STR(CAPTURE_TRIGGER);
+const char kCaptureTriggerBoundaryEnvVar[]                   = GFXRECON_OPTION_STR(CAPTURE_TRIGGER_BOUNDARY);
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_OPTION_STR(CAPTURE_TRIGGER_FRAMES);
 const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_OPTION_STR(CAPTURE_IUNKNOWN_WRAPPING);
 const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_OPTION_STR(CAPTURE_QUEUE_SUBMITS);
@@ -150,6 +151,7 @@ const std::string kOptionKeyCaptureFrames                            = std::stri
 const std::string kOptionKeyCaptureDrawCalls                         = std::string(kSettingsFilter) + std::string(CAPTURE_DRAW_CALLS_LOWER);
 const std::string kOptionKeyQuitAfterCaptureFrames                   = std::string(kSettingsFilter) + std::string(QUIT_AFTER_CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureTrigger                           = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
+const std::string kOptionKeyCaptureTriggerBoundary                   = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_BOUNDARY_LOWER);
 const std::string kOptionKeyCaptureTriggerFrames                     = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_FRAMES_LOWER);
 const std::string kOptionKeyCaptureIUnknownWrapping                  = std::string(kSettingsFilter) + std::string(CAPTURE_IUNKNOWN_WRAPPING_LOWER);
 const std::string kOptionKeyCaptureQueueSubmits                      = std::string(kSettingsFilter) + std::string(CAPTURE_QUEUE_SUBMITS_LOWER);
@@ -231,7 +233,8 @@ void CaptureSettings::LoadRunTimeEnvVarSettings(CaptureSettings* settings)
         std::string value = util::platform::GetEnv(kCaptureAndroidTriggerEnvVar);
         settings->trace_settings_.runtime_capture_trigger =
             ParseAndroidRunTimeTrimState(value, settings->trace_settings_.runtime_capture_trigger);
-        if (settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed)
+        if ((settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed) &&
+            (settings->trace_settings_.trim_boundary == TrimBoundary::kUnknown))
         {
             settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
         }
@@ -311,6 +314,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_setti
     LoadSingleOptionEnvVar(options, kCaptureDrawCallsEnvVar, kOptionKeyCaptureDrawCalls);
     LoadSingleOptionEnvVar(options, kQuitAfterFramesEnvVar, kOptionKeyQuitAfterCaptureFrames);
     LoadSingleOptionEnvVar(options, kCaptureTriggerEnvVar, kOptionKeyCaptureTrigger);
+    LoadSingleOptionEnvVar(options, kCaptureTriggerBoundaryEnvVar, kOptionKeyCaptureTriggerBoundary);
     LoadSingleOptionEnvVar(options, kCaptureTriggerFramesEnvVar, kOptionKeyCaptureTriggerFrames);
     LoadSingleOptionEnvVar(options, kCaptureQueueSubmitsEnvVar, kOptionKeyCaptureQueueSubmits);
     LoadSingleOptionEnvVar(options, kCaptureUseAssetFileEnvVar, kOptionKeyCaptureUseAssetFile);
@@ -366,6 +370,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_setti
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
 {
+#if defined(GFXRECON_ENABLE_VULKAN)
     assert(options != nullptr);
 
     std::string settings_filename = util::settings::FindLayerSettingsFile();
@@ -385,6 +390,7 @@ void CaptureSettings::LoadOptionsFile(OptionsMap* options)
             GFXRECON_LOG_INFO("Failed to load settings from file (errno = %d)", result);
         }
     }
+#endif // defined(GFXRECON_ENABLE_VULKAN)
 }
 
 void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* settings, bool process_log_settings)
@@ -406,8 +412,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         FindOption(options, kOptionKeyMemoryTrackingMode), settings->trace_settings_.memory_tracking_mode);
 
     // Trimming options:
-    // Trim frame ranges, trim queue submit ranges, and trim frame hotkey are mutually exclusive.
-    // Precedence is frame ranges, queue submit ranges, then frame hotkey.
+    // Trim frame ranges, trim queue submit ranges, and capture triggers are mutually exclusive.
+    // Precedence is frame ranges, queue submit ranges, then capture triggers.
     std::string trim_frames = FindOption(options, kOptionKeyCaptureFrames);
     if (!trim_frames.empty())
     {
@@ -481,6 +487,14 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         }
     }
 
+    std::string trigger_boundary_option = FindOption(options, kOptionKeyCaptureTriggerBoundary);
+    if (!trigger_boundary_option.empty() && settings->trace_settings_.trim_ranges.empty() &&
+        (settings->trace_settings_.trim_boundary != TrimBoundary::kDrawCalls))
+    {
+        settings->trace_settings_.trim_boundary =
+            ParseTriggerBoundaryString(trigger_boundary_option, TrimBoundary::kFrames);
+    }
+
     std::string trim_key_frames_option = FindOption(options, kOptionKeyCaptureTriggerFrames);
     if (!trim_key_frames_option.empty())
     {
@@ -491,7 +505,7 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         else
         {
             GFXRECON_LOG_WARNING(
-                "Settings Loader: Ignoring trim trigger frames setting as trim ranges has been specified.");
+                "Settings Loader: Ignoring capture trigger boundary limit as trim ranges has been specified.");
         }
     }
 
@@ -775,6 +789,28 @@ CaptureSettings::ParseAndroidRunTimeTrimState(const std::string&                
 }
 #endif
 
+CaptureSettings::TrimBoundary CaptureSettings::ParseTriggerBoundaryString(const std::string& value_string,
+                                                                          TrimBoundary       default_value)
+{
+    TrimBoundary result = default_value;
+
+    if (util::platform::StringCompareNoCase("frames", value_string.c_str()) == 0)
+    {
+        result = TrimBoundary::kFrames;
+    }
+    else if (util::platform::StringCompareNoCase("queue_submits", value_string.c_str()) == 0)
+    {
+        result = TrimBoundary::kQueueSubmits;
+    }
+    else if (!value_string.empty())
+    {
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized capture trigger boundary option value \"%s\"",
+                             value_string.c_str());
+    }
+
+    return result;
+}
+
 format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::string&      value_string,
                                                                     format::CompressionType default_value)
 {
@@ -880,7 +916,8 @@ uint32_t CaptureSettings::ParseTrimKeyFramesString(const std::string& value_stri
     }
     if (!valid)
     {
-        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid trim trigger key frames \"%s\"", value_string.c_str());
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture trigger boundary limit \"%s\"",
+                             value_string.c_str());
     }
     return frames;
 }

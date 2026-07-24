@@ -31,6 +31,8 @@
 #include "util/file_path.h"
 #include "util/logging.h"
 
+#include <filesystem>
+
 struct CommandLineArgument
 {
     bool       required;
@@ -105,7 +107,7 @@ CommandLineArgument g_captured_swapchain_argument = {
 
 std::vector<CommandLineArgument> g_argument_list;
 
-#if defined(WIN32)
+#if defined(_WIN32)
 const char kPathSep = '\\';
 #else
 const char kPathSep = '/';
@@ -122,7 +124,8 @@ const std::string path_assets = "app/src/main/assets/";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to Vulkan source.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -313,6 +316,7 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
 
     file_processor.AddDecoder(&decoder);
     decoder.AddConsumer(&cpp_consumer);
+    file_processor.InitializeFrameProcessing();
 
     bool success;
 
