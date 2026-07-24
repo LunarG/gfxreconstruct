@@ -38,6 +38,7 @@
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_resources.h"
 #include "util/defines.h"
 
 #include "util/logging.h"
@@ -939,7 +940,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         {
             GFXRECON_ASSERT(state_tracker_ != nullptr);
 
-            auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+            auto buffer_wrapper         = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
             buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
         }
     }
@@ -1895,10 +1896,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
-    {
-        return layer_settings_;
-    }
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override { return layer_settings_; }
 
     void PreProcess_vkDestroyBuffer(VkDevice, VkBuffer buffer, const VkAllocationCallbacks*);
 
@@ -1915,15 +1913,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override
-    {
-        state_tracker_ = std::make_unique<VulkanStateTracker>();
-    }
+    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
 
-    virtual void DestroyStateTracker() override
-    {
-        state_tracker_ = nullptr;
-    }
+    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 
@@ -2025,11 +2017,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void TrackMappedAssetsWrites(format::HandleId memory_id);
 
-    void ProcessBindResourceMemory(vulkan_wrappers::AssetWrapperBase* resource,
-                                   VkDeviceMemory                     memory,
-                                   VkDeviceSize                       memoryOffset);
+    void ProcessBindResourceMemory(graphics::AssetBase* resource, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
-    void ProcessUnbindResourceMemory(vulkan_wrappers::AssetWrapperBase* resource);
+    void ProcessUnbindResourceMemory(graphics::AssetBase* resource);
 
     void MarkRenderPassAttachmentsAsModified(VkCommandBuffer commandBuffer);
 
