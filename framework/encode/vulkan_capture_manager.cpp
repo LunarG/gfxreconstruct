@@ -24,6 +24,7 @@
 
 #include "encode/capture_settings.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "graphics/vulkan_resources.h"
 #include "vulkan/vulkan_core.h"
 #include <cstdint>
 #include PROJECT_VERSION_HEADER_FILE
@@ -5294,9 +5295,22 @@ void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
 
     for (const auto& [asset, ranges] : command_wrapper->referenced_ranges)
     {
-        if (asset != nullptr && asset->bind_memory_id != format::kNullHandleId &&
+        bool is_optimal_image;
+        if (asset->type == graphics::ResourceType::kImage)
+        {
+            const vulkan_wrappers::ImageWrapper* img_resource =
+                static_cast<const vulkan_wrappers::ImageWrapper*>(asset);
+            is_optimal_image = img_resource->tiling != VK_IMAGE_TILING_LINEAR;
+        }
+        else
+        {
+            is_optimal_image = false;
+        }
+
+        if (asset != nullptr && (asset->bind_memory_id != format::kNullHandleId) &&
             ((ranges.access_type & vulkan_wrappers::ResourceAccessType::kRead) ==
-             vulkan_wrappers::ResourceAccessType::kRead))
+             vulkan_wrappers::ResourceAccessType::kRead) &&
+            !is_optimal_image)
         {
             (*touched_ranges)[asset->bind_memory_id].AddRanges(ranges.range_list, asset->bind_offset);
         }
