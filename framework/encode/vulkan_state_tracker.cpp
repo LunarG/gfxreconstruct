@@ -1303,11 +1303,6 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
         }
     });
 
-    for (auto* desc_set_wrapper : buffer_wrapper->descriptor_sets_bound_to)
-    {
-        desc_set_wrapper->dirty = true;
-    }
-
     for (vulkan_wrappers::BufferViewWrapper* view_wrapper : buffer_wrapper->buffer_views)
     {
         view_wrapper->buffer    = nullptr;
@@ -1321,24 +1316,12 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRW
     assert(wrapper->device != nullptr);
     wrapper->create_parameters = nullptr;
     device_address_trackers_[wrapper->device->handle].RemoveAccelerationStructure(wrapper);
-
-    for (auto entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry->dirty = true;
-    }
-
-    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
-
-    for (auto entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry->dirty = true;
-    }
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
@@ -1363,11 +1346,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
         }
     }
 
-    for (auto entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry->dirty = true;
-    }
-
     for (vulkan_wrappers::ImageViewWrapper* view_wrapper : wrapper->image_views)
     {
         view_wrapper->image    = nullptr;
@@ -1380,11 +1358,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
-    for (auto entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry->dirty = true;
-    }
-
     if (wrapper->image != nullptr)
     {
         wrapper->image->image_views.erase(wrapper);
@@ -1396,11 +1369,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrappe
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
-    for (auto entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry->dirty = true;
-    }
-
     if (wrapper->buffer != nullptr)
     {
         wrapper->buffer->buffer_views.erase(wrapper);
@@ -1411,211 +1379,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
-
-    for (auto entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry->dirty = true;
-    }
-}
-
-void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper)
-{
-    assert(wrapper != nullptr);
-    wrapper->create_parameters = nullptr;
-
-    for (auto& entry : wrapper->bindings)
-    {
-        vulkan_state_info::DescriptorInfo& binding = entry.second;
-        switch (binding.type)
-        {
-            case VK_DESCRIPTOR_TYPE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-            {
-                assert(binding.count);
-                assert(binding.images);
-
-                if (binding.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
-                    binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
-                    binding.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT)
-                {
-                    for (uint32_t i = 0; i < binding.count; ++i)
-                    {
-                        vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
-                            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(binding.images[i].imageView,
-                                                                                           false);
-                        if (image_view_wrapper != nullptr)
-                        {
-                            auto img_view_desc_entry = image_view_wrapper->descriptor_sets_bound_to.find(wrapper);
-                            if (img_view_desc_entry != image_view_wrapper->descriptor_sets_bound_to.end())
-                            {
-                                image_view_wrapper->descriptor_sets_bound_to.erase(img_view_desc_entry);
-                            }
-                        }
-                    }
-
-                    if (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
-                        binding.type == VK_DESCRIPTOR_TYPE_SAMPLER)
-                    {
-                        for (uint32_t i = 0; i < binding.count; ++i)
-                        {
-                            vulkan_wrappers::SamplerWrapper* sampler_wrapper =
-                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(binding.images[i].sampler,
-                                                                                             false);
-                            if (sampler_wrapper != nullptr)
-                            {
-                                auto desc_entry = sampler_wrapper->descriptor_sets_bound_to.find(wrapper);
-                                if (desc_entry != sampler_wrapper->descriptor_sets_bound_to.end())
-                                {
-                                    sampler_wrapper->descriptor_sets_bound_to.erase(desc_entry);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-
-            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-            {
-                assert(binding.count);
-                assert(binding.storage_images);
-
-                for (uint32_t i = 0; i < binding.count; ++i)
-                {
-                    vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
-                        vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
-                            binding.storage_images[i].imageView, false);
-                    if (image_view_wrapper != nullptr)
-                    {
-                        auto img_view_desc_entry = image_view_wrapper->descriptor_sets_bound_to.find(wrapper);
-                        if (img_view_desc_entry != image_view_wrapper->descriptor_sets_bound_to.end())
-                        {
-                            image_view_wrapper->descriptor_sets_bound_to.erase(img_view_desc_entry);
-                        }
-                    }
-                }
-            }
-            break;
-
-            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            {
-                const bool is_storage = binding.type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-
-                assert(binding.count);
-                assert((is_storage && binding.storage_texel_buffer_views) ||
-                       (!is_storage && binding.uniform_texel_buffer_views));
-
-                for (uint32_t i = 0; i < binding.count; ++i)
-                {
-                    vulkan_wrappers::BufferViewWrapper* buf_view_wrapper =
-                        vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
-                            is_storage ? binding.storage_texel_buffer_views[i] : binding.uniform_texel_buffer_views[i],
-                            false);
-                    if (buf_view_wrapper != nullptr)
-                    {
-                        auto view_entry = buf_view_wrapper->descriptor_sets_bound_to.find(wrapper);
-                        if (view_entry != buf_view_wrapper->descriptor_sets_bound_to.end())
-                        {
-                            buf_view_wrapper->descriptor_sets_bound_to.erase(view_entry);
-                        }
-
-                        if (buf_view_wrapper->buffer != nullptr)
-                        {
-                            auto buf_entry = buf_view_wrapper->buffer->descriptor_sets_bound_to.find(wrapper);
-                            if (buf_entry != buf_view_wrapper->buffer->descriptor_sets_bound_to.end())
-                            {
-                                buf_view_wrapper->buffer->descriptor_sets_bound_to.erase(buf_entry);
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-            {
-                const bool is_storage = (binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
-                                        (binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC);
-
-                assert(binding.count);
-                assert((is_storage && binding.storage_buffers) || (!is_storage && binding.buffers));
-
-                for (uint32_t i = 0; i < binding.count; ++i)
-                {
-                    auto* buf_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
-                        is_storage ? binding.storage_buffers[i].buffer : binding.buffers[i].buffer, false);
-                    if (buf_wrapper != nullptr)
-                    {
-                        auto descriptor_set_it = buf_wrapper->descriptor_sets_bound_to.find(wrapper);
-                        if (descriptor_set_it != buf_wrapper->descriptor_sets_bound_to.end())
-                        {
-                            buf_wrapper->descriptor_sets_bound_to.erase(descriptor_set_it);
-                        }
-                    }
-                }
-            }
-            break;
-
-            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-            {
-                assert(binding.count);
-                assert(binding.acceleration_structures);
-
-                for (uint32_t i = 0; i < binding.count; ++i)
-                {
-                    auto* accel_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-                        binding.acceleration_structures[i], false);
-                    if (accel_wrapper != nullptr)
-                    {
-                        auto descriptor_set_it = accel_wrapper->descriptor_sets_bound_to.find(wrapper);
-                        if (descriptor_set_it != accel_wrapper->descriptor_sets_bound_to.end())
-                        {
-                            accel_wrapper->descriptor_sets_bound_to.erase(descriptor_set_it);
-                        }
-                    }
-                }
-            }
-            break;
-
-            case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
-            {
-                GFXRECON_ASSERT(binding.count);
-                GFXRECON_ASSERT(binding.tensor_views);
-
-                for (uint32_t i = 0; i < binding.count; ++i)
-                {
-                    auto* tensor_view_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
-                        binding.tensor_views[i], false);
-                    if (tensor_view_wrapper != nullptr)
-                    {
-                        auto descriptor_set_it = tensor_view_wrapper->descriptor_sets_bound_to.find(wrapper);
-                        if (descriptor_set_it != tensor_view_wrapper->descriptor_sets_bound_to.end())
-                        {
-                            tensor_view_wrapper->descriptor_sets_bound_to.erase(descriptor_set_it);
-                        }
-                    }
-                }
-            }
-            break;
-
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                // nothing to do, only sanity-check
-                GFXRECON_ASSERT(binding.count);
-                GFXRECON_ASSERT(binding.inline_uniform_block);
-                break;
-
-            default:
-                GFXRECON_LOG_WARNING("%s() Descriptor type %u not handled", __func__, binding.type);
-                break;
-        }
-    }
-    wrapper->bindings.clear();
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::TensorARMWrapper* wrapper) {}
@@ -1630,15 +1393,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::TensorViewARMWrapper* wra
     {
         wrapper->tensor->tensor_views.erase(wrapper);
     }
-
-    for (auto* ds : wrapper->descriptor_sets_bound_to)
-    {
-        if (ds != nullptr)
-        {
-            ds->dirty = true;
-        }
-    }
-    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               command_buffer_count,

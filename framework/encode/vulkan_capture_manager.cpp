@@ -2443,9 +2443,9 @@ void VulkanCaptureManager::PostProcess_vkBindBufferMemory2(VkResult             
     }
 }
 
-void VulkanCaptureManager::ProcessBindResourceMemory(vulkan_wrappers::AssetWrapperBase* resource,
-                                                     VkDeviceMemory                     memory,
-                                                     VkDeviceSize                       memoryOffset)
+void VulkanCaptureManager::ProcessBindResourceMemory(graphics::AssetBase* resource,
+                                                     VkDeviceMemory       memory,
+                                                     VkDeviceSize         memoryOffset)
 {
     GFXRECON_ASSERT(IsCaptureModeTrack());
 
@@ -2462,7 +2462,7 @@ void VulkanCaptureManager::ProcessBindResourceMemory(vulkan_wrappers::AssetWrapp
     }
 }
 
-void VulkanCaptureManager::ProcessUnbindResourceMemory(vulkan_wrappers::AssetWrapperBase* resource)
+void VulkanCaptureManager::ProcessUnbindResourceMemory(graphics::AssetBase* resource)
 {
     GFXRECON_ASSERT(IsCaptureModeTrack());
     GFXRECON_ASSERT(resource != nullptr);
@@ -5379,7 +5379,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
         for (uint32_t wi = 0; wi < write_count; ++wi)
         {
             const VkWriteDescriptorSet* write = &writes[wi];
-            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
+            auto* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
             assert(wrapper != nullptr);
 
             wrapper->dirty = true;
@@ -5429,7 +5429,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
                             if (sampler_wrapper != nullptr)
                             {
-                                sampler_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(sampler_wrapper);
                             }
                         }
                         break;
@@ -5453,14 +5453,14 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             if (image_view_wrapper != nullptr)
                             {
-                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(image_view_wrapper);
                             }
 
                             vulkan_wrappers::SamplerWrapper* sampler_wrapper =
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
                             if (sampler_wrapper != nullptr)
                             {
-                                sampler_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(sampler_wrapper);
                             }
                         }
                         break;
@@ -5482,7 +5482,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             if (image_view_wrapper != nullptr)
                             {
-                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(image_view_wrapper);
                             }
                         }
                         break;
@@ -5503,7 +5503,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             if (image_view_wrapper != nullptr)
                             {
-                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(image_view_wrapper);
                             }
                         }
                         break;
@@ -5525,7 +5525,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
                             if (buffer_wrapper != nullptr)
                             {
-                                buffer_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(buffer_wrapper);
                             }
                         }
                         break;
@@ -5547,7 +5547,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
                             if (buffer_wrapper != nullptr)
                             {
-                                buffer_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(buffer_wrapper);
                             }
                         }
                         break;
@@ -5573,7 +5573,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
                             if (buffer_view_wrapper != nullptr)
                             {
-                                buffer_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                wrapper->ReferenceResource(buffer_view_wrapper);
                             }
                         }
                         break;
@@ -5609,7 +5609,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                         src_accel_struct[i]);
                                 if (accel_struct_wrapper != nullptr)
                                 {
-                                    accel_struct_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                    wrapper->ReferenceResource(accel_struct_wrapper);
                                 }
                             }
                         }
@@ -5641,7 +5641,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                         src_accel_struct[i]);
                                 if (accel_struct_wrapper != nullptr)
                                 {
-                                    accel_struct_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                    wrapper->ReferenceResource(accel_struct_wrapper);
                                 }
                             }
                         }
@@ -5669,7 +5669,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                         vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
                                             src_tensor_views[i], false))
                                 {
-                                    tensor_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                    wrapper->ReferenceResource(tensor_view_wrapper);
                                 }
                             }
                         }
@@ -5751,7 +5751,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.images[current_src_array_element + d].imageView);
                         if (image_view_wrapper != nullptr)
                         {
-                            image_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(image_view_wrapper);
                         }
 
                         vulkan_wrappers::SamplerWrapper* sampler_wrapper =
@@ -5759,7 +5759,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.images[current_src_array_element + d].sampler);
                         if (sampler_wrapper != nullptr)
                         {
-                            sampler_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(sampler_wrapper);
                         }
                     }
                 }
@@ -5776,7 +5776,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.storage_images[current_src_array_element + d].imageView);
                         if (image_view_wrapper != nullptr)
                         {
-                            image_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(image_view_wrapper);
                         }
                     }
                 }
@@ -5793,7 +5793,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.buffers[current_src_array_element + d].buffer);
                         if (buffer_wrapper != nullptr)
                         {
-                            buffer_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(buffer_wrapper);
                         }
                     }
                 }
@@ -5810,7 +5810,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.storage_buffers[current_src_array_element + d].buffer);
                         if (buffer_wrapper != nullptr)
                         {
-                            buffer_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(buffer_wrapper);
                         }
                     }
                 }
@@ -5827,7 +5827,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.acceleration_structures[current_src_array_element + d]);
                         if (accel_wrapper != nullptr)
                         {
-                            accel_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(accel_wrapper);
                         }
                     }
                 }
@@ -5850,7 +5850,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.uniform_texel_buffer_views[current_src_array_element + d]);
                         if (buffer_view_wrapper != nullptr)
                         {
-                            buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(buffer_view_wrapper);
                         }
                     }
                 }
@@ -5867,7 +5867,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.storage_texel_buffer_views[current_src_array_element + d]);
                         if (buffer_view_wrapper != nullptr)
                         {
-                            buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(buffer_view_wrapper);
                         }
                     }
                 }
@@ -5885,7 +5885,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSets(uint32_t                   
                                 src_binding.tensor_views[current_src_array_element + d]);
                         if (tensor_view_wrapper != nullptr)
                         {
-                            tensor_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                            dst_wrapper->ReferenceResource(tensor_view_wrapper);
                         }
                     }
                 }
