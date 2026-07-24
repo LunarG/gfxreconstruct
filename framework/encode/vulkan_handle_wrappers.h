@@ -202,7 +202,6 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 struct DescriptorSetWrapper;
 struct AssetWrapperBase
 {
-    DeviceWrapper*             bind_device{ nullptr };
     const void*                bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
 
@@ -218,8 +217,9 @@ struct AssetWrapperBase
 struct BufferViewWrapper;
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
+    DeviceWrapper* bind_device{ nullptr };
+
     // State tracking info for buffers with device addresses.
-    VkDevice           device{ VK_NULL_HANDLE };
     VkDeviceAddress    address{ 0 };
     VkDeviceAddress    opaque_address{ 0 };
     VkBufferUsageFlags usage{ 0 };
@@ -241,6 +241,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 struct ImageViewWrapper;
 struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 {
+    DeviceWrapper* bind_device{ nullptr };
+
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };
     VkFormat              format{ VK_FORMAT_UNDEFINED };
     bool                  external_format{ false };
@@ -767,6 +769,7 @@ struct TensorARMWrapper : public HandleWrapper<VkTensorARM>, AssetWrapperBase
     VkTensorUsageFlagsARM           usage{};
     std::vector<int64_t>            pDimensions{};
     std::vector<int64_t>            pStrides{};
+    DeviceWrapper*                  bind_device{ nullptr };
 };
 
 struct TensorViewARMWrapper : public HandleWrapper<VkTensorViewARM>
@@ -796,6 +799,7 @@ struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipe
     std::vector<vulkan_state_info::CreateDependencyInfo>           pipeline_shader_module_dependencies;
     vulkan_state_info::CreateDependencyInfo                        pipeline_layout_dependency;
     std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies> pipeline_layout_dependencies;
+    DeviceWrapper*                                                 bind_device{ nullptr };
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.

@@ -924,7 +924,6 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
         auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
         GFXRECON_ASSERT(buffer_wrapper);
-        buffer_wrapper->device = device;
         buffer_wrapper->size   = modified_create_info->size;
         buffer_wrapper->usage  = pCreateInfo->usage;
 
