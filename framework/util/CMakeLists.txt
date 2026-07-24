@@ -42,6 +42,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
                     $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/alignment_utils.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_version_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_version_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.h
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.h
@@ -54,6 +56,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/feature_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/feature_module_registry.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h

@@ -45,6 +45,7 @@ class ReplayVulkanFeature : public ReplayPreProcessFeature<decode::VulkanReplayC
 
     // Simple "getter" style methods
     std::string Label() const final { return "Vulkan"; }
+    std::string CompiledHeaderVersionString() const final;
 
     void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) final;
     void QueryFpsInfoOptions(bool& quit_after_range,

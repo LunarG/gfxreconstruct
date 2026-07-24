@@ -1053,6 +1053,8 @@ class KhronosReplayConsumerBodyGenerator():
                                         paramname=value.prefixed_name,
                                         op=value.op
                                     )
+                                    if value.base_type == self.get_base_output_structure_name():
+                                        need_initialize_output_pnext_struct = value.prefixed_name
 
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:

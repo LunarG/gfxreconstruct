@@ -1890,8 +1890,6 @@ std::string GenerateStruct_VkPhysicalDeviceTileShadingPropertiesQCOM(std::ostrea
 
 std::string GenerateStruct_VkRenderPassTileShadingCreateInfoQCOM(std::ostream &out, const VkRenderPassTileShadingCreateInfoQCOM* structInfo, Decoded_VkRenderPassTileShadingCreateInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkQueryLowLatencySupportNV(std::ostream &out, const VkQueryLowLatencySupportNV* structInfo, Decoded_VkQueryLowLatencySupportNV* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkAccelerationStructureCaptureDescriptorDataInfoEXT(std::ostream &out, const VkAccelerationStructureCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkBufferCaptureDescriptorDataInfoEXT(std::ostream &out, const VkBufferCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkBufferCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);

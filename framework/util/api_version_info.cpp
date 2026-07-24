@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,37 +20,47 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_UTIL_ZSTD_COMPRESSOR_H
-#define GFXRECON_UTIL_ZSTD_COMPRESSOR_H
+#include "util/api_version_info.h"
 
-#include "util/compressor.h"
+#if defined(GFXRECON_ENABLE_VULKAN)
+#include "vulkan/vulkan_core.h"
+#endif
 
-#include <memory>
+#if ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
+
+#if defined(D3D12_SUPPORT)
+#include "d3d12.h"
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-class ZstdCompressor : public Compressor
+#if defined(GFXRECON_ENABLE_VULKAN)
+std::string GetVulkanHeaderVersionString()
 {
-  public:
-    ZstdCompressor() = default;
+    return std::string("Vulkan Header Version ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
+           "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+           std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+}
+#endif
 
-    ~ZstdCompressor() override = default;
+#if ENABLE_OPENXR_SUPPORT
+std::string GetOpenXrHeaderVersionString()
+{
+    return std::string("OpenXR Header Version ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+}
+#endif
 
-    size_t Compress(size_t                uncompressed_size,
-                    const uint8_t*        uncompressed_data,
-                    std::vector<uint8_t>* compressed_data,
-                    size_t                compressed_data_offset) const override;
-
-    size_t Decompress(size_t         compressed_size,
-                      const uint8_t* compressed_data,
-                      size_t         expected_uncompressed_size,
-                      uint8_t*       uncompressed_data) const override;
-
-    std::unique_ptr<Compressor> Clone() const override { return std::make_unique<ZstdCompressor>(*this); }
-};
+#if defined(D3D12_SUPPORT)
+std::string GetD3D12SdkVersionString()
+{
+    return std::string("D3D12 SDK Version ") + std::to_string(D3D12_SDK_VERSION);
+}
+#endif
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_UTIL_ZSTD_COMPRESSOR_H

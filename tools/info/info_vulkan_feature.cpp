@@ -23,6 +23,7 @@
 
 #include "info_vulkan_feature.h"
 
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 #include "util/to_string.h"
 
@@ -34,9 +35,11 @@ GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoVulkanFeature)
 
 std::string InfoVulkanFeature::CompiledHeaderVersionString() const
 {
-    return std::string("  Vulkan Header Version  ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
-           "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-           std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+#if defined(GFXRECON_ENABLE_VULKAN)
+    return util::GetVulkanHeaderVersionString();
+#else
+    return "";
+#endif
 }
 
 void InfoVulkanFeature::RegisterDecodeComponents(decode::FileProcessor&      file_processor,

@@ -43,6 +43,7 @@ class ReplayOpenXrFeature
 
     // Simple "getter" style methods
     std::string Label() const final { return "OpenXR"; }
+    std::string CompiledHeaderVersionString() const final;
 
     void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) final;
     void CreateConsumer(decode::FileProcessor*                    file_processor,

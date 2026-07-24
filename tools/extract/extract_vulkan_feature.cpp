@@ -25,6 +25,7 @@
 #include "decode/vulkan_detection_consumer.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 #include "util/file_path.h"
 #include "util/logging.h"
@@ -173,7 +174,16 @@ class VulkanExtractFeature : public ExtractFeatureBase
         file_processor.AddDecoder(&decoder_);
     }
 
-    bool WasDetected() const override { return detect_consumer_.WasVulkanAPIDetected(); }
+    bool        WasDetected() const override { return detect_consumer_.WasVulkanAPIDetected(); }
+    std::string Label() const override { return "Vulkan"; }
+    std::string CompiledHeaderVersionString() const override
+    {
+#if defined(GFXRECON_ENABLE_VULKAN)
+        return util::GetVulkanHeaderVersionString();
+#else
+        return "";
+#endif
+    }
 
   private:
     decode::VulkanDetectionConsumer        detect_consumer_;

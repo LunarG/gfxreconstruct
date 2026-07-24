@@ -35,6 +35,7 @@
 #include "util/to_string.h"
 #include "util/platform.h"
 
+#include <filesystem>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -47,7 +48,8 @@ const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - Patch the file format version of a GFXReconstruct capture file.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -110,6 +112,7 @@ FileFormatInfo GatherFileFormatInfo(gfxrecon::decode::FileProcessor& file_proces
     gfxrecon::decode::InfoDecoder info_decoder;
     info_decoder.AddConsumer(&info_consumer);
     file_processor.AddDecoder(&info_decoder);
+    file_processor.InitializeFrameProcessing();
     bool success = file_processor.ProcessNextFrame();
     if (success && !file_processor.UsesFrameMarkers())
     {

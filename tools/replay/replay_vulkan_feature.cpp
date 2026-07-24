@@ -31,6 +31,7 @@
 #endif
 
 #include "plugin/replay_event_plugin_loader.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -38,6 +39,15 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 
 // Register this class as a feature in a module registry
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(ReplayFeatureBase, ReplayVulkanFeature)
+
+std::string ReplayVulkanFeature::CompiledHeaderVersionString() const
+{
+#if defined(GFXRECON_ENABLE_VULKAN)
+    return util::GetVulkanHeaderVersionString();
+#else
+    return "";
+#endif
+}
 
 void ReplayVulkanFeature::QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename)
 {
@@ -98,7 +108,7 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
     {
         RegisterConsumerAndDecoder(fps_info);
 
-        file_processor_->SetPrintBlockInfoFlag(
+        application_->SetPrintBlockInfoFlag(
             replay_options_.enable_print_block_info, replay_options_.block_index_from, replay_options_.block_index_to);
     }
 }

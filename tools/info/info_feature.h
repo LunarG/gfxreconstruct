@@ -28,6 +28,7 @@
 #include "format/format.h"
 #include "util/argument_parser.h"
 #include "util/defines.h"
+#include "util/feature_base.h"
 
 #include <nlohmann/json.hpp>
 
@@ -40,15 +41,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoFeature
+class InfoFeature : public util::FeatureBase
 {
   public:
-    virtual ~InfoFeature() = default;
-
     // Simple "getter" style methods
-    virtual std::string Label() const = 0;
     virtual bool        WasDetected() = 0;
-    virtual std::string CompiledHeaderVersionString() const { return ""; }
     virtual uint32_t    GetBlankFrameCount() { return 0; }
     virtual uint32_t    GetFrameStart() const { return 0; }
 

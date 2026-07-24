@@ -218,6 +218,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroyDescriptorSetLayout&           args) override;
 
+    void Process_vkCreateDescriptorPool(
+        const ApiCallInfo&                          call_info,
+        args::CreateDescriptorPool&                 args) override;
+
     void Process_vkCreateGraphicsPipelines(
         const ApiCallInfo&                          call_info,
         args::CreateGraphicsPipelines&              args) override;

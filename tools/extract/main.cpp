@@ -22,7 +22,7 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include "decode/file_processor.h"
 #include "extract_feature.h"
@@ -32,6 +32,7 @@
 #include "util/logging.h"
 
 #include <cstdlib>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -43,7 +44,8 @@ const char kArguments[] = "--dir";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     GFXRECON_WRITE_CONSOLE("\n%s - Extract shaders from a GFXReconstruct capture file.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--dir <dir>] <file>\n", app_name.c_str());
@@ -77,7 +79,8 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::extract::ExtractFeatureBase>(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();
         exit(0);
@@ -142,6 +145,7 @@ int main(int argc, const char** argv)
             feature->Initialize(file_processor, extract_dir);
         }
 
+        file_processor.InitializeFrameProcessing();
         file_processor.ProcessAllFrames();
 
         bool any_detected = false;

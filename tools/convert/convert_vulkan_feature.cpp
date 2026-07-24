@@ -26,6 +26,7 @@
 #include "decode/vulkan_detection_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_json_consumer.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -39,7 +40,16 @@ class VulkanConvertFeature
 {
   public:
     VulkanConvertFeature() : ConvertFeature(decode::VulkanDetectionConsumer::kNoBlockLimit) {}
-    bool WasDetected() const final { return detect_consumer_.WasVulkanAPIDetected(); }
+    bool        WasDetected() const final { return detect_consumer_.WasVulkanAPIDetected(); }
+    std::string Label() const final { return "Vulkan"; }
+    std::string CompiledHeaderVersionString() const final
+    {
+#if defined(GFXRECON_ENABLE_VULKAN)
+        return util::GetVulkanHeaderVersionString();
+#else
+        return "";
+#endif
+    }
 };
 
 // Register this class as a feature in a module registry

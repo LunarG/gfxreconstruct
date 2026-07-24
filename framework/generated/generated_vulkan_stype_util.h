@@ -810,7 +810,6 @@ template <> constexpr VkStructureType GetSType<VkRenderPassTileShadingCreateInfo
 template <> constexpr VkStructureType GetSType<VkPerTileBeginInfoQCOM>(){ return VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM; }
 template <> constexpr VkStructureType GetSType<VkPerTileEndInfoQCOM>(){ return VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM; }
 template <> constexpr VkStructureType GetSType<VkDispatchTileInfoQCOM>(){ return VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM; }
-template <> constexpr VkStructureType GetSType<VkQueryLowLatencySupportNV>(){ return VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDescriptorBufferPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDescriptorBufferFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkDescriptorAddressInfoEXT>(){ return VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT; }

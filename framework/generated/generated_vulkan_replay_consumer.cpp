@@ -10790,6 +10790,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngine
     const VkQueueFamilyDataGraphPropertiesARM* in_pQueueFamilyDataGraphProperties = args.pQueueFamilyDataGraphProperties.GetPointer();
     MapStructHandles(args.pQueueFamilyDataGraphProperties.GetMetaStructPointer(), GetObjectInfoTable());
     VkBaseOutStructure* out_pProperties = args.pProperties.IsNull() ? nullptr : args.pProperties.AllocateOutputData(1);
+    InitializeOutputStructPNext(&args.pProperties);
 
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(in_physicalDevice, args.queueFamilyIndex, in_pQueueFamilyDataGraphProperties, out_pProperties);
     CheckResult("vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM", args.result, replay_result, call_info);
@@ -14952,11 +14953,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDispatchTileInfoQCOM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueryLowLatencySupportNV>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:

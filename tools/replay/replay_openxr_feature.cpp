@@ -26,6 +26,7 @@
 #include "replay_openxr_feature.h"
 
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -33,6 +34,11 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 
 // Register this class as a feature in a module registry
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(ReplayFeatureBase, ReplayOpenXrFeature)
+
+std::string ReplayOpenXrFeature::CompiledHeaderVersionString() const
+{
+    return util::GetOpenXrHeaderVersionString();
+}
 
 void ReplayOpenXrFeature::QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename)
 {

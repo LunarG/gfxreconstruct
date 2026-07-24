@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,40 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "block_skipping_file_processor.h"
+/// @file gfxrecon_framework test main entry point, for cross-module tests
+/// (e.g. encode/decode round-trips) that span multiple framework libraries.
 
-#include "decode/decode_allocator.h"
-#include "format/format_util.h"
-#include "util/logging.h"
-
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
-
-void BlockSkippingFileProcessor::SetBlocksToSkip(std::unordered_set<uint64_t> blocks_to_skip)
-{
-    blocks_to_skip_ = blocks_to_skip;
-    blocks_skipped_ = 0;
-}
-
-bool BlockSkippingFileProcessor::IsSkippingFinished()
-{
-    return blocks_skipped_ == blocks_to_skip_.size();
-}
-
-bool BlockSkippingFileProcessor::SkipBlockProcessing()
-{
-    if (ShouldSkipBlock())
-    {
-        blocks_skipped_++;
-        return true;
-    }
-    return false;
-}
-
-bool BlockSkippingFileProcessor::ShouldSkipBlock()
-{
-    return (!(blocks_to_skip_.empty())) && (blocks_to_skip_.find(process_block_index_) != blocks_to_skip_.end());
-}
-
-GFXRECON_END_NAMESPACE(decode)
-GFXRECON_END_NAMESPACE(gfxrecon)
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
