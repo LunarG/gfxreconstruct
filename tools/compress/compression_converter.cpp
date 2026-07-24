@@ -75,13 +75,16 @@ bool CompressionConverter::WriteFileHeader(const format::FileHeader&            
 
 bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
-    // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
+    bool success = parsed_block.Decompress(GetCompressor(), working_uncompressed_store_);
 
     if (success)
     {
         const auto& args = parsed_block.Get<decode::FunctionCallArgs>(); // Asserts if !Holds.
         success          = WriteFunctionCall(args.call_id, args.call_info.thread_id, args.data_size, args.data);
+    }
+    else
+    {
+        HandleBlockReadError(decode::kErrorReadingCompressedBlockData, "Failed to decompress block data");
     }
 
     return success;
@@ -89,13 +92,16 @@ bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block
 
 bool CompressionConverter::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
-    // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
+    bool success = parsed_block.Decompress(GetCompressor(), working_uncompressed_store_);
 
     if (success)
     {
         const auto& args = parsed_block.Get<decode::MethodCallArgs>(); // Asserts if !Holds.
         success = WriteMethodCall(args.call_id, args.object_id, args.call_info.thread_id, args.data_size, args.data);
+    }
+    else
+    {
+        HandleBlockReadError(decode::kErrorReadingCompressedBlockData, "Failed to decompress block data");
     }
 
     return success;
@@ -105,13 +111,12 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
 {
     // We can infer format::IsBlockCompressed from NeedsDecompression as long
     // as the DecompressionPolicy is "never".
-    auto& block_parser = GetBlockParser();
-    GFXRECON_ASSERT(block_parser.GetDecompressionPolicy() == decode::BlockParser::DecompressionPolicy::kNever);
+    GFXRECON_ASSERT(GetBlockParser().GetDecompressionPolicy() == decode::BlockParser::DecompressionPolicy::kNever);
     const bool compressed_block = parsed_block.NeedsDecompression();
 
     // Unconditional decompress the metadata block wastes no time as all compressible meta_data_id have non-trivial
     // overrides, and decompress fast returns on uncompressed blocks.
-    bool success = parsed_block.Decompress(block_parser, working_uncompressed_store_);
+    bool success = parsed_block.Decompress(GetCompressor(), working_uncompressed_store_);
     if (success)
     {
         auto visit_meta = [this](auto&& store) {
@@ -148,6 +153,10 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
         {
             success = result == kSuccess;
         }
+    }
+    else
+    {
+        HandleBlockReadError(decode::kErrorReadingCompressedBlockData, "Failed to decompress block data");
     }
     return success;
 }

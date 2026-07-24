@@ -24,25 +24,49 @@
 #define GFXRECON_DECODE_FILE_PROCESSOR_VISITORS_H
 
 // Implementation header: include only from .cpp files that use DispatchVisitor or ProcessVisitor.
+#include "decode/decode_allocator.h"
 #include "decode/file_processor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(file_processor)
 
-template <bool HasAllocGuard = false>
-struct DecoderAllocGuard
-{};
-
-template <>
-struct DecoderAllocGuard<true>
+// Returns true if block_index is within block_limit, or if block_limit is 0 (no limit).
+inline bool ContinueBlockLimit(uint64_t block_limit, uint64_t block_index)
 {
-    DecoderAllocGuard& operator=(const DecoderAllocGuard&) = delete;
-    DecoderAllocGuard(DecoderAllocGuard&&)                 = delete;
-    DecoderAllocGuard& operator=(DecoderAllocGuard&&)      = delete;
-    DecoderAllocGuard() { DecodeAllocator::Begin(); }
-    ~DecoderAllocGuard() noexcept { DecodeAllocator::End(); }
-};
+    return (block_limit == 0) || (block_index <= block_limit);
+}
+
+// Free function: checks block limit and/or decoder completion.
+// If block_limit > 0, block limit takes priority and decoder completion is never checked.
+template <typename CheckPolicy>
+inline bool ContinueBlockProcessing(uint64_t block_limit, const DispatchConfig& config, uint64_t block_index)
+{
+    // Skip invalid block indexes, used in in-band signaling blocks
+    if (block_index == ParsedBlock::kInvalidIndex)
+    {
+        return true;
+    }
+    if (block_limit > 0)
+    {
+        if constexpr (CheckPolicy::kCheckBlockLimit)
+        {
+            return ContinueBlockLimit(block_limit, block_index);
+        }
+        return true;
+    }
+    else if constexpr (CheckPolicy::kCheckDecoders)
+    {
+        bool all_complete = true;
+        for (auto decoder : config.decoders)
+        {
+            // NOTE: MUST NOT short-circuit -- IsComplete() calls may have side effects.
+            all_complete &= decoder->IsComplete(block_index);
+        }
+        return !all_complete;
+    }
+    return true;
+}
 
 template <typename Args>
 bool DecoderSupportsDispatch(ApiDecoder& decoder, const Args& args)
@@ -98,13 +122,20 @@ class DispatchVisitor
 
     ProcessBlockState operator()(const AnnotationArgs* annotation)
     {
-        if (annotation_handler_)
+        if (config_.annotation_handler)
         {
             auto annotation_call = [this](auto&&... expanded_args) {
-                annotation_handler_->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
+                config_.annotation_handler->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
             };
             std::apply(annotation_call, annotation->GetTuple());
         }
+        return ProcessBlockState::kContinue;
+    }
+
+    // In-band callback: fires the stored function on the dispatch thread.
+    ProcessBlockState operator()(const CallbackArgs* callback_args)
+    {
+        callback_args->callback();
         return ProcessBlockState::kContinue;
     }
 
@@ -122,11 +153,8 @@ class DispatchVisitor
         return result->state;
     }
 
-    DispatchVisitor(FileProcessor&                  file_processor,
-                    const std::vector<ApiDecoder*>& decoders,
-                    AnnotationHandler*              annotation_handler) :
-        file_processor_(file_processor),
-        decoders_(decoders), annotation_handler_(annotation_handler)
+    DispatchVisitor(FileProcessor& file_processor, const FileProcessor::DispatchConfig& config) :
+        file_processor_(file_processor), config_(config)
     {}
 
     void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
@@ -143,12 +171,13 @@ class DispatchVisitor
     ProcessBlockState DispatchArgs(const Args* args)
     {
         constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
-        for (auto decoder : decoders_)
+        for (auto decoder : config_.decoders)
         {
             if (DecoderSupportsDispatch(*decoder, *args))
             {
                 [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
                 SetDecoderApiCallId(*decoder, *args);
+                GFXRECON_ASSERT(block_index_ != ParsedBlock::kInvalidIndex);
                 decoder->SetCurrentBlockIndex(block_index_);
                 auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
                     (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
@@ -160,11 +189,10 @@ class DispatchVisitor
         return ProcessBlockState::kContinue;
     }
 
-    FileProcessor&                  file_processor_;
-    const std::vector<ApiDecoder*>& decoders_;
-    AnnotationHandler*              annotation_handler_;
-    uint64_t                        block_index_{ 0 };
-    ProcessBlocksResult             replay_result_{};
+    FileProcessor&                       file_processor_;
+    const FileProcessor::DispatchConfig& config_;
+    uint64_t                             block_index_{ 0 };
+    ProcessBlocksResult                  replay_result_{};
 };
 
 class ProcessVisitor
@@ -176,45 +204,41 @@ class ProcessVisitor
     // Frame boundary control
     void operator()(const FunctionCallArgs* function_call)
     {
-        is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call->call_id);
+        is_frame_delimiter = block_processor_.ProcessFrameDelimiter(function_call->call_id);
         success            = true;
     }
 
     void operator()(const MethodCallArgs* method_call)
     {
-        is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call->call_id);
+        is_frame_delimiter = block_processor_.ProcessFrameDelimiter(method_call->call_id);
         success            = true;
     }
 
     void operator()(const FrameEndMarkerArgs* end_frame)
     {
-        // The block and marker type are implied by the Args type
-        is_frame_delimiter = file_processor_.ProcessFrameDelimiter(*end_frame);
+        is_frame_delimiter = block_processor_.ProcessFrameDelimiter(*end_frame);
         success            = true;
     }
 
     // I/O Control
     void operator()(const ExecuteBlocksFromFileArgs* execute_blocks)
     {
-        // The block and marker type are implied by the Args type
         is_frame_delimiter = false;
-        success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
+        success            = block_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
     }
 
     void operator()(const StateEndMarkerArgs* state_end)
     {
-        // The block and marker type are implied by the Args type
         is_frame_delimiter = false;
         success            = true;
-        file_processor_.ProcessStateEndMarkerFrameState(*state_end);
+        block_processor_.ProcessStateEndMarkerFrameState(*state_end);
     }
 
     void operator()(const AnnotationArgs* annotation)
     {
-        // The block and marker type are implied by the Command type
         is_frame_delimiter = false;
         success            = true;
-        file_processor_.ProcessAnnotation(*annotation);
+        block_processor_.ProcessAnnotation(*annotation);
     }
 
     void operator()(const std::monostate&) { Reset(); }
@@ -227,7 +251,7 @@ class ProcessVisitor
 
     bool IsSuccess() const { return success; }
     bool IsFrameDelimiter() const { return is_frame_delimiter; }
-    ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
+    ProcessVisitor(BlockProcessor& block_processor) : block_processor_(block_processor) {}
     void Reset()
     {
         is_frame_delimiter = false;
@@ -235,9 +259,9 @@ class ProcessVisitor
     }
 
   private:
-    bool           is_frame_delimiter = false;
-    bool           success            = true;
-    FileProcessor& file_processor_;
+    bool            is_frame_delimiter = false;
+    bool            success            = true;
+    BlockProcessor& block_processor_;
 };
 
 class SynchronousProcessPolicy
@@ -246,10 +270,16 @@ class SynchronousProcessPolicy
     SynchronousProcessPolicy(FileProcessor& file_processor, DispatchVisitor& dispatch_visitor) :
         file_processor_(file_processor), dispatch_visitor_(dispatch_visitor)
     {}
-    constexpr static bool kUpdateDispatchState = true;
-    bool                  ContinueBlockProcessing(uint64_t block_index)
+    bool ContinueBlockProcessing(uint64_t block_index)
     {
-        return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::CheckBoth>(block_index);
+        // Various in-band signaling blocks using invalid index, so ignore them.
+        if (block_index != ParsedBlock::kInvalidIndex)
+        {
+            file_processor_.dispatch_block_index_ = block_index;
+            return file_processor::ContinueBlockProcessing<ContinueProcessingPolicy::CheckBoth>(
+                file_processor_.block_limit_, file_processor_.config_, block_index);
+        }
+        return true;
     }
     ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block)
     {
@@ -265,18 +295,15 @@ class SynchronousProcessPolicy
 class PreloadProcessPolicy
 {
   public:
-    PreloadProcessPolicy(FileProcessor& file_processor) : file_processor_(file_processor) {}
-    constexpr static bool kUpdateDispatchState = false;
-    bool                  ContinueBlockProcessing(uint64_t block_index)
+    PreloadProcessPolicy(uint64_t block_limit) : block_limit_(block_limit) {}
+    bool ContinueBlockProcessing(uint64_t block_index)
     {
-        // This is redundant when async processing is enabled, but outside of the
-        // timing loop and thus irrelevant.
-        return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::BlockLimitOnly>(block_index);
+        return file_processor::ContinueBlockLimit(block_limit_, block_index);
     }
     ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block) { return ProcessBlockState::kContinue; }
 
   private:
-    FileProcessor& file_processor_;
+    uint64_t block_limit_;
 };
 
 GFXRECON_END_NAMESPACE(file_processor)

@@ -26,6 +26,8 @@
 
 #include "util/compressor.h"
 
+#include <memory>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -45,6 +47,8 @@ class ZlibCompressor : public Compressor
                       const uint8_t* compressed_data,
                       size_t         expected_uncompressed_size,
                       uint8_t*       uncompressed_data) const override;
+
+    std::unique_ptr<Compressor> Clone() const override { return std::make_unique<ZlibCompressor>(*this); }
 };
 
 GFXRECON_END_NAMESPACE(util)

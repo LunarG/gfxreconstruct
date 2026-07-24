@@ -348,6 +348,8 @@ int main(int argc, const char** argv)
                 }
             }
 
+            file_processor.InitializeFrameProcessing();
+
             while (success)
             {
                 success = file_processor.ProcessNextFrame();

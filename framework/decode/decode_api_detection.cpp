@@ -86,6 +86,7 @@ bool DetectAPIs(const std::string& input_filename,
         file_processor.AddDecoder(&openxr_decoder);
 #endif // ENABLE_OPENXR_SUPPORT
 
+        file_processor.InitializeFrameProcessing();
         file_processor.ProcessAllFrames();
 #if defined(D3D12_SUPPORT)
         if (dx12_detection_consumer.WasD3D12APIDetected())
