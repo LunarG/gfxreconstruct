@@ -5786,6 +5786,13 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         VkDeviceMemory external_fd_backing_memory = VK_NULL_HANDLE;
         int            replacement_import_fd      = -1;
         auto* import_fd_info = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
+
+        if (import_fd_info != nullptr && UseAddressReplacement(device_info))
+        {
+            graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
+            import_fd_info = nullptr;
+        }
+
         if (import_fd_info != nullptr)
         {
             const auto* device_table = GetDeviceTable(device_info->handle);
@@ -6461,6 +6468,20 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto               replay_create_info   = pCreateInfo->GetPointer();
     VkBufferCreateInfo modified_create_info = *replay_create_info;
 
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
+    if (external_memory != nullptr && !CanPreserveExternalMemory(device_info) &&
+        (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT))
+    {
+        if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+        {
+            graphics::vulkan_struct_remove_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
+        }
+        else
+        {
+            external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+        }
+    }
+
     // Check for a buffer device address.
     bool uses_address = false;
 
@@ -6725,6 +6746,20 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
             modified_create_info.format     = VK_FORMAT_R8G8B8A8_UNORM;
             external_format->externalFormat = 0;
             has_external_format             = false;
+        }
+
+        if (!CanPreserveExternalMemory(device_info) &&
+            (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT))
+        {
+            if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+            {
+                graphics::vulkan_struct_remove_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
+                external_memory = nullptr;
+            }
+            else
+            {
+                external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+            }
         }
     }
 
@@ -11998,6 +12033,17 @@ bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* dev
         return probe_allocator && !probe_allocator->SupportsOpaqueDeviceAddresses();
     }
     return !device_info->allocator->SupportsOpaqueDeviceAddresses();
+}
+
+bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const
+{
+    // -m rebind manages memory via VMA and does not preserve external memory
+    if (device_info == nullptr || UseAddressReplacement(device_info))
+    {
+        return false;
+    }
+    // Check replay device enabled VK_KHR_external_memory_fd
+    return GetDeviceTable(device_info->handle)->GetMemoryFdKHR != graphics::noop::vkGetMemoryFdKHR;
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
