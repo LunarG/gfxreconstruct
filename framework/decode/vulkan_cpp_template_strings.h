@@ -1305,6 +1305,7 @@ VkResult toCppCreateSwapchainKHR(VkDevice                        device,
 
         swapchain_info->parent             = device;
         swapchain_info->surface            = create_info->surface;
+        swapchain_info->flags              = create_info->flags;
         swapchain_info->image_format       = create_info->imageFormat;
         swapchain_info->image_color_space  = create_info->imageColorSpace;
         swapchain_info->image_array_layers = create_info->imageArrayLayers;
