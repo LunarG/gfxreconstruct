@@ -387,17 +387,13 @@ class VulkanStateTracker
                                  VkDeviceSize   memoryOffset,
                                  const void*    bind_info_pnext = nullptr);
 
-    void TrackTensorMemoryBinding(VkDevice       device,
-                                  VkTensorARM    tensor,
-                                  VkDeviceMemory memory,
-                                  VkDeviceSize   memoryOffset,
-                                  const void*    bind_info_pnext = nullptr);
+    void
+    TrackTensorMemoryBinding(VkDevice device, VkTensorARM tensor, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void TrackDataGraphPipelineSessionMemoryBinding(VkDevice                      device,
                                                     VkDataGraphPipelineSessionARM session,
                                                     VkDeviceMemory                memory,
-                                                    VkDeviceSize                  memoryOffset,
-                                                    const void*                   bind_info_pnext = nullptr);
+                                                    VkDeviceSize                  memoryOffset);
 
     void TrackMappedMemory(VkDevice         device,
                            VkDeviceMemory   memory,

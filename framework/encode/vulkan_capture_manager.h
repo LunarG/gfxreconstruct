@@ -940,14 +940,7 @@ class VulkanCaptureManager : public ApiCaptureManager
             GFXRECON_ASSERT(state_tracker_ != nullptr);
 
             auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
-
-            if (buffer_wrapper->is_sparse_buffer)
-            {
-                // We will need to set the bind_device for handling sparse buffers. There will be no subsequent
-                // vkBindBufferMemory, vkBindBufferMemory2 or vkBindBufferMemory2KHR calls for sparse buffer, so we
-                // assign bind_device to the device that created the buffer.
-                buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-            }
+            buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
         }
     }
 
