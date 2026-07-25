@@ -3611,7 +3611,7 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, 
             WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
         }
     }
-    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kSmart)
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kSmart && IsCaptureModeWrite())
     {
         smart_memory_tracker_.ProcessSubmit(
             GetSmartTouchedMemoryRanges(submit_count, submits),
@@ -3623,16 +3623,8 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, 
 
 void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, const VkSubmitInfo2* submits)
 {
-    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kSmart)
-    {
-        smart_memory_tracker_.ProcessSubmit(
-            GetSmartTouchedMemoryRanges(submit_count, submits),
-            [this](uint64_t memory_id, const void* start_address, size_t offset, size_t size) {
-                WriteFillMemoryRangeCmd(memory_id, offset, size, start_address);
-            });
-    }
-    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+        GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
@@ -3658,6 +3650,14 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, 
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
             WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
         }
+    }
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kSmart && IsCaptureModeWrite())
+    {
+        smart_memory_tracker_.ProcessSubmit(
+            GetSmartTouchedMemoryRanges(submit_count, submits),
+            [this](uint64_t memory_id, const void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryRangeCmd(memory_id, offset, size, start_address);
+            });
     }
 }
 
