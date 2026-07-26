@@ -28,6 +28,7 @@
 
 #include "vulkan/vulkan_core.h"
 
+#include <bit>
 #include <cstdint>
 #include <functional>
 #include <mutex>
@@ -41,6 +42,9 @@ class VulkanSmartMemoryTracker
 {
   public:
     using ModifiedMemoryFunc = std::function<void(uint64_t, const void*, size_t, size_t)>;
+
+    static constexpr size_t kBlockSize         = 512;
+    static constexpr size_t kBlockSizePotShift = std::countr_zero(kBlockSize);
 
   public:
     VulkanSmartMemoryTracker() = default;
@@ -59,6 +63,21 @@ class VulkanSmartMemoryTracker
                        const ModifiedMemoryFunc&                                    handle_modified);
 
   private:
+    // Avoid including xxhash.h here. Define a compatible type for XXH128_hash_t
+    struct Hash128
+    {
+        uint64_t low64;
+        uint64_t high64;
+
+        template <typename T>
+        bool operator!=(const T& other) const
+        {
+            return low64 != other.low64 || high64 != other.high64;
+        }
+    };
+
+    using HashArray = std::vector<Hash128>;
+
     struct MemoryInfo
     {
         uint64_t              allocation_size{ 0 };
@@ -67,8 +86,23 @@ class VulkanSmartMemoryTracker
         uint64_t              mapped_offset{ 0 };
         uint64_t              mapped_size{ 0 };
         util::RangeList       exposed_ranges;
-        util::RangeList       baseline_valid_ranges;
-        std::vector<uint8_t>  baseline;
+
+        struct RangeHashes
+        {
+            RangeHashes() = delete;
+            RangeHashes(size_t tb, size_t lbs) :
+                total_blocks(tb), last_block_size(lbs), current_hashes(tb), previous_hashes(tb)
+            {}
+
+            size_t total_blocks;
+            size_t last_block_size;
+
+            HashArray current_hashes;
+            HashArray previous_hashes;
+        };
+
+        // Map per offset
+        std::unordered_map<uint64_t, RangeHashes> valid_range_hashes;
     };
 
     using MemoryInfoMap      = std::unordered_map<format::HandleId, MemoryInfo>;
@@ -76,8 +110,6 @@ class VulkanSmartMemoryTracker
 
   private:
     static uint64_t ClampRangeSize(uint64_t offset, uint64_t size, uint64_t limit);
-
-    bool EnsureBaseline(MemoryInfo& memory_info);
 
     void EmitRange(MemoryInfoIterator        memory_info_entry,
                    uint64_t                  offset,
@@ -87,6 +119,32 @@ class VulkanSmartMemoryTracker
     void EmitMappedIntersections(MemoryInfoIterator        memory_info_entry,
                                  const util::RangeList&    ranges,
                                  const ModifiedMemoryFunc& handle_modified);
+
+    void ProcessActiveRange(uint64_t                       memory_id,
+                            const uint8_t*                 data,
+                            size_t                         offset_in_mapping,
+                            const MemoryInfo::RangeHashes& range_info,
+                            size_t                         start_index,
+                            size_t                         end_index,
+                            const ModifiedMemoryFunc&      handle_modified);
+
+    template <typename PerBlockFn>
+    void ForEachBlock(const MemoryInfo::RangeHashes& range_info, PerBlockFn&& fn)
+    {
+        const size_t full_blocks =
+            range_info.last_block_size == kBlockSize ? range_info.total_blocks : range_info.total_blocks - 1;
+
+        for (size_t i = 0; i < full_blocks; ++i)
+        {
+            fn(i, kBlockSize);
+        }
+
+        // Handle last, possibly partial, block
+        if (full_blocks == range_info.total_blocks - 1)
+        {
+            fn(full_blocks, range_info.last_block_size);
+        }
+    }
 
   private:
     std::mutex    tracked_memory_lock_;
