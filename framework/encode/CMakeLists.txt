@@ -190,6 +190,8 @@ target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
+                           PRIVATE
+                               ${GFXRECON_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_encode PUBLIC
