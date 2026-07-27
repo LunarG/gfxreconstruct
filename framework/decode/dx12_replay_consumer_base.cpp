@@ -1435,15 +1435,18 @@ void Dx12ReplayConsumerBase::ProcessD3D12CreateDeviceAdapterInfo(
 {
     capture_adapter_desc_by_id_[adapter_info_header.adapter_id] = adapter_info_header.adapter_desc;
 
-    received_create_device_adapter_info_ = true;
+    if (adapter_info_header.device_id != format::kNullHandleId)
+    {
+        capture_adapter_id_by_device_id_[adapter_info_header.device_id] = adapter_info_header.adapter_id;
+    }
 }
 
 void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
-    // adapter selection and mismatch warnings are already handled at device creation
-    bool created_device_adapter_info     = received_create_device_adapter_info_;
-    received_create_device_adapter_info_ = false;
-    if (created_device_adapter_info)
+    const format::HandleId adapter_id =
+        graphics::dx12::ExtractAdapterCaptureId(adapter_info_header.adapter_desc.extra_info);
+
+    if (capture_adapter_desc_by_id_.find(adapter_id) != capture_adapter_desc_by_id_.end())
     {
         return;
     }

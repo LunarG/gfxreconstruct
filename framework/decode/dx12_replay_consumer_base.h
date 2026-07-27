@@ -1411,7 +1411,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12MetaCommand*, GUID>                  meta_command_guids_;
     std::unordered_set<ID3D12CommandQueue*>                       trim_state_tile_update_queues_;
     std::unordered_map<format::HandleId, format::DxgiAdapterDesc> capture_adapter_desc_by_id_;
-    bool                                                          received_create_device_adapter_info_{ false };
+    std::unordered_map<format::HandleId, format::HandleId>        capture_adapter_id_by_device_id_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };

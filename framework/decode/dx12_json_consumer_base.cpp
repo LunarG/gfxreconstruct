@@ -165,6 +165,7 @@ void Dx12JsonConsumerBase::ProcessD3D12CreateDeviceAdapterInfo(
     jdata["thread_id"] = adapter_info_header.thread_id;
     HandleToJson(jdata["adapter_id"], adapter_info_header.adapter_id);
     FieldToJson(jdata["adapter_desc"], adapter_info_header.adapter_desc);
+    HandleToJson(jdata["device_id"], adapter_info_header.device_id);
     writer_->WriteBlockEnd();
 }
 

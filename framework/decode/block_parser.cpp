@@ -1466,6 +1466,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         success = success && block_buffer.Read(adapter_info_header.adapter_desc.LuidLowPart);
         success = success && block_buffer.Read(adapter_info_header.adapter_desc.LuidHighPart);
         success = success && block_buffer.Read(adapter_info_header.adapter_desc.extra_info);
+        success = success && block_buffer.Read(adapter_info_header.device_id);
 
         if (success)
         {

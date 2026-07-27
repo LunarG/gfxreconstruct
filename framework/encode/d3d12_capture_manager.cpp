@@ -2489,6 +2489,7 @@ void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapte
                                                        REFIID            riid,
                                                        void**            ppDevice)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(pAdapter);
     GFXRECON_UNREFERENCED_PARAMETER(MinimumFeatureLevel);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
     GFXRECON_UNREFERENCED_PARAMETER(ppDevice);
@@ -2502,8 +2503,6 @@ void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapte
     {
         EnableDRED();
     }
-
-    WriteD3D12CreateDeviceAdapterInfoCommand(pAdapter);
 }
 
 void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
@@ -3131,7 +3130,7 @@ void D3D12CaptureManager::WriteDxgiAdapterInfo()
     }
 }
 
-void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter)
+void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, format::HandleId device_id)
 {
     if (IsCaptureModeWrite() == false)
     {
@@ -3207,6 +3206,7 @@ void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAd
     adapter_info_header.thread_id    = thread_data->thread_id_;
     adapter_info_header.adapter_id   = adapter_id;
     adapter_info_header.adapter_desc = *adapter_desc;
+    adapter_info_header.device_id    = device_id;
 
     WriteToFile(&adapter_info_header, sizeof(adapter_info_header));
 }

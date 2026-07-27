@@ -697,6 +697,7 @@ struct D3D12CreateDeviceAdapterInfoCommandHeader
     ThreadId        thread_id;
     HandleId        adapter_id;
     DxgiAdapterDesc adapter_desc;
+    HandleId        device_id;
 };
 
 struct Dx12RuntimeInfo
