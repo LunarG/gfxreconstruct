@@ -738,11 +738,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // VmaMemoryInfo so the newcomer binds into the same allocation at its captured relative offset;
     // the existing GetRebindOffsetFromVMA math then places it. Returns nullptr when there is no
     // overlap (use the per-resource path) or when the alias cannot be reproduced (warns).
-    VmaMemoryInfo* FindAliasedMemoryInfo(MemoryAllocInfo&            memory_alloc_info,
+    VmaMemoryInfo* FindAliasedMemoryInfo(const MemoryAllocInfo&      memory_alloc_info,
                                          VkDeviceSize                memory_offset,
                                          VkDeviceSize                footprint,
                                          const VkMemoryRequirements& replay_req,
-                                         bool                        requires_dedicated_allocation);
+                                         bool                        requires_dedicated_allocation,
+                                         bool                        prefers_dedicated_allocation);
 
     // Drop an object's entries from bound_ranges (on destroy or after a failed bind), so later
     // binds do not test overlap against a resource that is not actually bound.
