@@ -1809,17 +1809,22 @@ VkResult toCppQueuePresentKHR(VkQueue queue, VkPresentInfoKHR* pPresentInfo)
         };
 
         final_barrier_virtual_image               = initial_barrier_virtual_image;
-        final_barrier_virtual_image.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        final_barrier_virtual_image.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        final_barrier_virtual_image.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        final_barrier_virtual_image.dstAccessMask = VK_ACCESS_NONE;
         final_barrier_virtual_image.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         final_barrier_virtual_image.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         initial_barrier_swapchain_image               = initial_barrier_virtual_image;
+        initial_barrier_swapchain_image.srcAccessMask = VK_ACCESS_NONE;
         initial_barrier_swapchain_image.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        initial_barrier_swapchain_image.oldLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         initial_barrier_swapchain_image.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
-        final_barrier_swapchain_image           = final_barrier_virtual_image;
-        final_barrier_swapchain_image.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        final_barrier_swapchain_image               = initial_barrier_virtual_image;
+        final_barrier_swapchain_image.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        final_barrier_swapchain_image.dstAccessMask = VK_ACCESS_NONE;
+        final_barrier_swapchain_image.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        final_barrier_swapchain_image.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 )";
 
@@ -1914,7 +1919,7 @@ static const char* sSwapchainSourceCode_part_3 = R"(
                                  &initial_barrier_virtual_image);
 
             vkCmdPipelineBarrier(command_buffer,
-                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  0,
                                  0,
@@ -1945,7 +1950,7 @@ static const char* sSwapchainSourceCode_part_3 = R"(
 
             vkCmdPipelineBarrier(command_buffer,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                                  0,
                                  0,
                                  nullptr,
