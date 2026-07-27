@@ -12035,8 +12035,8 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 {
     Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
         args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
-    VkPushDescriptorSetWithTemplateInfoKHR*      value   = in_info->decoded_value;
-    VulkanDescriptorUpdateTemplateInfo*          update_template_info =
+    VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
+    VulkanDescriptorUpdateTemplateInfo*     update_template_info =
         object_info_table_->GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
 
     VkCommandBuffer in_commandBuffer =
