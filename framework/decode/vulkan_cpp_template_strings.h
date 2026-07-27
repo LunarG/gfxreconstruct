@@ -1762,14 +1762,13 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
     if ((result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) && g_swapchain_info.find(swapchain) != g_swapchain_info.end())
     {
         ToCppSwapchainInfo* swapchain_info     = g_swapchain_info[swapchain];
-        uint32_t            replay_image_index = *replay_index;
-        if (replay_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+        if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
         {
-            swapchain_info->acquired_indices.resize(replay_image_index + 1);
+            swapchain_info->acquired_indices.resize(captured_index + 1);
         }
 
-        swapchain_info->acquired_indices[replay_image_index].index    = captured_index;
-        swapchain_info->acquired_indices[replay_image_index].acquired = true;
+        swapchain_info->acquired_indices[captured_index].index    = *replay_index;
+        swapchain_info->acquired_indices[captured_index].acquired = true;
     }
 #endif // USE_VIRTUAL_SWAPCHAIN
     return result;
@@ -1847,8 +1846,8 @@ static const char* sSwapchainSourceCode_part_3 = R"(
                 continue;
             }
             ToCppSwapchainInfo* swapchain_info      = g_swapchain_info[swapchain];
-            uint32_t            replay_image_index  = pPresentInfo->pImageIndices[i];
-            uint32_t            capture_image_index = swapchain_info->acquired_indices[replay_image_index].index;
+            uint32_t            capture_image_index  = pPresentInfo->pImageIndices[i];
+            uint32_t            replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
 
             // Find the appropriate CommandCopyData struct for this queue family
             if (swapchain_info->copy_cmd_data.find(queue_info.family_index) == swapchain_info->copy_cmd_data.end())
@@ -1865,8 +1864,8 @@ static const char* sSwapchainSourceCode_part_3 = R"(
 
             // Use a command buffer and semaphore from the same queue index
             auto& copy_cmd_data  = swapchain_info->copy_cmd_data[queue_info.family_index];
-            auto  command_buffer = copy_cmd_data.command_buffers[capture_image_index];
-            auto  copy_semaphore = copy_cmd_data.semaphores[capture_image_index];
+            auto  command_buffer = copy_cmd_data.command_buffers[replay_image_index];
+            auto  copy_semaphore = copy_cmd_data.semaphores[replay_image_index];
 
             std::vector<VkSemaphore> wait_semaphores;
             std::vector<VkSemaphore> signal_semaphores;
