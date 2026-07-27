@@ -1252,7 +1252,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
 
 void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* buffer_wrapper)
 {
-    GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->device != nullptr);
+    GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->bind_device != nullptr);
     buffer_wrapper->create_parameters = nullptr;
 
     if (buffer_wrapper != nullptr && buffer_wrapper->bind_device->handle != VK_NULL_HANDLE)

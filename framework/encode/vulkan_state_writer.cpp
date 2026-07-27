@@ -1532,7 +1532,7 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
 void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(wrapper != nullptr && wrapper->bind_device != nullptr);
         if (wrapper->bind_device->handle != VK_NULL_HANDLE && wrapper->address != 0)
         {
             auto physical_device_wrapper = wrapper->bind_device->physical_device;
@@ -1554,7 +1554,7 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(wrapper != nullptr && wrapper->bind_device != nullptr);
 
         if (wrapper->bind_device->handle != VK_NULL_HANDLE)
         {
@@ -1939,7 +1939,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
     size_t                                                      max_resource_size = 0;
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* buffer_wrapper) {
-        GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->bind_device != nullptr);
 
         if (buffer_wrapper->acceleration_structures.empty() ||
             !device_address_trackers_.count(buffer_wrapper->bind_device->handle))
