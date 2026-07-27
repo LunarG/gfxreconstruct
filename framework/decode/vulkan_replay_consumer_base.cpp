@@ -5805,6 +5805,19 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             backing_allocate_info.allocationSize       = modified_allocate_info->allocationSize;
             backing_allocate_info.memoryTypeIndex      = modified_allocate_info->memoryTypeIndex;
 
+            // Since external memory is commonly dedicated
+            VkMemoryDedicatedAllocateInfo backing_dedicated_info = {
+                VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO
+            };
+            if (const auto* dedicated_info =
+                    graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info))
+            {
+                backing_dedicated_info.image  = dedicated_info->image;
+                backing_dedicated_info.buffer = dedicated_info->buffer;
+                backing_dedicated_info.pNext  = &backing_export_info;
+                backing_allocate_info.pNext   = &backing_dedicated_info;
+            }
+
             VkResult backing_result = device_table->AllocateMemory(
                 device_info->handle, &backing_allocate_info, nullptr, &external_fd_backing_memory);
 
