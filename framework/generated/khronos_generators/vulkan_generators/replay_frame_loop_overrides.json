@@ -18,7 +18,6 @@
     "vkCreateDescriptorSetLayout",
     "vkCreateDescriptorUpdateTemplate",
     "vkCreateDescriptorUpdateTemplateKHR",
-    "vkCreateDevice",
     "vkCreateEvent",
     "vkCreateFence",
     "vkCreateFramebuffer",

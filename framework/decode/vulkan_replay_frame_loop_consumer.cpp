@@ -106,6 +106,39 @@ void VulkanReplayFrameLoopConsumer::TrackEventState(format::HandleId device, for
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkCreateDevice(
+    const ApiCallInfo&                          call_info,
+    args::CreateDevice&                         args)
+{
+    // Check for null cases
+    if (args.pDevice.IsNull())
+    {
+        return;
+    }
+    format::HandleId handle = *args.pDevice.GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
+    {
+        VulkanReplayConsumer::Process_vkCreateDevice(call_info, args);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
+
+        // Initialize this device's command buffer util
+        CommonObjectInfoTable& table = GetObjectInfoTable();
+        VulkanDeviceInfo* info = table.GetVkDeviceInfo(handle);
+        command_buffer_utils_[handle] = VulkanCommandBufferUtil(
+            info,
+            GetDeviceTable(info->handle),
+            &table
+        );
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
                                                                 args::CreateCommandPool& args)
 {

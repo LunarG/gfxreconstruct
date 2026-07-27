@@ -47,6 +47,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     virtual void StartLooping() override;
 
+    void Process_vkCreateDevice(const ApiCallInfo& call_info, args::CreateDevice& args) override;
+
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
@@ -102,6 +104,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     graphics::FrameLoopInfo& frame_loop_info_;
 
     VulkanDecoder* decoder_ = nullptr;
+    // Command buffer util is per-device
+    std::unordered_map<format::HandleId, VulkanCommandBufferUtil> command_buffer_utils_;
 
     /// A "dangling" resource is one that was either
     /// - created during the loop range but destroyed after it
