@@ -344,7 +344,13 @@ bool BlockProcessor::ProcessFrameDelimiter(format::ApiCallId call_id)
 
 bool BlockProcessor::ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame)
 {
-    GFXRECON_ASSERT((!capture_uses_frame_markers_) || (frame_number_ == (end_frame.frame_number - first_frame_)));
+    if (capture_uses_frame_markers_ && (frame_number_ != (end_frame.frame_number - first_frame_)))
+    {
+        GFXRECON_LOG_ERROR("Frame end marker frame number (%" PRIu64 ") does not match current frame number (%" PRIu64
+                           ")",
+                           end_frame.frame_number - first_frame_,
+                           frame_number_);
+    }
     if (IsFrameDelimiter(format::BlockType::kFrameMarkerBlock, format::MarkerType::kEndMarker))
     {
         if (!capture_uses_frame_markers_)
