@@ -106,7 +106,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     // Write this out before rendering begins
     // This ensures the replayer gets a chance to process the metadata command
-    D3D12CaptureManager::Get()->WriteDxgiAdapterInfo();
+    D3D12CaptureManager::Get()->WriteDxgiAdapterInfo(state_table);
     D3D12CaptureManager::Get()->WriteDx12DriverInfo();
     D3D12CaptureManager::Get()->WriteDx12RuntimeInfo();
 

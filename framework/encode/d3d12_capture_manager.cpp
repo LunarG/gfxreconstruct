@@ -3116,16 +3116,30 @@ void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterD
     }
 }
 
-void D3D12CaptureManager::WriteDxgiAdapterInfo()
+void D3D12CaptureManager::WriteDxgiAdapterInfo(const Dx12StateTable& state_table)
 {
     for (const auto& adapter : adapters_)
     {
-        const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
-
-        // Write adapter desc to file if it was marked active
-        if (adapter.second.active == true)
+        if (adapter.second.active == false)
         {
-            WriteDxgiAdapterInfoCommand(replay_adapter_desc);
+            continue;
+        }
+
+        bool in_use = false;
+
+        // Check if device is using this adapter
+        state_table.VisitWrappers([&](ID3D12Device_Wrapper* wrapper) {
+            auto device = wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+            if ((device != nullptr) && (pack_luid(device->GetAdapterLuid()) == adapter.first))
+            {
+                in_use = true;
+            }
+        });
+
+        if (in_use == true)
+        {
+            WriteDxgiAdapterInfoCommand(adapter.second.internal_desc);
         }
     }
 }

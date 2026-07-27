@@ -825,7 +825,7 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory);
 
-    void WriteDxgiAdapterInfo();
+    void WriteDxgiAdapterInfo(const Dx12StateTable& state_table);
 
     bool IsAccelerationStructureResource(format::HandleId id);
 
