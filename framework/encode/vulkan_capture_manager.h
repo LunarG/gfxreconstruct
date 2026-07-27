@@ -1046,7 +1046,7 @@ class VulkanCaptureManager : public ApiCaptureManager
             state_tracker_->TrackExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
         }
 
-        if (IsCaptureModeTrack() && GetUseAssetFile())
+        if (NeedsCommandBufferResourceTracking())
         {
             auto primary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
             if (primary_wrapper != nullptr && commandBufferCount && pCommandBuffers != nullptr)
@@ -1080,7 +1080,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                 state_tracker_->TrackResetCommandPool(commandPool);
             }
 
-            if (IsCaptureModeTrack() && GetUseAssetFile())
+            if (NeedsCommandBufferResourceTracking())
             {
                 auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(commandPool);
                 for (const auto& entry : wrapper->child_buffers)
@@ -1095,7 +1095,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     {
         if (result == VK_SUCCESS)
         {
-            if (GetUseAssetFile())
+            if (NeedsCommandBufferResourceTracking())
             {
                 auto* cmd_buffer_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
@@ -1896,7 +1896,10 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override { return layer_settings_; }
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
+    {
+        return layer_settings_;
+    }
 
     void PreProcess_vkDestroyBuffer(VkDevice, VkBuffer buffer, const VkAllocationCallbacks*);
 
@@ -1913,9 +1916,15 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
+    virtual void CreateStateTracker() override
+    {
+        state_tracker_ = std::make_unique<VulkanStateTracker>();
+    }
 
-    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+    virtual void DestroyStateTracker() override
+    {
+        state_tracker_ = nullptr;
+    }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 

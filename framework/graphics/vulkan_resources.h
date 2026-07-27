@@ -72,8 +72,8 @@ struct ResourceBase
 struct AssetBase : ResourceBase
 {
     AssetBase(ResourceType type) :
-        ResourceBase(type), queue_family_index{ 0 }, bind_memory_id{ format::kNullHandleId }, bind_offset{ 0 },
-        size{ 0 }, bind_pnext{ nullptr }
+        ResourceBase(type), queue_family_index{ 0 }, bind_memory_id{ format::kNullHandleId },
+        bind_offset{ 0 }, size{ 0 }, bind_pnext{ nullptr }
     {}
 
     uint32_t                   queue_family_index;

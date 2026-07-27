@@ -2379,10 +2379,13 @@ void VulkanCaptureManager::PostProcess_vkBindBufferMemory(
 {
     if (result == VK_SUCCESS)
     {
-        if (IsCaptureModeTrack())
+        if (IsCaptureModeTrack() || NeedsCommandBufferResourceTracking())
         {
-            GFXRECON_ASSERT(state_tracker_ != nullptr);
-            state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
+            if (IsCaptureModeTrack())
+            {
+                GFXRECON_ASSERT(state_tracker_ != nullptr);
+                state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
+            }
 
             auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
             ProcessBindResourceMemory(wrapper, memory, memoryOffset);
@@ -2412,17 +2415,19 @@ void VulkanCaptureManager::PostProcess_vkBindBufferMemory2(VkResult             
 {
     if ((result == VK_SUCCESS) && (pBindInfos != nullptr))
     {
-        if (IsCaptureModeTrack())
+        if (IsCaptureModeTrack() || NeedsCommandBufferResourceTracking())
         {
-            GFXRECON_ASSERT(state_tracker_ != nullptr);
-
             for (uint32_t i = 0; i < bindInfoCount; ++i)
             {
-                state_tracker_->TrackBufferMemoryBinding(device,
-                                                         pBindInfos[i].buffer,
-                                                         pBindInfos[i].memory,
-                                                         pBindInfos[i].memoryOffset,
-                                                         pBindInfos[i].pNext);
+                if (IsCaptureModeTrack())
+                {
+                    GFXRECON_ASSERT(state_tracker_ != nullptr);
+                    state_tracker_->TrackBufferMemoryBinding(device,
+                                                             pBindInfos[i].buffer,
+                                                             pBindInfos[i].memory,
+                                                             pBindInfos[i].memoryOffset,
+                                                             pBindInfos[i].pNext);
+                }
 
                 auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pBindInfos[i].buffer);
                 ProcessBindResourceMemory(wrapper, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
@@ -2448,7 +2453,7 @@ void VulkanCaptureManager::ProcessBindResourceMemory(graphics::AssetBase* resour
                                                      VkDeviceMemory       memory,
                                                      VkDeviceSize         memoryOffset)
 {
-    GFXRECON_ASSERT(IsCaptureModeTrack());
+    GFXRECON_ASSERT(NeedsCommandBufferResourceTracking() || IsCaptureModeTrack());
 
     resource->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     resource->bind_offset    = memoryOffset;
@@ -2465,7 +2470,7 @@ void VulkanCaptureManager::ProcessBindResourceMemory(graphics::AssetBase* resour
 
 void VulkanCaptureManager::ProcessUnbindResourceMemory(graphics::AssetBase* resource)
 {
-    GFXRECON_ASSERT(IsCaptureModeTrack());
+    GFXRECON_ASSERT(NeedsCommandBufferResourceTracking());
     GFXRECON_ASSERT(resource != nullptr);
 
     if (resource->bind_memory_id != format::kNullHandleId)
@@ -2488,7 +2493,7 @@ void VulkanCaptureManager::ProcessUnbindResourceMemory(graphics::AssetBase* reso
 
 void VulkanCaptureManager::PreProcess_vkDestroyBuffer(VkDevice, VkBuffer buffer, const VkAllocationCallbacks*)
 {
-    if (IsCaptureModeTrack())
+    if (NeedsCommandBufferResourceTracking())
     {
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
         if (wrapper != nullptr)
@@ -2500,7 +2505,7 @@ void VulkanCaptureManager::PreProcess_vkDestroyBuffer(VkDevice, VkBuffer buffer,
 
 void VulkanCaptureManager::PreProcess_vkDestroyImage(VkDevice, VkImage image, const VkAllocationCallbacks*)
 {
-    if (IsCaptureModeTrack())
+    if (NeedsCommandBufferResourceTracking())
     {
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
         if (wrapper != nullptr)
@@ -2538,10 +2543,13 @@ void VulkanCaptureManager::PostProcess_vkBindImageMemory(
 {
     if (result == VK_SUCCESS)
     {
-        if (IsCaptureModeTrack())
+        if (IsCaptureModeTrack() || NeedsCommandBufferResourceTracking())
         {
-            GFXRECON_ASSERT(state_tracker_ != nullptr);
-            state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+            if (IsCaptureModeTrack())
+            {
+                GFXRECON_ASSERT(state_tracker_ != nullptr);
+                state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+            }
 
             auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
             ProcessBindResourceMemory(wrapper, memory, memoryOffset);
@@ -2565,14 +2573,19 @@ void VulkanCaptureManager::PostProcess_vkBindImageMemory2(VkResult              
 {
     if ((result == VK_SUCCESS) && (pBindInfos != nullptr))
     {
-        if (IsCaptureModeTrack())
+        if (IsCaptureModeTrack() || NeedsCommandBufferResourceTracking())
         {
-            GFXRECON_ASSERT(state_tracker_ != nullptr);
-
             for (uint32_t i = 0; i < bindInfoCount; ++i)
             {
-                state_tracker_->TrackImageMemoryBinding(
-                    device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
+                if (IsCaptureModeTrack())
+                {
+                    GFXRECON_ASSERT(state_tracker_ != nullptr);
+                    state_tracker_->TrackImageMemoryBinding(device,
+                                                            pBindInfos[i].image,
+                                                            pBindInfos[i].memory,
+                                                            pBindInfos[i].memoryOffset,
+                                                            pBindInfos[i].pNext);
+                }
 
                 auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pBindInfos[i].image);
                 ProcessBindResourceMemory(wrapper, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
@@ -4233,13 +4246,29 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndexed(VkCommandBuffer commandB
 void VulkanCaptureManager::PostProcess_vkCmdDrawIndirect(
     VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    if (NeedsCommandBufferResourceTracking() && drawCount)
+    {
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         buffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         offset,
+                                         stride > 1 ? stride * drawCount : sizeof(VkDrawIndirectCommand));
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirect(
     VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    if (NeedsCommandBufferResourceTracking() && drawCount)
+    {
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         buffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         offset,
+                                         drawCount > 1 ? drawCount * stride : sizeof(VkDrawIndexedIndirectCommand));
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer,
@@ -4250,7 +4279,18 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndirectCount(VkCommandBuffer co
                                                               uint32_t        maxDrawCount,
                                                               uint32_t        stride)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    if (NeedsCommandBufferResourceTracking() && maxDrawCount)
+    {
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         countBuffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         countBufferOffset,
+                                         sizeof(uint32_t));
+
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer,
@@ -4261,7 +4301,18 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirectCount(VkCommandBu
                                                                      uint32_t        maxDrawCount,
                                                                      uint32_t        stride)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    if (NeedsCommandBufferResourceTracking() && maxDrawCount)
+    {
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         countBuffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         countBufferOffset,
+                                         sizeof(uint32_t));
+
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDrawIndirectCountKHR(VkCommandBuffer commandBuffer,
@@ -4272,7 +4323,18 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndirectCountKHR(VkCommandBuffer
                                                                  uint32_t        maxDrawCount,
                                                                  uint32_t        stride)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    if (NeedsCommandBufferResourceTracking() && maxDrawCount)
+    {
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         countBuffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         countBufferOffset,
+                                         sizeof(uint32_t));
+
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirectCountKHR(VkCommandBuffer commandBuffer,
@@ -4283,7 +4345,18 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirectCountKHR(VkComman
                                                                         uint32_t        maxDrawCount,
                                                                         uint32_t        stride)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    if (NeedsCommandBufferResourceTracking() && maxDrawCount)
+    {
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         countBuffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         countBufferOffset,
+                                         sizeof(uint32_t));
+
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_graphics);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDispatch(VkCommandBuffer commandBuffer,
@@ -4298,7 +4371,16 @@ void VulkanCaptureManager::PostProcess_vkCmdDispatchIndirect(VkCommandBuffer com
                                                              VkBuffer        buffer,
                                                              VkDeviceSize    offset)
 {
-    TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_compute);
+    if (NeedsCommandBufferResourceTracking())
+    {
+        InsertBufferAssetInCommandBuffer(commandBuffer,
+                                         buffer,
+                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         offset,
+                                         sizeof(VkDispatchIndirectCommand));
+
+        TrackPipelineDescriptors(commandBuffer, vulkan_state_info::PipelineBindPoints::kBindPoint_compute);
+    }
 }
 
 void VulkanCaptureManager::PostProcess_vkCmdDispatchBase(VkCommandBuffer commandBuffer,
@@ -4620,7 +4702,7 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer2(VkCommandBuffer         
                 InsertBufferAssetInCommandBuffer(commandBuffer,
                                                  pCopyBufferInfo->srcBuffer,
                                                  vulkan_wrappers::ResourceAccessType::kRead,
-                                                 pCopyBufferInfo->pRegions[i].dstOffset,
+                                                 pCopyBufferInfo->pRegions[i].srcOffset,
                                                  pCopyBufferInfo->pRegions[i].size);
 
                 InsertBufferAssetInCommandBuffer(commandBuffer,
@@ -5063,9 +5145,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                     vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
                             pRenderingInfo->pColorAttachments[i].imageView);
-
-                    // The image view is allowed to be null
-                    if (img_view_wrapper != nullptr)
+                    if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                     {
                         wrapper->ReferenceResource(img_view_wrapper->image,
                                                    0,
@@ -5081,9 +5161,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                 vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
                         pRenderingInfo->pDepthAttachment->imageView);
-                assert(img_view_wrapper != nullptr);
-
-                if (img_view_wrapper != nullptr)
+                if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                 {
                     wrapper->ReferenceResource(img_view_wrapper->image,
                                                0,
@@ -5098,9 +5176,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                 vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
                         pRenderingInfo->pStencilAttachment->imageView);
-                assert(img_view_wrapper != nullptr);
-
-                if (img_view_wrapper != nullptr)
+                if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                 {
                     wrapper->ReferenceResource(img_view_wrapper->image,
                                                0,
@@ -5304,6 +5380,11 @@ void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
 
     for (const auto& [asset, ranges] : command_wrapper->referenced_ranges)
     {
+        if (asset == nullptr)
+        {
+            continue;
+        }
+
         bool is_optimal_image;
         if (asset->type == graphics::ResourceType::kImage)
         {
@@ -5316,7 +5397,7 @@ void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
             is_optimal_image = false;
         }
 
-        if (asset != nullptr && (asset->bind_memory_id != format::kNullHandleId) &&
+        if ((asset->bind_memory_id != format::kNullHandleId) &&
             ((ranges.access_type & vulkan_wrappers::ResourceAccessType::kRead) ==
              vulkan_wrappers::ResourceAccessType::kRead) &&
             !is_optimal_image)
