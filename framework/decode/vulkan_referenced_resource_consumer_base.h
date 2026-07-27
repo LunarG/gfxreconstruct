@@ -48,6 +48,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         table_.GetReferencedHandleIds(referenced_ids, unreferenced_ids);
     }
 
+    bool WasCommandBufferSubmissionSeen() const { return command_buffer_submission_seen_; }
+
     void ProcessStateBeginMarker(uint64_t) override { loading_state_ = true; }
 
     void ProcessStateEndMarker(uint64_t) override
@@ -59,6 +61,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
 
     void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
+
+    void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override;
 
     void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
 
@@ -253,8 +257,9 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         }
     }
 
-    bool                    loading_state_ = false;
-    bool                    loaded_state_  = false;
+    bool                    loading_state_                  = false;
+    bool                    loaded_state_                   = false;
+    bool                    command_buffer_submission_seen_ = false;
     ReferencedResourceTable table_;
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;

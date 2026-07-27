@@ -38,6 +38,12 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
             size_t     command_buffer_count = submits[i].pCommandBuffers.GetLength();
             const auto command_buffer_ids   = submits[i].pCommandBuffers.GetPointer();
 
+            // Synthetic submissions from state restoration are not evidence of application work.
+            if ((command_buffer_count > 0) && !IsStateLoading())
+            {
+                command_buffer_submission_seen_ = true;
+            }
+
             for (size_t j = 0; j < command_buffer_count; ++j)
             {
                 table_.ProcessUserSubmission(command_buffer_ids[j]);
@@ -58,6 +64,37 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallI
         {
             size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
             const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
+
+            if ((command_buffer_count > 0) && !IsStateLoading())
+            {
+                command_buffer_submission_seen_ = true;
+            }
+
+            for (size_t j = 0; j < command_buffer_count; ++j)
+            {
+                table_.ProcessUserSubmission(command_buffers[j].commandBuffer);
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2KHR(const ApiCallInfo&     call_info,
+                                                                     args::QueueSubmit2KHR& args)
+{
+    if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        size_t     submit_count = args.pSubmits.GetLength();
+        const auto submits      = args.pSubmits.GetMetaStructPointer();
+
+        for (size_t i = 0; i < submit_count; ++i)
+        {
+            size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
+            const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
+
+            if ((command_buffer_count > 0) && !IsStateLoading())
+            {
+                command_buffer_submission_seen_ = true;
+            }
 
             for (size_t j = 0; j < command_buffer_count; ++j)
             {
