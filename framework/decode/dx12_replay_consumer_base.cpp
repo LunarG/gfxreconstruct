@@ -1344,7 +1344,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     GFXRECON_ASSERT(device != nullptr);
 
-    IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
+    IUnknown* adapter = GetCreateDeviceAdapter(adapter_info, device);
 
     auto replay_result = E_FAIL;
 #ifdef GFXRECON_AGS_SUPPORT
@@ -1416,7 +1416,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12DeviceFactoryCreateDevice(DxObjectI
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (device != nullptr));
 
-    IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
+    IUnknown* adapter = GetCreateDeviceAdapter(adapter_info, device);
 
     auto device_factory = static_cast<ID3D12DeviceFactory*>(replay_object_info->object);
     auto replay_result =
@@ -1610,13 +1610,29 @@ IUnknown* Dx12ReplayConsumerBase::MatchReplayAdapterToCaptureDesc(const format::
     return nullptr;
 }
 
-IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_info)
+IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_info, HandlePointerDecoder<void*>* device)
 {
     // Capture-time adapter description recorded by a kD3D12CreateDeviceAdapterInfoCommand
     const format::DxgiAdapterDesc* capture_desc = nullptr;
 
-    const format::HandleId lookup_id  = (adapter_info != nullptr) ? adapter_info->capture_id : format::kNullHandleId;
-    auto                   desc_entry = capture_adapter_desc_by_id_.find(lookup_id);
+    format::HandleId lookup_id = format::kNullHandleId;
+
+    if ((device != nullptr) && (device->GetPointer() != nullptr) && (device->GetLength() > 0))
+    {
+        auto adapter_entry = capture_adapter_id_by_device_id_.find(device->GetPointer()[0]);
+        if (adapter_entry != capture_adapter_id_by_device_id_.end())
+        {
+            lookup_id = adapter_entry->second;
+        }
+    }
+
+    // Not populated by kD3D12CreateDeviceAdapterInfoCommand, get from adapter_info instead
+    if ((lookup_id == format::kNullHandleId) && (adapter_info != nullptr))
+    {
+        lookup_id = adapter_info->capture_id;
+    }
+
+    auto desc_entry = capture_adapter_desc_by_id_.find(lookup_id);
     if (desc_entry != capture_adapter_desc_by_id_.end())
     {
         capture_desc = &desc_entry->second;

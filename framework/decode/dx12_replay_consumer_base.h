@@ -1268,7 +1268,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     };
 
-    IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info);
+    IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info, HandlePointerDecoder<void*>* device);
 
     IUnknown* MatchReplayAdapterToCaptureDesc(const format::DxgiAdapterDesc* capture_desc);
 

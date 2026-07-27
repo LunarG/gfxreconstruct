@@ -99,6 +99,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DeviceFactory_Wrapper>(state_table);
 
     // Device
+    WriteD3D12CreateDeviceAdapterInfo(state_table);
     StandardCreateWrite<ID3D12Device_Wrapper>(state_table);
 
     StandardCreateWrite<ID3D12DeviceConfiguration_Wrapper>(state_table);
@@ -373,6 +374,16 @@ bool Dx12StateWriter::IsCachedPSOBlob(const ID3D10Blob_Wrapper* wrapper) const
     GFXRECON_ASSERT(wrapper_info != nullptr);
 
     return (wrapper_info->create_call_id == format::ApiCall_ID3D12PipelineState_GetCachedBlob);
+}
+
+void Dx12StateWriter::WriteD3D12CreateDeviceAdapterInfo(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](ID3D12Device_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetWrappedObject() != nullptr);
+
+        D3D12CaptureManager::Get()->WriteD3D12CreateDeviceAdapterInfo(wrapper);
+    });
 }
 
 void Dx12StateWriter::WriteRootSignatureBlobState(const Dx12StateTable& state_table)

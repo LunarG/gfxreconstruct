@@ -603,7 +603,7 @@ HRESULT WINAPI D3D12CreateDevice(
         if (SUCCEEDED(result))
         {
             WrapObject(riid, ppDevice, nullptr);
-            manager->WriteD3D12CreateDeviceAdapterInfoCommand(pAdapter, GetDx12WrappedId<IUnknown>(reinterpret_cast<IUnknown*>(*ppDevice)));
+            manager->WriteD3D12CreateDeviceAdapterInfoCommand(pAdapter, reinterpret_cast<IUnknown*>(*ppDevice));
         }
 
         Encode_D3D12CreateDevice(
@@ -19219,7 +19219,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::CreateDevice(
         if (SUCCEEDED(result))
         {
             WrapObject(riid, ppvDevice, nullptr);
-            manager->WriteD3D12CreateDeviceAdapterInfoCommand(adapter, GetDx12WrappedId<IUnknown>(reinterpret_cast<IUnknown*>(*ppvDevice)));
+            manager->WriteD3D12CreateDeviceAdapterInfoCommand(adapter, reinterpret_cast<IUnknown*>(*ppvDevice));
         }
 
         Encode_ID3D12DeviceFactory_CreateDevice(

@@ -815,7 +815,9 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeInfo& runtime_info);
 
-    void WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, format::HandleId device_id);
+    void WriteD3D12CreateDeviceAdapterInfo(ID3D12Device_Wrapper* device_wrapper);
+
+    void WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, IUnknown* device);
 
     void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
 
@@ -943,6 +945,9 @@ class D3D12CaptureManager : public ApiCaptureManager
 
   private:
     void     WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc);
+    void     WriteD3D12CreateDeviceAdapterInfoCommand(format::HandleId               adapter_id,
+                                                      const format::DxgiAdapterDesc& adapter_desc,
+                                                      format::HandleId               device_id);
     void     CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
     bool     UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     void     EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
