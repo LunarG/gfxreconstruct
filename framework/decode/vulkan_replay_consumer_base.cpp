@@ -5787,7 +5787,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         int            replacement_import_fd      = -1;
         auto* import_fd_info = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
 
-        if (import_fd_info != nullptr && UseAddressReplacement(device_info))
+        if (!CanPreserveExternalMemory(device_info))
         {
             graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
             import_fd_info = nullptr;
