@@ -5806,9 +5806,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             backing_allocate_info.memoryTypeIndex      = modified_allocate_info->memoryTypeIndex;
 
             // Since external memory is commonly dedicated
-            VkMemoryDedicatedAllocateInfo backing_dedicated_info = {
-                VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO
-            };
+            VkMemoryDedicatedAllocateInfo backing_dedicated_info = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO };
             if (const auto* dedicated_info =
                     graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info))
             {
