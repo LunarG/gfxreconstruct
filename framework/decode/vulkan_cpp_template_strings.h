@@ -1529,57 +1529,52 @@ static const char* sSwapchainSourceCode_part_2 = R"(
             // Command Buffers, Semaphores, etc) as many queue families that are available.
             // This is because at any point, the application may get a Device queue from that family and
             // use it during the present.
-            uint32_t start_size = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
-            uint32_t new_count  = max_queues;
-            if (start_size < new_count)
+            // Create one command buffer per queue per swapchain image so that we don't Rewind a command buffer
+            // that may be in active use.
+            uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
+            if (command_buffer_count < captured_image_count)
             {
-                // Create one command buffer per queue per swapchain image so that we don't Rewind a command buffer
-                // that may be in active use.
-                uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
-                if (command_buffer_count < captured_image_count)
+                copy_cmd_data.command_buffers.resize(captured_image_count);
+
+                uint32_t                    new_count     = captured_image_count - command_buffer_count;
+                VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                                                              nullptr,
+                                                              copy_cmd_data.command_pool,
+                                                              VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                                              new_count };
+
+                result = vkAllocateCommandBuffers(
+                    device, &allocate_info, &copy_cmd_data.command_buffers[command_buffer_count]);
+                if (result != VK_SUCCESS)
                 {
-                    copy_cmd_data.command_buffers.resize(captured_image_count);
+                    printf("ERROR: Virtual swapchain failed allocating internal command buffer %u for "
+                           "swapchain %p\n",
+                           queue_family,
+                           static_cast<void*>(swapchain));
+                    return result;
+                }
+            }
+            uint32_t semaphore_count = static_cast<uint32_t>(copy_cmd_data.semaphores.size());
+            if (semaphore_count < captured_image_count)
+            {
+                copy_cmd_data.semaphores.resize(captured_image_count);
 
-                    uint32_t                    new_count     = captured_image_count - command_buffer_count;
-                    VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                                                  nullptr,
-                                                                  copy_cmd_data.command_pool,
-                                                                  VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                                                                  new_count };
+                for (uint32_t ii = semaphore_count; ii < captured_image_count; ++ii)
+                {
+                    VkSemaphoreCreateInfo semaphore_create_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+                                                                    nullptr,
+                                                                    0 };
 
-                    result = vkAllocateCommandBuffers(
-                        device, &allocate_info, &copy_cmd_data.command_buffers[command_buffer_count]);
+                    VkSemaphore semaphore = 0;
+                    result                = vkCreateSemaphore(device, &semaphore_create_info, nullptr, &semaphore);
                     if (result != VK_SUCCESS)
                     {
-                        printf("ERROR: Virtual swapchain failed allocating internal command buffer %u for "
+                        printf("ERROR: Virtual swapchain failed creating internal copy semaphore for "
                                "swapchain %p\n",
-                               queue_family,
                                static_cast<void*>(swapchain));
                         return result;
                     }
-                }
-                uint32_t semaphore_count = static_cast<uint32_t>(copy_cmd_data.semaphores.size());
-                if (semaphore_count < captured_image_count)
-                {
-                    copy_cmd_data.semaphores.resize(captured_image_count);
-
-                    for (uint32_t ii = semaphore_count; ii < captured_image_count; ++ii)
-                    {
-                        VkSemaphoreCreateInfo semaphore_create_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-                                                                        nullptr,
-                                                                        0 };
-
-                        VkSemaphore semaphore = 0;
-                        result                = vkCreateSemaphore(device, &semaphore_create_info, nullptr, &semaphore);
-                        if (result != VK_SUCCESS)
-                        {
-                            printf("ERROR: Virtual swapchain failed creating internal copy semaphore for "
-                                   "swapchain %p\n",
-                                   static_cast<void*>(swapchain));
-                            return result;
-                        }
-                        copy_cmd_data.semaphores[ii] = semaphore;
-                    }
+                    copy_cmd_data.semaphores[ii] = semaphore;
                 }
             }
         }
