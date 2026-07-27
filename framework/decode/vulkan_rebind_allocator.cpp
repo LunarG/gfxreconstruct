@@ -761,9 +761,12 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    // The captured byte-extent: the memory-requirement size when recorded, else the buffer's create
-    // size (always present). Used to detect aliasing against resources already bound to this memory.
-    const VkDeviceSize footprint = capture_req.size > 0 ? capture_req.size : resource_alloc_info.create_size;
+    // The captured byte-extent, used to detect aliasing. Prefer the smaller of requirement- and
+    // create-size: page-guard tracking rewrites the recorded requirement to a page multiple (a
+    // 168-byte buffer can read as 65536), which would overlap every neighbour within that page.
+    const VkDeviceSize footprint = (capture_req.size > 0 && resource_alloc_info.create_size > 0)
+                                       ? std::min(capture_req.size, resource_alloc_info.create_size)
+                                       : std::max(capture_req.size, resource_alloc_info.create_size);
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
