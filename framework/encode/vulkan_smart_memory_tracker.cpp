@@ -317,7 +317,7 @@ void VulkanSmartMemoryTracker::ProcessActiveRange(uint64_t                      
                                                   size_t                         end_index,
                                                   const ModifiedMemoryFunc&      handle_modified)
 {
-    GFXRECON_ASSERT(end_index > end_index);
+    GFXRECON_ASSERT(end_index > start_index);
 
     const size_t block_count  = end_index - start_index;
     const size_t block_offset = start_index << kBlockSizePotShift;
