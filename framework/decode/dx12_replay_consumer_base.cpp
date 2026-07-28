@@ -1610,7 +1610,8 @@ IUnknown* Dx12ReplayConsumerBase::MatchReplayAdapterToCaptureDesc(const format::
     return nullptr;
 }
 
-IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_info, HandlePointerDecoder<void*>* device)
+IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo*                adapter_info,
+                                                         HandlePointerDecoder<void*>* device)
 {
     // Capture-time adapter description recorded by a kD3D12CreateDeviceAdapterInfoCommand
     const format::DxgiAdapterDesc* capture_desc = nullptr;
