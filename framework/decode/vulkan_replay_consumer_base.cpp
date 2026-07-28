@@ -10133,14 +10133,35 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     // retrieve replay-time device-address
     VkDeviceAddress replay_device_address = func(device, address_info);
 
-    // if supported, opaque device-addresses are expected to match
-    GFXRECON_ASSERT(!device_info->allocator->SupportsOpaqueDeviceAddresses() ||
-                    original_result == replay_device_address)
-
-    // keep track of old/new addresses in any case
     format::HandleId  buffer      = pInfo->GetMetaStructPointer()->buffer;
     VulkanBufferInfo* buffer_info = GetObjectInfoTable().GetVkBufferInfo(buffer);
     GFXRECON_ASSERT(buffer_info != nullptr);
+
+    // if supported, opaque device-addresses are expected to match.
+    //
+    // According to VUID-vkGetBufferDeviceAddress-bufferDeviceAddress-03324,
+    // The buffer has to
+    // 1. be a sparse, or
+    // 2. bind a valid memory, or
+    // 3. be created with VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT.
+    //
+    // Although it's legal to GetBufferDeviceAddress,
+    // the replay address could be 0 and mismatch if the memory is invalid, so print warning, instead of ASSERT.
+    //
+    // For trimming case, the buffer could still exist, but the memory is freed when the trimming starts.
+    if (device_info->allocator->SupportsOpaqueDeviceAddresses() && original_result != replay_device_address)
+    {
+        GFXRECON_LOG_WARNING(
+            "Opaque device addresses are supported, so captured and replay buffer device addresses are "
+            "expected to match. Buffer (ID = %" PRIu64 ") was captured with address 0x%" PRIx64
+            ", but replay returned 0x%" PRIx64 ". This can happen when the buffer's memory was freed "
+            "before the trim range started.",
+            buffer_info->capture_id,
+            original_result,
+            replay_device_address);
+    }
+
+    // keep track of old/new addresses in any case
     buffer_info->capture_address = original_result;
     buffer_info->replay_address  = replay_device_address;
 

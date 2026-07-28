@@ -1535,18 +1535,37 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
         GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
         if (wrapper->device != VK_NULL_HANDLE && wrapper->address != 0)
         {
-            auto physical_device_wrapper = wrapper->bind_device->physical_device;
-            auto call_id                 = physical_device_wrapper->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
-                                               ? format::ApiCall_vkGetBufferDeviceAddress
-                                               : format::ApiCall_vkGetBufferDeviceAddressKHR;
+            const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
+                state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-            parameter_stream_.Clear();
-            encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
-            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, wrapper->handle };
-            EncodeStructPtr(&encoder_, &info);
-            encoder_.EncodeVkDeviceAddressValue(wrapper->address);
-            WriteFunctionCall(call_id, &parameter_stream_);
-            parameter_stream_.Clear();
+            // According to VUID-vkGetBufferDeviceAddress-bufferDeviceAddress-03324,
+            // The buffer has to
+            // 1. be a sparse, or
+            // 2. bind a valid memory, or
+            // 3. be created with VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT.
+            //
+            // Since VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT is always added by gfxr,
+            // if the buffer device address is used. We don't need to check this flag.
+            //
+            // Memory could have been freed before the buffer was destroyed, so only write the buffer device address
+            // if the memory still exists.
+            if (memory_wrapper != nullptr || wrapper->is_sparse_buffer)
+            {
+                auto physical_device_wrapper = wrapper->bind_device->physical_device;
+                auto call_id = physical_device_wrapper->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
+                                   ? format::ApiCall_vkGetBufferDeviceAddress
+                                   : format::ApiCall_vkGetBufferDeviceAddressKHR;
+
+                parameter_stream_.Clear();
+                encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
+                VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+                                                   nullptr,
+                                                   wrapper->handle };
+                EncodeStructPtr(&encoder_, &info);
+                encoder_.EncodeVkDeviceAddressValue(wrapper->address);
+                WriteFunctionCall(call_id, &parameter_stream_);
+                parameter_stream_.Clear();
+            }
         }
     });
 }
