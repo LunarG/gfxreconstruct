@@ -24,7 +24,7 @@
 
 #include "encode/capture_settings.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "graphics/vulkan_resources.h"
+#include "encode/vulkan_resource_tracking.h"
 #include "vulkan/vulkan_core.h"
 #include <cstdint>
 #include PROJECT_VERSION_HEADER_FILE
@@ -2449,9 +2449,9 @@ void VulkanCaptureManager::PostProcess_vkBindBufferMemory2(VkResult             
     }
 }
 
-void VulkanCaptureManager::ProcessBindResourceMemory(graphics::AssetBase* resource,
-                                                     VkDeviceMemory       memory,
-                                                     VkDeviceSize         memoryOffset)
+void VulkanCaptureManager::ProcessBindResourceMemory(AssetBase*     resource,
+                                                     VkDeviceMemory memory,
+                                                     VkDeviceSize   memoryOffset)
 {
     GFXRECON_ASSERT(NeedsCommandBufferResourceTracking() || IsCaptureModeTrack());
 
@@ -2468,7 +2468,7 @@ void VulkanCaptureManager::ProcessBindResourceMemory(graphics::AssetBase* resour
     }
 }
 
-void VulkanCaptureManager::ProcessUnbindResourceMemory(graphics::AssetBase* resource)
+void VulkanCaptureManager::ProcessUnbindResourceMemory(AssetBase* resource)
 {
     GFXRECON_ASSERT(NeedsCommandBufferResourceTracking());
     GFXRECON_ASSERT(resource != nullptr);
@@ -3446,14 +3446,13 @@ void VulkanCaptureManager::PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(
     }
 }
 
-void VulkanCaptureManager::MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper)
+void VulkanCaptureManager::MarkReferencedAssetsAsDirty(CommandBufferResourceTracking* cmd_buf_wrapper)
 {
     assert(cmd_buf_wrapper != nullptr);
 
     for (auto& [resource, ranges] : cmd_buf_wrapper->referenced_ranges)
     {
-        if ((ranges.access_type & vulkan_wrappers::ResourceAccessType::kWrite) ==
-            vulkan_wrappers::ResourceAccessType::kWrite)
+        if ((ranges.access_type & ResourceAccessType::kWrite) == ResourceAccessType::kWrite)
         {
             assert(resource);
             resource->dirty = true;
@@ -4211,7 +4210,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBindIndexBuffer(VkCommandBuffer comm
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertBufferAssetInCommandBuffer(commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset);
+        InsertBufferAssetInCommandBuffer(commandBuffer, buffer, ResourceAccessType::kRead, offset);
     }
 }
 
@@ -4220,8 +4219,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBindIndexBuffer2(
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertBufferAssetInCommandBuffer(
-            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, size);
+        InsertBufferAssetInCommandBuffer(commandBuffer, buffer, ResourceAccessType::kRead, offset, size);
     }
 }
 
@@ -4235,8 +4233,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBindVertexBuffers(VkCommandBuffer   
     {
         for (uint32_t i = 0; i < bindingCount; ++i)
         {
-            InsertBufferAssetInCommandBuffer(
-                commandBuffer, pBuffers[i], vulkan_wrappers::ResourceAccessType::kRead, pOffsets[i]);
+            InsertBufferAssetInCommandBuffer(commandBuffer, pBuffers[i], ResourceAccessType::kRead, pOffsets[i]);
         }
     }
 }
@@ -4255,7 +4252,7 @@ void VulkanCaptureManager::PostProcess_vkCmdBindVertexBuffers2(VkCommandBuffer  
         {
             InsertBufferAssetInCommandBuffer(commandBuffer,
                                              pBuffers[i],
-                                             vulkan_wrappers::ResourceAccessType::kRead,
+                                             ResourceAccessType::kRead,
                                              pOffsets[i],
                                              pSizes != nullptr ? pSizes[i] : VK_WHOLE_SIZE);
         }
@@ -4304,7 +4301,7 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndirect(
     {
         InsertBufferAssetInCommandBuffer(commandBuffer,
                                          buffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         ResourceAccessType::kRead,
                                          offset,
                                          drawCount > 1 ? stride * drawCount : sizeof(VkDrawIndirectCommand));
 
@@ -4324,7 +4321,7 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirect(
     {
         InsertBufferAssetInCommandBuffer(commandBuffer,
                                          buffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
+                                         ResourceAccessType::kRead,
                                          offset,
                                          drawCount > 1 ? drawCount * stride : sizeof(VkDrawIndexedIndirectCommand));
 
@@ -4348,12 +4345,9 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndirectCount(VkCommandBuffer co
     if (NeedsCommandBufferResourceTracking() && maxDrawCount)
     {
         InsertBufferAssetInCommandBuffer(
-            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
-        InsertBufferAssetInCommandBuffer(commandBuffer,
-                                         countBuffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
-                                         countBufferOffset,
-                                         sizeof(uint32_t));
+            commandBuffer, buffer, ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, countBuffer, ResourceAccessType::kRead, countBufferOffset, sizeof(uint32_t));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         if (wrapper == nullptr)
@@ -4375,12 +4369,9 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirectCount(VkCommandBu
     if (NeedsCommandBufferResourceTracking() && maxDrawCount)
     {
         InsertBufferAssetInCommandBuffer(
-            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
-        InsertBufferAssetInCommandBuffer(commandBuffer,
-                                         countBuffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
-                                         countBufferOffset,
-                                         sizeof(uint32_t));
+            commandBuffer, buffer, ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, countBuffer, ResourceAccessType::kRead, countBufferOffset, sizeof(uint32_t));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         if (wrapper == nullptr)
@@ -4402,12 +4393,9 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndirectCountKHR(VkCommandBuffer
     if (NeedsCommandBufferResourceTracking() && maxDrawCount)
     {
         InsertBufferAssetInCommandBuffer(
-            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
-        InsertBufferAssetInCommandBuffer(commandBuffer,
-                                         countBuffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
-                                         countBufferOffset,
-                                         sizeof(uint32_t));
+            commandBuffer, buffer, ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, countBuffer, ResourceAccessType::kRead, countBufferOffset, sizeof(uint32_t));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         if (wrapper == nullptr)
@@ -4429,12 +4417,9 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawIndexedIndirectCountKHR(VkComman
     if (NeedsCommandBufferResourceTracking() && maxDrawCount)
     {
         InsertBufferAssetInCommandBuffer(
-            commandBuffer, buffer, vulkan_wrappers::ResourceAccessType::kRead, offset, maxDrawCount * stride);
-        InsertBufferAssetInCommandBuffer(commandBuffer,
-                                         countBuffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
-                                         countBufferOffset,
-                                         sizeof(uint32_t));
+            commandBuffer, buffer, ResourceAccessType::kRead, offset, maxDrawCount * stride);
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, countBuffer, ResourceAccessType::kRead, countBufferOffset, sizeof(uint32_t));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         if (wrapper == nullptr)
@@ -4467,11 +4452,8 @@ void VulkanCaptureManager::PostProcess_vkCmdDispatchIndirect(VkCommandBuffer com
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertBufferAssetInCommandBuffer(commandBuffer,
-                                         buffer,
-                                         vulkan_wrappers::ResourceAccessType::kRead,
-                                         offset,
-                                         sizeof(VkDispatchIndirectCommand));
+        InsertBufferAssetInCommandBuffer(
+            commandBuffer, buffer, ResourceAccessType::kRead, offset, sizeof(VkDispatchIndirectCommand));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         if (wrapper == nullptr)
@@ -4630,8 +4612,8 @@ void VulkanCaptureManager::UpdateCommandBufferDescriptors(VkCommandBuffer       
         const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper =
             vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[i]);
 
-        auto& bound    = bind_point_descriptors[firstSet + i];
-        bound.desc_set = desc_set_wrapper;
+        auto& bound               = bind_point_descriptors[firstSet + i];
+        bound.descriptor_bindings = desc_set_wrapper != nullptr ? &desc_set_wrapper->bindings : nullptr;
         bound.dynamic_offsets.clear();
 
         // Elements of pDescriptorSets may be VK_NULL_HANDLE when the graphicsPipelineLibrary feature is enabled
@@ -4721,9 +4703,9 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2(
     PostProcess_vkCmdBindDescriptorSets2KHR(commandBuffer, pBindDescriptorSetsInfo);
 }
 
-void VulkanCaptureManager::InsertImageAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
-                                                           VkImage                             image,
-                                                           vulkan_wrappers::ResourceAccessType access)
+void VulkanCaptureManager::InsertImageAssetInCommandBuffer(VkCommandBuffer    command_buffer,
+                                                           VkImage            image,
+                                                           ResourceAccessType access)
 {
     GFXRECON_ASSERT((IsCaptureModeTrack() && GetUseAssetFile()) ||
                     (GetMemoryTrackingMode() == CaptureSettings::kSmart));
@@ -4745,11 +4727,8 @@ void VulkanCaptureManager::InsertImageAssetInCommandBuffer(VkCommandBuffer      
     }
 }
 
-void VulkanCaptureManager::InsertBufferAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
-                                                            VkBuffer                            buffer,
-                                                            vulkan_wrappers::ResourceAccessType access,
-                                                            uint64_t                            offset,
-                                                            uint64_t                            size)
+void VulkanCaptureManager::InsertBufferAssetInCommandBuffer(
+    VkCommandBuffer command_buffer, VkBuffer buffer, ResourceAccessType access, uint64_t offset, uint64_t size)
 {
     GFXRECON_ASSERT((IsCaptureModeTrack() && GetUseAssetFile()) ||
                     (GetMemoryTrackingMode() == CaptureSettings::kSmart));
@@ -4783,16 +4762,10 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer(VkCommandBuffer     comma
         {
             for (uint32_t i = 0; i < regionCount; ++i)
             {
-                InsertBufferAssetInCommandBuffer(commandBuffer,
-                                                 srcBuffer,
-                                                 vulkan_wrappers::ResourceAccessType::kRead,
-                                                 pRegions[i].srcOffset,
-                                                 pRegions[i].size);
-                InsertBufferAssetInCommandBuffer(commandBuffer,
-                                                 dstBuffer,
-                                                 vulkan_wrappers::ResourceAccessType::kWrite,
-                                                 pRegions[i].dstOffset,
-                                                 pRegions[i].size);
+                InsertBufferAssetInCommandBuffer(
+                    commandBuffer, srcBuffer, ResourceAccessType::kRead, pRegions[i].srcOffset, pRegions[i].size);
+                InsertBufferAssetInCommandBuffer(
+                    commandBuffer, dstBuffer, ResourceAccessType::kWrite, pRegions[i].dstOffset, pRegions[i].size);
             }
         }
     }
@@ -4808,8 +4781,8 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImage(VkCommandBuffer    command
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, ResourceAccessType::kRead);
+        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, ResourceAccessType::kWrite);
     }
 }
 
@@ -4822,8 +4795,8 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBufferToImage(VkCommandBuffer   
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertBufferAssetInCommandBuffer(commandBuffer, srcBuffer, vulkan_wrappers::ResourceAccessType::kRead);
-        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertBufferAssetInCommandBuffer(commandBuffer, srcBuffer, ResourceAccessType::kRead);
+        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, ResourceAccessType::kWrite);
     }
 }
 
@@ -4836,8 +4809,8 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImageToBuffer(VkCommandBuffer   
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, ResourceAccessType::kRead);
+        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, ResourceAccessType::kWrite);
     }
 }
 
@@ -4852,13 +4825,13 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBuffer2(VkCommandBuffer         
             {
                 InsertBufferAssetInCommandBuffer(commandBuffer,
                                                  pCopyBufferInfo->srcBuffer,
-                                                 vulkan_wrappers::ResourceAccessType::kRead,
+                                                 ResourceAccessType::kRead,
                                                  pCopyBufferInfo->pRegions[i].srcOffset,
                                                  pCopyBufferInfo->pRegions[i].size);
 
                 InsertBufferAssetInCommandBuffer(commandBuffer,
                                                  pCopyBufferInfo->dstBuffer,
-                                                 vulkan_wrappers::ResourceAccessType::kWrite,
+                                                 ResourceAccessType::kWrite,
                                                  pCopyBufferInfo->pRegions[i].dstOffset,
                                                  pCopyBufferInfo->pRegions[i].size);
             }
@@ -4873,10 +4846,8 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImage2(VkCommandBuffer         c
     {
         if (pCopyImageInfo != nullptr)
         {
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pCopyImageInfo->srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pCopyImageInfo->dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+            InsertImageAssetInCommandBuffer(commandBuffer, pCopyImageInfo->srcImage, ResourceAccessType::kRead);
+            InsertImageAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage, ResourceAccessType::kWrite);
         }
     }
 }
@@ -4889,9 +4860,9 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyBufferToImage2(VkCommandBuffer  
         if (pCopyBufferToImageInfo != nullptr)
         {
             InsertBufferAssetInCommandBuffer(
-                commandBuffer, pCopyBufferToImageInfo->srcBuffer, vulkan_wrappers::ResourceAccessType::kRead);
+                commandBuffer, pCopyBufferToImageInfo->srcBuffer, ResourceAccessType::kRead);
             InsertImageAssetInCommandBuffer(
-                commandBuffer, pCopyBufferToImageInfo->dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+                commandBuffer, pCopyBufferToImageInfo->dstImage, ResourceAccessType::kWrite);
         }
     }
 }
@@ -4903,10 +4874,9 @@ void VulkanCaptureManager::PostProcess_vkCmdCopyImageToBuffer2(VkCommandBuffer  
     {
         if (pCopyImageToBufferInfo != nullptr)
         {
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pCopyImageToBufferInfo->srcImage, vulkan_wrappers::ResourceAccessType::kRead);
+            InsertImageAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->srcImage, ResourceAccessType::kRead);
             InsertBufferAssetInCommandBuffer(
-                commandBuffer, pCopyImageToBufferInfo->dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite);
+                commandBuffer, pCopyImageToBufferInfo->dstBuffer, ResourceAccessType::kWrite);
         }
     }
 }
@@ -4946,8 +4916,8 @@ void VulkanCaptureManager::PostProcess_vkCmdBlitImage(VkCommandBuffer    command
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, ResourceAccessType::kRead);
+        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, ResourceAccessType::kWrite);
     }
 }
 
@@ -4958,10 +4928,8 @@ void VulkanCaptureManager::PostProcess_vkCmdBlitImage2(VkCommandBuffer         c
     {
         if (pBlitImageInfo != nullptr)
         {
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pBlitImageInfo->srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pBlitImageInfo->dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+            InsertImageAssetInCommandBuffer(commandBuffer, pBlitImageInfo->srcImage, ResourceAccessType::kRead);
+            InsertImageAssetInCommandBuffer(commandBuffer, pBlitImageInfo->dstImage, ResourceAccessType::kWrite);
         }
     }
 }
@@ -4980,8 +4948,7 @@ void VulkanCaptureManager::PostProcess_vkCmdUpdateBuffer(
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertBufferAssetInCommandBuffer(
-            commandBuffer, dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite, dstOffset, dataSize);
+        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, ResourceAccessType::kWrite, dstOffset, dataSize);
     }
 }
 
@@ -4990,8 +4957,7 @@ void VulkanCaptureManager::PostProcess_vkCmdFillBuffer(
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertBufferAssetInCommandBuffer(
-            commandBuffer, dstBuffer, vulkan_wrappers::ResourceAccessType::kWrite, dstOffset, size);
+        InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer, ResourceAccessType::kWrite, dstOffset, size);
     }
 }
 
@@ -5004,7 +4970,7 @@ void VulkanCaptureManager::PostProcess_vkCmdClearColorImage(VkCommandBuffer     
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertImageAssetInCommandBuffer(commandBuffer, image, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertImageAssetInCommandBuffer(commandBuffer, image, ResourceAccessType::kWrite);
     }
 }
 
@@ -5017,7 +4983,7 @@ void VulkanCaptureManager::PostProcess_vkCmdClearDepthStencilImage(VkCommandBuff
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertImageAssetInCommandBuffer(commandBuffer, image, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertImageAssetInCommandBuffer(commandBuffer, image, ResourceAccessType::kWrite);
     }
 }
 
@@ -5031,8 +4997,8 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage(VkCommandBuffer       c
 {
     if (NeedsCommandBufferResourceTracking())
     {
-        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+        InsertImageAssetInCommandBuffer(commandBuffer, srcImage, ResourceAccessType::kRead);
+        InsertImageAssetInCommandBuffer(commandBuffer, dstImage, ResourceAccessType::kWrite);
     }
 }
 
@@ -5043,10 +5009,8 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage2(VkCommandBuffer       
     {
         if (pResolveImageInfo != nullptr)
         {
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pResolveImageInfo->srcImage, vulkan_wrappers::ResourceAccessType::kRead);
-            InsertImageAssetInCommandBuffer(
-                commandBuffer, pResolveImageInfo->dstImage, vulkan_wrappers::ResourceAccessType::kWrite);
+            InsertImageAssetInCommandBuffer(commandBuffer, pResolveImageInfo->srcImage, ResourceAccessType::kRead);
+            InsertImageAssetInCommandBuffer(commandBuffer, pResolveImageInfo->dstImage, ResourceAccessType::kWrite);
         }
     }
 }
@@ -5060,7 +5024,7 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer    
     }
 }
 
-void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper)
+void VulkanCaptureManager::TrackPipelineDescriptors(CommandBufferResourceTracking* command_buffer_wrapper)
 {
     GFXRECON_ASSERT(command_buffer_wrapper != nullptr);
     GFXRECON_ASSERT(NeedsCommandBufferResourceTracking());
@@ -5076,13 +5040,13 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
 
         for (const auto& [desc_set_index, desc_bindings] : bound_descriptors)
         {
-            const vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper = desc_bindings.desc_set;
-            if (desc_set_wrapper == nullptr)
+            const auto* desc_set_bindings = desc_bindings.descriptor_bindings;
+            if (desc_set_bindings == nullptr)
             {
                 continue;
             }
 
-            for (const auto& [binding_index, descriptor_binding] : desc_set_wrapper->bindings)
+            for (const auto& [binding_index, descriptor_binding] : *desc_set_bindings)
             {
                 switch (descriptor_binding.type)
                 {
@@ -5095,12 +5059,11 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                                     descriptor_binding.storage_images[ai].imageView);
                             if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                             {
-                                command_buffer_wrapper->ReferenceResource(
-                                    img_view_wrapper->image,
-                                    0,
-                                    img_view_wrapper->image->size,
-                                    vulkan_wrappers::ResourceAccessType::kRead |
-                                        vulkan_wrappers::ResourceAccessType::kWrite);
+                                command_buffer_wrapper->ReferenceResource(img_view_wrapper->image,
+                                                                          0,
+                                                                          img_view_wrapper->image->size,
+                                                                          ResourceAccessType::kRead |
+                                                                              ResourceAccessType::kWrite);
                             }
                         }
                     }
@@ -5120,7 +5083,7 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                                 command_buffer_wrapper->ReferenceResource(img_view_wrapper->image,
                                                                           0,
                                                                           img_view_wrapper->image->size,
-                                                                          vulkan_wrappers::ResourceAccessType::kRead);
+                                                                          ResourceAccessType::kRead);
                             }
                         }
                     }
@@ -5141,8 +5104,7 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                                     buf_wrapper,
                                     descriptor_binding.storage_buffers[ai].offset + dynamic_offset,
                                     descriptor_binding.storage_buffers[ai].range,
-                                    vulkan_wrappers::ResourceAccessType::kRead |
-                                        vulkan_wrappers::ResourceAccessType::kWrite);
+                                    ResourceAccessType::kRead | ResourceAccessType::kWrite);
                             }
                         }
                     }
@@ -5163,7 +5125,7 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                                                                           descriptor_binding.buffers[ai].offset +
                                                                               dynamic_offset,
                                                                           descriptor_binding.buffers[ai].range,
-                                                                          vulkan_wrappers::ResourceAccessType::kRead);
+                                                                          ResourceAccessType::kRead);
                             }
                         }
                     }
@@ -5178,12 +5140,11 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                                     descriptor_binding.storage_texel_buffer_views[ai]);
                             if (buf_view_wrapper != nullptr && buf_view_wrapper->buffer != nullptr)
                             {
-                                command_buffer_wrapper->ReferenceResource(
-                                    buf_view_wrapper->buffer,
-                                    buf_view_wrapper->offset,
-                                    buf_view_wrapper->range,
-                                    vulkan_wrappers::ResourceAccessType::kRead |
-                                        vulkan_wrappers::ResourceAccessType::kWrite);
+                                command_buffer_wrapper->ReferenceResource(buf_view_wrapper->buffer,
+                                                                          buf_view_wrapper->offset,
+                                                                          buf_view_wrapper->range,
+                                                                          ResourceAccessType::kRead |
+                                                                              ResourceAccessType::kWrite);
                             }
                         }
                     }
@@ -5201,7 +5162,7 @@ void VulkanCaptureManager::TrackPipelineDescriptors(vulkan_wrappers::CommandBuff
                                 command_buffer_wrapper->ReferenceResource(buf_view_wrapper->buffer,
                                                                           buf_view_wrapper->offset,
                                                                           buf_view_wrapper->range,
-                                                                          vulkan_wrappers::ResourceAccessType::kRead);
+                                                                          ResourceAccessType::kRead);
                             }
                         }
                     }
@@ -5329,10 +5290,8 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                             pRenderingInfo->pColorAttachments[i].imageView);
                     if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                     {
-                        wrapper->ReferenceResource(img_view_wrapper->image,
-                                                   0,
-                                                   img_view_wrapper->image->size,
-                                                   vulkan_wrappers::ResourceAccessType::kWrite);
+                        wrapper->ReferenceResource(
+                            img_view_wrapper->image, 0, img_view_wrapper->image->size, ResourceAccessType::kWrite);
                     }
                 }
             }
@@ -5345,10 +5304,8 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                         pRenderingInfo->pDepthAttachment->imageView);
                 if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                 {
-                    wrapper->ReferenceResource(img_view_wrapper->image,
-                                               0,
-                                               img_view_wrapper->image->size,
-                                               vulkan_wrappers::ResourceAccessType::kWrite);
+                    wrapper->ReferenceResource(
+                        img_view_wrapper->image, 0, img_view_wrapper->image->size, ResourceAccessType::kWrite);
                 }
             }
 
@@ -5360,10 +5317,8 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
                         pRenderingInfo->pStencilAttachment->imageView);
                 if (img_view_wrapper != nullptr && img_view_wrapper->image != nullptr)
                 {
-                    wrapper->ReferenceResource(img_view_wrapper->image,
-                                               0,
-                                               img_view_wrapper->image->size,
-                                               vulkan_wrappers::ResourceAccessType::kWrite);
+                    wrapper->ReferenceResource(
+                        img_view_wrapper->image, 0, img_view_wrapper->image->size, ResourceAccessType::kWrite);
                 }
             }
         }
@@ -5393,7 +5348,7 @@ void VulkanCaptureManager::MarkRenderPassAttachmentsAsModified(VkCommandBuffer c
                 wrapper->ReferenceResource(wrapper->render_pass_framebuffer->attachments[i],
                                            0,
                                            wrapper->render_pass_framebuffer->attachments[i]->size,
-                                           vulkan_wrappers::ResourceAccessType::kWrite);
+                                           ResourceAccessType::kWrite);
             }
         }
     }
@@ -5552,7 +5507,7 @@ void VulkanCaptureManager::PostProcess_vkTransitionImageLayout(VkResult         
 }
 
 void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
-    const vulkan_wrappers::CommandBufferWrapper*           command_wrapper,
+    const CommandBufferResourceTracking*                   command_wrapper,
     std::unordered_map<format::HandleId, util::RangeList>* touched_ranges) const
 {
     if (command_wrapper == nullptr || touched_ranges == nullptr)
@@ -5568,7 +5523,7 @@ void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
         }
 
         bool is_optimal_image;
-        if (asset->type == graphics::ResourceType::kImage)
+        if (asset->type == ResourceType::kImage)
         {
             const vulkan_wrappers::ImageWrapper* img_resource =
                 static_cast<const vulkan_wrappers::ImageWrapper*>(asset);
@@ -5580,15 +5535,13 @@ void VulkanCaptureManager::CollectSmartTouchedMemoryRanges(
         }
 
         if ((asset->bind_memory_id != format::kNullHandleId) &&
-            ((ranges.access_type & vulkan_wrappers::ResourceAccessType::kRead) ==
-             vulkan_wrappers::ResourceAccessType::kRead) &&
-            !is_optimal_image)
+            ((ranges.access_type & ResourceAccessType::kRead) == ResourceAccessType::kRead) && !is_optimal_image)
         {
             (*touched_ranges)[asset->bind_memory_id].AddRanges(ranges.range_list, asset->bind_offset);
         }
     }
 
-    for (const vulkan_wrappers::CommandBufferWrapper* secondary : command_wrapper->secondaries)
+    for (const auto* secondary : command_wrapper->secondaries)
     {
         CollectSmartTouchedMemoryRanges(secondary, touched_ranges);
     }
