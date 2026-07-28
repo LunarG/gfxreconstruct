@@ -86,6 +86,8 @@ struct DescriptorInfo
     std::unique_ptr<VkDescriptorType[]>           mutable_type;
 };
 
+using DescriptorSetBindingsMap = std::unordered_map<uint32_t, vulkan_state_info::DescriptorInfo>;
+
 struct CreateDependencyInfo
 {
     format::HandleId  handle_id{ format::kNullHandleId };

@@ -32,13 +32,13 @@
 #include "encode/parameter_buffer.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "encode/vulkan_resource_tracking.h"
 #include "encode/vulkan_smart_memory_tracker.h"
 #include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "graphics/vulkan_resources.h"
 #include "util/defines.h"
 
 #include "util/logging.h"
@@ -1996,15 +1996,13 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, const VkSubmitInfo2* submits);
 
-    void InsertImageAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
-                                         VkImage                             image,
-                                         vulkan_wrappers::ResourceAccessType access);
+    void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image, ResourceAccessType access);
 
-    void InsertBufferAssetInCommandBuffer(VkCommandBuffer                     command_buffer,
-                                          VkBuffer                            buffer,
-                                          vulkan_wrappers::ResourceAccessType access,
-                                          uint64_t                            offset = 0,
-                                          uint64_t                            size   = VK_WHOLE_SIZE);
+    void InsertBufferAssetInCommandBuffer(VkCommandBuffer    command_buffer,
+                                          VkBuffer           buffer,
+                                          ResourceAccessType access,
+                                          uint64_t           offset = 0,
+                                          uint64_t           size   = VK_WHOLE_SIZE);
 
     void UpdateCommandBufferDescriptors(VkCommandBuffer        commandBuffer,
                                         VkPipelineBindPoint    pipelineBindPoint,
@@ -2014,27 +2012,27 @@ class VulkanCaptureManager : public ApiCaptureManager
                                         uint32_t               dynamicOffsetCount,
                                         const uint32_t*        pDynamicOffsets);
 
-    void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper);
+    void TrackPipelineDescriptors(CommandBufferResourceTracking* command_buffer_wrapper);
 
     void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
 
     void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
 
-    void MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper);
+    void MarkReferencedAssetsAsDirty(CommandBufferResourceTracking* cmd_buf_wrapper);
 
     void TrackAssetsInMemory(format::HandleId memory_id);
 
     void TrackMappedAssetsWrites(format::HandleId memory_id);
 
-    void ProcessBindResourceMemory(graphics::AssetBase* resource, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+    void ProcessBindResourceMemory(AssetBase* resource, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
-    void ProcessUnbindResourceMemory(graphics::AssetBase* resource);
+    void ProcessUnbindResourceMemory(AssetBase* resource);
 
     void MarkRenderPassAttachmentsAsModified(VkCommandBuffer commandBuffer);
 
     void ClearCommandBufferAssetState(vulkan_wrappers::CommandBufferWrapper* wrapper);
 
-    void CollectSmartTouchedMemoryRanges(const vulkan_wrappers::CommandBufferWrapper*           command_wrapper,
+    void CollectSmartTouchedMemoryRanges(const CommandBufferResourceTracking*                   command_wrapper,
                                          std::unordered_map<format::HandleId, util::RangeList>* touched_ranges) const;
 
     std::unordered_map<format::HandleId, util::RangeList> GetSmartTouchedMemoryRanges(uint32_t            submit_count,
