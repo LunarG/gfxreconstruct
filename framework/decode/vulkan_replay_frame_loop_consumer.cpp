@@ -467,6 +467,29 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_
     VulkanReplayConsumer::Process_vkMapMemory(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
+{
+    VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
+
+    auto frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(args.pSubmits.GetMetaStructPointer()->pNext);
+    if (frame_boundary != nullptr)
+    {
+        // This submit is being used as a frame boundary
+        CommonObjectInfoTable& table      = GetObjectInfoTable();
+        VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(args.queue);
+        VkDevice               device     = queue_info->parent;
+        GFXRECON_ASSERT(device != 0);
+        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+        GFXRECON_ASSERT(device_table != nullptr);
+
+        GFXRECON_LOG_DEBUG("Waiting for device to idle...");
+        VkResult result = device_table->DeviceWaitIdle(device);
+        CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
+
+        FixupDeviceFences(queue_info->parent_id, args.queue);
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args)
 {
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, args);

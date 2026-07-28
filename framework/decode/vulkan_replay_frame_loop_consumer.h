@@ -58,6 +58,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void Process_vkCreateFence(const ApiCallInfo& call_info, args::CreateFence& args) override;
 
     void Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args) override;
+    
+    void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
 
     void Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args) override;
 
