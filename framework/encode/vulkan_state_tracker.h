@@ -382,17 +382,13 @@ class VulkanStateTracker
                                  VkDeviceSize   memoryOffset,
                                  const void*    bind_info_pnext = nullptr);
 
-    void TrackTensorMemoryBinding(VkDevice       device,
-                                  VkTensorARM    tensor,
-                                  VkDeviceMemory memory,
-                                  VkDeviceSize   memoryOffset,
-                                  const void*    bind_info_pnext = nullptr);
+    void
+    TrackTensorMemoryBinding(VkDevice device, VkTensorARM tensor, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void TrackDataGraphPipelineSessionMemoryBinding(VkDevice                      device,
                                                     VkDataGraphPipelineSessionARM session,
                                                     VkDeviceMemory                memory,
-                                                    VkDeviceSize                  memoryOffset,
-                                                    const void*                   bind_info_pnext = nullptr);
+                                                    VkDeviceSize                  memoryOffset);
 
     void TrackMappedMemory(VkDevice         device,
                            VkDeviceMemory   memory,
@@ -400,10 +396,6 @@ class VulkanStateTracker
                            VkDeviceSize     mapped_offset,
                            VkDeviceSize     mapped_size,
                            VkMemoryMapFlags mapped_flags);
-
-    void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
-
-    void TrackEndRenderPass(VkCommandBuffer command_buffer);
 
     void TrackExecuteCommands(VkCommandBuffer        command_buffer,
                               uint32_t               command_buffer_count,
@@ -420,15 +412,6 @@ class VulkanStateTracker
     void TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits);
 
     void TrackCommandBufferSubmissions2(uint32_t submit_count, const VkSubmitInfo2* submits);
-
-    void TrackUpdateDescriptorSets(uint32_t                    write_count,
-                                   const VkWriteDescriptorSet* writes,
-                                   uint32_t                    copy_count,
-                                   const VkCopyDescriptorSet*  copies);
-
-    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
-                                              const UpdateTemplateInfo* template_info,
-                                              const void*               data);
 
     void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
 
@@ -514,258 +497,6 @@ class VulkanStateTracker
 
     void TrackCommandBuffersSubmision(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
-    void TrackCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
-                                    VkPipelineBindPoint    pipelineBindPoint,
-                                    VkPipelineLayout       layout,
-                                    uint32_t               firstSet,
-                                    uint32_t               descriptorSetCount,
-                                    const VkDescriptorSet* pDescriptorSets,
-                                    uint32_t               dynamicOffsetCount,
-                                    const uint32_t*        pDynamicOffsets);
-
-    void TrackCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
-                                     const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
-
-    void
-    TrackCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
-
-    void TrackCmdCopyBuffer(VkCommandBuffer     commandBuffer,
-                            VkBuffer            srcBuffer,
-                            VkBuffer            dstBuffer,
-                            uint32_t            regionCount,
-                            const VkBufferCopy* pRegions);
-
-    void TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
-                           VkImage            srcImage,
-                           VkImageLayout      srcImageLayout,
-                           VkImage            dstImage,
-                           VkImageLayout      dstImageLayout,
-                           uint32_t           regionCount,
-                           const VkImageCopy* pRegions);
-
-    void TrackCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
-                                   VkBuffer                 srcBuffer,
-                                   VkImage                  dstImage,
-                                   VkImageLayout            dstImageLayout,
-                                   uint32_t                 regionCount,
-                                   const VkBufferImageCopy* pRegions);
-
-    void TrackCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
-                                   VkImage                  srcImage,
-                                   VkImageLayout            srcImageLayout,
-                                   VkBuffer                 dstBuffer,
-                                   uint32_t                 regionCount,
-                                   const VkBufferImageCopy* pRegions);
-
-    void TrackCmdCopyBuffer2(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo);
-
-    void TrackCmdCopyImage2(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo);
-
-    void TrackCmdCopyBufferToImage2(VkCommandBuffer                 commandBuffer,
-                                    const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
-
-    void TrackCmdCopyImageToBuffer2(VkCommandBuffer                 commandBuffer,
-                                    const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
-
-    void TrackCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo);
-
-    void TrackCmdCopyImage2KHR(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo);
-
-    void TrackCmdCopyBufferToImage2KHR(VkCommandBuffer                 commandBuffer,
-                                       const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
-
-    void TrackCmdCopyImageToBuffer2KHR(VkCommandBuffer                 commandBuffer,
-                                       const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
-
-    void TrackCmdBlitImage(VkCommandBuffer    commandBuffer,
-                           VkImage            srcImage,
-                           VkImageLayout      srcImageLayout,
-                           VkImage            dstImage,
-                           VkImageLayout      dstImageLayout,
-                           uint32_t           regionCount,
-                           const VkImageBlit* pRegions,
-                           VkFilter           filter);
-
-    void TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo);
-
-    void TrackCmdBlitImage2KHR(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo);
-
-    void TrackCmdUpdateBuffer(VkCommandBuffer commandBuffer,
-                              VkBuffer        dstBuffer,
-                              VkDeviceSize    dstOffset,
-                              VkDeviceSize    dataSize,
-                              const void*     pData);
-
-    void TrackCmdFillBuffer(
-        VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data);
-
-    void TrackCmdClearColorImage(VkCommandBuffer                commandBuffer,
-                                 VkImage                        image,
-                                 VkImageLayout                  imageLayout,
-                                 const VkClearColorValue*       pColor,
-                                 uint32_t                       rangeCount,
-                                 const VkImageSubresourceRange* pRanges);
-
-    void TrackCmdClearDepthStencilImage(VkCommandBuffer                 commandBuffer,
-                                        VkImage                         image,
-                                        VkImageLayout                   imageLayout,
-                                        const VkClearDepthStencilValue* pDepthStencil,
-                                        uint32_t                        rangeCount,
-                                        const VkImageSubresourceRange*  pRanges);
-
-    void TrackCmdDraw(VkCommandBuffer commandBuffer,
-                      uint32_t        vertexCount,
-                      uint32_t        instanceCount,
-                      uint32_t        firstVertex,
-                      uint32_t        firstInstance);
-
-    void TrackCmdDrawIndexed(VkCommandBuffer commandBuffer,
-                             uint32_t        indexCount,
-                             uint32_t        instanceCount,
-                             uint32_t        firstIndex,
-                             int32_t         vertexOffset,
-                             uint32_t        firstInstance);
-
-    void TrackCmdDrawIndirect(
-        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
-
-    void TrackCmdDrawIndexedIndirect(
-        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
-
-    void TrackCmdDrawIndirectCount(VkCommandBuffer commandBuffer,
-                                   VkBuffer        buffer,
-                                   VkDeviceSize    offset,
-                                   VkBuffer        countBuffer,
-                                   VkDeviceSize    countBufferOffset,
-                                   uint32_t        maxDrawCount,
-                                   uint32_t        stride);
-
-    void TrackCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer,
-                                          VkBuffer        buffer,
-                                          VkDeviceSize    offset,
-                                          VkBuffer        countBuffer,
-                                          VkDeviceSize    countBufferOffset,
-                                          uint32_t        maxDrawCount,
-                                          uint32_t        stride);
-
-    void TrackCmdDrawIndirectCountKHR(VkCommandBuffer commandBuffer,
-                                      VkBuffer        buffer,
-                                      VkDeviceSize    offset,
-                                      VkBuffer        countBuffer,
-                                      VkDeviceSize    countBufferOffset,
-                                      uint32_t        maxDrawCount,
-                                      uint32_t        stride);
-
-    void TrackCmdDrawIndexedIndirectCountKHR(VkCommandBuffer commandBuffer,
-                                             VkBuffer        buffer,
-                                             VkDeviceSize    offset,
-                                             VkBuffer        countBuffer,
-                                             VkDeviceSize    countBufferOffset,
-                                             uint32_t        maxDrawCount,
-                                             uint32_t        stride);
-
-    void
-    TrackCmdDispatch(VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
-
-    void TrackCmdDispatchIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset);
-
-    void TrackCmdDispatchBase(VkCommandBuffer commandBuffer,
-                              uint32_t        baseGroupX,
-                              uint32_t        baseGroupY,
-                              uint32_t        baseGroupZ,
-                              uint32_t        groupCountX,
-                              uint32_t        groupCountY,
-                              uint32_t        groupCountZ);
-
-    void TrackCmdDispatchBaseKHR(VkCommandBuffer commandBuffer,
-                                 uint32_t        baseGroupX,
-                                 uint32_t        baseGroupY,
-                                 uint32_t        baseGroupZ,
-                                 uint32_t        groupCountX,
-                                 uint32_t        groupCountY,
-                                 uint32_t        groupCountZ);
-
-    void TrackCmdTraceRaysNV(VkCommandBuffer commandBuffer,
-                             VkBuffer        raygenShaderBindingTableBuffer,
-                             VkDeviceSize    raygenShaderBindingOffset,
-                             VkBuffer        missShaderBindingTableBuffer,
-                             VkDeviceSize    missShaderBindingOffset,
-                             VkDeviceSize    missShaderBindingStride,
-                             VkBuffer        hitShaderBindingTableBuffer,
-                             VkDeviceSize    hitShaderBindingOffset,
-                             VkDeviceSize    hitShaderBindingStride,
-                             VkBuffer        callableShaderBindingTableBuffer,
-                             VkDeviceSize    callableShaderBindingOffset,
-                             VkDeviceSize    callableShaderBindingStride,
-                             uint32_t        width,
-                             uint32_t        height,
-                             uint32_t        depth);
-
-    void TrackCmdTraceRaysKHR(VkCommandBuffer                        commandBuffer,
-                              const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
-                              const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
-                              const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
-                              const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
-                              uint32_t                               width,
-                              uint32_t                               height,
-                              uint32_t                               depth);
-
-    void TrackCmdTraceRaysIndirectKHR(VkCommandBuffer                        commandBuffer,
-                                      const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
-                                      const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
-                                      const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
-                                      const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
-                                      VkDeviceAddress                        indirectDeviceAddress);
-
-    void TrackCmdTraceRaysIndirect2KHR(VkCommandBuffer commandBuffer, VkDeviceAddress indirectDeviceAddress);
-
-    void TrackCmdResolveImage(VkCommandBuffer       commandBuffer,
-                              VkImage               srcImage,
-                              VkImageLayout         srcImageLayout,
-                              VkImage               dstImage,
-                              VkImageLayout         dstImageLayout,
-                              uint32_t              regionCount,
-                              const VkImageResolve* pRegions);
-
-    void TrackCmdResolveImage2(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo);
-
-    void TrackCmdDrawMeshTasksNV(VkCommandBuffer commandBuffer, uint32_t taskCount, uint32_t firstTask);
-
-    void TrackCmdDrawMeshTasksIndirectNV(
-        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
-
-    void TrackCmdDrawMeshTasksIndirectCountNV(VkCommandBuffer commandBuffer,
-                                              VkBuffer        buffer,
-                                              VkDeviceSize    offset,
-                                              VkBuffer        countBuffer,
-                                              VkDeviceSize    countBufferOffset,
-                                              uint32_t        maxDrawCount,
-                                              uint32_t        stride);
-
-    void TrackCmdDrawMeshTasksEXT(VkCommandBuffer commandBuffer,
-                                  uint32_t        groupCountX,
-                                  uint32_t        groupCountY,
-                                  uint32_t        groupCountZ);
-
-    void TrackCmdDrawMeshTasksIndirectEXT(
-        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
-
-    void TrackCmdDrawMeshTasksIndirectCountEXT(VkCommandBuffer commandBuffer,
-                                               VkBuffer        buffer,
-                                               VkDeviceSize    offset,
-                                               VkBuffer        countBuffer,
-                                               VkDeviceSize    countBufferOffset,
-                                               uint32_t        maxDrawCount,
-                                               uint32_t        stride);
-
-    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
-
-    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
-
-    void TrackAssetsInMemory(format::HandleId memory_id);
-
-    void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
-
     void TrackSetDebugUtilsObjectNameEXT(VkDevice                             device,
                                          const VkDebugUtilsObjectNameInfoEXT* pNameInfo,
                                          const util::MemoryOutputStream*      object_name_parameter_buffer);
@@ -777,6 +508,12 @@ class VulkanStateTracker
     void TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags);
 
     void TrackTransitionImageLayout(uint32_t transitionCount, const VkHostImageLayoutTransitionInfo* pTransitions);
+
+    vulkan_wrappers::DeviceMemoryWrapper* GetDeviceMemoryWrapper(format::HandleId memory_id)
+    {
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        return state_table_.GetVulkanDeviceMemoryWrapper(memory_id);
+    }
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -855,8 +592,6 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::SamplerWrapper* wrapper);
 
-    void DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper);
-
     void DestroyState(vulkan_wrappers::TensorARMWrapper* wrapper);
 
     void DestroyState(vulkan_wrappers::TensorViewARMWrapper* wrapper);
@@ -864,17 +599,6 @@ class VulkanStateTracker
     void DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper);
 
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
-
-    void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
-                                  vulkan_state_info::PipelineBindPoints  ppl_bind_point);
-
-    void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
-
-    void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
-
-    void TrackMappedAssetsWrites(format::HandleId memory_id);
-
-    void MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper);
 
     std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;

@@ -1557,13 +1557,19 @@ void CommonCaptureManager::WriteResizeWindowCmd(format::ApiFamilyId api_family,
 void CommonCaptureManager::WriteFillMemoryCmd(
     format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
 {
+    WriteFillMemoryRangeCmd(api_family, memory_id, offset, size, static_cast<const uint8_t*>(data) + offset);
+}
+
+void CommonCaptureManager::WriteFillMemoryRangeCmd(
+    format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
+{
     if (IsCaptureModeWrite())
     {
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
         format::FillMemoryCommandHeader fill_cmd;
         size_t                          header_size       = sizeof(format::FillMemoryCommandHeader);
-        const uint8_t*                  uncompressed_data = (static_cast<const uint8_t*>(data) + offset);
+        const uint8_t*                  uncompressed_data = static_cast<const uint8_t*>(data);
         size_t                          uncompressed_size = static_cast<size_t>(size);
 
         auto thread_data = GetThreadData();

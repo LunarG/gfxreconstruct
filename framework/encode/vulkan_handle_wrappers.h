@@ -33,21 +33,24 @@
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
+#include "encode/vulkan_resource_tracking.h"
 #include "graphics/vulkan_resources_util.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
 
-#include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
 #include <set>
 #include <map>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 #include <vector>
 #include <optional>
@@ -195,27 +198,12 @@ struct EventWrapper : public HandleWrapper<VkEvent>
     DeviceWrapper* device{ nullptr };
 };
 
-struct DescriptorSetWrapper;
-struct AssetWrapperBase
-{
-    DeviceWrapper*             bind_device{ nullptr };
-    const void*                bind_pnext{ nullptr };
-    std::unique_ptr<uint8_t[]> bind_pnext_memory;
-
-    format::HandleId bind_memory_id{ format::kNullHandleId };
-    VkDeviceSize     bind_offset{ 0 };
-    uint32_t         queue_family_index{ 0 };
-
-    VkDeviceSize                              size{ 0 };
-    bool                                      dirty{ true };
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
-};
-
 struct BufferViewWrapper;
-struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
+struct BufferWrapper : public HandleWrapper<VkBuffer>, BufferResource
 {
+    DeviceWrapper* bind_device{ nullptr };
+
     // State tracking info for buffers with device addresses.
-    VkDevice           device{ VK_NULL_HANDLE };
     VkDeviceAddress    address{ 0 };
     VkDeviceAddress    opaque_address{ 0 };
     VkBufferUsageFlags usage{ 0 };
@@ -235,8 +223,10 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 };
 
 struct ImageViewWrapper;
-struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
+struct ImageWrapper : public HandleWrapper<VkImage>, ImageResource
 {
+    DeviceWrapper* bind_device{ nullptr };
+
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };
     VkFormat              format{ VK_FORMAT_UNDEFINED };
     bool                  external_format{ false };
@@ -262,10 +252,9 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     std::vector<uint8_t> opaque_descriptor_data;
 };
 
-struct SamplerWrapper : public HandleWrapper<VkSampler>
+struct SamplerWrapper : public HandleWrapper<VkSampler>, SamplerResource
 {
-    format::HandleId                          device_id{ format::kNullHandleId };
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    format::HandleId device_id{ format::kNullHandleId };
 
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
     std::vector<uint8_t> opaque_descriptor_data;
@@ -295,29 +284,27 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 
-    std::unordered_set<AssetWrapperBase*> bound_assets;
-    std::mutex                            asset_map_lock;
+    std::unordered_set<AssetBase*> bound_assets;
+    std::mutex                     asset_map_lock;
 
     // optional deep-copy of modified allocate-info, required for state-tracking / trimming
     VkMemoryAllocateInfo*      modified_allocation_info{ nullptr };
     std::unique_ptr<uint8_t[]> modified_allocation_info_data{ nullptr };
 };
 
-struct BufferViewWrapper : public HandleWrapper<VkBufferView>
+struct BufferViewWrapper : public HandleWrapper<VkBufferView>, BufferViewResource
 {
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
-
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    VkDeviceSize     offset{ 0 };
+    VkDeviceSize     range{ 0 };
 };
 
-struct ImageViewWrapper : public HandleWrapper<VkImageView>
+struct ImageViewWrapper : public HandleWrapper<VkImageView>, ImageViewResource
 {
     format::HandleId device_id{ format::kNullHandleId };
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
-
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
     std::vector<uint8_t> opaque_descriptor_data;
@@ -380,7 +367,7 @@ struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
 };
 
 struct DescriptorPoolWrapper;
-struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
+struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>, DescriptorSetResource
 {
     // Members for general wrapper support.
     // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
@@ -390,13 +377,11 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
     DeviceWrapper* device{ nullptr };
 
     // Map for descriptor binding index to array of descriptor info.
-    std::unordered_map<uint32_t, vulkan_state_info::DescriptorInfo> bindings;
+    vulkan_state_info::DescriptorSetBindingsMap bindings;
 
     // Creation info for objects used to allocate the descriptor set, which may have been destroyed after descriptor set
     // allocation.
     vulkan_state_info::CreateDependencyInfo set_layout_dependency;
-
-    bool dirty{ true };
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
@@ -434,7 +419,7 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
 
 struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
-struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
+struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>, CommandBufferResourceTracking
 {
     graphics::VulkanDeviceTable* layer_table_ref{ nullptr };
 
@@ -494,14 +479,6 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
         uint32_t offset;
     };
     std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
-
-    const PipelineWrapper* bound_pipelines[vulkan_state_info::PipelineBindPoints::kBindPoint_count]{ nullptr };
-
-    std::unordered_map<uint32_t, const DescriptorSetWrapper*>
-        bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
-
-    std::unordered_set<AssetWrapperBase*> modified_assets;
-    std::vector<CommandBufferWrapper*>    secondaries;
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
@@ -621,7 +598,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     std::unordered_set<graphics::PresentId> record_queue_present_ids_not_written;
 };
 
-struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
+struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>, AccelerationStructureResource
 {
     // State tracking info for buffers with device addresses.
     DeviceWrapper*  device{ nullptr };
@@ -637,19 +614,12 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
     VkDeviceSize   offset = 0;
     VkDeviceSize   size   = 0;
 
-    // Only used when tracking
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
-
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
     std::vector<uint8_t> opaque_descriptor_data;
 };
 
-struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
-{
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
-
-    // TODO: Determine what additional state tracking is needed.
-};
+struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>, AccelerationStructureResource
+{};
 
 struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
 {
@@ -660,7 +630,7 @@ struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
 };
 
 struct TensorViewARMWrapper;
-struct TensorARMWrapper : public HandleWrapper<VkTensorARM>, AssetWrapperBase
+struct TensorARMWrapper : public HandleWrapper<VkTensorARM>, TensorResource
 {
     std::set<TensorViewARMWrapper*> tensor_views;
     VkTensorTilingARM               tiling{};
@@ -669,12 +639,12 @@ struct TensorARMWrapper : public HandleWrapper<VkTensorARM>, AssetWrapperBase
     VkTensorUsageFlagsARM           usage{};
     std::vector<int64_t>            pDimensions{};
     std::vector<int64_t>            pStrides{};
+    DeviceWrapper*                  bind_device{ nullptr };
 };
 
-struct TensorViewARMWrapper : public HandleWrapper<VkTensorViewARM>
+struct TensorViewARMWrapper : public HandleWrapper<VkTensorViewARM>, TensorResource
 {
-    TensorARMWrapper*                         tensor;
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    TensorARMWrapper* tensor;
 };
 
 struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
@@ -684,7 +654,7 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
     std::vector<uint8_t>      cache_data;
 };
 
-struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, AssetWrapperBase
+struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, DataGraphResource
 {
     struct MemoryBinding
     {
@@ -698,6 +668,7 @@ struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipe
     std::vector<vulkan_state_info::CreateDependencyInfo>           pipeline_shader_module_dependencies;
     vulkan_state_info::CreateDependencyInfo                        pipeline_layout_dependency;
     std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies> pipeline_layout_dependencies;
+    DeviceWrapper*                                                 bind_device{ nullptr };
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.
