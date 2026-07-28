@@ -52,7 +52,7 @@ class ParsedBlock
         kReady,              // Set when block is decompressed, or doesn't need to be
         kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
     };
-    constexpr static uint64_t kInvalidIndex = std::numeric_limits<uint64_t>::max();
+    constexpr static uint64_t kInvalidIndex = kInvalidBlockIndex;
 
     bool IsValid() const noexcept { return state_ != BlockState::kInvalid; }
     bool IsReady() const noexcept { return state_ == BlockState::kReady; }

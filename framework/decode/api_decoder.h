@@ -31,10 +31,16 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cstdint>
+#include <limits>
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// Sentinel block index for in-band signaling blocks (e.g. ParsedBlock::kInvalidIndex) that never carry
+// a real file block index and are never dispatched to a decoder.
+constexpr uint64_t kInvalidBlockIndex = std::numeric_limits<uint64_t>::max();
 
 struct ApiCallInfo
 {
@@ -239,6 +245,17 @@ class ApiDecoder
 
     virtual void DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
                                                const uint8_t*                       initialization_parameters_data){};
+
+    // Dispatches args to the DispatchTraits<Args>::kDecoderMethod overload, applying the standard
+    // support-check/alloc-guard/call-id/block-index bookkeeping shared by every payload type.
+    // Returns false without dispatching if this decoder does not support the call/meta-data id carried by args.
+    // Defined out-of-line in api_payload.h, where DispatchTraits<Args> is visible.
+    template <typename Args>
+    bool Dispatch(const Args& args, uint64_t block_index);
+
+  private:
+    template <typename Args>
+    bool SupportsDispatch(const Args& args);
 };
 
 GFXRECON_END_NAMESPACE(decode)
