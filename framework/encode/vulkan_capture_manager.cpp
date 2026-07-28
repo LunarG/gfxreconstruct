@@ -4464,6 +4464,8 @@ void VulkanCaptureManager::UpdateCommandBufferDescriptors(VkCommandBuffer       
     const vulkan_state_info::PipelineBindPoints bind_point =
         vulkan_state_info::VkPipelinePointToPipelinePoint(pipelineBindPoint);
 
+    std::unique_lock<std::mutex> lock(descriptor_mutex_);
+
     uint32_t dynamic_offset = 0;
     for (uint32_t i = 0; i < descriptorSetCount; ++i)
     {
@@ -4909,6 +4911,8 @@ void VulkanCaptureManager::TrackPipelineDescriptors(VkCommandBuffer             
     {
         return;
     }
+
+    std::unique_lock<std::mutex> lock(descriptor_mutex_);
 
     auto command_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
     if (command_wrapper == nullptr)
@@ -6027,6 +6031,7 @@ void VulkanCaptureManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet 
     assert(set != VK_NULL_HANDLE);
 
     std::unique_lock<std::mutex> lock(descriptor_mutex_);
+
     // When processing descriptor updates, we pack the unique handle ID into the stored
     // VkWriteDescriptorSet/VkCopyDescriptorSet handles so that the state writer can determine if the object still
     // exists at state write time by checking for the ID in the active state table.
