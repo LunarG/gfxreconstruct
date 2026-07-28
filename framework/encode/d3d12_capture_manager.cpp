@@ -3144,18 +3144,22 @@ void D3D12CaptureManager::WriteDxgiAdapterInfo(const Dx12StateTable& state_table
     }
 }
 
-void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, IUnknown* device)
+void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, void** ppDevice)
 {
-    const format::HandleId adapter_id = GetDx12WrappedId<IUnknown>(pAdapter);
-
-    if (device != nullptr)
+    if ((ppDevice == nullptr) || (*ppDevice == nullptr))
     {
-        auto info = reinterpret_cast<ID3D12Device_Wrapper*>(device)->GetObjectInfo();
+        return;
+    }
 
-        if (info != nullptr)
-        {
-            info->adapter_id = adapter_id;
-        }
+    auto device = reinterpret_cast<ID3D12Device_Wrapper*>(*ppDevice);
+
+    const format::HandleId adapter_id = GetDx12WrappedId<IUnknown>(pAdapter);
+    auto                   info       = device->GetObjectInfo();
+
+    // Update saved adapter id during capture
+    if (info != nullptr)
+    {
+        info->adapter_id = adapter_id;
     }
 
     if (IsCaptureModeWrite() == false)
@@ -3216,7 +3220,7 @@ void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAd
         return;
     }
 
-    WriteD3D12CreateDeviceAdapterInfoCommand(adapter_id, *adapter_desc, GetDx12WrappedId<IUnknown>(device));
+    WriteD3D12CreateDeviceAdapterInfoCommand(adapter_id, *adapter_desc, device->GetCaptureId());
 }
 
 void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(format::HandleId               adapter_id,

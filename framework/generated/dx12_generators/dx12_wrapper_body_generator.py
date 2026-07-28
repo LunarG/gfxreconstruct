@@ -76,13 +76,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     WRAP_OBJECT_ADDITIONAL_CALLS = {
         'functions': {
             'D3D12CreateDevice': [
-                'manager->WriteD3D12CreateDeviceAdapterInfoCommand(pAdapter, reinterpret_cast<IUnknown*>(*ppDevice));'
+                'manager->WriteD3D12CreateDeviceAdapterInfoCommand(pAdapter, ppDevice);'
             ]
         },
         'classmethods': {
             'ID3D12DeviceFactory': {
                 'CreateDevice': [
-                    'manager->WriteD3D12CreateDeviceAdapterInfoCommand(adapter, reinterpret_cast<IUnknown*>(*ppvDevice));'
+                    'manager->WriteD3D12CreateDeviceAdapterInfoCommand(adapter, ppvDevice);'
                 ]
             }
         }

@@ -817,7 +817,7 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void WriteD3D12CreateDeviceAdapterInfo(ID3D12Device_Wrapper* device_wrapper);
 
-    void WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, IUnknown* device);
+    void WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, void** ppDevice);
 
     void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
 
