@@ -125,6 +125,50 @@ GFXRECON_END_NAMESPACE(gfxrecon)
         }                       \
     }
 
+// Define bitwise operators for enum classes used as a set of bit flags. Invoke at namespace scope,
+// right after the enum definition.
+#define GFXRECON_DEFINE_ENUM_BIT_OPERATORS(EnumType)                                                     \
+    static_assert(std::is_enum_v<EnumType>, "GFXRECON_DEFINE_ENUM_BIT_OPERATORS requires an enum type"); \
+                                                                                                         \
+    inline constexpr EnumType operator|(EnumType x, EnumType y)                                          \
+    {                                                                                                    \
+        using Underlying = std::underlying_type_t<EnumType>;                                             \
+        return static_cast<EnumType>(static_cast<Underlying>(x) | static_cast<Underlying>(y));           \
+    }                                                                                                    \
+                                                                                                         \
+    inline constexpr EnumType operator&(EnumType x, EnumType y)                                          \
+    {                                                                                                    \
+        using Underlying = std::underlying_type_t<EnumType>;                                             \
+        return static_cast<EnumType>(static_cast<Underlying>(x) & static_cast<Underlying>(y));           \
+    }                                                                                                    \
+                                                                                                         \
+    inline constexpr EnumType operator^(EnumType x, EnumType y)                                          \
+    {                                                                                                    \
+        using Underlying = std::underlying_type_t<EnumType>;                                             \
+        return static_cast<EnumType>(static_cast<Underlying>(x) ^ static_cast<Underlying>(y));           \
+    }                                                                                                    \
+                                                                                                         \
+    inline constexpr EnumType operator~(EnumType x)                                                      \
+    {                                                                                                    \
+        using Underlying = std::underlying_type_t<EnumType>;                                             \
+        return static_cast<EnumType>(static_cast<Underlying>(~static_cast<Underlying>(x)));              \
+    }                                                                                                    \
+                                                                                                         \
+    inline constexpr EnumType& operator|=(EnumType& x, EnumType y)                                       \
+    {                                                                                                    \
+        return x = x | y;                                                                                \
+    }                                                                                                    \
+                                                                                                         \
+    inline constexpr EnumType& operator&=(EnumType& x, EnumType y)                                       \
+    {                                                                                                    \
+        return x = x & y;                                                                                \
+    }                                                                                                    \
+                                                                                                         \
+    inline constexpr EnumType& operator^=(EnumType& x, EnumType y)                                       \
+    {                                                                                                    \
+        return x = x ^ y;                                                                                \
+    }
+
 // Useful to avoid sign extension when converting a 32bit pointer to uint64_t
 template <typename T>
 static constexpr uint64_t GFXRECON_PTR_TO_UINT64(T ptr)

@@ -425,21 +425,7 @@ enum class ResourceAccessType : uint8_t
     kWrite   = 2
 };
 
-inline constexpr ResourceAccessType operator|(ResourceAccessType x, ResourceAccessType y)
-{
-    return static_cast<ResourceAccessType>(static_cast<uint8_t>(x) | static_cast<uint8_t>(y));
-}
-
-inline constexpr ResourceAccessType operator&(ResourceAccessType x, ResourceAccessType y)
-{
-    return static_cast<ResourceAccessType>(static_cast<uint8_t>(x) & static_cast<uint8_t>(y));
-}
-
-inline ResourceAccessType& operator|=(ResourceAccessType& x, ResourceAccessType y)
-{
-    x = x | y;
-    return x;
-}
+GFXRECON_DEFINE_ENUM_BIT_OPERATORS(ResourceAccessType)
 
 struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
@@ -520,24 +506,31 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
                               uint32_t                              array_index,
                               vulkan_state_info::PipelineBindPoints ppl_bind_point) const
     {
-        GFXRECON_ASSERT(ppl_bind_point < vulkan_state_info::kBindPoint_count);
-
-        const auto set_entry = bound_descriptors[ppl_bind_point].find(desc_index);
-        if (set_entry != bound_descriptors[ppl_bind_point].end())
+        const auto bind_point_entry = bound_descriptors.find(ppl_bind_point);
+        if (bind_point_entry != bound_descriptors.end())
         {
-            const auto dyn_offset_entry = set_entry->second.dynamic_offsets.find(binding_index);
-            if (dyn_offset_entry != set_entry->second.dynamic_offsets.end() &&
-                array_index < dyn_offset_entry->second.size())
+            const auto& bind_point_descriptors = bind_point_entry->second;
+            const auto  set_entry              = bind_point_descriptors.find(desc_index);
+            if (set_entry != bind_point_descriptors.end())
             {
-                return dyn_offset_entry->second[array_index];
+                const auto dyn_offset_entry = set_entry->second.dynamic_offsets.find(binding_index);
+                if (dyn_offset_entry != set_entry->second.dynamic_offsets.end() &&
+                    array_index < dyn_offset_entry->second.size())
+                {
+                    return dyn_offset_entry->second[array_index];
+                }
             }
         }
 
         return 0;
     }
 
-    std::unordered_map<uint32_t, BoundDescriptorSet>
-        bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
+    std::unordered_map<vulkan_state_info::PipelineBindPoints, std::unordered_map<uint32_t, BoundDescriptorSet>>
+        bound_descriptors;
+
+    vulkan_state_info::PipelineBindPoints referenced_pipeline_bind_points{
+        vulkan_state_info::PipelineBindPoints::kBindPointNone
+    };
 
     std::vector<CommandBufferWrapper*> secondaries;
 

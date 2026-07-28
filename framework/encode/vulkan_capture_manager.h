@@ -2014,7 +2014,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                         uint32_t               dynamicOffsetCount,
                                         const uint32_t*        pDynamicOffsets);
 
-    void TrackPipelineDescriptors(VkCommandBuffer command_buffer, vulkan_state_info::PipelineBindPoints ppl_bind_point);
+    void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper);
 
     void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
 

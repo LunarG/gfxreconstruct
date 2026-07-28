@@ -168,32 +168,33 @@ using ShaderReflectionDescriptorSetInfo = std::unordered_map<uint32_t, ShaderRef
 // One entry per descriptor set
 using ShaderReflectionDescriptorSetsInfos = std::unordered_map<uint32_t, ShaderReflectionDescriptorSetInfo>;
 
-enum PipelineBindPoints
+enum class PipelineBindPoints
 {
-    kBindPoint_graphics = 0,
-    kBindPoint_compute,
-    kBindPoint_ray_tracing,
-    kBindPoint_data_graph,
-
-    kBindPoint_count
+    kBindPointNone       = 0,
+    kBindPointGraphics   = 1,
+    kBindPointCompute    = 2,
+    kBindPointRayTracing = 4,
+    kBindPointDataGraph  = 8
 };
+
+GFXRECON_DEFINE_ENUM_BIT_OPERATORS(PipelineBindPoints)
 
 static PipelineBindPoints VkPipelinePointToPipelinePoint(VkPipelineBindPoint bind_point)
 {
     switch (bind_point)
     {
         case VK_PIPELINE_BIND_POINT_GRAPHICS:
-            return kBindPoint_graphics;
+            return PipelineBindPoints::kBindPointGraphics;
         case VK_PIPELINE_BIND_POINT_COMPUTE:
-            return kBindPoint_compute;
+            return PipelineBindPoints::kBindPointCompute;
         case VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR:
-            return kBindPoint_ray_tracing;
+            return PipelineBindPoints::kBindPointRayTracing;
         case VK_PIPELINE_BIND_POINT_DATA_GRAPH_ARM:
-            return kBindPoint_data_graph;
+            return PipelineBindPoints::kBindPointDataGraph;
         default:
             GFXRECON_LOG_ERROR("Unrecognized/unsupported pipeline binding point (%u)", bind_point);
-            assert(0);
-            return kBindPoint_graphics;
+            GFXRECON_ASSERT(0);
+            return PipelineBindPoints::kBindPointGraphics;
     }
 }
 
