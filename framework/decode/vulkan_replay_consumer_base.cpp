@@ -5780,6 +5780,42 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         bool     uses_import_memory     = false;
         uint64_t opaque_address         = 0;
 
+        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(modified_allocate_info)->pNext;
+
+        size_t                                            host_pointer_size = 0;
+        std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
+            nullptr, [&](void* memory) { util::platform::FreeRawMemory(memory, host_pointer_size); });
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        // If image is not VK_NULL_HANDLE and the memory is not an imported Android Hardware Buffer
+        auto dedicated_alloc_info =
+            graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info);
+        auto import_ahb_info =
+            graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(modified_allocate_info);
+        if (dedicated_alloc_info != nullptr && dedicated_alloc_info->image != VK_NULL_HANDLE &&
+            import_ahb_info == nullptr)
+        {
+            // allocationSize needs to be equal to VkMemoryDedicatedAllocateInfo::image VkMemoryRequirements::size
+            VkMemoryRequirements memory_requirements = {};
+            VkDevice             device              = device_info->handle;
+            GetDeviceTable(device)->GetImageMemoryRequirements(
+                device, dedicated_alloc_info->image, &memory_requirements);
+            modified_allocate_info->allocationSize = memory_requirements.size;
+        }
+
+        // On the other hand, if it is importing an Android Hardware Buffer
+        if (import_ahb_info)
+        {
+            // allocationSize needs to be equal to VkAndroidHardwareBufferPropertiesANDROID::allocationSize
+            VkAndroidHardwareBufferPropertiesANDROID properties = {};
+            properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+            VkDevice device  = device_info->handle;
+            GetDeviceTable(device)->GetAndroidHardwareBufferPropertiesANDROID(
+                device, import_ahb_info->buffer, &properties);
+            modified_allocate_info->allocationSize = properties.allocationSize;
+        }
+#endif
+
         // Since the file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process
         // we create a new FD at replay by allocating an exportable allocation and importing that FD
         // instead.
@@ -5855,42 +5891,6 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 }
             }
         }
-
-        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(modified_allocate_info)->pNext;
-
-        size_t                                            host_pointer_size = 0;
-        std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
-            nullptr, [&](void* memory) { util::platform::FreeRawMemory(memory, host_pointer_size); });
-
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        // If image is not VK_NULL_HANDLE and the memory is not an imported Android Hardware Buffer
-        auto dedicated_alloc_info =
-            graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info);
-        auto import_ahb_info =
-            graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(modified_allocate_info);
-        if (dedicated_alloc_info != nullptr && dedicated_alloc_info->image != VK_NULL_HANDLE &&
-            import_ahb_info == nullptr)
-        {
-            // allocationSize needs to be equal to VkMemoryDedicatedAllocateInfo::image VkMemoryRequirements::size
-            VkMemoryRequirements memory_requirements = {};
-            VkDevice             device              = device_info->handle;
-            GetDeviceTable(device)->GetImageMemoryRequirements(
-                device, dedicated_alloc_info->image, &memory_requirements);
-            modified_allocate_info->allocationSize = memory_requirements.size;
-        }
-
-        // On the other hand, if it is importing an Android Hardware Buffer
-        if (import_ahb_info)
-        {
-            // allocationSize needs to be equal to VkAndroidHardwareBufferPropertiesANDROID::allocationSize
-            VkAndroidHardwareBufferPropertiesANDROID properties = {};
-            properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
-            VkDevice device  = device_info->handle;
-            GetDeviceTable(device)->GetAndroidHardwareBufferPropertiesANDROID(
-                device, import_ahb_info->buffer, &properties);
-            modified_allocate_info->allocationSize = properties.allocationSize;
-        }
-#endif
 
         VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
             VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO
