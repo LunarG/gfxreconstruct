@@ -28,9 +28,10 @@
 #include "util/span.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+class Compressor;
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-class BlockParser;
 
 // -----------------------------------------------------------------------------
 // ParsedBlock
@@ -134,12 +135,16 @@ class ParsedBlock
         block_index_(block_index), block_data_(block_data), dispatch_args_(args), state_(initial_state)
     {}
 
-    // This is a valid ready block, without block_data_ or a valid index.  Visitors must be aware.
+    // These are valid ready blocks, without block_data_ or a valid index.  Visitors must be aware.
     ParsedBlock(file_processor::ProcessBlocksResult* result) :
         block_index_(kInvalidIndex), block_data_(nullptr), dispatch_args_(result), state_(BlockState::kReady)
     {}
 
-    [[nodiscard]] bool Decompress(const BlockParser& parser, util::HeapBuffer& uncompresser_store);
+    ParsedBlock(CallbackArgs* callback) :
+        block_index_(kInvalidIndex), block_data_(nullptr), dispatch_args_(callback), state_(BlockState::kReady)
+    {}
+
+    [[nodiscard]] bool Decompress(const util::Compressor* compressor, util::HeapBuffer& uncompressed_store);
 
     ParsedBlock* GetNext() { return next_; }
     void         SetNext(ParsedBlock* next)

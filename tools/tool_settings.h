@@ -300,6 +300,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     {
         decoder.AddConsumer(resource_tracking_consumer);
         file_processor_resource_tracking.AddDecoder(&decoder);
+        file_processor_resource_tracking.InitializeFrameProcessing();
         file_processor_resource_tracking.ProcessAllFrames();
         file_processor_resource_tracking.RemoveDecoder(&decoder);
         decoder.RemoveConsumer(resource_tracking_consumer);

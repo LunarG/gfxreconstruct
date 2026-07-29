@@ -316,6 +316,7 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
 
     file_processor.AddDecoder(&decoder);
     decoder.AddConsumer(&cpp_consumer);
+    file_processor.InitializeFrameProcessing();
 
     bool success;
 

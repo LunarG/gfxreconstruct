@@ -483,6 +483,7 @@ bool GatherAndPrintExeInfo(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
+        file_processor.InitializeFrameProcessing();
         if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
         {
             file_processor.ProcessNextFrame();
@@ -507,6 +508,7 @@ bool GatherAndPrintFileFormatInfo(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
+        file_processor.InitializeFrameProcessing();
         if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
         {
             file_processor.ProcessNextFrame();
@@ -530,6 +532,7 @@ bool GatherAndPrintEnvVars(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder  info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
+        file_processor.InitializeFrameProcessing();
         if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
         {
             file_processor.ProcessNextFrame();
@@ -570,6 +573,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             feature->RegisterDecodeComponents(file_processor, info_consumer);
         }
 
+        file_processor.InitializeFrameProcessing();
         file_processor.ProcessAllFrames();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {

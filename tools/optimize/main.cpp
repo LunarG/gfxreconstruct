@@ -195,6 +195,7 @@ int32_t main(int32_t argc, const char** argv)
                 {
                     feature->RegisterDetectionDecoder(detection_processor, block_limit);
                 }
+                detection_processor.InitializeFrameProcessing();
                 detection_processor.ProcessAllFrames();
             }
         };
