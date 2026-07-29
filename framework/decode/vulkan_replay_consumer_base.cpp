@@ -6626,9 +6626,9 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
     };
 
-    // replaying a trimmed capture or dump-resources might require us to copy from images
+    // replaying a trimmed capture, dump-resources or present-override might require us to copy from images
     // NOTE: we skip TRANSFER_SRC_BIT flag when other incompatible flags are present
-    if ((replaying_trimmed_capture_ || options_.dumping_resources) &&
+    if ((replaying_trimmed_capture_ || options_.dumping_resources || !options_.present_override_image_name.empty()) &&
         (modified_create_info.usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0)
     {
         // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
@@ -6636,7 +6636,8 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         // vkBindImageMemory failures due to memory requirement mismatch during replay. So here we add
         // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
 
-        // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images
+        // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images.
+        // --present-override blits from an arbitrary image, which is only legal with the same flag.
         modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
         if (loading_trim_state_)
@@ -12056,8 +12057,8 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 {
     Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
         args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
-    VkPushDescriptorSetWithTemplateInfoKHR*      value   = in_info->decoded_value;
-    VulkanDescriptorUpdateTemplateInfo*          update_template_info =
+    VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
+    VulkanDescriptorUpdateTemplateInfo*     update_template_info =
         object_info_table_->GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
 
     VkCommandBuffer in_commandBuffer =

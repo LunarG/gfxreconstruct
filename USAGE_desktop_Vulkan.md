@@ -802,8 +802,9 @@ Optional arguments:
                         (depth/stencil images are ignored). The matched image is
                         presented in a dedicated swapchain on every present and
                         used for screenshot operations. Multi-layer images are
-                        presented in a separate window per array layer. If multiple
-                        images match, the most recently named one is used.
+                        presented tiled into a single window, one tile per array
+                        layer. If multiple images match, the most recently named
+                        one is used.
   --vssb
                         Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices

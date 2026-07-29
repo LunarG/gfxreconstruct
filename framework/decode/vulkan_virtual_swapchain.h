@@ -235,6 +235,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
             swap(lhs.surface_ptr, rhs.surface_ptr);
             swap(lhs.queue, rhs.queue);
             swap(lhs.surface_formats, rhs.surface_formats);
+            swap(lhs.requested_size, rhs.requested_size);
+            swap(lhs.image_extent, rhs.image_extent);
             swap(lhs.acquire_index, rhs.acquire_index);
             swap(lhs.handle, rhs.handle);
             swap(lhs.frame_data, rhs.frame_data);
@@ -256,7 +258,15 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
         VkQueue                      queue{ VK_NULL_HANDLE };
         std::unordered_set<VkFormat> surface_formats{};
-        uint32_t                     acquire_index{ 0 };
+
+        // last size requested from the window-system. the window-manager is free to grant something else,
+        // so this must not be used to derive any geometry.
+        VkExtent2D requested_size{};
+
+        // extent the current swapchain-images were created with. authoritative for blit-destinations.
+        VkExtent2D image_extent{};
+
+        uint32_t acquire_index{ 0 };
 
         VkSwapchainKHR handle{ VK_NULL_HANDLE };
 
