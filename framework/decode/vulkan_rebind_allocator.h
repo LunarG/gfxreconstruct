@@ -587,6 +587,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkDeviceSize   offset{ 0 };             // captured memoryOffset
         VkDeviceSize   footprint{ 0 };          // captured byte-extent (capture_req.size, else create_size)
         VmaMemoryInfo* vma_mem_info{ nullptr }; // allocation this resource landed in
+        VkDeviceSize   replay_size{ 0 };        // replay byte-extent (replay_req.size) inside that allocation
     };
 
     struct MemoryAllocInfo
@@ -744,6 +745,16 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                          const VkMemoryRequirements& replay_req,
                                          bool                        requires_dedicated_allocation,
                                          bool                        prefers_dedicated_allocation);
+
+    // True if placing a resource at [local, local + replay_size) inside an allocation would overlap
+    // a resource already bound there that it does not alias in the capture. Replay sizes differ from
+    // captured ones, so a join can collide with a resource the application kept separate.
+    bool OverlapsUnaliasedResource(const MemoryAllocInfo& memory_alloc_info,
+                                   const VmaMemoryInfo*   allocation,
+                                   VkDeviceSize           memory_offset,
+                                   VkDeviceSize           footprint,
+                                   VkDeviceSize           local,
+                                   VkDeviceSize           replay_size) const;
 
     // Drop an object's entries from bound_ranges (on destroy or after a failed bind), so later
     // binds do not test overlap against a resource that is not actually bound.
