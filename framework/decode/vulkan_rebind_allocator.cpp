@@ -655,8 +655,14 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(const MemoryAllocInfo&      memory_
         VmaMemoryInfo*     existing = range.vma_mem_info;
         const VkDeviceSize base     = existing->offset_from_original_device_memory;
 
-        // VMA turns both "requires" and "prefers" into dedicated allocations
-        if (existing->requires_dedicated_allocation || existing->prefers_dedicated_allocation)
+        // VMA 'can' create dedicated blocks with neither 'prefers/requires dedicated' flag set.
+        // -> query the VMA-allocation
+        VmaAllocationInfo2 existing_info{};
+        if (existing->allocation != VK_NULL_HANDLE)
+        {
+            vmaGetAllocationInfo2(allocator_, existing->allocation, &existing_info);
+        }
+        if (existing_info.dedicatedMemory == VK_TRUE)
         {
             GFXRECON_LOG_WARNING("Rebind aliasing: the aliased resource holds a dedicated allocation at replay. "
                                  "cannot reproduce the share.");
@@ -731,11 +737,11 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(const MemoryAllocInfo&      memory_
 // True if placing a resource at [local, local + replay_size) inside `allocation` would overlap a
 // resource already bound there whose *captured* range is disjoint from [memory_offset, +footprint).
 bool VulkanRebindAllocator::OverlapsUnaliasedResource(const MemoryAllocInfo& memory_alloc_info,
-                                                     const VmaMemoryInfo*   allocation,
-                                                     VkDeviceSize           memory_offset,
-                                                     VkDeviceSize           footprint,
-                                                     VkDeviceSize           local,
-                                                     VkDeviceSize           replay_size) const
+                                                      const VmaMemoryInfo*   allocation,
+                                                      VkDeviceSize           memory_offset,
+                                                      VkDeviceSize           footprint,
+                                                      VkDeviceSize           local,
+                                                      VkDeviceSize           replay_size) const
 {
     const VkDeviceSize base = allocation->offset_from_original_device_memory;
 
