@@ -3028,8 +3028,10 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 snapshot_entry.buffers.emplace_back(snapshot_info);
             }
         }
-        else
+        else if (wrapper->sparse_bind_queue != VK_NULL_HANDLE)
         {
+            // Sparse object has to vkQueueBindSparse first.
+
             // Perform memory binding for sparse buffer.
             const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
             const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
@@ -3210,8 +3212,10 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                         WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
                     }
                 }
-                else
+                else if (wrapper->sparse_bind_queue != VK_NULL_HANDLE)
                 {
+                    // Sparse object has to vkQueueBindSparse first.
+
                     const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
 

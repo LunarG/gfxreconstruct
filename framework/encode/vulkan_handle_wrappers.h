@@ -225,7 +225,7 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 
     bool                                       is_sparse_buffer{ false };
     std::map<VkDeviceSize, VkSparseMemoryBind> sparse_memory_bind_map;
-    VkQueue                                    sparse_bind_queue;
+    VkQueue                                    sparse_bind_queue{ VK_NULL_HANDLE };
 
     VkDeviceSize created_size{ 0 };
 
@@ -255,7 +255,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     bool                                                is_sparse_image{ false };
     std::map<VkDeviceSize, VkSparseMemoryBind>          sparse_opaque_memory_bind_map;
     graphics::VulkanSubresourceSparseImageMemoryBindMap sparse_subresource_memory_bind_map;
-    VkQueue                                             sparse_bind_queue;
+    VkQueue                                             sparse_bind_queue{ VK_NULL_HANDLE };
 
     std::set<VkSwapchainKHR> parent_swapchains;
 
