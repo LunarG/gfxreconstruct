@@ -467,26 +467,67 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_
     VulkanReplayConsumer::Process_vkMapMemory(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext)
+{
+    const Decoded_VkFrameBoundaryEXT* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pNext);
+    if (frame_boundary != nullptr)
+    {
+        if ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) ==
+            VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
+        {
+            // This submit is being used as a frame boundary
+            CommonObjectInfoTable& table      = GetObjectInfoTable();
+            VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
+            VkDevice               device     = queue_info->parent;
+            GFXRECON_ASSERT(device != 0);
+            const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+            GFXRECON_ASSERT(device_table != nullptr);
+
+            GFXRECON_LOG_DEBUG("Waiting for device to idle...");
+            VkResult result = device_table->DeviceWaitIdle(device);
+            CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
+
+            FixupDeviceFences(queue_info->parent_id, queue);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
+{
+    VulkanReplayConsumer::Process_vkQueueBindSparse(call_info, args);
+
+    if (frame_loop_info_.IsLooping())
+    {
+        for (Decoded_VkBindSparseInfo submit : args.pBindInfo.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
-    auto frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(args.pSubmits.GetMetaStructPointer()->pNext);
-    if (frame_boundary != nullptr)
+    if (frame_loop_info_.IsLooping())
     {
-        // This submit is being used as a frame boundary
-        CommonObjectInfoTable& table      = GetObjectInfoTable();
-        VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(args.queue);
-        VkDevice               device     = queue_info->parent;
-        GFXRECON_ASSERT(device != 0);
-        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
-        GFXRECON_ASSERT(device_table != nullptr);
+        for (Decoded_VkSubmitInfo submit : args.pSubmits.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
+    }
+}
 
-        GFXRECON_LOG_DEBUG("Waiting for device to idle...");
-        VkResult result = device_table->DeviceWaitIdle(device);
-        CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
+void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args)
+{
+    VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, args);
 
-        FixupDeviceFences(queue_info->parent_id, args.queue);
+    if (frame_loop_info_.IsLooping())
+    {
+        for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
     }
 }
 
