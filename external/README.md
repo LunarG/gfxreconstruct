@@ -1,8 +1,9 @@
 # Third-Party Dependencies
 This folder contains the third-party dependencies for the GFXReconstruct
-project. Required dependencies are included as Git submodules, while
-pre-compiled binaries for optional dependencies are provided for the
-Windows and Android platforms.
+project. Required dependencies are included as Git submodules, the compression
+libraries are built from pinned upstream sources at build time, and a small set
+of pre-compiled binaries remains for dependencies that cannot be built from
+source.
 
 ## Required Dependencies
 The following required dependencies are included here as submodules.  Refer
@@ -11,29 +12,39 @@ submodule initialization and update.
 
 * Vulkan-Headers from https://github.com/KhronosGroup/Vulkan-Headers
 
-## Optional Dependencies
-Pre-compiled binaries for a limited set of platforms have been provided for
-convenience.  The project's CMake configuration will automatically search
-for the dependencies included within this folder by default, but the
-configuration may be changed at CMake initialization to reference binaries
-from any location.
+## Compression Libraries
+LZ4, Zstandard, and zlib are fetched and built from source by CMake, so they
+are not stored in this folder.  The upstream repository and the exact revision
+used for each library are pinned in
+[cmake/CompressionDependencies.cmake](../cmake/CompressionDependencies.cmake),
+which is the single place to change when updating a library.  The versions
+currently pinned are:
 
-### Version Information
-The provided pre-compiled binaries were created from the following
-software versions:
+* LZ4 version 1.10.0 from https://github.com/lz4/lz4
+* Zstandard version 1.5.7 from https://github.com/facebook/zstd
+* zlib version 1.3.2 from https://github.com/madler/zlib
 
-* LZ4 version 1.8.3 - https://github.com/lz4/lz4/releases/
-* zlib version 1.2.11 from  http://zlib.net/
+Fetching the sources requires network access when CMake is run.  Building
+against libraries already installed on the system instead, which is what Linux
+distribution packagers and air-gapped builds generally want, is described in
+[BUILD.md](../BUILD.md).
 
-### Build Information
-The provided pre-compiled binaries were created for the following
-platforms:
+On Android, zlib is provided by the NDK as a platform library and is used from
+there rather than being built from source.
 
-* Windows x86 and x64 architectures created with Visual Studio 2017.
-* Android armeabi-v7a and arm64-v8a architectures created with the clang compiler tool-chain targeting the android-24 platform.
+## Pre-Compiled Binaries
+Pre-compiled binaries are provided for the following dependencies, which cannot
+be produced by the CMake build:
 
-Linux binaries for the optional dependencies are available for most Linux
-distributions through the distribution's standard package manager.
+* `win32`, `win64`, `win64-arm`: Detours, used for the D3D12 capture layer.
+* `win32`: AMD AGS, retained for reference; the build fetches the AGS SDK
+  directly (see [cmake/FindAGS.cmake](../cmake/FindAGS.cmake)).
+* `win64-arm`: LZ4, Zstandard, and zlib built as ARM64X.  These are produced by
+  building each library twice, once as ARM64 and once as ARM64EC, and splicing
+  the results together with `link.exe /lib /machine:arm64x`.  CMake cannot
+  express that, so Windows on ARM builds continue to link these binaries.
+  [win64-arm/lib/README.txt](precompiled/win64-arm/lib/README.txt) documents how
+  they were produced and must be followed when they are updated.
 
 ## License Information
 License information for the third-party dependencies contained within this

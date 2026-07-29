@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.24)
 
 project(gfxrecon-quest-replay)
 
@@ -13,7 +13,7 @@ if (GFXRECON_ENABLE_OPENXR)
 get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
 include(../../framework/cmake-config/PlatformConfig.cmake)
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.24)
 
 
 # Enable OpenXR support for quest_replay or fail
@@ -54,7 +54,6 @@ add_library(gfxrecon-quest-replay
 
 target_include_directories(gfxrecon-quest-replay
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/tools
                                ${GFXRECON_SOURCE_DIR}
                                ${CMAKE_BINARY_DIR})

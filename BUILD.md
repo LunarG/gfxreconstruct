@@ -89,6 +89,42 @@ Submodules will need to be updated when the repository status (e.g.
 `git status`) shows the submodule folders as having been modified
 after a repository update (e.g. `git pull`).
 
+### Compression Libraries
+
+The LZ4, Zstandard, and zlib compression libraries are downloaded and built
+from source as part of the CMake configure step.  The upstream revision used
+for each is pinned in `cmake/CompressionDependencies.cmake`.  This is the
+default and requires no packages to be installed, but it does require **network
+access when CMake is run**.
+
+To build against compression libraries already installed on the system instead,
+which is generally what Linux distribution packaging and air-gapped builds want,
+configure with:
+
+```bash
+cmake -DGFXRECON_COMPRESSION_FROM_SOURCE=OFF ...
+```
+
+In that mode the libraries are located with `find_package`, and the development
+packages listed for your platform below must be installed.  `LZ4_ROOT` and
+`ZSTD_ROOT` may be set to point at a specific installation.  Note that LZ4 is
+required unless `LZ4_OPTIONAL=ON` is also set.
+
+To build from source without network access, pre-populate the sources and point
+CMake at them, for example:
+
+```bash
+cmake -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+      -DFETCHCONTENT_SOURCE_DIR_LZ4=/path/to/lz4 \
+      -DFETCHCONTENT_SOURCE_DIR_ZSTD=/path/to/zstd \
+      -DFETCHCONTENT_SOURCE_DIR_ZLIB=/path/to/zlib ...
+```
+
+Two platforms deviate from the above.  Windows on ARM links pre-compiled ARM64X
+libraries from `external/precompiled/win64-arm`, because CMake cannot produce
+ARM64X binaries; `GFXRECON_COMPRESSION_FROM_SOURCE` therefore defaults to `OFF`
+for those builds.  On Android, zlib is taken from the NDK rather than built.
+
 ## Common build instructions
 
 For desktop builds, there is a Python 3 build script, `scripts/build.py`, that can
@@ -241,15 +277,20 @@ For Ubuntu, the required packages can be installed with the following command:
 
 ```bash
 sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-dev \
-        libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev libxcb-glx0-dev
+        libwayland-dev libxrandr-dev libxcb-glx0-dev
 ```
 
 For 32-bit builds (DXVK might require 32-bit):
 ```bash
 sudo apt-get install g++-multilib libx11-xcb-dev:i386 libxcb-keysyms1-dev:i386 \
-        libwayland-dev:i386 libxrandr-dev:i386 zlib1g-dev:i386 liblz4-dev:i386 \
-        libzstd-dev:i386 libxcb-glx0-dev:i386
+        libwayland-dev:i386 libxrandr-dev:i386 libxcb-glx0-dev:i386
 ```
+
+The compression libraries are built from source by default and so are not
+listed above.  If you build with `GFXRECON_COMPRESSION_FROM_SOURCE=OFF`, also
+install `zlib1g-dev liblz4-dev libzstd-dev` (or the `:i386` variants for 32-bit
+builds).  See
+[Compression Libraries](#compression-libraries) below.
 
 For arm64 builds (cross compilation):
 
@@ -264,8 +305,13 @@ command:
 
 ```bash
 sudo dnf install git cmake libxcb-devel libX11-devel xcb-util-keysyms-devel \
-        libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel g++
+        libXrandr-devel wayland-devel g++
 ```
+
+The compression libraries are built from source by default and so are not
+listed above.  If you build with `GFXRECON_COMPRESSION_FROM_SOURCE=OFF`, also
+install `zlib-devel lz4-devel libzstd-devel`.  See
+[Compression Libraries](#compression-libraries) below.
 
 For arm64 builds (cross compilation):
 

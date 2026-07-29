@@ -9,6 +9,11 @@ find_package(nlohmann_json REQUIRED CONFIG PATHS "${nlohmann_json_DIR}" NO_DEFAU
 set(CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/external/cmake-modules")
 list(APPEND CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/cmake")
 
+# The Android builds do not go through the top level CMakeLists.txt, so the
+# compression libraries have to be set up here.  Makes LZ4::LZ4, ZSTD::ZSTD, and
+# ZLIB::ZLIB available.
+include(CompressionDependencies)
+
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)

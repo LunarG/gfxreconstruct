@@ -34,5 +34,4 @@ add_library(gfxrecon-testapp-triangle
 target_include_directories(gfxrecon-testapp-triangle
                            PUBLIC
                                ${TRIANGLE_DIR}
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})

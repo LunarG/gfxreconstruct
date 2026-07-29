@@ -394,7 +394,6 @@ if (WIN32)
                                    ${CMAKE_BINARY_DIR}
                                    ${GFXRECON_SOURCE_DIR}/framework
                                    ${GFXRECON_SOURCE_DIR}/external
-                                   ${GFXRECON_SOURCE_DIR}/external/precompiled/win64/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     else()
         target_include_directories(gfxrecon_decode
@@ -402,7 +401,6 @@ if (WIN32)
                                    ${CMAKE_BINARY_DIR}
                                    ${GFXRECON_SOURCE_DIR}/framework
                                    ${GFXRECON_SOURCE_DIR}/external
-                                   ${GFXRECON_SOURCE_DIR}/external/precompiled/win32/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     endif()
 elseif(APPLE)
@@ -413,15 +411,13 @@ elseif(APPLE)
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/macos/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 elseif(ANDROID)
     target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
-                               ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include)
+                               ${GFXRECON_SOURCE_DIR}/external)
 else()
     target_include_directories(gfxrecon_decode
                            PRIVATE
@@ -430,36 +426,7 @@ else()
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
-endif()
-
-if (NOT ANDROID)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        if (WIN32)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/win64/lib)
-        elseif(APPLE)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/macos/lib)
-        else()
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
-        endif()
-    else (CMAKE_SIZEOF_VOID_P EQUAL 4)
-        if (WIN32)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/win32/lib)
-        else()
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/lib/x86)
-        endif()
-    endif()
 endif()
 
 target_link_libraries(gfxrecon_decode

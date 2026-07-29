@@ -24,7 +24,7 @@
 # Description: CMake script for Test launcher app
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.24)
 
 get_filename_component(GFXRECON_SOURCE_DIR ../../../.. ABSOLUTE)
 set(GFXRECON_ANDROID_DIR ${GFXRECON_SOURCE_DIR}/android)
@@ -45,7 +45,6 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES

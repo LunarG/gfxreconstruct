@@ -162,20 +162,11 @@ target_include_directories(gfxrecon_util
 if (ANDROID)
     target_include_directories(gfxrecon_util PUBLIC
                                ${ANDROID_NDK}/sources/android/native_app_glue
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb)
-    target_compile_definitions(gfxrecon_util PUBLIC
-                               GFXRECON_ENABLE_LZ4_COMPRESSION
-                               GFXRECON_ENABLE_ZSTD_COMPRESSION
-                               GFXRECON_ENABLE_ZLIB_COMPRESSION
-                               GFXRECON_ENABLE_PNG_SCREENSHOT)
     target_link_libraries(gfxrecon_util
                           platform_specific vulkan_registry spirv_registry spirv-reflect-static
                           nlohmann_json::nlohmann_json
-                          android log
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
-                          z)
+                          android log)
 else()
     target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
     target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
@@ -241,8 +232,17 @@ if (TARGET ZLIB::ZLIB)
     target_compile_definitions(gfxrecon_util
                                PUBLIC
                                    GFXRECON_ENABLE_ZLIB_COMPRESSION
-                                   GFXRECON_ENABLE_PNG_SCREENSHOT
-                                   $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
+                                   GFXRECON_ENABLE_PNG_SCREENSHOT)
+
+    # The pre-compiled Windows zlib binaries under external/precompiled export
+    # their entry points with the WINAPI calling convention, which callers opt
+    # into by defining ZLIB_WINAPI before including zlib.h.  A zlib built from
+    # source uses the default calling convention instead, so the definition must
+    # not be applied in that case.
+    if (WIN32 AND NOT GFXRECON_COMPRESSION_FROM_SOURCE)
+        target_compile_definitions(gfxrecon_util PUBLIC ZLIB_WINAPI)
+    endif()
+
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 
     target_include_directories(gfxrecon_util

@@ -1,7 +1,7 @@
 # For more information about using CMake with Android Studio, read the
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.24)
 
 project(gfxrecon-replay)
 
@@ -41,7 +41,6 @@ add_library(gfxrecon-replay
 
 target_include_directories(gfxrecon-replay
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}
                                ${GFXRECON_SOURCE_DIR}/tools
                                ${CMAKE_BINARY_DIR})
