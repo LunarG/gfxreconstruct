@@ -132,6 +132,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         // Cache header and options so they remain accessible after block_processor_ transfers to AsyncProcessor.
         file_header_  = block_processor_->GetFileHeader();
         file_options_ = block_processor_->GetFileOptions();
+        filename_     = filename;
     }
     else
     {

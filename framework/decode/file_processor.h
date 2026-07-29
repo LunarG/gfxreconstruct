@@ -96,6 +96,7 @@ class FileProcessor
     }
 
     bool Initialize(const std::string& filename);
+    const std::string& GetFilename() const { return filename_; }
 
     // Called implicitly by ProcessAllFrames() and directly by Application::Run()
     // Must be called at most once after Initialize() and before ProcessNextFrame()
@@ -183,12 +184,13 @@ class FileProcessor
     void SetDecoderFrameNumber(uint64_t frame_number);
 
   private:
-    bool     frame_processing_initialized_{ false };
-    uint64_t dispatch_bytes_read_{ 0 };
-    bool     dispatch_capture_uses_frame_markers_{ false };
-    bool     dispatch_file_supports_frame_markers_{ false };
-    bool     dispatch_skipping_finished_{ true };
-    bool     loading_trimmed_capture_state_{ false };
+    bool        frame_processing_initialized_{ false };
+    uint64_t    dispatch_bytes_read_{ 0 };
+    bool        dispatch_capture_uses_frame_markers_{ false };
+    bool        dispatch_file_supports_frame_markers_{ false };
+    bool        dispatch_skipping_finished_{ true };
+    bool        loading_trimmed_capture_state_{ false };
+    std::string filename_;
 
     // Stored at FileProcessor level so they survive a BlockProcessor re-creation in Initialize().
     // Transferred to BlockProcessor in InitializeFrameProcessing().
