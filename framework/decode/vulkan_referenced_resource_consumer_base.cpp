@@ -55,53 +55,13 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallInfo&  call_info,
                                                                   args::QueueSubmit2& args)
 {
-    if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
-    {
-        size_t     submit_count = args.pSubmits.GetLength();
-        const auto submits      = args.pSubmits.GetMetaStructPointer();
-
-        for (size_t i = 0; i < submit_count; ++i)
-        {
-            size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
-            const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
-
-            if ((command_buffer_count > 0) && !IsStateLoading())
-            {
-                command_buffer_submission_seen_ = true;
-            }
-
-            for (size_t j = 0; j < command_buffer_count; ++j)
-            {
-                table_.ProcessUserSubmission(command_buffers[j].commandBuffer);
-            }
-        }
-    }
+    Process_vkQueueSubmit2(&args.pSubmits);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2KHR(const ApiCallInfo&     call_info,
                                                                      args::QueueSubmit2KHR& args)
 {
-    if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
-    {
-        size_t     submit_count = args.pSubmits.GetLength();
-        const auto submits      = args.pSubmits.GetMetaStructPointer();
-
-        for (size_t i = 0; i < submit_count; ++i)
-        {
-            size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
-            const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
-
-            if ((command_buffer_count > 0) && !IsStateLoading())
-            {
-                command_buffer_submission_seen_ = true;
-            }
-
-            for (size_t j = 0; j < command_buffer_count; ++j)
-            {
-                table_.ProcessUserSubmission(command_buffers[j].commandBuffer);
-            }
-        }
-    }
+    Process_vkQueueSubmit2(&args.pSubmits);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(const ApiCallInfo&  call_info,
