@@ -35,7 +35,8 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--idle-before-submit,--"
+    "screenshot-ignore-FrameBoundaryANDROID,--screenshot-apply-prerotation,--deduplicate-device,--log-timestamps,--"
+    "capture,--idle-before-submit,--"
     "serialize-render-passes,--serialize-queue-submissions,--async-processing,--isolate-render-passes,--serialize-"
     "compute-"
     "and-transfer";
@@ -369,6 +370,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --screenshot-ignore-FrameBoundaryANDROID");
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, frames switced with vkFrameBoundANDROID will be ignored from");
     GFXRECON_WRITE_CONSOLE("          \t\tthe screenshot handler.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-apply-prerotation");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, screenshots will respect the preTransform of the swapchain.");
     GFXRECON_WRITE_CONSOLE("  --deduplicate-device");
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, at most one VkDevice will be created for each VkPhysicalDevice for "
                            "RenderDoc and DXVK case.");
