@@ -1932,6 +1932,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool UseAddressReplacement(const VulkanDeviceInfo* device_info) const;
 
+    bool CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const;
+
     [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
                                                                       VkGraphicsPipelineCreateInfo* create_infos,
                                                                       const format::HandleId*       pipelines) const;
