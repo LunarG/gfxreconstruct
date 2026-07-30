@@ -2804,19 +2804,21 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
                 for (uint32_t layer = 0; layer < num_layers; ++layer)
                 {
-                    screenshot_handler_->WriteImage(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
-                                                                   : filename_prefix,
-                                                    device_info,
-                                                    GetDeviceTable(device_info->handle),
-                                                    memory_properties,
-                                                    device_info->allocator.get(),
-                                                    image,
-                                                    image_format,
-                                                    image_width,
-                                                    image_height,
-                                                    layer,
-                                                    screenshot_scale,
-                                                    image_layout);
+                    screenshot_handler_->WriteImage(
+                        num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
+                        device_info,
+                        GetDeviceTable(device_info->handle),
+                        memory_properties,
+                        device_info->allocator.get(),
+                        image,
+                        image_format,
+                        image_width,
+                        image_height,
+                        layer,
+                        screenshot_scale,
+                        image_layout,
+                        options_.screenshot_apply_prerotation ? swapchain_info->pre_transform
+                                                              : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
         }
@@ -2895,7 +2897,8 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                                                     image_info->extent.height,
                                                     0,
                                                     screenshot_scale,
-                                                    image_info->current_layout);
+                                                    image_info->current_layout,
+                                                    VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
         }
@@ -5736,8 +5739,8 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
 
     if (options_.isolate_render_passes)
     {
-        auto command_buffers = std::span(pCommandBuffers->GetHandlePointer(), command_buffer_count);
-        GetDeviceCommandBufferUtil(device_info).FreeCommandBuffers(command_pool_info->handle, command_buffers);
+        GetDeviceCommandBufferUtil(device_info)
+            .FreeCommandBuffers(command_pool_info->handle, pCommandBuffers->GetSpan());
     }
 
     const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
@@ -8311,6 +8314,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     swapchain_info->height             = modified_create_info.imageExtent.height;
     swapchain_info->format             = modified_create_info.imageFormat;
 
+    // Track the application's original intended pre-transform instead of modified_create_info.preTransform.
+    // When replaying Android traces on Desktop, the WSI layer may override the transform to IDENTITY since Desktop
+    // surfaces often don't support rotation. However, the captured drawing commands remain rotated, so we must
+    // save the original transform to ensure screenshots are correctly un-rotated during Desktop playback.
+    swapchain_info->pre_transform = replay_create_info->preTransform;
+
     if ((result == VK_SUCCESS) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
         if ((replay_create_info->imageSharingMode == VK_SHARING_MODE_CONCURRENT) &&
@@ -10492,16 +10501,24 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
                                                             VulkanCommandPoolInfo*  pool_info,
                                                             VkCommandPoolResetFlags flags)
 {
-    assert(device_info != nullptr && pool_info != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr && pool_info != nullptr);
 
-    if (options_.dumping_resources && original_result >= 0)
+    if (original_result >= 0)
     {
         for (auto& cb_id : pool_info->child_ids)
         {
             VulkanCommandBufferInfo* cb_info = object_info_table_->GetVkCommandBufferInfo(cb_id);
-            assert(cb_info != nullptr);
+            GFXRECON_ASSERT(cb_info != nullptr);
 
-            resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            if (options_.dumping_resources)
+            {
+                resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            }
+
+            if (options_.isolate_render_passes)
+            {
+                GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
+            }
         }
     }
 
@@ -10515,17 +10532,25 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
     VulkanCommandPoolInfo*                               pool_info,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    assert(device_info != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr);
     VkCommandPool pool_handle = pool_info ? pool_info->handle : VK_NULL_HANDLE;
 
-    if (options_.dumping_resources && pool_info != nullptr)
+    if (pool_info != nullptr)
     {
         for (auto& cb_id : pool_info->child_ids)
         {
             VulkanCommandBufferInfo* cb_info = object_info_table_->GetVkCommandBufferInfo(cb_id);
-            assert(cb_info != nullptr);
+            GFXRECON_ASSERT(cb_info != nullptr);
 
-            resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            if (options_.dumping_resources)
+            {
+                resource_dumper_->ResetCommandBuffer(cb_info->handle);
+            }
+
+            if (options_.isolate_render_passes)
+            {
+                GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
+            }
         }
     }
 
@@ -11957,8 +11982,17 @@ VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(co
         return it->second;
     }
 
+    auto* decoder = dynamic_cast<VulkanStateRecordingDecoder*>(GetDecoder());
+    if (decoder == nullptr)
+    {
+        GFXRECON_LOG_FATAL(
+            "VulkanReplayConsumerBase::GetDeviceCommandBufferUtil() called with non-VulkanStateRecordingDecoder");
+        std::abort();
+    }
+
     auto [new_it, success] = device_command_buffer_utils_.insert(
-        { device_info, VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_) });
+        { device_info,
+          VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_, decoder) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }

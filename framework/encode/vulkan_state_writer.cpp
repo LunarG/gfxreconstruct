@@ -3028,8 +3028,10 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 snapshot_entry.buffers.emplace_back(snapshot_info);
             }
         }
-        else
+        else if (wrapper->sparse_bind_queue != VK_NULL_HANDLE)
         {
+            // Sparse object has to vkQueueBindSparse first.
+
             // Perform memory binding for sparse buffer.
             const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
             const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
@@ -3210,8 +3212,10 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                         WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
                     }
                 }
-                else
+                else if (wrapper->sparse_bind_queue != VK_NULL_HANDLE)
                 {
+                    // Sparse object has to vkQueueBindSparse first.
+
                     const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
 
@@ -4020,25 +4024,12 @@ void VulkanStateWriter::WriteCommandBufferCommands(vulkan_wrappers::CommandBuffe
     if (CheckCommandHandles(wrapper, state_table))
     {
         // Replay each of the commands that was recorded for the command buffer.
-        size_t         offset    = 0;
-        size_t         data_size = wrapper->command_data.GetDataSize();
-        const uint8_t* data      = wrapper->command_data.GetData();
-
-        while (offset < data_size)
-        {
-            const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
-            const format::ApiCallId* call_id =
-                reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
-            const uint8_t* parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
-
-            parameter_stream_.Write(parameter_data, (*parameter_size));
-            WriteFunctionCall((*call_id), &parameter_stream_);
-            parameter_stream_.Clear();
-
-            offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
-        }
-
-        assert(offset == data_size);
+        wrapper->command_data.ForEach(
+            [&](format::ApiCallId call_id, const uint8_t* parameter_data, size_t parameter_size) {
+                parameter_stream_.Write(parameter_data, parameter_size);
+                WriteFunctionCall(call_id, &parameter_stream_);
+                parameter_stream_.Clear();
+            });
     }
     else
     {

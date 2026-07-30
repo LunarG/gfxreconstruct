@@ -646,6 +646,8 @@ struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     };
     std::vector<AcquiredData> acquired_indices;
 
+    VkSurfaceTransformFlagBitsKHR pre_transform{ VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };
+
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<uint32_t> queue_family_indices{ 0 };
 
