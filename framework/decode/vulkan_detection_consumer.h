@@ -42,8 +42,8 @@ class VulkanDetectionConsumer : public VulkanConsumer
     VulkanDetectionConsumer(uint64_t block_limit = kDefaultBlockLimit) :
         block_limit_(block_limit), vulkan_consumer_usage_(false)
     {}
-    bool         WasVulkanAPIDetected() const { return vulkan_consumer_usage_; }
-    void         Process_vkCreateDevice(const ApiCallInfo& call_info, args::CreateDevice& args) override
+    bool WasVulkanAPIDetected() const { return vulkan_consumer_usage_; }
+    void Process_vkCreateInstance(const ApiCallInfo& call_info, args::CreateInstance& args) override
     {
         vulkan_consumer_usage_ = true;
     }
