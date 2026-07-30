@@ -24,6 +24,7 @@
 #ifndef GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 #define GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 
+#include "format/api_call_log.h"
 #include "format/format.h"
 #include "graphics/dx12_util.h"
 #include "util/defines.h"
@@ -490,7 +491,7 @@ struct ID3D12CommandListInfo : public DxWrapperInfo
 {
     bool                             was_reset{ false };
     bool                             is_closed{ false };
-    util::MemoryOutputStream         command_data;
+    format::ApiCallLog<>             command_data;
     std::vector<DxTransitionBarrier> transition_barriers;
     D3D12_COMMAND_LIST_TYPE          command_list_type{};
 

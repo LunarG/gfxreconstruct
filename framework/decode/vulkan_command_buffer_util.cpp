@@ -80,9 +80,10 @@ void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBuffer
 
 VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*            device_info,
                                                  const graphics::VulkanDeviceTable* device_table,
-                                                 CommonObjectInfoTable*             object_table) :
+                                                 CommonObjectInfoTable*             object_table,
+                                                 VulkanStateRecordingDecoder*       decoder) :
     device_info_(device_info),
-    device_table_(device_table), object_table_(object_table)
+    device_table_(device_table), object_table_(object_table), decoder_(decoder)
 {
     GFXRECON_ASSERT(device_info != nullptr);
     GFXRECON_ASSERT(device_table != nullptr);
@@ -155,6 +156,11 @@ void VulkanCommandBufferUtil::ReplaceWithAssociatedCommandBuffer(VulkanCommandBu
 
 void VulkanCommandBufferUtil::SplitCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
+    if (reissuing_command_buffer_state_ == true)
+    {
+        return;
+    }
+
     device_table_->EndCommandBuffer(command_buffer_info->handle);
 
     GetOrCreateAssociatedInfo(command_buffer_info->capture_id).PushSplitHandle(command_buffer_info->handle);
@@ -162,6 +168,10 @@ void VulkanCommandBufferUtil::SplitCommandBuffer(VulkanCommandBufferInfo* comman
 
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     device_table_->BeginCommandBuffer(command_buffer_info->handle, &begin_info);
+
+    reissuing_command_buffer_state_ = true;
+    decoder_->ReissueCommandBufferState(command_buffer_info->capture_id);
+    reissuing_command_buffer_state_ = false;
 }
 
 graphics::VulkanSemaphore
@@ -314,17 +324,19 @@ VulkanCommandBufferUtil::GetCommandBuffersFromSubmitInfos(const std::span<VkSubm
     return submits_command_buffers;
 }
 
-void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                          command_pool,
-                                                 const std::span<const VkCommandBuffer> command_buffers)
+void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                           command_pool,
+                                                 const std::span<const format::HandleId> command_buffer_ids)
 {
     // Check whether any of the command buffers being freed are split command buffers.
-    for (VkCommandBuffer command_buffer : command_buffers)
+    for (format::HandleId command_buffer_id : command_buffer_ids)
     {
-        if (original_command_buffer_id_.contains(command_buffer))
+
+        // Make sure to clear the recorded state for this command buffer.
+        decoder_->ClearRecordedState(command_buffer_id);
+
+        auto* split_info = GetAssociatedInfo(command_buffer_id);
+        if (split_info != nullptr)
         {
-            // This command buffer is a split command buffer, so we need to free all the splits together.
-            format::HandleId command_buffer_id = original_command_buffer_id_[command_buffer];
-            auto*            split_info        = GetAssociatedInfo(command_buffer_id);
             split_info->FreeCommandBuffers(command_pool);
 
             // Remove the associated handles from the tracking maps.
@@ -344,6 +356,9 @@ void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                  
 
 void VulkanCommandBufferUtil::ResetCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
+    // The recorded state does not survive a reset.
+    decoder_->ClearRecordedState(command_buffer_info->capture_id);
+
     // This command buffer is expected to be already reset at this point.
     VkCommandBuffer command_buffer = command_buffer_info->handle;
 
@@ -361,6 +376,9 @@ void VulkanCommandBufferUtil::ResetCommandBuffer(VulkanCommandBufferInfo* comman
 
 void VulkanCommandBufferUtil::BeginCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
+    // A new recording invalidates the state commands recorded for the previous one.
+    decoder_->ClearRecordedState(command_buffer_info->capture_id);
+
     VulkanCommandPoolInfo* command_pool_info = object_table_->GetVkCommandPoolInfo(command_buffer_info->pool_id);
     GFXRECON_ASSERT(command_pool_info != nullptr);
 

@@ -93,6 +93,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
+    void           SetDecoder(VulkanDecoder* decoder) { decoder_ = decoder; };
+    VulkanDecoder* GetDecoder() { return decoder_; }
+
     virtual void WaitDevicesIdle() override;
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
@@ -2042,6 +2045,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanSwapchain>                                         swapchain_;
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
+    VulkanDecoder*                                                           decoder_ = nullptr;
 
     VulkanPerDeviceAddressTrackers    device_address_trackers_;
     VulkanPerDeviceAddressReplacers   device_address_replacers_;

@@ -103,10 +103,7 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
     if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
     {
         // Append the command data.
-        size_t size = parameter_buffer->GetDataSize();
-        wrapper->command_data.Write(&size, sizeof(size));
-        wrapper->command_data.Write(&call_id, sizeof(call_id));
-        wrapper->command_data.Write(parameter_buffer->GetData(), size);
+        wrapper->command_data.Append(call_id, parameter_buffer->GetData(), parameter_buffer->GetDataSize());
     }
 }
 
