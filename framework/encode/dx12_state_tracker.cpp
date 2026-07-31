@@ -1251,10 +1251,14 @@ void Dx12StateTracker::TrackSetHDRMetaData(
     wrapper_info->hdr_metadata_type = Type;
     wrapper_info->hdr_metadata_size = Size;
 
-    if (pMetaData != nullptr)
+    if (pMetaData != nullptr && Size > 0)
     {
-        wrapper_info->hdr_metadata = new char[Size]();
-        memcpy(wrapper_info->hdr_metadata, pMetaData, Size);
+        wrapper_info->hdr_metadata.assign(static_cast<const uint8_t*>(pMetaData),
+                                          static_cast<const uint8_t*>(pMetaData) + Size);
+    }
+    else
+    {
+        wrapper_info->hdr_metadata.clear();
     }
 }
 
