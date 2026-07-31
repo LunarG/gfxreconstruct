@@ -507,6 +507,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkDeviceSize            offset_from_original_device_memory{ 0 };
         uint64_t                reference_count{ 0 };
 
+        bool is_external{ false };
+
         VmaAllocation     allocation{ VK_NULL_HANDLE };
         VmaAllocationInfo allocation_info{};
 
@@ -564,6 +566,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         bool          uses_extensions{ false };
         VkFormat      format{ VK_FORMAT_UNDEFINED };
 
+        VkExternalMemoryHandleTypeFlags external_handle_types{ 0 };
+
         // Captured VkBufferCreateInfo::size. Always present in the stream (unlike the memory
         // requirement size, which is 0 when vkGetBufferMemoryRequirements was never captured), so it
         // provides a captured-space byte-extent for aliasing-overlap detection. 0 for non-buffers.
@@ -609,6 +613,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::vector<uint8_t> debug_utils_tag;
         uint64_t             debug_utils_tag_name;
         bool                 is_free{ false };
+
+        VkExternalMemoryHandleTypeFlags external_handle_types{ 0 };
     };
 
     struct StagingResources
@@ -695,6 +701,22 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                               const VkPhysicalDeviceMemoryProperties& device_memory_properties);
 
     VkResult AllocateAHBMemory(MemoryAllocInfo* memory_alloc_info, const VkImage image);
+
+    static bool UsesExternalMemory(const MemoryAllocInfo&   memory_alloc_info,
+                                   const ResourceAllocInfo& resource_alloc_info);
+
+    VkResult AllocateExternalMemory(MemoryAllocInfo&   memory_alloc_info,
+                                    ResourceAllocInfo& resource_alloc_info,
+                                    VkImage            image,
+                                    VkBuffer           buffer,
+                                    VkDeviceSize       memory_offset,
+                                    VmaMemoryInfo**    vma_mem_info);
+
+    void GetResourceMemoryRequirements(VkImage               image,
+                                       VkBuffer              buffer,
+                                       VkMemoryRequirements& replay_req,
+                                       bool&                 requires_dedicated_allocation,
+                                       bool&                 prefers_dedicated_allocation);
 
     VkResult BindImageMemory(VkImage                                 image,
                              VkDeviceMemory                          memory,
