@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2024 - 2025 Valve Corporation
-** Copyright (c) 2024 - 2025 LunarG, Inc.
+** Copyright (c) 2024 - 2026 Valve Corporation
+** Copyright (c) 2024 - 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -110,6 +110,11 @@ MarkInjectedCommandsHelper::~MarkInjectedCommandsHelper()
     {
         EndInjectedCommands();
     }
+}
+
+bool InsideInjectedCommands()
+{
+    return MarkInjectedCommandsHelper::semaphore > 0;
 }
 
 static MarkInjectedCommands injected_commands_marker;

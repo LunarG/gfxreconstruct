@@ -34,6 +34,9 @@
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
 #include "encode/capture_manager.h"
+#include "graphics/vulkan_injected_call_table.h"
+#include <tuple>
+#include <utility>
 
 #if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_capture_manager.h"
@@ -1533,8 +1536,12 @@ void VulkanReplayConsumerBase::AddInstanceTable(VkInstance instance)
 
 void VulkanReplayConsumerBase::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
 {
-    graphics::VulkanDeviceTable& table = device_tables_[graphics::GetVulkanDispatchKey(device)];
+    const auto key = graphics::GetVulkanDispatchKey(device);
+
+    graphics::VulkanDeviceTable& table = device_tables_[key];
     graphics::LoadVulkanDeviceTable(gpa, device, &table);
+
+    injected_device_tables_.insert_or_assign(key, graphics::VulkanInjectedCallTable(device, &table));
 }
 
 PFN_vkGetDeviceProcAddr VulkanReplayConsumerBase::GetDeviceAddrProc(VkPhysicalDevice physical_device)
@@ -1559,6 +1566,13 @@ const graphics::VulkanDeviceTable* VulkanReplayConsumerBase::GetDeviceTable(cons
     auto table = device_tables_.find(graphics::GetVulkanDispatchKey(handle));
     assert(table != device_tables_.end());
     return (table != device_tables_.end()) ? &table->second : nullptr;
+}
+
+const graphics::VulkanInjectedCallTable* VulkanReplayConsumerBase::GetInjectedDeviceTable(const void* handle) const
+{
+    auto table = injected_device_tables_.find(graphics::GetVulkanDispatchKey(handle));
+    assert(table != injected_device_tables_.end());
+    return (table != injected_device_tables_.end()) ? &table->second : nullptr;
 }
 
 void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
@@ -4399,10 +4413,9 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
     {
         // Replay is usually faster than the original application, so there is a good chance the fence is still not
         // ready. In this case, we make sure the fence is signaled by waiting for it.
-        util::BeginInjectedCommands();
-        result =
-            GetDeviceTable(device)->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        util::EndInjectedCommands();
+        auto device_table           = GetInjectedDeviceTable(device);
+        auto injected_command_scope = device_table->MarkScope();
+        result = device_table->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
@@ -4478,9 +4491,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
 
+    const graphics::VulkanInjectedCallTable* device_table = GetInjectedDeviceTable(device_info->handle);
+
     if (options_.idle_before_submit)
     {
-        GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
+        auto injected_command_scope = device_table->MarkScope();
+        device_table->DeviceWaitIdle(device_info->handle);
     }
 
     VulkanSubmitJobPlan plan;
@@ -4632,9 +4648,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
     {
-        auto* device_table = GetDeviceTable(queue_info->handle);
-        GFXRECON_ASSERT(device_table != nullptr);
-        resource_dumper_->QueueSubmit(current_submits_span, *device_table, queue_info, fence, index);
+        resource_dumper_->QueueSubmit(current_submits_span, *device_table->GetRawTable(), queue_info, fence, index);
     }
     else
     {
@@ -4649,15 +4663,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-        event_result      = GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
-        completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
+        auto injected_command_scope = device_table->MarkScope();
+        event_result                = device_table->QueueWaitIdle(queue_info->handle);
+        completion_source           = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
     if (screenshot_handler_ != nullptr)
     {
-        util::BeginInjectedCommands();
-
         VulkanCommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
@@ -4693,8 +4705,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 }
             }
         }
-
-        util::EndInjectedCommands();
     }
 
     fps_info_->SetFirstSubmitDone(true);
@@ -4742,9 +4752,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
 
+    const graphics::VulkanInjectedCallTable* device_table = GetInjectedDeviceTable(device_info->handle);
+
     if (options_.idle_before_submit)
     {
-        GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
+        auto injected_command_scope = device_table->MarkScope();
+        device_table->DeviceWaitIdle(device_info->handle);
     }
 
     VulkanSubmitJobPlan plan;
@@ -4903,9 +4916,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
     {
-        auto* device_table = GetDeviceTable(queue_info->handle);
-        GFXRECON_ASSERT(device_table != nullptr);
-        resource_dumper_->QueueSubmit2(current_submits_span, *device_table, queue_info, fence, index);
+        resource_dumper_->QueueSubmit2(current_submits_span, *device_table->GetRawTable(), queue_info, fence, index);
     }
     else
     {
@@ -4920,16 +4931,14 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-        event_result      = GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
-        completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
+        auto injected_command_scope = device_table->MarkScope();
+        event_result                = device_table->QueueWaitIdle(queue_info->handle);
+        completion_source           = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
     // Check whether any of the submitted command buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
-        util::BeginInjectedCommands();
-
         bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
@@ -4954,8 +4963,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 }
             }
         }
-
-        util::EndInjectedCommands();
     }
 
     fps_info_->SetFirstSubmitDone(true);
@@ -5473,7 +5480,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
         if ((original_result >= 0) && (result == VK_ERROR_OUT_OF_POOL_MEMORY))
         {
-            util::BeginInjectedCommands();
+            auto device_table           = GetInjectedDeviceTable(device_info->handle);
+            auto injected_command_scope = device_table->MarkScope();
 
             // Handle case where replay runs out of descriptor pool memory when capture did not by creating a new
             // descriptor pool and attempting the allocation a second time.
@@ -5498,8 +5506,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                 create_info.pNext = &inline_uniform_block;
             }
 
-            result = GetDeviceTable(device_info->handle)
-                         ->CreateDescriptorPool(device_info->handle, &create_info, nullptr, &new_pool);
+            result = device_table->CreateDescriptorPool(device_info->handle, &create_info, nullptr, &new_pool);
 
             if (result == VK_SUCCESS)
             {
@@ -5519,10 +5526,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                 VkDescriptorSetAllocateInfo modified_allocate_info = (*pAllocateInfo->GetPointer());
                 modified_allocate_info.descriptorPool              = new_pool;
 
-                result = func(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
+                result = device_table->AllocateDescriptorSets(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
             }
-
-            util::EndInjectedCommands();
         }
 
         // The information gathered here is only relevant when dumping or for portability-features
@@ -10780,14 +10785,14 @@ void VulkanReplayConsumerBase::MaybeInjectExecutionBarrier(const VulkanCommandBu
         return;
     }
 
-    util::BeginInjectedCommands();
-
     const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
-    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+    const graphics::VulkanInjectedCallTable* device_table = GetInjectedDeviceTable(device_info->handle);
     GFXRECON_ASSERT(device_table != nullptr);
 
     // Make sure graphics work before this barrier is completed before doing other graphics work.
+    auto injected_command_scope =
+        device_table->MarkScope(command_buffer_info->handle, "Synthesized command injected in command buffer");
     device_table->CmdPipelineBarrier(command_buffer_info->handle,
                                      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
@@ -10798,8 +10803,6 @@ void VulkanReplayConsumerBase::MaybeInjectExecutionBarrier(const VulkanCommandBu
                                      nullptr,
                                      0,
                                      nullptr);
-
-    util::EndInjectedCommands();
 }
 
 std::vector<format::HandleId> VulkanReplayConsumerBase::GetRenderPassAttachmentImageViewIds(
@@ -14006,12 +14009,10 @@ void VulkanReplayConsumerBase::MaybeInjectComputeTransferBarrier(
         return;
     }
 
-    util::BeginInjectedCommands();
-
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
-    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+    const graphics::VulkanInjectedCallTable* device_table = GetInjectedDeviceTable(device_info->handle);
     GFXRECON_ASSERT(device_table != nullptr);
 
     VkMemoryBarrier memory_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER };
@@ -14024,10 +14025,10 @@ void VulkanReplayConsumerBase::MaybeInjectComputeTransferBarrier(
 
     // Make sure compute and transfer write operations before this barrier are completed
     // before doing other compute and transfer read/write operations.
+    auto injected_command_scope =
+        device_table->MarkScope(command_buffer_info->handle, "Synthesized command injected in command buffer");
     device_table->CmdPipelineBarrier(
         command_buffer_info->handle, stages, stages, 0, 1, &memory_barrier, 0, nullptr, 0, nullptr);
-
-    util::EndInjectedCommands();
 }
 
 void VulkanReplayConsumerBase::OverrideCmdDispatch(PFN_vkCmdDispatch              func,

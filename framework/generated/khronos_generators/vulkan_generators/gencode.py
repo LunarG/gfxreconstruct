@@ -83,6 +83,7 @@ from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeade
 from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBodyGenerator, VulkanCommandBufferUtilBodyGeneratorOptions
 from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator, VulkanCommandBufferUtilHeaderGeneratorOptions
 from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
+from vulkan_injected_call_table_generator import VulkanInjectedCallTableGenerator, VulkanInjectedCallTableGeneratorOptions
 from vulkan_layer_func_table_generator import VulkanLayerFuncTableGenerator, VulkanLayerFuncTableGeneratorOptions
 from vulkan_recapture_func_table_generator import VulkanRecaptureFuncTableGenerator, VulkanRecaptureFuncTableGeneratorOptions
 
@@ -719,6 +720,18 @@ def make_gen_opts(args):
         VulkanDispatchTableGenerator,
         VulkanDispatchTableGeneratorOptions(
             filename='generated_vulkan_dispatch_table.h',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_injected_call_table.h'] = [
+        VulkanInjectedCallTableGenerator,
+        VulkanInjectedCallTableGeneratorOptions(
+            filename='generated_vulkan_injected_call_table.h',
             directory=directory,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,

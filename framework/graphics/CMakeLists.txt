@@ -52,6 +52,8 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_injected_call_table.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_injected_call_table.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_semaphore_util.h
@@ -66,6 +68,7 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_dispatch_table.h
+                    ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_injected_call_table.h
               )
 
 if (${GFXRECON_AGS_SUPPORT_FINAL})

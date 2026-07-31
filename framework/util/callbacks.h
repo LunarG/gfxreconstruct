@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2024 - 2025 Valve Corporation
-** Copyright (c) 2024 - 2025 LunarG, Inc.
+** Copyright (c) 2024 - 2026 Valve Corporation
+** Copyright (c) 2024 - 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -48,6 +48,11 @@ struct MarkInjectedCommandsHelper
     MarkInjectedCommandsHelper();
     ~MarkInjectedCommandsHelper();
 };
+
+// Returns true while the calling thread is inside at least one MarkInjectedCommandsHelper
+// scope. Scopes entered through the bare BeginInjectedCommands()/EndInjectedCommands()
+// functions are not counted; call sites should prefer the RAII helper.
+bool InsideInjectedCommands();
 
 // Interface for registering callbacks so that GFXReconstruct can notify an external library about
 // generated API calls that are not included in the capture file.
