@@ -86,6 +86,9 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
             // as it may need to allocate a new BlockBatch (in enqueued/retained modes)
             // Also, depending on operation mode, decompression policy and block type, we may use working storage
             // or block allocator storage for the raw block data
+            GFXRECON_LOG_DEBUG("Allocating block of %" PRIu64 " bytes (block type 0x%x).",
+                               static_cast<uint64_t>(block_header.size),
+                               static_cast<uint32_t>(block_header.type));
             BlockAllocator::BlockAllocationInfo alloc_info  = GetAllocationInfo(block_header.type, actual_block_size);
             uint8_t*                            block_store = block_allocator_.StartBlock(alloc_info);
 
