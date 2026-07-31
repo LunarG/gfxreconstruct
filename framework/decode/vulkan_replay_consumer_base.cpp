@@ -29,6 +29,7 @@
 #include "decode/vulkan_captured_swapchain.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "decode/vulkan_virtual_swapchain.h"
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
@@ -255,6 +256,9 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     swapchain_->SetOptions(swapchain_options);
 
     // Enable/disable debug-utils labels around replay-injected commands (--annotate-injected-commands).
+    // This is a process-wide flag read by VulkanInjectedCallTable at each injection site.
+    graphics::SetAnnotateInjectedCommands(options_.annotate_injected_commands);
+
     if (options_.enable_debug_device_lost)
     {
         GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
