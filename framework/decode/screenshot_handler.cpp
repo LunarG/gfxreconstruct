@@ -21,6 +21,7 @@
 */
 
 #include "decode/screenshot_handler.h"
+#include "graphics/vulkan_injected_call_table.h"
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
@@ -68,7 +69,7 @@ inline void WriteImageFile(
 
 void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
                                    const VulkanDeviceInfo*                    device_info,
-                                   const graphics::VulkanDeviceTable*         device_table,
+                                   const graphics::VulkanInjectedCallTable*   device_table,
                                    const VkPhysicalDeviceMemoryProperties&    memory_properties,
                                    VulkanResourceAllocator*                   allocator,
                                    VkImage                                    image,
@@ -115,6 +116,8 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
     auto     device = device_info->handle;
     // TODO: Improved queue selection; ensure queue supports transfer operations.
 
+    auto injected_commands_scope = device_table->MarkScope();
+
     // Get a command pool for the device.
     auto copy_resource_entry = copy_resources_.find(device);
     if (copy_resource_entry == copy_resources_.end())
@@ -149,7 +152,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         VkQueue queue         = VK_NULL_HANDLE;
 
         // Get a queue.
-        queue = GetDeviceQueue(device_table, device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
+        queue = GetDeviceQueue(device_table->GetRawTable(), device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
 
         // Get a buffer size.
         VkDeviceSize buffer_size     = copy_resource.buffer_size;
@@ -521,8 +524,10 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table)
 {
+    auto injected_commands_scope = device_table->MarkScope();
+
     auto entry = copy_resources_.find(device);
     if (entry != copy_resources_.end())
     {
@@ -587,11 +592,11 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
     return IsSrgbFormat(image_format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
 }
 
-VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                           device,
-                                                  const graphics::VulkanDeviceTable* device_table,
-                                                  VkFormat                           format,
-                                                  uint32_t                           width,
-                                                  uint32_t                           height) const
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                                 device,
+                                                  const graphics::VulkanInjectedCallTable* device_table,
+                                                  VkFormat                                 format,
+                                                  uint32_t                                 width,
+                                                  uint32_t                                 height) const
 {
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -626,19 +631,19 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
     return memory_requirements.size;
 }
 
-VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
-                                               const graphics::VulkanDeviceTable*      device_table,
-                                               const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                               VkDeviceSize                            buffer_size,
-                                               VkFormat                                image_format,
-                                               VkFormat                                screenshot_format,
-                                               uint32_t                                width,
-                                               uint32_t                                height,
-                                               uint32_t                                copy_width,
-                                               uint32_t                                copy_height,
-                                               bool                                    flip_x,
-                                               bool                                    flip_y,
-                                               CopyResource*                           copy_resource) const
+VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                 device,
+                                               const graphics::VulkanInjectedCallTable* device_table,
+                                               const VkPhysicalDeviceMemoryProperties&  memory_properties,
+                                               VkDeviceSize                             buffer_size,
+                                               VkFormat                                 image_format,
+                                               VkFormat                                 screenshot_format,
+                                               uint32_t                                 width,
+                                               uint32_t                                 height,
+                                               uint32_t                                 copy_width,
+                                               uint32_t                                 copy_height,
+                                               bool                                     flip_x,
+                                               bool                                     flip_y,
+                                               CopyResource*                            copy_resource) const
 {
     assert(device_table != nullptr);
 

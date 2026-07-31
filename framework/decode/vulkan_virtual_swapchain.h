@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 
 #include "decode/vulkan_swapchain.h"
+#include "graphics/vulkan_injected_call_table.h"
 #include "graphics/vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -34,7 +35,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
   public:
     ~VulkanVirtualSwapchain() override = default;
 
-    void CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table) override;
+    void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table) override;
 
     VkResult CreateSurface(VkResult                             original_result,
                            VulkanInstanceInfo*                  instance_info,
@@ -44,13 +45,13 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                            const graphics::VulkanInstanceTable* instance_table,
                            application::Application*            application) override;
 
-    virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
-                                        PFN_vkCreateSwapchainKHR              func,
-                                        const VulkanDeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR*       create_info,
-                                        const VkAllocationCallbacks*          allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const graphics::VulkanDeviceTable*    device_table) override;
+    virtual VkResult CreateSwapchainKHR(VkResult                                 original_result,
+                                        PFN_vkCreateSwapchainKHR                 func,
+                                        const VulkanDeviceInfo*                  device_info,
+                                        const VkSwapchainCreateInfoKHR*          create_info,
+                                        const VkAllocationCallbacks*             allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+                                        const graphics::VulkanInjectedCallTable* device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -125,7 +126,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                            const VulkanImageInfo*                     image_info,
                            VulkanInstanceInfo*                        instance_info,
                            const graphics::VulkanInstanceTable*       instance_table,
-                           const graphics::VulkanDeviceTable*         device_table,
+                           const graphics::VulkanInjectedCallTable*   device_table,
                            application::Application*                  application,
                            const std::optional<std::array<float, 2>>& scale) override;
 
@@ -252,10 +253,10 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         }
 
         // required for lifetime-management
-        VkDevice                           device{ VK_NULL_HANDLE };
-        const graphics::VulkanDeviceTable* device_table{ nullptr };
-        const VulkanInstanceInfo*          instance_info{ nullptr };
-        VulkanSwapchain*                   owner{ nullptr };
+        VkDevice                                 device{ VK_NULL_HANDLE };
+        const graphics::VulkanInjectedCallTable* device_table{ nullptr };
+        const VulkanInstanceInfo*                instance_info{ nullptr };
+        VulkanSwapchain*                         owner{ nullptr };
 
         // non-owning handle
         VkCommandPool command_pool{ VK_NULL_HANDLE };
@@ -294,8 +295,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         AdhocDeviceData& operator=(AdhocDeviceData&&) = delete;
 
         // required for lifetime-management
-        VkDevice                           device{ VK_NULL_HANDLE };
-        const graphics::VulkanDeviceTable* device_table{ nullptr };
+        VkDevice                                 device{ VK_NULL_HANDLE };
+        const graphics::VulkanInjectedCallTable* device_table{ nullptr };
 
         // command-pool for all AdhocSwapChains
         VkCommandPool command_pool{ VK_NULL_HANDLE };

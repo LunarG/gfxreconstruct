@@ -24,12 +24,12 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "decode/decoder_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
-#include "util/callbacks.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanOffscreenSwapchain::CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
+void VulkanOffscreenSwapchain::CleanDeviceResources(VkDevice                                 device,
+                                                    const graphics::VulkanInjectedCallTable* device_table)
 {
     VulkanVirtualSwapchain::CleanDeviceResources(device, device_table);
 
@@ -88,13 +88,13 @@ void VulkanOffscreenSwapchain::DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                               const VkAllocationCallbacks* allocator)
 {}
 
-VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                              original_result,
-                                                      PFN_vkCreateSwapchainKHR              func,
-                                                      const VulkanDeviceInfo*               device_info,
-                                                      const VkSwapchainCreateInfoKHR*       create_info,
-                                                      const VkAllocationCallbacks*          allocator,
-                                                      HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                      const graphics::VulkanDeviceTable*    device_table)
+VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                                 original_result,
+                                                      PFN_vkCreateSwapchainKHR                 func,
+                                                      const VulkanDeviceInfo*                  device_info,
+                                                      const VkSwapchainCreateInfoKHR*          create_info,
+                                                      const VkAllocationCallbacks*             allocator,
+                                                      HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+                                                      const graphics::VulkanInjectedCallTable* device_table)
 {
     GFXRECON_ASSERT(device_info);
     device_table_ = device_table;
@@ -111,7 +111,8 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     }
     swapchain_resources_[*replay_swapchain]->forced_offscreen = true;
 
-    default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
+    auto injected_command_scope = device_table_->MarkScope();
+    default_queue_ = GetDeviceQueue(device_table_->GetRawTable(), device_info, default_queue_family_index_, 0);
 
     // If this option is set, a command buffer submission with a `VkFrameBoundaryEXT` must be called each time
     // `vkQueuePresentKHR` should have been called by the offscreen swapchain. So a maximum of work must be done at
@@ -256,7 +257,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
 
     if (swapchain_options_.offscreen_swapchain_frame_boundary || present_info->waitSemaphoreCount > 0)
     {
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        auto injected_command_scope = device_table_->MarkScope();
         result = device_table_->QueueSubmit(queue_info->handle, 1, &submit_info, VK_NULL_HANDLE);
 
         if (result != VK_SUCCESS)
@@ -274,7 +275,7 @@ void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*        
                                                  const VulkanImageInfo*                     image_info,
                                                  VulkanInstanceInfo*                        instance_info,
                                                  const graphics::VulkanInstanceTable*       instance_table,
-                                                 const graphics::VulkanDeviceTable*         device_table,
+                                                 const graphics::VulkanInjectedCallTable*   device_table,
                                                  application::Application*                  application,
                                                  const std::optional<std::array<float, 2>>& scale)
 {
@@ -300,7 +301,7 @@ VkResult VulkanOffscreenSwapchain::SignalAcquireNextImageSemaphoreFence(const Vu
 
     VkResult result = VK_ERROR_UNKNOWN;
 
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    auto injected_command_scope = device_table_->MarkScope();
 
     switch (external_sync_type)
     {

@@ -29,11 +29,8 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
+#include "graphics/vulkan_injected_call_table.h"
 
-#include "vulkan/vulkan.h"
-
-#include <atomic>
-#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -58,7 +55,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
 
     void WriteImage(const std::string&                         filename_prefix,
                     const VulkanDeviceInfo*                    device_info,
-                    const graphics::VulkanDeviceTable*         device_table,
+                    const graphics::VulkanInjectedCallTable*   device_table,
                     const VkPhysicalDeviceMemoryProperties&    memory_properties,
                     VulkanResourceAllocator*                   allocator,
                     VkImage                                    image,
@@ -70,7 +67,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                     VkImageLayout                              image_layout,
                     VkSurfaceTransformFlagBitsKHR              pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
 
-    void DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table);
+    void DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table);
 
   private:
     struct CopyResource
@@ -103,25 +100,25 @@ class ScreenshotHandler : public ScreenshotHandlerBase
 
     VkFormat GetConversionFormat(VkFormat image_format) const;
 
-    VkDeviceSize GetCopyBufferSize(VkDevice                           device,
-                                   const graphics::VulkanDeviceTable* device_table,
-                                   VkFormat                           format,
-                                   uint32_t                           width,
-                                   uint32_t                           height) const;
+    VkDeviceSize GetCopyBufferSize(VkDevice                                 device,
+                                   const graphics::VulkanInjectedCallTable* device_table,
+                                   VkFormat                                 format,
+                                   uint32_t                                 width,
+                                   uint32_t                                 height) const;
 
-    VkResult CreateCopyResource(VkDevice                                device,
-                                const graphics::VulkanDeviceTable*      device_table,
-                                const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                VkDeviceSize                            buffer_size,
-                                VkFormat                                image_format,
-                                VkFormat                                screenshot_format,
-                                uint32_t                                width,
-                                uint32_t                                height,
-                                uint32_t                                copy_width,
-                                uint32_t                                copy_height,
-                                bool                                    flip_x,
-                                bool                                    flip_y,
-                                CopyResource*                           copy_resource) const;
+    VkResult CreateCopyResource(VkDevice                                 device,
+                                const graphics::VulkanInjectedCallTable* device_table,
+                                const VkPhysicalDeviceMemoryProperties&  memory_properties,
+                                VkDeviceSize                             buffer_size,
+                                VkFormat                                 image_format,
+                                VkFormat                                 screenshot_format,
+                                uint32_t                                 width,
+                                uint32_t                                 height,
+                                uint32_t                                 copy_width,
+                                uint32_t                                 copy_height,
+                                bool                                     flip_x,
+                                bool                                     flip_y,
+                                CopyResource*                            copy_resource) const;
 
     void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;
 

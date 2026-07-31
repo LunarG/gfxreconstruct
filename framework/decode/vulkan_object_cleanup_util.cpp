@@ -158,12 +158,13 @@ void ClearObjects(CommonObjectInfoTable* table,
     }
 }
 
-void FreeAllLiveObjects(CommonObjectInfoTable*                                           table,
-                        bool                                                             remove_entries,
-                        bool                                                             report_leaks,
-                        std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table,
-                        std::function<const graphics::VulkanDeviceTable*(const void*)>   get_device_table,
-                        VulkanSwapchain*                                                 swapchain)
+void FreeAllLiveObjects(CommonObjectInfoTable*                                               table,
+                        bool                                                                 remove_entries,
+                        bool                                                                 report_leaks,
+                        std::function<const graphics::VulkanInstanceTable*(const void*)>     get_instance_table,
+                        std::function<const graphics::VulkanDeviceTable*(const void*)>       get_device_table,
+                        std::function<const graphics::VulkanInjectedCallTable*(const void*)> get_injected_device_table,
+                        VulkanSwapchain*                                                     swapchain)
 {
     FreeChildObjects<VulkanDeviceInfo, VulkanEventInfo>(
         table,
@@ -724,7 +725,8 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                                         [&](const VulkanDeviceInfo* object_info) {
                                             GFXRECON_ASSERT(object_info != nullptr);
                                             GFXRECON_ASSERT(swapchain != nullptr)
-                                            auto* device_table = get_device_table(object_info->handle);
+                                            graphics::InjectedCommandScope injected_commands_scope;
+                                            auto device_table = get_injected_device_table(object_info->handle);
                                             swapchain->CleanDeviceResources(object_info->handle, device_table);
                                             object_info->allocator->Destroy();
                                             device_table->DestroyDevice(object_info->handle, nullptr);

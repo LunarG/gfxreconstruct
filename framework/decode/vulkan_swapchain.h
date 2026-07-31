@@ -26,9 +26,10 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
 #include "decode/swapchain_image_tracker.h"
-#include "decode/window.h"
-#include "util/defines.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/window.h"
+#include "graphics/vulkan_injected_call_table.h"
+#include "util/defines.h"
 
 #include "application/application.h"
 
@@ -66,7 +67,7 @@ class VulkanSwapchain
 
     virtual void Clean();
 
-    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table) {}
+    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table) {}
 
     VulkanSwapchainOptions GetOptions() { return swapchain_options_; }
     void                   SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
@@ -86,13 +87,13 @@ class VulkanSwapchain
                                 const VulkanSurfaceKHRInfo*  surface_info,
                                 const VkAllocationCallbacks* allocator);
 
-    virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
-                                        PFN_vkCreateSwapchainKHR              func,
-                                        const VulkanDeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR*       create_info,
-                                        const VkAllocationCallbacks*          allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const graphics::VulkanDeviceTable*    device_table) = 0;
+    virtual VkResult CreateSwapchainKHR(VkResult                                 original_result,
+                                        PFN_vkCreateSwapchainKHR                 func,
+                                        const VulkanDeviceInfo*                  device_info,
+                                        const VkSwapchainCreateInfoKHR*          create_info,
+                                        const VkAllocationCallbacks*             allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+                                        const graphics::VulkanInjectedCallTable* device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -177,7 +178,7 @@ class VulkanSwapchain
                                    const VulkanImageInfo*                     image_info,
                                    VulkanInstanceInfo*                        instance_info,
                                    const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanDeviceTable*         device_table,
+                                   const graphics::VulkanInjectedCallTable*   device_table,
                                    application::Application*                  application,
                                    const std::optional<std::array<float, 2>>& scale) = 0;
 
@@ -191,8 +192,8 @@ class VulkanSwapchain
   protected:
     typedef std::unordered_set<Window*> ActiveWindows;
 
-    const graphics::VulkanInstanceTable* instance_table_{ nullptr };
-    const graphics::VulkanDeviceTable*   device_table_{ nullptr };
+    const graphics::VulkanInstanceTable*     instance_table_{ nullptr };
+    const graphics::VulkanInjectedCallTable* device_table_{ nullptr };
 
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;

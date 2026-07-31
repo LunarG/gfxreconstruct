@@ -23,19 +23,20 @@
 #include "decode/vulkan_captured_swapchain.h"
 #include "decode/decoder_util.h"
 
+#include "graphics/vulkan_injected_call_table.h"
 #include "util/logging.h"
 #include "graphics/vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                              original_result,
-                                                     PFN_vkCreateSwapchainKHR              func,
-                                                     const VulkanDeviceInfo*               device_info,
-                                                     const VkSwapchainCreateInfoKHR*       create_info,
-                                                     const VkAllocationCallbacks*          allocator,
-                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                     const graphics::VulkanDeviceTable*    device_table)
+VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                                 original_result,
+                                                     PFN_vkCreateSwapchainKHR                 func,
+                                                     const VulkanDeviceInfo*                  device_info,
+                                                     const VkSwapchainCreateInfoKHR*          create_info,
+                                                     const VkAllocationCallbacks*             allocator,
+                                                     HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+                                                     const graphics::VulkanInjectedCallTable* device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
 
@@ -271,7 +272,7 @@ void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*         
                                                 const VulkanImageInfo*                     image_info,
                                                 VulkanInstanceInfo*                        instance_info,
                                                 const graphics::VulkanInstanceTable*       instance_table,
-                                                const graphics::VulkanDeviceTable*         device_table,
+                                                const graphics::VulkanInjectedCallTable*   device_table,
                                                 application::Application*                  application,
                                                 const std::optional<std::array<float, 2>>& scale)
 {
@@ -308,7 +309,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     }
 
     VkSurfaceKHR surface = swapchain_info->surface;
-    assert((surface_info != nullptr) && (instance_table_ != nullptr) && (device_table_ != nullptr));
+    GFXRECON_ASSERT((surface_info != nullptr) && (instance_table_ != nullptr) && device_table_);
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     VkSurfaceCapabilitiesKHR surface_caps;
     uint32_t                 image_count = 0;
@@ -371,7 +374,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
     SwapchainImageTracker&                              swapchain_image_tracker)
 {
     VkDevice device = device_info->handle;
-    assert(device_table_ != nullptr);
+    GFXRECON_ASSERT(device_table_ != nullptr);
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     VkResult        result             = VK_SUCCESS;
     VkQueue         transition_queue   = VK_NULL_HANDLE;
@@ -381,7 +386,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
     uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
 
     // TODO: Improved queue selection?
-    transition_queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
+    transition_queue = GetDeviceQueue(device_table_->GetRawTable(), device_info, queue_family_index, 0);
 
     VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     pool_create_info.pNext                   = nullptr;
@@ -570,7 +575,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     const CommonObjectInfoTable&                        object_info_table)
 {
     auto device = device_info->handle;
-    assert(device_table_ != nullptr);
+    GFXRECON_ASSERT(device_table_);
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     VkResult        result             = VK_SUCCESS;
     VkQueue         queue              = VK_NULL_HANDLE;
@@ -585,7 +592,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     pool_create_info.queueFamilyIndex        = queue_family_index;
 
-    queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
+    queue = GetDeviceQueue(device_table_->GetRawTable(), device_info, queue_family_index, 0);
 
     result = device_table_->CreateCommandPool(device, &pool_create_info, nullptr, &pool);
 

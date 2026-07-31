@@ -254,6 +254,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     swapchain_options.present_mode_option                = options_.present_mode_option;
     swapchain_->SetOptions(swapchain_options);
 
+    // Enable/disable debug-utils labels around replay-injected commands (--annotate-injected-commands).
     if (options_.enable_debug_device_lost)
     {
         GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
@@ -339,12 +340,9 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         assert(info != nullptr);
         VkDevice device = info->handle;
 
-        auto device_table = GetDeviceTable(device);
-        assert(device_table != nullptr);
-
         if (screenshot_handler_ != nullptr)
         {
-            screenshot_handler_->DestroyDeviceResources(device, device_table);
+            screenshot_handler_->DestroyDeviceResources(device, GetInjectedDeviceTable(device));
         }
     });
 
@@ -354,6 +352,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         true,
         [this](const void* handle) { return GetInstanceTable(handle); },
         [this](const void* handle) { return GetDeviceTable(handle); },
+        [this](const void* handle) { return GetInjectedDeviceTable(handle); },
         swapchain_.get());
 
     swapchain_->Clean();
@@ -2821,7 +2820,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     screenshot_handler_->WriteImage(
                         num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
                         device_info,
-                        GetDeviceTable(device_info->handle),
+                        GetInjectedDeviceTable(device_info->handle),
                         memory_properties,
                         device_info->allocator.get(),
                         image,
@@ -2902,7 +2901,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
 
                     screenshot_handler_->WriteImage(filename_prefix,
                                                     device_info,
-                                                    GetDeviceTable(device_info->handle),
+                                                    GetInjectedDeviceTable(device_info->handle),
                                                     memory_properties,
                                                     device_info->allocator.get(),
                                                     image_info->handle,
@@ -2965,7 +2964,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
 
             screenshot_handler_->WriteImage(filename_prefix,
                                             device_info,
-                                            GetDeviceTable(device_info->handle),
+                                            GetInjectedDeviceTable(device_info->handle),
                                             memory_properties,
                                             device_info->allocator.get(),
                                             image_info->handle,
@@ -3882,13 +3881,11 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
     if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
     {
         device                  = device_info->handle;
-        const auto device_table = GetDeviceTable(device);
+        const auto device_table = GetInjectedDeviceTable(device);
 
         if (screenshot_handler_ != nullptr)
         {
-            util::BeginInjectedCommands();
             screenshot_handler_->DestroyDeviceResources(device, device_table);
-            util::EndInjectedCommands();
         }
 
         // free replacer internal vulkan-resources for the device
@@ -8369,7 +8366,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                 &modified_create_info,
                                                 GetAllocationCallbacks(pAllocator),
                                                 pSwapchain,
-                                                GetDeviceTable(device_info->handle));
+                                                GetInjectedDeviceTable(device_info->handle));
     }
     else
     {
@@ -8899,11 +8896,11 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
     struct local_fence_t
     {
-        VkFence                            fence        = VK_NULL_HANDLE;
-        VkDevice                           device       = VK_NULL_HANDLE;
-        const graphics::VulkanDeviceTable* device_table = nullptr;
+        VkFence                                  fence        = VK_NULL_HANDLE;
+        VkDevice                                 device       = VK_NULL_HANDLE;
+        const graphics::VulkanInjectedCallTable* device_table = nullptr;
 
-        local_fence_t(VkDevice d, const graphics::VulkanDeviceTable* t) : device(d), device_table(t)
+        local_fence_t(VkDevice d, const graphics::VulkanInjectedCallTable* t) : device(d), device_table(t)
         {
             VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
             fence_create_info.pNext             = nullptr;
@@ -8913,8 +8910,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         }
         ~local_fence_t() { device_table->DestroyFence(device, fence, nullptr); }
     };
-
-    util::BeginInjectedCommands();
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
@@ -8953,7 +8948,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     VkDevice device = swapchain_info->device_info->handle;
                     GFXRECON_ASSERT(device);
 
-                    auto device_table = GetDeviceTable(device);
+                    auto device_table           = GetInjectedDeviceTable(device);
+                    auto injected_command_scope = device_table->MarkScope();
 
                     // create a local fence
                     local_fence_t acquire_fence(device, device_table);
@@ -9100,8 +9096,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     VkDevice device = swapchain_info->device_info->handle;
                     GFXRECON_ASSERT(device);
 
-                    auto device_table = GetDeviceTable(device);
-                    GFXRECON_ASSERT(device_table);
+                    auto device_table           = GetInjectedDeviceTable(device);
+                    auto injected_command_scope = device_table->MarkScope();
 
                     // create a local fence
                     local_fence_t acquire_fence(device, device_table);
@@ -9143,14 +9139,12 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         GFXRECON_ASSERT(instance_info != nullptr);
 
                         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
-                        auto* device_table = GetDeviceTable(swapchain_info->device_info->handle);
-
                         swapchain_->PresentImageAdHoc(swapchain_info->device_info,
                                                       nullptr,
                                                       override_img_info,
                                                       instance_info,
                                                       instance_table,
-                                                      device_table,
+                                                      GetInjectedDeviceTable(swapchain_info->device_info->handle),
                                                       application_.get(),
                                                       options_.screenshot_scale);
                     }
@@ -9171,10 +9165,10 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     if (options_.wait_before_present)
     {
         VkDevice device = MapHandle<VulkanDeviceInfo>(queue_info->parent_id, &CommonObjectInfoTable::GetVkDeviceInfo);
-        GetDeviceTable(device)->DeviceWaitIdle(device);
+        auto     device_table           = GetInjectedDeviceTable(device);
+        auto     injected_command_scope = device_table->MarkScope();
+        device_table->DeviceWaitIdle(device);
     }
-
-    util::EndInjectedCommands();
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if (!have_imported_semaphores_ && shadow_semaphores_.empty() && modified_present_info.swapchainCount != 0)
@@ -11294,12 +11288,10 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 {
     GFXRECON_ASSERT(device_info != nullptr);
 
-    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+    auto device_table = GetInjectedDeviceTable(device_info->handle);
 
     if (screenshot_handler_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
-        util::BeginInjectedCommands();
-
         if (screenshot_handler_->IsScreenshotFrame() && image_info != nullptr)
         {
             const std::string filename_prefix =
@@ -11336,8 +11328,6 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         }
 
         screenshot_handler_->EndFrame();
-
-        util::EndInjectedCommands();
     }
 
     if (options_.swapchain_option == util::SwapchainOption::kVirtual)
@@ -11353,7 +11343,6 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-        util::BeginInjectedCommands();
         swapchain_->PresentImageAdHoc(device_info,
                                       semaphore_info,
                                       image_info,
@@ -11362,7 +11351,6 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                                       device_table,
                                       application_.get(),
                                       {});
-        util::EndInjectedCommands();
     }
     else
     {
