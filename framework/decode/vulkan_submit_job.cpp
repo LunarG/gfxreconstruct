@@ -55,13 +55,15 @@ bool VulkanSubmitJobPlan::HasJobsForIndex(uint32_t submit_index) const
     return jobs_for_index && !jobs_for_index->jobs.empty();
 }
 
-VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*            device_info,
-                                                 const graphics::VulkanDeviceTable* device_table) :
+VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*                  device_info,
+                                                 const graphics::VulkanInjectedCallTable* device_table) :
     device_info_{ device_info },
     device_table_{ device_table }
 {
     GFXRECON_ASSERT(device_info_ != nullptr);
     GFXRECON_ASSERT(device_table_ != nullptr);
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     VkSemaphoreTypeCreateInfo timeline_create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
     timeline_create_info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
@@ -105,6 +107,8 @@ bool VulkanInjectedSemaphore::HasReachedTargetValue() const
 
     GFXRECON_ASSERT(device_table_->GetSemaphoreCounterValue != nullptr);
 
+    auto injected_command_scope = device_table_->MarkScope();
+
     uint64_t read_value = 0;
     VkResult result = device_table_->GetSemaphoreCounterValue(device_info_->handle, semaphore_.semaphore, &read_value);
     if (result != VK_SUCCESS)
@@ -123,12 +127,13 @@ VulkanInjectedSemaphore::~VulkanInjectedSemaphore()
         {
             GFXRECON_LOG_ERROR("Injected timeline semaphore has not reached its target value at destruction time.");
         }
+        auto injected_command_scope = device_table_->MarkScope();
         device_table_->DestroySemaphore(device_info_->handle, semaphore_.semaphore, nullptr);
     }
 }
 
-VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*            device_info,
-                                                         const graphics::VulkanDeviceTable* device_table) :
+VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*                  device_info,
+                                                         const graphics::VulkanInjectedCallTable* device_table) :
     semaphore{ device_info, device_table }
 {
     GFXRECON_ASSERT(semaphore.GetHandle() != VK_NULL_HANDLE);
@@ -330,8 +335,8 @@ void VulkanSubmitJobExecution::SubmitStandalone(VulkanSubmitJobPlan plan) const
     }
 }
 
-VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*            device_info,
-                                                 const graphics::VulkanDeviceTable* device_table) :
+VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*                  device_info,
+                                                 const graphics::VulkanInjectedCallTable* device_table) :
     device_info_(device_info),
     device_table_(device_table)
 {

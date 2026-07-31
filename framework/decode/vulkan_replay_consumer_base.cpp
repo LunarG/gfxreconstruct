@@ -12064,7 +12064,8 @@ VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(co
 
     auto [new_it, success] = device_command_buffer_utils_.insert(
         { device_info,
-          VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_, decoder) });
+          VulkanCommandBufferUtil(
+              device_info, GetInjectedDeviceTable(device_info->handle), object_info_table_, decoder) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
@@ -12077,7 +12078,7 @@ VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(co
     }
 
     auto [new_it, success] = device_submit_job_executors_.insert(
-        { device_info, VulkanSubmitJobExecutor(device_info, GetDeviceTable(device_info->handle)) });
+        { device_info, VulkanSubmitJobExecutor(device_info, GetInjectedDeviceTable(device_info->handle)) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
