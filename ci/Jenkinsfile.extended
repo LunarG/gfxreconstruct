@@ -137,7 +137,7 @@ pipeline {
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [
-                            'Android Rel': runJob.gfxrTestAndroid('Android R Ext', runJob.ReleaseMode, runJob.AndroidLabel, "extended-suite.json", requestedBranches),
+                            'Android Rel': runJob.gfxrTestAndroid('Android Rel Ext', runJob.ReleaseMode, runJob.AndroidLabel, "extended-suite.json", requestedBranches),
                             'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, "extended-suite.json", requestedBranches),
                             'Linux Nvidia Rel': runJob.gfxrTestLinux('Linux Nvidia Rel Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, "extended-suite.json", requestedBranches),
                             'Linux Mesa 9070 Rel': runJob.gfxrTestLinux('Linux Mesa 9070 Rel Ext', runJob.ReleaseMode, runJob.LinuxMesa9070Label, "extended-suite.json", requestedBranches),
