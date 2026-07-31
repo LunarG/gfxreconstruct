@@ -253,9 +253,9 @@ struct IDXGISwapChainInfo : public DxgiWrapperInfo
     bool                   set_color_space{ false };
     bool                   set_hdr_metadata{ false };
     DXGI_COLOR_SPACE_TYPE  color_space_type{};
-    DXGI_HDR_METADATA_TYPE   hdr_metadata_type{};
-    UINT                     hdr_metadata_size{ 0 };
-    std::vector<uint8_t>     hdr_metadata;
+    DXGI_HDR_METADATA_TYPE hdr_metadata_type{};
+    UINT                   hdr_metadata_size{ 0 };
+    std::vector<uint8_t>   hdr_metadata;
 };
 
 struct IDXGIDeviceInfo : public DxgiWrapperInfo
