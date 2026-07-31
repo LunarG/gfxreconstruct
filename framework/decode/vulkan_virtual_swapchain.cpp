@@ -1271,7 +1271,9 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     VkSemaphore semaphore = semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle;
 
     // If there is no image to present, do nothing
-    if (image == VK_NULL_HANDLE)
+    // Likewise, if the trace has requested a genuine surface, we step out of its way
+    // completely by skipping any subsequent artificial AdHoc boundaries.
+    if (image == VK_NULL_HANDLE || application_surface_created_)
     {
         return;
     }
@@ -1346,7 +1348,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             // empty -> automatic wsi deduction
             std::string wsi_extension;
 
-            result = CreateSurface(
+            result = VulkanSwapchain::CreateSurface(
                 VK_SUCCESS, instance_info, wsi_extension, 0, &swapchain.surface_ptr, instance_table, application);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
@@ -1644,6 +1646,24 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
         GFXRECON_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
     }
+}
+
+VkResult VulkanVirtualSwapchain::CreateSurface(VkResult                             original_result,
+                                               VulkanInstanceInfo*                  instance_info,
+                                               const std::string&                   wsi_extension,
+                                               VkFlags                              flags,
+                                               HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                               const graphics::VulkanInstanceTable* instance_table,
+                                               application::Application*            application)
+{
+    // The application trace is attempting to create a genuine Surface, so it will need to attach to
+    // the single ANativeWindow. If we have used an AdHoc surface to bypass android splash screens,
+    // we must destroy that surface immediately so we release the NativeWindow cleanly before the trace tries.
+    application_surface_created_ = true;
+    adhoc_device_data_.clear();
+
+    return VulkanSwapchain::CreateSurface(
+        original_result, instance_info, wsi_extension, flags, surface, instance_table, application);
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,

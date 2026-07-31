@@ -179,6 +179,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     void CleanSwapchainResourceData(const VulkanDeviceInfo* device_info, const VulkanSwapchainKHRInfo* swapchain_info);
 
+    virtual VkResult CreateSurface(VkResult                             original_result,
+                                   VulkanInstanceInfo*                  instance_info,
+                                   const std::string&                   wsi_extension,
+                                   VkFlags                              flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                   const graphics::VulkanInstanceTable* instance_table,
+                                   application::Application*            application) override;
+
     VkResult CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
                                          const VkImageCreateInfo& image_create_info,
                                          VirtualImage&            image);
@@ -283,6 +291,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     std::unordered_map<VkDevice, AdhocDeviceData> adhoc_device_data_;
     std::unordered_map<VkDevice, uint32_t>        copy_queue_family_index_;
     std::unordered_map<VkDevice, VkQueue>         initial_copy_queue_;
+
+    bool application_surface_created_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)
