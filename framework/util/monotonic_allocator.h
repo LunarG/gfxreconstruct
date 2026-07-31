@@ -25,6 +25,7 @@
 #define GFXRECON_UTIL_MONOTONIC_ALLOCATOR_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <memory>
 #include <vector>
@@ -51,6 +52,11 @@ class MonotonicAllocator
     template <typename T>
     T* Allocate(size_t count = 1, bool initialize = true)
     {
+        if (count > (std::numeric_limits<size_t>::max() / sizeof(T)))
+        {
+            GFXRECON_ASSERT(false && "Allocate: count * sizeof(T) would overflow size_t");
+            return nullptr;
+        }
         T* result = reinterpret_cast<T*>(Allocate(sizeof(T) * count, alignof(T)));
         assert(result != nullptr);
         if ((result != nullptr) && initialize)
