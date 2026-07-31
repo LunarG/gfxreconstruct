@@ -602,6 +602,128 @@ bool WritePngImageSeparateAlpha(const std::string& filename,
     return success;
 }
 
+template <ImageRotation ROTATION, bool MIRRORED = false>
+static void RotateAndMirrorPixelsInternal(const uint32_t* src_pixels,
+                                          uint32_t*       dst_pixels,
+                                          uint32_t        src_width,
+                                          uint32_t        src_height,
+                                          uint32_t        dst_width,
+                                          uint32_t        dst_height)
+{
+    // Loop Tiling (32x32 blocks) to improve CPU cache utilization when reading
+    // from the src_pixels array with a large stride during rotation.
+    constexpr uint32_t TILE_SIZE = 32;
+    for (uint32_t dst_y_block = 0; dst_y_block < dst_height; dst_y_block += TILE_SIZE)
+    {
+        for (uint32_t dst_x_block = 0; dst_x_block < dst_width; dst_x_block += TILE_SIZE)
+        {
+            uint32_t max_y = std::min(dst_y_block + TILE_SIZE, dst_height);
+            uint32_t max_x = std::min(dst_x_block + TILE_SIZE, dst_width);
+
+            for (uint32_t dst_y = dst_y_block; dst_y < max_y; ++dst_y)
+            {
+                for (uint32_t dst_x = dst_x_block; dst_x < max_x; ++dst_x)
+                {
+                    // Conceptually, when an image is both mirrored and rotated, we define
+                    // the forward transformation as Mirror-then-Rotate.
+                    // To perform the inverse operation, we un-rotate then un-mirror
+                    // (Rotate-then-Mirror). When pulling from the source backwards, this
+                    // means we mirror our destination X coordinate first, then apply
+                    // the inverse rotation to find the corresponding source pixel.
+                    uint32_t mirrored_dst_x = dst_x;
+                    if constexpr (MIRRORED)
+                    {
+                        mirrored_dst_x = dst_width - 1 - dst_x;
+                    }
+
+                    uint32_t src_x = mirrored_dst_x;
+                    uint32_t src_y = dst_y;
+                    if constexpr (ROTATION == ImageRotation::DEG_90)
+                    {
+                        src_x = src_width - 1 - dst_y;
+                        src_y = mirrored_dst_x;
+                    }
+                    else if constexpr (ROTATION == ImageRotation::DEG_270)
+                    {
+                        src_x = dst_y;
+                        src_y = src_height - 1 - mirrored_dst_x;
+                    }
+                    else if constexpr (ROTATION == ImageRotation::DEG_180)
+                    {
+                        src_x = src_width - 1 - mirrored_dst_x;
+                        src_y = src_height - 1 - dst_y;
+                    }
+
+                    dst_pixels[dst_y * dst_width + dst_x] = src_pixels[src_y * src_width + src_x];
+                }
+            }
+        }
+    }
+}
+
+void RotateAndMirrorPixels(ImageRotation   rotation,
+                           bool            is_mirrored,
+                           const uint32_t* src_pixels,
+                           uint32_t*       dst_pixels,
+                           uint32_t        src_width,
+                           uint32_t        src_height,
+                           uint32_t        dst_width,
+                           uint32_t        dst_height)
+{
+    if (rotation == ImageRotation::DEG_90)
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_90, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_90>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+    else if (rotation == ImageRotation::DEG_270)
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_270, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_270>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+    else if (rotation == ImageRotation::DEG_180)
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_180, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_180>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+    else
+    {
+        if (is_mirrored)
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_0, /*mirrored=*/true>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+        else
+        {
+            RotateAndMirrorPixelsInternal<ImageRotation::DEG_0, /*mirrored=*/false>(
+                src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
