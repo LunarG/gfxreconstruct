@@ -5527,7 +5527,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                 VkDescriptorSetAllocateInfo modified_allocate_info = (*pAllocateInfo->GetPointer());
                 modified_allocate_info.descriptorPool              = new_pool;
 
-                result = device_table->AllocateDescriptorSets(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
+                result = device_table->AllocateDescriptorSets(
+                    device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
             }
         }
 

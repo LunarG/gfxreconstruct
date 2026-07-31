@@ -805,7 +805,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                 else
                 {
                     // patch an existing uniform-buffer and retrieve a buffer-address for it
-                    auto injected_command_scope            = device_table_->MarkScope();
+                    auto                      injected_command_scope = device_table_->MarkScope();
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = buffer_info->handle;
@@ -1319,7 +1319,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 else
                 {
                     // last resort is to obtain a AS device-address -> issue vulkan-call, get device-address
-                    auto injected_command_scope            = device_table_->MarkScope();
+                    auto                      injected_command_scope = device_table_->MarkScope();
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = acceleration_structure_info->buffer;
