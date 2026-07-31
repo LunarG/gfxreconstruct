@@ -29,6 +29,8 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 
 #include <limits>
+#include <algorithm>
+#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -39,11 +41,8 @@ static constexpr uint32_t kDefaultQueueIndex       = 0;
 static constexpr size_t kUnormIndex = 0;
 static constexpr size_t kSrgbIndex  = 1;
 
-inline void WriteImageFile(const std::string&     filename,
-                           util::ScreenshotFormat file_format,
-                           uint32_t               width,
-                           uint32_t               height,
-                           void*                  data)
+inline void WriteImageFile(
+    const std::string& filename, util::ScreenshotFormat file_format, uint32_t width, uint32_t height, void* data)
 {
     switch (file_format)
     {
@@ -78,7 +77,8 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                    uint32_t                                   height,
                                    uint32_t                                   layer,
                                    const std::optional<std::array<float, 2>>& copy_scale,
-                                   VkImageLayout                              image_layout)
+                                   VkImageLayout                              image_layout,
+                                   VkSurfaceTransformFlagBitsKHR              pre_transform)
 {
     if (device_table == nullptr || allocator == nullptr)
     {
@@ -157,7 +157,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
 
         // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
         if (buffer_size == 0 || copy_resource.width != copy_width || copy_resource.height != copy_height ||
-            copy_resource.format != copy_format)
+            copy_resource.format != copy_format || copy_resource.flip_x != flip_x || copy_resource.flip_y != flip_y)
         {
             buffer_size     = GetCopyBufferSize(device, device_table, copy_format, copy_width, copy_height);
             create_resource = true;
@@ -178,6 +178,8 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                         height,
                                         copy_width,
                                         copy_height,
+                                        flip_x,
+                                        flip_y,
                                         &copy_resource);
         }
         else if (buffer_size == 0)
@@ -424,7 +426,78 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                 1, &invalidate_range, &copy_resource.buffer_memory_data);
                         }
 
-                        WriteImageFile(filename_prefix, screenshot_format_, copy_width, copy_height, data);
+                        void*  write_data  = data;
+                        size_t pixel_count = static_cast<size_t>(copy_width) * copy_height;
+
+                        uint32_t final_width  = copy_width;
+                        uint32_t final_height = copy_height;
+
+                        util::imagewriter::ImageRotation rotation = util::imagewriter::ImageRotation::DEG_0;
+                        if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
+                            pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR)
+                        {
+                            rotation = util::imagewriter::ImageRotation::DEG_90;
+                        }
+                        else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR ||
+                                 pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR)
+                        {
+                            rotation = util::imagewriter::ImageRotation::DEG_180;
+                        }
+                        else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR ||
+                                 pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR)
+                        {
+                            rotation = util::imagewriter::ImageRotation::DEG_270;
+                        }
+
+                        bool is_mirrored =
+                            (pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR ||
+                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR ||
+                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR ||
+                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR);
+
+                        if (rotation != util::imagewriter::ImageRotation::DEG_0 || is_mirrored)
+                        {
+                            // Note: We safely assume a 32-bit pixel format (4 bytes) because GetConversionFormat()
+                            // strictly enforces VK_FORMAT_B8G8R8A8_UNORM or VK_FORMAT_B8G8R8A8_SRGB.
+                            GFXRECON_ASSERT(copy_format == VK_FORMAT_B8G8R8A8_UNORM ||
+                                            copy_format == VK_FORMAT_B8G8R8A8_SRGB);
+
+                            try
+                            {
+                                if (rotated_pixels_buffer_.size() < pixel_count)
+                                {
+                                    rotated_pixels_buffer_.resize(pixel_count);
+                                }
+
+                                const uint32_t* src_pixels = reinterpret_cast<const uint32_t*>(data);
+                                uint32_t*       dst_pixels = rotated_pixels_buffer_.data();
+                                write_data                 = rotated_pixels_buffer_.data();
+
+                                final_width  = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
+                                               rotation == util::imagewriter::ImageRotation::DEG_270)
+                                                   ? copy_height
+                                                   : copy_width;
+                                final_height = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
+                                                rotation == util::imagewriter::ImageRotation::DEG_270)
+                                                   ? copy_width
+                                                   : copy_height;
+
+                                util::imagewriter::RotateAndMirrorPixels(rotation,
+                                                                         is_mirrored,
+                                                                         src_pixels,
+                                                                         dst_pixels,
+                                                                         copy_width,
+                                                                         copy_height,
+                                                                         final_width,
+                                                                         final_height);
+                            }
+                            catch (const std::bad_alloc&)
+                            {
+                                GFXRECON_LOG_ERROR("Screenshot could not be rotated: failed to allocate memory");
+                            }
+                        }
+
+                        WriteImageFile(filename_prefix, screenshot_format_, final_width, final_height, write_data);
 
                         allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
                     }
@@ -563,6 +636,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
                                                uint32_t                                height,
                                                uint32_t                                copy_width,
                                                uint32_t                                copy_height,
+                                               bool                                    flip_x,
+                                               bool                                    flip_y,
                                                CopyResource*                           copy_resource) const
 {
     assert(device_table != nullptr);
@@ -627,7 +702,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
     }
 
     if ((result == VK_SUCCESS) &&
-        ((image_format != screenshot_format) || (width != copy_width) || (height != copy_height)))
+        ((image_format != screenshot_format) || (width != copy_width) || (height != copy_height) || flip_x || flip_y))
     {
         // The source image format does not match the image file format and requires a format conversion.  Create an
         // image to serve as the tranfer destination of a blit based color conversion.
@@ -690,6 +765,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         copy_resource->format      = screenshot_format;
         copy_resource->width       = copy_width;
         copy_resource->height      = copy_height;
+        copy_resource->flip_x      = flip_x;
+        copy_resource->flip_y      = flip_y;
     }
     else
     {

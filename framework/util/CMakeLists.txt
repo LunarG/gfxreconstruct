@@ -42,6 +42,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
                     $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/alignment_utils.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_version_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_version_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.h
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.h
@@ -54,6 +56,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/feature_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/feature_module_registry.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
@@ -279,6 +283,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_image_writer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>

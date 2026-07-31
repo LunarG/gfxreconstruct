@@ -35,7 +35,8 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--idle-before-submit,--"
+    "screenshot-ignore-FrameBoundaryANDROID,--screenshot-apply-prerotation,--deduplicate-device,--log-timestamps,--"
+    "capture,--idle-before-submit,--"
     "serialize-render-passes,--serialize-queue-submissions,--async-processing,--isolate-render-passes,--serialize-"
     "compute-"
     "and-transfer";
@@ -52,7 +53,7 @@ const char kArguments[] =
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -281,9 +282,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\tAdditionally present an image identified by a substring match against its");
     GFXRECON_WRITE_CONSOLE("       \t\t\tVK_EXT_debug_utils object name (depth/stencil images are ignored). The");
     GFXRECON_WRITE_CONSOLE("       \t\t\tmatched image is presented in a dedicated swapchain on every present and");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tused for screenshot operations. Multi-layer images are presented in a");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tseparate window per array layer. If multiple images match, the most");
-    GFXRECON_WRITE_CONSOLE("       \t\t\trecently named one is used.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tused for screenshot operations. Multi-layer images are presented tiled");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tinto a single window, one tile per array layer. If multiple images");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tmatch, the most recently named one is used.");
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
@@ -369,6 +370,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --screenshot-ignore-FrameBoundaryANDROID");
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, frames switced with vkFrameBoundANDROID will be ignored from");
     GFXRECON_WRITE_CONSOLE("          \t\tthe screenshot handler.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-apply-prerotation");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, screenshots will respect the preTransform of the swapchain.");
     GFXRECON_WRITE_CONSOLE("  --deduplicate-device");
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, at most one VkDevice will be created for each VkPhysicalDevice for "
                            "RenderDoc and DXVK case.");

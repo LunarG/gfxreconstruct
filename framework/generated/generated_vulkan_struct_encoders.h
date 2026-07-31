@@ -983,7 +983,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassTileShadingCreate
 void EncodeStruct(ParameterEncoder* encoder, const VkPerTileBeginInfoQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPerTileEndInfoQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDispatchTileInfoQCOM& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorAddressInfoEXT& value);

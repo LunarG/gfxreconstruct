@@ -28,6 +28,7 @@
 #include "encode/vulkan_state_info.h"
 #include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_acceleration_structure_build_state.h"
+#include "format/api_call_log.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_util.h"
@@ -215,16 +216,17 @@ struct BufferViewWrapper;
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
     // State tracking info for buffers with device addresses.
-    VkDevice           device{ VK_NULL_HANDLE };
-    VkDeviceAddress    address{ 0 };
-    VkDeviceAddress    opaque_address{ 0 };
-    VkBufferUsageFlags usage{ 0 };
+    VkDevice            device{ VK_NULL_HANDLE };
+    VkDeviceAddress     address{ 0 };
+    VkDeviceAddress     opaque_address{ 0 };
+    VkBufferUsageFlags  usage{ 0 };
+    VkBufferCreateFlags modified_flags{ 0 };
 
     std::set<BufferViewWrapper*> buffer_views;
 
     bool                                       is_sparse_buffer{ false };
     std::map<VkDeviceSize, VkSparseMemoryBind> sparse_memory_bind_map;
-    VkQueue                                    sparse_bind_queue;
+    VkQueue                                    sparse_bind_queue{ VK_NULL_HANDLE };
 
     VkDeviceSize created_size{ 0 };
 
@@ -254,7 +256,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     bool                                                is_sparse_image{ false };
     std::map<VkDeviceSize, VkSparseMemoryBind>          sparse_opaque_memory_bind_map;
     graphics::VulkanSubresourceSparseImageMemoryBindMap sparse_subresource_memory_bind_map;
-    VkQueue                                             sparse_bind_queue;
+    VkQueue                                             sparse_bind_queue{ VK_NULL_HANDLE };
 
     std::set<VkSwapchainKHR> parent_swapchains;
 
@@ -445,7 +447,7 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
     // Members for trimming state tracking.
     VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
-    util::MemoryOutputStream   command_data;
+    format::ApiCallLog<>       command_data;
     std::set<format::HandleId> command_handles[vulkan_state_info::CommandHandleType::NumHandleTypes];
 
     enum CommandBufferState

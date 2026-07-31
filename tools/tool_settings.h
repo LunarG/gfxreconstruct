@@ -154,6 +154,7 @@ const char kWaitBeforeFrame[]                     = "--wait-before-frame";
 const char kAsyncProcessingOption[]               = "--async-processing";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
+const char kScreenshotApplyPrerotationArgument[]    = "--screenshot-apply-prerotation";
 
 #if defined(_WIN32)
 const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
@@ -300,6 +301,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     {
         decoder.AddConsumer(resource_tracking_consumer);
         file_processor_resource_tracking.AddDecoder(&decoder);
+        file_processor_resource_tracking.InitializeFrameProcessing();
         file_processor_resource_tracking.ProcessAllFrames();
         file_processor_resource_tracking.RemoveDecoder(&decoder);
         decoder.RemoveConsumer(resource_tracking_consumer);
@@ -1393,6 +1395,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
     replay_options.isolate_render_passes      = arg_parser.IsOptionSet(kIsolateRenderPasses);
     replay_options.serialize_compute_and_transfer = arg_parser.IsOptionSet(kSerializeComputeAndTransfer);
+
+    replay_options.screenshot_apply_prerotation = arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument);
 
     return replay_options;
 }

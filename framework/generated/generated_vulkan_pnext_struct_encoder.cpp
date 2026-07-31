@@ -2756,9 +2756,6 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPushDescriptorSetWithTemplateInfo*>(base));
             break;
-        case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkQueryLowLatencySupportNV*>(base));
-            break;
         case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkQueryPoolCreateInfo*>(base));
             break;

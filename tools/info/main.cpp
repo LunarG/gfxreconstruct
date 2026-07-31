@@ -46,11 +46,12 @@
 
 #include "info_feature.h"
 #include "tool_settings.h"
-#include "tool_command_line.h"
+#include "tool_feature_version.h"
 
 #include <cassert>
 #include <cstdarg>
 #include <cstdlib>
+#include <filesystem>
 #include <limits>
 #include <set>
 #include <string>
@@ -182,13 +183,8 @@ class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-    app_name = GFXRECON_APP_NAME_PREFIX + app_name;
+    std::string app_name = std::filesystem::path(exe_name).stem().string();
+
     WriteOutput("\n%s - Print statistics for a GFXReconstruct capture file.\n", app_name.c_str());
     WriteOutput("Usage:");
     WriteOutput("  %s [-h | --help] [--version] [--exe-info-only] [--verbose] [--output <file>] <capture-file>\n",
@@ -487,6 +483,7 @@ bool GatherAndPrintExeInfo(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
+        file_processor.InitializeFrameProcessing();
         if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
         {
             file_processor.ProcessNextFrame();
@@ -511,6 +508,7 @@ bool GatherAndPrintFileFormatInfo(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
+        file_processor.InitializeFrameProcessing();
         if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
         {
             file_processor.ProcessNextFrame();
@@ -534,6 +532,7 @@ bool GatherAndPrintEnvVars(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder  info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
+        file_processor.InitializeFrameProcessing();
         if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
         {
             file_processor.ProcessNextFrame();
@@ -574,6 +573,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             feature->RegisterDecodeComponents(file_processor, info_consumer);
         }
 
+        file_processor.InitializeFrameProcessing();
         file_processor.ProcessAllFrames();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
@@ -764,19 +764,9 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
-    if (CheckOptionPrintUsage(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) ||
+        CheckOptionPrintFeatureVersions<gfxrecon::info::InfoFeature>(argv[0], arg_parser))
     {
-        gfxrecon::util::Log::Release();
-        exit(0);
-    }
-    else if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        PrintVersionHeader(argv[0]);
-        for (auto& feature : g_info_features)
-        {
-            GFXRECON_WRITE_CONSOLE(feature->CompiledHeaderVersionString().c_str());
-        }
-
         gfxrecon::util::Log::Release();
         exit(0);
     }

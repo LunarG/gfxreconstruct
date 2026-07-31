@@ -26,6 +26,7 @@
 #include "replay_d3d12_feature.h"
 #include "replay_settings.h"
 
+#include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 #include "util/logging.h"
 
@@ -34,6 +35,11 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 
 // Register this class as a feature in a module registry
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(ReplayFeatureBase, ReplayD3d12Feature)
+
+std::string ReplayD3d12Feature::CompiledHeaderVersionString() const
+{
+    return util::GetD3D12SdkVersionString();
+}
 
 void ReplayD3d12Feature::QueryOptions(gfxrecon::util::ArgumentParser& arg_parser, const std::string& capture_filename)
 {
@@ -90,11 +96,11 @@ void ReplayD3d12Feature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
                 std::make_unique<decode::DX12TrackingConsumer>(replay_options_, &tracked_object_info_table);
             if (file_processor_tracking.Initialize(capture_filename_))
             {
-                decoder_.AddConsumer(tracking_consumer.get());
-                file_processor_tracking.AddDecoder(&decoder_);
+                decoder_->AddConsumer(tracking_consumer.get());
+                file_processor_tracking.AddDecoder(decoder_.get());
                 file_processor_tracking.ProcessAllFrames();
-                file_processor_tracking.RemoveDecoder(&decoder_);
-                decoder_.RemoveConsumer(tracking_consumer.get());
+                file_processor_tracking.RemoveDecoder(decoder_.get());
+                decoder_->RemoveConsumer(tracking_consumer.get());
             }
         }
 

@@ -68,6 +68,11 @@ enum BlockIOError : int32_t
 
 };
 
+inline constexpr bool IsErrorCode(BlockIOError error_code) noexcept
+{
+    return (static_cast<int32_t>(error_code) < 0);
+}
+
 class BlockParser
 {
   public:
@@ -168,7 +173,13 @@ class BlockParser
     {
         file_processor::ProcessBlocksResult* results_ptr =
             Emplace<file_processor::ProcessBlocksResult>(std::forward<Args>(args)...);
-        return EmplaceBlock(ParsedBlock::BlockState::kReady, block_index_, nullptr, results_ptr);
+        return EmplaceBlock(results_ptr);
+    }
+
+    ParsedBlock& EmplaceCallbackBlock(std::function<void()> callback)
+    {
+        CallbackArgs* args = Emplace<CallbackArgs>(std::move(callback));
+        return EmplaceBlock(args);
     }
 
   private:

@@ -142,10 +142,31 @@
                     "default": ""
                 },
                 {
+                    "key": "capture_trigger_boundary",
+                    "env": "GFXRECON_CAPTURE_TRIGGER_BOUNDARY",
+                    "label": "Capture Trigger Boundary",
+                    "description": "Select the boundary where GFXReconstruct checks for capture-trigger state changes.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "frames",
+                            "label": "Frames",
+                            "description": "Check capture triggers at frame boundaries."
+                        },
+                        {
+                            "key": "queue_submits",
+                            "label": "Queue Submits",
+                            "description": "Check capture triggers at queue-submit boundaries."
+                        }
+                    ],
+                    "default": "frames"
+                },
+                {
                     "key": "capture_trigger_frames",
                     "env": "GFXRECON_CAPTURE_TRIGGER_FRAMES",
-                    "label": "Hotkey Capture Frame Limit",
-                    "description": "Specify a limit on the number of frames to be captured via hotkey. Example: 1 will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)",
+                    "label": "Capture Trigger Boundary Limit",
+                    "description": "Specify a limit on the number of capture boundaries to record after the trigger starts capture. Boundaries are frames by default and queue submits when capture_trigger_boundary is queue_submits. Default is: Empty string (no limit)",
                     "type": "STRING",
                     "default": ""
                 },

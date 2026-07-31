@@ -35,6 +35,7 @@ struct android_app;
 #include "graphics/fps_info.h"
 #include "graphics/frame_loop_info.h"
 #include "util/argument_parser.h"
+#include "util/feature_base.h"
 
 #include <memory>
 #include <stdexcept>
@@ -43,12 +44,10 @@ struct android_app;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(replay)
 
-class ReplayFeatureBase
+class ReplayFeatureBase : public util::FeatureBase
 {
   public:
     virtual ~ReplayFeatureBase() { Destroy(); }
-
-    virtual std::string Label() const = 0;
 
     // Options queries
     virtual void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) {}
@@ -108,7 +107,8 @@ template <typename ConsumerT, typename DecoderT, typename OptionsT>
 class ReplayFeature : public ReplayFeatureBase
 {
   public:
-    void* GetConsumer() override { return reinterpret_cast<void*>(replay_consumer_.get()); }
+    void*     GetConsumer() override { return replay_consumer_.get(); }
+    DecoderT* GetDecoder() { return decoder_.get(); }
     void  Destroy() override
     {
         if (replay_consumer_)
@@ -120,7 +120,7 @@ class ReplayFeature : public ReplayFeatureBase
   protected:
     OptionsT                   replay_options_;
     std::unique_ptr<ConsumerT> replay_consumer_;
-    DecoderT                   decoder_;
+    std::unique_ptr<DecoderT>  decoder_;
 
     void InitConsumer(decode::FileProcessor* file_processor, std::shared_ptr<application::Application> application)
     {
@@ -130,11 +130,13 @@ class ReplayFeature : public ReplayFeatureBase
 
     void FinalizeConsumer() {}
 
-    void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info)
+    void RegisterConsumerAndDecoder(graphics::FpsInfo*        fps_info,
+                                    std::unique_ptr<DecoderT> decoder = std::make_unique<DecoderT>())
     {
+        decoder_ = std::move(decoder);
         replay_consumer_->SetFpsInfo(fps_info);
-        decoder_.AddConsumer(replay_consumer_.get());
-        file_processor_->AddDecoder(&decoder_);
+        decoder_->AddConsumer(replay_consumer_.get());
+        file_processor_->AddDecoder(decoder_.get());
     }
 };
 

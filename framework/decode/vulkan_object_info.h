@@ -646,6 +646,8 @@ struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     };
     std::vector<AcquiredData> acquired_indices;
 
+    VkSurfaceTransformFlagBitsKHR pre_transform{ VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };
+
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<uint32_t> queue_family_indices{ 0 };
 
@@ -827,6 +829,7 @@ struct VulkanDescriptorSetBindingInfo
 {
     VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
     VkShaderStageFlags stage_flags{ 0 };
+    uint32_t           count{ 0 };
 
     // Use a map to represent array as many entries can be left unpopulated.
     // Use a sorted map so that array indices are printed in order in the json output

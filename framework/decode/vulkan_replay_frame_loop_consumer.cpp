@@ -70,75 +70,50 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
                                                                 args::CreateCommandPool& args)
 {
-    if (frame_loop_info_.IsRepetition())
-    {
-        // Don't repeatedly recreate the command pool during the looping frame
-        return;
-    }
-
     // Set VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT in order to prevent validation
     // error regarding implicitly resetting the command buffer
     VkCommandPoolCreateInfo* create_info = args.pCreateInfo.GetPointer();
     create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-    VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, args);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(const ApiCallInfo&          call_info,
-                                                                   args::CreateDescriptorPool& args)
-{
-    format::HandleId pool_id = *args.pDescriptorPool.GetPointer();
-    GFXRECON_ASSERT(args.pDescriptorPool.GetPointer() != nullptr);
-
-    if (frame_loop_info_.IsRepetition())
-    {
-        // Skip allocation of descriptor pools with a dangling creation
-        if (dangling_create_descriptor_pools_.contains(pool_id))
-        {
-            return;
-        }
-    }
-
-    VulkanReplayConsumer::Process_vkCreateDescriptorPool(call_info, args);
-
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        // Gather descriptor pools that are created during the loop range
-        // We will delete any pools from this set that are destroyed during the loop range
-        dangling_create_descriptor_pools_.insert(pool_id);
-    }
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,
                                                                     args::DestroyDescriptorPool& args)
 {
-    if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
-    {
-        // Skip destruction of descriptor pools with a dangling destruction
-        if (dangling_destroy_descriptor_pools_.contains(args.descriptorPool))
-        {
-            return;
-        }
-    }
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if args.descriptorPool is in allocatedLoopResources
 
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
+    // Call Process_vkDestroyDescriptorPool if:
+    //    We are not looping
+    //    We are looping and args.descriptorPool is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping())
     {
-        if (!dangling_create_descriptor_pools_.contains(args.descriptorPool))
-        {
-            // If this pool was not created during the loop range, ignore destroying it.
-            dangling_destroy_descriptor_pools_.insert(args.descriptorPool);
-            return;
-        }
-        else
-        {
-            // Created and destroyed during the loop range, not dangling
-            dangling_create_descriptor_pools_.erase(args.descriptorPool);
-
-            // Check if this was the pool for any heretofore dangling descriptors
-            RemovePoolDanglingCreateDescriptors(args.descriptorPool);
-        }
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.descriptorPool))
+        VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
     }
-    VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
+    else if (allocatedLoopResources.contains(args.descriptorPool))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+
+        // Check if this was the pool for any heretofore dangling descriptors
+        RemovePoolDanglingCreateDescriptors(args.descriptorPool);
+        VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
+        allocatedLoopResources.erase(args.descriptorPool);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+
+        // Check if this was the pool for any heretofore dangling descriptors
+        RemovePoolDanglingCreateDescriptors(args.descriptorPool);
+        VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
@@ -254,12 +229,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& call_info, args::CreateFence& args)
 {
-    if (frame_loop_info_.IsRepetition())
-    {
-        // Skip creating the fence on loop repetitions
-        return;
-    }
-
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(call_info, args);
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
@@ -274,11 +243,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& cal
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args)
 {
-    if (frame_loop_info_.IsFinalIteration())
+    if (allocatedLoopResources.contains(args.fence))
     {
         if (per_device_fence_tracking_.contains(args.device))
         {
             FenceTracking& t = per_device_fence_tracking_[args.device];
+
+            // Remove fence tracking struct from map if
+            // fence was created and destroyed during the loop range.
             t.initial_fence_states_.erase(args.fence);
         }
     }
