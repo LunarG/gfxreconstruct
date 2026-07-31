@@ -24,6 +24,7 @@
 
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_state_recording_decoder.h"
 #include "decode/vulkan_submit_job.h"
 #include "util/defines.h"
 
@@ -93,7 +94,8 @@ class VulkanCommandBufferUtil
   public:
     VulkanCommandBufferUtil(const VulkanDeviceInfo*            device_info,
                             const graphics::VulkanDeviceTable* device_table,
-                            CommonObjectInfoTable*             object_table);
+                            CommonObjectInfoTable*             object_table,
+                            VulkanStateRecordingDecoder*       decoder);
 
     ~VulkanCommandBufferUtil() = default;
 
@@ -116,7 +118,7 @@ class VulkanCommandBufferUtil
                                         const std::span<VkSubmitInfo2>             current_submits_span,
                                         const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
-    void FreeCommandBuffers(VkCommandPool command_pool, const std::span<const VkCommandBuffer> command_buffers);
+    void FreeCommandBuffers(VkCommandPool command_pool, const std::span<const format::HandleId> command_buffer_ids);
 
     /// @brief To be called after resetting the current command buffer.
     /// @param command_buffer_info The command buffer info structure to reset.
@@ -141,12 +143,17 @@ class VulkanCommandBufferUtil
     const VulkanDeviceInfo*            device_info_  = nullptr;
     const graphics::VulkanDeviceTable* device_table_ = nullptr;
     CommonObjectInfoTable*             object_table_ = nullptr;
+    VulkanStateRecordingDecoder*       decoder_      = nullptr;
 
     /// Map from the command buffer ID to the structure representing the split.
     std::unordered_map<format::HandleId, VulkanCommandBufferAssociatedInfo> split_infos_;
 
     /// Map from the command buffer handles to the original ID.
     std::unordered_map<VkCommandBuffer, format::HandleId> original_command_buffer_id_;
+
+    /// Flag to indicate whether the decoder is currently reissuing command buffer state. This is used to prevent
+    /// splitting command buffers while reissuing state, which could lead to infinite recursion.
+    bool reissuing_command_buffer_state_ = false;
 };
 
 using VulkanPerDeviceCommandBufferUtils = std::unordered_map<const VulkanDeviceInfo*, VulkanCommandBufferUtil>;

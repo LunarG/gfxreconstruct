@@ -33,6 +33,7 @@
 #include "plugin/replay_event_plugin_loader.h"
 #include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
+#include "decode/vulkan_state_recording_decoder.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(replay)
@@ -106,7 +107,18 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
 {
     if (is_enabled_)
     {
-        RegisterConsumerAndDecoder(fps_info);
+        if (replay_options_.isolate_render_passes)
+        {
+            auto  decoder  = std::make_unique<decode::VulkanStateRecordingDecoder>();
+            auto* consumer = dynamic_cast<decode::VulkanReplayConsumerBase*>(replay_consumer_.get());
+            GFXRECON_ASSERT(consumer != nullptr);
+            consumer->SetDecoder(decoder.get());
+            RegisterConsumerAndDecoder(fps_info, std::move(decoder));
+        }
+        else
+        {
+            RegisterConsumerAndDecoder(fps_info);
+        }
 
         application_->SetPrintBlockInfoFlag(
             replay_options_.enable_print_block_info, replay_options_.block_index_from, replay_options_.block_index_to);

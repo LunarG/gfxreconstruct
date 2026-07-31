@@ -67,7 +67,8 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                     uint32_t                                   height,
                     uint32_t                                   layer,
                     const std::optional<std::array<float, 2>>& copy_scale,
-                    VkImageLayout                              image_layout);
+                    VkImageLayout                              image_layout,
+                    VkSurfaceTransformFlagBitsKHR              pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
 
     void DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table);
 
@@ -88,10 +89,14 @@ class ScreenshotHandler : public ScreenshotHandlerBase
         VkFormat                              format{ VK_FORMAT_UNDEFINED };
         uint32_t                              width{ 0 };
         uint32_t                              height{ 0 };
+        bool                                  flip_x{ false };
+        bool                                  flip_y{ false };
         VkMemoryPropertyFlags                 memory_property_flags{ 0 };
     };
 
     typedef std::unordered_map<VkDevice, CopyResource> CommandPools;
+
+    std::vector<uint32_t> rotated_pixels_buffer_;
 
   private:
     bool IsSrgbFormat(VkFormat image_format) const;
@@ -114,6 +119,8 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                                 uint32_t                                height,
                                 uint32_t                                copy_width,
                                 uint32_t                                copy_height,
+                                bool                                    flip_x,
+                                bool                                    flip_y,
                                 CopyResource*                           copy_resource) const;
 
     void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;
