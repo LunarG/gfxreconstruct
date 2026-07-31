@@ -12017,7 +12017,7 @@ VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const 
     auto [new_it, success] =
         device_address_replacers_.insert({ device_info,
                                            VulkanAddressReplacer(device_info,
-                                                                 GetDeviceTable(device_info->handle),
+                                                                 GetInjectedDeviceTable(device_info->handle),
                                                                  GetInstanceTable(device_info->parent),
                                                                  *object_info_table_) });
     GFXRECON_ASSERT(success);

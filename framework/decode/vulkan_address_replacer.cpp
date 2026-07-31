@@ -24,7 +24,6 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_address_replacer_shaders.h"
-#include "util/callbacks.h"
 #include "util/alignment_utils.h"
 #include "util/logging.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -37,11 +36,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 //! RAII helper submit a command-buffer to a queue and synchronize via fence
 struct QueueSubmitHelper
 {
-    const graphics::VulkanDeviceTable* device_table   = nullptr;
-    VkDevice                           device         = VK_NULL_HANDLE;
-    VkCommandBuffer                    command_buffer = VK_NULL_HANDLE;
-    VkFence                            fence          = VK_NULL_HANDLE;
-    VkQueue                            queue          = VK_NULL_HANDLE;
+    const graphics::VulkanInjectedCallTable* device_table   = nullptr;
+    VkDevice                                 device         = VK_NULL_HANDLE;
+    VkCommandBuffer                          command_buffer = VK_NULL_HANDLE;
+    VkFence                                  fence          = VK_NULL_HANDLE;
+    VkQueue                                  queue          = VK_NULL_HANDLE;
 
     QueueSubmitHelper()                         = default;
     QueueSubmitHelper(const QueueSubmitHelper&) = delete;
@@ -52,15 +51,15 @@ struct QueueSubmitHelper
         swap(other);
         return *this;
     }
-    QueueSubmitHelper(const graphics::VulkanDeviceTable* device_table_,
-                      VkDevice                           device_,
-                      VkCommandBuffer                    command_buffer_,
-                      VkQueue                            queue_,
-                      VkFence                            fence_) :
+    QueueSubmitHelper(const graphics::VulkanInjectedCallTable* device_table_,
+                      VkDevice                                 device_,
+                      VkCommandBuffer                          command_buffer_,
+                      VkQueue                                  queue_,
+                      VkFence                                  fence_) :
         device_table(device_table_),
         device(device_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        auto injected_command_scope = device_table->MarkScope();
 
         device_table->ResetFences(device, 1, &fence);
 
@@ -76,7 +75,7 @@ struct QueueSubmitHelper
     {
         if (device_table != nullptr)
         {
-            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto injected_command_scope = device_table->MarkScope();
 
             device_table->EndCommandBuffer(command_buffer);
 
@@ -244,10 +243,10 @@ decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
     }
 }
 
-VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
-                                             const graphics::VulkanDeviceTable*   device_table,
-                                             const graphics::VulkanInstanceTable* instance_table,
-                                             decode::CommonObjectInfoTable&       object_table) :
+VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*                  device_info,
+                                             const graphics::VulkanInjectedCallTable* device_table,
+                                             const graphics::VulkanInstanceTable*     instance_table,
+                                             decode::CommonObjectInfoTable&           object_table) :
     device_table_(device_table),
     object_table_(&object_table)
 {
@@ -261,7 +260,9 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
                                  : device_table->GetBufferDeviceAddressKHR;
 
     get_physical_device_properties_fn_ = instance_table->GetPhysicalDeviceProperties2;
-    set_debug_utils_object_name_fn_    = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
+
+    auto injected_command_scope     = device_table->MarkScope();
+    set_debug_utils_object_name_fn_ = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
         device_table_->GetDeviceProcAddr(device_, "vkSetDebugUtilsObjectNameEXT"));
     SetRaytracingProperties(physical_device_info_);
 }
@@ -304,7 +305,12 @@ void VulkanAddressReplacer::SetRaytracingProperties(const decode::VulkanPhysical
 
 VulkanAddressReplacer::~VulkanAddressReplacer()
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    if (device_table_ == nullptr)
+    {
+        // default-constructed instance, no resources to free
+        return;
+    }
+    auto injected_command_scope = device_table_->MarkScope();
 
     // explicitly free resources here, in order to mark destruction API-calls as injected
     pipeline_context_map_.clear();
@@ -381,6 +387,8 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
                     "VulkanAddressReplacer::UpdateBufferAddresses: could not create required submit-assets");
                 return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
             }
+
+            auto injected_command_scope = device_table_->MarkScope();
 
             device_table_->ResetFences(device_, 1, &submit_asset.fence);
 
@@ -703,7 +711,8 @@ void VulkanAddressReplacer::ProcessCmdBindPipeline(VulkanCommandBufferInfo*     
         GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBindPipeline(): Replay is re-issuing "
                                "push-constants to patch buffer-device-addresses recorded before pipeline bind");
 
-        util::MarkInjectedCommandsHelper injected_commands_helper;
+        auto injected_command_scope = device_table_->MarkScope();
+        device_table_->InsertLabel(command_buffer_info->handle, "Patch push-constants");
         device_table_->CmdPushConstants(command_buffer_info->handle,
                                         command_buffer_info->push_constant_pipeline_layout,
                                         command_buffer_info->push_constant_stage_flags,
@@ -796,14 +805,13 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                 else
                 {
                     // patch an existing uniform-buffer and retrieve a buffer-address for it
-                    util::BeginInjectedCommands();
+                    auto injected_command_scope            = device_table_->MarkScope();
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = buffer_info->handle;
                     buffer_info->capture_address           = buffer_info->replay_address =
                         get_device_address_fn_(device_, &address_info);
                     GFXRECON_ASSERT(buffer_info->replay_address != 0);
-                    util::EndInjectedCommands();
 
                     // track newly acquired buffer/address
                     address_tracker.TrackBuffer(buffer_info);
@@ -890,7 +898,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
     if (!descriptor_updates.empty())
     {
         // mark injected commands
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        auto injected_command_scope = device_table_->MarkScope();
         device_table_->UpdateDescriptorSets(device_,
                                             GFXRECON_NARROWING_CAST(uint32_t, descriptor_updates.size()),
                                             descriptor_updates.data(),
@@ -982,8 +990,9 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
     if (!valid_sbt_alignment_ || !valid_group_handles)
     {
-        // mark injected commands
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        // mark injected commands, annotate the injected region in the command-buffer
+        auto injected_command_scope =
+            device_table_->MarkScope(command_buffer_info->handle, "Patch shader-binding-table");
 
         if (pipeline_sbt_ == VK_NULL_HANDLE)
         {
@@ -1276,7 +1285,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     primitive_counts[j] = range_infos[j].primitiveCount;
                 }
 
-                util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+                auto injected_command_scope = device_table_->MarkScope();
                 device_table_->GetAccelerationStructureBuildSizesKHR(device_,
                                                                      VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
                                                                      &build_geometry_info,
@@ -1310,6 +1319,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 else
                 {
                     // last resort is to obtain a AS device-address -> issue vulkan-call, get device-address
+                    auto injected_command_scope            = device_table_->MarkScope();
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = acceleration_structure_info->buffer;
@@ -1346,7 +1356,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
-                util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+                auto injected_command_scope = device_table_->MarkScope();
                 GFXRECON_LOG_INFO_ONCE(
                     "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting "
                     "acceleration-structures using shadow-structures and -buffers");
@@ -1364,7 +1374,6 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     if (stale_shadow_as_it != shadow_as_map_.end() &&
                         stale_shadow_as_it->second.origin_handle != build_geometry_info.dstAccelerationStructure)
                     {
-                        util::MarkInjectedCommandsHelper mark_injected_commands_helper_erase;
                         shadow_as_map_.erase(stale_shadow_as_it);
                     }
 
@@ -1733,6 +1742,9 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
         QueueSubmitHelper queue_submit_helper(
             device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
+        auto injected_command_scope =
+            device_table_->MarkScope(submit_asset_.command_buffer, "Build acceleration-structures");
+
         // dummy-wrapper
         VulkanCommandBufferInfo command_buffer_info = {};
         command_buffer_info.handle                  = submit_asset_.command_buffer;
@@ -1740,7 +1752,6 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
             &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
 
         // issue build-command
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
         device_table_->CmdBuildAccelerationStructuresKHR(
             submit_asset_.command_buffer, info_count, geometry_infos, range_infos);
     }
@@ -1757,6 +1768,9 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
         QueueSubmitHelper queue_submit_helper(
             device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
+        auto injected_command_scope =
+            device_table_->MarkScope(submit_asset_.command_buffer, "Copy acceleration-structures");
+
         for (uint32_t i = 0; i < info_count; ++i)
         {
             auto* copy_info = copy_infos + i;
@@ -1766,7 +1780,6 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
                 ProcessCmdCopyAccelerationStructuresKHR(copy_info, address_tracker);
 
                 // issue copy command
-                util::MarkInjectedCommandsHelper mark_injected_commands_helper;
                 device_table_->CmdCopyAccelerationStructureKHR(submit_asset_.command_buffer, copy_info);
             }
             else
@@ -1792,11 +1805,13 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
         QueueSubmitHelper queue_submit_helper(
             device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
+        auto injected_command_scope =
+            device_table_->MarkScope(submit_asset_.command_buffer, "Write acceleration-structure properties");
+
         ProcessCmdWriteAccelerationStructuresPropertiesKHR(
             1, &acceleration_structure, query_type, query_pool_, 0, address_tracker);
 
         // issue vkCmdResetQueryPool and vkCmdWriteAccelerationStructuresPropertiesKHR
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
         device_table_->CmdResetQueryPool(submit_asset_.command_buffer, query_pool_, 0, 1);
         device_table_->CmdWriteAccelerationStructuresPropertiesKHR(
             submit_asset_.command_buffer, 1, &acceleration_structure, query_type, query_pool_, 0);
@@ -1805,7 +1820,7 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
     VkDeviceSize compact_size = 0;
 
     // the above command-buffer is already synced here, retrieve result using vkGetQueryPoolResults
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    auto injected_command_scope = device_table_->MarkScope();
     device_table_->GetQueryPoolResults(device_,
                                        query_pool_,
                                        0,
@@ -1833,6 +1848,9 @@ bool VulkanAddressReplacer::init_pipeline()
         // assume already initialized
         return true;
     }
+
+    auto injected_command_scope = device_table_->MarkScope();
+
     VkPushConstantRange push_constant_range = {};
     push_constant_range.stageFlags          = VK_SHADER_STAGE_COMPUTE_BIT;
     push_constant_range.offset              = 0;
@@ -1939,6 +1957,8 @@ bool VulkanAddressReplacer::init_queue_assets()
         return true;
     };
 
+    auto injected_command_scope = device_table_->MarkScope();
+
     VkCommandPoolCreateInfo create_info = {};
     create_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     create_info.pNext                   = nullptr;
@@ -1965,6 +1985,8 @@ bool VulkanAddressReplacer::init_as_compact_query_pool()
     {
         return true;
     }
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     VkQueryPoolCreateInfo pool_info;
     pool_info.sType              = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
@@ -1999,6 +2021,8 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     {
         return true;
     }
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     // free previous resources
     buffer_context                    = {};
@@ -2158,7 +2182,7 @@ void VulkanAddressReplacer::DestroyShadowResources(
         auto remove_shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
         if (remove_shadow_as_it != shadow_as_map_.end())
         {
-            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto injected_command_scope = device_table_->MarkScope();
             shadow_as_map_.erase(remove_shadow_as_it);
         }
 
@@ -2166,7 +2190,7 @@ void VulkanAddressReplacer::DestroyShadowResources(
         auto remove_scratch_it = shadow_scratch_map_.find(acceleration_structure_info->handle);
         if (remove_scratch_it != shadow_scratch_map_.end())
         {
-            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto injected_command_scope = device_table_->MarkScope();
             shadow_scratch_map_.erase(remove_scratch_it);
         }
     }
@@ -2187,7 +2211,7 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo*      
                 auto remove_shadow_as_it = shadow_as_map_.find(replay_address_it->second);
                 if (remove_shadow_as_it != shadow_as_map_.end())
                 {
-                    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+                    auto injected_command_scope = device_table_->MarkScope();
                     shadow_as_map_.erase(remove_shadow_as_it);
                 }
             }
@@ -2202,21 +2226,21 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
         auto shadow_sbt_it = shadow_sbt_map_.find(handle);
         if (shadow_sbt_it != shadow_sbt_map_.end())
         {
-            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto injected_command_scope = device_table_->MarkScope();
             shadow_sbt_map_.erase(shadow_sbt_it);
         }
 
         auto pipeline_sbt_it = pipeline_context_map_.find(handle);
         if (pipeline_sbt_it != pipeline_context_map_.end())
         {
-            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto injected_command_scope = device_table_->MarkScope();
             pipeline_context_map_.erase(pipeline_sbt_it);
         }
 
         auto submit_asset_it = submit_asset_map_.find(handle);
         if (submit_asset_it != submit_asset_map_.end())
         {
-            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto injected_command_scope = device_table_->MarkScope();
             submit_asset_map_.erase(submit_asset_it);
         }
     }
@@ -2229,6 +2253,8 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
 {
     as_asset.device     = device_;
     as_asset.destroy_fn = device_table_->DestroyAccelerationStructureKHR;
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     // create a replacement acceleration-structure with proper sized buffer
     bool success = create_buffer(as_asset.storage,
@@ -2269,6 +2295,8 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
 
 bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
 {
+    auto injected_command_scope = device_table_->MarkScope();
+
     // clear previous content and setup
     submit_asset.device                  = device_;
     submit_asset.command_pool            = command_pool_;
@@ -2351,8 +2379,9 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
         }
     }
 
-    // mark injected commands
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    // mark injected commands, annotate the injected region in the command-buffer
+    auto injected_command_scope =
+        device_table_->MarkScope(command_buffer_info->handle, "Replace buffer-device-addresses");
 
     if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
     {

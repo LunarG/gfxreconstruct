@@ -29,6 +29,7 @@
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "graphics/vulkan_semaphore_util.h"
+#include "graphics/vulkan_injected_call_table.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "format/platform_types.h"
 
@@ -38,18 +39,18 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 /**
  * @brief   VulkanAddressReplacer can be used to check and potentially sanitize input-parameters for various cases.
  *
- * Important note: all internal Vulkan-API calls performed by this class are expected to be wrapped by calls to:
- * - decode::BeginInjectedCommands() / decode::EndInjectedCommands()
+ * Important note: all internal Vulkan-API calls performed by this class are marked as injected commands
+ * using graphics::VulkanInjectedCallTable::MarkScope() / InsertLabel()
  */
 class VulkanAddressReplacer
 {
   public:
     VulkanAddressReplacer() = default;
 
-    VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
-                          const graphics::VulkanDeviceTable*   device_table,
-                          const graphics::VulkanInstanceTable* instance_table,
-                          decode::CommonObjectInfoTable&       object_table);
+    VulkanAddressReplacer(const VulkanDeviceInfo*                  device_info,
+                          const graphics::VulkanInjectedCallTable* device_table,
+                          const graphics::VulkanInstanceTable*     instance_table,
+                          decode::CommonObjectInfoTable&           object_table);
 
     //! prevent copying
     VulkanAddressReplacer(const VulkanAddressReplacer&) = delete;
@@ -506,7 +507,7 @@ class VulkanAddressReplacer
     bool swap_acceleration_structure_handle(VkAccelerationStructureKHR&               handle,
                                             const decode::VulkanDeviceAddressTracker& address_tracker);
 
-    const graphics::VulkanDeviceTable*                             device_table_              = nullptr;
+    const graphics::VulkanInjectedCallTable*                       device_table_              = nullptr;
     decode::CommonObjectInfoTable*                                 object_table_              = nullptr;
     VkPhysicalDeviceMemoryProperties                               capture_memory_properties_ = {};
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_ray_properties_{}, replay_ray_properties_{};
