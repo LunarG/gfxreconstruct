@@ -36,14 +36,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
-                                                     VkDeviceSize                            total_copy_size,
-                                                     VkDeviceSize                            max_copy_size,
-                                                     const VkPhysicalDeviceProperties&       physical_device_properties,
-                                                     const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                                     bool                                    have_shader_stencil_write,
-                                                     VulkanResourceAllocator*                resource_allocator,
-                                                     const graphics::VulkanDeviceTable*      device_table) :
+VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                  device_info,
+                                                     VkDeviceSize                             total_copy_size,
+                                                     VkDeviceSize                             max_copy_size,
+                                                     const VkPhysicalDeviceProperties&        physical_device_properties,
+                                                     const VkPhysicalDeviceMemoryProperties&  memory_properties,
+                                                     bool                                     have_shader_stencil_write,
+                                                     VulkanResourceAllocator*                 resource_allocator,
+                                                     const graphics::VulkanInjectedCallTable* device_table) :
     device_(device_info->handle),
     staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
     staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), staging_buffer_size_(0),
@@ -55,6 +55,8 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     GFXRECON_ASSERT((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
                     (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
                     (resource_allocator != nullptr) && (device_table != nullptr));
+
+    auto injected_command_scope = device_table->MarkScope();
 
     // flushes of staging-buffer need to be aligned to nonCoherentAtomSize
     staging_buffer_alignment_ = physical_device_properties.limits.nonCoherentAtomSize;
@@ -85,6 +87,8 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
 {
+    auto injected_command_scope = device_table_->MarkScope();
+
     FlushRemainingResourcesInit();
     ReleaseStagingBuffer();
 
@@ -143,6 +147,8 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
     // TODO: handle usage cases without TRANSFER_DST.
     GFXRECON_UNREFERENCED_PARAMETER(usage);
 
+    auto injected_command_scope = device_table_->MarkScope();
+
     VkResult result = AcquireStagingBuffer(data_size);
     if (result == VK_SUCCESS)
     {
@@ -176,8 +182,11 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
                     offsetted_regions_copy_[i].srcOffset += staging_buffer_offset_;
                 }
 
-                device_table_->CmdCopyBuffer(
-                    command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
+                {
+                    auto init_buffer_region = device_table_->MarkScope(command_buffer, "Initialize buffer");
+                    device_table_->CmdCopyBuffer(
+                        command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
+                }
 
                 // Advance staging buffer offset
                 GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= staging_buffer_size_);
@@ -205,6 +214,8 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
                                                     uint32_t                 level_count,
                                                     const VkBufferImageCopy* level_copies)
 {
+    auto injected_command_scope = device_table_->MarkScope();
+
     VkResult result = AcquireStagingBuffer(data_size);
 
     if (result == VK_SUCCESS)
@@ -328,6 +339,8 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
                                                     uint32_t              layer_count,
                                                     uint32_t              level_count)
 {
+    auto injected_command_scope = device_table_->MarkScope();
+
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
     VkResult        result         = BeginCommandBuffer(queue_family_index, &command_buffer);
 
@@ -351,16 +364,19 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
         memory_barrier.subresourceRange.baseArrayLayer = 0;
         memory_barrier.subresourceRange.layerCount     = layer_count;
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &memory_barrier);
+        {
+            auto transition_region = device_table_->MarkScope(command_buffer, "Transition image layout");
+            device_table_->CmdPipelineBarrier(command_buffer,
+                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &memory_barrier);
+        }
 
         // Check if there are pending commands from InitializeImage by checking the staging buffer's offset.
         // If there are then don't submit the command buffer as there is still room left to init more resources
@@ -376,6 +392,8 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
 VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t queue_family_index, VkCommandBuffer* command_buffer)
 {
     assert(command_buffer != nullptr);
+
+    auto injected_command_scope = device_table_->MarkScope();
 
     VkResult result = VK_SUCCESS;
     auto     iter   = command_exec_objects_.find(queue_family_index);
@@ -407,7 +425,7 @@ VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t queue_family_
 
             if (result == VK_SUCCESS)
             {
-                VkQueue queue = GetDeviceQueue(device_table_, device_info_, queue_family_index, 0);
+                VkQueue queue = GetDeviceQueue(device_table_->GetRawTable(), device_info_, queue_family_index, 0);
                 command_exec_objects_.emplace(queue_family_index,
                                               CommandExecObjects{ queue, command_pool, *command_buffer, false });
             }
@@ -1128,6 +1146,8 @@ void VulkanResourceInitializer::UpdateDrawDescriptorSet(VkDescriptorSet set, VkI
 
 VkResult VulkanResourceInitializer::BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p)
 {
+    auto injected_command_scope = device_table_->MarkScope();
+
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
     VkResult        result         = GetCommandExecObjects(queue_family_index, &command_buffer);
     if (result != VK_SUCCESS)
@@ -1259,6 +1279,8 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
 
         if (result == VK_SUCCESS)
         {
+            auto copy_label_region = device_table_->MarkScope(command_buffer, "Copy buffer to image");
+
             VkImageMemoryBarrier memory_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
             memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             memory_barrier.pNext                           = nullptr;
@@ -1468,22 +1490,26 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                                     begin_info.clearValueCount          = 0;
                                     begin_info.pClearValues             = nullptr;
 
-                                    device_table_->CmdBeginRenderPass(
-                                        command_buffer, &begin_info, VK_SUBPASS_CONTENTS_INLINE);
-                                    device_table_->CmdBindPipeline(
-                                        command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-                                    device_table_->CmdBindDescriptorSets(command_buffer,
-                                                                         VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                                                         pipeline_layout,
-                                                                         0,
-                                                                         1,
-                                                                         &set,
-                                                                         0,
-                                                                         nullptr);
-                                    device_table_->CmdSetViewport(command_buffer, 0, 1, &viewport);
-                                    device_table_->CmdSetScissor(command_buffer, 0, 1, &scissor_rect);
-                                    device_table_->CmdDraw(command_buffer, 3, 1, 0, 0);
-                                    device_table_->CmdEndRenderPass(command_buffer);
+                                    {
+                                        auto draw_region =
+                                            device_table_->MarkScope(command_buffer, "Pixel-shader image copy");
+                                        device_table_->CmdBeginRenderPass(
+                                            command_buffer, &begin_info, VK_SUBPASS_CONTENTS_INLINE);
+                                        device_table_->CmdBindPipeline(
+                                            command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+                                        device_table_->CmdBindDescriptorSets(command_buffer,
+                                                                             VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                                             pipeline_layout,
+                                                                             0,
+                                                                             1,
+                                                                             &set,
+                                                                             0,
+                                                                             nullptr);
+                                        device_table_->CmdSetViewport(command_buffer, 0, 1, &viewport);
+                                        device_table_->CmdSetScissor(command_buffer, 0, 1, &scissor_rect);
+                                        device_table_->CmdDraw(command_buffer, 3, 1, 0, 0);
+                                        device_table_->CmdEndRenderPass(command_buffer);
+                                    }
                                     result = FlushCommandBuffer(queue_family_index);
                                 }
                             }

@@ -24,7 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_RESOURCE_INITIALIZER_H
 
 #include "decode/vulkan_resource_allocator.h"
-#include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_call_table.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -41,14 +41,14 @@ struct VulkanDeviceInfo;
 class VulkanResourceInitializer
 {
   public:
-    VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
-                              VkDeviceSize                            total_copy_size,
-                              VkDeviceSize                            max_copy_size,
-                              const VkPhysicalDeviceProperties&       physical_device_properties,
-                              const VkPhysicalDeviceMemoryProperties& memory_properties,
-                              bool                                    have_shader_stencil_write,
-                              VulkanResourceAllocator*                resource_allocator,
-                              const graphics::VulkanDeviceTable*      device_table);
+    VulkanResourceInitializer(const VulkanDeviceInfo*                  device_info,
+                              VkDeviceSize                             total_copy_size,
+                              VkDeviceSize                             max_copy_size,
+                              const VkPhysicalDeviceProperties&        physical_device_properties,
+                              const VkPhysicalDeviceMemoryProperties&  memory_properties,
+                              bool                                     have_shader_stencil_write,
+                              VulkanResourceAllocator*                 resource_allocator,
+                              const graphics::VulkanInjectedCallTable* device_table);
 
     ~VulkanResourceInitializer();
 
@@ -182,27 +182,27 @@ class VulkanResourceInitializer
     // Map queue family index to command pool, command buffer, and queue objects for command processing.
     typedef std::unordered_map<uint32_t, CommandExecObjects> CommandExecObjectMap;
 
-    VkDevice                              device_;
-    CommandExecObjectMap                  command_exec_objects_;
-    VkDeviceMemory                        staging_memory_;
-    VulkanResourceAllocator::MemoryData   staging_memory_data_;
-    VkBuffer                              staging_buffer_;
-    VulkanResourceAllocator::ResourceData staging_buffer_data_;
-    size_t                                staging_buffer_offset_;
-    size_t                                staging_buffer_size_;
-    size_t                                staging_buffer_alignment_;
-    uint8_t*                              staging_buffer_mapped_ptr_;
-    VkSampler                             draw_sampler_;
-    VkDescriptorPool                      draw_pool_;
-    VkDescriptorSetLayout                 draw_set_layout_;
-    VkDescriptorSet                       draw_set_;
-    VkFence                               fence_             = VK_NULL_HANDLE;
-    uint32_t                              num_queue_submits_ = 0;
-    VkPhysicalDeviceMemoryProperties      memory_properties_{};
-    bool                                  have_shader_stencil_write_;
-    VulkanResourceAllocator*              resource_allocator_;
-    const graphics::VulkanDeviceTable*    device_table_;
-    const VulkanDeviceInfo*               device_info_;
+    VkDevice                                 device_;
+    CommandExecObjectMap                     command_exec_objects_;
+    VkDeviceMemory                           staging_memory_;
+    VulkanResourceAllocator::MemoryData      staging_memory_data_;
+    VkBuffer                                 staging_buffer_;
+    VulkanResourceAllocator::ResourceData    staging_buffer_data_;
+    size_t                                   staging_buffer_offset_;
+    size_t                                   staging_buffer_size_;
+    size_t                                   staging_buffer_alignment_;
+    uint8_t*                                 staging_buffer_mapped_ptr_;
+    VkSampler                                draw_sampler_;
+    VkDescriptorPool                         draw_pool_;
+    VkDescriptorSetLayout                    draw_set_layout_;
+    VkDescriptorSet                          draw_set_;
+    VkFence                                  fence_             = VK_NULL_HANDLE;
+    uint32_t                                 num_queue_submits_ = 0;
+    VkPhysicalDeviceMemoryProperties         memory_properties_{};
+    bool                                     have_shader_stencil_write_;
+    VulkanResourceAllocator*                 resource_allocator_;
+    const graphics::VulkanInjectedCallTable* device_table_;
+    const VulkanDeviceInfo*                  device_info_;
 
     // Copies of the copy information passed into the InitializeBuffer and InitializeImage respectively.
     // Vectors are kept and only grow in size in order to save the cost of reallocating them each time.

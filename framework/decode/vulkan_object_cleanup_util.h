@@ -39,15 +39,13 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                         bool                                                                 remove_entries,
                         bool                                                                 report_leaks,
                         std::function<const graphics::VulkanInstanceTable*(const void*)>     get_instance_table,
-                        std::function<const graphics::VulkanDeviceTable*(const void*)>       get_device_table,
                         std::function<const graphics::VulkanInjectedCallTable*(const void*)> get_injected_device_table,
                         VulkanSwapchain*                                                     swapchain);
 
 void FreeAllLiveInstances(CommonObjectInfoTable*                                           table,
                           bool                                                             remove_entries,
                           bool                                                             report_leaks,
-                          std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table,
-                          std::function<const graphics::VulkanDeviceTable*(const void*)>   get_device_table);
+                          std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table);
 
 GFXRECON_END_NAMESPACE(object_cleanup)
 GFXRECON_END_NAMESPACE(decode)

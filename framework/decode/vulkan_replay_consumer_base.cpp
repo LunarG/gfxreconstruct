@@ -355,7 +355,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         false,
         true,
         [this](const void* handle) { return GetInstanceTable(handle); },
-        [this](const void* handle) { return GetDeviceTable(handle); },
         [this](const void* handle) { return GetInjectedDeviceTable(handle); },
         swapchain_.get());
 
@@ -367,11 +366,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     // Finally destroy vkInstances
     object_cleanup::FreeAllLiveInstances(
-        object_info_table_,
-        false,
-        true,
-        [this](const void* handle) { return GetInstanceTable(handle); },
-        [this](const void* handle) { return GetDeviceTable(handle); });
+        object_info_table_, false, true, [this](const void* handle) { return GetInstanceTable(handle); });
 
     if (loader_handle_ != nullptr)
     {
@@ -388,9 +383,10 @@ void VulkanReplayConsumerBase::WaitDevicesIdle()
         assert(info != nullptr);
         VkDevice device = info->handle;
 
-        auto device_table = GetDeviceTable(device);
-        assert(device_table != nullptr);
+        auto device_table = GetInjectedDeviceTable(device);
+        GFXRECON_ASSERT(device_table != nullptr);
 
+        graphics::InjectedCommandScope injected_commands_scope;
         device_table->DeviceWaitIdle(device);
     });
 }
@@ -521,11 +517,12 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
                 VkResult vk_result = VK_SUCCESS;
 
-                VulkanDeviceInfo* device_info  = object_info_table_->GetVkDeviceInfo(buffer_info.device_id);
-                VkDevice          device       = device_info->handle;
-                auto              device_table = GetDeviceTable(device);
-                auto physical_device_info      = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
-                auto memory_properties         = &physical_device_info->capture_memory_properties;
+                VulkanDeviceInfo*              device_info = object_info_table_->GetVkDeviceInfo(buffer_info.device_id);
+                VkDevice                       device      = device_info->handle;
+                auto                           device_table = GetInjectedDeviceTable(device);
+                graphics::InjectedCommandScope injected_commands_scope;
+                auto physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+                auto memory_properties    = &physical_device_info->capture_memory_properties;
 
                 VkAndroidHardwareBufferFormatPropertiesANDROID format_properties;
                 format_properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
@@ -1082,9 +1079,6 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
         auto allocator = device_info->allocator.get();
         GFXRECON_ASSERT(allocator != nullptr);
 
-        auto table = GetDeviceTable(device);
-        GFXRECON_ASSERT(table != nullptr);
-
         VkPhysicalDevice physical_device = device_info->parent;
         GFXRECON_ASSERT(physical_device != VK_NULL_HANDLE);
 
@@ -1113,7 +1107,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
                                                                                         memory_properties,
                                                                                         have_shader_stencil_write,
                                                                                         allocator,
-                                                                                        table);
+                                                                                        GetInjectedDeviceTable(device));
     }
 }
 
@@ -6303,9 +6297,12 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
     // Memory requirements for image with external format can only be queried after the memory is bound
     if (image_info->external_format || image_info->external_memory_android)
     {
+        const graphics::VulkanInjectedCallTable* device_table = GetInjectedDeviceTable(device_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        auto injected_command_scope = device_table->MarkScope();
+
         VkMemoryRequirements image_mem_reqs;
-        GetDeviceTable(device_info->handle)
-            ->GetImageMemoryRequirements(device_info->handle, image_info->handle, &image_mem_reqs);
+        device_table->GetImageMemoryRequirements(device_info->handle, image_info->handle, &image_mem_reqs);
         image_info->size = image_mem_reqs.size;
     }
 
@@ -6830,9 +6827,12 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         // external memory handle type, then image must be bound to memory
         if (!image_info->external_memory_android && !image_info->external_format)
         {
+            const graphics::VulkanInjectedCallTable* device_table = GetInjectedDeviceTable(device_info->handle);
+            GFXRECON_ASSERT(device_table != nullptr);
+            auto injected_command_scope = device_table->MarkScope();
+
             VkMemoryRequirements image_mem_reqs;
-            GetDeviceTable(device_info->handle)
-                ->GetImageMemoryRequirements(device_info->handle, *replay_image, &image_mem_reqs);
+            device_table->GetImageMemoryRequirements(device_info->handle, *replay_image, &image_mem_reqs);
             image_info->size = image_mem_reqs.size;
         }
     }
@@ -7241,9 +7241,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
         const VkRenderPassCreateInfo2* create_info = pCreateInfo->GetPointer();
         const size_t                   num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
-        render_pass_info->func_version = (func == GetDeviceTable(device_info->handle)->CreateRenderPass2)
-                                             ? VulkanRenderPassInfo::kCreateRenderPass2
-                                             : VulkanRenderPassInfo::kCreateRenderPass2KHR;
+        render_pass_info->func_version =
+            (func == GetInjectedDeviceTable(device_info->handle)->GetRawTable()->CreateRenderPass2)
+                ? VulkanRenderPassInfo::kCreateRenderPass2
+                : VulkanRenderPassInfo::kCreateRenderPass2KHR;
         render_pass_info->create_info.resize(num_bytes);
         graphics::vulkan_struct_deep_copy(create_info, 1, render_pass_info->create_info.data());
     }
@@ -8650,9 +8651,6 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
         if (swapchain_image_tracker_.RetrievePreAcquiredImage(
                 swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
         {
-            auto table = GetDeviceTable(device);
-            assert(table != nullptr);
-
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
                 swapchain_info->acquired_indices.resize(captured_index + 1);
@@ -8679,8 +8677,12 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
                 preacquire_fence = fence;
             }
 
-            table->DestroySemaphore(device, preacquire_semaphore, nullptr);
-            table->DestroyFence(device, preacquire_fence, nullptr);
+            auto device_table = GetInjectedDeviceTable(device);
+            GFXRECON_ASSERT(device_table != nullptr);
+
+            auto injected_command_scope = device_table->MarkScope();
+            device_table->DestroySemaphore(device, preacquire_semaphore, nullptr);
+            device_table->DestroyFence(device, preacquire_fence, nullptr);
         }
         else
         {
@@ -8773,9 +8775,6 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
         if (swapchain_image_tracker_.RetrievePreAcquiredImage(
                 replay_acquire_info->swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
         {
-            auto table = GetDeviceTable(device);
-            assert(table != nullptr);
-
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
                 swapchain_info->acquired_indices.resize(captured_index + 1);
@@ -8805,8 +8804,12 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
                 preacquire_fence = replay_acquire_info->fence;
             }
 
-            table->DestroySemaphore(device, preacquire_semaphore, nullptr);
-            table->DestroyFence(device, preacquire_fence, nullptr);
+            auto device_table = GetInjectedDeviceTable(device);
+            GFXRECON_ASSERT(device_table != nullptr);
+
+            auto injected_command_scope = device_table->MarkScope();
+            device_table->DestroySemaphore(device, preacquire_semaphore, nullptr);
+            device_table->DestroyFence(device, preacquire_fence, nullptr);
         }
         else
         {
@@ -10035,13 +10038,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             created_pipelines = out_pPipelines;
         }
 
-        result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device,
-                                                                      in_deferredOperation,
-                                                                      overridePipelineCache,
-                                                                      createInfoCount,
-                                                                      modified_create_infos.data(),
-                                                                      in_pAllocator,
-                                                                      created_pipelines);
+        result = func(device,
+                      in_deferredOperation,
+                      overridePipelineCache,
+                      createInfoCount,
+                      modified_create_infos.data(),
+                      in_pAllocator,
+                      created_pipelines);
 
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
@@ -10094,13 +10097,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             created_pipelines = out_pPipelines;
         }
 
-        result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device,
-                                                                      in_deferredOperation,
-                                                                      overridePipelineCache,
-                                                                      createInfoCount,
-                                                                      in_pCreateInfos,
-                                                                      in_pAllocator,
-                                                                      created_pipelines);
+        result = func(device,
+                      in_deferredOperation,
+                      overridePipelineCache,
+                      createInfoCount,
+                      in_pCreateInfos,
+                      in_pAllocator,
+                      created_pipelines);
 
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
@@ -10155,12 +10158,20 @@ VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperati
 
     VkDevice               device             = device_info->handle;
     VkDeferredOperationKHR deferred_operation = deferred_operation_info->handle;
+    uint32_t               deferred_operation_max_concurrency;
 
-    PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR =
-        GetDeviceTable(device)->GetDeferredOperationMaxConcurrencyKHR;
+    {
+        auto device_table = GetInjectedDeviceTable(device);
+        GFXRECON_ASSERT(device_table != nullptr);
+        auto injected_command_scope = device_table->MarkScope();
 
-    uint32_t max_threads  = std::thread::hardware_concurrency();
-    uint32_t thread_count = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation), max_threads);
+        PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR =
+            device_table->GetDeferredOperationMaxConcurrencyKHR;
+        deferred_operation_max_concurrency = vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation);
+    }
+
+    uint32_t                       max_threads  = std::thread::hardware_concurrency();
+    uint32_t                       thread_count = std::min(deferred_operation_max_concurrency, max_threads);
     std::atomic_bool               deferred_operation_completed = false;
     std::vector<std::future<void>> deferred_operation_joins;
 
@@ -11817,7 +11828,11 @@ VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const VulkanDeviceInfo* 
         VulkanResourceAllocator::MemoryData allocator_memory_data = 0;
         VkMemoryRequirements                memory_reqs;
 
-        GetDeviceTable(device_info->handle)->GetImageMemoryRequirements(device_info->handle, *image, &memory_reqs);
+        auto device_table = GetInjectedDeviceTable(device_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        auto injected_command_scope = device_table->MarkScope();
+
+        device_table->GetImageMemoryRequirements(device_info->handle, *image, &memory_reqs);
 
         // TODO - Move this and VulkanResourceInitializer::GetVkMemoryTypeIndex to common place
         // Can be any flag
@@ -12036,13 +12051,14 @@ VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDe
         return it->second;
     }
 
-    auto [new_it, success] = device_frame_warmups_.insert({ device_info,
-                                                            VulkanFrameWarmUp(device_info,
-                                                                              GetInjectedDeviceTable(device_info->handle),
-                                                                              GetInstanceTable(device_info->parent),
-                                                                              *object_info_table_,
-                                                                              options_.frame_warm_up_spirv_path,
-                                                                              options_.frame_warm_up_load) });
+    auto [new_it, success] =
+        device_frame_warmups_.insert({ device_info,
+                                       VulkanFrameWarmUp(device_info,
+                                                         GetInjectedDeviceTable(device_info->handle),
+                                                         GetInstanceTable(device_info->parent),
+                                                         *object_info_table_,
+                                                         options_.frame_warm_up_spirv_path,
+                                                         options_.frame_warm_up_load) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
@@ -12106,8 +12122,13 @@ bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo*
     {
         return false;
     }
+
+    auto device_table = GetInjectedDeviceTable(device_info->handle);
+    GFXRECON_ASSERT(device_table != nullptr);
+    auto injected_command_scope = device_table->MarkScope();
+
     // Check replay device enabled VK_KHR_external_memory_fd
-    return GetDeviceTable(device_info->handle)->GetMemoryFdKHR != graphics::noop::vkGetMemoryFdKHR;
+    return device_table->GetMemoryFdKHR != graphics::noop::vkGetMemoryFdKHR;
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
@@ -12794,7 +12815,11 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
                 {
                     SavePipelineCache(id, itTracked->second);
                 }
-                auto device_table = GetDeviceTable(device_info->handle);
+
+                auto device_table = GetInjectedDeviceTable(device_info->handle);
+                GFXRECON_ASSERT(device_table != nullptr);
+
+                auto injected_command_scope = device_table->MarkScope();
                 device_table->DestroyPipelineCache(
                     itTracked->second.device_info->handle, itTracked->second.vk_cache, nullptr);
                 tracked_pipeline_caches_.erase(itTracked);
@@ -13456,7 +13481,10 @@ void VulkanReplayConsumerBase::SavePipelineCache(format::HandleId id, const Trac
     GFXRECON_ASSERT(tracked_cache.device_info != nullptr);
     GFXRECON_ASSERT(tracked_cache.vk_cache != VK_NULL_HANDLE);
 
-    auto device_table = GetDeviceTable(tracked_cache.device_info->handle);
+    auto device_table = GetInjectedDeviceTable(tracked_cache.device_info->handle);
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    auto injected_command_scope = device_table->MarkScope();
 
     size_t cacheSize = 0;
     device_table->GetPipelineCacheData(tracked_cache.device_info->handle, tracked_cache.vk_cache, &cacheSize, nullptr);
@@ -13516,7 +13544,10 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
         }
     }
 
-    auto device_table = GetDeviceTable(device_info->handle);
+    auto device_table = GetInjectedDeviceTable(device_info->handle);
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    auto injected_command_scope = device_table->MarkScope();
 
     VkPipelineCache pipelineCache;
     VkResult        result =
@@ -14391,8 +14422,12 @@ VulkanReplayConsumerBase::OverrideCreateTensorARM(PFN_vkCreateTensorARM         
 
         // call directly (not via allocator) so capture_mem_reqs is not polluted with zeros;
         // the decoded vkGetTensorMemoryRequirementsARM replay sets them from the actual captured values.
-        GetDeviceTable(device_info->handle)
-            ->GetTensorMemoryRequirementsARM(device_info->handle, &tensor_mem_req, &replay_req_2);
+        auto device_table = GetInjectedDeviceTable(device_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+
+        auto injected_command_scope = device_table->MarkScope();
+
+        device_table->GetTensorMemoryRequirementsARM(device_info->handle, &tensor_mem_req, &replay_req_2);
         tensor_info->size = replay_req_2.memoryRequirements.size;
 
         if (replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT &&
