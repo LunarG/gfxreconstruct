@@ -26,23 +26,23 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_resources_util.h"
-#include "util/callbacks.h"
+#include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device_info,
-                                     const graphics::VulkanDeviceTable*   device_table,
-                                     const graphics::VulkanInstanceTable* instance_table,
-                                     CommonObjectInfoTable&               object_table,
-                                     const std::string&                   spirv_path,
-                                     uint32_t                             warm_up_load) :
+VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                  device_info,
+                                     const graphics::VulkanInjectedCallTable* device_table,
+                                     const graphics::VulkanInstanceTable*     instance_table,
+                                     CommonObjectInfoTable&                   object_table,
+                                     const std::string&                       spirv_path,
+                                     uint32_t                                 warm_up_load) :
     device_table_(device_table),
     spirv_path_(spirv_path), warm_up_load_(warm_up_load)
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    auto injected_command_scope = device_table->MarkScope();
 
     GFXRECON_ASSERT(device_info != nullptr);
     GFXRECON_ASSERT(device_table != nullptr);
@@ -285,19 +285,22 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
     device_table->BeginCommandBuffer(command_buffer_, &begin_info);
-    device_table->CmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
-    device_table->CmdBindDescriptorSets(
-        command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout_, 0, 1, &descriptor_set_, 0, nullptr);
-    device_table->CmdDispatch(command_buffer_, warm_up_load_ * 64, 1, 1);
+    {
+        auto warm_up_region = device_table->MarkScope(command_buffer_, "Frame warm-up");
+        device_table->CmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
+        device_table->CmdBindDescriptorSets(
+            command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout_, 0, 1, &descriptor_set_, 0, nullptr);
+        device_table->CmdDispatch(command_buffer_, warm_up_load_ * 64, 1, 1);
+    }
     device_table->EndCommandBuffer(command_buffer_);
 }
 
 VulkanFrameWarmUp::~VulkanFrameWarmUp()
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-
     if (device_table_ != nullptr && device_ != VK_NULL_HANDLE)
     {
+        auto injected_command_scope = device_table_->MarkScope();
+
         if (semaphore_.semaphore != VK_NULL_HANDLE)
         {
             device_table_->DestroySemaphore(device_, semaphore_.semaphore, nullptr);
@@ -367,7 +370,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(VulkanFrameWarmUp&& other) noexcept :
 
 graphics::VulkanSemaphore VulkanFrameWarmUp::WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    auto injected_command_scope = device_table_->MarkScope();
 
     std::vector<VkSemaphore>          semaphore_handles(wait_semaphores.size());
     std::vector<uint64_t>             semaphore_values(wait_semaphores.size());

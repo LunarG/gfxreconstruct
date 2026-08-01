@@ -12038,7 +12038,7 @@ VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDe
 
     auto [new_it, success] = device_frame_warmups_.insert({ device_info,
                                                             VulkanFrameWarmUp(device_info,
-                                                                              GetDeviceTable(device_info->handle),
+                                                                              GetInjectedDeviceTable(device_info->handle),
                                                                               GetInstanceTable(device_info->parent),
                                                                               *object_info_table_,
                                                                               options_.frame_warm_up_spirv_path,

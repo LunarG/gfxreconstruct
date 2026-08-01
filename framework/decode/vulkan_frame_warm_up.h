@@ -30,6 +30,7 @@
 
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
+#include "graphics/vulkan_injected_call_table.h"
 #include "graphics/vulkan_semaphore_util.h"
 #include "util/defines.h"
 
@@ -42,12 +43,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanFrameWarmUp
 {
   public:
-    VulkanFrameWarmUp(const VulkanDeviceInfo*              device_info,
-                      const graphics::VulkanDeviceTable*   device_table,
-                      const graphics::VulkanInstanceTable* instance_table,
-                      CommonObjectInfoTable&               object_table,
-                      const std::string&                   spirv_path,
-                      uint32_t                             warm_up_load);
+    VulkanFrameWarmUp(const VulkanDeviceInfo*                  device_info,
+                      const graphics::VulkanInjectedCallTable* device_table,
+                      const graphics::VulkanInstanceTable*     instance_table,
+                      CommonObjectInfoTable&                   object_table,
+                      const std::string&                       spirv_path,
+                      uint32_t                                 warm_up_load);
     ~VulkanFrameWarmUp();
 
     VulkanFrameWarmUp(VulkanFrameWarmUp&&) noexcept;
@@ -58,7 +59,7 @@ class VulkanFrameWarmUp
     graphics::VulkanSemaphore WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
   private:
-    const graphics::VulkanDeviceTable* device_table_{ nullptr };
+    const graphics::VulkanInjectedCallTable* device_table_{ nullptr };
 
     std::string spirv_path_;
     uint32_t    warm_up_load_{ 0 };
