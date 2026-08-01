@@ -282,6 +282,9 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                  de
                            util::ToString<VkResult>(result).c_str());
     }
 
+    // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
+    graphics::copy_dispatch_table_from_device(device_, command_buffer_);
+
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
     device_table->BeginCommandBuffer(command_buffer_, &begin_info);
