@@ -212,7 +212,7 @@ class VulkanSubmitJobExecutor
      * @param device_info Pointer to VulkanDeviceInfo for the device this executor manages.
      * @param device_table Pointer to the Vulkan device dispatch table used to create/destroy resources.
      */
-    VulkanSubmitJobExecutor(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedCallTable* device_table);
+    VulkanSubmitJobExecutor(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedDeviceCallsTable* device_table);
 
     /**
      * @brief Create a short-lived execution object for a single queue-submit call.
@@ -256,7 +256,7 @@ class VulkanSubmitJobExecutor
 
   private:
     const VulkanDeviceInfo*                  device_info_  = nullptr;
-    const graphics::VulkanInjectedCallTable* device_table_ = nullptr;
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_ = nullptr;
 
     std::vector<std::unique_ptr<VulkanInjectedSemaphore>>     injected_semaphores_;
     std::vector<std::unique_ptr<VulkanInjectedSemaphoreInfo>> injected_semaphore_infos_;

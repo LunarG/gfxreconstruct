@@ -241,7 +241,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const graphics::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
 
-    const graphics::VulkanInjectedCallTable* GetInjectedDeviceTable(const void* handle) const;
+    const graphics::VulkanInjectedDeviceCallsTable* GetInjectedDeviceTable(const void* handle) const;
 
     void AddImageHandle(format::HandleId parent_id, format::HandleId id, VkImage handle, VulkanImageInfo&& initial_info)
     {
@@ -2038,7 +2038,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<graphics::VulkanDispatchKey, PFN_vkCreateDevice>      create_device_procs_;
     graphics::InstanceDispatchTablesMap                                      instance_tables_;
     graphics::DeviceDispatchTablesMap                                        device_tables_;
-    graphics::DeviceInjectedDispatchTablesMap                                injected_device_tables_;
+    graphics::InjectedDeviceCallsDispatchTablesMap                           injected_device_tables_;
     std::unordered_map<format::HandleId, format::HandleId>                   device_phy_id_map_;
     std::shared_ptr<application::Application>                                application_;
     CommonObjectInfoTable*                                                   object_info_table_;

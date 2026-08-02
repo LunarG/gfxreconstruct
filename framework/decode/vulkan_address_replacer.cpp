@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 //! RAII helper submit a command-buffer to a queue and synchronize via fence
 struct QueueSubmitHelper
 {
-    const graphics::VulkanInjectedCallTable* device_table   = nullptr;
+    const graphics::VulkanInjectedDeviceCallsTable* device_table   = nullptr;
     VkDevice                                 device         = VK_NULL_HANDLE;
     VkCommandBuffer                          command_buffer = VK_NULL_HANDLE;
     VkFence                                  fence          = VK_NULL_HANDLE;
@@ -51,7 +51,7 @@ struct QueueSubmitHelper
         swap(other);
         return *this;
     }
-    QueueSubmitHelper(const graphics::VulkanInjectedCallTable* device_table_,
+    QueueSubmitHelper(const graphics::VulkanInjectedDeviceCallsTable* device_table_,
                       VkDevice                                 device_,
                       VkCommandBuffer                          command_buffer_,
                       VkQueue                                  queue_,
@@ -244,7 +244,7 @@ decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
 }
 
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*                  device_info,
-                                             const graphics::VulkanInjectedCallTable* device_table,
+                                             const graphics::VulkanInjectedDeviceCallsTable* device_table,
                                              const graphics::VulkanInstanceTable*     instance_table,
                                              decode::CommonObjectInfoTable&           object_table) :
     device_table_(device_table),

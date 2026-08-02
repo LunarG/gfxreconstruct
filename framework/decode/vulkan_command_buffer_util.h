@@ -41,7 +41,7 @@ class VulkanCommandBufferAssociatedInfo
 {
   private:
     const VulkanDeviceInfo*                  device_info_  = nullptr;
-    const graphics::VulkanInjectedCallTable* device_table_ = nullptr;
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_ = nullptr;
     CommonObjectInfoTable*                   object_table_ = nullptr;
 
     VulkanInjectedSemaphore split_semaphore_;
@@ -66,7 +66,7 @@ class VulkanCommandBufferAssociatedInfo
 
   public:
     VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*                  device_info,
-                                      const graphics::VulkanInjectedCallTable* device_table,
+                                      const graphics::VulkanInjectedDeviceCallsTable* device_table,
                                       CommonObjectInfoTable*                   object_table,
                                       format::HandleId                         command_buffer_id);
 
@@ -94,7 +94,7 @@ class VulkanCommandBufferUtil
 {
   public:
     VulkanCommandBufferUtil(const VulkanDeviceInfo*                  device_info,
-                            const graphics::VulkanInjectedCallTable* device_table,
+                            const graphics::VulkanInjectedDeviceCallsTable* device_table,
                             CommonObjectInfoTable*                   object_table,
                             VulkanStateRecordingDecoder*             decoder);
 
@@ -142,7 +142,7 @@ class VulkanCommandBufferUtil
     VulkanCommandBufferAssociatedInfo* GetAssociatedInfo(format::HandleId command_buffer_id);
 
     const VulkanDeviceInfo*                  device_info_  = nullptr;
-    const graphics::VulkanInjectedCallTable* device_table_ = nullptr;
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_ = nullptr;
     CommonObjectInfoTable*                   object_table_ = nullptr;
     VulkanStateRecordingDecoder*             decoder_      = nullptr;
 

@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
  * @brief   VulkanAddressReplacer can be used to check and potentially sanitize input-parameters for various cases.
  *
  * Important note: all internal Vulkan-API calls performed by this class are marked as injected commands
- * using graphics::VulkanInjectedCallTable::MarkScope() / InsertLabel()
+ * using graphics::VulkanInjectedDeviceCallsTable::MarkScope() / InsertLabel()
  */
 class VulkanAddressReplacer
 {
@@ -48,7 +48,7 @@ class VulkanAddressReplacer
     VulkanAddressReplacer() = default;
 
     VulkanAddressReplacer(const VulkanDeviceInfo*                  device_info,
-                          const graphics::VulkanInjectedCallTable* device_table,
+                          const graphics::VulkanInjectedDeviceCallsTable* device_table,
                           const graphics::VulkanInstanceTable*     instance_table,
                           decode::CommonObjectInfoTable&           object_table);
 
@@ -507,7 +507,7 @@ class VulkanAddressReplacer
     bool swap_acceleration_structure_handle(VkAccelerationStructureKHR&               handle,
                                             const decode::VulkanDeviceAddressTracker& address_tracker);
 
-    const graphics::VulkanInjectedCallTable*                       device_table_              = nullptr;
+    const graphics::VulkanInjectedDeviceCallsTable*                       device_table_              = nullptr;
     decode::CommonObjectInfoTable*                                 object_table_              = nullptr;
     VkPhysicalDeviceMemoryProperties                               capture_memory_properties_ = {};
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_ray_properties_{}, replay_ray_properties_{};

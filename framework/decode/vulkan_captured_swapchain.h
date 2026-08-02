@@ -40,7 +40,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*          create_info,
                                         const VkAllocationCallbacks*             allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
-                                        const graphics::VulkanInjectedCallTable* device_table) override;
+                                        const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -115,7 +115,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                    const VulkanImageInfo*                     image_info,
                                    VulkanInstanceInfo*                        instance_info,
                                    const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanInjectedCallTable*   device_table,
+                                   const graphics::VulkanInjectedDeviceCallsTable*   device_table,
                                    application::Application*                  application,
                                    const std::optional<std::array<float, 2>>& scale) override;
 

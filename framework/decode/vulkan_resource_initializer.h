@@ -48,7 +48,7 @@ class VulkanResourceInitializer
                               const VkPhysicalDeviceMemoryProperties&  memory_properties,
                               bool                                     have_shader_stencil_write,
                               VulkanResourceAllocator*                 resource_allocator,
-                              const graphics::VulkanInjectedCallTable* device_table);
+                              const graphics::VulkanInjectedDeviceCallsTable* device_table);
 
     ~VulkanResourceInitializer();
 
@@ -201,7 +201,7 @@ class VulkanResourceInitializer
     VkPhysicalDeviceMemoryProperties         memory_properties_{};
     bool                                     have_shader_stencil_write_;
     VulkanResourceAllocator*                 resource_allocator_;
-    const graphics::VulkanInjectedCallTable* device_table_;
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_;
     const VulkanDeviceInfo*                  device_info_;
 
     // Copies of the copy information passed into the InitializeBuffer and InitializeImage respectively.

@@ -67,7 +67,7 @@ class VulkanSwapchain
 
     virtual void Clean();
 
-    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table) {}
+    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCallsTable* device_table) {}
 
     VulkanSwapchainOptions GetOptions() { return swapchain_options_; }
     void                   SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
@@ -93,7 +93,7 @@ class VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*          create_info,
                                         const VkAllocationCallbacks*             allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
-                                        const graphics::VulkanInjectedCallTable* device_table) = 0;
+                                        const graphics::VulkanInjectedDeviceCallsTable* device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -178,7 +178,7 @@ class VulkanSwapchain
                                    const VulkanImageInfo*                     image_info,
                                    VulkanInstanceInfo*                        instance_info,
                                    const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanInjectedCallTable*   device_table,
+                                   const graphics::VulkanInjectedDeviceCallsTable*   device_table,
                                    application::Application*                  application,
                                    const std::optional<std::array<float, 2>>& scale) = 0;
 
@@ -193,7 +193,7 @@ class VulkanSwapchain
     typedef std::unordered_set<Window*> ActiveWindows;
 
     const graphics::VulkanInstanceTable*     instance_table_{ nullptr };
-    const graphics::VulkanInjectedCallTable* device_table_{ nullptr };
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_{ nullptr };
 
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;

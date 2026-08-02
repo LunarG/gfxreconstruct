@@ -29,7 +29,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanOffscreenSwapchain::CleanDeviceResources(VkDevice                                 device,
-                                                    const graphics::VulkanInjectedCallTable* device_table)
+                                                    const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     VulkanVirtualSwapchain::CleanDeviceResources(device, device_table);
 
@@ -94,7 +94,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
                                                       const VkSwapchainCreateInfoKHR*          create_info,
                                                       const VkAllocationCallbacks*             allocator,
                                                       HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
-                                                      const graphics::VulkanInjectedCallTable* device_table)
+                                                      const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     GFXRECON_ASSERT(device_info);
     device_table_ = device_table;
@@ -275,7 +275,7 @@ void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*        
                                                  const VulkanImageInfo*                     image_info,
                                                  VulkanInstanceInfo*                        instance_info,
                                                  const graphics::VulkanInstanceTable*       instance_table,
-                                                 const graphics::VulkanInjectedCallTable*   device_table,
+                                                 const graphics::VulkanInjectedDeviceCallsTable*   device_table,
                                                  application::Application*                  application,
                                                  const std::optional<std::array<float, 2>>& scale)
 {

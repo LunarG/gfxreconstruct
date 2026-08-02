@@ -715,7 +715,7 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountEXT(VkCommandBu
 // clang-format on
 GFXRECON_END_NAMESPACE(ScopeCheck)
 
-class VulkanInjectedCallTableBase
+class VulkanInjectedDeviceCallsTableBase
 {
   public:
     // clang-format off

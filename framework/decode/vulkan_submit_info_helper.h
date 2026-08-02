@@ -45,7 +45,7 @@ class VulkanInjectedSemaphore
     graphics::VulkanSemaphore semaphore_{ VK_NULL_HANDLE };
 
     const VulkanDeviceInfo*                  device_info_;
-    const graphics::VulkanInjectedCallTable* device_table_;
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_;
 
   public:
     bool                      HasReachedTargetValue() const;
@@ -54,7 +54,7 @@ class VulkanInjectedSemaphore
     uint64_t                  GetTargetValue() const { return semaphore_.timeline_value; }
     void                      IncreaseTargetValue() { semaphore_.timeline_value++; }
 
-    VulkanInjectedSemaphore(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedCallTable* table);
+    VulkanInjectedSemaphore(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedDeviceCallsTable* table);
     ~VulkanInjectedSemaphore();
 
     VulkanInjectedSemaphore(const VulkanInjectedSemaphore&)            = delete;
@@ -75,7 +75,7 @@ struct VulkanInjectedSemaphoreInfo
     VulkanInjectedSemaphore semaphore;
     VkSemaphoreSubmitInfo   info = { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
 
-    VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedCallTable* table);
+    VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedDeviceCallsTable* table);
 };
 
 /**

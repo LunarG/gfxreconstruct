@@ -62,11 +62,11 @@ class VulkanInjectedCallTableGeneratorOptions(VulkanBaseGeneratorOptions):
 
 class VulkanInjectedCallTableGenerator(VulkanBaseGenerator):
     """VulkanInjectedCallTableGenerator - subclass of VulkanBaseGenerator.
-    Generates the ScopeCheck namespace and VulkanInjectedCallTableBase.
+    Generates the ScopeCheck namespace and VulkanInjectedDeviceTableBase.
     The namespace holds one trampoline per device command that asserts the
     calling thread is inside an injected-commands scope and then forwards to
     the real dispatch table, located through the dispatch key of the call's
-    first argument. VulkanInjectedCallTableBase has the same function-pointer
+    first argument. VulkanInjectedDeviceTableBase has the same function-pointer
     entries as VulkanDeviceTable, each default-initialized to the equivalent
     ScopeCheck function.
     """
@@ -152,7 +152,7 @@ class VulkanInjectedCallTableGenerator(VulkanBaseGenerator):
         write('GFXRECON_END_NAMESPACE(ScopeCheck)', file=self.outFile)
         self.newline()
 
-        write('class VulkanInjectedCallTableBase', file=self.outFile)
+        write('class VulkanInjectedDeviceTableBase', file=self.outFile)
         write('{', file=self.outFile)
         write('  public:', file=self.outFile)
         write('    // clang-format off', file=self.outFile)

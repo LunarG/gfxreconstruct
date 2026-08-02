@@ -69,7 +69,7 @@ inline void WriteImageFile(
 
 void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
                                    const VulkanDeviceInfo*                    device_info,
-                                   const graphics::VulkanInjectedCallTable*   device_table,
+                                   const graphics::VulkanInjectedDeviceCallsTable*   device_table,
                                    const VkPhysicalDeviceMemoryProperties&    memory_properties,
                                    VulkanResourceAllocator*                   allocator,
                                    VkImage                                    image,
@@ -524,7 +524,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     auto injected_commands_scope = device_table->MarkScope();
 
@@ -593,7 +593,7 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
 }
 
 VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                                 device,
-                                                  const graphics::VulkanInjectedCallTable* device_table,
+                                                  const graphics::VulkanInjectedDeviceCallsTable* device_table,
                                                   VkFormat                                 format,
                                                   uint32_t                                 width,
                                                   uint32_t                                 height) const
@@ -632,7 +632,7 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
 }
 
 VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                 device,
-                                               const graphics::VulkanInjectedCallTable* device_table,
+                                               const graphics::VulkanInjectedDeviceCallsTable* device_table,
                                                const VkPhysicalDeviceMemoryProperties&  memory_properties,
                                                VkDeviceSize                             buffer_size,
                                                VkFormat                                 image_format,

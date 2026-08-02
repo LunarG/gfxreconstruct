@@ -76,12 +76,12 @@ class InjectedCommandScope
 // Dispatch-table handle for Vulkan calls injected by replay, i.e. calls that
 // have no corresponding block in the capture file (staging copies, swapchain
 // blits, dump-resources work, SBT patching, sync objects, cleanup, ...).
-class VulkanInjectedCallTable : public VulkanInjectedCallTableBase
+class VulkanInjectedDeviceCallsTable : public VulkanInjectedDeviceCallsTableBase
 {
   public:
-    VulkanInjectedCallTable() = delete;
+    VulkanInjectedDeviceCallsTable() = delete;
 
-    VulkanInjectedCallTable(VkDevice device, const VulkanDeviceTable* raw_table) : raw_table_(raw_table)
+    VulkanInjectedDeviceCallsTable(VkDevice device, const VulkanDeviceTable* raw_table) : raw_table_(raw_table)
     {
         RegisterDeviceTable(device, raw_table);
     }
@@ -98,7 +98,8 @@ class VulkanInjectedCallTable : public VulkanInjectedCallTableBase
     const VulkanDeviceTable* raw_table_;
 };
 
-using DeviceInjectedDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, VulkanInjectedCallTable>;
+using InjectedDeviceCallsDispatchTablesMap =
+    std::unordered_map<graphics::VulkanDispatchKey, VulkanInjectedDeviceCallsTable>;
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

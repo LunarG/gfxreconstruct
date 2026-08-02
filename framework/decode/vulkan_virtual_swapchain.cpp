@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice                                 device,
-                                                  const graphics::VulkanInjectedCallTable* device_table)
+                                                  const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_table);
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -77,7 +77,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
                                                     const VkSwapchainCreateInfoKHR*          create_info,
                                                     const VkAllocationCallbacks*             allocator,
                                                     HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
-                                                    const graphics::VulkanInjectedCallTable* device_table)
+                                                    const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     VkDevice                 device          = VK_NULL_HANDLE;
     VkPhysicalDevice         physical_device = VK_NULL_HANDLE;
@@ -1349,7 +1349,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                                                const VulkanImageInfo*                     image_info,
                                                VulkanInstanceInfo*                        instance_info,
                                                const graphics::VulkanInstanceTable*       instance_table,
-                                               const graphics::VulkanInjectedCallTable*   device_table,
+                                               const graphics::VulkanInjectedDeviceCallsTable*   device_table,
                                                application::Application*                  application,
                                                const std::optional<std::array<float, 2>>& scale)
 {

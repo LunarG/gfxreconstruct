@@ -44,7 +44,7 @@ class VulkanFrameWarmUp
 {
   public:
     VulkanFrameWarmUp(const VulkanDeviceInfo*                  device_info,
-                      const graphics::VulkanInjectedCallTable* device_table,
+                      const graphics::VulkanInjectedDeviceCallsTable* device_table,
                       const graphics::VulkanInstanceTable*     instance_table,
                       CommonObjectInfoTable&                   object_table,
                       const std::string&                       spirv_path,
@@ -59,7 +59,7 @@ class VulkanFrameWarmUp
     graphics::VulkanSemaphore WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
   private:
-    const graphics::VulkanInjectedCallTable* device_table_{ nullptr };
+    const graphics::VulkanInjectedDeviceCallsTable* device_table_{ nullptr };
 
     std::string spirv_path_;
     uint32_t    warm_up_load_{ 0 };

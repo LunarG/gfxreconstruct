@@ -35,7 +35,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
   public:
     ~VulkanVirtualSwapchain() override = default;
 
-    void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedCallTable* device_table) override;
+    void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
 
     VkResult CreateSurface(VkResult                             original_result,
                            VulkanInstanceInfo*                  instance_info,
@@ -51,7 +51,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*          create_info,
                                         const VkAllocationCallbacks*             allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
-                                        const graphics::VulkanInjectedCallTable* device_table) override;
+                                        const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -126,7 +126,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                            const VulkanImageInfo*                     image_info,
                            VulkanInstanceInfo*                        instance_info,
                            const graphics::VulkanInstanceTable*       instance_table,
-                           const graphics::VulkanInjectedCallTable*   device_table,
+                           const graphics::VulkanInjectedDeviceCallsTable*   device_table,
                            application::Application*                  application,
                            const std::optional<std::array<float, 2>>& scale) override;
 
@@ -254,7 +254,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
         // required for lifetime-management
         VkDevice                                 device{ VK_NULL_HANDLE };
-        const graphics::VulkanInjectedCallTable* device_table{ nullptr };
+        const graphics::VulkanInjectedDeviceCallsTable* device_table{ nullptr };
         const VulkanInstanceInfo*                instance_info{ nullptr };
         VulkanSwapchain*                         owner{ nullptr };
 

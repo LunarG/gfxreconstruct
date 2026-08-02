@@ -127,7 +127,7 @@ InjectedCommandScope::~InjectedCommandScope()
     }
 }
 
-InjectedCommandScope VulkanInjectedCallTable::MarkScope(VkCommandBuffer command_buffer, const char* category) const
+InjectedCommandScope VulkanInjectedDeviceCallsTable::MarkScope(VkCommandBuffer command_buffer, const char* category) const
 {
     // The scope's label calls go straight to the real table: the scope itself
     // opens the injected-commands window, and the noop-entry checks must see
@@ -135,15 +135,15 @@ InjectedCommandScope VulkanInjectedCallTable::MarkScope(VkCommandBuffer command_
     return InjectedCommandScope(GetRawTable(), command_buffer, category);
 }
 
-InjectedCommandScope VulkanInjectedCallTable::MarkScope() const
+InjectedCommandScope VulkanInjectedDeviceCallsTable::MarkScope() const
 {
     return InjectedCommandScope();
 }
 
-void VulkanInjectedCallTable::InsertLabel(VkCommandBuffer command_buffer, const char* category) const
+void VulkanInjectedDeviceCallsTable::InsertLabel(VkCommandBuffer command_buffer, const char* category) const
 {
     GFXRECON_ASSERT(util::InsideInjectedCommands() &&
-                    "VulkanInjectedCallTable::InsertLabel called outside an InjectedCommandScope");
+                    "VulkanInjectedDeviceCallsTable::InsertLabel called outside an InjectedCommandScope");
 
     const VulkanDeviceTable* table = GetRawTable();
 

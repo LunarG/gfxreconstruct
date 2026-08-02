@@ -30,7 +30,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanCommandBufferAssociatedInfo::VulkanCommandBufferAssociatedInfo(
     const VulkanDeviceInfo*                  device_info,
-    const graphics::VulkanInjectedCallTable* device_table,
+    const graphics::VulkanInjectedDeviceCallsTable* device_table,
     CommonObjectInfoTable*                   object_table,
     format::HandleId                         command_buffer_id) :
     device_info_(device_info),
@@ -88,7 +88,7 @@ void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBuffer
 }
 
 VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*                  device_info,
-                                                 const graphics::VulkanInjectedCallTable* device_table,
+                                                 const graphics::VulkanInjectedDeviceCallsTable* device_table,
                                                  CommonObjectInfoTable*                   object_table,
                                                  VulkanStateRecordingDecoder*             decoder) :
     device_info_(device_info),
