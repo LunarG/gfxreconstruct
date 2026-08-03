@@ -616,18 +616,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     }
 }
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkResetCommandPool(
-    const ApiCallInfo&                          call_info,
-    args::ResetCommandPool&                     args)
-{
-    // Only record command buffer commands on first iteration of looping frame.
-    if (getFrameLoopInfo().IsRepetition())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkResetCommandPool(call_info, args);
-}
-
 void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::AllocateCommandBuffers&               args)
@@ -662,18 +650,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkEndCommandBuffer(
         return;
     }
     VulkanReplayConsumer::Process_vkEndCommandBuffer(call_info, args);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkResetCommandBuffer(
-    const ApiCallInfo&                          call_info,
-    args::ResetCommandBuffer&                   args)
-{
-    // Only record command buffer commands on first iteration of looping frame.
-    if (getFrameLoopInfo().IsRepetition())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkResetCommandBuffer(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer(

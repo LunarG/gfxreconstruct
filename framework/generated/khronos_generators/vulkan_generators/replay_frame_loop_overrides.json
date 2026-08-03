@@ -190,8 +190,6 @@
     "commandBufferState": [
         "vkAllocateCommandBuffers",
         "vkFreeCommandBuffers",
-        "vkResetCommandBuffer",
-        "vkResetCommandPool",
         "vkEndCommandBuffer",
         "vkTrimCommandPool"
     ]

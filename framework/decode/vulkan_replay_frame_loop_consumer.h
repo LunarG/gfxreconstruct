@@ -50,8 +50,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void Process_vkCreateDevice(const ApiCallInfo& call_info, args::CreateDevice& args) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
+    
+    void Process_vkResetCommandPool(const ApiCallInfo& call_info, args::ResetCommandPool& args) override;
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+    
+    void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
 
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
@@ -104,6 +108,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     graphics::FrameLoopInfo& frame_loop_info_;
 
     VulkanDecoder* decoder_ = nullptr;
+
     // Command buffer util is per-device
     std::unordered_map<format::HandleId, VulkanCommandBufferUtil> command_buffer_utils_;
 

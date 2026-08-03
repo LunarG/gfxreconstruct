@@ -107,6 +107,13 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
 
     auto application = make_application(file_processor_out.get());
 
+    graphics::FrameLoopInfo fl_info;
+    if (enable_frame_loop)
+    {
+        fl_info = graphics::FrameLoopInfo(loop_frame, loop_count);
+        application->SetFrameLoopInfo(&fl_info);
+    }
+
     for (auto& feature : features)
     {
         feature->QueryOptions(arg_parser, filename);
@@ -139,13 +146,6 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
                                measurement_file_name,
                                quit_after_frame,
                                quit_frame);
-
-    graphics::FrameLoopInfo fl_info;
-    if (enable_frame_loop)
-    {
-        fl_info = graphics::FrameLoopInfo(loop_frame, loop_count);
-        application->SetFrameLoopInfo(&fl_info);
-    }
 
     std::unique_ptr<gfxrecon::plugin::ReplayEventSink> replay_event_sink;
     for (auto& feature : features)
