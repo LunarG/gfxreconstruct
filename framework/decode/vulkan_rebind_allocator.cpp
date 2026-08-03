@@ -1399,6 +1399,7 @@ VkResult VulkanRebindAllocator::AllocateExternalMemory(MemoryAllocInfo&   memory
         mem_info.prefers_dedicated_allocation       = prefers_dedicated_allocation;
         mem_info.offset_from_original_device_memory = memory_offset;
         mem_info.is_external                        = true;
+        mem_info.export_backing_memory              = backing_memory;
         mem_info.allocation                         = VK_NULL_HANDLE;
         mem_info.allocation_info.deviceMemory       = imported_memory;
         mem_info.allocation_info.offset             = 0;
@@ -1409,10 +1410,14 @@ VkResult VulkanRebindAllocator::AllocateExternalMemory(MemoryAllocInfo&   memory
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
 
         memory_alloc_info.bound_ranges.push_back({ object_handle, memory_offset, footprint, *vma_mem_info });
+
+        backing_memory = VK_NULL_HANDLE;
     }
 
-    // Imported allocation has it's own reference to the memory
-    functions_.free_memory(device_, backing_memory, allocator_->GetAllocationCallbacks());
+    if (backing_memory != VK_NULL_HANDLE)
+    {
+        functions_.free_memory(device_, backing_memory, allocator_->GetAllocationCallbacks());
+    }
 
     return result;
 }
@@ -3409,12 +3414,14 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
     {
         modified_get_fd_info.memory = mem_info->allocation_info.deviceMemory;
 
-        // An imported allocation owns its whole VkDeviceMemory and has no VmaAllocation to inspect, so
-        // export from it directly.  This is also the memory the capture would have exported from.
+        // An external allocation's imported memory cannot be re-exported; use the exportable backing
+        // memory that was kept alive for exactly this purpose.
         if (mem_info->is_external)
         {
-            result = functions_.get_memory_fd(device_, &modified_get_fd_info, pFd);
-            continue;
+            modified_get_fd_info.memory = (mem_info->export_backing_memory != VK_NULL_HANDLE)
+                                              ? mem_info->export_backing_memory
+                                              : mem_info->allocation_info.deviceMemory;
+            return functions_.get_memory_fd(device_, &modified_get_fd_info, pFd);
         }
 
         GFXRECON_ASSERT(mem_info->allocation);
@@ -3496,6 +3503,12 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
                 // once the last resource bound to it has been destroyed.
                 functions_.free_memory(
                     device_, mem_info->allocation_info.deviceMemory, allocator_->GetAllocationCallbacks());
+
+                if (mem_info->export_backing_memory != VK_NULL_HANDLE)
+                {
+                    functions_.free_memory(
+                        device_, mem_info->export_backing_memory, allocator_->GetAllocationCallbacks());
+                }
             }
 
             for (auto entry = mem_alc_info->vma_mem_infos.begin(); entry != mem_alc_info->vma_mem_infos.end();)

@@ -508,6 +508,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         uint64_t                reference_count{ 0 };
 
         bool is_external{ false };
+        VkDeviceMemory export_backing_memory{ VK_NULL_HANDLE };
 
         VmaAllocation     allocation{ VK_NULL_HANDLE };
         VmaAllocationInfo allocation_info{};
