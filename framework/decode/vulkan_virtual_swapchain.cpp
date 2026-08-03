@@ -38,20 +38,22 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(device_table != nullptr);
 
-    if (const auto it = adhoc_device_data_.find(device); it != adhoc_device_data_.end())
+    // AdhocDeviceData releases its swapchains and command-pool
+    adhoc_device_data_.erase(device);
+}
+
+VulkanVirtualSwapchain::AdhocDeviceData::~AdhocDeviceData()
+{
+    // free swapchains before command-pool
+    swapchains.clear();
+
+    if (command_pool != VK_NULL_HANDLE)
     {
-        auto& adhoc_data = it->second;
-
-        // free swapchains before command-pool
-        adhoc_data.swapchains.clear();
-
-        if (adhoc_data.command_pool != VK_NULL_HANDLE)
-        {
-            device_table->DestroyCommandPool(device, adhoc_data.command_pool, nullptr);
-        }
+        GFXRECON_ASSERT(device != VK_NULL_HANDLE && device_table != nullptr);
+        device_table->DestroyCommandPool(device, command_pool, nullptr);
     }
 }
 
@@ -1383,7 +1385,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     VkSemaphore semaphore = semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle;
 
     // If there is no image to present, do nothing
-    if (image == VK_NULL_HANDLE || application_surface_created_)
+    if (image == VK_NULL_HANDLE || disable_adhoc_presentation_)
     {
         return;
     }
@@ -1404,6 +1406,9 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     // init OFBData
     if (ofb_data.command_pool == VK_NULL_HANDLE)
     {
+        ofb_data.device       = device;
+        ofb_data.device_table = device_table;
+
         // Retrieve the queue that will be used for presentation/image copy and create a command pool
         device_table->GetDeviceQueue(device, 0, 0, &ofb_data.queue);
 
@@ -1483,6 +1488,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         // empty -> automatic wsi deduction
         std::string wsi_extension;
 
+        // must bypass VulkanVirtualSwapchain::CreateSurface here, it would destroy the swapchain in use
         result = VulkanSwapchain::CreateSurface(
             VK_SUCCESS, instance_info, wsi_extension, 0, &swapchain.surface_ptr, instance_table, application);
         GFXRECON_ASSERT(result == VK_SUCCESS);
@@ -1924,11 +1930,18 @@ VkResult VulkanVirtualSwapchain::CreateSurface(VkResult                         
                                                const graphics::VulkanInstanceTable* instance_table,
                                                application::Application*            application)
 {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
     // The application trace is attempting to create a genuine Surface, so it will need to attach to
     // the single ANativeWindow. If we have used an AdHoc surface to bypass android splash screens,
     // we must destroy that surface immediately so we release the NativeWindow cleanly before the trace tries.
-    application_surface_created_ = true;
+    //
+    // Android-only: every AndroidWindowFactory::Create() hands out the same ANativeWindow, so the two
+    // surfaces collide. Desktop WSIs create independent windows, where AdHoc presentation
+    // (--present-override, vkFrameBoundary) is expected to keep working alongside the application's own
+    // swapchain.
+    disable_adhoc_presentation_ = true;
     adhoc_device_data_.clear();
+#endif
 
     return VulkanSwapchain::CreateSurface(
         original_result, instance_info, wsi_extension, flags, surface, instance_table, application);
