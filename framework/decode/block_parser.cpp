@@ -23,6 +23,7 @@
 
 #include "decode/block_buffer.h"
 #include "decode/block_parser.h"
+#include "decode/block_parser_meta_data.h"
 #include "decode/file_processor_types.h"
 #include "format/format_util.h"
 
@@ -37,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     format::BlockHeader block_header;
-    BlockIOError  status = kErrorNone;
+    BlockIOError        status = kErrorNone;
 
     const size_t peeked_bytes = input_stream->PeekBytes(&block_header, sizeof(block_header));
     if (peeked_bytes == 0)
@@ -1718,6 +1719,20 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else
     {
+        // The built-in parsers do not know this meta-data type. Give an extended parser for the type
+        // -- if this build defines one -- a chance to parse it before skipping the block.
+        for (const ExtendedMetaDataEntry& entry : kExtendedMetaDataParsers)
+        {
+            if (entry.meta_data_type == meta_data_type)
+            {
+                if (ParsedBlock* parsed_block = entry.parse(*this, meta_data_id, block_buffer))
+                {
+                    return *parsed_block;
+                }
+                break;
+            }
+        }
+
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||
             meta_data_type == format::MetaDataType::kReserved23 || meta_data_type == format::MetaDataType::kReserved25)
         {
