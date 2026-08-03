@@ -35,7 +35,8 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
   public:
     virtual ~VulkanOffscreenSwapchain() override {}
 
-    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
+    virtual void CleanDeviceResources(VkDevice                                        device,
+                                      const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
 
     virtual void SetExternalSyncType(VkDevice device, ExternalSyncType external_sync_type) override;
 
@@ -52,12 +53,12 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                 const VulkanSurfaceKHRInfo*  surface_info,
                                 const VkAllocationCallbacks* allocator) override;
 
-    virtual VkResult CreateSwapchainKHR(VkResult                                 original_result,
-                                        PFN_vkCreateSwapchainKHR                 func,
-                                        const VulkanDeviceInfo*                  device_info,
-                                        const VkSwapchainCreateInfoKHR*          create_info,
-                                        const VkAllocationCallbacks*             allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+    virtual VkResult CreateSwapchainKHR(VkResult                                        original_result,
+                                        PFN_vkCreateSwapchainKHR                        func,
+                                        const VulkanDeviceInfo*                         device_info,
+                                        const VkSwapchainCreateInfoKHR*                 create_info,
+                                        const VkAllocationCallbacks*                    allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*           swapchain,
                                         const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
@@ -98,14 +99,14 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                      const VulkanQueueInfo*                      queue_info,
                                      const VkPresentInfoKHR*                     present_info) override;
 
-    void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
-                           const VulkanSemaphoreInfo*                 semaphore_info,
-                           const VulkanImageInfo*                     image_info,
-                           VulkanInstanceInfo*                        instance_info,
-                           const graphics::VulkanInstanceTable*       instance_table,
-                           const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                           application::Application*                  application,
-                           const std::optional<std::array<float, 2>>& scale) override;
+    void PresentImageAdHoc(const VulkanDeviceInfo*                         device_info,
+                           const VulkanSemaphoreInfo*                      semaphore_info,
+                           const VulkanImageInfo*                          image_info,
+                           VulkanInstanceInfo*                             instance_info,
+                           const graphics::VulkanInstanceTable*            instance_table,
+                           const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                           application::Application*                       application,
+                           const std::optional<std::array<float, 2>>&      scale) override;
 
   private:
     const uint32_t default_queue_family_index_{ 0 };

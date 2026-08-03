@@ -29,10 +29,10 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanCommandBufferAssociatedInfo::VulkanCommandBufferAssociatedInfo(
-    const VulkanDeviceInfo*                  device_info,
+    const VulkanDeviceInfo*                         device_info,
     const graphics::VulkanInjectedDeviceCallsTable* device_table,
-    CommonObjectInfoTable*                   object_table,
-    format::HandleId                         command_buffer_id) :
+    CommonObjectInfoTable*                          object_table,
+    format::HandleId                                command_buffer_id) :
     device_info_(device_info),
     device_table_(device_table), object_table_(object_table), split_semaphore_(device_info, device_table)
 {
@@ -87,10 +87,10 @@ void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBuffer
     command_buffer_info->handle = next_handle;
 }
 
-VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*                  device_info,
+VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*                         device_info,
                                                  const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                                 CommonObjectInfoTable*                   object_table,
-                                                 VulkanStateRecordingDecoder*             decoder) :
+                                                 CommonObjectInfoTable*                          object_table,
+                                                 VulkanStateRecordingDecoder*                    decoder) :
     device_info_(device_info),
     device_table_(device_table), object_table_(object_table), decoder_(decoder)
 {

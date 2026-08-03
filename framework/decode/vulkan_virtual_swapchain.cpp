@@ -36,7 +36,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice                                 device,
+void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice                                        device,
                                                   const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_table);
@@ -71,12 +71,12 @@ bool VulkanVirtualSwapchain::AddSwapchainResourceData(VkSwapchainKHR swapchain)
     return true;
 }
 
-VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                                 original_result,
-                                                    PFN_vkCreateSwapchainKHR                 func,
-                                                    const VulkanDeviceInfo*                  device_info,
-                                                    const VkSwapchainCreateInfoKHR*          create_info,
-                                                    const VkAllocationCallbacks*             allocator,
-                                                    HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                                        original_result,
+                                                    PFN_vkCreateSwapchainKHR                        func,
+                                                    const VulkanDeviceInfo*                         device_info,
+                                                    const VkSwapchainCreateInfoKHR*                 create_info,
+                                                    const VkAllocationCallbacks*                    allocator,
+                                                    HandlePointerDecoder<VkSwapchainKHR>*           swapchain,
                                                     const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     VkDevice                 device          = VK_NULL_HANDLE;
@@ -1344,14 +1344,14 @@ VulkanVirtualSwapchain::AdhocSwapChain::~AdhocSwapChain()
     }
 }
 
-void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
-                                               const VulkanSemaphoreInfo*                 semaphore_info,
-                                               const VulkanImageInfo*                     image_info,
-                                               VulkanInstanceInfo*                        instance_info,
-                                               const graphics::VulkanInstanceTable*       instance_table,
-                                               const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                                               application::Application*                  application,
-                                               const std::optional<std::array<float, 2>>& scale)
+void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                         device_info,
+                                               const VulkanSemaphoreInfo*                      semaphore_info,
+                                               const VulkanImageInfo*                          image_info,
+                                               VulkanInstanceInfo*                             instance_info,
+                                               const graphics::VulkanInstanceTable*            instance_table,
+                                               const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                                               application::Application*                       application,
+                                               const std::optional<std::array<float, 2>>&      scale)
 {
     GFXRECON_ASSERT(instance_info != nullptr && instance_table != nullptr && device_info != nullptr &&
                     device_table != nullptr && application != nullptr);

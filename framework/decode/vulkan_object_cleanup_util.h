@@ -35,12 +35,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(object_cleanup)
 
-void FreeAllLiveObjects(CommonObjectInfoTable*                                               table,
-                        bool                                                                 remove_entries,
-                        bool                                                                 report_leaks,
-                        std::function<const graphics::VulkanInstanceTable*(const void*)>     get_instance_table,
-                        std::function<const graphics::VulkanInjectedDeviceCallsTable*(const void*)> get_injected_device_table,
-                        VulkanSwapchain*                                                     swapchain);
+void FreeAllLiveObjects(
+    CommonObjectInfoTable*                                                      table,
+    bool                                                                        remove_entries,
+    bool                                                                        report_leaks,
+    std::function<const graphics::VulkanInstanceTable*(const void*)>            get_instance_table,
+    std::function<const graphics::VulkanInjectedDeviceCallsTable*(const void*)> get_injected_device_table,
+    VulkanSwapchain*                                                            swapchain);
 
 void FreeAllLiveInstances(CommonObjectInfoTable*                                           table,
                           bool                                                             remove_entries,

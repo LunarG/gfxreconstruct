@@ -37,10 +37,10 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct QueueSubmitHelper
 {
     const graphics::VulkanInjectedDeviceCallsTable* device_table   = nullptr;
-    VkDevice                                 device         = VK_NULL_HANDLE;
-    VkCommandBuffer                          command_buffer = VK_NULL_HANDLE;
-    VkFence                                  fence          = VK_NULL_HANDLE;
-    VkQueue                                  queue          = VK_NULL_HANDLE;
+    VkDevice                                        device         = VK_NULL_HANDLE;
+    VkCommandBuffer                                 command_buffer = VK_NULL_HANDLE;
+    VkFence                                         fence          = VK_NULL_HANDLE;
+    VkQueue                                         queue          = VK_NULL_HANDLE;
 
     QueueSubmitHelper()                         = default;
     QueueSubmitHelper(const QueueSubmitHelper&) = delete;
@@ -52,10 +52,10 @@ struct QueueSubmitHelper
         return *this;
     }
     QueueSubmitHelper(const graphics::VulkanInjectedDeviceCallsTable* device_table_,
-                      VkDevice                                 device_,
-                      VkCommandBuffer                          command_buffer_,
-                      VkQueue                                  queue_,
-                      VkFence                                  fence_) :
+                      VkDevice                                        device_,
+                      VkCommandBuffer                                 command_buffer_,
+                      VkQueue                                         queue_,
+                      VkFence                                         fence_) :
         device_table(device_table_),
         device(device_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
@@ -243,10 +243,10 @@ decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
     }
 }
 
-VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*                  device_info,
+VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*                         device_info,
                                              const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                             const graphics::VulkanInstanceTable*     instance_table,
-                                             decode::CommonObjectInfoTable&           object_table) :
+                                             const graphics::VulkanInstanceTable*            instance_table,
+                                             decode::CommonObjectInfoTable&                  object_table) :
     device_table_(device_table),
     object_table_(&object_table)
 {

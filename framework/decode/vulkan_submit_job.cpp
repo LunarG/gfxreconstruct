@@ -55,7 +55,7 @@ bool VulkanSubmitJobPlan::HasJobsForIndex(uint32_t submit_index) const
     return jobs_for_index && !jobs_for_index->jobs.empty();
 }
 
-VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*                  device_info,
+VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*                         device_info,
                                                  const graphics::VulkanInjectedDeviceCallsTable* device_table) :
     device_info_{ device_info },
     device_table_{ device_table }
@@ -132,7 +132,7 @@ VulkanInjectedSemaphore::~VulkanInjectedSemaphore()
     }
 }
 
-VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*                  device_info,
+VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*                         device_info,
                                                          const graphics::VulkanInjectedDeviceCallsTable* device_table) :
     semaphore{ device_info, device_table }
 {
@@ -335,7 +335,7 @@ void VulkanSubmitJobExecution::SubmitStandalone(VulkanSubmitJobPlan plan) const
     }
 }
 
-VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*                  device_info,
+VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*                         device_info,
                                                  const graphics::VulkanInjectedDeviceCallsTable* device_table) :
     device_info_(device_info),
     device_table_(device_table)

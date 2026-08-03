@@ -33,12 +33,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                  device_info,
+VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                         device_info,
                                      const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                     const graphics::VulkanInstanceTable*     instance_table,
-                                     CommonObjectInfoTable&                   object_table,
-                                     const std::string&                       spirv_path,
-                                     uint32_t                                 warm_up_load) :
+                                     const graphics::VulkanInstanceTable*            instance_table,
+                                     CommonObjectInfoTable&                          object_table,
+                                     const std::string&                              spirv_path,
+                                     uint32_t                                        warm_up_load) :
     device_table_(device_table),
     spirv_path_(spirv_path), warm_up_load_(warm_up_load)
 {

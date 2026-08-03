@@ -67,19 +67,19 @@ inline void WriteImageFile(
     }
 }
 
-void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
-                                   const VulkanDeviceInfo*                    device_info,
-                                   const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                                   const VkPhysicalDeviceMemoryProperties&    memory_properties,
-                                   VulkanResourceAllocator*                   allocator,
-                                   VkImage                                    image,
-                                   VkFormat                                   format,
-                                   uint32_t                                   width,
-                                   uint32_t                                   height,
-                                   uint32_t                                   layer,
-                                   const std::optional<std::array<float, 2>>& copy_scale,
-                                   VkImageLayout                              image_layout,
-                                   VkSurfaceTransformFlagBitsKHR              pre_transform)
+void ScreenshotHandler::WriteImage(const std::string&                              filename_prefix,
+                                   const VulkanDeviceInfo*                         device_info,
+                                   const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                                   const VkPhysicalDeviceMemoryProperties&         memory_properties,
+                                   VulkanResourceAllocator*                        allocator,
+                                   VkImage                                         image,
+                                   VkFormat                                        format,
+                                   uint32_t                                        width,
+                                   uint32_t                                        height,
+                                   uint32_t                                        layer,
+                                   const std::optional<std::array<float, 2>>&      copy_scale,
+                                   VkImageLayout                                   image_layout,
+                                   VkSurfaceTransformFlagBitsKHR                   pre_transform)
 {
     if (device_table == nullptr || allocator == nullptr)
     {
@@ -524,7 +524,8 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCallsTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice                                        device,
+                                               const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     auto injected_commands_scope = device_table->MarkScope();
 
@@ -592,11 +593,11 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
     return IsSrgbFormat(image_format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
 }
 
-VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                                 device,
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                                        device,
                                                   const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                                  VkFormat                                 format,
-                                                  uint32_t                                 width,
-                                                  uint32_t                                 height) const
+                                                  VkFormat                                        format,
+                                                  uint32_t                                        width,
+                                                  uint32_t                                        height) const
 {
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -631,19 +632,19 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
     return memory_requirements.size;
 }
 
-VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                 device,
+VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                        device,
                                                const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                               const VkPhysicalDeviceMemoryProperties&  memory_properties,
-                                               VkDeviceSize                             buffer_size,
-                                               VkFormat                                 image_format,
-                                               VkFormat                                 screenshot_format,
-                                               uint32_t                                 width,
-                                               uint32_t                                 height,
-                                               uint32_t                                 copy_width,
-                                               uint32_t                                 copy_height,
-                                               bool                                     flip_x,
-                                               bool                                     flip_y,
-                                               CopyResource*                            copy_resource) const
+                                               const VkPhysicalDeviceMemoryProperties&         memory_properties,
+                                               VkDeviceSize                                    buffer_size,
+                                               VkFormat                                        image_format,
+                                               VkFormat                                        screenshot_format,
+                                               uint32_t                                        width,
+                                               uint32_t                                        height,
+                                               uint32_t                                        copy_width,
+                                               uint32_t                                        copy_height,
+                                               bool                                            flip_x,
+                                               bool                                            flip_y,
+                                               CopyResource*                                   copy_resource) const
 {
     assert(device_table != nullptr);
 

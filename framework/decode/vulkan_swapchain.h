@@ -87,12 +87,12 @@ class VulkanSwapchain
                                 const VulkanSurfaceKHRInfo*  surface_info,
                                 const VkAllocationCallbacks* allocator);
 
-    virtual VkResult CreateSwapchainKHR(VkResult                                 original_result,
-                                        PFN_vkCreateSwapchainKHR                 func,
-                                        const VulkanDeviceInfo*                  device_info,
-                                        const VkSwapchainCreateInfoKHR*          create_info,
-                                        const VkAllocationCallbacks*             allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+    virtual VkResult CreateSwapchainKHR(VkResult                                        original_result,
+                                        PFN_vkCreateSwapchainKHR                        func,
+                                        const VulkanDeviceInfo*                         device_info,
+                                        const VkSwapchainCreateInfoKHR*                 create_info,
+                                        const VkAllocationCallbacks*                    allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*           swapchain,
                                         const graphics::VulkanInjectedDeviceCallsTable* device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
@@ -173,14 +173,14 @@ class VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) = 0;
 
-    virtual void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
-                                   const VulkanSemaphoreInfo*                 semaphore_info,
-                                   const VulkanImageInfo*                     image_info,
-                                   VulkanInstanceInfo*                        instance_info,
-                                   const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                                   application::Application*                  application,
-                                   const std::optional<std::array<float, 2>>& scale) = 0;
+    virtual void PresentImageAdHoc(const VulkanDeviceInfo*                         device_info,
+                                   const VulkanSemaphoreInfo*                      semaphore_info,
+                                   const VulkanImageInfo*                          image_info,
+                                   VulkanInstanceInfo*                             instance_info,
+                                   const graphics::VulkanInstanceTable*            instance_table,
+                                   const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                                   application::Application*                       application,
+                                   const std::optional<std::array<float, 2>>&      scale) = 0;
 
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
@@ -192,7 +192,7 @@ class VulkanSwapchain
   protected:
     typedef std::unordered_set<Window*> ActiveWindows;
 
-    const graphics::VulkanInstanceTable*     instance_table_{ nullptr };
+    const graphics::VulkanInstanceTable*            instance_table_{ nullptr };
     const graphics::VulkanInjectedDeviceCallsTable* device_table_{ nullptr };
 
     application::Application* application_{ nullptr };

@@ -127,7 +127,8 @@ InjectedCommandScope::~InjectedCommandScope()
     }
 }
 
-InjectedCommandScope VulkanInjectedDeviceCallsTable::MarkScope(VkCommandBuffer command_buffer, const char* category) const
+InjectedCommandScope VulkanInjectedDeviceCallsTable::MarkScope(VkCommandBuffer command_buffer,
+                                                               const char*     category) const
 {
     // The scope's label calls go straight to the real table: the scope itself
     // opens the injected-commands window, and the noop-entry checks must see

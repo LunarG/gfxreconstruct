@@ -53,19 +53,19 @@ class ScreenshotHandler : public ScreenshotHandlerBase
         ScreenshotHandlerBase(screenshot_format, screenshot_ranges, screenshot_interval)
     {}
 
-    void WriteImage(const std::string&                         filename_prefix,
-                    const VulkanDeviceInfo*                    device_info,
-                    const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                    const VkPhysicalDeviceMemoryProperties&    memory_properties,
-                    VulkanResourceAllocator*                   allocator,
-                    VkImage                                    image,
-                    VkFormat                                   format,
-                    uint32_t                                   width,
-                    uint32_t                                   height,
-                    uint32_t                                   layer,
-                    const std::optional<std::array<float, 2>>& copy_scale,
-                    VkImageLayout                              image_layout,
-                    VkSurfaceTransformFlagBitsKHR              pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+    void WriteImage(const std::string&                              filename_prefix,
+                    const VulkanDeviceInfo*                         device_info,
+                    const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                    const VkPhysicalDeviceMemoryProperties&         memory_properties,
+                    VulkanResourceAllocator*                        allocator,
+                    VkImage                                         image,
+                    VkFormat                                        format,
+                    uint32_t                                        width,
+                    uint32_t                                        height,
+                    uint32_t                                        layer,
+                    const std::optional<std::array<float, 2>>&      copy_scale,
+                    VkImageLayout                                   image_layout,
+                    VkSurfaceTransformFlagBitsKHR pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
 
     void DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCallsTable* device_table);
 
@@ -100,25 +100,25 @@ class ScreenshotHandler : public ScreenshotHandlerBase
 
     VkFormat GetConversionFormat(VkFormat image_format) const;
 
-    VkDeviceSize GetCopyBufferSize(VkDevice                                 device,
+    VkDeviceSize GetCopyBufferSize(VkDevice                                        device,
                                    const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                   VkFormat                                 format,
-                                   uint32_t                                 width,
-                                   uint32_t                                 height) const;
+                                   VkFormat                                        format,
+                                   uint32_t                                        width,
+                                   uint32_t                                        height) const;
 
-    VkResult CreateCopyResource(VkDevice                                 device,
+    VkResult CreateCopyResource(VkDevice                                        device,
                                 const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                const VkPhysicalDeviceMemoryProperties&  memory_properties,
-                                VkDeviceSize                             buffer_size,
-                                VkFormat                                 image_format,
-                                VkFormat                                 screenshot_format,
-                                uint32_t                                 width,
-                                uint32_t                                 height,
-                                uint32_t                                 copy_width,
-                                uint32_t                                 copy_height,
-                                bool                                     flip_x,
-                                bool                                     flip_y,
-                                CopyResource*                            copy_resource) const;
+                                const VkPhysicalDeviceMemoryProperties&         memory_properties,
+                                VkDeviceSize                                    buffer_size,
+                                VkFormat                                        image_format,
+                                VkFormat                                        screenshot_format,
+                                uint32_t                                        width,
+                                uint32_t                                        height,
+                                uint32_t                                        copy_width,
+                                uint32_t                                        copy_height,
+                                bool                                            flip_x,
+                                bool                                            flip_y,
+                                CopyResource*                                   copy_resource) const;
 
     void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;
 

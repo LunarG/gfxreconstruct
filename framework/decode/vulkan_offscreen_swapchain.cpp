@@ -28,7 +28,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanOffscreenSwapchain::CleanDeviceResources(VkDevice                                 device,
+void VulkanOffscreenSwapchain::CleanDeviceResources(VkDevice                                        device,
                                                     const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     VulkanVirtualSwapchain::CleanDeviceResources(device, device_table);
@@ -88,12 +88,12 @@ void VulkanOffscreenSwapchain::DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                               const VkAllocationCallbacks* allocator)
 {}
 
-VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                                 original_result,
-                                                      PFN_vkCreateSwapchainKHR                 func,
-                                                      const VulkanDeviceInfo*                  device_info,
-                                                      const VkSwapchainCreateInfoKHR*          create_info,
-                                                      const VkAllocationCallbacks*             allocator,
-                                                      HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                                        original_result,
+                                                      PFN_vkCreateSwapchainKHR                        func,
+                                                      const VulkanDeviceInfo*                         device_info,
+                                                      const VkSwapchainCreateInfoKHR*                 create_info,
+                                                      const VkAllocationCallbacks*                    allocator,
+                                                      HandlePointerDecoder<VkSwapchainKHR>*           swapchain,
                                                       const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     GFXRECON_ASSERT(device_info);
@@ -270,14 +270,14 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     return result;
 }
 
-void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
-                                                 const VulkanSemaphoreInfo*                 semaphore_info,
-                                                 const VulkanImageInfo*                     image_info,
-                                                 VulkanInstanceInfo*                        instance_info,
-                                                 const graphics::VulkanInstanceTable*       instance_table,
-                                                 const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                                                 application::Application*                  application,
-                                                 const std::optional<std::array<float, 2>>& scale)
+void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                         device_info,
+                                                 const VulkanSemaphoreInfo*                      semaphore_info,
+                                                 const VulkanImageInfo*                          image_info,
+                                                 VulkanInstanceInfo*                             instance_info,
+                                                 const graphics::VulkanInstanceTable*            instance_table,
+                                                 const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                                                 application::Application*                       application,
+                                                 const std::optional<std::array<float, 2>>&      scale)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_info);
     GFXRECON_UNREFERENCED_PARAMETER(semaphore_info);

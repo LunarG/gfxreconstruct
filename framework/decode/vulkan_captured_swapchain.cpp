@@ -30,12 +30,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                                 original_result,
-                                                     PFN_vkCreateSwapchainKHR                 func,
-                                                     const VulkanDeviceInfo*                  device_info,
-                                                     const VkSwapchainCreateInfoKHR*          create_info,
-                                                     const VkAllocationCallbacks*             allocator,
-                                                     HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                                        original_result,
+                                                     PFN_vkCreateSwapchainKHR                        func,
+                                                     const VulkanDeviceInfo*                         device_info,
+                                                     const VkSwapchainCreateInfoKHR*                 create_info,
+                                                     const VkAllocationCallbacks*                    allocator,
+                                                     HandlePointerDecoder<VkSwapchainKHR>*           swapchain,
                                                      const graphics::VulkanInjectedDeviceCallsTable* device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
@@ -267,14 +267,14 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func
     func(command_buffer, pDependencyInfo);
 }
 
-void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
-                                                const VulkanSemaphoreInfo*                 semaphore_info,
-                                                const VulkanImageInfo*                     image_info,
-                                                VulkanInstanceInfo*                        instance_info,
-                                                const graphics::VulkanInstanceTable*       instance_table,
-                                                const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                                                application::Application*                  application,
-                                                const std::optional<std::array<float, 2>>& scale)
+void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                         device_info,
+                                                const VulkanSemaphoreInfo*                      semaphore_info,
+                                                const VulkanImageInfo*                          image_info,
+                                                VulkanInstanceInfo*                             instance_info,
+                                                const graphics::VulkanInstanceTable*            instance_table,
+                                                const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                                                application::Application*                       application,
+                                                const std::optional<std::array<float, 2>>&      scale)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_info);
     GFXRECON_UNREFERENCED_PARAMETER(semaphore_info);

@@ -34,12 +34,12 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
   public:
     virtual ~VulkanCapturedSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(VkResult                                 original_result,
-                                        PFN_vkCreateSwapchainKHR                 func,
-                                        const VulkanDeviceInfo*                  device_info,
-                                        const VkSwapchainCreateInfoKHR*          create_info,
-                                        const VkAllocationCallbacks*             allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*    swapchain,
+    virtual VkResult CreateSwapchainKHR(VkResult                                        original_result,
+                                        PFN_vkCreateSwapchainKHR                        func,
+                                        const VulkanDeviceInfo*                         device_info,
+                                        const VkSwapchainCreateInfoKHR*                 create_info,
+                                        const VkAllocationCallbacks*                    allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*           swapchain,
                                         const graphics::VulkanInjectedDeviceCallsTable* device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
@@ -110,14 +110,14 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    virtual void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
-                                   const VulkanSemaphoreInfo*                 semaphore_info,
-                                   const VulkanImageInfo*                     image_info,
-                                   VulkanInstanceInfo*                        instance_info,
-                                   const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanInjectedDeviceCallsTable*   device_table,
-                                   application::Application*                  application,
-                                   const std::optional<std::array<float, 2>>& scale) override;
+    virtual void PresentImageAdHoc(const VulkanDeviceInfo*                         device_info,
+                                   const VulkanSemaphoreInfo*                      semaphore_info,
+                                   const VulkanImageInfo*                          image_info,
+                                   VulkanInstanceInfo*                             instance_info,
+                                   const graphics::VulkanInstanceTable*            instance_table,
+                                   const graphics::VulkanInjectedDeviceCallsTable* device_table,
+                                   application::Application*                       application,
+                                   const std::optional<std::array<float, 2>>&      scale) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,

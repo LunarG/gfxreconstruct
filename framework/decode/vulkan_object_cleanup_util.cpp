@@ -64,9 +64,9 @@ void FreeChildObjects(CommonObjectInfoTable* table,
                       const std::string&     object_type_name,
                       bool                   remove_entries,
                       bool                   report_leaks,
-                      S*                     (CommonObjectInfoTable::*GetParentInfoFunc)(format::HandleId),
-                      void                   (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
-                      void                   (CommonObjectInfoTable::*RemoveFunc)(format::HandleId),
+                      S* (CommonObjectInfoTable::*GetParentInfoFunc)(format::HandleId),
+                      void (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
+                      void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId),
                       std::function<void(const S*, const T*)> destroy_func)
 {
     assert(table != nullptr);
@@ -115,8 +115,8 @@ void FreeChildObjects(CommonObjectInfoTable* table,
 template <typename T>
 void FreeParentObjects(CommonObjectInfoTable* table,
                        bool                   remove_entries,
-                       void                   (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
-                       void                   (CommonObjectInfoTable::*RemoveFunc)(format::HandleId),
+                       void (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
+                       void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId),
                        std::function<void(const T*)> destroy_func)
 {
     assert(table != nullptr);
@@ -140,8 +140,8 @@ void FreeParentObjects(CommonObjectInfoTable* table,
 
 template <typename T>
 void ClearObjects(CommonObjectInfoTable* table,
-                  void                   (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
-                  void                   (CommonObjectInfoTable::*RemoveFunc)(format::HandleId))
+                  void (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
+                  void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId))
 {
     assert(table != nullptr);
 
@@ -158,12 +158,13 @@ void ClearObjects(CommonObjectInfoTable* table,
     }
 }
 
-void FreeAllLiveObjects(CommonObjectInfoTable*                                               table,
-                        bool                                                                 remove_entries,
-                        bool                                                                 report_leaks,
-                        std::function<const graphics::VulkanInstanceTable*(const void*)>     get_instance_table,
-                        std::function<const graphics::VulkanInjectedDeviceCallsTable*(const void*)> get_injected_device_table,
-                        VulkanSwapchain*                                                     swapchain)
+void FreeAllLiveObjects(
+    CommonObjectInfoTable*                                                      table,
+    bool                                                                        remove_entries,
+    bool                                                                        report_leaks,
+    std::function<const graphics::VulkanInstanceTable*(const void*)>            get_instance_table,
+    std::function<const graphics::VulkanInjectedDeviceCallsTable*(const void*)> get_injected_device_table,
+    VulkanSwapchain*                                                            swapchain)
 {
     FreeChildObjects<VulkanDeviceInfo, VulkanEventInfo>(
         table,

@@ -152,7 +152,7 @@ class VulkanInjectedCallTableGenerator(VulkanBaseGenerator):
         write('GFXRECON_END_NAMESPACE(ScopeCheck)', file=self.outFile)
         self.newline()
 
-        write('class VulkanInjectedDeviceTableBase', file=self.outFile)
+        write('class VulkanInjectedDeviceCallsTableBase', file=self.outFile)
         write('{', file=self.outFile)
         write('  public:', file=self.outFile)
         write('    // clang-format off', file=self.outFile)

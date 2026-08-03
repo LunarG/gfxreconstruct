@@ -44,7 +44,7 @@ class VulkanInjectedSemaphore
   private:
     graphics::VulkanSemaphore semaphore_{ VK_NULL_HANDLE };
 
-    const VulkanDeviceInfo*                  device_info_;
+    const VulkanDeviceInfo*                         device_info_;
     const graphics::VulkanInjectedDeviceCallsTable* device_table_;
 
   public:
@@ -75,7 +75,8 @@ struct VulkanInjectedSemaphoreInfo
     VulkanInjectedSemaphore semaphore;
     VkSemaphoreSubmitInfo   info = { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
 
-    VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedDeviceCallsTable* table);
+    VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*                         device_info,
+                                const graphics::VulkanInjectedDeviceCallsTable* table);
 };
 
 /**

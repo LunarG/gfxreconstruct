@@ -40,9 +40,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanCommandBufferAssociatedInfo
 {
   private:
-    const VulkanDeviceInfo*                  device_info_  = nullptr;
+    const VulkanDeviceInfo*                         device_info_  = nullptr;
     const graphics::VulkanInjectedDeviceCallsTable* device_table_ = nullptr;
-    CommonObjectInfoTable*                   object_table_ = nullptr;
+    CommonObjectInfoTable*                          object_table_ = nullptr;
 
     VulkanInjectedSemaphore split_semaphore_;
 
@@ -65,10 +65,10 @@ class VulkanCommandBufferAssociatedInfo
     std::vector<VkCommandBuffer> split_handles_;
 
   public:
-    VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*                  device_info,
+    VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*                         device_info,
                                       const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                                      CommonObjectInfoTable*                   object_table,
-                                      format::HandleId                         command_buffer_id);
+                                      CommonObjectInfoTable*                          object_table,
+                                      format::HandleId                                command_buffer_id);
 
     VulkanCommandBufferAssociatedInfo(const VulkanCommandBufferAssociatedInfo&)            = delete;
     VulkanCommandBufferAssociatedInfo& operator=(const VulkanCommandBufferAssociatedInfo&) = delete;
@@ -93,10 +93,10 @@ class VulkanCommandBufferAssociatedInfo
 class VulkanCommandBufferUtil
 {
   public:
-    VulkanCommandBufferUtil(const VulkanDeviceInfo*                  device_info,
+    VulkanCommandBufferUtil(const VulkanDeviceInfo*                         device_info,
                             const graphics::VulkanInjectedDeviceCallsTable* device_table,
-                            CommonObjectInfoTable*                   object_table,
-                            VulkanStateRecordingDecoder*             decoder);
+                            CommonObjectInfoTable*                          object_table,
+                            VulkanStateRecordingDecoder*                    decoder);
 
     ~VulkanCommandBufferUtil() = default;
 
@@ -141,10 +141,10 @@ class VulkanCommandBufferUtil
     VulkanCommandBufferAssociatedInfo& GetOrCreateAssociatedInfo(format::HandleId command_buffer_id);
     VulkanCommandBufferAssociatedInfo* GetAssociatedInfo(format::HandleId command_buffer_id);
 
-    const VulkanDeviceInfo*                  device_info_  = nullptr;
+    const VulkanDeviceInfo*                         device_info_  = nullptr;
     const graphics::VulkanInjectedDeviceCallsTable* device_table_ = nullptr;
-    CommonObjectInfoTable*                   object_table_ = nullptr;
-    VulkanStateRecordingDecoder*             decoder_      = nullptr;
+    CommonObjectInfoTable*                          object_table_ = nullptr;
+    VulkanStateRecordingDecoder*                    decoder_      = nullptr;
 
     /// Map from the command buffer ID to the structure representing the split.
     std::unordered_map<format::HandleId, VulkanCommandBufferAssociatedInfo> split_infos_;

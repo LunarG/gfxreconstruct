@@ -36,13 +36,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                  device_info,
-                                                     VkDeviceSize                             total_copy_size,
-                                                     VkDeviceSize                             max_copy_size,
-                                                     const VkPhysicalDeviceProperties&        physical_device_properties,
-                                                     const VkPhysicalDeviceMemoryProperties&  memory_properties,
-                                                     bool                                     have_shader_stencil_write,
-                                                     VulkanResourceAllocator*                 resource_allocator,
+VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
+                                                     VkDeviceSize                            total_copy_size,
+                                                     VkDeviceSize                            max_copy_size,
+                                                     const VkPhysicalDeviceProperties&       physical_device_properties,
+                                                     const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                                     bool                                    have_shader_stencil_write,
+                                                     VulkanResourceAllocator*                resource_allocator,
                                                      const graphics::VulkanInjectedDeviceCallsTable* device_table) :
     device_(device_info->handle),
     staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
