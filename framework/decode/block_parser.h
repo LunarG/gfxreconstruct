@@ -183,14 +183,18 @@ class BlockParser
     }
 
   private:
+    // The parsing primitives below stay private; the parsers for extended meta-data types reach them
+    // through this gateway rather than through a widened public interface.
+    friend struct ExtendedMetaDataAccess;
+
     BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
 
     struct ParameterReadResult
     {
-        bool                   success           = true;
-        bool                   is_compressed     = false;
-        size_t                 uncompressed_size = 0;
-        BlockSpan              buffer;
+        bool      success           = true;
+        bool      is_compressed     = false;
+        size_t    uncompressed_size = 0;
+        BlockSpan buffer;
     };
 
     template <typename... Args>
@@ -229,6 +233,54 @@ class BlockParser
     util::HeapBuffer uncompressed_working_buffer_;
 
     BlockAllocator block_allocator_;
+};
+
+// -----------------------------------------------------------------------------
+// ExtendedMetaDataAccess
+//
+// The parsers for extended meta-data types (see block_parser_meta_data.h) are free functions, so they
+// cannot reach BlockParser's parsing primitives on their own. This gateway forwards to them on the
+// parsers' behalf, keeping the primitives private rather than widening BlockParser's own interface.
+// It is not intended for any other use.
+// -----------------------------------------------------------------------------
+struct ExtendedMetaDataAccess
+{
+    using ParameterReadResult = BlockParser::ParameterReadResult;
+
+    static constexpr uint64_t kReadSizeFromBuffer = BlockParser::kReadSizeFromBuffer;
+
+    static ParameterReadResult ReadParameterBuffer(BlockParser& parser,
+                                                   const char*  label,
+                                                   BlockBuffer& block_buffer,
+                                                   uint64_t     uncompressed_size = kReadSizeFromBuffer)
+    {
+        return parser.ReadParameterBuffer(label, block_buffer, uncompressed_size);
+    }
+
+    template <typename T, typename... Args>
+    requires std::constructible_from<T, Args&&...>
+    static T* Emplace(BlockParser& parser, Args&&... args) { return parser.Emplace<T>(std::forward<Args>(args)...); }
+
+    template <typename... Args>
+    static ParsedBlock& EmplaceBlock(BlockParser& parser, Args&&... args)
+    {
+        return parser.EmplaceBlock(std::forward<Args>(args)...);
+    }
+
+    template <typename ArgPayload>
+    [[nodiscard]] static ParsedBlock& MakeCompressibleParsedBlock(BlockParser&               parser,
+                                                                  BlockBuffer&               block_buffer,
+                                                                  const ParameterReadResult& result,
+                                                                  ArgPayload*                args)
+    {
+        return parser.MakeCompressibleParsedBlock(block_buffer, result, args);
+    }
+
+    template <typename ArgPayload>
+    static ParsedBlock& MakeIncompressibleParsedBlock(BlockParser& parser, BlockBuffer& block_buffer, ArgPayload* args)
+    {
+        return parser.MakeIncompressibleParsedBlock(block_buffer, args);
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)
