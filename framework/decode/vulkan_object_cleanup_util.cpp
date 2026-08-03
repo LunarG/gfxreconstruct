@@ -722,6 +722,7 @@ void FreeAllLiveObjects(
             assert((parent_info != nullptr) && (object_info != nullptr));
             if (object_info->surface != VK_NULL_HANDLE)
             {
+                graphics::InjectedCommandScope injected_commands_scope;
                 swapchain->DestroySwapchainKHR(get_injected_device_table(parent_info->handle)->DestroySwapchainKHR,
                                                parent_info,
                                                object_info,
