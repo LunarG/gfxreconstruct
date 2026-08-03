@@ -36,9 +36,11 @@
 #include <dxgi1_5.h>
 
 #include <array>
-#include <unordered_set>
+#include <cstdint>
 #include <map>
 #include <memory>
+#include <unordered_set>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -254,7 +256,7 @@ struct IDXGISwapChainInfo : public DxgiWrapperInfo
     DXGI_COLOR_SPACE_TYPE  color_space_type{};
     DXGI_HDR_METADATA_TYPE hdr_metadata_type{};
     UINT                   hdr_metadata_size{ 0 };
-    void*                  hdr_metadata{ nullptr };
+    std::vector<uint8_t>   hdr_metadata;
 };
 
 struct IDXGIDeviceInfo : public DxgiWrapperInfo
