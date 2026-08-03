@@ -105,7 +105,8 @@ bool VulkanInjectedSemaphore::HasReachedTargetValue() const
         return false;
     }
 
-    GFXRECON_ASSERT(device_table_->GetSemaphoreCounterValue != nullptr);
+    GFXRECON_ASSERT(device_table_->GetRawTable()->GetSemaphoreCounterValue !=
+                    graphics::noop::vkGetSemaphoreCounterValue);
 
     auto injected_command_scope = device_table_->MarkScope();
 
@@ -254,9 +255,9 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
         // Only execute jobs if there are functions to execute for this submit.
         if (plan.HasJobsForIndex(submit_index))
         {
-            VkSubmitInfo2& submit_info                   = submit_infos[submit_index];
-            auto&          original_wait_semaphores      = original_wait_semaphores_[&submit_info].semaphores;
-            auto&          submit_helper                 = GetSubmitInfo2Helper(submit_info);
+            VkSubmitInfo2& submit_info              = submit_infos[submit_index];
+            auto&          original_wait_semaphores = original_wait_semaphores_[&submit_info].semaphores;
+            auto&          submit_helper            = GetSubmitInfo2Helper(submit_info);
 
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)

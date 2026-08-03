@@ -36,8 +36,6 @@
 #include "decode/vulkan_enum_util.h"
 #include "encode/capture_manager.h"
 #include "graphics/vulkan_injected_call_table.h"
-#include <tuple>
-#include <utility>
 
 #if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_capture_manager.h"
@@ -12129,9 +12127,7 @@ bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo*
         return false;
     }
 
-    auto device_table = GetInjectedDeviceTable(device_info->handle);
-    GFXRECON_ASSERT(device_table != nullptr);
-    auto injected_command_scope = device_table->MarkScope();
+    auto device_table = GetDeviceTable(device_info->handle);
 
     // Check replay device enabled VK_KHR_external_memory_fd
     return device_table->GetMemoryFdKHR != graphics::noop::vkGetMemoryFdKHR;

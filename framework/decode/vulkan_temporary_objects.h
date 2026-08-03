@@ -25,10 +25,13 @@
 
 #include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_call_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_util.h"
 #include "util/defines.h"
 #include "util/logging.h"
+
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -125,11 +128,12 @@ struct TemporaryCommandBuffer
 
     VkResult SubmitAndDestroy();
 
-    const VulkanDeviceInfo&            device_info{ nullptr };
-    const graphics::VulkanDeviceTable& device_table{ nullptr };
-    VkCommandPool                      command_pool{ VK_NULL_HANDLE };
-    VkCommandBuffer                    command_buffer{ VK_NULL_HANDLE };
-    VkQueue                            queue{ VK_NULL_HANDLE };
+    const VulkanDeviceInfo&                       device_info{ nullptr };
+    const graphics::VulkanDeviceTable&            device_table{ nullptr };
+    VkCommandPool                                 command_pool{ VK_NULL_HANDLE };
+    VkCommandBuffer                               command_buffer{ VK_NULL_HANDLE };
+    VkQueue                                       queue{ VK_NULL_HANDLE };
+    std::optional<graphics::InjectedCommandScope> label_scope_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

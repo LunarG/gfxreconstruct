@@ -928,10 +928,6 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     // QueuePresent to QueueX, but waiting on SemB before it executes.  And that is assuming that
     // the buffer image is even accessible on both Queues!
 
-    // Below Vulkan API calls are made that are not in the capture file.
-    // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
-    auto injected_commands_scope = device_table_->MarkScope();
-
     for (uint32_t i = 0; i < swapchainCount; ++i)
     {
         const auto* swapchain_info      = swapchain_infos[i];
@@ -996,6 +992,10 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
             present_wait_semaphores.emplace_back(copy_semaphore);
         }
 
+        // Below Vulkan API calls are made that are not in the capture file.
+        // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
+        auto injected_commands_scope = device_table_->MarkScope();
+
         result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, ~0UL);
         if (result != VK_SUCCESS)
         {
@@ -1017,75 +1017,79 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
             return result;
         }
 
-        initial_barrier_virtual_image.image                         = virtual_image.image;
-        initial_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
-        initial_barrier_swapchain_image.image                       = replay_image;
-        initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
+        {
+            auto injected_command_scope = device_table_->MarkScope(command_buffer, "Virtual swapchain copy image");
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &initial_barrier_virtual_image);
+            initial_barrier_virtual_image.image                         = virtual_image.image;
+            initial_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+            initial_barrier_swapchain_image.image                       = replay_image;
+            initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &initial_barrier_swapchain_image);
+            device_table_->CmdPipelineBarrier(command_buffer,
+                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &initial_barrier_virtual_image);
 
-        subresource.layerCount   = swapchain_info->image_array_layers;
-        VkExtent3D  image_extent = { std::min(swapchain_resources->actual_extent.width, swapchain_info->width),
-                                     std::min(swapchain_resources->actual_extent.height, swapchain_info->height),
-                                     1 };
-        VkImageCopy image_copy   = { subresource, offset, subresource, offset, image_extent };
+            device_table_->CmdPipelineBarrier(command_buffer,
+                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &initial_barrier_swapchain_image);
 
-        // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
-        //       and Transfer.  So should work on any queues we get a vkQueuePresentKHR from.
-        device_table_->CmdCopyImage(command_buffer,
-                                    virtual_image.image,
-                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                    replay_image,
-                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                    1,
-                                    &image_copy);
+            subresource.layerCount   = swapchain_info->image_array_layers;
+            VkExtent3D  image_extent = { std::min(swapchain_resources->actual_extent.width, swapchain_info->width),
+                                         std::min(swapchain_resources->actual_extent.height, swapchain_info->height),
+                                         1 };
+            VkImageCopy image_copy   = { subresource, offset, subresource, offset, image_extent };
 
-        final_barrier_virtual_image.image                         = virtual_image.image;
-        final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
-        final_barrier_swapchain_image.image                       = replay_image;
-        final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
+            // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
+            //       and Transfer.  So should work on any queues we get a vkQueuePresentKHR from.
+            device_table_->CmdCopyImage(command_buffer,
+                                        virtual_image.image,
+                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                        replay_image,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        1,
+                                        &image_copy);
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &final_barrier_virtual_image);
+            final_barrier_virtual_image.image                         = virtual_image.image;
+            final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+            final_barrier_swapchain_image.image                       = replay_image;
+            final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &final_barrier_swapchain_image);
+            device_table_->CmdPipelineBarrier(command_buffer,
+                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &final_barrier_virtual_image);
+
+            device_table_->CmdPipelineBarrier(command_buffer,
+                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &final_barrier_swapchain_image);
+        }
 
         result = device_table_->EndCommandBuffer(command_buffer);
         if (result != VK_SUCCESS)

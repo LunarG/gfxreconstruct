@@ -21,7 +21,7 @@
 */
 
 #include "decode/vulkan_temporary_objects.h"
-
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "decode/decoder_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -73,6 +73,8 @@ VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index)
         return res;
     }
 
+    label_scope_.emplace(&device_table, command_buffer, "Temporary command buffer");
+
     return VK_SUCCESS;
 }
 
@@ -83,6 +85,8 @@ VkResult TemporaryCommandBuffer::SubmitAndDestroy()
     GFXRECON_ASSERT(command_pool != VK_NULL_HANDLE);
 
     TemporaryFence fence(device_info.handle, device_table);
+
+    label_scope_.reset();
 
     VkResult res = device_table.EndCommandBuffer(command_buffer);
     if (res != VK_SUCCESS)

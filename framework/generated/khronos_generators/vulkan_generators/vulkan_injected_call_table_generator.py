@@ -62,11 +62,11 @@ class VulkanInjectedCallTableGeneratorOptions(VulkanBaseGeneratorOptions):
 
 class VulkanInjectedCallTableGenerator(VulkanBaseGenerator):
     """VulkanInjectedCallTableGenerator - subclass of VulkanBaseGenerator.
-    Generates the ScopeCheck namespace and VulkanInjectedDeviceTableBase.
+    Generates the ScopeCheck namespace and VulkanInjectedDeviceCallsTableBase.
     The namespace holds one trampoline per device command that asserts the
     calling thread is inside an injected-commands scope and then forwards to
     the real dispatch table, located through the dispatch key of the call's
-    first argument. VulkanInjectedDeviceTableBase has the same function-pointer
+    first argument. VulkanInjectedDeviceCallsTableBase has the same function-pointer
     entries as VulkanDeviceTable, each default-initialized to the equivalent
     ScopeCheck function.
     """
