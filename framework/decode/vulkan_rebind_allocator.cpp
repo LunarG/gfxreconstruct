@@ -1236,7 +1236,7 @@ bool VulkanRebindAllocator::UsesExternalMemory(const MemoryAllocInfo&   memory_a
     const VkExternalMemoryHandleTypeFlags handle_types =
         memory_alloc_info.external_handle_types | resource_alloc_info.external_handle_types;
 
-    // Only external memory currently suppported is opaque FD
+    // Only external memory currently supported is opaque FD
     return (handle_types & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT) != 0;
 }
 
@@ -3414,8 +3414,7 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
     {
         modified_get_fd_info.memory = mem_info->allocation_info.deviceMemory;
 
-        // An external allocation's imported memory cannot be re-exported; use the exportable backing
-        // memory that was kept alive for exactly this purpose.
+        // use the exportable backing
         if (mem_info->is_external)
         {
             modified_get_fd_info.memory = (mem_info->export_backing_memory != VK_NULL_HANDLE)
@@ -3499,8 +3498,7 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
             }
             else if (mem_info->is_external)
             {
-                // An imported allocation is owned by the driver rather than VMA, so it is released here,
-                // once the last resource bound to it has been destroyed.
+                // An imported allocation is owned by the driver rather than VMA, so it is released here
                 functions_.free_memory(
                     device_, mem_info->allocation_info.deviceMemory, allocator_->GetAllocationCallbacks());
 
@@ -3938,7 +3936,7 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
     {
         modified_info.memory = mem_info->allocation_info.deviceMemory;
 
-        // An imported allocation is driver-owned and has no VmaAllocation to inspect.
+        // An imported allocation is driver-owned and has no VmaAllocation
         if (mem_info->is_external)
         {
             result = functions_.get_device_memory_opaque_capture_address(device_, &modified_info);
