@@ -36,6 +36,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     void CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table) override;
 
+    VkResult CreateSurface(VkResult                             original_result,
+                           VulkanInstanceInfo*                  instance_info,
+                           const std::string&                   wsi_extension,
+                           VkFlags                              flags,
+                           HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                           const graphics::VulkanInstanceTable* instance_table,
+                           application::Application*            application) override;
+
     virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
                                         PFN_vkCreateSwapchainKHR              func,
                                         const VulkanDeviceInfo*               device_info,
@@ -280,6 +288,15 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     // This structure groups device-specific, custom/adhoc surfaces/swapchains and shared resources for those.
     struct AdhocDeviceData
     {
+        AdhocDeviceData() = default;
+        ~AdhocDeviceData();
+        AdhocDeviceData(AdhocDeviceData&&)            = delete;
+        AdhocDeviceData& operator=(AdhocDeviceData&&) = delete;
+
+        // required for lifetime-management
+        VkDevice                           device{ VK_NULL_HANDLE };
+        const graphics::VulkanDeviceTable* device_table{ nullptr };
+
         // command-pool for all AdhocSwapChains
         VkCommandPool command_pool{ VK_NULL_HANDLE };
 
@@ -293,6 +310,9 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     std::unordered_map<VkDevice, AdhocDeviceData> adhoc_device_data_;
     std::unordered_map<VkDevice, uint32_t>        copy_queue_family_index_;
     std::unordered_map<VkDevice, VkQueue>         initial_copy_queue_;
+
+    // set on android once the application owns the ANativeWindow, never cleared
+    bool disable_adhoc_presentation_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)
