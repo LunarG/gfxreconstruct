@@ -432,7 +432,15 @@ endif()
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(spirv_registry INTERFACE)
-target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/SPIRV-Headers/include)
+if (CMAKE_CXX_COMPILER_ID STREQUAL AppleClang)
+    # AppleClang implicitly adds /usr/local/include as a -I path, which takes precedence
+    # over -isystem paths. Add external/SPIRV-Headers as a normal -I path for the correct
+    # search order, then use --system-header-prefix to treat it as a system header for warnings
+    target_include_directories(spirv_registry INTERFACE ${PROJECT_SOURCE_DIR}/external/SPIRV-Headers/include)
+    target_compile_options(spirv_registry INTERFACE --system-header-prefix vulkan/)
+else ()
+  target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/SPIRV-Headers/include)
+endif()
 
 add_library(OpenXR INTERFACE)
 if (OPENXR_SUPPORT_ENABLED)
