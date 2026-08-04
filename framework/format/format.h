@@ -665,7 +665,7 @@ struct InitDx12AccelerationStructureGeometryDesc
 
 struct DxgiAdapterDesc
 {
-    wchar_t  Description[kAdapterDescriptionSize];
+    char16_t Description[kAdapterDescriptionSize];
     uint32_t VendorId;
     uint32_t DeviceId;
     uint32_t SubSysId;
