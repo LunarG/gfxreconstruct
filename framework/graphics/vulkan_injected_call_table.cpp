@@ -62,12 +62,10 @@ void RegisterDeviceTable(VkDevice device, const VulkanDeviceTable* table)
 
 const VulkanDeviceTable* GetRegisteredDeviceTable(const void* handle)
 {
-    static const VulkanDeviceTable noop_table{};
-
     if (handle == nullptr)
     {
-        GFXRECON_ASSERT(false && "Injected call made with a null handle");
-        return &noop_table;
+        GFXRECON_LOG_FATAL("Injected call made with a null handle");
+        return nullptr;
     }
 
     std::shared_lock<std::shared_mutex> lock(registry_mutex_g);
@@ -75,8 +73,8 @@ const VulkanDeviceTable* GetRegisteredDeviceTable(const void* handle)
     const auto entry = device_table_registry_g.find(GetVulkanDispatchKey(handle));
     if (entry == device_table_registry_g.end())
     {
-        GFXRECON_ASSERT(false && "No device dispatch table registered for injected call handle");
-        return &noop_table;
+        GFXRECON_LOG_FATAL("No device dispatch table registered for injected call handle");
+        return nullptr;
     }
 
     return entry->second;

@@ -73,12 +73,6 @@ void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBuffer
 
         VkResult result = device_table_->AllocateCommandBuffers(device_info_->handle, &alloc_info, new_handles_ptr);
         GFXRECON_ASSERT(result == VK_SUCCESS);
-
-        for (size_t i = previous_size; i < associated_handles_.size(); ++i)
-        {
-            // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
-            graphics::copy_dispatch_table_from_device(device_info->handle, *(new_handles_ptr + i));
-        }
     }
 
     next_handle = associated_handles_[next_associated_index_];

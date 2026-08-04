@@ -166,6 +166,8 @@ void FreeAllLiveObjects(
     std::function<const graphics::VulkanInjectedDeviceCallsTable*(const void*)> get_injected_device_table,
     VulkanSwapchain*                                                            swapchain)
 {
+    graphics::InjectedCommandScope injected_commands_scope;
+
     FreeChildObjects<VulkanDeviceInfo, VulkanEventInfo>(
         table,
         GFXRECON_STR(VkDevice),
@@ -177,7 +179,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkEventInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanEventInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyEvent(parent_info->handle, object_info->handle, nullptr);
         });
@@ -193,7 +194,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkFenceInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanFenceInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyFence(parent_info->handle, object_info->handle, nullptr);
         });
@@ -209,7 +209,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkSemaphoreInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanSemaphoreInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroySemaphore(parent_info->handle, object_info->handle, nullptr);
         });
@@ -225,7 +224,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkQueryPoolInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanQueryPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyQueryPool(parent_info->handle, object_info->handle, nullptr);
         });
@@ -241,7 +239,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkRenderPassInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanRenderPassInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyRenderPass(parent_info->handle, object_info->handle, nullptr);
         });
@@ -257,7 +254,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkSamplerInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanSamplerInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroySampler(parent_info->handle, object_info->handle, nullptr);
         });
@@ -273,7 +269,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkSamplerYcbcrConversionInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanSamplerYcbcrConversionInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroySamplerYcbcrConversion(parent_info->handle, object_info->handle, nullptr);
         });
@@ -289,7 +284,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkFramebufferInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanFramebufferInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyFramebuffer(parent_info->handle, object_info->handle, nullptr);
         });
@@ -305,7 +299,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkImageViewInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanImageViewInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyImageView(parent_info->handle, object_info->handle, nullptr);
         });
@@ -339,7 +332,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkBufferViewInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanBufferViewInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyBufferView(parent_info->handle, object_info->handle, nullptr);
         });
@@ -391,7 +383,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkPipelineCacheInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineCacheInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyPipelineCache(parent_info->handle, object_info->handle, nullptr);
         });
@@ -407,7 +398,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkPipelineInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyPipeline(parent_info->handle, object_info->handle, nullptr);
         });
@@ -423,7 +413,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkPipelineLayoutInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineLayoutInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyPipelineLayout(parent_info->handle, object_info->handle, nullptr);
         });
@@ -439,7 +428,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkShaderModuleInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanShaderModuleInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyShaderModule(parent_info->handle, object_info->handle, nullptr);
         });
@@ -455,7 +443,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkShaderEXTInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanShaderEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyShaderEXT(parent_info->handle, object_info->handle, nullptr);
         });
@@ -471,7 +458,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkPipelineBinaryKHRInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineBinaryKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyPipelineBinaryKHR(parent_info->handle, object_info->handle, nullptr);
         });
@@ -487,7 +473,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkDescriptorSetLayoutInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorSetLayoutInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyDescriptorSetLayout(parent_info->handle, object_info->handle, nullptr);
         });
@@ -503,7 +488,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkDescriptorUpdateTemplateInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorUpdateTemplateInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyDescriptorUpdateTemplate(parent_info->handle, object_info->handle, nullptr);
         });
@@ -519,7 +503,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkCommandPoolInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanCommandPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyCommandPool(parent_info->handle, object_info->handle, nullptr);
         });
@@ -535,7 +518,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkIndirectCommandsLayoutNVInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanIndirectCommandsLayoutNVInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyIndirectCommandsLayoutNV(parent_info->handle, object_info->handle, nullptr);
         });
@@ -551,7 +533,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkValidationCacheEXTInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanValidationCacheEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyValidationCacheEXT(parent_info->handle, object_info->handle, nullptr);
         });
@@ -567,7 +548,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkAccelerationStructureKHRInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanAccelerationStructureKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyAccelerationStructureKHR(parent_info->handle, object_info->handle, nullptr);
         });
@@ -583,7 +563,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkAccelerationStructureNVInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanAccelerationStructureNVInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyAccelerationStructureNV(parent_info->handle, object_info->handle, nullptr);
         });
@@ -599,7 +578,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkPerformanceConfigurationINTELInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPerformanceConfigurationINTELInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->ReleasePerformanceConfigurationINTEL(parent_info->handle, object_info->handle);
         });
@@ -615,7 +593,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkDeferredOperationKHRInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanDeferredOperationKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyDeferredOperationKHR(parent_info->handle, object_info->handle, nullptr);
         });
@@ -631,7 +608,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkPrivateDataSlotInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPrivateDataSlotInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
@@ -647,7 +623,6 @@ void FreeAllLiveObjects(
         &CommonObjectInfoTable::RemoveVkMicromapEXTInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanMicromapEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            graphics::InjectedCommandScope injected_commands_scope;
             get_injected_device_table(parent_info->handle)
                 ->DestroyMicromapEXT(parent_info->handle, object_info->handle, nullptr);
         });
@@ -696,7 +671,6 @@ void FreeAllLiveObjects(
         [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
 
-            graphics::InjectedCommandScope injected_commands_scope;
             for (auto retired_pool : object_info->retired_pools)
             {
                 get_injected_device_table(parent_info->handle)
@@ -722,7 +696,6 @@ void FreeAllLiveObjects(
             assert((parent_info != nullptr) && (object_info != nullptr));
             if (object_info->surface != VK_NULL_HANDLE)
             {
-                graphics::InjectedCommandScope injected_commands_scope;
                 swapchain->DestroySwapchainKHR(get_injected_device_table(parent_info->handle)->DestroySwapchainKHR,
                                                parent_info,
                                                object_info,
@@ -766,7 +739,6 @@ void FreeAllLiveObjects(
                                         [&](const VulkanDeviceInfo* object_info) {
                                             GFXRECON_ASSERT(object_info != nullptr);
                                             GFXRECON_ASSERT(swapchain != nullptr)
-                                            graphics::InjectedCommandScope injected_commands_scope;
                                             auto device_table = get_injected_device_table(object_info->handle);
                                             swapchain->CleanDeviceResources(object_info->handle, device_table);
                                             object_info->allocator->Destroy();
