@@ -808,8 +808,7 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
 void FreeAllLiveInstances(CommonObjectInfoTable*                                           table,
                           bool                                                             remove_entries,
                           bool                                                             report_leaks,
-                          std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table,
-                          std::function<const graphics::VulkanDeviceTable*(const void*)>   get_device_table)
+                          std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table)
 {
     FreeParentObjects<VulkanInstanceInfo>(table,
                                           remove_entries,
