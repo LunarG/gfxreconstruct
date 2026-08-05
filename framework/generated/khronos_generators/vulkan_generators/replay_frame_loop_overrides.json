@@ -148,13 +148,7 @@
     "vkBindOpticalFlowSessionImageNV",
     "vkBindTensorMemoryARM",
     "vkBindVideoSessionMemoryKHR",
-    "vkCreateComputePipelines",
-    "vkCreateDataGraphPipelinesARM",
-    "vkCreateGraphicsPipelines",
-    "vkCreateRayTracingPipelinesKHR",
-    "vkCreateRayTracingPipelinesNV",
     "vkCreatePipelineBinariesKHR",
-    "vkCreateShadersEXT",
     "vkCreateSharedSwapchainsKHR",
     "vkImportFenceFdKHR",
     "vkImportSemaphoreFdKHR",
@@ -174,7 +168,6 @@
   "comment" : "executing the last looping iteration.",
   "resourceFreeNotFullyImplemented":
   [
-    "vkDestroyPipelineBinaryKHR",
     "vkDestroyAccelerationStructureKHR",
     "vkDestroyAccelerationStructureNV",
     "vkUnmapMemory2",
