@@ -80,9 +80,9 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                    VkImageLayout                              image_layout,
                                    VkSurfaceTransformFlagBitsKHR              pre_transform)
 {
-    if (allocator == nullptr)
+    if (!injected_calls.IsValid() || allocator == nullptr)
     {
-        GFXRECON_LOG_ERROR("Screenshot could not be created: missing allocator");
+        GFXRECON_LOG_ERROR("Screenshot could not be created: missing device table or allocator");
         return;
     }
 
@@ -532,8 +532,11 @@ void ScreenshotHandler::DestroyDeviceResources(VkDevice                         
     {
         auto& copy_resource = entry->second;
 
-        auto injected = injected_calls.Open();
-        injected->DestroyCommandPool(entry->first, copy_resource.command_pool, nullptr);
+        if (injected_calls.IsValid())
+        {
+            auto injected = injected_calls.Open();
+            injected->DestroyCommandPool(entry->first, copy_resource.command_pool, nullptr);
+        }
 
         DestroyCopyResource(device, &copy_resource);
 

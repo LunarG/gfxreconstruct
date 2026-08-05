@@ -115,6 +115,8 @@ class VulkanInjectedDeviceCalls
 
     explicit VulkanInjectedDeviceCalls(const VulkanDeviceTable* table);
 
+    bool IsValid() const { return table_ != nullptr; }
+
     // Opens the injected-commands window for the calling thread and grants
     // access to the dispatch table for its duration.
     [[nodiscard]] Scope Open() const { return Scope(table_); }

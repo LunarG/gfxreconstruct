@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 #define GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 
+#include <memory>
 #include <span>
 
 #include "util/linear_hashmap.h"
@@ -504,7 +505,9 @@ class VulkanAddressReplacer
     bool swap_acceleration_structure_handle(VkAccelerationStructureKHR&               handle,
                                             const decode::VulkanDeviceAddressTracker& address_tracker);
 
-    std::optional<graphics::VulkanInjectedDeviceCalls>             device_table_;
+    // unique_ptr (rather than std::optional) so the defaulted move disengages
+    // the moved-from replacer, whose destructor then skips teardown.
+    std::unique_ptr<graphics::VulkanInjectedDeviceCalls>           device_table_;
     decode::CommonObjectInfoTable*                                 object_table_              = nullptr;
     VkPhysicalDeviceMemoryProperties                               capture_memory_properties_ = {};
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_ray_properties_{}, replay_ray_properties_{};
