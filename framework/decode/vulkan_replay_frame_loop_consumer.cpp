@@ -283,7 +283,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& cal
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args)
 {
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, args);
-    if (GetObjectInfoTable().GetVkFenceInfo(args.fence) == nullptr)
+    bool destroyed = (GetObjectInfoTable().GetVkFenceInfo(args.fence) == nullptr);
+    if (destroyed)
     {
         if (per_device_fence_tracking_.contains(args.device))
         {
