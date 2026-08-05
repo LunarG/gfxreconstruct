@@ -500,7 +500,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
 {
-    VulkanReplayConsumer::Process_vkQueueBindSparse(call_info, args);
+    VulkanReplayFrameLoopConsumerBase::Process_vkQueueBindSparse(call_info, args);
 
     if (frame_loop_info_.IsLooping())
     {
