@@ -29,11 +29,13 @@
 #include "decode/window.h"
 #include "util/defines.h"
 #include "decode/vulkan_replay_options.h"
+#include "graphics/vulkan_injected_calls.h"
 
 #include "application/application.h"
 
 #include "vulkan/vulkan.h"
 
+#include <optional>
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -66,7 +68,7 @@ class VulkanSwapchain
 
     virtual void Clean();
 
-    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table) {}
+    virtual void CleanDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCalls* device_table) {}
 
     VulkanSwapchainOptions GetOptions() { return swapchain_options_; }
     void                   SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
@@ -86,13 +88,13 @@ class VulkanSwapchain
                                 const VulkanSurfaceKHRInfo*  surface_info,
                                 const VkAllocationCallbacks* allocator);
 
-    virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
-                                        PFN_vkCreateSwapchainKHR              func,
-                                        const VulkanDeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR*       create_info,
-                                        const VkAllocationCallbacks*          allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const graphics::VulkanDeviceTable*    device_table) = 0;
+    virtual VkResult CreateSwapchainKHR(VkResult                                   original_result,
+                                        PFN_vkCreateSwapchainKHR                   func,
+                                        const VulkanDeviceInfo*                    device_info,
+                                        const VkSwapchainCreateInfoKHR*            create_info,
+                                        const VkAllocationCallbacks*               allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*      swapchain,
+                                        const graphics::VulkanInjectedDeviceCalls& injected_calls) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -177,7 +179,7 @@ class VulkanSwapchain
                                    const VulkanImageInfo*                     image_info,
                                    VulkanInstanceInfo*                        instance_info,
                                    const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanDeviceTable*         device_table,
+                                   const graphics::VulkanInjectedDeviceCalls& injected_calls,
                                    application::Application*                  application,
                                    const std::optional<std::array<float, 2>>& scale) = 0;
 
@@ -192,7 +194,11 @@ class VulkanSwapchain
     typedef std::unordered_set<Window*> ActiveWindows;
 
     const graphics::VulkanInstanceTable* instance_table_{ nullptr };
-    const graphics::VulkanDeviceTable*   device_table_{ nullptr };
+
+    // Access point for the device calls the swapchain classes make on their
+    // own, i.e. calls with no corresponding block in the capture file. Set
+    // from the device table passed to CreateSwapchainKHR.
+    std::optional<graphics::VulkanInjectedDeviceCalls> injected_calls_;
 
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;
