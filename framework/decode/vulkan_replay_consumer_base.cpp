@@ -3890,9 +3890,8 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         device_frame_warmups_.erase(device_info);
 
         device_info->allocator->Destroy();
+        func(device, GetAllocationCallbacks(pAllocator));
     }
-
-    func(device, GetAllocationCallbacks(pAllocator));
 }
 
 VkResult
