@@ -47,13 +47,23 @@ void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice                      
 
 VulkanVirtualSwapchain::AdhocDeviceData::~AdhocDeviceData()
 {
+    if (!injected_calls.has_value())
+    {
+        // Never populated; there is nothing to destroy.
+        GFXRECON_ASSERT(swapchains.empty() && (copy_util == nullptr) && (command_pool == VK_NULL_HANDLE));
+        return;
+    }
+
+    // Keep the injected-commands window open for all cleanup, including
+    // copy_util's destructor, which destroys its own staging resources.
+    auto injected = injected_calls->Open();
+
     // free swapchains before command-pool
     swapchains.clear();
 
     if (command_pool != VK_NULL_HANDLE)
     {
-        GFXRECON_ASSERT(device != VK_NULL_HANDLE && injected_calls.has_value());
-        auto injected = injected_calls->Open();
+        GFXRECON_ASSERT(device != VK_NULL_HANDLE);
         injected->DestroyCommandPool(device, command_pool, nullptr);
     }
 }
@@ -225,6 +235,10 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
         GFXRECON_ASSERT(swapchain != VK_NULL_HANDLE);
     }
 
+    // Everything below, including the queue-family queries used for copy-queue
+    // selection, is synthesized by replay and not in the capture file.
+    auto injected = injected_calls_->Open();
+
     // Determine what queue to use for the initial virtual image setup
     uint32_t                             property_count = 0;
     std::vector<VkQueueFamilyProperties> props;
@@ -285,9 +299,6 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                           swapchain_info->capture_id);
     }
     copy_queue_family_index_[device] = copy_queue_family_index;
-
-    // The resource setup below makes Vulkan API calls that are not in the capture file.
-    auto injected = injected_calls_->Open();
 
     VkQueue initial_copy_queue = GetDeviceQueue(injected.GetTable(), device_info, copy_queue_family_index, 0);
     if (initial_copy_queue == VK_NULL_HANDLE)

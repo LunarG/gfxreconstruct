@@ -251,7 +251,7 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
                                              const graphics::VulkanInjectedDeviceCalls& injected_calls,
                                              const graphics::VulkanInstanceTable*       instance_table,
                                              decode::CommonObjectInfoTable&             object_table) :
-    device_table_(injected_calls),
+    device_table_(std::make_unique<graphics::VulkanInjectedDeviceCalls>(injected_calls)),
     object_table_(&object_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && instance_table != nullptr);
@@ -310,9 +310,9 @@ void VulkanAddressReplacer::SetRaytracingProperties(const decode::VulkanPhysical
 
 VulkanAddressReplacer::~VulkanAddressReplacer()
 {
-    if (!device_table_.has_value())
+    if (device_table_ == nullptr)
     {
-        // default-constructed or moved-from: nothing was created
+        // default-constructed or moved-from: nothing to destroy here
         return;
     }
     auto injected = device_table_->Open();
@@ -447,7 +447,7 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(
-            &device_table_.value(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
+            device_table_.get(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
         VulkanCommandBufferInfo fake_info = {};
         fake_info.handle                  = submit_asset_.command_buffer;
@@ -928,7 +928,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
     const decode::VulkanDeviceAddressTracker&                                                   address_tracker,
     const std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t>& group_handle_map)
 {
-    GFXRECON_ASSERT(device_table_.has_value());
+    GFXRECON_ASSERT(device_table_ != nullptr);
 
     // NOTE: we expect this map to be populated here, but not for older captures (before #1844) using trimming.
     if (group_handle_map.empty())
@@ -1231,7 +1231,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
     VulkanDeviceAddressTracker&                  address_tracker)
 {
-    GFXRECON_ASSERT(device_table_.has_value());
+    GFXRECON_ASSERT(device_table_ != nullptr);
 
     auto injected = device_table_->Open();
 
@@ -1741,7 +1741,7 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(
-            &device_table_.value(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
+            device_table_.get(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
         // dummy-wrapper
         VulkanCommandBufferInfo command_buffer_info = {};
@@ -1765,7 +1765,7 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(
-            &device_table_.value(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
+            device_table_.get(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
         auto injected = device_table_->Open();
 
@@ -1803,7 +1803,7 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
     // reset/submit/sync command-buffer
     {
         QueueSubmitHelper queue_submit_helper(
-            &device_table_.value(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
+            device_table_.get(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
         ProcessCmdWriteAccelerationStructuresPropertiesKHR(
             1, &acceleration_structure, query_type, query_pool_, 0, address_tracker);
@@ -2250,7 +2250,7 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
     auto injected = device_table_->Open();
 
     as_asset.device         = device_;
-    as_asset.injected_calls = device_table_;
+    as_asset.injected_calls = *device_table_;
 
     // create a replacement acceleration-structure with proper sized buffer
     bool success = create_buffer(as_asset.storage,
@@ -2296,7 +2296,7 @@ bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
     // clear previous content and setup
     submit_asset.device         = device_;
     submit_asset.command_pool   = command_pool_;
-    submit_asset.injected_calls = device_table_;
+    submit_asset.injected_calls = *device_table_;
 
     if (submit_asset.command_buffer == VK_NULL_HANDLE)
     {
@@ -2620,7 +2620,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
 
             // reset/submit/sync command-buffer
             queue_submit_helper = QueueSubmitHelper(
-                &device_table_.value(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
+                device_table_.get(), device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
             command_buffer = submit_asset_.command_buffer;
         }
 
