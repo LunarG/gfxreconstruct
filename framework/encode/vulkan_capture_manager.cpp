@@ -984,6 +984,7 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
                                                        const VkAllocationCallbacks* pAllocator,
                                                        VkTensorARM*                 pTensor)
 {
+    auto* device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     auto* device_table         = vulkan_wrappers::GetDeviceTable(device);
     auto  handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
 
@@ -993,7 +994,13 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
     VkTensorCreateInfoARM modified_create_info = *pCreateInfo_unwrapped;
 
     VkTensorDescriptionARM modified_desc;
-    if (IsTrimEnabled() && pCreateInfo_unwrapped->pDescription != nullptr)
+    if (IsTrimEnabled() && (device_wrapper != nullptr) && (device_wrapper->physical_device != nullptr) &&
+        (pCreateInfo_unwrapped->pDescription != nullptr) &&
+        graphics::TensorFormatSupportsFeatures(device_wrapper->physical_device->layer_table_ref,
+                                               device_wrapper->physical_device->handle,
+                                               pCreateInfo_unwrapped->pDescription,
+                                               VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT |
+                                                   VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT))
     {
         modified_desc = *pCreateInfo_unwrapped->pDescription;
         modified_desc.usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
@@ -1002,7 +1009,7 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
 
     VkResult result = device_table->CreateTensorARM(device, &modified_create_info, pAllocator, pTensor);
 
-    if (result >= 0 && pTensor != nullptr)
+    if ((result >= 0) && (pTensor != nullptr))
     {
         vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
                                              vulkan_wrappers::NoParentWrapper,
