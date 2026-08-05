@@ -1154,7 +1154,7 @@ void VulkanVirtualSwapchain::ProcessSetSwapchainImageStateCommand(
     // trim-state setup has already run, so mark as injected from here
     auto injected = injected_calls_->Open();
 
-    TemporaryCommandBuffer transition_command_buffer(*device_info, *injected.GetTable());
+    TemporaryCommandBuffer transition_command_buffer(*device_info, *injected_calls_);
 
     VkResult result = transition_command_buffer.CreateAndBegin(queue_family_index);
 
