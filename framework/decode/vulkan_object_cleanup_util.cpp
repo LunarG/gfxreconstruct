@@ -158,12 +158,12 @@ void ClearObjects(CommonObjectInfoTable* table,
     }
 }
 
-void FreeAllLiveObjects(CommonObjectInfoTable*                                           table,
-                        bool                                                             remove_entries,
-                        bool                                                             report_leaks,
-                        std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table,
-                        std::function<const graphics::VulkanDeviceTable*(const void*)>   get_device_table,
-                        VulkanSwapchain*                                                 swapchain)
+void FreeAllLiveObjects(CommonObjectInfoTable*                                                table,
+                        bool                                                                  remove_entries,
+                        bool                                                                  report_leaks,
+                        std::function<const graphics::VulkanInstanceTable*(const void*)>      get_instance_table,
+                        std::function<const graphics::VulkanInjectedDeviceCalls(const void*)> get_injected_calls_table,
+                        VulkanSwapchain*                                                      swapchain)
 {
     FreeChildObjects<VulkanDeviceInfo, VulkanEventInfo>(
         table,
@@ -176,7 +176,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkEventInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanEventInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyEvent(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyEvent(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanFenceInfo>(
@@ -190,7 +192,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkFenceInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanFenceInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyFence(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyFence(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanSemaphoreInfo>(
@@ -204,7 +208,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkSemaphoreInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanSemaphoreInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroySemaphore(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroySemaphore(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanQueryPoolInfo>(
@@ -218,7 +224,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkQueryPoolInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanQueryPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyQueryPool(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyQueryPool(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanRenderPassInfo>(
@@ -232,7 +240,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkRenderPassInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanRenderPassInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyRenderPass(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyRenderPass(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanSamplerInfo>(
@@ -246,7 +256,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkSamplerInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanSamplerInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroySampler(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroySampler(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanSamplerYcbcrConversionInfo>(
@@ -260,8 +272,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkSamplerYcbcrConversionInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanSamplerYcbcrConversionInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroySamplerYcbcrConversion(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroySamplerYcbcrConversion(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanFramebufferInfo>(
@@ -275,8 +288,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkFramebufferInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanFramebufferInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyFramebuffer(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyFramebuffer(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanImageViewInfo>(
@@ -290,7 +304,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkImageViewInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanImageViewInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyImageView(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyImageView(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanImageInfo>(
@@ -322,7 +338,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkBufferViewInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanBufferViewInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyBufferView(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyBufferView(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanBufferInfo>(
@@ -372,8 +390,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkPipelineCacheInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineCacheInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyPipelineCache(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyPipelineCache(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanPipelineInfo>(
@@ -387,7 +406,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkPipelineInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyPipeline(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyPipeline(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanPipelineLayoutInfo>(
@@ -401,8 +422,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkPipelineLayoutInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineLayoutInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyPipelineLayout(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyPipelineLayout(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanShaderModuleInfo>(
@@ -416,8 +438,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkShaderModuleInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanShaderModuleInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyShaderModule(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyShaderModule(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanShaderEXTInfo>(
@@ -431,7 +454,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkShaderEXTInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanShaderEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyShaderEXT(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyShaderEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanPipelineBinaryKHRInfo>(
@@ -445,8 +470,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkPipelineBinaryKHRInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineBinaryKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyPipelineBinaryKHR(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyPipelineBinaryKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorSetLayoutInfo>(
@@ -460,8 +486,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkDescriptorSetLayoutInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorSetLayoutInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyDescriptorSetLayout(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyDescriptorSetLayout(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorUpdateTemplateInfo>(
@@ -475,8 +502,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkDescriptorUpdateTemplateInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorUpdateTemplateInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyDescriptorUpdateTemplate(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyDescriptorUpdateTemplate(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanCommandPoolInfo>(
@@ -490,8 +518,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkCommandPoolInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanCommandPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyCommandPool(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyCommandPool(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanIndirectCommandsLayoutNVInfo>(
@@ -505,8 +534,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkIndirectCommandsLayoutNVInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanIndirectCommandsLayoutNVInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyIndirectCommandsLayoutNV(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyIndirectCommandsLayoutNV(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanValidationCacheEXTInfo>(
@@ -520,8 +550,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkValidationCacheEXTInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanValidationCacheEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyValidationCacheEXT(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyValidationCacheEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanAccelerationStructureKHRInfo>(
@@ -535,8 +566,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkAccelerationStructureKHRInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanAccelerationStructureKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyAccelerationStructureKHR(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyAccelerationStructureKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanAccelerationStructureNVInfo>(
@@ -550,8 +582,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkAccelerationStructureNVInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanAccelerationStructureNVInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyAccelerationStructureNV(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyAccelerationStructureNV(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanPerformanceConfigurationINTELInfo>(
@@ -565,8 +598,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkPerformanceConfigurationINTELInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPerformanceConfigurationINTELInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->ReleasePerformanceConfigurationINTEL(parent_info->handle, object_info->handle);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->ReleasePerformanceConfigurationINTEL(parent_info->handle, object_info->handle);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanDeferredOperationKHRInfo>(
@@ -580,8 +614,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkDeferredOperationKHRInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanDeferredOperationKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyDeferredOperationKHR(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyDeferredOperationKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanPrivateDataSlotInfo>(
@@ -595,8 +630,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkPrivateDataSlotInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanPrivateDataSlotInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanDeviceInfo, VulkanMicromapEXTInfo>(
@@ -610,8 +646,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkMicromapEXTInfo,
         [&](const VulkanDeviceInfo* parent_info, const VulkanMicromapEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyMicromapEXT(parent_info->handle, object_info->handle, nullptr);
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
+            injected->DestroyMicromapEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<VulkanInstanceInfo, VulkanDebugReportCallbackEXTInfo>(
@@ -658,14 +695,14 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
 
+            const auto device_table = get_injected_calls_table(parent_info->handle);
+            auto       injected     = device_table.Open();
             for (auto retired_pool : object_info->retired_pools)
             {
-                get_device_table(parent_info->handle)
-                    ->DestroyDescriptorPool(parent_info->handle, retired_pool, nullptr);
+                injected->DestroyDescriptorPool(parent_info->handle, retired_pool, nullptr);
             }
 
-            get_device_table(parent_info->handle)
-                ->DestroyDescriptorPool(parent_info->handle, object_info->handle, nullptr);
+            injected->DestroyDescriptorPool(parent_info->handle, object_info->handle, nullptr);
         });
 
     // VkSwapchainKHR objects have a special destroy function to ignore the object when it has a null surface handle.
@@ -683,8 +720,9 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
             assert((parent_info != nullptr) && (object_info != nullptr));
             if (object_info->surface != VK_NULL_HANDLE)
             {
-                swapchain->DestroySwapchainKHR(
-                    get_device_table(parent_info->handle)->DestroySwapchainKHR, parent_info, object_info, nullptr);
+                const auto device_table = get_injected_calls_table(parent_info->handle);
+                auto       injected     = device_table.Open();
+                swapchain->DestroySwapchainKHR(injected->DestroySwapchainKHR, parent_info, object_info, nullptr);
             }
             else
             {
@@ -724,10 +762,11 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                                         [&](const VulkanDeviceInfo* object_info) {
                                             GFXRECON_ASSERT(object_info != nullptr);
                                             GFXRECON_ASSERT(swapchain != nullptr)
-                                            auto* device_table = get_device_table(object_info->handle);
-                                            swapchain->CleanDeviceResources(object_info->handle, device_table);
+                                            const auto device_table = get_injected_calls_table(object_info->handle);
+                                            auto       injected     = device_table.Open();
+                                            swapchain->CleanDeviceResources(object_info->handle, &device_table);
                                             object_info->allocator->Destroy();
-                                            device_table->DestroyDevice(object_info->handle, nullptr);
+                                            injected->DestroyDevice(object_info->handle, nullptr);
                                         });
 
     // Remove the objects that are not destroyed from the table.
