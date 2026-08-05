@@ -150,6 +150,15 @@ uint64_t MapHandle(uint64_t object, VkObjectType object_type, const CommonObject
         case VK_OBJECT_TYPE_MICROMAP_EXT:
             return format::ToHandleId(MapHandle<VulkanMicromapEXTInfo>(
                 object, object_info_table, &CommonObjectInfoTable::GetVkMicromapEXTInfo));
+        case VK_OBJECT_TYPE_TENSOR_ARM:
+            return format::ToHandleId(
+                MapHandle<VulkanTensorARMInfo>(object, object_info_table, &CommonObjectInfoTable::GetVkTensorARMInfo));
+        case VK_OBJECT_TYPE_TENSOR_VIEW_ARM:
+            return format::ToHandleId(MapHandle<VulkanTensorViewARMInfo>(
+                object, object_info_table, &CommonObjectInfoTable::GetVkTensorViewARMInfo));
+        case VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM:
+            return format::ToHandleId(MapHandle<VulkanDataGraphPipelineSessionARMInfo>(
+                object, object_info_table, &CommonObjectInfoTable::GetVkDataGraphPipelineSessionARMInfo));
         case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT:
             return format::ToHandleId(MapHandle<VulkanPrivateDataSlotEXTInfo>(
                 object, object_info_table, &CommonObjectInfoTable::GetVkPrivateDataSlotInfo));
