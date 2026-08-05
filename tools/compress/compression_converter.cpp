@@ -477,6 +477,41 @@ decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const d
     return kSuccess;
 }
 
+decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const decode::InitTensorArgs& args)
+{
+    GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitTensorCommand);
+
+    format::InitTensorCommandHeader init_cmd;
+
+    init_cmd.thread_id = args.thread_id;
+    init_cmd.device_id = args.device_id;
+    init_cmd.tensor_id = args.tensor_id;
+    init_cmd.data_size = args.data_size;
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.data_size);
+    size_t         data_size    = static_cast<size_t>(init_cmd.data_size);
+    const uint8_t* data_address = args.data;
+
+    PrepMetadataBlock(init_cmd.meta_header, args.meta_data_id, data_address, data_size);
+
+    // Calculate size of packet with compressed or uncompressed data size.
+    init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + data_size;
+
+    if (!WriteBytes(&init_cmd, sizeof(init_cmd)))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockHeader, "Failed to write init tensor meta-data block header");
+        return kError;
+    }
+
+    if (!WriteBytes(data_address, data_size))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write init tensor meta-data block");
+        return kError;
+    }
+
+    return kSuccess;
+}
+
 decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const decode::InitSubresourceArgs& args)
 {
     GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitSubresourceCommand);
