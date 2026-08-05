@@ -1120,11 +1120,11 @@ For trimmed capture files, a snapshot of the Vulkan API state is written at
 the start of the file. This state snapshot includes the data for all buffers
 and images that were live at the time that capture started. Some of the buffer
 and image objects captured in the state snapshot may go unreferenced by the
-captured frames and their data can be removed from the capture file. The
-`gfxrecon-optimize` tool will process a trimmed file to identify buffer and
-image objects that were initialized in the state snapshot, but were not used
-by any of the captured frames, and generate a new capture file that omits the
-data for these unused buffer and image objects.
+submitted command buffers and their data can be removed from the capture
+file. The `gfxrecon-optimize` tool will process a trimmed file to identify
+buffer and image objects that were initialized in the state snapshot, but
+were not used by any submitted command buffer, and generate a new capture
+file that omits the data for these unused buffer and image objects.
 
 ```text
 gfxrecon-optimize - Remove unused resource initialization data from trimmed
