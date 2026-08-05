@@ -494,6 +494,10 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
 
 void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)
 {
+    if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
+    {
+        return;
+    }
     FixupDeviceEvents(device);
     FixupDeviceFences(device, queue);
 }
