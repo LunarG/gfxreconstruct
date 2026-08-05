@@ -91,30 +91,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
     }
 }
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDevice(
-    const ApiCallInfo&                          call_info,
-    args::CreateDevice&                         args)
-{
-    // Check for null cases
-    if (args.pDevice.IsNull())
-    {
-        return;
-    }
-    format::HandleId handle = *args.pDevice.GetPointer();
-
-    // Pass the call along if we are not looping or
-    // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
-    {
-        VulkanReplayConsumer::Process_vkCreateDevice(call_info, args);
-        // If we are looping, save the handle in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
-        {
-            allocatedLoopResources.insert(handle);
-        }
-    }
-}
-
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
     const ApiCallInfo&                          call_info,
     args::DestroyDevice&                        args)

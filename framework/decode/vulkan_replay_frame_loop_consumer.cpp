@@ -132,12 +132,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDevice(
         CommonObjectInfoTable& table = GetObjectInfoTable();
         VulkanDeviceInfo* info = table.GetVkDeviceInfo(handle);
         VulkanStateRecordingDecoder* decoder = dynamic_cast<VulkanStateRecordingDecoder*>(GetDecoder());
-        command_buffer_utils_[handle] = VulkanCommandBufferUtil(
+        command_buffer_utils_.emplace(handle, VulkanCommandBufferUtil(
             info,
             GetDeviceTable(info->handle),
             &table,
             decoder
-        );
+        ));
     }
 }
 

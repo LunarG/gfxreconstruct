@@ -62,10 +62,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroyInstance&                      args) override;
 
-    void Process_vkCreateDevice(
-        const ApiCallInfo&                          call_info,
-        args::CreateDevice&                         args) override;
-
     void Process_vkDestroyDevice(
         const ApiCallInfo&                          call_info,
         args::DestroyDevice&                        args) override;
@@ -142,10 +138,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroyCommandPool&                   args) override;
 
-    void Process_vkResetCommandPool(
-        const ApiCallInfo&                          call_info,
-        args::ResetCommandPool&                     args) override;
-
     void Process_vkAllocateCommandBuffers(
         const ApiCallInfo&                          call_info,
         args::AllocateCommandBuffers&               args) override;
@@ -157,10 +149,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkEndCommandBuffer(
         const ApiCallInfo&                          call_info,
         args::EndCommandBuffer&                     args) override;
-
-    void Process_vkResetCommandBuffer(
-        const ApiCallInfo&                          call_info,
-        args::ResetCommandBuffer&                   args) override;
 
     void Process_vkCmdCopyBuffer(
         const ApiCallInfo&                          call_info,
