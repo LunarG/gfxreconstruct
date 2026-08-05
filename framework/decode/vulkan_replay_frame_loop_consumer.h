@@ -101,6 +101,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackEventStates();
     void TrackEventState(format::HandleId device, format::HandleId event);
     void FixupDeviceEvents(format::HandleId device);
+    void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
 
     // Private data
   private:

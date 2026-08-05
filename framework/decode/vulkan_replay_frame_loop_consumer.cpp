@@ -487,9 +487,15 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
             VkResult result = device_table->DeviceWaitIdle(device);
             CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-            FixupDeviceFences(queue_info->parent_id, queue);
+            FixupDeviceObjects(queue_info->parent_id, queue);
         }
     }
+}
+
+void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)
+{
+    FixupDeviceEvents(device);
+    FixupDeviceFences(device, queue);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
@@ -548,8 +554,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
         VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-        FixupDeviceFences(queue_info->parent_id, args.queue);
-        FixupDeviceEvents(queue_info->parent_id);
+        FixupDeviceObjects(queue_info->parent_id, args.queue);
     }
 }
 
