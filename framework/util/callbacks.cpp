@@ -22,7 +22,6 @@
 */
 
 #include "callbacks.h"
-#include "encode/capture_manager.h"
 #include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -81,25 +80,25 @@ class MarkInjectedCommands : public CallbackBase
   public:
     void EventA()
     {
-        encode::CommonCaptureManager::SetForceDefaultUniqueId(true);
         CallbackBase::EventA();
     }
 
     void EventB()
     {
-        encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
         CallbackBase::EventB();
     }
 };
 
 thread_local uint32_t MarkInjectedCommandsHelper::semaphore = 0;
 
+static CallbackBase injected_commands_marker;
+
 MarkInjectedCommandsHelper::MarkInjectedCommandsHelper()
 {
     // mark injected commands
     if (semaphore++ == 0)
     {
-        BeginInjectedCommands();
+        injected_commands_marker.EventA();
     }
 }
 
@@ -108,20 +107,13 @@ MarkInjectedCommandsHelper::~MarkInjectedCommandsHelper()
     // mark end of injected commands
     if (--semaphore == 0)
     {
-        EndInjectedCommands();
+        injected_commands_marker.EventB();
     }
 }
 
-static MarkInjectedCommands injected_commands_marker;
-
-void BeginInjectedCommands()
+bool InjectedCommandsActive()
 {
-    injected_commands_marker.EventA();
-}
-
-void EndInjectedCommands()
-{
-    injected_commands_marker.EventB();
+    return MarkInjectedCommandsHelper::semaphore != 0;
 }
 
 extern "C" void GFXR_EXPORT SetInjectedCommandCallbacks(PFN_EventBeginCallBack begin_fp,

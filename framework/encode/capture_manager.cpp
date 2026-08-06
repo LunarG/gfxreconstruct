@@ -63,9 +63,8 @@ CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mu
 bool                                           CommonCaptureManager::initialize_log_ = true;
 std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
 uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
-thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
 thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
-int64_t                                        CommonCaptureManager::avoid_api_call_lock_ = 0;
+int64_t                                    CommonCaptureManager::avoid_api_call_lock_ = 0;
 
 static std::mutex external_trim_trigger_mutex_g;
 static bool       externally_set_trimming_state_g          = false;
@@ -94,7 +93,9 @@ extern "C"
 format::HandleId CommonCaptureManager::GetUniqueId()
 {
     uint64_t result = 0;
-    if (force_default_unique_id_ || unique_id_stack_.empty())
+    // Calls injected by replay during recapture have no counterpart in the original capture, so
+    // they must not consume IDs pushed for the original calls; they get fresh default IDs instead.
+    if (util::InjectedCommandsActive() || unique_id_stack_.empty())
     {
         result = GetDefaultUniqueId();
     }

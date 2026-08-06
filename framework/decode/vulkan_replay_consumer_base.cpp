@@ -1454,7 +1454,6 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
     gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
 
     gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
-    gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
 #endif // GFXRECON_ENABLE_VULKAN
 }
 
@@ -3373,13 +3372,12 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         // emitted during calls that _aren't_ vkCreateInstance()/vkDestroyInstance()
         if (create_state.messenger_create_info.pfnUserCallback != nullptr)
         {
-            util::BeginInjectedCommands();
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
             GetInstanceTable(*replay_instance)
                 ->CreateDebugUtilsMessengerEXT(*replay_instance,
                                                &create_state.messenger_create_info,
                                                GetAllocationCallbacks(pAllocator),
                                                &instance_info->debug_messenger);
-            util::EndInjectedCommands();
         }
     }
 
@@ -3391,9 +3389,10 @@ void VulkanReplayConsumerBase::OverrideDestroyInstance(
     const VulkanInstanceInfo*                                  instance_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    util::BeginInjectedCommands();
-    DestroyInternalInstanceResources(instance_info);
-    util::EndInjectedCommands();
+    {
+        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        DestroyInternalInstanceResources(instance_info);
+    }
 
     VkInstance instance = instance_info->handle;
     func(instance, GetAllocationCallbacks(pAllocator));
@@ -3468,13 +3467,15 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         std::vector<VkQueueFamilyProperties> replay_queue_family_properties;
 
         // queries the capture did not make
-        util::BeginInjectedCommands();
-        instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &replay_queue_family_count, nullptr);
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(
+                physical_device, &replay_queue_family_count, nullptr);
 
-        replay_queue_family_properties.resize(replay_queue_family_count);
-        instance_table->GetPhysicalDeviceQueueFamilyProperties(
-            physical_device, &replay_queue_family_count, replay_queue_family_properties.data());
-        util::EndInjectedCommands();
+            replay_queue_family_properties.resize(replay_queue_family_count);
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(
+                physical_device, &replay_queue_family_count, replay_queue_family_properties.data());
+        }
 
         std::vector<VkDeviceQueueCreateInfo>& modified_queue_create_infos = create_state.modified_queue_create_infos;
         modified_queue_create_infos.reserve(modified_create_info.queueCreateInfoCount);
@@ -8512,10 +8513,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         // If supported surface formats were not queried before, query them now
         if (!physical_device_info->surface_formats && options_.swapchain_option != util::SwapchainOption::kOffscreen)
         {
-            const auto instance_table = GetInstanceTable(physical_device_info->handle);
-            util::BeginInjectedCommands();
-            uint32_t surface_format_count = 0;
-            auto     result               = instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+            const auto                       instance_table = GetInstanceTable(physical_device_info->handle);
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            uint32_t                         surface_format_count = 0;
+            auto                             result               = instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
                 physical_device_info->handle, modified_create_info.surface, &surface_format_count, nullptr);
             if (result == VK_SUCCESS && surface_format_count > 0)
             {
@@ -8535,7 +8536,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                     physical_device_info->surface_formats.reset();
                 }
             }
-            util::EndInjectedCommands();
         }
 
         // check if 'replay_create_info->imageFormat' is supported,
