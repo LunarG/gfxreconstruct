@@ -111,7 +111,7 @@ class VulkanInjectedDeviceCalls
         bool                     active_;
     };
 
-    VulkanInjectedDeviceCalls() = delete;
+    VulkanInjectedDeviceCalls() = default;
 
     explicit VulkanInjectedDeviceCalls(const VulkanDeviceTable* table);
 
@@ -119,7 +119,11 @@ class VulkanInjectedDeviceCalls
 
     // Opens the injected-commands window for the calling thread and grants
     // access to the dispatch table for its duration.
-    [[nodiscard]] Scope Open() const { return Scope(table_); }
+    [[nodiscard]] Scope Open() const
+    {
+        GFXRECON_ASSERT(IsValid());
+        return Scope(table_);
+    }
 
     // Brackets injected commands recorded into command_buffer with a
     // Begin/EndDebugUtilsLabelEXT pair. Requires an open Scope; the parameter
@@ -127,7 +131,7 @@ class VulkanInjectedDeviceCalls
     [[nodiscard]] LabelRegion Label(const Scope& scope, VkCommandBuffer command_buffer, const char* category) const;
 
   private:
-    const VulkanDeviceTable* table_;
+    const VulkanDeviceTable* table_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(graphics)

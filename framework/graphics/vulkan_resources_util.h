@@ -28,6 +28,7 @@
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_injected_calls.h"
 
 #include <vector>
 #include <functional>
@@ -374,10 +375,10 @@ class VulkanResourcesUtil
         StagingMemoryContext mem;
     };
 
-    VkDevice                   device_;
-    const VulkanDeviceTable&   device_table_;
-    VkPhysicalDevice           physical_device_;
-    const VulkanInstanceTable& instance_table_;
+    VkDevice                        device_;
+    const VulkanInjectedDeviceCalls device_table_;
+    VkPhysicalDevice                physical_device_;
+    const VulkanInstanceTable&      instance_table_;
 
     // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
