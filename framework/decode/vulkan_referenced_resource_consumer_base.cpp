@@ -157,6 +157,25 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateAccelerationStructure
     }
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCreateTensorARM(const ApiCallInfo&     call_info,
+                                                                     args::CreateTensorARM& args)
+{
+    if (!args.pTensor.IsNull() && args.pTensor.HasData())
+    {
+        table_.AddResource(*args.pTensor.GetPointer());
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateTensorViewARM(const ApiCallInfo&         call_info,
+                                                                         args::CreateTensorViewARM& args)
+{
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pView.IsNull() && args.pView.HasData())
+    {
+        const auto create_info = args.pCreateInfo.GetMetaStructPointer();
+        table_.AddResource(create_info->tensor, *args.pView.GetPointer());
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId device_id,
                                                                           format::HandleId object_id,
                                                                           uint64_t         address)
