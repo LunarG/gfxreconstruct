@@ -1721,16 +1721,11 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     {
         // The built-in parsers do not know this meta-data type. Give an extended parser for the type
         // -- if this build defines one -- a chance to parse it before skipping the block.
-        for (const ExtendedMetaDataEntry& entry : kExtendedMetaDataParsers)
+        const ExtendedParseInterface parser_interface = GetExtendedParserInterface();
+        if (ParsedBlock* parsed_block =
+                ParseExtendedMetaData(parser_interface, meta_data_type, meta_data_id, block_buffer))
         {
-            if (entry.meta_data_type == meta_data_type)
-            {
-                if (ParsedBlock* parsed_block = entry.parse(*this, meta_data_id, block_buffer))
-                {
-                    return *parsed_block;
-                }
-                break;
-            }
+            return *parsed_block;
         }
 
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||

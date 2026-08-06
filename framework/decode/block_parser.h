@@ -36,6 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 class BlockBuffer;
+class ExtendedParseInterface;
 
 // As the BlockParser is doing all the Read/Peek, this is the best place to define this
 // NOTE: Eventually FileInputStream will be an abstract base class for whatever input stream is in use
@@ -166,6 +167,16 @@ class BlockParser
         return EmplaceBlock(args);
     }
 
+    // Returns the restricted facade that parsing code outside this class uses to build blocks --
+    // today the parsers for extended meta-data types (see block_parser_meta_data.h). It is the only
+    // surface of the BlockParser those parsers see, so what it exposes is what has to be conserved
+    // for them.
+    //
+    // Neither the method nor the returned value is const, by design: every primitive the facade
+    // forwards mutates the parser -- allocating out of the current BlockBatch, filling the
+    // decompression scratch buffer -- so a const parser has no business handing one out.
+    const ExtendedParseInterface GetExtendedParserInterface() noexcept;
+
   private:
     // Define parsers for every block and sub-block type
     ParsedBlock& ParseFunctionCall(BlockBuffer& block_buffer);
@@ -184,9 +195,10 @@ class BlockParser
     const uint8_t*
     DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
 
-    // The parsing primitives below stay private; the parsers for extended meta-data types reach them
-    // through this gateway rather than through a widened public interface.
-    friend struct ExtendedMetaDataAccess;
+    // The parsing primitives below stay private; parsing code outside this class reaches them
+    // through the interface handed out by GetExtendedParserInterface() rather than through a widened public
+    // interface. That interface is the sole friend, so this is the whole of the extension surface.
+    friend class ExtendedParseInterface;
 
     BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
 
@@ -237,52 +249,85 @@ class BlockParser
 };
 
 // -----------------------------------------------------------------------------
-// ExtendedMetaDataAccess
+// ExtendedParseInterface
 //
-// The parsers for extended meta-data types (see block_parser_meta_data.h) are free functions, so they
-// cannot reach BlockParser's parsing primitives on their own. This gateway forwards to them on the
-// parsers' behalf, keeping the primitives private rather than widening BlockParser's own interface.
-// It is not intended for any other use.
+// The restricted view of a BlockParser given to parsing code that lives outside the class. Nothing
+// here is specific to meta-data: it is the generic "build a ParsedBlock out of a BlockBuffer"
+// toolkit that BlockParser's own Parse* members work in terms of. Extended meta-data types (see
+// block_parser_meta_data.h) are its only consumer today; a hook for an unrecognized BlockType,
+// MarkerType, or AnnotationType would use the same interface unchanged.
+//
+// That code never sees the BlockParser itself, so this class -- and not BlockParser's public
+// interface -- is what it can depend on, and what has to be conserved for it. Only BlockParser can
+// construct one, via GetExtendedParserInterface().
+//
+// THREADING: instances are used on the block-processing thread, which in async mode is not the
+// thread that dispatches the resulting ParsedBlocks. See ParseExtendedMetaData in
+// block_parser_meta_data.h for the contract that places on the code using this interface.
 // -----------------------------------------------------------------------------
-struct ExtendedMetaDataAccess
+class ExtendedParseInterface
 {
+  public:
+    using BlockSpan           = BlockParser::BlockSpan;
     using ParameterReadResult = BlockParser::ParameterReadResult;
 
     static constexpr uint64_t kReadSizeFromBuffer = BlockParser::kReadSizeFromBuffer;
 
-    static ParameterReadResult ReadParameterBuffer(BlockParser& parser,
-                                                   const char*  label,
-                                                   BlockBuffer& block_buffer,
-                                                   uint64_t     uncompressed_size = kReadSizeFromBuffer)
+    ExtendedParseInterface(const ExtendedParseInterface&)            = delete;
+    ExtendedParseInterface& operator=(const ExtendedParseInterface&) = delete;
+
+    [[nodiscard]] uint64_t GetFrameNumber() const noexcept { return parser_.GetFrameNumber(); }
+    [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return parser_.GetBlockIndex(); }
+
+    void HandleBlockReadError(BlockIOError error_code, const char* error_message) const
     {
-        return parser.ReadParameterBuffer(label, block_buffer, uncompressed_size);
+        parser_.HandleBlockReadError(error_code, error_message);
+    }
+
+    ParameterReadResult
+    ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer)
+    {
+        return parser_.ReadParameterBuffer(label, block_buffer, uncompressed_size);
     }
 
     template <typename T, typename... Args>
-    requires std::constructible_from<T, Args&&...>
-    static T* Emplace(BlockParser& parser, Args&&... args) { return parser.Emplace<T>(std::forward<Args>(args)...); }
+    requires std::constructible_from<T, Args&&...> T* Emplace(Args&&... args)
+    {
+        return parser_.Emplace<T>(std::forward<Args>(args)...);
+    }
 
     template <typename... Args>
-    static ParsedBlock& EmplaceBlock(BlockParser& parser, Args&&... args)
+    ParsedBlock& EmplaceBlock(Args&&... args)
     {
-        return parser.EmplaceBlock(std::forward<Args>(args)...);
+        return parser_.EmplaceBlock(std::forward<Args>(args)...);
     }
 
     template <typename ArgPayload>
-    [[nodiscard]] static ParsedBlock& MakeCompressibleParsedBlock(BlockParser&               parser,
-                                                                  BlockBuffer&               block_buffer,
-                                                                  const ParameterReadResult& result,
-                                                                  ArgPayload*                args)
+    [[nodiscard]] ParsedBlock&
+    MakeCompressibleParsedBlock(BlockBuffer& block_buffer, const ParameterReadResult& result, ArgPayload* args)
     {
-        return parser.MakeCompressibleParsedBlock(block_buffer, result, args);
+        return parser_.MakeCompressibleParsedBlock(block_buffer, result, args);
     }
 
     template <typename ArgPayload>
-    static ParsedBlock& MakeIncompressibleParsedBlock(BlockParser& parser, BlockBuffer& block_buffer, ArgPayload* args)
+    ParsedBlock& MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload* args)
     {
-        return parser.MakeIncompressibleParsedBlock(block_buffer, args);
+        return parser_.MakeIncompressibleParsedBlock(block_buffer, args);
     }
+
+  private:
+    // Only the BlockParser hands these out, so an interface can never be minted for an arbitrary
+    // parser instance.
+    friend class BlockParser;
+    explicit ExtendedParseInterface(BlockParser& parser) noexcept : parser_(parser) {}
+
+    BlockParser& parser_;
 };
+
+inline const ExtendedParseInterface BlockParser::GetExtendedParserInterface() noexcept
+{
+    return ExtendedParseInterface(*this);
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
