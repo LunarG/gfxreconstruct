@@ -517,7 +517,8 @@ class KhronosBaseGenerator(OutputGenerator):
         self.base_types = dict()  # Set of current API's basetypes
         self.union_names = set()  # Set of current API's union typenames
         self.handle_names = set()  # Set of current API's handle typenames
-        self.handle_aliases = dict() # Map of hanlde aliases
+        self.handle_aliases = dict() # Map of handle aliases
+        self.handle_object_types = dict()  # Map of handle typenames
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
         self.flags_types = dict()  # Map of flags types
         self.flags_type_aliases = dict()  # Map of flags type aliases
@@ -1375,6 +1376,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 self.genUnion(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handle_names.add(name)
+
+            enum = type_elem.get('objtypeenum')
+            if enum:
+                self.handle_object_types[name] = enum
+
             if (
                 type_elem is not None and type_elem.find('type') is not None
                 and '_DEFINE_HANDLE' == type_elem.find('type').text[2:]
