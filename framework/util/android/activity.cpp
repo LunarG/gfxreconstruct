@@ -36,15 +36,19 @@ void DestroyActivity(struct android_app* app)
     {
         struct android_poll_source* source = nullptr;
         int                         events = 0;
-        int                         result = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
+        const int                   result = ALooper_pollOnce(-1, nullptr, &events, reinterpret_cast<void**>(&source));
 
-        if ((result >= 0) && (source))
-        {
-            source->process(app, source);
-        }
-        else
+        // An event dispatched to a registered looper callback, an ALooper_wake(), or a file descriptor with no
+        // android_poll_source all mean APP_CMD_DESTROY has not been received yet, so keep polling.  Only
+        // ALOOPER_POLL_ERROR is unrecoverable.
+        if (result == ALOOPER_POLL_ERROR)
         {
             break;
+        }
+
+        if (source != nullptr)
+        {
+            source->process(app, source);
         }
     }
 }
