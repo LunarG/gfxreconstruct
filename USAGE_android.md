@@ -807,6 +807,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--replay-event-plugin-params PARAMS]
                           [--isolate-render-passes]
                           [--serialize-compute-and-transfer]
+                          [--annotate-injected-commands]
                           [file]
 
 Launch the replay tool.
@@ -1055,6 +1056,10 @@ options:
   --serialize-compute-and-transfer
                         Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before
                         and after each dispatch. (forwarded to replay tool)
+  --annotate-injected-commands
+                        Wrap commands injected by replay (not present in the capture,
+                        e.g. virtual-swapchain copies and ray-tracing SBT fixups) in
+                        VK_EXT_debug_utils labels named "GFXR Replay: <category>"
 ```
 
 The command will force-stop an active replay process before starting the replay

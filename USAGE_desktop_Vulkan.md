@@ -643,6 +643,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
                         [--isolate-render-passes]
                         [--serialize-compute-and-transfer]
+                        [--annotate-injected-commands]
 
 
 Required arguments:
@@ -922,6 +923,10 @@ Optional arguments:
   --serialize-compute-and-transfer
               Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before and after
               each dispatch.
+  --annotate-injected-commands
+              Wrap commands injected by replay (not present in the capture,
+              e.g. virtual-swapchain copies and ray-tracing SBT fixups) in
+              VK_EXT_debug_utils labels named "GFXR Replay: <category>"
 ```
 
 ### Frame Warm-Up

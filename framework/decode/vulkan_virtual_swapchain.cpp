@@ -60,6 +60,7 @@ VulkanVirtualSwapchain::AdhocDeviceData::~AdhocDeviceData()
 
     // free swapchains before command-pool
     swapchains.clear();
+    copy_util.reset();
 
     if (command_pool != VK_NULL_HANDLE)
     {
