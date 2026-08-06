@@ -63,36 +63,118 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES:
 
-            body += '    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.\n'
-            body += '    bool doReplay = false;\n'
+            """Generates per-element create/skip logic for batched multi-handle create calls
+            (vkCreateShadersEXT, vkCreateGraphicsPipelines, vkCreateComputePipelines,
+            vkCreateRayTracingPipelinesNV, vkCreateDataGraphPipelinesARM,
+            vkCreateSharedSwapchainsKHR, and any future call with the same
+            (..., count, pCreateInfos, pAllocator, pHandles) trailing shape).
+            """
+            base_name         = name[2:]
+            count_param       = values[-4]
+            create_info_param = values[-3]
+            handles_param     = values[-1]
+
+            # Any parameters between the device handle and the count are extra
+            # "companion" handles that the Override function needs looked up
+            # in the object info table (e.g. VkPipelineCache, VkDeferredOperationKHR).
+            # Discovering them positionally means this code keeps working for any
+            # future *CreateXxx(device, ..., count, pCreateInfos, pAllocator, pHandles)
+            # entry point without needing to special-case it by name below.
+            extra_params = values[1:-4]
+
+            count_name       = count_param.prefixed_name
+            createinfo_name  = create_info_param.prefixed_name
+            handles_name     = handles_param.prefixed_name
+
+            createinfo_base_type = create_info_param.base_type   # e.g. VkShaderCreateInfoEXT
+            handle_base_type     = handles_param.base_type       # e.g. VkShaderEXT
+            decoded_type          = 'Decoded_{}'.format(createinfo_base_type)
+            info_type = '{}{}Info'.format(
+                self.get_api_prefix_from_type(handle_base_type), handle_base_type[2:]
+            )
+
+            body = ''
+            body += '    // Pass the call along unchanged if we are not looping.\n'
             body += '    if (!getFrameLoopInfo().IsLooping())\n'
             body += '    {\n'
-            body += '        doReplay = true;\n'
-            body += '    }\n'
-            body += '    else\n'
+            body += '        ' + self.genCallReplayConsumer(None, name, values)
+            body += '        return;\n'
+            body += '    }\n\n'
+
+            body += '    const format::HandleId* capture_ids = {}.GetPointer();\n\n'.format(handles_name)
+            body += '    std::vector<uint32_t> to_create;\n'
+            body += '    for (uint32_t i = 0; i < {}; ++i)\n'.format(count_name)
             body += '    {\n'
-            body += '        for (uint32_t i=0; i < '+values[-4].prefixed_name+'; i++)\n'
+            body += '        if (!allocatedLoopResources.contains(capture_ids[i]))\n'
             body += '        {\n'
-            body += '            format::HandleId handle = '+values[-1].prefixed_name+'.GetPointer()[i];\n'
-            body += '            if (!allocatedLoopResources.contains(handle))\n'
-            body += '            {\n'
-            body += '                doReplay = true;\n'
-            body += '                break;\n'
-            body += '            }\n'
+            body += '            to_create.push_back(i);\n'
             body += '        }\n'
-            body += '    }\n'
-            body += '    if (doReplay)\n'
+            body += '    }\n\n'
+
+            body += '    if (to_create.empty())\n'
             body += '    {\n'
-            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
-            body += '        // If we are looping, save the handles in allocatedLoopResources\n'
-            body += '        if (getFrameLoopInfo().IsLooping())\n'
+            body += '        // Every handle in this batch already exists from an earlier loop iteration.\n'
+            body += '        return;\n'
+            body += '    }\n\n'
+
+            body += '    if (to_create.size() == {})\n'.format(count_name)
+            body += '    {\n'
+            body += '        // Nothing pre-exists; take the normal batched path.\n'
+            body += '        ' + self.genCallReplayConsumer(None, name, values) + '\n'
+            body += '        for (uint32_t i = 0; i < {}; ++i)\n'.format(count_name)
             body += '        {\n'
-            body += '            for (uint32_t i=0; i < '+values[-4].prefixed_name+'; i++)\n'
-            body += '            {\n'
-            body += '                format::HandleId handle = '+values[-1].prefixed_name+'.GetPointer()[i];\n'
-            body += '                allocatedLoopResources.insert(handle);\n'
-            body += '            }\n'
+            body += '            allocatedLoopResources.insert(capture_ids[i]);\n'
             body += '        }\n'
+            body += '        return;\n'
+            body += '    }\n\n'
+
+            body += '    // Mixed case: some handles in this batch already exist, others do not.\n'
+            body += '    {}* raw_infos  = {}.GetPointer();\n'.format(createinfo_base_type, createinfo_name)
+            body += '    {}* meta_infos = {}.GetMetaStructPointer();\n\n'.format(decoded_type, createinfo_name)
+            body += '    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);\n'
+            body += '    VkDevice in_device  = device_info->handle;\n'
+            body += '    for (uint32_t i : to_create)\n'
+            body += '    {\n'
+            body += '        // Move index i into slot 0 so Override/driver code (which always\n'
+            body += '        // starts at index 0) operates on the shader we actually want.\n'
+            body += '        std::swap(raw_infos[0], raw_infos[i]);\n'
+            body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
+            body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'
+            body += '        meta_infos[i].decoded_value = &raw_infos[i];\n'
+            body += '        {}.SetHandleLength(1);   // (re)allocate a 1-element output slot\n'.format(handles_name)
+            body += '\n'
+            body += '         VkResult replay_result = Override{}(\n'.format(base_name)
+            body += '                                            GetDeviceTable(in_device)->{},\n'.format(base_name)
+            body += '                                            args.result,\n'
+            body += '                                            device_info,\n'
+            for extra_param in extra_params:
+                body += '                                            GetObjectInfoTable().Get{}Info({}),\n'.format(
+                    extra_param.base_type, extra_param.prefixed_name)
+            body += '                                            1,\n'
+            body += '                                            &args.pCreateInfos,\n'
+            body += '                                            &args.pAllocator,\n'
+            body += '                                            &{});\n'.format(handles_name)
+            body += '\n'
+            body += '        {} out_handle = {}.GetHandlePointer()[0];\n'.format(handle_base_type, handles_name)
+            body += '\n'
+            body += '        if (replay_result == VK_SUCCESS)\n'
+            body += '        {\n'
+            body += '            AddHandle<{}>(\n'.format(info_type)
+            body += '                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::Add{}Info);\n'.format(handle_base_type)
+            body += '            allocatedLoopResources.insert(capture_ids[i]);\n'
+            body += '        }\n'
+            body += '        else\n'
+            body += '        {\n'
+            body += '            GFXRECON_LOG_ERROR(\n'
+            body += '                "Frame loop: failed to create {} (capture id %" PRIu64 ") during loop repetition, VkResult = %d",\n'.format(handle_base_type)
+            body += '                capture_ids[i], replay_result);\n'
+            body += '        }\n'
+            body += '\n'
+            body += '        // Restore original order before moving to the next index.\n'
+            body += '        std::swap(raw_infos[0], raw_infos[i]);\n'
+            body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
+            body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'
+            body += '        meta_infos[i].decoded_value = &raw_infos[i];\n'
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES:
@@ -127,6 +209,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED:
 
+            body += '    // Not fully implemented yet.\n'
             body += '    // Return if not the first time through loop\n'
             body += '    if (getFrameLoopInfo().IsRepetition())\n'
             body += '    {\n'
@@ -136,6 +219,8 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED:
 
+            body += '    // Not fully implemented yet.\n'
+            body += '    // Return if looping and we are not executing the last iteration.\n'
             body += '    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())\n'
             body += '    {\n'
             body += '        return;\n'

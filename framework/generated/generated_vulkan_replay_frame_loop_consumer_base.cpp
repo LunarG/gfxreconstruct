@@ -209,6 +209,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory(
     const ApiCallInfo&                          call_info,
     args::BindBufferMemory&                     args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -221,6 +222,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory(
     const ApiCallInfo&                          call_info,
     args::BindImageMemory&                      args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -233,6 +235,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkQueueBindSparse(
     const ApiCallInfo&                          call_info,
     args::QueueBindSparse&                      args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -620,6 +623,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::AllocateCommandBuffers&               args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -632,6 +636,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::FreeCommandBuffers&                   args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -871,6 +877,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkMergePipelineCaches(
     const ApiCallInfo&                          call_info,
     args::MergePipelineCaches&                  args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -883,36 +890,88 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     const ApiCallInfo&                          call_info,
     args::CreateComputePipelines&               args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkComputePipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkComputePipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    VkDevice in_device  = device_info->handle;
+    for (uint32_t i : to_create)
+    {
+        // Move index i into slot 0 so Override/driver code (which always
+        // starts at index 0) operates on the shader we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+
+         VkResult replay_result = OverrideCreateComputePipelines(
+                                            GetDeviceTable(in_device)->CreateComputePipelines,
+                                            args.result,
+                                            device_info,
+                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
+                                            1,
+                                            &args.pCreateInfos,
+                                            &args.pAllocator,
+                                            &args.pPipelines);
+
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (replay_result == VK_SUCCESS)
+        {
+            AddHandle<VulkanPipelineInfo>(
+                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
+                capture_ids[i], replay_result);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -1148,36 +1207,88 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                          call_info,
     args::CreateGraphicsPipelines&              args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkGraphicsPipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkGraphicsPipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    VkDevice in_device  = device_info->handle;
+    for (uint32_t i : to_create)
+    {
+        // Move index i into slot 0 so Override/driver code (which always
+        // starts at index 0) operates on the shader we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+
+         VkResult replay_result = OverrideCreateGraphicsPipelines(
+                                            GetDeviceTable(in_device)->CreateGraphicsPipelines,
+                                            args.result,
+                                            device_info,
+                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
+                                            1,
+                                            &args.pCreateInfos,
+                                            &args.pAllocator,
+                                            &args.pPipelines);
+
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (replay_result == VK_SUCCESS)
+        {
+            AddHandle<VulkanPipelineInfo>(
+                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
+                capture_ids[i], replay_result);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -1299,6 +1410,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
     const ApiCallInfo&                          call_info,
     args::BindBufferMemory2&                    args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1311,6 +1423,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
     const ApiCallInfo&                          call_info,
     args::BindImageMemory2&                     args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1518,6 +1631,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
     const ApiCallInfo&                          call_info,
     args::MapMemory2&                           args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1530,6 +1644,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2(
     const ApiCallInfo&                          call_info,
     args::UnmapMemory2&                         args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -1541,6 +1657,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkTransitionImageLayout(
     const ApiCallInfo&                          call_info,
     args::TransitionImageLayout&                args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1691,36 +1808,87 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     const ApiCallInfo&                          call_info,
     args::CreateSharedSwapchainsKHR&            args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.swapchainCount; i++)
-        {
-            format::HandleId handle = args.pSwapchains.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    const format::HandleId* capture_ids = args.pSwapchains.GetPointer();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.swapchainCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.swapchainCount; i++)
-            {
-                format::HandleId handle = args.pSwapchains.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.swapchainCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
+
+        for (uint32_t i = 0; i < args.swapchainCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkSwapchainCreateInfoKHR* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkSwapchainCreateInfoKHR* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    VkDevice in_device  = device_info->handle;
+    for (uint32_t i : to_create)
+    {
+        // Move index i into slot 0 so Override/driver code (which always
+        // starts at index 0) operates on the shader we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        args.pSwapchains.SetHandleLength(1);   // (re)allocate a 1-element output slot
+
+         VkResult replay_result = OverrideCreateSharedSwapchainsKHR(
+                                            GetDeviceTable(in_device)->CreateSharedSwapchainsKHR,
+                                            args.result,
+                                            device_info,
+                                            1,
+                                            &args.pCreateInfos,
+                                            &args.pAllocator,
+                                            &args.pSwapchains);
+
+        VkSwapchainKHR out_handle = args.pSwapchains.GetHandlePointer()[0];
+
+        if (replay_result == VK_SUCCESS)
+        {
+            AddHandle<VulkanSwapchainKHRInfo>(
+                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkSwapchainKHRInfo);
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkSwapchainKHR (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
+                capture_ids[i], replay_result);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -1905,6 +2073,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindVideoSessionMemoryKHR(
     const ApiCallInfo&                          call_info,
     args::BindVideoSessionMemoryKHR&            args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1974,6 +2143,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkImportSemaphoreFdKHR(
     const ApiCallInfo&                          call_info,
     args::ImportSemaphoreFdKHR&                 args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2067,6 +2237,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkImportFenceFdKHR(
     const ApiCallInfo&                          call_info,
     args::ImportFenceFdKHR&                     args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2136,6 +2307,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::BindBufferMemory2KHR&                 args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2148,6 +2320,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::BindImageMemory2KHR&                  args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2217,6 +2390,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::MapMemory2KHR&                        args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2229,6 +2403,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::UnmapMemory2KHR&                      args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2240,6 +2416,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     args::CreatePipelineBinariesKHR&            args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2285,6 +2462,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseCapturedPipelineDataKHR
     const ApiCallInfo&                          call_info,
     args::ReleaseCapturedPipelineDataKHR&       args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2296,6 +2475,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesKHR(
     const ApiCallInfo&                          call_info,
     args::ReleaseSwapchainImagesKHR&            args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2412,6 +2593,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseDisplayEXT(
     const ApiCallInfo&                          call_info,
     args::ReleaseDisplayEXT&                    args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2423,6 +2606,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkRegisterDeviceEventEXT(
     const ApiCallInfo&                          call_info,
     args::RegisterDeviceEventEXT&               args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2435,6 +2619,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkRegisterDisplayEventEXT(
     const ApiCallInfo&                          call_info,
     args::RegisterDisplayEventEXT&              args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2633,6 +2818,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureNV
     const ApiCallInfo&                          call_info,
     args::DestroyAccelerationStructureNV&       args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2644,6 +2831,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
     const ApiCallInfo&                          call_info,
     args::BindAccelerationStructureMemoryNV&    args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2656,36 +2844,88 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     const ApiCallInfo&                          call_info,
     args::CreateRayTracingPipelinesNV&          args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkRayTracingPipelineCreateInfoNV* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkRayTracingPipelineCreateInfoNV* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    VkDevice in_device  = device_info->handle;
+    for (uint32_t i : to_create)
+    {
+        // Move index i into slot 0 so Override/driver code (which always
+        // starts at index 0) operates on the shader we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+
+         VkResult replay_result = OverrideCreateRayTracingPipelinesNV(
+                                            GetDeviceTable(in_device)->CreateRayTracingPipelinesNV,
+                                            args.result,
+                                            device_info,
+                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
+                                            1,
+                                            &args.pCreateInfos,
+                                            &args.pAllocator,
+                                            &args.pPipelines);
+
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (replay_result == VK_SUCCESS)
+        {
+            AddHandle<VulkanPipelineInfo>(
+                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
+                capture_ids[i], replay_result);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -2693,6 +2933,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleasePerformanceConfiguratio
     const ApiCallInfo&                          call_info,
     args::ReleasePerformanceConfigurationINTEL& args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2752,6 +2994,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseFullScreenExclusiveMode
     const ApiCallInfo&                          call_info,
     args::ReleaseFullScreenExclusiveModeEXT&    args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2787,6 +3031,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(
     const ApiCallInfo&                          call_info,
     args::ReleaseSwapchainImagesEXT&            args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -3131,6 +3377,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
     const ApiCallInfo&                          call_info,
     args::BindTensorMemoryARM&                  args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -3200,6 +3447,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindOpticalFlowSessionImageNV(
     const ApiCallInfo&                          call_info,
     args::BindOpticalFlowSessionImageNV&        args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -3212,36 +3460,87 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     const ApiCallInfo&                          call_info,
     args::CreateShadersEXT&                     args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pShaders.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    const format::HandleId* capture_ids = args.pShaders.GetPointer();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pShaders.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkShaderCreateInfoEXT* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkShaderCreateInfoEXT* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    VkDevice in_device  = device_info->handle;
+    for (uint32_t i : to_create)
+    {
+        // Move index i into slot 0 so Override/driver code (which always
+        // starts at index 0) operates on the shader we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        args.pShaders.SetHandleLength(1);   // (re)allocate a 1-element output slot
+
+         VkResult replay_result = OverrideCreateShadersEXT(
+                                            GetDeviceTable(in_device)->CreateShadersEXT,
+                                            args.result,
+                                            device_info,
+                                            1,
+                                            &args.pCreateInfos,
+                                            &args.pAllocator,
+                                            &args.pShaders);
+
+        VkShaderEXT out_handle = args.pShaders.GetHandlePointer()[0];
+
+        if (replay_result == VK_SUCCESS)
+        {
+            AddHandle<VulkanShaderEXTInfo>(
+                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkShaderEXTInfo);
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkShaderEXT (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
+                capture_ids[i], replay_result);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -3282,36 +3581,89 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     const ApiCallInfo&                          call_info,
     args::CreateDataGraphPipelinesARM&          args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkDataGraphPipelineCreateInfoARM* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkDataGraphPipelineCreateInfoARM* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    VkDevice in_device  = device_info->handle;
+    for (uint32_t i : to_create)
+    {
+        // Move index i into slot 0 so Override/driver code (which always
+        // starts at index 0) operates on the shader we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+
+         VkResult replay_result = OverrideCreateDataGraphPipelinesARM(
+                                            GetDeviceTable(in_device)->CreateDataGraphPipelinesARM,
+                                            args.result,
+                                            device_info,
+                                            GetObjectInfoTable().GetVkDeferredOperationKHRInfo(args.deferredOperation),
+                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
+                                            1,
+                                            &args.pCreateInfos,
+                                            &args.pAllocator,
+                                            &args.pPipelines);
+
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (replay_result == VK_SUCCESS)
+        {
+            AddHandle<VulkanPipelineInfo>(
+                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
+                capture_ids[i], replay_result);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -3343,6 +3695,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
     const ApiCallInfo&                          call_info,
     args::BindDataGraphPipelineSessionMemoryARM& args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -3526,6 +3879,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureKH
     const ApiCallInfo&                          call_info,
     args::DestroyAccelerationStructureKHR&      args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
