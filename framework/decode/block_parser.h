@@ -130,35 +130,8 @@ class BlockParser
     void SetFrameNumber(uint64_t frame_number) noexcept { frame_number_ = frame_number; }
     void SetBlockIndex(uint64_t block_index) noexcept { block_index_ = block_index; }
 
-    [[nodiscard]] uint64_t GetFrameNumber() const noexcept { return frame_number_; }
-    [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
-
-    // Parse the block header and load a block buffer
-    BlockIOError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
-
-    // Define parsers for every block and sub-block type
     ParsedBlock& ParseBlock(BlockBuffer& block_buffer);
-    ParsedBlock& ParseFunctionCall(BlockBuffer& block_buffer);
-    ParsedBlock& ParseMethodCall(BlockBuffer& block_buffer);
-    ParsedBlock& ParseMetaData(BlockBuffer& block_buffer);
-    ParsedBlock& ParseFrameMarker(BlockBuffer& block_buffer);
-    ParsedBlock& ParseStateMarker(BlockBuffer& block_buffer);
-    ParsedBlock& ParseAnnotation(BlockBuffer& block_buffer);
-
-    void HandleBlockReadError(BlockIOError error_code, const char* error_message) const;
-    void
-    WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
-
-    bool ShouldDeferDecompression(size_t block_size) const;
-
-    // Control use of parser local storage for decompression
-    const uint8_t*
-    DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
-
-    using ErrorHandler = std::function<void(BlockIOError, const char*)>;
-    BlockParser(ErrorHandler err, util::Compressor* compressor) : err_handler_(std::move(err)), compressor_(compressor)
-    {}
-    BlockParser() = delete;
+    void         HandleBlockReadError(BlockIOError error_code, const char* error_message) const;
 
     void SetDecompressionPolicy(DecompressionPolicy policy) noexcept { decompression_policy_ = policy; }
     void SetOperationMode(OperationMode mode) noexcept { operation_mode_ = mode; }
@@ -166,7 +139,18 @@ class BlockParser
     DecompressionPolicy GetDecompressionPolicy() const noexcept { return decompression_policy_; }
     OperationMode       GetOperationMode() const noexcept { return operation_mode_; }
 
+    using ErrorHandler = std::function<void(BlockIOError, const char*)>;
+    BlockParser(ErrorHandler err, util::Compressor* compressor) : err_handler_(std::move(err)), compressor_(compressor)
+    {}
+    BlockParser() = delete;
+
+    [[nodiscard]] uint64_t GetFrameNumber() const noexcept { return frame_number_; }
+    [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
+
     BlockAllocator& GetBlockAllocator() noexcept { return block_allocator_; }
+
+    // Parse the block header and load a block buffer
+    BlockIOError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
 
     template <typename... Args>
     ParsedBlock& EmplaceResultsBlock(Args&&... args)
@@ -183,6 +167,23 @@ class BlockParser
     }
 
   private:
+    // Define parsers for every block and sub-block type
+    ParsedBlock& ParseFunctionCall(BlockBuffer& block_buffer);
+    ParsedBlock& ParseMethodCall(BlockBuffer& block_buffer);
+    ParsedBlock& ParseMetaData(BlockBuffer& block_buffer);
+    ParsedBlock& ParseFrameMarker(BlockBuffer& block_buffer);
+    ParsedBlock& ParseStateMarker(BlockBuffer& block_buffer);
+    ParsedBlock& ParseAnnotation(BlockBuffer& block_buffer);
+
+    void
+    WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
+
+    bool ShouldDeferDecompression(size_t block_size) const;
+
+    // Control use of parser local storage for decompression
+    const uint8_t*
+    DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
+
     // The parsing primitives below stay private; the parsers for extended meta-data types reach them
     // through this gateway rather than through a widened public interface.
     friend struct ExtendedMetaDataAccess;
