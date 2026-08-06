@@ -3185,6 +3185,12 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             GFXRECON_LOG_WARNING("Failed to create debug utils callback. VK_EXT_debug_utils extension is not available "
                                  "for the replay instance.");
 
+            if (options_.annotate_injected_commands)
+            {
+                GFXRECON_LOG_WARNING("--annotate-injected-commands was requested but VK_EXT_debug_utils is not "
+                                     "available for the replay instance; injected commands will not be labeled.");
+            }
+
             if (ext_debug_utils_it != modified_extensions.end())
             {
                 GFXRECON_LOG_INFO("VK_EXT_debug_utils was queried by the application but is not available on the "
