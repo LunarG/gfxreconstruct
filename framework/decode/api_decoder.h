@@ -239,6 +239,15 @@ class ApiDecoder
 
     virtual void DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
                                                const uint8_t*                       initialization_parameters_data){};
+
+    // Receives a meta-data block whose layout BlockParser does not know, parsed by an extended
+    // meta-data parser (see block_parser_meta_data.h). Only the decoder that claims meta_data_id
+    // through SupportsMetaDataId is called, and it is handed the block's parameter data undecoded
+    // so it can interpret it with its own API-specific decoders. meta_data_id identifies which
+    // extended type the data belongs to.
+    virtual void DispatchExtendedMetaDataBlock(format::MetaDataId meta_data_id,
+                                               const uint8_t*     parameter_buffer,
+                                               size_t             buffer_size){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

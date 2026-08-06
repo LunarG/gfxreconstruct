@@ -54,6 +54,11 @@ class ParsedBlock;
 // block using the parser's parsing primitives (ReadParameterBuffer, Emplace,
 // MakeCompressibleParsedBlock, ...) and returns it, or returns nullptr to decline the block, leaving
 // it to the unsupported-block handling.
+//
+// The block a parser returns carries one of the payloads in DispatchArgs (api_payload.h).
+// ExtendedMetaDataArgs is the payload meant for these types: it passes the block's parameter data
+// through undecoded to ApiDecoder::DispatchExtendedMetaDataBlock on the decoder that claims the
+// MetaDataId, so the parser here does not have to understand the payload -- only how to find it.
 using ExtendedMetaDataParser = ParsedBlock* (*)(BlockParser&       parser,
                                                 format::MetaDataId meta_data_id,
                                                 BlockBuffer&       block_buffer);
