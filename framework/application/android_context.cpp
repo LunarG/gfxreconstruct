@@ -43,38 +43,40 @@ void AndroidContext::ProcessEvents(bool wait_for_input)
 {
     assert(application_);
     assert(android_app_);
-    // Process all pending events.
+
+    // Process all pending events. The first poll blocks when waiting for input; subsequent polls only drain events
+    // that are already pending.
     for (;;)
     {
-        int                         result = 0;
-        int                         events = 0;
-        struct android_poll_source* source = nullptr;
+        int                         events  = 0;
+        struct android_poll_source* source  = nullptr;
+        const int                   timeout = wait_for_input ? -1 : 0;
 
-        if (wait_for_input)
+        const int result = ALooper_pollOnce(timeout, nullptr, &events, reinterpret_cast<void**>(&source));
+        wait_for_input   = false;
+
+        // Unlike the deprecated ALooper_pollAll(), ALooper_pollOnce() returns to the caller after dispatching an event
+        // to a registered looper callback.
+        if (result == ALOOPER_POLL_CALLBACK)
         {
-            result         = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
-            wait_for_input = false;
-        }
-        else
-        {
-            result = ALooper_pollAll(0, nullptr, &events, reinterpret_cast<void**>(&source));
+            continue;
         }
 
-        if (result >= 0)
+        // ALOOPER_POLL_WAKE, ALOOPER_POLL_TIMEOUT, and ALOOPER_POLL_ERROR all indicate that there is no event for this
+        // thread to process.
+        if (result < 0)
         {
-            if (source)
-            {
-                source->process(android_app_, source);
-            }
-
-            if (android_app_->destroyRequested != 0)
-            {
-                application_->StopRunning();
-                break;
-            }
+            break;
         }
-        else
+
+        if (source != nullptr)
         {
+            source->process(android_app_, source);
+        }
+
+        if (android_app_->destroyRequested != 0)
+        {
+            application_->StopRunning();
             break;
         }
     }
