@@ -297,6 +297,18 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& ca
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteTimestamp(const ApiCallInfo&       call_info,
+                                                                args::CmdWriteTimestamp& args)
+{
+    if (frame_loop_info_.IsRepetition())
+    {
+        // Skip writing timestamps during repetition to avoid "query not reset" errors
+        // if the capture doesn't reset them in the frame.
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
 {
     // If fence hasn't been seen yet, check and store the state it is in.
