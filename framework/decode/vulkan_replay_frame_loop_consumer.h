@@ -59,6 +59,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args) override;
 
+    void Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args) override;
+
+    void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
+
+    void Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args) override;
+
+    void Process_vkDestroyEvent(const ApiCallInfo& call_info, args::DestroyEvent& args) override;
+
+    void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
+
     void Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args) override;
 
     void Process_vkMapMemory(const ApiCallInfo& call_info, args::MapMemory& args) override;
@@ -74,12 +84,24 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     // Private declarations
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
+
     struct FenceTracking
     {
         std::unordered_map<format::HandleId, bool> initial_fence_states_;
     };
+    void TrackFenceStates();
     void TrackFenceState(format::HandleId device, format::HandleId fence);
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
+    void FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext);
+
+    struct EventTracking
+    {
+        std::unordered_map<format::HandleId, bool> initial_event_states_;
+    };
+    void TrackEventStates();
+    void TrackEventState(format::HandleId device, format::HandleId event);
+    void FixupDeviceEvents(format::HandleId device);
+    void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
 
     // Private data
   private:
@@ -94,6 +116,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
     std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
+
+    std::unordered_set<format::HandleId>                host_visible_events_;
+    std::unordered_map<format::HandleId, EventTracking> per_device_event_tracking_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;

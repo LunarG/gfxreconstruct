@@ -51,6 +51,7 @@ void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
     if (frame_loop_info_.IsLooping())
     {
         per_device_fence_tracking_.clear();
+        per_device_event_tracking_.clear();
         StartLooping();
     }
 }
@@ -59,12 +60,50 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
 {
     WaitDevicesIdle();
     GFXRECON_LOG_DEBUG("VulkanReplayFrameLoopConsumer::StartLooping()");
-    CommonObjectInfoTable& table = GetObjectInfoTable();
-    table.VisitVkFenceInfo([this](const VulkanFenceInfo* fence_info) {
+    TrackFenceStates();
+    TrackEventStates();
+}
+
+void VulkanReplayFrameLoopConsumer::TrackFenceStates()
+{
+    GetObjectInfoTable().VisitVkFenceInfo([this](const VulkanFenceInfo* fence_info) {
         GFXRECON_LOG_DEBUG("Tracking fence state for fence %" PRIu64, fence_info->capture_id);
         format::HandleId device_id = fence_info->parent_id;
         this->TrackFenceState(device_id, fence_info->capture_id);
     });
+}
+
+void VulkanReplayFrameLoopConsumer::TrackEventStates()
+{
+    GetObjectInfoTable().VisitVkEventInfo([this](const VulkanEventInfo* event_info) {
+        GFXRECON_LOG_DEBUG("Tracking event state for event %" PRIu64, event_info->capture_id);
+        format::HandleId device_id = event_info->parent_id;
+        this->TrackEventState(device_id, event_info->capture_id);
+    });
+}
+
+void VulkanReplayFrameLoopConsumer::TrackEventState(format::HandleId device, format::HandleId event)
+{
+    if (!host_visible_events_.contains(event))
+    {
+        // Ignore device only events.
+        return;
+    }
+
+    // If event hasn't been seen yet, check and store the state it is in.
+    EventTracking& t = per_device_event_tracking_[device];
+    if (!t.initial_event_states_.contains(event))
+    {
+        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
+        GFXRECON_ASSERT(device_info != nullptr);
+        VulkanEventInfo* event_info = GetObjectInfoTable().GetVkEventInfo(event);
+        GFXRECON_ASSERT(event_info != nullptr);
+        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        VkResult res = device_table->GetEventStatus(device_info->handle, event_info->handle);
+        GFXRECON_LOG_DEBUG("Event %" PRIu64 " set == %s", event, res == VK_EVENT_SET ? "true" : "false");
+        t.initial_event_states_[event] = res == VK_EVENT_SET;
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
@@ -243,7 +282,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& cal
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args)
 {
-    if (allocatedLoopResources.contains(args.fence))
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, args);
+    bool destroyed = (GetObjectInfoTable().GetVkFenceInfo(args.fence) == nullptr);
+    if (destroyed)
     {
         if (per_device_fence_tracking_.contains(args.device))
         {
@@ -254,7 +295,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& ca
             t.initial_fence_states_.erase(args.fence);
         }
     }
-    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
@@ -325,6 +365,92 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     }
 }
 
+void VulkanReplayFrameLoopConsumer::FixupDeviceEvents(format::HandleId device)
+{
+    // Get event tracking info associated with this VkDevice
+    if (!per_device_event_tracking_.contains(device))
+    {
+        // No need to fixup event if there weren't any.
+        return;
+    }
+
+    EventTracking& t = per_device_event_tracking_[device];
+
+    VulkanObjectInfoTable&             table        = GetObjectInfoTable();
+    VkDevice                           vk_device    = table.GetVkDeviceInfo(device)->handle;
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(vk_device);
+
+    // Set all events to their initial state.
+    for (auto [event_id, was_initially_set] : t.initial_event_states_)
+    {
+        VulkanEventInfo* event_info = table.GetVkEventInfo(event_id);
+        VkEvent          vk_event   = event_info->handle;
+        VkResult         result     = VK_ERROR_UNKNOWN;
+        if (was_initially_set)
+        {
+            CHECK_VK_RESULT(device_table->SetEvent(vk_device, vk_event), "vkSetEvent");
+        }
+        else
+        {
+            CHECK_VK_RESULT(device_table->ResetEvent(vk_device, vk_event), "vkResetEvent");
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(call_info, args);
+
+    const VkEventCreateInfo* create_info = args.pCreateInfo.GetPointer();
+    if (create_info == nullptr)
+    {
+        return;
+    }
+
+    // Track host visible events.
+    bool host_visible = (create_info->flags & VK_EVENT_CREATE_DEVICE_ONLY_BIT) != VK_EVENT_CREATE_DEVICE_ONLY_BIT;
+    if (host_visible)
+    {
+        format::HandleId event_id = *args.pEvent.GetPointer();
+        host_visible_events_.insert(event_id);
+    }
+
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
+    {
+        bool device_only = (create_info->flags & VK_EVENT_CREATE_DEVICE_ONLY_BIT) == VK_EVENT_CREATE_DEVICE_ONLY_BIT;
+        // Ignore device only events.
+        if (!device_only)
+        {
+            // Record the initial state of the new event
+            EventTracking&                     t               = per_device_event_tracking_[args.device];
+            VulkanObjectInfoTable&             table           = GetObjectInfoTable();
+            VkDevice                           vk_device       = table.GetVkDeviceInfo(args.device)->handle;
+            const graphics::VulkanDeviceTable* device_table    = GetDeviceTable(vk_device);
+            VkEvent                            vk_event        = *args.pEvent.GetHandlePointer();
+            VkResult                           status          = device_table->GetEventStatus(vk_device, vk_event);
+            bool                               is_set          = (status == VK_EVENT_SET);
+            t.initial_event_states_[*args.pEvent.GetPointer()] = is_set;
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkDestroyEvent(const ApiCallInfo& call_info, args::DestroyEvent& args)
+{
+    if (allocatedLoopResources.contains(args.event))
+    {
+        if (per_device_event_tracking_.contains(args.device))
+        {
+            EventTracking& t = per_device_event_tracking_[args.device];
+
+            // Remove event tracking struct from map if
+            // event was created and destroyed during the loop range.
+            t.initial_event_states_.erase(args.event);
+            host_visible_events_.erase(args.event);
+        }
+    }
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_info, args::MapMemory& args)
 {
     // Pass the call along if we are not looping or
@@ -340,6 +466,80 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_
         mapped_loop_memory.insert(args.memory);
     }
     VulkanReplayConsumer::Process_vkMapMemory(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext)
+{
+    const Decoded_VkFrameBoundaryEXT* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pNext);
+    if (frame_boundary != nullptr)
+    {
+        if ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) ==
+            VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
+        {
+            // This submit is being used as a frame boundary
+            CommonObjectInfoTable& table      = GetObjectInfoTable();
+            VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
+            VkDevice               device     = queue_info->parent;
+            GFXRECON_ASSERT(device != 0);
+            const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+            GFXRECON_ASSERT(device_table != nullptr);
+
+            GFXRECON_LOG_DEBUG("Waiting for device to idle...");
+            VkResult result = device_table->DeviceWaitIdle(device);
+            CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
+
+            FixupDeviceObjects(queue_info->parent_id, queue);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)
+{
+    if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
+    {
+        return;
+    }
+    FixupDeviceEvents(device);
+    FixupDeviceFences(device, queue);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkQueueBindSparse(call_info, args);
+
+    if (frame_loop_info_.IsLooping())
+    {
+        for (Decoded_VkBindSparseInfo submit : args.pBindInfo.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
+{
+    VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
+
+    if (frame_loop_info_.IsLooping())
+    {
+        for (Decoded_VkSubmitInfo submit : args.pSubmits.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args)
+{
+    VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, args);
+
+    if (frame_loop_info_.IsLooping())
+    {
+        for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args)
@@ -359,7 +559,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
         VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-        FixupDeviceFences(queue_info->parent_id, args.queue);
+        FixupDeviceObjects(queue_info->parent_id, args.queue);
     }
 }
 

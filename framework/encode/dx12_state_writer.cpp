@@ -1510,7 +1510,9 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         {
             encoder_.EncodeEnumValue(swapchain_info->hdr_metadata_type);
             encoder_.EncodeUInt32Value(swapchain_info->hdr_metadata_size);
-            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata, swapchain_info->hdr_metadata_size);
+            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata.empty() ? nullptr
+                                                                          : swapchain_info->hdr_metadata.data(),
+                                     swapchain_info->hdr_metadata_size);
             encoder_.EncodeInt32Value(S_OK);
             WriteMethodCall(format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData,
                             swapchain_wrapper->GetCaptureId(),

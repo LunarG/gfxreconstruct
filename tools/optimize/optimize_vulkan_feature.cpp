@@ -82,15 +82,16 @@ bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&         
     file_processor.AddDecoder(&decoder);
     file_processor.ProcessAllFrames();
 
-    if (file_processor.GetCurrentFrameNumber() == 0)
-    {
-        GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-        return false;
-    }
-
     if (file_processor.GetErrorState() != decode::BlockIOError::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
+        return false;
+    }
+
+    // Command buffer submissions provide resource usage for frameless captures.
+    if (file_processor.GetCurrentFrameNumber() == 0 && !resref_consumer.WasCommandBufferSubmissionSeen())
+    {
+        GFXRECON_WRITE_CONSOLE("File did not contain any frames or command buffer submissions");
         return false;
     }
 
