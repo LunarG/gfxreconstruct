@@ -24,7 +24,6 @@
 #define GFXRECON_DECODE_FILE_PROCESSOR_VISITORS_H
 
 // Implementation header: include only from .cpp files that use DispatchVisitor or ProcessVisitor.
-#include "decode/decode_allocator.h"
 #include "decode/file_processor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -66,29 +65,6 @@ inline bool ContinueBlockProcessing(uint64_t block_limit, const DispatchConfig& 
         return !all_complete;
     }
     return true;
-}
-
-template <typename Args>
-bool DecoderSupportsDispatch(ApiDecoder& decoder, const Args& args)
-{
-    if constexpr (DispatchTraits<Args>::kHasCallId)
-    {
-        return decoder.SupportsApiCall(args.call_id);
-    }
-    else if constexpr (DispatchTraits<Args>::kHasMetaDataId)
-    {
-        return decoder.SupportsMetaDataId(args.meta_data_id);
-    }
-    return true;
-}
-
-template <typename Args>
-void SetDecoderApiCallId(ApiDecoder& decoder, const Args& args)
-{
-    if constexpr (DispatchTraits<Args>::kHasCallId)
-    {
-        decoder.SetCurrentApiCallId(args.call_id);
-    }
 }
 
 class DispatchVisitor
@@ -170,20 +146,9 @@ class DispatchVisitor
     template <typename Args>
     ProcessBlockState DispatchArgs(const Args* args)
     {
-        constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
         for (auto decoder : config_.decoders)
         {
-            if (DecoderSupportsDispatch(*decoder, *args))
-            {
-                [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
-                SetDecoderApiCallId(*decoder, *args);
-                GFXRECON_ASSERT(block_index_ != ParsedBlock::kInvalidIndex);
-                decoder->SetCurrentBlockIndex(block_index_);
-                auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
-                    (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
-                };
-                std::apply(dispatch_call, args->GetTuple());
-            }
+            decoder->Dispatch(*args, block_index_);
         }
         // NOTE: If future decoders can updata state, this should be updated to forward that information.
         return ProcessBlockState::kContinue;
