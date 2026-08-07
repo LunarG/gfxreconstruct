@@ -59,6 +59,8 @@ class Dx12JsonConsumerBase : public Dx12Consumer
     ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
                                           const uint8_t*                                      data) override;
     virtual void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) override;
+    virtual void ProcessD3D12CreateDeviceAdapterInfo(
+        const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header) override;
     virtual void Process_DriverInfo(const char* info_record) override;
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) override;
     /// @}

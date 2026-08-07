@@ -151,6 +151,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
+    virtual void ProcessD3D12CreateDeviceAdapterInfo(
+        const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header) override;
+
     // This method is used by custom commands for IDXGIAdapter::GetDesc, IDXGIAdapter1::GetDesc1,
     // IDXGIAdapter2::GetDesc2, and IDXGIAdapter4::GetDesc3.
     template <class T>
@@ -1265,7 +1268,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     };
 
-    IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info);
+    IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info, HandlePointerDecoder<void*>* device);
+
+    IUnknown* MatchReplayAdapterToCaptureDesc(const format::DxgiAdapterDesc* capture_desc);
+
+    void WarnIfGpuOverrideMismatch(const format::DxgiAdapterDesc& capture_desc);
 
     void InitializeD3D12Device(HandlePointerDecoder<void*>* device);
 
@@ -1367,42 +1374,44 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                   uint8_t*                           parameters_data,
                                   uint8_t                            parameters_data_sizeinbytes);
 
-    std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
-    Dx12ObjectInfoTable                                   object_info_table_;
-    std::shared_ptr<application::Application>             application_;
-    std::unordered_set<Window*>                           active_windows_;
-    std::unordered_map<uint64_t, HWND>                    window_handles_;
-    std::unordered_map<uint64_t, MappedMemoryEntry>       mapped_memory_;
-    std::unordered_map<uint64_t, void*>                   heap_allocations_;
-    std::unordered_map<uint64_t, HANDLE>                  event_objects_;
-    std::unordered_map<uint64_t, LUID>                    adapter_luid_map_;
-    std::unordered_map<uint64_t, void*>                   shared_handles_;
-    Dx12DescriptorMap                                     descriptor_map_;
-    graphics::Dx12GpuVaMap                                gpu_va_map_;
-    std::unique_ptr<uint8_t[]>                            debug_message_;
-    SIZE_T                                                current_message_length_;
-    IDXGIInfoQueue*                                       info_queue_;
-    bool                                                  debug_layer_enabled_;
-    bool                                                  set_auto_breadcrumbs_enablement_;
-    bool                                                  set_breadcrumb_context_enablement_;
-    bool                                                  set_page_fault_enablement_;
-    bool                                                  loading_trim_state_;
-    graphics::FpsInfo*                                    fps_info_;
-    std::unique_ptr<Dx12ResourceValueMapper>              resource_value_mapper_;
-    std::unique_ptr<Dx12AccelerationStructureBuilder>     accel_struct_builder_;
-    graphics::Dx12ShaderIdMap                             shader_id_map_;
-    graphics::dx12::ActiveAdapterMap                      adapters_;
-    IDXGIAdapter*                                         render_adapter_{ nullptr };
-    FillMemoryResourceValueInfo                           fill_memory_resource_value_info_;
-    std::unique_ptr<graphics::Dx12ResourceDataUtil>       resource_data_util_;
-    std::string                                           screenshot_file_prefix_;
-    util::ScreenshotFormat                                screenshot_format_;
-    std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
-    uint64_t                                              unique_proxy_window_id_counter_;
-    std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
-    uint64_t                                              frame_end_marker_count_;
-    std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
-    std::unordered_set<ID3D12CommandQueue*>               trim_state_tile_update_queues_;
+    std::unique_ptr<graphics::DX12ImageRenderer>                  frame_buffer_renderer_;
+    Dx12ObjectInfoTable                                           object_info_table_;
+    std::shared_ptr<application::Application>                     application_;
+    std::unordered_set<Window*>                                   active_windows_;
+    std::unordered_map<uint64_t, HWND>                            window_handles_;
+    std::unordered_map<uint64_t, MappedMemoryEntry>               mapped_memory_;
+    std::unordered_map<uint64_t, void*>                           heap_allocations_;
+    std::unordered_map<uint64_t, HANDLE>                          event_objects_;
+    std::unordered_map<uint64_t, LUID>                            adapter_luid_map_;
+    std::unordered_map<uint64_t, void*>                           shared_handles_;
+    Dx12DescriptorMap                                             descriptor_map_;
+    graphics::Dx12GpuVaMap                                        gpu_va_map_;
+    std::unique_ptr<uint8_t[]>                                    debug_message_;
+    SIZE_T                                                        current_message_length_;
+    IDXGIInfoQueue*                                               info_queue_;
+    bool                                                          debug_layer_enabled_;
+    bool                                                          set_auto_breadcrumbs_enablement_;
+    bool                                                          set_breadcrumb_context_enablement_;
+    bool                                                          set_page_fault_enablement_;
+    bool                                                          loading_trim_state_;
+    graphics::FpsInfo*                                            fps_info_;
+    std::unique_ptr<Dx12ResourceValueMapper>                      resource_value_mapper_;
+    std::unique_ptr<Dx12AccelerationStructureBuilder>             accel_struct_builder_;
+    graphics::Dx12ShaderIdMap                                     shader_id_map_;
+    graphics::dx12::ActiveAdapterMap                              adapters_;
+    IDXGIAdapter*                                                 render_adapter_{ nullptr };
+    FillMemoryResourceValueInfo                                   fill_memory_resource_value_info_;
+    std::unique_ptr<graphics::Dx12ResourceDataUtil>               resource_data_util_;
+    std::string                                                   screenshot_file_prefix_;
+    util::ScreenshotFormat                                        screenshot_format_;
+    std::unique_ptr<ScreenshotHandlerBase>                        screenshot_handler_;
+    uint64_t                                                      unique_proxy_window_id_counter_;
+    std::unordered_map<ID3D12Resource*, ResourceInitInfo>         resource_init_infos_;
+    uint64_t                                                      frame_end_marker_count_;
+    std::unordered_map<ID3D12MetaCommand*, GUID>                  meta_command_guids_;
+    std::unordered_set<ID3D12CommandQueue*>                       trim_state_tile_update_queues_;
+    std::unordered_map<format::HandleId, format::DxgiAdapterDesc> capture_adapter_desc_by_id_;
+    std::unordered_map<format::HandleId, format::HandleId>        capture_adapter_id_by_device_id_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };

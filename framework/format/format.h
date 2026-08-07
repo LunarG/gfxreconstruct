@@ -172,6 +172,7 @@ enum class MetaDataType : uint16_t
     kSetOpaqueCaptureDescriptorDataCommand              = 37,
     kInitDx12AccelerationStructureCommand2              = 38,
     kInitTensorCommand                                  = 39,
+    kD3D12CreateDeviceAdapterInfoCommand                = 40,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -688,6 +689,15 @@ struct DxgiAdapterInfoCommandHeader
     MetaDataHeader  meta_header;
     ThreadId        thread_id;
     DxgiAdapterDesc adapter_desc;
+};
+
+struct D3D12CreateDeviceAdapterInfoCommandHeader
+{
+    MetaDataHeader  meta_header;
+    ThreadId        thread_id;
+    HandleId        adapter_id;
+    DxgiAdapterDesc adapter_desc;
+    HandleId        device_id;
 };
 
 struct Dx12RuntimeInfo

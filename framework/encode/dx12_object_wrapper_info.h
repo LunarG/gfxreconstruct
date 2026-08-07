@@ -402,6 +402,8 @@ struct ID3D12DeviceInfo : public DxWrapperInfo
     IDXGIAdapter3* adapter3{ nullptr };
     uint32_t       adapter_node_index{ 0 };
 
+    format::HandleId adapter_id{ format::kNullHandleId };
+
     std::unordered_map<format::HandleId, D3D12_RESIDENCY_PRIORITY> residency_priorities; // ID3D12Pageable
 
     // Cache features of the device to avoid repeated queries

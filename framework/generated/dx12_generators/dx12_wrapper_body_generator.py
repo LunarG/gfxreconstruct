@@ -72,6 +72,22 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         'IDXGISwapChain1': ['Present1']
     }
 
+    # Additional calls to inject into the object wrapping block of specific functions
+    WRAP_OBJECT_ADDITIONAL_CALLS = {
+        'functions': {
+            'D3D12CreateDevice': [
+                'manager->WriteD3D12CreateDeviceAdapterInfoCommand(pAdapter, ppDevice);'
+            ]
+        },
+        'classmethods': {
+            'ID3D12DeviceFactory': {
+                'CreateDevice': [
+                    'manager->WriteD3D12CreateDeviceAdapterInfoCommand(adapter, ppvDevice);'
+                ]
+            }
+        }
+    }
+
     def __init__(
         self,
         source_dict,
@@ -314,20 +330,20 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         return wrapped_values
 
-    def gen_wrap_object(self, return_type, param_info, indent):
+    def gen_wrap_object(self, return_type, param_info, indent, additional_calls=None):
         expr = ''
-        params_wrap_obejct, params_wrap_struct = self.get_object_creation_params(
+        params_wrap_object, params_wrap_struct = self.get_object_creation_params(
             param_info
         )
 
-        if params_wrap_obejct or params_wrap_struct:
+        if params_wrap_object or params_wrap_struct:
             expr += '\n'
             if return_type == 'HRESULT':
                 expr += indent + 'if (SUCCEEDED(result))\n'
                 expr += indent + '{\n'
                 indent = self.increment_indent(indent)
 
-            for tuple in params_wrap_obejct:
+            for tuple in params_wrap_object:
                 if not tuple[2]:
                     expr += indent + 'WrapObject({}, {}, nullptr);\n'.format(
                         tuple[0], tuple[1]
@@ -347,6 +363,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     expr += indent + 'WrapStruct(*{});\n'.format(value.name)
                 else:
                     expr += indent + 'WrapStruct({});\n'.format(value.name)
+
+            for call in (additional_calls or []):
+                expr += indent + call + '\n'
 
             if return_type == 'HRESULT':
                 indent = self.decrement_indent(indent)
@@ -561,7 +580,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += unwrapped_args
         expr += ');\n'
 
-        expr += self.gen_wrap_object(return_type, parameters, indent)
+        expr += self.gen_wrap_object(
+            return_type, parameters, indent,
+            self.WRAP_OBJECT_ADDITIONAL_CALLS['functions'].get(name, [])
+        )
 
         expr += '\n'
         expr += indent + 'Encode_{}('.format(name)
@@ -798,7 +820,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += unwrapped_args
             expr += ');\n'
 
-            expr += self.gen_wrap_object(return_type, parameters, indent)
+            expr += self.gen_wrap_object(
+                return_type, parameters, indent,
+                self.WRAP_OBJECT_ADDITIONAL_CALLS['classmethods'].get(
+                    class_name, {}
+                ).get(method_name, [])
+            )
 
             if is_override is False and 'ID3D12GraphicsCommandList' in class_name:
                 indent1 = self.increment_indent(indent)

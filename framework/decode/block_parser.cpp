@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     format::BlockHeader block_header;
-    BlockIOError  status = kErrorNone;
+    BlockIOError        status = kErrorNone;
 
     const size_t peeked_bytes = input_stream->PeekBytes(&block_header, sizeof(block_header));
     if (peeked_bytes == 0)
@@ -1440,6 +1440,38 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         else
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read adapter info meta-data block");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kD3D12CreateDeviceAdapterInfoCommand)
+    {
+        format::D3D12CreateDeviceAdapterInfoCommandHeader adapter_info_header;
+        memset(&adapter_info_header, 0, sizeof(adapter_info_header));
+
+        success = block_buffer.Read(adapter_info_header.thread_id);
+        success = success && block_buffer.Read(adapter_info_header.adapter_id);
+
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.Description);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.VendorId);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.DeviceId);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.SubSysId);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.Revision);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.DedicatedVideoMemory);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.DedicatedSystemMemory);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.SharedSystemMemory);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.LuidLowPart);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.LuidHighPart);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.extra_info);
+        success = success && block_buffer.Read(adapter_info_header.device_id);
+
+        if (success)
+        {
+            // This command does not support compression.
+            auto* payload = Emplace<D3D12CreateDeviceAdapterInfoArgs>(meta_data_id, adapter_info_header);
+            return MakeIncompressibleParsedBlock(block_buffer, payload);
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read create device adapter info meta-data block");
         }
     }
     else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)

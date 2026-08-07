@@ -121,6 +121,8 @@ class Dx12StateWriter
         return !IsCachedPSOBlob(wrapper);
     }
 
+    void WriteD3D12CreateDeviceAdapterInfo(const Dx12StateTable& state_table);
+
     void WriteRootSignatureBlobState(const Dx12StateTable& state_table);
 
     void WriteCachedPSOBlobState(const Dx12StateTable& state_table);

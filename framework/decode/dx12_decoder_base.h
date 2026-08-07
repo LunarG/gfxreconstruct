@@ -217,6 +217,9 @@ class Dx12DecoderBase : public ApiDecoder
 
     virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) override;
 
+    virtual void DispatchD3D12CreateDeviceAdapterInfo(
+        const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header) override;
+
     virtual void
     DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& dx12_runtime_info_header) override;
 
