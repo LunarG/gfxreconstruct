@@ -186,6 +186,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                             self.is_struct(value_info.base_type)):
                         # complex types, pointers, and handles are taken from the meta struct
                         value = f'meta_struct.{value_info.name}'
+                    elif self.is_function_ptr(value_info.base_type):
+                        # function pointers are captured as uint64_t in the meta struct
+                        value = f'meta_struct.{value_info.name}'
                     elif self.is_bitflags(value_info):
                         # bitflags are taken from the raw decoded struct, but converted to a typesafe enum
                         value = f'{value_info.base_type}_t{{ decoded_value.{value_info.name} }}'
