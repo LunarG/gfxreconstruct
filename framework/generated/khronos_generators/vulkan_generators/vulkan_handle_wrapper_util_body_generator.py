@@ -64,6 +64,12 @@ class VulkanHandleWrapperUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
 
 
 class VulkanHandleWrapperUtilBodyGenerator(VulkanBaseGenerator):
+    """VulkanHandleWrapperUtilBodyGenerator - subclass of VulkanBaseGenerator.
+    Generates C++ functions responsible for retrieving the wrapped id of a handle
+    identified by object type when recording Vulkan API call parameter data.
+    Generate C++ functions for Vulkan handle id retrieval by object type at API capture.
+    """
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):

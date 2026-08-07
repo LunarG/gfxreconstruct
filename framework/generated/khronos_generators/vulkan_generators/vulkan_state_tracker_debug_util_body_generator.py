@@ -65,9 +65,11 @@ class VulkanStateTrackerDebugUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions
 
 
 class VulkanStateTrackerDebugUtilBodyGenerator(VulkanBaseGenerator):
-    """
-    Generates the functions that store the debug utils object name and tag call parameters, and
-    the function that writes them back out for a trimmed capture.
+    """VulkanStateTrackerDebugUtilBodyGenerator - subclass of VulkanBaseGenerator.
+    Generates C++ functions responsible for storing the debug utils object name and tag
+    call parameters on the wrapper for a handle identified by object type, and for writing
+    the stored parameters to the initial state.
+    Generate C++ functions for Vulkan debug utils object name and tag state at API capture.
     """
 
     def __init__(

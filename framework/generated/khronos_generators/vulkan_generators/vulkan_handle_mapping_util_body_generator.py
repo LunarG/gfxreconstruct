@@ -64,6 +64,12 @@ class VulkanHandleMappingUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
 
 
 class VulkanHandleMappingUtilBodyGenerator(VulkanBaseGenerator):
+    """VulkanHandleMappingUtilBodyGenerator - subclass of VulkanBaseGenerator.
+    Generates C++ functions responsible for mapping a captured handle
+    identified by object type when replaying Vulkan API calls.
+    Generate C++ functions for Vulkan handle mapping by object type at API replay.
+    """
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
