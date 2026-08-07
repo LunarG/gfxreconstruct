@@ -190,9 +190,9 @@ jobs:
         if [ "${{ matrix.config.type }}" == "release" ]
         then
           sh gradlew assembleRelease -Parm64-v8a
-          sh gradlew assembleRelease -Parmeabi-v7a
+          sh gradlew assembleRelease -Px86_64
         else
-          sh gradlew assembleDebug -Parm64-v8a
+          sh gradlew assembleDebug
         fi
     - name: Prepare artifacts
       run: |
@@ -206,7 +206,7 @@ jobs:
         if [ "${{ matrix.config.type }}" == "release" ]
         then
             cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
-            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
+            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/x86_64 gfxreconstruct-dev/layer/
         else
             cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
         fi
