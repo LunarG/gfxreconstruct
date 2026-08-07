@@ -226,7 +226,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/metadata_json_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_mapping_util.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_mapping_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
@@ -336,6 +335,7 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_handle_mapping_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.h

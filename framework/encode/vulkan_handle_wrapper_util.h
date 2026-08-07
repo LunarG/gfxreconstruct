@@ -51,7 +51,7 @@ static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format:
 static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
 typedef format::HandleId (*PFN_GetHandleId)();
 
-extern VulkanStateHandleTable state_handle_table_;
+inline VulkanStateHandleTable state_handle_table_;
 
 template <typename Wrapper>
 format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
