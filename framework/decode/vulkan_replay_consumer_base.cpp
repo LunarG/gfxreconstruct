@@ -5023,8 +5023,8 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     {
         const auto* meta_bind_info = &meta_bind_infos[i];
 
-        const auto  buf_len   = meta_bind_infos->pBufferBinds->GetLength();
-        const auto* meta_bufs = meta_bind_infos->pBufferBinds->GetMetaStructPointer();
+        const auto  buf_len   = meta_bind_info->pBufferBinds->GetLength();
+        const auto* meta_bufs = meta_bind_info->pBufferBinds->GetMetaStructPointer();
 
         for (uint32_t buf_i = 0; buf_i < buf_len; ++buf_i)
         {
@@ -5059,8 +5059,8 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
             }
         }
 
-        auto        img_op_len   = meta_bind_infos->pImageOpaqueBinds->GetLength();
-        const auto* meta_img_ops = meta_bind_infos->pImageOpaqueBinds->GetMetaStructPointer();
+        auto        img_op_len   = meta_bind_info->pImageOpaqueBinds->GetLength();
+        const auto* meta_img_ops = meta_bind_info->pImageOpaqueBinds->GetMetaStructPointer();
 
         for (uint32_t img_op_i = 0; img_op_i < img_op_len; ++img_op_i)
         {
@@ -5095,8 +5095,8 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
             }
         }
 
-        auto        img_len   = meta_bind_infos->pImageBinds->GetLength();
-        const auto* meta_imgs = meta_bind_infos->pImageBinds->GetMetaStructPointer();
+        auto        img_len   = meta_bind_info->pImageBinds->GetLength();
+        const auto* meta_imgs = meta_bind_info->pImageBinds->GetMetaStructPointer();
 
         for (uint32_t img_i = 0; img_i < img_len; ++img_i)
         {
@@ -5248,10 +5248,10 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                     }
                 }
 
-                modified_bind_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
-                modified_bind_info.pWaitSemaphores    = wait_semaphores.data();
-                modified_bind_info.waitSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
-                modified_bind_info.pWaitSemaphores    = signal_semaphores.data();
+                modified_bind_info.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores.size());
+                modified_bind_info.pWaitSemaphores      = wait_semaphores.data();
+                modified_bind_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
+                modified_bind_info.pSignalSemaphores    = signal_semaphores.data();
             }
 
             result = allocator->QueueBindSparse(queue_info->handle,
