@@ -82,6 +82,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define SCREENSHOT_FRAMES_UPPER                              "SCREENSHOT_FRAMES"
 #define SCREENSHOT_INTERVAL_LOWER                            "screenshot_interval"
 #define SCREENSHOT_INTERVAL_UPPER                            "SCREENSHOT_INTERVAL"
+#define SCREENSHOT_TRIGGER_LOWER                             "screenshot_trigger"
+#define SCREENSHOT_TRIGGER_UPPER                             "SCREENSHOT_TRIGGER"
 #define CAPTURE_FRAMES_LOWER                                 "capture_frames"
 #define CAPTURE_FRAMES_UPPER                                 "CAPTURE_FRAMES"
 #define CAPTURE_DRAW_CALLS_LOWER                             "capture_draw_calls"
@@ -228,6 +230,7 @@ class CaptureSettings
         std::vector<util::UintRange> screenshot_ranges;
         uint32_t                     screenshot_interval{ 1 };
         util::ScreenshotFormat       screenshot_format;
+        std::string                  screenshot_key;
         TrimBoundary                 trim_boundary{ TrimBoundary::kUnknown };
         std::vector<util::UintRange> trim_ranges;
         TrimDrawCalls                trim_draw_calls;
