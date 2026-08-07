@@ -181,6 +181,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_tracker.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_experimental_resource_value_tracker.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_experimental_resource_value_tracker.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dxil_lrs_parser.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_json_consumer_base.h>
@@ -483,8 +484,50 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_decode_test "")
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dxr_lrs_tests.cpp>
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
-    target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
+    # The in-DXIL LRS tests pull dx12_resource_value_mapper.obj into the test exe, which references symbols from
+    # d3d12.lib and DXC that gfxrecon_decode (a static lib) leaves to the consuming executable.
+    target_link_libraries(gfxrecon_decode_test
+                            PRIVATE
+                                gfxrecon_decode
+                                $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
+                                $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
+                                $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
+    if (D3D12_SUPPORT AND DXC_FOUND)
+        # dxcompiler.dll must sit beside the test exe at load time (the RDAT reader imports DxcCreateInstance).
+        add_custom_command(TARGET gfxrecon_decode_test POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${DXC_DLL_PATH}" "$<TARGET_FILE_DIR:gfxrecon_decode_test>")
+
+        # Stage the Agility SDK runtime (a D3D12/ folder beside the test exe). The in-DXIL LRS resolver deserializes
+        # through ID3D12DeviceConfiguration1 which requires the Agility SDK runtime to be loaded.
+        include(${PROJECT_SOURCE_DIR}/cmake/AgilitySDK.cmake)
+
+        # Compile the in-DXIL LRS test shaders from HLSL to DXIL libraries with the DXC executable from the fetched
+        # DXC redist. Each .hlsl declares subobjects that land in the library's RDAT part.
+        get_filename_component(DXC_BIN_DIR "${DXC_DLL_PATH}" DIRECTORY)
+        set(DXR_LRS_FIXTURE_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/test/dxr_lrs_fixtures)
+        set(DXR_LRS_FIXTURE_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/dxr_lrs_fixtures)
+        set(DXR_LRS_FIXTURES default_lrs associated_lrs multi_association two_lrs global_and_local mixed_lrs
+            no_subobjects)
+        set(DXR_LRS_FIXTURE_OUTPUTS "")
+        foreach(fixture ${DXR_LRS_FIXTURES})
+            add_custom_command(
+                OUTPUT ${DXR_LRS_FIXTURE_BIN_DIR}/${fixture}.cso
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${DXR_LRS_FIXTURE_BIN_DIR}
+                COMMAND "${DXC_BIN_DIR}/dxc.exe" -T lib_6_3
+                        -Fo ${DXR_LRS_FIXTURE_BIN_DIR}/${fixture}.cso
+                        ${DXR_LRS_FIXTURE_SRC_DIR}/${fixture}.hlsl
+                DEPENDS ${DXR_LRS_FIXTURE_SRC_DIR}/${fixture}.hlsl
+                COMMENT "Compiling DXR LRS fixture ${fixture}.hlsl")
+            list(APPEND DXR_LRS_FIXTURE_OUTPUTS ${DXR_LRS_FIXTURE_BIN_DIR}/${fixture}.cso)
+        endforeach()
+        add_custom_target(dxr_lrs_fixtures DEPENDS ${DXR_LRS_FIXTURE_OUTPUTS})
+        add_dependencies(gfxrecon_decode_test dxr_lrs_fixtures)
+        target_compile_definitions(gfxrecon_decode_test PRIVATE
+                                   GFXRECON_TEST_DXR_LRS_FIXTURE_DIR="${DXR_LRS_FIXTURE_BIN_DIR}")
+    endif()
     if (MSVC)
         # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
         # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.

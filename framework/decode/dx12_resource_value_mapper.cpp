@@ -24,15 +24,22 @@
 #include "decode/dx12_resource_value_mapper.h"
 
 #include "decode/custom_dx12_struct_decoders.h"
+#include "decode/dx12_dxil_lrs_parser.h"
 #include "decode/dx12_experimental_resource_value_tracker.h"
 #include "decode/dx12_object_mapping_util.h"
 
 #if defined(GFXRECON_DXC_SUPPORT)
 #include <d3d12shader.h>
 #include <dxcapi.h>
+
+// Header-only DXC reader for a DXIL container's RDAT (runtime data) part. The .inl pulls in
+// its function definitions, so it must be included in exactly one translation unit (this one).
+#include "dxc/DxilContainer/DxilRuntimeReflection.inl"
 #endif
 
 #include <codecvt>
+#include <stdexcept>
+#include <tuple>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -151,31 +158,270 @@ void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                
     }
 }
 
-std::string DemangleDxilExportName(const std::string& mangled_name)
+std::tuple<bool, std::string> TryDemangleDxilExportName(const std::string& export_name)
 {
-    size_t demangled_name_start = mangled_name.find_first_of("?");
-    size_t demangled_name_end   = mangled_name.find_first_of("@");
+    bool        was_demangled  = false;
+    std::string demangled_name = export_name;
 
-    std::string demangled_name = "";
-    if (demangled_name_start != std::string::npos && demangled_name_end != std::string::npos)
+    size_t demangled_name_start = export_name.find_first_of("?");
+    size_t demangled_name_end   = export_name.find_first_of("@");
+    if ((demangled_name_start != std::string::npos) && (demangled_name_end != std::string::npos) &&
+        (demangled_name_end > demangled_name_start))
     {
         // The char after '?' is the first char of the unmangled name so increment start pos.
         ++demangled_name_start;
-        demangled_name = mangled_name.substr(demangled_name_start, demangled_name_end - demangled_name_start);
+        demangled_name = export_name.substr(demangled_name_start, demangled_name_end - demangled_name_start);
+        was_demangled  = true;
     }
 
-    if (!demangled_name.empty())
-    {
-        GFXRECON_LOG_DEBUG("Found demangled DXIL export name '%s'.", demangled_name.c_str());
-    }
-    else
-    {
-        GFXRECON_LOG_WARNING("Failed to demangle DXIL export name '%s'.", mangled_name.c_str());
-    }
-    return demangled_name;
+    return { was_demangled, demangled_name };
 }
 
 } // namespace
+
+#if defined(GFXRECON_DXC_SUPPORT)
+// GetDxilLibraryInDxilLrsInfo has external linkage (declared in dx12_dxil_lrs_parser.h) so the decode unit test can
+// exercise it directly.
+
+// Recover the local root signatures authored inside a DXIL library (HLSL LocalRootSignature /
+// SubobjectToExportsAssociation subobjects, which live in the container's RDAT part) and resolve their export
+// associations.
+void GetDxilLibraryInDxilLrsInfo(const void*                                          dxil_library_bytecode,
+                                 SIZE_T                                               bytecode_length,
+                                 format::HandleId                                     state_object_id,
+                                 ID3D12DeviceConfiguration1*                          device_config,
+                                 std::set<ResourceValueInfo>&                         default_lrs_value_infos,
+                                 std::map<std::wstring, std::set<ResourceValueInfo>>& export_lrs_value_infos)
+{
+    if ((dxil_library_bytecode == nullptr) || (bytecode_length == 0))
+    {
+        return;
+    }
+
+    if (device_config == nullptr)
+    {
+        // ID3D12DeviceConfiguration1 is the only way to deserialize an in-DXIL local root signature.
+        GFXRECON_LOG_WARNING_ONCE(
+            "The replay device does not support ID3D12DeviceConfiguration1, so local root signatures authored inside "
+            "DXIL libraries cannot be deserialized. Some DXR shader-binding-table arguments may be left unmapped.");
+        return;
+    }
+
+    graphics::dx12::IDxcUtilsComPtr dxc_utils;
+    if (FAILED(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxc_utils))))
+    {
+        GFXRECON_LOG_WARNING_ONCE("GetDxilLibraryInDxilLrsInfo: Failed to create a DxcUtils instance. Cannot parse "
+                                  "local root signatures from DXIL libraries.");
+        return;
+    }
+
+    graphics::dx12::IDxcContainerReflectionComPtr container_reflection;
+    if (FAILED(DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&container_reflection))))
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "GetDxilLibraryInDxilLrsInfo: Failed to create a DxcContainerReflection instance. Cannot parse "
+            "local root signatures from DXIL libraries.");
+        return;
+    }
+
+    graphics::dx12::IDxcBlobEncodingComPtr container_blob;
+    if (FAILED(dxc_utils->CreateBlobFromPinned(
+            dxil_library_bytecode, static_cast<UINT32>(bytecode_length), DXC_CP_ACP, &container_blob)))
+    {
+        GFXRECON_LOG_WARNING_ONCE("GetDxilLibraryInDxilLrsInfo: Failed to create a DXC blob for a DXIL library. "
+                                  "Shader ID to LRS associations may be incorrect.");
+        return;
+    }
+    if (FAILED(container_reflection->Load(container_blob)))
+    {
+        GFXRECON_LOG_WARNING_ONCE("GetDxilLibraryInDxilLrsInfo: Failed to load a DXIL library into container "
+                                  "reflection. Shader ID to LRS associations may be incorrect.");
+        return;
+    }
+
+    // The DXC redist's dxcapi.h defines no RDAT part constant, so construct the fourcc directly.
+    constexpr UINT32 kDxcPartRuntimeData = DXC_FOURCC('R', 'D', 'A', 'T');
+    UINT32           rdat_part_index     = 0;
+    if (FAILED(container_reflection->FindFirstPartKind(kDxcPartRuntimeData, &rdat_part_index)))
+    {
+        // No RDAT part means the library carries no runtime-data subobjects.
+        return;
+    }
+
+    graphics::dx12::IDxcBlobComPtr rdat_blob;
+    if (FAILED(container_reflection->GetPartContent(rdat_part_index, &rdat_blob)))
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "Failed to read the RDAT part of a DXIL library. Shader ID to LRS associations may be incorrect.");
+        return;
+    }
+
+    hlsl::RDAT::DxilRuntimeData rdat;
+    if (!rdat.InitFromRDAT(rdat_blob->GetBufferPointer(), rdat_blob->GetBufferSize()))
+    {
+        GFXRECON_LOG_DEBUG("Failed to parse RDAT runtime data from a DXIL library subobject.");
+        return;
+    }
+
+    // Compute resource value infos for each in-DXIL LRS (keyed by subobject name) and collect any
+    // explicit subobject-to-exports associations. A LocalRootSignature with no association is the library default.
+    std::map<std::string, std::set<ResourceValueInfo>> named_lrs_value_infos;
+    std::map<std::string, std::vector<std::string>>    associations;
+    auto                                               subobjects = rdat.GetSubobjectTable();
+    for (uint32_t i = 0; i < subobjects.Count(); ++i)
+    {
+        auto subobject = subobjects[i];
+        switch (subobject.getKind())
+        {
+            case hlsl::DXIL::SubobjectKind::LocalRootSignature:
+            {
+                // Deserialize the in-DXIL local root signature using
+                // CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary, then walk the resulting desc with the
+                // same helper the API root-signature path uses.
+                std::wstring subobject_name;
+                try
+                {
+                    subobject_name =
+                        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(subobject.getName());
+                }
+                catch (const std::range_error&)
+                {
+                    GFXRECON_LOG_WARNING("Failed to convert the name '%s' of an in-DXIL local root signature in state "
+                                         "object (id=%" PRIu64 ") to UTF-16. Shader ID to LRS associations may be "
+                                         "incorrect.",
+                                         subobject.getName(),
+                                         state_object_id);
+                    break;
+                }
+                graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr deserializer;
+                HRESULT hr = device_config->CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+                    dxil_library_bytecode, bytecode_length, subobject_name.c_str(), IID_PPV_ARGS(&deserializer));
+                if (SUCCEEDED(hr) && (deserializer != nullptr))
+                {
+                    std::set<ResourceValueInfo>                value_infos;
+                    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* versioned =
+                        deserializer->GetUnconvertedRootSignatureDesc();
+                    switch (versioned->Version)
+                    {
+                        case D3D_ROOT_SIGNATURE_VERSION_1_0:
+                            GetRootSignatureResourceValueInfos(&versioned->Desc_1_0, value_infos);
+                            break;
+                        case D3D_ROOT_SIGNATURE_VERSION_1_1:
+                            GetRootSignatureResourceValueInfos(&versioned->Desc_1_1, value_infos);
+                            break;
+                        case D3D_ROOT_SIGNATURE_VERSION_1_2:
+                            GetRootSignatureResourceValueInfos(&versioned->Desc_1_2, value_infos);
+                            break;
+                        default:
+                            GFXRECON_LOG_WARNING("Ignoring in-DXIL local root signature '%s' with unrecognized version "
+                                                 "(%d) in state object (id=%" PRIu64 ").",
+                                                 subobject.getName(),
+                                                 versioned->Version,
+                                                 state_object_id);
+                            break;
+                    }
+                    named_lrs_value_infos[subobject.getName()] = std::move(value_infos);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Failed to deserialize in-DXIL local root signature '%s' in state object "
+                                         "(id=%" PRIu64
+                                         ") (hr=0x%08lx). Shader ID to LRS associations may be incorrect.",
+                                         subobject.getName(),
+                                         state_object_id,
+                                         static_cast<unsigned long>(hr));
+                }
+                break;
+            }
+            case hlsl::DXIL::SubobjectKind::SubobjectToExportsAssociation:
+            {
+                // The spec allows multiple association records to reference the same subobject, so accumulate the
+                // exports across records.
+                auto  association = subobject.getSubobjectToExportsAssociation();
+                auto  exports     = association.getExports();
+                auto& export_list = associations[association.getSubobject()];
+                for (uint32_t e = 0; e < exports.Count(); ++e)
+                {
+                    export_list.push_back(exports[e]);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    // Resolve associations that target an LRS. An association with no exports is an explicit default.
+    std::set<std::string> associated_lrs_names;
+    for (const auto& association : associations)
+    {
+        auto lrs_iter = named_lrs_value_infos.find(association.first);
+        if (lrs_iter == named_lrs_value_infos.end())
+        {
+            continue;
+        }
+        associated_lrs_names.insert(association.first);
+
+        if (association.second.empty())
+        {
+            if (!default_lrs_value_infos.empty())
+            {
+                GFXRECON_LOG_WARNING("Found multiple default in-DXIL local root signatures in state object (id=%" PRIu64
+                                     "). Shader ID to LRS associations may be incorrect.",
+                                     state_object_id);
+            }
+            default_lrs_value_infos = lrs_iter->second;
+        }
+        else
+        {
+            // Associate the local root signature with each listed export. GFXR needs the unmangled name to match the
+            // names passed to ID3D12StateObjectProperties::GetShaderIdentifier. Inspection of the test fixtures shows
+            // that their in-DXIL associations resolve to unmangled names. The demangling path below is kept to be
+            // defensive but has not been exercised.
+            for (const auto& mangled_export : association.second)
+            {
+                auto [was_demangled, demangled_export] = TryDemangleDxilExportName(mangled_export);
+                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+                try
+                {
+                    export_lrs_value_infos[converter.from_bytes(demangled_export)] = lrs_iter->second;
+                }
+                catch (const std::range_error&)
+                {
+                    GFXRECON_LOG_WARNING("Failed to convert in-DXIL association export name '%s' to UTF-16. Shader ID "
+                                         "to LRS associations may be incorrect.",
+                                         demangled_export.c_str());
+                    continue;
+                }
+
+                if (was_demangled)
+                {
+                    GFXRECON_LOG_WARNING("Found a mangled export name '%s' in an in-DXIL explicit LRS association. "
+                                         "Demangling has not been exercised on this path, so the association may be "
+                                         "incorrect.",
+                                         mangled_export.c_str());
+                }
+            }
+        }
+    }
+
+    // Any LRS without an explicit association is the implicit default for the library's exports.
+    for (const auto& named_lrs : named_lrs_value_infos)
+    {
+        if (associated_lrs_names.count(named_lrs.first) != 0)
+        {
+            continue;
+        }
+        if (!default_lrs_value_infos.empty())
+        {
+            GFXRECON_LOG_WARNING("Found multiple default in-DXIL local root signatures in state object (id=%" PRIu64
+                                 "). Shader ID to LRS associations may be incorrect.",
+                                 state_object_id);
+        }
+        default_lrs_value_infos = named_lrs.second;
+    }
+}
+#endif // GFXRECON_DXC_SUPPORT
 
 Dx12ResourceValueMapper::Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
                                                  const graphics::Dx12ShaderIdMap&                  shader_id_map,
@@ -643,6 +889,7 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
 }
 
 void Dx12ResourceValueMapper::PostProcessCreateStateObject(
+    ID3D12Device*                                          device,
     HandlePointerDecoder<void*>*                           state_object_decoder,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
     const D3D12StateObjectInfo*                            grow_from_state_object)
@@ -656,6 +903,11 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
     std::map<std::wstring, format::HandleId>       lrs_associations_map;
     std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> existing_shader_id_lrs_map;
 
+    // Local root signatures authored inside a DXIL library have no handle id, so they resolve to resource value infos
+    // directly. There can be a default LRS or per-export associations.
+    std::set<ResourceValueInfo>                         in_dxil_default_lrs_value_infos;
+    std::map<std::wstring, std::set<ResourceValueInfo>> in_dxil_export_lrs_value_infos;
+
     auto state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(state_object_decoder);
     if (grow_from_state_object != nullptr)
     {
@@ -663,15 +915,22 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                                                           grow_from_state_object->shader_id_lrs_map.end());
     }
 
+    // Query for the ID3D12DeviceConfiguration1 object that is used to deserialize in-DXIL root signatures.
+    graphics::dx12::ID3D12DeviceConfiguration1ComPtr device_config;
+    device->QueryInterface(IID_PPV_ARGS(&device_config));
+
     GetStateObjectLrsAssociationInfo(state_object_id,
                                      desc_decoder,
+                                     device_config,
                                      export_names,
                                      local_root_signature_ids,
                                      explicit_default_local_root_signature_id,
                                      explicit_local_root_signature_associations,
                                      hit_group_imports,
                                      lrs_associations_map,
-                                     existing_shader_id_lrs_map);
+                                     existing_shader_id_lrs_map,
+                                     in_dxil_default_lrs_value_infos,
+                                     in_dxil_export_lrs_value_infos);
 
     if (!export_names.empty())
     {
@@ -762,44 +1021,112 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
         GFXRECON_ASSERT(SUCCEEDED(hr));
         for (auto& root_sig_pair : lrs_associations_map)
         {
-            auto export_local_root_sig_id = root_sig_pair.second;
+            const auto& export_name              = root_sig_pair.first;
+            auto        export_local_root_sig_id = root_sig_pair.second;
+
+            // Only exports with shader identifiers can be referenced from DXR shader-binding tables. Skip any exports
+            // without a valid shader ID.
+            auto new_shader_identifier_ptr = static_cast<uint8_t*>(props->GetShaderIdentifier(export_name.c_str()));
+            if (new_shader_identifier_ptr == nullptr)
+            {
+                continue;
+            }
+
+            // Resolve the export's LRS resource value infos.
+            //  - Resource values from API-level LRS are looked up by HandleId.
+            //  - In-DXIL LRS have no HandleId and supply their resource value infos directly.
+            //  - Any API-level associations (explicit or default) takes precedence over any in-DXIL one.
+            const std::set<ResourceValueInfo>* resolved_value_infos = nullptr;
             if (export_local_root_sig_id != format::kNullHandleId)
             {
-                const auto& export_name        = root_sig_pair.first;
-                auto new_shader_identifier_ptr = static_cast<uint8_t*>(props->GetShaderIdentifier(export_name.c_str()));
-                if (new_shader_identifier_ptr != nullptr)
+                auto local_root_sig_object_info = get_object_info_func_(export_local_root_sig_id);
+                GFXRECON_ASSERT(local_root_sig_object_info != nullptr);
+
+                auto local_root_sig_extra_info = GetExtraInfo<D3D12RootSignatureInfo>(local_root_sig_object_info);
+                GFXRECON_ASSERT(local_root_sig_extra_info != nullptr);
+
+                resolved_value_infos = &local_root_sig_extra_info->resource_value_infos;
+
+                GFXRECON_LOG_DEBUG("CreateStateObject: associating export '%ls' in state object (id=%" PRIu64
+                                   ") to local root signature (id=%" PRIu64 ")",
+                                   export_name.c_str(),
+                                   state_object_id,
+                                   export_local_root_sig_id);
+            }
+            else
+            {
+                // A hit group's local root signature may be associated to one of its component shaders
+                // (closest-hit/any-hit/intersection) rather than to the hit group export, so promote a component's
+                // in-DXIL association to the hit group, mirroring the API-handle promotion above. The spec requires a
+                // hit group's component shaders to share one local root signature, so the loop can break after the
+                // first matching import.
+                auto in_dxil_iter = in_dxil_export_lrs_value_infos.find(export_name);
+                if (in_dxil_iter == in_dxil_export_lrs_value_infos.end())
                 {
-                    auto replay_shader_id = graphics::PackDx12ShaderIdentifier(new_shader_identifier_ptr);
-
-                    auto local_root_sig_object_info = get_object_info_func_(export_local_root_sig_id);
-                    GFXRECON_ASSERT(local_root_sig_object_info != nullptr);
-
-                    auto local_root_sig_extra_info = GetExtraInfo<D3D12RootSignatureInfo>(local_root_sig_object_info);
-                    GFXRECON_ASSERT(local_root_sig_extra_info != nullptr);
-
-                    auto lrs_map = state_object_extra_info->shader_id_lrs_map.find(replay_shader_id);
-                    if (lrs_map == state_object_extra_info->shader_id_lrs_map.end())
+                    auto hit_group_import_iter = hit_group_imports.find(export_name);
+                    if (hit_group_import_iter != hit_group_imports.end())
                     {
-                        state_object_extra_info->shader_id_lrs_map[replay_shader_id] =
-                            local_root_sig_extra_info->resource_value_infos;
-                    }
-                    else
-                    {
-                        if (!((lrs_map->second.size() == local_root_sig_extra_info->resource_value_infos.size()) &&
-                              (std::equal(lrs_map->second.begin(),
-                                          lrs_map->second.end(),
-                                          local_root_sig_extra_info->resource_value_infos.begin()))))
+                        for (const auto& hit_group_import : hit_group_import_iter->second)
                         {
-                            // Given a ShaderID to the StateObject, if it already assocated LRS but different from
-                            // defined in the current StateObject, GFXR could not determind which LRS is right to the
-                            // ShaderID.
-                            GFXRECON_LOG_ERROR_ONCE(
-                                "CreateStateObject: Duplicate shader identifier found for export '%ls' in "
-                                "state object (id=%" PRIu64 "). Shader ID to LRS associations may be incorrect.",
-                                export_name.c_str(),
-                                state_object_id);
+                            auto import_iter = in_dxil_export_lrs_value_infos.find(hit_group_import);
+                            if (import_iter != in_dxil_export_lrs_value_infos.end())
+                            {
+                                in_dxil_iter = import_iter;
+                                break;
+                            }
                         }
                     }
+                }
+
+                if (in_dxil_iter != in_dxil_export_lrs_value_infos.end())
+                {
+                    resolved_value_infos = &in_dxil_iter->second;
+
+                    GFXRECON_LOG_DEBUG("CreateStateObject: found explicit association between export '%ls' in state "
+                                       "object (id=%" PRIu64 ") and an in-DXIL local root signature.",
+                                       export_name.c_str(),
+                                       state_object_id);
+                }
+                else if (!in_dxil_default_lrs_value_infos.empty())
+                {
+                    resolved_value_infos = &in_dxil_default_lrs_value_infos;
+
+                    GFXRECON_LOG_DEBUG("CreateStateObject: found default association between export '%ls' in state "
+                                       "object (id=%" PRIu64 ") and an in-DXIL local root signature.",
+                                       export_name.c_str(),
+                                       state_object_id);
+                }
+            }
+
+            if (resolved_value_infos == nullptr)
+            {
+                GFXRECON_LOG_DEBUG("CreateStateObject: found no local root signature association for export '%ls' in "
+                                   "state object (id=%" PRIu64 ")",
+                                   export_name.c_str(),
+                                   state_object_id);
+                continue;
+            }
+
+            auto replay_shader_id = graphics::PackDx12ShaderIdentifier(new_shader_identifier_ptr);
+
+            auto lrs_map = state_object_extra_info->shader_id_lrs_map.find(replay_shader_id);
+            if (lrs_map == state_object_extra_info->shader_id_lrs_map.end())
+            {
+                state_object_extra_info->shader_id_lrs_map[replay_shader_id] = *resolved_value_infos;
+            }
+            else
+            {
+                if (!((lrs_map->second.size() == resolved_value_infos->size()) &&
+                      (std::equal(lrs_map->second.begin(), lrs_map->second.end(), resolved_value_infos->begin()))))
+                {
+                    // Given a ShaderID to the StateObject, if it already assocated LRS but different from
+                    // defined in the current StateObject, GFXR could not determind which LRS is right to the
+                    // ShaderID.
+                    GFXRECON_LOG_ERROR_ONCE("CreateStateObject: Duplicate shader identifier found for export '%ls' in "
+                                            "state object (id=%" PRIu64
+                                            "). Shader ID to LRS associations may be incorrect.",
+                                            export_name.c_str(),
+                                            state_object_id);
                 }
             }
         }
@@ -1724,13 +2051,16 @@ void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
 void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
     format::HandleId                                                       state_object_id,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>*                 desc_decoder,
+    ID3D12DeviceConfiguration1*                                            device_config,
     std::set<std::wstring>&                                                export_names,
     std::vector<format::HandleId>&                                         local_root_signature_ids,
     format::HandleId&                                                      explicit_default_local_root_signature_id,
     std::map<std::wstring, format::HandleId>&                              explicit_local_root_signature_associations,
     std::map<std::wstring, std::set<std::wstring>>&                        hit_group_imports,
     std::map<std::wstring, format::HandleId>&                              lrs_associations_map,
-    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>>& existing_shader_id_lrs_map)
+    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>>& existing_shader_id_lrs_map,
+    std::set<ResourceValueInfo>&                                           in_dxil_default_lrs_value_infos,
+    std::map<std::wstring, std::set<ResourceValueInfo>>&                   in_dxil_export_lrs_value_infos)
 {
     const auto* desc               = desc_decoder->GetPointer();
     const auto* subobject_decoders = desc_decoder->GetMetaStructPointer()->pSubobjects;
@@ -1785,14 +2115,27 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
         }
         else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY)
         {
-            // TODO: DXIL libraries can also contain local root signature definitions as well as subobject associations.
-            // That information should be parsed here as well to ensure correct LRS handling.
-            GFXRECON_LOG_DEBUG_ONCE("A state object is being created with a DXIL library subobject. Some usages of "
-                                    "DXIL library subobjects may not be fully supported by GFXR replay.");
-
             GFXRECON_ASSERT(subobject_decoder.dxil_library_desc != nullptr);
             auto dxil_lib_desc_decoder = subobject_decoder.dxil_library_desc;
-            auto num_exports           = dxil_lib_desc_decoder->GetPointer()->NumExports;
+#if defined(GFXRECON_DXC_SUPPORT)
+            GFXRECON_LOG_DEBUG_ONCE("A state object is being created with a DXIL library subobject. GFXR parses "
+                                    "local root signatures and their associations from DXIL libraries, but other "
+                                    "in-DXIL subobject kinds (e.g. hit groups) are not parsed and may not be fully "
+                                    "supported by GFXR replay.");
+
+            // Get local root signatures and their export associations authored inside the DXIL library's RDAT part.
+            GetDxilLibraryInDxilLrsInfo(dxil_lib_desc_decoder->GetPointer()->DXILLibrary.pShaderBytecode,
+                                        dxil_lib_desc_decoder->GetPointer()->DXILLibrary.BytecodeLength,
+                                        state_object_id,
+                                        device_config,
+                                        in_dxil_default_lrs_value_infos,
+                                        in_dxil_export_lrs_value_infos);
+#else  // GFXRECON_DXC_SUPPORT
+            GFXRECON_LOG_DEBUG_ONCE("A state object is being created with a DXIL library subobject. Local root "
+                                    "signatures authored inside DXIL libraries are not parsed without DirectX Shader "
+                                    "Compiler support, so some DXR usages may not be fully supported by GFXR replay.");
+#endif // GFXRECON_DXC_SUPPORT
+            auto num_exports = dxil_lib_desc_decoder->GetPointer()->NumExports;
             if (num_exports == 0)
             {
 #if defined(GFXRECON_DXC_SUPPORT)
@@ -1848,12 +2191,26 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
                                                 if (SUCCEEDED(hr))
                                                 {
                                                     // Export names are mangled so parse the unmangled name.
-                                                    auto function_name = DemangleDxilExportName(function_desc.Name);
-                                                    if (!function_name.empty())
+                                                    auto [was_demangled, function_name] =
+                                                        TryDemangleDxilExportName(function_desc.Name);
+
+                                                    if (was_demangled)
                                                     {
-                                                        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>
-                                                            converter;
-                                                        export_names.insert(converter.from_bytes(function_name));
+                                                        GFXRECON_LOG_DEBUG("Found demangled DXIL export name '%s'.",
+                                                                           function_name.c_str());
+
+                                                        if (!function_name.empty())
+                                                        {
+                                                            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>
+                                                                converter;
+                                                            export_names.insert(converter.from_bytes(function_name));
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        GFXRECON_LOG_WARNING(
+                                                            "Failed to demangle DXIL export name '%s'.",
+                                                            function_name.c_str());
                                                     }
                                                 }
                                             }
