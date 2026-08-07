@@ -43,18 +43,18 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                      bool                                    have_shader_stencil_write,
                                                      VulkanResourceAllocator*                resource_allocator,
-                                                     const graphics::VulkanDeviceTable*      device_table) :
+                                                     const graphics::VulkanInjectedDeviceCalls& injected_calls) :
     device_(device_info->handle),
     staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
     staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), staging_buffer_size_(0),
     draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
     draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
     have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
-    device_table_(device_table), device_info_(device_info)
+    injected_calls_(injected_calls), device_info_(device_info)
 {
     GFXRECON_ASSERT((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
                     (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
-                    (resource_allocator != nullptr) && (device_table != nullptr));
+                    (resource_allocator != nullptr));
 
     // flushes of staging-buffer need to be aligned to nonCoherentAtomSize
     staging_buffer_alignment_ = physical_device_properties.limits.nonCoherentAtomSize;
@@ -79,38 +79,42 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     constexpr VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
                                              nullptr,
                                              static_cast<VkFenceCreateFlags>(0) };
-    VkResult                    result   = device_table_->CreateFence(device_, &fence_ci, nullptr, &fence_);
+    auto                        injected = injected_calls_.Open();
+
+    VkResult result = injected->CreateFence(device_, &fence_ci, nullptr, &fence_);
     GFXRECON_ASSERT(result == VK_SUCCESS);
 }
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
 {
+    auto injected = injected_calls_.Open();
+
     FlushRemainingResourcesInit();
     ReleaseStagingBuffer();
 
     for (const auto& entry : command_exec_objects_)
     {
-        device_table_->DestroyCommandPool(device_, entry.second.command_pool, nullptr);
+        injected->DestroyCommandPool(device_, entry.second.command_pool, nullptr);
     }
 
     if (draw_sampler_ != VK_NULL_HANDLE)
     {
-        device_table_->DestroySampler(device_, draw_sampler_, nullptr);
+        injected->DestroySampler(device_, draw_sampler_, nullptr);
     }
 
     if (draw_pool_ != VK_NULL_HANDLE)
     {
-        device_table_->DestroyDescriptorPool(device_, draw_pool_, nullptr);
+        injected->DestroyDescriptorPool(device_, draw_pool_, nullptr);
     }
 
     if (draw_set_layout_ != VK_NULL_HANDLE)
     {
-        device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
+        injected->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
     }
 
     if (fence_ != VK_NULL_HANDLE)
     {
-        device_table_->DestroyFence(device_, fence_, nullptr);
+        injected->DestroyFence(device_, fence_, nullptr);
     }
 }
 
@@ -142,6 +146,8 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
 {
     // TODO: handle usage cases without TRANSFER_DST.
     GFXRECON_UNREFERENCED_PARAMETER(usage);
+
+    auto injected = injected_calls_.Open();
 
     VkResult result = AcquireStagingBuffer(data_size);
     if (result == VK_SUCCESS)
@@ -176,7 +182,8 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
                     offsetted_regions_copy_[i].srcOffset += staging_buffer_offset_;
                 }
 
-                device_table_->CmdCopyBuffer(
+                injected.InsertLabel(command_buffer, "Initialize buffer");
+                injected->CmdCopyBuffer(
                     command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
 
                 // Advance staging buffer offset
@@ -328,6 +335,8 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
                                                     uint32_t              layer_count,
                                                     uint32_t              level_count)
 {
+    auto injected = injected_calls_.Open();
+
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
     VkResult        result         = BeginCommandBuffer(queue_family_index, &command_buffer);
 
@@ -351,16 +360,17 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
         memory_barrier.subresourceRange.baseArrayLayer = 0;
         memory_barrier.subresourceRange.layerCount     = layer_count;
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &memory_barrier);
+        injected.InsertLabel(command_buffer, "Transition image layout");
+        injected->CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &memory_barrier);
 
         // Check if there are pending commands from InitializeImage by checking the staging buffer's offset.
         // If there are then don't submit the command buffer as there is still room left to init more resources
@@ -376,6 +386,8 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
 VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t queue_family_index, VkCommandBuffer* command_buffer)
 {
     assert(command_buffer != nullptr);
+
+    auto injected = injected_calls_.Open();
 
     VkResult result = VK_SUCCESS;
     auto     iter   = command_exec_objects_.find(queue_family_index);
@@ -393,7 +405,7 @@ VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t queue_family_
         create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         create_info.queueFamilyIndex        = queue_family_index;
 
-        result = device_table_->CreateCommandPool(device_, &create_info, nullptr, &command_pool);
+        result = injected->CreateCommandPool(device_, &create_info, nullptr, &command_pool);
 
         if (result == VK_SUCCESS)
         {
@@ -403,17 +415,17 @@ VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t queue_family_
             alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             alloc_info.commandBufferCount          = 1;
 
-            result = device_table_->AllocateCommandBuffers(device_, &alloc_info, command_buffer);
+            result = injected->AllocateCommandBuffers(device_, &alloc_info, command_buffer);
 
             if (result == VK_SUCCESS)
             {
-                VkQueue queue = GetDeviceQueue(device_table_, device_info_, queue_family_index, 0);
+                VkQueue queue = GetDeviceQueue(injected.GetTable(), device_info_, queue_family_index, 0);
                 command_exec_objects_.emplace(queue_family_index,
                                               CommandExecObjects{ queue, command_pool, *command_buffer, false });
             }
             else
             {
-                device_table_->DestroyCommandPool(device_, command_pool, nullptr);
+                injected->DestroyCommandPool(device_, command_pool, nullptr);
             }
         }
     }
@@ -426,6 +438,8 @@ VkResult VulkanResourceInitializer::GetDrawDescriptorObjects(VkSampler*         
                                                              VkDescriptorSet*       set)
 {
     assert((sampler != nullptr) && (set_layout != nullptr) && (set != nullptr));
+
+    auto injected = injected_calls_.Open();
 
     VkResult result = VK_SUCCESS;
 
@@ -450,7 +464,7 @@ VkResult VulkanResourceInitializer::GetDrawDescriptorObjects(VkSampler*         
         sampler_info.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
         sampler_info.unnormalizedCoordinates = VK_FALSE;
 
-        result = device_table_->CreateSampler(device_, &sampler_info, nullptr, &draw_sampler_);
+        result = injected->CreateSampler(device_, &sampler_info, nullptr, &draw_sampler_);
 
         if (result == VK_SUCCESS)
         {
@@ -467,7 +481,7 @@ VkResult VulkanResourceInitializer::GetDrawDescriptorObjects(VkSampler*         
             pool_info.poolSizeCount              = 2;
             pool_info.pPoolSizes                 = pool_size;
 
-            result = device_table_->CreateDescriptorPool(device_, &pool_info, nullptr, &draw_pool_);
+            result = injected->CreateDescriptorPool(device_, &pool_info, nullptr, &draw_pool_);
         }
 
         if (result == VK_SUCCESS)
@@ -490,7 +504,7 @@ VkResult VulkanResourceInitializer::GetDrawDescriptorObjects(VkSampler*         
             set_layout_info.bindingCount                    = 2;
             set_layout_info.pBindings                       = set_binding;
 
-            result = device_table_->CreateDescriptorSetLayout(device_, &set_layout_info, nullptr, &draw_set_layout_);
+            result = injected->CreateDescriptorSetLayout(device_, &set_layout_info, nullptr, &draw_set_layout_);
         }
 
         if (result == VK_SUCCESS)
@@ -501,26 +515,26 @@ VkResult VulkanResourceInitializer::GetDrawDescriptorObjects(VkSampler*         
             set_info.descriptorSetCount          = 1;
             set_info.pSetLayouts                 = &draw_set_layout_;
 
-            result = device_table_->AllocateDescriptorSets(device_, &set_info, &draw_set_);
+            result = injected->AllocateDescriptorSets(device_, &set_info, &draw_set_);
         }
 
         if (result != VK_SUCCESS)
         {
             if (draw_sampler_ != VK_NULL_HANDLE)
             {
-                device_table_->DestroySampler(device_, draw_sampler_, nullptr);
+                injected->DestroySampler(device_, draw_sampler_, nullptr);
                 draw_sampler_ = VK_NULL_HANDLE;
             }
 
             if (draw_pool_ != VK_NULL_HANDLE)
             {
-                device_table_->DestroyDescriptorPool(device_, draw_pool_, nullptr);
+                injected->DestroyDescriptorPool(device_, draw_pool_, nullptr);
                 draw_pool_ = VK_NULL_HANDLE;
             }
 
             if (draw_set_layout_ != VK_NULL_HANDLE)
             {
-                device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
+                injected->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
                 draw_set_layout_ = VK_NULL_HANDLE;
             }
         }
@@ -552,6 +566,8 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
 {
     assert((set_layout != VK_NULL_HANDLE) && (pass != nullptr) && (pipeline_layout != nullptr) &&
            (pipeline != nullptr));
+
+    auto injected = injected_calls_.Open();
 
     VkRenderPass     draw_pass            = VK_NULL_HANDLE;
     VkPipelineLayout draw_pipeline_layout = VK_NULL_HANDLE;
@@ -626,7 +642,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
     render_pass_info.dependencyCount        = 0;
     render_pass_info.pDependencies          = nullptr;
 
-    VkResult result = device_table_->CreateRenderPass(device_, &render_pass_info, nullptr, &draw_pass);
+    VkResult result = injected->CreateRenderPass(device_, &render_pass_info, nullptr, &draw_pass);
 
     if (result == VK_SUCCESS)
     {
@@ -643,7 +659,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
         vs_info.codeSize                 = code_size;
         vs_info.pCode                    = reinterpret_cast<const uint32_t*>(g_VSMain);
 
-        result = device_table_->CreateShaderModule(device_, &vs_info, nullptr, &vs_module);
+        result = injected->CreateShaderModule(device_, &vs_info, nullptr, &vs_module);
 
         if (result == VK_SUCCESS)
         {
@@ -677,7 +693,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             ps_info.codeSize                 = code_size;
             ps_info.pCode                    = ps_code;
 
-            result = device_table_->CreateShaderModule(device_, &ps_info, nullptr, &ps_module);
+            result = injected->CreateShaderModule(device_, &ps_info, nullptr, &ps_module);
         }
 
         if (result == VK_SUCCESS)
@@ -690,8 +706,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             pipeline_layout_info.pushConstantRangeCount     = 0;
             pipeline_layout_info.pPushConstantRanges        = nullptr;
 
-            result =
-                device_table_->CreatePipelineLayout(device_, &pipeline_layout_info, nullptr, &draw_pipeline_layout);
+            result = injected->CreatePipelineLayout(device_, &pipeline_layout_info, nullptr, &draw_pipeline_layout);
         }
 
         if (result == VK_SUCCESS)
@@ -845,12 +860,12 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
             pipeline_info.basePipelineIndex            = -1;
 
-            result = device_table_->CreateGraphicsPipelines(
-                device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &draw_pipeline);
+            result =
+                injected->CreateGraphicsPipelines(device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &draw_pipeline);
         }
 
-        device_table_->DestroyShaderModule(device_, ps_module, nullptr);
-        device_table_->DestroyShaderModule(device_, vs_module, nullptr);
+        injected->DestroyShaderModule(device_, ps_module, nullptr);
+        injected->DestroyShaderModule(device_, vs_module, nullptr);
     }
 
     if (result == VK_SUCCESS)
@@ -871,9 +886,11 @@ void VulkanResourceInitializer::DestroyDrawObjects(VkRenderPass     pass,
                                                    VkPipelineLayout pipeline_layout,
                                                    VkPipeline       pipeline)
 {
-    device_table_->DestroyPipeline(device_, pipeline, nullptr);
-    device_table_->DestroyPipelineLayout(device_, pipeline_layout, nullptr);
-    device_table_->DestroyRenderPass(device_, pass, nullptr);
+    auto injected = injected_calls_.Open();
+
+    injected->DestroyPipeline(device_, pipeline, nullptr);
+    injected->DestroyPipelineLayout(device_, pipeline_layout, nullptr);
+    injected->DestroyRenderPass(device_, pass, nullptr);
 }
 
 VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo*               image_create_info,
@@ -884,6 +901,8 @@ VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* 
 {
     assert((memory != nullptr) && (image != nullptr) && (allocator_memory_data != nullptr) &&
            (allocator_image_data != nullptr));
+
+    auto injected = injected_calls_.Open();
 
     VkImage                               staging_image      = VK_NULL_HANDLE;
     VulkanResourceAllocator::ResourceData staging_image_data = 0;
@@ -897,7 +916,7 @@ VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* 
         VulkanResourceAllocator::MemoryData staging_memory_data = 0;
         VkMemoryRequirements                memory_reqs;
 
-        device_table_->GetImageMemoryRequirements(device_, staging_image, &memory_reqs);
+        injected->GetImageMemoryRequirements(device_, staging_image, &memory_reqs);
 
         auto memory_type_index = GetMemoryTypeIndex(memory_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -958,8 +977,10 @@ VkResult VulkanResourceInitializer::CreateFramebufferResources(const VkImageView
 {
     assert((view != nullptr) && (framebuffer != nullptr));
 
+    auto injected = injected_calls_.Open();
+
     VkImageView image_view = VK_NULL_HANDLE;
-    VkResult    result     = device_table_->CreateImageView(device_, view_create_info, nullptr, &image_view);
+    VkResult    result     = injected->CreateImageView(device_, view_create_info, nullptr, &image_view);
 
     if (result == VK_SUCCESS)
     {
@@ -973,7 +994,7 @@ VkResult VulkanResourceInitializer::CreateFramebufferResources(const VkImageView
         framebuffer_info.height                  = height;
         framebuffer_info.layers                  = 1;
 
-        result = device_table_->CreateFramebuffer(device_, &framebuffer_info, nullptr, framebuffer);
+        result = injected->CreateFramebuffer(device_, &framebuffer_info, nullptr, framebuffer);
 
         if (result == VK_SUCCESS)
         {
@@ -981,7 +1002,7 @@ VkResult VulkanResourceInitializer::CreateFramebufferResources(const VkImageView
         }
         else
         {
-            device_table_->DestroyImageView(device_, image_view, nullptr);
+            injected->DestroyImageView(device_, image_view, nullptr);
         }
     }
 
@@ -990,12 +1011,16 @@ VkResult VulkanResourceInitializer::CreateFramebufferResources(const VkImageView
 
 void VulkanResourceInitializer::DestroyFramebufferResources(VkImageView view, VkFramebuffer framebuffer)
 {
-    device_table_->DestroyFramebuffer(device_, framebuffer, nullptr);
-    device_table_->DestroyImageView(device_, view, nullptr);
+    auto injected = injected_calls_.Open();
+
+    injected->DestroyFramebuffer(device_, framebuffer, nullptr);
+    injected->DestroyImageView(device_, view, nullptr);
 }
 
 VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 {
+    auto injected = injected_calls_.Open();
+
     VkResult result = VK_SUCCESS;
 
     // increase size if necessary, but we expect this is not necessary
@@ -1025,7 +1050,7 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
         if (result == VK_SUCCESS)
         {
             VkMemoryRequirements memory_requirements;
-            device_table_->GetBufferMemoryRequirements(device_, staging_buffer_, &memory_requirements);
+            injected->GetBufferMemoryRequirements(device_, staging_buffer_, &memory_requirements);
 
             auto memory_type_index =
                 GetMemoryTypeIndex(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -1123,11 +1148,14 @@ void VulkanResourceInitializer::UpdateDrawDescriptorSet(VkDescriptorSet set, VkI
     write_set[1].pBufferInfo      = nullptr;
     write_set[1].pTexelBufferView = nullptr;
 
-    device_table_->UpdateDescriptorSets(device_, 2, write_set, 0, nullptr);
+    auto injected = injected_calls_.Open();
+    injected->UpdateDescriptorSets(device_, 2, write_set, 0, nullptr);
 }
 
 VkResult VulkanResourceInitializer::BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p)
 {
+    auto injected = injected_calls_.Open();
+
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
     VkResult        result         = GetCommandExecObjects(queue_family_index, &command_buffer);
     if (result != VK_SUCCESS)
@@ -1149,7 +1177,7 @@ VkResult VulkanResourceInitializer::BeginCommandBuffer(uint32_t queue_family_ind
         begin_info.flags                    = 0;
         begin_info.pInheritanceInfo         = nullptr;
 
-        result = device_table_->BeginCommandBuffer(iter->second.command_buffer, &begin_info);
+        result = injected.BeginCommandBuffer(iter->second.command_buffer, &begin_info);
         if (result == VK_SUCCESS)
         {
             iter->second.recording = true;
@@ -1161,6 +1189,8 @@ VkResult VulkanResourceInitializer::BeginCommandBuffer(uint32_t queue_family_ind
 
 VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer)
 {
+    auto injected = injected_calls_.Open();
+
     VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
     submit_info.pNext                = nullptr;
     submit_info.waitSemaphoreCount   = 0;
@@ -1171,7 +1201,7 @@ VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkComman
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
-    VkResult result = device_table_->QueueSubmit(queue, 1, &submit_info, fence_);
+    VkResult result = injected->QueueSubmit(queue, 1, &submit_info, fence_);
     if (result != VK_SUCCESS)
     {
         return result;
@@ -1182,14 +1212,14 @@ VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkComman
 
     // Wait a sensible amount of time (10 seconds) to avoid hanging in case a prior
     // operation caused the GPU to hang or crash.
-    result = device_table_->WaitForFences(device_, 1, &fence_, VK_TRUE, 10000000000);
+    result = injected->WaitForFences(device_, 1, &fence_, VK_TRUE, 10000000000);
     if (result != VK_SUCCESS)
     {
         return result;
     }
 
     // reset to unsignaled state
-    result = device_table_->ResetFences(device_, 1, &fence_);
+    result = injected->ResetFences(device_, 1, &fence_);
     return result;
 }
 
@@ -1248,6 +1278,8 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
                                                       uint32_t                 level_count,
                                                       const VkBufferImageCopy* level_copies)
 {
+    auto injected = injected_calls_.Open();
+
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
 
     VkResult result = GetCommandExecObjects(queue_family_index, &command_buffer);
@@ -1259,6 +1291,8 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
 
         if (result == VK_SUCCESS)
         {
+            auto copy_region = injected_calls_.Label(injected, command_buffer, "Copy buffer to image");
+
             VkImageMemoryBarrier memory_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
             memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             memory_barrier.pNext                           = nullptr;
@@ -1275,18 +1309,18 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
             memory_barrier.subresourceRange.baseArrayLayer = 0;
             memory_barrier.subresourceRange.layerCount     = layer_count;
 
-            device_table_->CmdPipelineBarrier(command_buffer,
-                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &memory_barrier);
+            injected->CmdPipelineBarrier(command_buffer,
+                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &memory_barrier);
 
-            device_table_->CmdCopyBufferToImage(
+            injected->CmdCopyBufferToImage(
                 command_buffer, source, destination, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, level_count, level_copies);
 
             if ((final_layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) && (final_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
@@ -1297,16 +1331,16 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
                 memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                 memory_barrier.newLayout     = final_layout;
 
-                device_table_->CmdPipelineBarrier(command_buffer,
-                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                  0,
-                                                  0,
-                                                  nullptr,
-                                                  0,
-                                                  nullptr,
-                                                  1,
-                                                  &memory_barrier);
+                injected->CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &memory_barrier);
             }
         }
     }
@@ -1328,6 +1362,8 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                                                          uint32_t                 level_count,
                                                          const VkBufferImageCopy* level_copies)
 {
+    auto injected = injected_calls_.Open();
+
     VkSampler             sampler    = VK_NULL_HANDLE;
     VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
     VkDescriptorSet       set        = VK_NULL_HANDLE;
@@ -1435,7 +1471,7 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                             view_info.image                           = staging_image;
                             view_info.subresourceRange.baseArrayLayer = layer;
 
-                            result = device_table_->CreateImageView(device_, &view_info, nullptr, &staging_view);
+                            result = injected->CreateImageView(device_, &view_info, nullptr, &staging_view);
 
                             if (result == VK_SUCCESS)
                             {
@@ -1468,28 +1504,33 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                                     begin_info.clearValueCount          = 0;
                                     begin_info.pClearValues             = nullptr;
 
-                                    device_table_->CmdBeginRenderPass(
-                                        command_buffer, &begin_info, VK_SUBPASS_CONTENTS_INLINE);
-                                    device_table_->CmdBindPipeline(
-                                        command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-                                    device_table_->CmdBindDescriptorSets(command_buffer,
-                                                                         VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                                                         pipeline_layout,
-                                                                         0,
-                                                                         1,
-                                                                         &set,
-                                                                         0,
-                                                                         nullptr);
-                                    device_table_->CmdSetViewport(command_buffer, 0, 1, &viewport);
-                                    device_table_->CmdSetScissor(command_buffer, 0, 1, &scissor_rect);
-                                    device_table_->CmdDraw(command_buffer, 3, 1, 0, 0);
-                                    device_table_->CmdEndRenderPass(command_buffer);
+                                    {
+                                        auto draw_region =
+                                            injected_calls_.Label(injected, command_buffer, "Pixel-shader image copy");
+
+                                        injected->CmdBeginRenderPass(
+                                            command_buffer, &begin_info, VK_SUBPASS_CONTENTS_INLINE);
+                                        injected->CmdBindPipeline(
+                                            command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+                                        injected->CmdBindDescriptorSets(command_buffer,
+                                                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                                        pipeline_layout,
+                                                                        0,
+                                                                        1,
+                                                                        &set,
+                                                                        0,
+                                                                        nullptr);
+                                        injected->CmdSetViewport(command_buffer, 0, 1, &viewport);
+                                        injected->CmdSetScissor(command_buffer, 0, 1, &scissor_rect);
+                                        injected->CmdDraw(command_buffer, 3, 1, 0, 0);
+                                        injected->CmdEndRenderPass(command_buffer);
+                                    }
                                     result = FlushCommandBuffer(queue_family_index);
                                 }
                             }
 
                             DestroyFramebufferResources(destination_view, framebuffer);
-                            device_table_->DestroyImageView(device_, staging_view, nullptr);
+                            injected->DestroyImageView(device_, staging_view, nullptr);
 
                             if (result != VK_SUCCESS)
                             {
@@ -1517,7 +1558,8 @@ VkResult VulkanResourceInitializer::FlushCommandBuffer(uint32_t queue_family_ind
 
     if (iter != command_exec_objects_.end() && iter->second.recording)
     {
-        device_table_->EndCommandBuffer(iter->second.command_buffer);
+        auto injected = injected_calls_.Open();
+        injected->EndCommandBuffer(iter->second.command_buffer);
 
         result                 = ExecuteCommandBuffer(iter->second.queue, iter->second.command_buffer);
         iter->second.recording = false;

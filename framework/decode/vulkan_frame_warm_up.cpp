@@ -26,38 +26,36 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_resources_util.h"
-#include "util/callbacks.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device_info,
-                                     const graphics::VulkanDeviceTable*   device_table,
-                                     const graphics::VulkanInstanceTable* instance_table,
-                                     CommonObjectInfoTable&               object_table,
-                                     const std::string&                   spirv_path,
-                                     uint32_t                             warm_up_load) :
-    device_table_(device_table),
+VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                    device_info,
+                                     const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                                     const graphics::VulkanInstanceTable*       instance_table,
+                                     CommonObjectInfoTable&                     object_table,
+                                     const std::string&                         spirv_path,
+                                     uint32_t                                   warm_up_load) :
+    injected_calls_(injected_calls),
     spirv_path_(spirv_path), warm_up_load_(warm_up_load)
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    auto injected = injected_calls_->Open();
 
     GFXRECON_ASSERT(device_info != nullptr);
-    GFXRECON_ASSERT(device_table != nullptr);
     GFXRECON_ASSERT(instance_table != nullptr);
 
     device_ = device_info->handle;
     GFXRECON_ASSERT(device_ != VK_NULL_HANDLE);
 
-    device_table->GetDeviceQueue(device_, 0, 0, &queue_);
+    injected->GetDeviceQueue(device_, 0, 0, &queue_);
     GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
 
     VkCommandPoolCreateInfo cmd_pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     cmd_pool_info.queueFamilyIndex        = 0;
     cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    VkResult result = device_table->CreateCommandPool(device_, &cmd_pool_info, nullptr, &command_pool_);
+    VkResult result = injected->CreateCommandPool(device_, &cmd_pool_info, nullptr, &command_pool_);
 
     if (result != VK_SUCCESS)
     {
@@ -119,7 +117,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     VkShaderModuleCreateInfo sm_create_info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
     sm_create_info.codeSize                 = spirv_size;
     sm_create_info.pCode                    = (uint32_t*)spirv_code.get();
-    result = device_table->CreateShaderModule(device_, &sm_create_info, nullptr, &shader_module_);
+    result = injected->CreateShaderModule(device_, &sm_create_info, nullptr, &shader_module_);
 
     if (result != VK_SUCCESS)
     {
@@ -134,7 +132,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     buffer_info.size               = buffer_size;
     buffer_info.usage              = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     buffer_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
-    result                         = device_table->CreateBuffer(device_, &buffer_info, nullptr, &buffer_);
+    result                         = injected->CreateBuffer(device_, &buffer_info, nullptr, &buffer_);
 
     if (result != VK_SUCCESS)
     {
@@ -147,7 +145,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     VkPhysicalDeviceMemoryProperties capture_memory_properties = physical_device_info->capture_memory_properties;
 
     VkMemoryRequirements mem_requirements;
-    device_table->GetBufferMemoryRequirements(device_, buffer_, &mem_requirements);
+    injected->GetBufferMemoryRequirements(device_, buffer_, &mem_requirements);
 
     VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
     alloc_info.allocationSize       = mem_requirements.size;
@@ -164,14 +162,14 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
                            mem_requirements.memoryTypeBits);
     }
 
-    result = device_table->AllocateMemory(device_, &alloc_info, nullptr, &buffer_memory_);
+    result = injected->AllocateMemory(device_, &alloc_info, nullptr, &buffer_memory_);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_FATAL("VulkanFrameWarmUp: Failed in vkAllocateMemory: %s.",
                            util::ToString<VkResult>(result).c_str());
     }
 
-    result = device_table->BindBufferMemory(device_, buffer_, buffer_memory_, 0);
+    result = injected->BindBufferMemory(device_, buffer_, buffer_memory_, 0);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_FATAL("VulkanFrameWarmUp: Failed in vkBindBufferMemory: %s.",
@@ -187,7 +185,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     VkDescriptorSetLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
     layout_info.bindingCount                    = 1;
     layout_info.pBindings                       = &layout_binding;
-    result = device_table->CreateDescriptorSetLayout(device_, &layout_info, nullptr, &descriptor_set_layout_);
+    result = injected->CreateDescriptorSetLayout(device_, &layout_info, nullptr, &descriptor_set_layout_);
 
     if (result != VK_SUCCESS)
     {
@@ -198,7 +196,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     VkPipelineLayoutCreateInfo pl_create_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
     pl_create_info.setLayoutCount             = 1;
     pl_create_info.pSetLayouts                = &descriptor_set_layout_; // Link the layout
-    result = device_table->CreatePipelineLayout(device_, &pl_create_info, nullptr, &pipeline_layout_);
+    result = injected->CreatePipelineLayout(device_, &pl_create_info, nullptr, &pipeline_layout_);
 
     if (result != VK_SUCCESS)
     {
@@ -214,7 +212,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     pool_info.poolSizeCount              = 1;
     pool_info.pPoolSizes                 = &pool_size;
     pool_info.maxSets                    = 1;
-    result = device_table->CreateDescriptorPool(device_, &pool_info, nullptr, &descriptor_pool_);
+    result = injected->CreateDescriptorPool(device_, &pool_info, nullptr, &descriptor_pool_);
 
     if (result != VK_SUCCESS)
     {
@@ -226,7 +224,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     set_alloc_info.descriptorPool              = descriptor_pool_;
     set_alloc_info.descriptorSetCount          = 1;
     set_alloc_info.pSetLayouts                 = &descriptor_set_layout_;
-    result = device_table->AllocateDescriptorSets(device_, &set_alloc_info, &descriptor_set_);
+    result = injected->AllocateDescriptorSets(device_, &set_alloc_info, &descriptor_set_);
 
     if (result != VK_SUCCESS)
     {
@@ -246,7 +244,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     descriptor_write.descriptorType       = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     descriptor_write.descriptorCount      = 1;
     descriptor_write.pBufferInfo          = &buffer_info_for_descriptor;
-    device_table->UpdateDescriptorSets(device_, 1, &descriptor_write, 0, nullptr);
+    injected->UpdateDescriptorSets(device_, 1, &descriptor_write, 0, nullptr);
 
     VkComputePipelineCreateInfo cp_create_info = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
     cp_create_info.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -254,7 +252,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     cp_create_info.stage.module                = shader_module_;
     cp_create_info.stage.pName                 = "main";
     cp_create_info.layout                      = pipeline_layout_;
-    result = device_table->CreateComputePipelines(device_, VK_NULL_HANDLE, 1, &cp_create_info, nullptr, &pipeline_);
+    result = injected->CreateComputePipelines(device_, VK_NULL_HANDLE, 1, &cp_create_info, nullptr, &pipeline_);
 
     if (result != VK_SUCCESS)
     {
@@ -263,7 +261,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     }
 
     VkSemaphoreCreateInfo semaphore_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-    result = device_table->CreateSemaphore(device_, &semaphore_info, nullptr, &semaphore_.semaphore);
+    result = injected->CreateSemaphore(device_, &semaphore_info, nullptr, &semaphore_.semaphore);
 
     if (result != VK_SUCCESS)
     {
@@ -275,7 +273,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     cmd_buf_alloc_info.commandPool                 = command_pool_;
     cmd_buf_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     cmd_buf_alloc_info.commandBufferCount          = 1;
-    result = device_table->AllocateCommandBuffers(device_, &cmd_buf_alloc_info, &command_buffer_);
+    result = injected->AllocateCommandBuffers(device_, &cmd_buf_alloc_info, &command_buffer_);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_FATAL("VulkanFrameWarmUp: Failed in vkAllocateCommandBuffers: %s.",
@@ -284,72 +282,72 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
 
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-    device_table->BeginCommandBuffer(command_buffer_, &begin_info);
-    device_table->CmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
-    device_table->CmdBindDescriptorSets(
+    injected.BeginCommandBuffer(command_buffer_, &begin_info);
+    injected->CmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
+    injected->CmdBindDescriptorSets(
         command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout_, 0, 1, &descriptor_set_, 0, nullptr);
-    device_table->CmdDispatch(command_buffer_, warm_up_load_ * 64, 1, 1);
-    device_table->EndCommandBuffer(command_buffer_);
+    injected->CmdDispatch(command_buffer_, warm_up_load_ * 64, 1, 1);
+    injected->EndCommandBuffer(command_buffer_);
 }
 
 VulkanFrameWarmUp::~VulkanFrameWarmUp()
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-
-    if (device_table_ != nullptr && device_ != VK_NULL_HANDLE)
+    if (injected_calls_.has_value() && device_ != VK_NULL_HANDLE)
     {
+        auto injected = injected_calls_->Open();
+
         if (semaphore_.semaphore != VK_NULL_HANDLE)
         {
-            device_table_->DestroySemaphore(device_, semaphore_.semaphore, nullptr);
+            injected->DestroySemaphore(device_, semaphore_.semaphore, nullptr);
         }
         if (buffer_memory_ != VK_NULL_HANDLE)
         {
-            device_table_->FreeMemory(device_, buffer_memory_, nullptr);
+            injected->FreeMemory(device_, buffer_memory_, nullptr);
         }
         if (buffer_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyBuffer(device_, buffer_, nullptr);
+            injected->DestroyBuffer(device_, buffer_, nullptr);
         }
         if (pipeline_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyPipeline(device_, pipeline_, nullptr);
+            injected->DestroyPipeline(device_, pipeline_, nullptr);
         }
         if (pipeline_layout_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyPipelineLayout(device_, pipeline_layout_, nullptr);
+            injected->DestroyPipelineLayout(device_, pipeline_layout_, nullptr);
         }
         if (descriptor_set_layout_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyDescriptorSetLayout(device_, descriptor_set_layout_, nullptr);
+            injected->DestroyDescriptorSetLayout(device_, descriptor_set_layout_, nullptr);
         }
         if (descriptor_pool_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyDescriptorPool(device_, descriptor_pool_, nullptr);
+            injected->DestroyDescriptorPool(device_, descriptor_pool_, nullptr);
         }
         if (shader_module_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyShaderModule(device_, shader_module_, nullptr);
+            injected->DestroyShaderModule(device_, shader_module_, nullptr);
         }
         if (command_buffer_ != VK_NULL_HANDLE)
         {
-            device_table_->FreeCommandBuffers(device_, command_pool_, 1, &command_buffer_);
+            injected->FreeCommandBuffers(device_, command_pool_, 1, &command_buffer_);
         }
         if (command_pool_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyCommandPool(device_, command_pool_, nullptr);
+            injected->DestroyCommandPool(device_, command_pool_, nullptr);
         }
     }
 }
 
 VulkanFrameWarmUp::VulkanFrameWarmUp(VulkanFrameWarmUp&& other) noexcept :
-    device_table_(other.device_table_), warm_up_load_(other.warm_up_load_), device_(other.device_),
+    injected_calls_(other.injected_calls_), warm_up_load_(other.warm_up_load_), device_(other.device_),
     queue_(other.queue_), command_pool_(other.command_pool_), command_buffer_(other.command_buffer_),
     shader_module_(other.shader_module_), descriptor_pool_(other.descriptor_pool_),
     descriptor_set_layout_(other.descriptor_set_layout_), descriptor_set_(other.descriptor_set_),
     pipeline_layout_(other.pipeline_layout_), pipeline_(other.pipeline_), buffer_(other.buffer_),
     buffer_memory_(other.buffer_memory_), semaphore_(other.semaphore_)
 {
-    other.device_table_          = nullptr;
+    other.injected_calls_.reset();
     other.device_                = VK_NULL_HANDLE;
     other.queue_                 = VK_NULL_HANDLE;
     other.command_pool_          = VK_NULL_HANDLE;
@@ -367,7 +365,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(VulkanFrameWarmUp&& other) noexcept :
 
 graphics::VulkanSemaphore VulkanFrameWarmUp::WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    auto injected = injected_calls_->Open();
 
     std::vector<VkSemaphore>          semaphore_handles(wait_semaphores.size());
     std::vector<uint64_t>             semaphore_values(wait_semaphores.size());
@@ -396,7 +394,7 @@ graphics::VulkanSemaphore VulkanFrameWarmUp::WarmUp(const std::span<graphics::Vu
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores    = &semaphore_.semaphore;
 
-    VkResult result = device_table_->QueueSubmit(queue_, 1, &submit_info, VK_NULL_HANDLE);
+    VkResult result = injected->QueueSubmit(queue_, 1, &submit_info, VK_NULL_HANDLE);
 
     if (result != VK_SUCCESS)
     {

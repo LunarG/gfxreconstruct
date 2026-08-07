@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_submit_job.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 
@@ -55,13 +56,12 @@ bool VulkanSubmitJobPlan::HasJobsForIndex(uint32_t submit_index) const
     return jobs_for_index && !jobs_for_index->jobs.empty();
 }
 
-VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*            device_info,
-                                                 const graphics::VulkanDeviceTable* device_table) :
+VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*                    device_info,
+                                                 const graphics::VulkanInjectedDeviceCalls& device_table) :
     device_info_{ device_info },
     device_table_{ device_table }
 {
     GFXRECON_ASSERT(device_info_ != nullptr);
-    GFXRECON_ASSERT(device_table_ != nullptr);
 
     VkSemaphoreTypeCreateInfo timeline_create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
     timeline_create_info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
@@ -70,8 +70,9 @@ VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*        
     VkSemaphoreCreateInfo semaphore_create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
     semaphore_create_info.pNext = &timeline_create_info;
 
+    auto     injected = device_table.Open();
     VkResult result =
-        device_table_->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &semaphore_.semaphore);
+        injected->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &semaphore_.semaphore);
     if (result != VK_SUCCESS) [[unlikely]]
     {
         GFXRECON_LOG_ERROR("Failed to create timeline semaphore for submit job execution: %s",
@@ -103,10 +104,11 @@ bool VulkanInjectedSemaphore::HasReachedTargetValue() const
         return false;
     }
 
-    GFXRECON_ASSERT(device_table_->GetSemaphoreCounterValue != nullptr);
+    auto injected = device_table_.Open();
+    GFXRECON_ASSERT(injected->GetSemaphoreCounterValue != nullptr);
 
     uint64_t read_value = 0;
-    VkResult result = device_table_->GetSemaphoreCounterValue(device_info_->handle, semaphore_.semaphore, &read_value);
+    VkResult result     = injected->GetSemaphoreCounterValue(device_info_->handle, semaphore_.semaphore, &read_value);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to get timeline semaphore value for submit job execution: %s",
@@ -123,12 +125,13 @@ VulkanInjectedSemaphore::~VulkanInjectedSemaphore()
         {
             GFXRECON_LOG_ERROR("Injected timeline semaphore has not reached its target value at destruction time.");
         }
-        device_table_->DestroySemaphore(device_info_->handle, semaphore_.semaphore, nullptr);
+        auto injected = device_table_.Open();
+        injected->DestroySemaphore(device_info_->handle, semaphore_.semaphore, nullptr);
     }
 }
 
-VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*            device_info,
-                                                         const graphics::VulkanDeviceTable* device_table) :
+VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*                    device_info,
+                                                         const graphics::VulkanInjectedDeviceCalls& device_table) :
     semaphore{ device_info, device_table }
 {
     GFXRECON_ASSERT(semaphore.GetHandle() != VK_NULL_HANDLE);
@@ -249,9 +252,9 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
         // Only execute jobs if there are functions to execute for this submit.
         if (plan.HasJobsForIndex(submit_index))
         {
-            VkSubmitInfo2& submit_info                   = submit_infos[submit_index];
-            auto&          original_wait_semaphores      = original_wait_semaphores_[&submit_info].semaphores;
-            auto&          submit_helper                 = GetSubmitInfo2Helper(submit_info);
+            VkSubmitInfo2& submit_info              = submit_infos[submit_index];
+            auto&          original_wait_semaphores = original_wait_semaphores_[&submit_info].semaphores;
+            auto&          submit_helper            = GetSubmitInfo2Helper(submit_info);
 
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
@@ -330,13 +333,12 @@ void VulkanSubmitJobExecution::SubmitStandalone(VulkanSubmitJobPlan plan) const
     }
 }
 
-VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*            device_info,
-                                                 const graphics::VulkanDeviceTable* device_table) :
+VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*                    device_info,
+                                                 const graphics::VulkanInjectedDeviceCalls& device_table) :
     device_info_(device_info),
     device_table_(device_table)
 {
     GFXRECON_ASSERT(device_info_ != nullptr);
-    GFXRECON_ASSERT(device_table_ != nullptr);
 }
 
 VulkanInjectedSemaphore* VulkanSubmitJobExecutor::CreateTimelineSemaphore()
