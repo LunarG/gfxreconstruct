@@ -1721,7 +1721,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     {
         // The built-in parsers do not know this meta-data type. Give an extended parser for the type
         // -- if this build defines one -- a chance to parse it before skipping the block.
-        const ExtendedParseInterface parser_interface = GetExtendedParserInterface();
+        ExtendedParseInterface parser_interface = GetExtendedParserInterface();
         if (ParsedBlock* parsed_block =
                 ParseExtendedMetaData(parser_interface, meta_data_type, meta_data_id, block_buffer))
         {

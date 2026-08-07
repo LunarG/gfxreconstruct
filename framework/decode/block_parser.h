@@ -174,8 +174,9 @@ class BlockParser
     //
     // Neither the method nor the returned value is const, by design: every primitive the facade
     // forwards mutates the parser -- allocating out of the current BlockBatch, filling the
-    // decompression scratch buffer -- so a const parser has no business handing one out.
-    const ExtendedParseInterface GetExtendedParserInterface() noexcept;
+    // decompression scratch buffer -- so a const parser has no business handing one out, and a
+    // const facade could not forward any of them.
+    ExtendedParseInterface GetExtendedParserInterface() noexcept;
 
   private:
     // Define parsers for every block and sub-block type
@@ -324,7 +325,7 @@ class ExtendedParseInterface
     BlockParser& parser_;
 };
 
-inline const ExtendedParseInterface BlockParser::GetExtendedParserInterface() noexcept
+inline ExtendedParseInterface BlockParser::GetExtendedParserInterface() noexcept
 {
     return ExtendedParseInterface(*this);
 }
