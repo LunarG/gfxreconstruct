@@ -47,6 +47,7 @@ class FileOptimizer : public decode::FileTransformer
   private:
     VisitResult FilterMetaData(const decode::InitBufferArgs& args);
     VisitResult FilterMetaData(const decode::InitImageArgs& args);
+    VisitResult FilterMetaData(const decode::InitTensorArgs& args);
 
     template <typename Args>
     VisitResult FilterMetaData(const Args& args)

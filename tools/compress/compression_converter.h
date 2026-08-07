@@ -67,6 +67,7 @@ class CompressionConverter : public decode::FileTransformer
     VisitResult WriteMetaData(const decode::FillMemoryArgs& args);
     VisitResult WriteMetaData(const decode::InitBufferArgs& args);
     VisitResult WriteMetaData(const decode::InitImageArgs& args);
+    VisitResult WriteMetaData(const decode::InitTensorArgs& args);
     VisitResult WriteMetaData(const decode::InitSubresourceArgs& args);
     VisitResult WriteMetaData(const decode::InitDx12AccelerationStructureArgs& args);
     VisitResult WriteMetaData(const decode::FillMemoryResourceValueArgs& args);
