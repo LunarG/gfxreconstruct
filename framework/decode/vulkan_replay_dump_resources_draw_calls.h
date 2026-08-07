@@ -31,6 +31,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 
@@ -151,10 +152,10 @@ class DrawCallsDumpingContext
 
     void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
-    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
-                                const graphics::VulkanDeviceTable*   dev_table,
-                                const graphics::VulkanInstanceTable* inst_table,
-                                const VkCommandBufferBeginInfo*      begin_info);
+    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*                   orig_cmd_buf_info,
+                                const graphics::VulkanInjectedDeviceCalls& dev_table,
+                                const graphics::VulkanInstanceTable*       inst_table,
+                                const VkCommandBufferBeginInfo*            begin_info);
 
     VkResult CloneRenderPass(const VkRenderPassCreateInfo* original_render_pass_ci);
 
@@ -805,7 +806,7 @@ class DrawCallsDumpingContext
     VkFence                         aux_fence_;
     DumpResourcesCommandBufferLevel command_buffer_level_;
 
-    const graphics::VulkanDeviceTable*      device_table_;
+    graphics::VulkanInjectedDeviceCalls     device_table_;
     const graphics::VulkanInstanceTable*    instance_table_;
     CommonObjectInfoTable&                  object_info_table_;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;

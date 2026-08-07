@@ -52,6 +52,13 @@ class VulkanResourcesUtil
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanInjectedDeviceCalls&                       injected_device_calls,
+                        const VulkanInstanceTable&                             instance_table,
+                        const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
+
     ~VulkanResourcesUtil();
 
     // This function creates a staging buffer that will be used by the ReadFromImageResourceStaging() and

@@ -934,6 +934,27 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
         injected->GetDeviceProcAddr(device_, "vkSetDebugUtilsObjectNameEXT"));
 }
 
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               device,
+                                         VkPhysicalDevice                       physical_device,
+                                         const VulkanInjectedDeviceCalls&       injected_device_calls,
+                                         const graphics::VulkanInstanceTable&   instance_table,
+                                         const VulkanDevicePropertyFeatureInfo& physical_device_features_info,
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+    device_(device),
+    device_table_(injected_device_calls), physical_device_(physical_device), instance_table_(instance_table),
+    memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info)
+
+{
+    GFXRECON_ASSERT(device != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(device_table_.IsValid());
+    GFXRECON_ASSERT(!memory_properties || memory_properties->memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
+    GFXRECON_ASSERT(!memory_properties || memory_properties->memoryTypeCount <= VK_MAX_MEMORY_TYPES);
+
+    auto injected                   = device_table_.Open();
+    set_debug_utils_object_name_fn_ = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
+        injected->GetDeviceProcAddr(device_, "vkSetDebugUtilsObjectNameEXT"));
+}
+
 VulkanResourcesUtil::~VulkanResourcesUtil()
 {
     DestroyStagingBuffer();

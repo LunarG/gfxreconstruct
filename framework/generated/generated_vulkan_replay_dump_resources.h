@@ -61,13 +61,13 @@ class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
 
 void Process_vkEndCommandBuffer(
     const ApiCallInfo&                          call_info,
-    PFN_vkEndCommandBuffer                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdCopyBuffer(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBuffer                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     srcBuffer,
     const VulkanBufferInfo*                     dstBuffer,
@@ -77,7 +77,7 @@ void Process_vkCmdCopyBuffer(
 
 void Process_vkCmdCopyImage(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImage                          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanImageInfo*                      srcImage,
     VkImageLayout                               srcImageLayout,
@@ -89,7 +89,7 @@ void Process_vkCmdCopyImage(
 
 void Process_vkCmdCopyBufferToImage(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBufferToImage                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     srcBuffer,
     const VulkanImageInfo*                      dstImage,
@@ -100,7 +100,7 @@ void Process_vkCmdCopyBufferToImage(
 
 void Process_vkCmdCopyImageToBuffer(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImageToBuffer                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanImageInfo*                      srcImage,
     VkImageLayout                               srcImageLayout,
@@ -111,7 +111,7 @@ void Process_vkCmdCopyImageToBuffer(
 
 void Process_vkCmdUpdateBuffer(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdUpdateBuffer                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    dstBuffer,
     VkDeviceSize                                dstOffset,
@@ -120,7 +120,7 @@ void Process_vkCmdUpdateBuffer(
 
 void Process_vkCmdFillBuffer(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdFillBuffer                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    dstBuffer,
     VkDeviceSize                                dstOffset,
@@ -129,7 +129,7 @@ void Process_vkCmdFillBuffer(
 
 void Process_vkCmdPipelineBarrier(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPipelineBarrier                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags                        srcStageMask,
     VkPipelineStageFlags                        dstStageMask,
@@ -143,7 +143,7 @@ void Process_vkCmdPipelineBarrier(
 
 void Process_vkCmdBeginQuery(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginQuery                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
@@ -151,14 +151,14 @@ void Process_vkCmdBeginQuery(
 
 void Process_vkCmdEndQuery(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndQuery                           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query);
 
 void Process_vkCmdResetQueryPool(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetQueryPool                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
@@ -166,7 +166,7 @@ void Process_vkCmdResetQueryPool(
 
 void Process_vkCmdWriteTimestamp(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteTimestamp                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlagBits                     pipelineStage,
     const VulkanQueryPoolInfo*                  queryPool,
@@ -174,7 +174,7 @@ void Process_vkCmdWriteTimestamp(
 
 void Process_vkCmdCopyQueryPoolResults(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyQueryPoolResults               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
@@ -186,21 +186,21 @@ void Process_vkCmdCopyQueryPoolResults(
 
 void Process_vkCmdExecuteCommands(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdExecuteCommands                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    commandBufferCount,
     const VkCommandBuffer*                      pCommandBuffers);
 
 void Process_vkCmdBindPipeline(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindPipeline                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     const VulkanPipelineInfo*                   pipeline);
 
 void Process_vkCmdBindDescriptorSets(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorSets                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     const VulkanPipelineLayoutInfo*             layout,
@@ -212,7 +212,7 @@ void Process_vkCmdBindDescriptorSets(
 
 void Process_vkCmdClearColorImage(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdClearColorImage                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkImage                                     image,
     VkImageLayout                               imageLayout,
@@ -222,7 +222,7 @@ void Process_vkCmdClearColorImage(
 
 void Process_vkCmdDispatch(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatch                           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    groupCountX,
     uint32_t                                    groupCountY,
@@ -230,28 +230,28 @@ void Process_vkCmdDispatch(
 
 void Process_vkCmdDispatchIndirect(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchIndirect                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset);
 
 void Process_vkCmdSetEvent(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetEvent                           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask);
 
 void Process_vkCmdResetEvent(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetEvent                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask);
 
 void Process_vkCmdWaitEvents(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWaitEvents                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    eventCount,
     const VkEvent*                              pEvents,
@@ -266,7 +266,7 @@ void Process_vkCmdWaitEvents(
 
 void Process_vkCmdPushConstants(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushConstants                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineLayout                            layout,
     VkShaderStageFlags                          stageFlags,
@@ -276,7 +276,7 @@ void Process_vkCmdPushConstants(
 
 void Process_vkCmdSetViewport(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewport                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstViewport,
     uint32_t                                    viewportCount,
@@ -284,7 +284,7 @@ void Process_vkCmdSetViewport(
 
 void Process_vkCmdSetScissor(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetScissor                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstScissor,
     uint32_t                                    scissorCount,
@@ -292,13 +292,13 @@ void Process_vkCmdSetScissor(
 
 void Process_vkCmdSetLineWidth(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineWidth                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     float                                       lineWidth);
 
 void Process_vkCmdSetDepthBias(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBias                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     float                                       depthBiasConstantFactor,
     float                                       depthBiasClamp,
@@ -306,41 +306,41 @@ void Process_vkCmdSetDepthBias(
 
 void Process_vkCmdSetBlendConstants(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetBlendConstants                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const float*                                blendConstants);
 
 void Process_vkCmdSetDepthBounds(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBounds                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     float                                       minDepthBounds,
     float                                       maxDepthBounds);
 
 void Process_vkCmdSetStencilCompareMask(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilCompareMask              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    compareMask);
 
 void Process_vkCmdSetStencilWriteMask(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilWriteMask                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    writeMask);
 
 void Process_vkCmdSetStencilReference(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilReference                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    reference);
 
 void Process_vkCmdBindIndexBuffer(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindIndexBuffer                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -348,7 +348,7 @@ void Process_vkCmdBindIndexBuffer(
 
 void Process_vkCmdBindVertexBuffers(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindVertexBuffers                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -357,7 +357,7 @@ void Process_vkCmdBindVertexBuffers(
 
 void Process_vkCmdDraw(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDraw                               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    vertexCount,
     uint32_t                                    instanceCount,
@@ -366,7 +366,7 @@ void Process_vkCmdDraw(
 
 void Process_vkCmdDrawIndexed(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexed                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    indexCount,
     uint32_t                                    instanceCount,
@@ -376,7 +376,7 @@ void Process_vkCmdDrawIndexed(
 
 void Process_vkCmdDrawIndirect(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirect                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -385,7 +385,7 @@ void Process_vkCmdDrawIndirect(
 
 void Process_vkCmdDrawIndexedIndirect(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexedIndirect                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -394,7 +394,7 @@ void Process_vkCmdDrawIndexedIndirect(
 
 void Process_vkCmdBlitImage(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBlitImage                          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanImageInfo*                      srcImage,
     VkImageLayout                               srcImageLayout,
@@ -407,7 +407,7 @@ void Process_vkCmdBlitImage(
 
 void Process_vkCmdClearDepthStencilImage(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdClearDepthStencilImage             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkImage                                     image,
     VkImageLayout                               imageLayout,
@@ -417,7 +417,7 @@ void Process_vkCmdClearDepthStencilImage(
 
 void Process_vkCmdClearAttachments(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdClearAttachments                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    attachmentCount,
     const VkClearAttachment*                    pAttachments,
@@ -426,7 +426,7 @@ void Process_vkCmdClearAttachments(
 
 void Process_vkCmdResolveImage(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResolveImage                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkImage                                     srcImage,
     VkImageLayout                               srcImageLayout,
@@ -437,31 +437,31 @@ void Process_vkCmdResolveImage(
 
 void Process_vkCmdBeginRenderPass(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginRenderPass                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     VkSubpassContents                           contents);
 
 void Process_vkCmdNextSubpass(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdNextSubpass                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkSubpassContents                           contents);
 
 void Process_vkCmdEndRenderPass(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRenderPass                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdSetDeviceMask(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDeviceMask                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    deviceMask);
 
 void Process_vkCmdDispatchBase(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchBase                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    baseGroupX,
     uint32_t                                    baseGroupY,
@@ -472,7 +472,7 @@ void Process_vkCmdDispatchBase(
 
 void Process_vkCmdDrawIndirectCount(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirectCount                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -483,7 +483,7 @@ void Process_vkCmdDrawIndirectCount(
 
 void Process_vkCmdDrawIndexedIndirectCount(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexedIndirectCount           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -494,33 +494,33 @@ void Process_vkCmdDrawIndexedIndirectCount(
 
 void Process_vkCmdBeginRenderPass2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginRenderPass2                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo);
 
 void Process_vkCmdNextSubpass2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdNextSubpass2                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
 
 void Process_vkCmdEndRenderPass2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRenderPass2                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
 
 void Process_vkCmdPipelineBarrier2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPipelineBarrier2                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDependencyInfo*                     pDependencyInfo);
 
 void Process_vkCmdWriteTimestamp2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteTimestamp2                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
     const VulkanQueryPoolInfo*                  queryPool,
@@ -528,49 +528,49 @@ void Process_vkCmdWriteTimestamp2(
 
 void Process_vkCmdCopyBuffer2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBuffer2                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo,
     bool before_command);
 
 void Process_vkCmdCopyImage2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImage2                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo,
     bool before_command);
 
 void Process_vkCmdCopyBufferToImage2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBufferToImage2                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo,
     bool before_command);
 
 void Process_vkCmdCopyImageToBuffer2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImageToBuffer2                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo,
     bool before_command);
 
 void Process_vkCmdSetEvent2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetEvent2                          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     const VkDependencyInfo*                     pDependencyInfo);
 
 void Process_vkCmdResetEvent2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetEvent2                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     VkPipelineStageFlags2                       stageMask);
 
 void Process_vkCmdWaitEvents2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWaitEvents2                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    eventCount,
     const VkEvent*                              pEvents,
@@ -578,63 +578,63 @@ void Process_vkCmdWaitEvents2(
 
 void Process_vkCmdBlitImage2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBlitImage2                         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo,
     bool before_command);
 
 void Process_vkCmdResolveImage2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResolveImage2                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkResolveImageInfo2*                  pResolveImageInfo);
 
 void Process_vkCmdBeginRendering(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginRendering                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo);
 
 void Process_vkCmdEndRendering(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRendering                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdSetCullMode(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCullMode                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCullModeFlags                             cullMode);
 
 void Process_vkCmdSetFrontFace(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetFrontFace                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkFrontFace                                 frontFace);
 
 void Process_vkCmdSetPrimitiveTopology(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPrimitiveTopology               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPrimitiveTopology                         primitiveTopology);
 
 void Process_vkCmdSetViewportWithCount(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewportWithCount               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    viewportCount,
     const VkViewport*                           pViewports);
 
 void Process_vkCmdSetScissorWithCount(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetScissorWithCount                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    scissorCount,
     const VkRect2D*                             pScissors);
 
 void Process_vkCmdBindVertexBuffers2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindVertexBuffers2                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -645,37 +645,37 @@ void Process_vkCmdBindVertexBuffers2(
 
 void Process_vkCmdSetDepthTestEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthTestEnable                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthTestEnable);
 
 void Process_vkCmdSetDepthWriteEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthWriteEnable                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthWriteEnable);
 
 void Process_vkCmdSetDepthCompareOp(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthCompareOp                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCompareOp                                 depthCompareOp);
 
 void Process_vkCmdSetDepthBoundsTestEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBoundsTestEnable           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBoundsTestEnable);
 
 void Process_vkCmdSetStencilTestEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilTestEnable               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    stencilTestEnable);
 
 void Process_vkCmdSetStencilOp(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilOp                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkStencilFaceFlags                          faceMask,
     VkStencilOp                                 failOp,
@@ -685,25 +685,25 @@ void Process_vkCmdSetStencilOp(
 
 void Process_vkCmdSetRasterizerDiscardEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRasterizerDiscardEnable         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    rasterizerDiscardEnable);
 
 void Process_vkCmdSetDepthBiasEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBiasEnable                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBiasEnable);
 
 void Process_vkCmdSetPrimitiveRestartEnable(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPrimitiveRestartEnable          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    primitiveRestartEnable);
 
 void Process_vkCmdPushDescriptorSet(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSet                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     const VulkanPipelineLayoutInfo*             layout,
@@ -713,7 +713,7 @@ void Process_vkCmdPushDescriptorSet(
 
 void Process_vkCmdPushDescriptorSetWithTemplate(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetWithTemplate      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     VkPipelineLayout                            layout,
@@ -722,38 +722,38 @@ void Process_vkCmdPushDescriptorSetWithTemplate(
 
 void Process_vkCmdBindDescriptorSets2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorSets2                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
 
 void Process_vkCmdPushConstants2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushConstants2                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkPushConstantsInfo*                  pPushConstantsInfo);
 
 void Process_vkCmdPushDescriptorSet2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSet2                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetWithTemplate2     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkPushDescriptorSetWithTemplateInfo*  pPushDescriptorSetWithTemplateInfo);
 
 void Process_vkCmdSetLineStipple(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineStipple                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern);
 
 void Process_vkCmdBindIndexBuffer2(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindIndexBuffer2                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
     VkDeviceSize                                offset,
@@ -762,60 +762,60 @@ void Process_vkCmdBindIndexBuffer2(
 
 void Process_vkCmdSetRenderingAttachmentLocations(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRenderingAttachmentLocations    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkRenderingAttachmentLocationInfo*    pLocationInfo);
 
 void Process_vkCmdSetRenderingInputAttachmentIndices(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRenderingInputAttachmentIndices func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
 
 void Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginVideoCodingKHR                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkVideoBeginCodingInfoKHR*            pBeginInfo);
 
 void Process_vkCmdEndVideoCodingKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndVideoCodingKHR                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkVideoEndCodingInfoKHR*              pEndCodingInfo);
 
 void Process_vkCmdControlVideoCodingKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdControlVideoCodingKHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkVideoCodingControlInfoKHR*          pCodingControlInfo);
 
 void Process_vkCmdDecodeVideoKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDecodeVideoKHR                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkVideoDecodeInfoKHR*                 pDecodeInfo);
 
 void Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginRenderingKHR                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo);
 
 void Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRenderingKHR                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdSetDeviceMaskKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDeviceMaskKHR                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    deviceMask);
 
 void Process_vkCmdDispatchBaseKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchBaseKHR                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    baseGroupX,
     uint32_t                                    baseGroupY,
@@ -826,7 +826,7 @@ void Process_vkCmdDispatchBaseKHR(
 
 void Process_vkCmdPushDescriptorSetKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetKHR               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     const VulkanPipelineLayoutInfo*             layout,
@@ -836,7 +836,7 @@ void Process_vkCmdPushDescriptorSetKHR(
 
 void Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetWithTemplateKHR   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     VkPipelineLayout                            layout,
@@ -845,27 +845,27 @@ void Process_vkCmdPushDescriptorSetWithTemplateKHR(
 
 void Process_vkCmdBeginRenderPass2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginRenderPass2KHR                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo);
 
 void Process_vkCmdNextSubpass2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdNextSubpass2KHR                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
 
 void Process_vkCmdEndRenderPass2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRenderPass2KHR                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
 
 void Process_vkCmdDrawIndirectCountKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirectCountKHR               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -876,7 +876,7 @@ void Process_vkCmdDrawIndirectCountKHR(
 
 void Process_vkCmdDrawIndexedIndirectCountKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexedIndirectCountKHR        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -887,46 +887,46 @@ void Process_vkCmdDrawIndexedIndirectCountKHR(
 
 void Process_vkCmdSetFragmentShadingRateKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetFragmentShadingRateKHR          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkExtent2D*                           pFragmentSize,
     const VkFragmentShadingRateCombinerOpKHR*   combinerOps);
 
 void Process_vkCmdSetRenderingAttachmentLocationsKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRenderingAttachmentLocationsKHR func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkRenderingAttachmentLocationInfo*    pLocationInfo);
 
 void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRenderingInputAttachmentIndicesKHR func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
 
 void Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEncodeVideoKHR                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkVideoEncodeInfoKHR*                 pEncodeInfo);
 
 void Process_vkCmdSetEvent2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetEvent2KHR                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     const VkDependencyInfo*                     pDependencyInfo);
 
 void Process_vkCmdResetEvent2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetEvent2KHR                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     VkPipelineStageFlags2                       stageMask);
 
 void Process_vkCmdWaitEvents2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWaitEvents2KHR                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    eventCount,
     const VkEvent*                              pEvents,
@@ -934,13 +934,13 @@ void Process_vkCmdWaitEvents2KHR(
 
 void Process_vkCmdPipelineBarrier2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPipelineBarrier2KHR                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDependencyInfo*                     pDependencyInfo);
 
 void Process_vkCmdWriteTimestamp2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteTimestamp2KHR                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
     const VulkanQueryPoolInfo*                  queryPool,
@@ -948,13 +948,13 @@ void Process_vkCmdWriteTimestamp2KHR(
 
 void Process_vkCmdBindIndexBuffer3KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindIndexBuffer3KHR                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkBindIndexBuffer3InfoKHR*            pInfo);
 
 void Process_vkCmdBindVertexBuffers3KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindVertexBuffers3KHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -962,43 +962,43 @@ void Process_vkCmdBindVertexBuffers3KHR(
 
 void Process_vkCmdDrawIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirect2KHR                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDrawIndirect2InfoKHR*               pInfo);
 
 void Process_vkCmdDrawIndexedIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexedIndirect2KHR            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDrawIndirect2InfoKHR*               pInfo);
 
 void Process_vkCmdDispatchIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchIndirect2KHR               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDispatchIndirect2InfoKHR*           pInfo);
 
 void Process_vkCmdCopyMemoryKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMemoryKHR                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyDeviceMemoryInfoKHR*            pCopyMemoryInfo);
 
 void Process_vkCmdCopyMemoryToImageKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMemoryToImageKHR               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyDeviceMemoryImageInfoKHR*       pCopyMemoryInfo);
 
 void Process_vkCmdCopyImageToMemoryKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImageToMemoryKHR               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyDeviceMemoryImageInfoKHR*       pCopyMemoryInfo);
 
 void Process_vkCmdUpdateMemoryKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdUpdateMemoryKHR                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDeviceAddressRangeKHR*              pDstRange,
     VkAddressCommandFlagsKHR                    dstFlags,
@@ -1007,7 +1007,7 @@ void Process_vkCmdUpdateMemoryKHR(
 
 void Process_vkCmdFillMemoryKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdFillMemoryKHR                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDeviceAddressRangeKHR*              pDstRange,
     VkAddressCommandFlagsKHR                    dstFlags,
@@ -1015,7 +1015,7 @@ void Process_vkCmdFillMemoryKHR(
 
 void Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyQueryPoolResultsToMemoryKHR    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
@@ -1026,25 +1026,25 @@ void Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
 
 void Process_vkCmdDrawIndirectCount2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirectCount2KHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDrawIndirectCount2InfoKHR*          pInfo);
 
 void Process_vkCmdDrawIndexedIndirectCount2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexedIndirectCount2KHR       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDrawIndirectCount2InfoKHR*          pInfo);
 
 void Process_vkCmdBeginConditionalRendering2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginConditionalRendering2EXT      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkConditionalRenderingBeginInfo2EXT*  pConditionalRenderingBegin);
 
 void Process_vkCmdBindTransformFeedbackBuffers2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindTransformFeedbackBuffers2EXT   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -1052,7 +1052,7 @@ void Process_vkCmdBindTransformFeedbackBuffers2EXT(
 
 void Process_vkCmdBeginTransformFeedback2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginTransformFeedback2EXT         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstCounterRange,
     uint32_t                                    counterRangeCount,
@@ -1060,7 +1060,7 @@ void Process_vkCmdBeginTransformFeedback2EXT(
 
 void Process_vkCmdEndTransformFeedback2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndTransformFeedback2EXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstCounterRange,
     uint32_t                                    counterRangeCount,
@@ -1068,7 +1068,7 @@ void Process_vkCmdEndTransformFeedback2EXT(
 
 void Process_vkCmdDrawIndirectByteCount2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirectByteCount2EXT          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    instanceCount,
     uint32_t                                    firstInstance,
@@ -1078,72 +1078,72 @@ void Process_vkCmdDrawIndirectByteCount2EXT(
 
 void Process_vkCmdDrawMeshTasksIndirect2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksIndirect2EXT          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDrawIndirect2InfoKHR*               pInfo);
 
 void Process_vkCmdDrawMeshTasksIndirectCount2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksIndirectCount2EXT     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDrawIndirectCount2InfoKHR*          pInfo);
 
 void Process_vkCmdWriteMarkerToMemoryAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteMarkerToMemoryAMD             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkMemoryMarkerInfoAMD*                pInfo);
 
 void Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBuffer2KHR                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo,
     bool before_command);
 
 void Process_vkCmdCopyImage2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImage2KHR                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo,
     bool before_command);
 
 void Process_vkCmdCopyBufferToImage2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBufferToImage2KHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo,
     bool before_command);
 
 void Process_vkCmdCopyImageToBuffer2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImageToBuffer2KHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo,
     bool before_command);
 
 void Process_vkCmdBlitImage2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBlitImage2KHR                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo,
     bool before_command);
 
 void Process_vkCmdResolveImage2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdResolveImage2KHR                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkResolveImageInfo2*                  pResolveImageInfo);
 
 void Process_vkCmdTraceRaysIndirect2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdTraceRaysIndirect2KHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkDeviceAddress                             indirectDeviceAddress);
 
 void Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindIndexBuffer2KHR                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -1152,85 +1152,85 @@ void Process_vkCmdBindIndexBuffer2KHR(
 
 void Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineStippleKHR                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern);
 
 void Process_vkCmdBindDescriptorSets2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorSets2KHR             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
 
 void Process_vkCmdPushConstants2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushConstants2KHR                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkPushConstantsInfo*                  pPushConstantsInfo);
 
 void Process_vkCmdPushDescriptorSet2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSet2KHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetWithTemplate2KHR  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkPushDescriptorSetWithTemplateInfo*  pPushDescriptorSetWithTemplateInfo);
 
 void Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDescriptorBufferOffsets2EXT     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkSetDescriptorBufferOffsetsInfoEXT*  pSetDescriptorBufferOffsetsInfo);
 
 void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
 void Process_vkCmdCopyMemoryIndirectKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMemoryIndirectKHR              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryIndirectInfoKHR*          pCopyMemoryIndirectInfo);
 
 void Process_vkCmdCopyMemoryToImageIndirectKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMemoryToImageIndirectKHR       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo);
 
 void Process_vkCmdEndRendering2KHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRendering2KHR                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkRenderingEndInfoKHR*                pRenderingEndInfo);
 
 void Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDebugMarkerBeginEXT                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo);
 
 void Process_vkCmdDebugMarkerEndEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDebugMarkerEndEXT                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdDebugMarkerInsertEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDebugMarkerInsertEXT               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo);
 
 void Process_vkCmdBindTransformFeedbackBuffersEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindTransformFeedbackBuffersEXT    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -1240,7 +1240,7 @@ void Process_vkCmdBindTransformFeedbackBuffersEXT(
 
 void Process_vkCmdBeginTransformFeedbackEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginTransformFeedbackEXT          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
@@ -1249,7 +1249,7 @@ void Process_vkCmdBeginTransformFeedbackEXT(
 
 void Process_vkCmdEndTransformFeedbackEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndTransformFeedbackEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
@@ -1258,7 +1258,7 @@ void Process_vkCmdEndTransformFeedbackEXT(
 
 void Process_vkCmdBeginQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginQueryIndexedEXT               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
@@ -1267,7 +1267,7 @@ void Process_vkCmdBeginQueryIndexedEXT(
 
 void Process_vkCmdEndQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndQueryIndexedEXT                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
@@ -1275,7 +1275,7 @@ void Process_vkCmdEndQueryIndexedEXT(
 
 void Process_vkCmdDrawIndirectByteCountEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirectByteCountEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    instanceCount,
     uint32_t                                    firstInstance,
@@ -1286,7 +1286,7 @@ void Process_vkCmdDrawIndirectByteCountEXT(
 
 void Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndirectCountAMD               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -1297,7 +1297,7 @@ void Process_vkCmdDrawIndirectCountAMD(
 
 void Process_vkCmdDrawIndexedIndirectCountAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawIndexedIndirectCountAMD        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
@@ -1308,18 +1308,18 @@ void Process_vkCmdDrawIndexedIndirectCountAMD(
 
 void Process_vkCmdBeginConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginConditionalRenderingEXT       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkConditionalRenderingBeginInfoEXT*   pConditionalRenderingBegin);
 
 void Process_vkCmdEndConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndConditionalRenderingEXT         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdSetViewportWScalingNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewportWScalingNV              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstViewport,
     uint32_t                                    viewportCount,
@@ -1327,7 +1327,7 @@ void Process_vkCmdSetViewportWScalingNV(
 
 void Process_vkCmdSetDiscardRectangleEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDiscardRectangleEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstDiscardRectangle,
     uint32_t                                    discardRectangleCount,
@@ -1335,50 +1335,50 @@ void Process_vkCmdSetDiscardRectangleEXT(
 
 void Process_vkCmdSetDiscardRectangleEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDiscardRectangleEnableEXT       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    discardRectangleEnable);
 
 void Process_vkCmdSetDiscardRectangleModeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDiscardRectangleModeEXT         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkDiscardRectangleModeEXT                   discardRectangleMode);
 
 void Process_vkCmdBeginDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginDebugUtilsLabelEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo);
 
 void Process_vkCmdEndDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndDebugUtilsLabelEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer);
 
 void Process_vkCmdInsertDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdInsertDebugUtilsLabelEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo);
 
 void Process_vkCmdBeginGpaSessionAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginGpaSessionAMD                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession);
 
 void Process_vkCmdEndGpaSessionAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndGpaSessionAMD                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession);
 
 void Process_vkCmdBeginGpaSampleAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginGpaSampleAMD                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession,
@@ -1387,33 +1387,33 @@ void Process_vkCmdBeginGpaSampleAMD(
 
 void Process_vkCmdEndGpaSampleAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndGpaSampleAMD                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession,
     uint32_t                                    sampleID);
 
 void Process_vkCmdCopyGpaSessionResultsAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyGpaSessionResultsAMD           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession);
 
 void Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetSampleLocationsEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkSampleLocationsInfoEXT*             pSampleLocationsInfo);
 
 void Process_vkCmdBindShadingRateImageNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindShadingRateImageNV             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkImageView                                 imageView,
     VkImageLayout                               imageLayout);
 
 void Process_vkCmdSetViewportShadingRatePaletteNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewportShadingRatePaletteNV    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstViewport,
     uint32_t                                    viewportCount,
@@ -1421,7 +1421,7 @@ void Process_vkCmdSetViewportShadingRatePaletteNV(
 
 void Process_vkCmdSetCoarseSampleOrderNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoarseSampleOrderNV             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCoarseSampleOrderTypeNV                   sampleOrderType,
     uint32_t                                    customSampleOrderCount,
@@ -1429,7 +1429,7 @@ void Process_vkCmdSetCoarseSampleOrderNV(
 
 void Process_vkCmdBuildAccelerationStructureNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBuildAccelerationStructureNV       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkAccelerationStructureInfoNV*        pInfo,
     VkBuffer                                    instanceData,
@@ -1442,7 +1442,7 @@ void Process_vkCmdBuildAccelerationStructureNV(
 
 void Process_vkCmdCopyAccelerationStructureNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyAccelerationStructureNV        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkAccelerationStructureNV                   dst,
     VkAccelerationStructureNV                   src,
@@ -1450,7 +1450,7 @@ void Process_vkCmdCopyAccelerationStructureNV(
 
 void Process_vkCmdTraceRaysNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdTraceRaysNV                        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    raygenShaderBindingTableBuffer,
     VkDeviceSize                                raygenShaderBindingOffset,
@@ -1469,7 +1469,7 @@ void Process_vkCmdTraceRaysNV(
 
 void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteAccelerationStructuresPropertiesNV func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
     HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
@@ -1479,7 +1479,7 @@ void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
 
 void Process_vkCmdWriteBufferMarkerAMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteBufferMarkerAMD               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlagBits                     pipelineStage,
     VkBuffer                                    dstBuffer,
@@ -1488,7 +1488,7 @@ void Process_vkCmdWriteBufferMarkerAMD(
 
 void Process_vkCmdWriteBufferMarker2AMD(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteBufferMarker2AMD              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
     VkBuffer                                    dstBuffer,
@@ -1497,14 +1497,14 @@ void Process_vkCmdWriteBufferMarker2AMD(
 
 void Process_vkCmdDrawMeshTasksNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksNV                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    taskCount,
     uint32_t                                    firstTask);
 
 void Process_vkCmdDrawMeshTasksIndirectNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksIndirectNV            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
     VkDeviceSize                                offset,
@@ -1513,7 +1513,7 @@ void Process_vkCmdDrawMeshTasksIndirectNV(
 
 void Process_vkCmdDrawMeshTasksIndirectCountNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksIndirectCountNV       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
     VkDeviceSize                                offset,
@@ -1524,7 +1524,7 @@ void Process_vkCmdDrawMeshTasksIndirectCountNV(
 
 void Process_vkCmdSetExclusiveScissorEnableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetExclusiveScissorEnableNV        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstExclusiveScissor,
     uint32_t                                    exclusiveScissorCount,
@@ -1532,7 +1532,7 @@ void Process_vkCmdSetExclusiveScissorEnableNV(
 
 void Process_vkCmdSetExclusiveScissorNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetExclusiveScissorNV              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstExclusiveScissor,
     uint32_t                                    exclusiveScissorCount,
@@ -1540,73 +1540,73 @@ void Process_vkCmdSetExclusiveScissorNV(
 
 void Process_vkCmdSetCheckpointNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCheckpointNV                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const void*                                 pCheckpointMarker);
 
 void Process_vkCmdSetPerformanceMarkerINTEL(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPerformanceMarkerINTEL          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceMarkerInfoINTEL*         pMarkerInfo);
 
 void Process_vkCmdSetPerformanceStreamMarkerINTEL(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPerformanceStreamMarkerINTEL    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceStreamMarkerInfoINTEL*   pMarkerInfo);
 
 void Process_vkCmdSetPerformanceOverrideINTEL(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPerformanceOverrideINTEL        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceOverrideInfoINTEL*       pOverrideInfo);
 
 void Process_vkCmdSetLineStippleEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineStippleEXT                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern);
 
 void Process_vkCmdSetCullModeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCullModeEXT                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCullModeFlags                             cullMode);
 
 void Process_vkCmdSetFrontFaceEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetFrontFaceEXT                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkFrontFace                                 frontFace);
 
 void Process_vkCmdSetPrimitiveTopologyEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPrimitiveTopologyEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPrimitiveTopology                         primitiveTopology);
 
 void Process_vkCmdSetViewportWithCountEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewportWithCountEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    viewportCount,
     const VkViewport*                           pViewports);
 
 void Process_vkCmdSetScissorWithCountEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetScissorWithCountEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    scissorCount,
     const VkRect2D*                             pScissors);
 
 void Process_vkCmdBindVertexBuffers2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindVertexBuffers2EXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -1617,37 +1617,37 @@ void Process_vkCmdBindVertexBuffers2EXT(
 
 void Process_vkCmdSetDepthTestEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthTestEnableEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthTestEnable);
 
 void Process_vkCmdSetDepthWriteEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthWriteEnableEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthWriteEnable);
 
 void Process_vkCmdSetDepthCompareOpEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthCompareOpEXT               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCompareOp                                 depthCompareOp);
 
 void Process_vkCmdSetDepthBoundsTestEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBoundsTestEnableEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBoundsTestEnable);
 
 void Process_vkCmdSetStencilTestEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilTestEnableEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    stencilTestEnable);
 
 void Process_vkCmdSetStencilOpEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetStencilOpEXT                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkStencilFaceFlags                          faceMask,
     VkStencilOp                                 failOp,
@@ -1657,20 +1657,20 @@ void Process_vkCmdSetStencilOpEXT(
 
 void Process_vkCmdPreprocessGeneratedCommandsNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPreprocessGeneratedCommandsNV      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo);
 
 void Process_vkCmdExecuteGeneratedCommandsNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdExecuteGeneratedCommandsNV         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo);
 
 void Process_vkCmdBindPipelineShaderGroupNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindPipelineShaderGroupNV          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipeline                                  pipeline,
@@ -1678,38 +1678,38 @@ void Process_vkCmdBindPipelineShaderGroupNV(
 
 void Process_vkCmdSetDepthBias2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBias2EXT                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDepthBiasInfoEXT*                   pDepthBiasInfo);
 
 void Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchTileQCOM                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDispatchTileInfoQCOM*               pDispatchTileInfo);
 
 void Process_vkCmdBeginPerTileExecutionQCOM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginPerTileExecutionQCOM          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkPerTileBeginInfoQCOM*               pPerTileBeginInfo);
 
 void Process_vkCmdEndPerTileExecutionQCOM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndPerTileExecutionQCOM            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkPerTileEndInfoQCOM*                 pPerTileEndInfo);
 
 void Process_vkCmdBindDescriptorBuffersEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorBuffersEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    bufferCount,
     const VkDescriptorBufferBindingInfoEXT*     pBindingInfos);
 
 void Process_vkCmdSetDescriptorBufferOffsetsEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDescriptorBufferOffsetsEXT      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipelineLayout                            layout,
@@ -1720,7 +1720,7 @@ void Process_vkCmdSetDescriptorBufferOffsetsEXT(
 
 void Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorBufferEmbeddedSamplersEXT func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipelineLayout                            layout,
@@ -1728,14 +1728,14 @@ void Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
 
 void Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetFragmentShadingRateEnumNV       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkFragmentShadingRateNV                     shadingRate,
     const VkFragmentShadingRateCombinerOpKHR*   combinerOps);
 
 void Process_vkCmdSetVertexInputEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetVertexInputEXT                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    vertexBindingDescriptionCount,
     StructPointerDecoder<Decoded_VkVertexInputBindingDescription2EXT>* pVertexBindingDescriptions,
@@ -1744,51 +1744,51 @@ void Process_vkCmdSetVertexInputEXT(
 
 void Process_vkCmdBindInvocationMaskHUAWEI(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindInvocationMaskHUAWEI           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkImageView                                 imageView,
     VkImageLayout                               imageLayout);
 
 void Process_vkCmdSetPatchControlPointsEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPatchControlPointsEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    patchControlPoints);
 
 void Process_vkCmdSetRasterizerDiscardEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRasterizerDiscardEnableEXT      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    rasterizerDiscardEnable);
 
 void Process_vkCmdSetDepthBiasEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthBiasEnableEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBiasEnable);
 
 void Process_vkCmdSetLogicOpEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLogicOpEXT                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkLogicOp                                   logicOp);
 
 void Process_vkCmdSetPrimitiveRestartEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPrimitiveRestartEnableEXT       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    primitiveRestartEnable);
 
 void Process_vkCmdSetColorWriteEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetColorWriteEnableEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    attachmentCount,
     const VkBool32*                             pColorWriteEnables);
 
 void Process_vkCmdDrawMultiEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMultiEXT                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    drawCount,
     const VkMultiDrawInfoEXT*                   pVertexInfo,
@@ -1798,7 +1798,7 @@ void Process_vkCmdDrawMultiEXT(
 
 void Process_vkCmdDrawMultiIndexedEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMultiIndexedEXT                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    drawCount,
     const VkMultiDrawIndexedInfoEXT*            pIndexInfo,
@@ -1809,32 +1809,32 @@ void Process_vkCmdDrawMultiIndexedEXT(
 
 void Process_vkCmdBuildMicromapsEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBuildMicromapsEXT                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    infoCount,
     const VkMicromapBuildInfoEXT*               pInfos);
 
 void Process_vkCmdCopyMicromapEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMicromapEXT                    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMicromapInfoEXT*                pInfo);
 
 void Process_vkCmdCopyMicromapToMemoryEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMicromapToMemoryEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMicromapToMemoryInfoEXT*        pInfo);
 
 void Process_vkCmdCopyMemoryToMicromapEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMemoryToMicromapEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToMicromapInfoEXT*        pInfo);
 
 void Process_vkCmdWriteMicromapsPropertiesEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteMicromapsPropertiesEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    micromapCount,
     HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
@@ -1844,7 +1844,7 @@ void Process_vkCmdWriteMicromapsPropertiesEXT(
 
 void Process_vkCmdDrawClusterHUAWEI(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawClusterHUAWEI                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    groupCountX,
     uint32_t                                    groupCountY,
@@ -1852,70 +1852,70 @@ void Process_vkCmdDrawClusterHUAWEI(
 
 void Process_vkCmdDrawClusterIndirectHUAWEI(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawClusterIndirectHUAWEI          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
     VkDeviceSize                                offset);
 
 void Process_vkCmdSetDispatchParametersARM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDispatchParametersARM           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDispatchParametersARM*              pDispatchParameters);
 
 void Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdUpdatePipelineIndirectBufferNV     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipeline                                  pipeline);
 
 void Process_vkCmdSetDepthClampEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthClampEnableEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthClampEnable);
 
 void Process_vkCmdSetPolygonModeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPolygonModeEXT                  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkPolygonMode                               polygonMode);
 
 void Process_vkCmdSetRasterizationSamplesEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRasterizationSamplesEXT         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkSampleCountFlagBits                       rasterizationSamples);
 
 void Process_vkCmdSetSampleMaskEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetSampleMaskEXT                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkSampleCountFlagBits                       samples,
     const VkSampleMask*                         pSampleMask);
 
 void Process_vkCmdSetAlphaToCoverageEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetAlphaToCoverageEnableEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    alphaToCoverageEnable);
 
 void Process_vkCmdSetAlphaToOneEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetAlphaToOneEnableEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    alphaToOneEnable);
 
 void Process_vkCmdSetLogicOpEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLogicOpEnableEXT                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    logicOpEnable);
 
 void Process_vkCmdSetColorBlendEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetColorBlendEnableEXT             func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstAttachment,
     uint32_t                                    attachmentCount,
@@ -1923,7 +1923,7 @@ void Process_vkCmdSetColorBlendEnableEXT(
 
 void Process_vkCmdSetColorBlendEquationEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetColorBlendEquationEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstAttachment,
     uint32_t                                    attachmentCount,
@@ -1931,7 +1931,7 @@ void Process_vkCmdSetColorBlendEquationEXT(
 
 void Process_vkCmdSetColorWriteMaskEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetColorWriteMaskEXT               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstAttachment,
     uint32_t                                    attachmentCount,
@@ -1939,43 +1939,43 @@ void Process_vkCmdSetColorWriteMaskEXT(
 
 void Process_vkCmdSetTessellationDomainOriginEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetTessellationDomainOriginEXT     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkTessellationDomainOrigin                  domainOrigin);
 
 void Process_vkCmdSetRasterizationStreamEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRasterizationStreamEXT          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    rasterizationStream);
 
 void Process_vkCmdSetConservativeRasterizationModeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetConservativeRasterizationModeEXT func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkConservativeRasterizationModeEXT          conservativeRasterizationMode);
 
 void Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetExtraPrimitiveOverestimationSizeEXT func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     float                                       extraPrimitiveOverestimationSize);
 
 void Process_vkCmdSetDepthClipEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthClipEnableEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthClipEnable);
 
 void Process_vkCmdSetSampleLocationsEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetSampleLocationsEnableEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    sampleLocationsEnable);
 
 void Process_vkCmdSetColorBlendAdvancedEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetColorBlendAdvancedEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstAttachment,
     uint32_t                                    attachmentCount,
@@ -1983,37 +1983,37 @@ void Process_vkCmdSetColorBlendAdvancedEXT(
 
 void Process_vkCmdSetProvokingVertexModeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetProvokingVertexModeEXT          func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkProvokingVertexModeEXT                    provokingVertexMode);
 
 void Process_vkCmdSetLineRasterizationModeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineRasterizationModeEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkLineRasterizationModeEXT                  lineRasterizationMode);
 
 void Process_vkCmdSetLineStippleEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineStippleEnableEXT            func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    stippledLineEnable);
 
 void Process_vkCmdSetDepthClipNegativeOneToOneEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthClipNegativeOneToOneEXT    func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    negativeOneToOne);
 
 void Process_vkCmdSetViewportWScalingEnableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewportWScalingEnableNV        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    viewportWScalingEnable);
 
 void Process_vkCmdSetViewportSwizzleNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetViewportSwizzleNV               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstViewport,
     uint32_t                                    viewportCount,
@@ -2021,69 +2021,69 @@ void Process_vkCmdSetViewportSwizzleNV(
 
 void Process_vkCmdSetCoverageToColorEnableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoverageToColorEnableNV         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    coverageToColorEnable);
 
 void Process_vkCmdSetCoverageToColorLocationNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoverageToColorLocationNV       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    coverageToColorLocation);
 
 void Process_vkCmdSetCoverageModulationModeNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoverageModulationModeNV        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCoverageModulationModeNV                  coverageModulationMode);
 
 void Process_vkCmdSetCoverageModulationTableEnableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoverageModulationTableEnableNV func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    coverageModulationTableEnable);
 
 void Process_vkCmdSetCoverageModulationTableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoverageModulationTableNV       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    coverageModulationTableCount,
     const float*                                pCoverageModulationTable);
 
 void Process_vkCmdSetShadingRateImageEnableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetShadingRateImageEnableNV        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    shadingRateImageEnable);
 
 void Process_vkCmdSetRepresentativeFragmentTestEnableNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRepresentativeFragmentTestEnableNV func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    representativeFragmentTestEnable);
 
 void Process_vkCmdSetCoverageReductionModeNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetCoverageReductionModeNV         func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkCoverageReductionModeNV                   coverageReductionMode);
 
 void Process_vkCmdCopyTensorARM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyTensorARM                      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyTensorInfoARM*                  pCopyTensorInfo);
 
 void Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdOpticalFlowExecuteNV               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkOpticalFlowSessionNV                      session,
     const VkOpticalFlowExecuteInfoNV*           pExecuteInfo);
 
 void Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindShadersEXT                     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    stageCount,
     const VkShaderStageFlagBits*                pStages,
@@ -2091,46 +2091,46 @@ void Process_vkCmdBindShadersEXT(
 
 void Process_vkCmdSetDepthClampRangeEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetDepthClampRangeEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkDepthClampModeEXT                         depthClampMode,
     const VkDepthClampRangeEXT*                 pDepthClampRange);
 
 void Process_vkCmdConvertCooperativeVectorMatrixNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdConvertCooperativeVectorMatrixNV   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    infoCount,
     const VkConvertCooperativeVectorMatrixInfoNV* pInfos);
 
 void Process_vkCmdDispatchDataGraphARM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchDataGraphARM               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkDataGraphPipelineSessionARM               session,
     const VkDataGraphPipelineDispatchInfoARM*   pInfo);
 
 void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
 
 void Process_vkCmdBindTileMemoryQCOM(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindTileMemoryQCOM                 func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkTileMemoryBindInfoQCOM*             pTileMemoryBindInfo);
 
 void Process_vkCmdDecompressMemoryEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDecompressMemoryEXT                func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkDecompressMemoryInfoEXT*            pDecompressMemoryInfoEXT);
 
 void Process_vkCmdDecompressMemoryIndirectCountEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDecompressMemoryIndirectCountEXT   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkMemoryDecompressionMethodFlagsEXT         decompressionMethod,
     VkDeviceAddress                             indirectCommandsAddress,
@@ -2140,51 +2140,51 @@ void Process_vkCmdDecompressMemoryIndirectCountEXT(
 
 void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBuildPartitionedAccelerationStructuresNV func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkBuildPartitionedAccelerationStructureInfoNV* pBuildInfo);
 
 void Process_vkCmdPreprocessGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdPreprocessGeneratedCommandsEXT     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo,
     VkCommandBuffer                             stateCommandBuffer);
 
 void Process_vkCmdExecuteGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdExecuteGeneratedCommandsEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo);
 
 void Process_vkCmdEndRendering2EXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndRendering2EXT                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkRenderingEndInfoKHR*                pRenderingEndInfo);
 
 void Process_vkCmdBeginCustomResolveEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginCustomResolveEXT              func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkBeginCustomResolveInfoEXT*          pBeginCustomResolveInfo);
 
 void Process_vkCmdSetComputeOccupancyPriorityNV(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetComputeOccupancyPriorityNV      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkComputeOccupancyPriorityParametersNV* pParameters);
 
 void Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetPrimitiveRestartIndexEXT        func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    primitiveRestartIndex);
 
 void Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBuildAccelerationStructuresKHR     func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -2193,7 +2193,7 @@ void Process_vkCmdBuildAccelerationStructuresKHR(
 
 void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdBuildAccelerationStructuresIndirectKHR func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    infoCount,
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
@@ -2203,26 +2203,26 @@ void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
 
 void Process_vkCmdCopyAccelerationStructureKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyAccelerationStructureKHR       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo,
     bool before_command);
 
 void Process_vkCmdCopyAccelerationStructureToMemoryKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyAccelerationStructureToMemoryKHR func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo);
 
 void Process_vkCmdCopyMemoryToAccelerationStructureKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyMemoryToAccelerationStructureKHR func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo);
 
 void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
@@ -2232,7 +2232,7 @@ void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
 
 void Process_vkCmdTraceRaysKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdTraceRaysKHR                       func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
@@ -2244,7 +2244,7 @@ void Process_vkCmdTraceRaysKHR(
 
 void Process_vkCmdTraceRaysIndirectKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdTraceRaysIndirectKHR               func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
@@ -2254,13 +2254,13 @@ void Process_vkCmdTraceRaysIndirectKHR(
 
 void Process_vkCmdSetRayTracingPipelineStackSizeKHR(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRayTracingPipelineStackSizeKHR  func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    pipelineStackSize);
 
 void Process_vkCmdDrawMeshTasksEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksEXT                   func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    groupCountX,
     uint32_t                                    groupCountY,
@@ -2268,7 +2268,7 @@ void Process_vkCmdDrawMeshTasksEXT(
 
 void Process_vkCmdDrawMeshTasksIndirectEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksIndirectEXT           func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
     VkDeviceSize                                offset,
@@ -2277,7 +2277,7 @@ void Process_vkCmdDrawMeshTasksIndirectEXT(
 
 void Process_vkCmdDrawMeshTasksIndirectCountEXT(
     const ApiCallInfo&                          call_info,
-    PFN_vkCmdDrawMeshTasksIndirectCountEXT      func,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
     VkDeviceSize                                offset,

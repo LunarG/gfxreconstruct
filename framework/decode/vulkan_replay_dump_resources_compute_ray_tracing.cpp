@@ -65,9 +65,9 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     bcb_index_(bcb_index), qs_index_(qs_index), DR_command_buffer_(VK_NULL_HANDLE),
     disp_subresources_(disp_subresources), tr_subresources_(tr_subresources), delegate_(delegate), options_(options),
     compressor_(compressor), bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr),
-    parent_device_(VK_NULL_HANDLE), instance_table_(nullptr), object_info_table_(object_info_table),
-    replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0), current_trace_rays_index_(0),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), parent_device_(VK_NULL_HANDLE),
+    instance_table_(nullptr), object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
+    current_dispatch_index_(0), current_trace_rays_index_(0),
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
     if (dispatch_indices != nullptr)
@@ -100,13 +100,14 @@ void DispatchTraceRaysDumpingContext::Release()
 
                 VkDevice device = device_info->handle;
 
-                assert(device_table_);
+                assert(device_table_.IsValid());
 
                 const VulkanCommandPoolInfo* pool_info =
                     object_info_table_.GetVkCommandPoolInfo(original_command_buffer_info_->pool_id);
                 assert(pool_info);
 
-                device_table_->FreeCommandBuffers(device, pool_info->handle, 1, &DR_command_buffer_);
+                auto injected = device_table_.Open();
+                injected->FreeCommandBuffers(device, pool_info->handle, 1, &DR_command_buffer_);
                 DR_command_buffer_ = VK_NULL_HANDLE;
             }
         }
@@ -328,13 +329,13 @@ void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirect2KHR(const ApiCallInfo
     }
 }
 
-VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
-                                                             const graphics::VulkanDeviceTable*   dev_table,
-                                                             const graphics::VulkanInstanceTable* inst_table,
-                                                             const VkCommandBufferBeginInfo*      begin_info)
+VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo* orig_cmd_buf_info,
+                                                             const graphics::VulkanInjectedDeviceCalls& dev_table,
+                                                             const graphics::VulkanInstanceTable*       inst_table,
+                                                             const VkCommandBufferBeginInfo*            begin_info)
 {
     GFXRECON_ASSERT(orig_cmd_buf_info != nullptr);
-    GFXRECON_ASSERT(dev_table != nullptr);
+    GFXRECON_ASSERT(dev_table.IsValid());
     GFXRECON_ASSERT(inst_table != nullptr);
     GFXRECON_ASSERT(begin_info != nullptr);
 
@@ -350,19 +351,20 @@ VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBuffer
 
     const VulkanDeviceInfo* dev_info = object_info_table_.GetVkDeviceInfo(orig_cmd_buf_info->parent_id);
 
-    VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &DR_command_buffer_);
+    auto     injected = dev_table.Open();
+    VkResult res      = injected->AllocateCommandBuffers(dev_info->handle, &ai, &DR_command_buffer_);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
 
-    dev_table->BeginCommandBuffer(DR_command_buffer_, begin_info);
+    injected.BeginCommandBuffer(DR_command_buffer_, begin_info);
 
     assert(original_command_buffer_info_ == nullptr);
     original_command_buffer_info_ = orig_cmd_buf_info;
 
-    assert(device_table_ == nullptr);
+    assert(!device_table_.IsValid());
     device_table_ = dev_table;
     assert(instance_table_ == nullptr);
     instance_table_ = inst_table;
@@ -552,36 +554,37 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const VulkanBufferInfo*
     buf_barrier.offset              = offset;
     buf_barrier.size                = size;
 
-    assert(device_table_ != nullptr);
-    device_table_->CmdPipelineBarrier(DR_command_buffer_,
-                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &buf_barrier,
-                                      0,
-                                      nullptr);
+    assert(device_table_.IsValid());
+    auto injected = device_table_.Open();
+    injected->CmdPipelineBarrier(DR_command_buffer_,
+                                 VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &buf_barrier,
+                                 0,
+                                 nullptr);
 
     VkBufferCopy region = { offset, 0, size };
-    device_table_->CmdCopyBuffer(DR_command_buffer_, src_buffer_info->handle, dst_buffer, 1, &region);
+    injected->CmdCopyBuffer(DR_command_buffer_, src_buffer_info->handle, dst_buffer, 1, &region);
 
     buf_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     buf_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     buf_barrier.buffer        = dst_buffer;
     buf_barrier.offset        = 0;
 
-    device_table_->CmdPipelineBarrier(DR_command_buffer_,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &buf_barrier,
-                                      0,
-                                      nullptr);
+    injected->CmdPipelineBarrier(DR_command_buffer_,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &buf_barrier,
+                                 0,
+                                 nullptr);
 }
 
 void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image)
@@ -616,17 +619,18 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
            graphics::GetFormatAspects(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
-    assert(device_table_ != nullptr);
-    device_table_->CmdPipelineBarrier(DR_command_buffer_,
-                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &img_barrier);
+    assert(device_table_.IsValid());
+    auto injected = device_table_.Open();
+    injected->CmdPipelineBarrier(DR_command_buffer_,
+                                 VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &img_barrier);
 
     // Transition destination image
     img_barrier.srcAccessMask = VK_ACCESS_NONE;
@@ -635,16 +639,16 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     img_barrier.image         = dst_image;
 
-    device_table_->CmdPipelineBarrier(DR_command_buffer_,
-                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &img_barrier);
+    injected->CmdPipelineBarrier(DR_command_buffer_,
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &img_barrier);
 
     assert(src_image_info->level_count);
     assert(src_image_info->layer_count);
@@ -674,13 +678,13 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
         copies[i] = copy;
     }
 
-    device_table_->CmdCopyImage(DR_command_buffer_,
-                                src_image_info->handle,
-                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                dst_image,
-                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                GFXRECON_NARROWING_CAST(uint32_t, copies.size()),
-                                copies.data());
+    injected->CmdCopyImage(DR_command_buffer_,
+                           src_image_info->handle,
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           dst_image,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           GFXRECON_NARROWING_CAST(uint32_t, copies.size()),
+                           copies.data());
 
     // Wait for transfer and transition source image back to previous layout
     img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
@@ -689,16 +693,16 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.newLayout     = old_layout;
     img_barrier.image         = src_image_info->handle;
 
-    device_table_->CmdPipelineBarrier(DR_command_buffer_,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &img_barrier);
+    injected->CmdPipelineBarrier(DR_command_buffer_,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &img_barrier);
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneDispatchMutableResources(uint64_t index, bool cloning_before_cmd)
@@ -1006,7 +1010,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                                                stage_flags,
                                                desc_type,
                                                img_info->parent_id,
-                                               *device_table_,
+                                               device_table_,
                                                object_info_table_)));
                         GFXRECON_ASSERT(success);
                         auto& cloned_image_desc =
@@ -1052,7 +1056,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                                                stage_flags,
                                                desc_type,
                                                buf_info->parent_id,
-                                               *device_table_,
+                                               device_table_,
                                                object_info_table_)));
                         GFXRECON_ASSERT(success);
                         auto& cloned_buffer_desc =
@@ -1060,7 +1064,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
 
                         VkResult res =
                             CreateVkBuffer(cloned_buffer_desc.cloned_size,
-                                           *device_table_,
+                                           device_table_,
                                            object_info_table_.GetVkDeviceInfo(buf_info->parent_id)->handle,
                                            nullptr,
                                            nullptr,
@@ -1106,7 +1110,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                                                stage_flags,
                                                desc_type,
                                                buf_info->parent_id,
-                                               *device_table_,
+                                               device_table_,
                                                object_info_table_)));
                         GFXRECON_ASSERT(success);
                         auto& cloned_buffer_desc =
@@ -1114,7 +1118,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
 
                         VkResult res =
                             CreateVkBuffer(cloned_buffer_desc.cloned_size,
-                                           *device_table_,
+                                           device_table_,
                                            object_info_table_.GetVkDeviceInfo(buf_info->parent_id)->handle,
                                            nullptr,
                                            nullptr,
@@ -1165,6 +1169,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
 void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
 {
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    auto                    injected    = device_table_.Open();
     for (auto& params : dispatch_params_)
     {
         GFXRECON_ASSERT(params.second);
@@ -1177,14 +1182,14 @@ void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
 
         if (dis_params.dispatch_params_union.dispatch_indirect.new_params_buffer != VK_NULL_HANDLE)
         {
-            device_table_->DestroyBuffer(
+            injected->DestroyBuffer(
                 device_info->handle, dis_params.dispatch_params_union.dispatch_indirect.new_params_buffer, nullptr);
             dis_params.dispatch_params_union.dispatch_indirect.new_params_buffer = VK_NULL_HANDLE;
         }
 
         if (dis_params.dispatch_params_union.dispatch_indirect.new_params_memory != VK_NULL_HANDLE)
         {
-            device_table_->FreeMemory(
+            injected->FreeMemory(
                 device_info->handle, dis_params.dispatch_params_union.dispatch_indirect.new_params_memory, nullptr);
             dis_params.dispatch_params_union.dispatch_indirect.new_params_memory = VK_NULL_HANDLE;
         }
@@ -1202,33 +1207,32 @@ void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
 
         if (tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer != VK_NULL_HANDLE)
         {
-            device_table_->DestroyBuffer(
+            injected->DestroyBuffer(
                 device_info->handle, tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer, nullptr);
             tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer = VK_NULL_HANDLE;
         }
 
         if (tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory != VK_NULL_HANDLE)
         {
-            device_table_->FreeMemory(device_info->handle,
-                                      tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory,
-                                      nullptr);
+            injected->FreeMemory(device_info->handle,
+                                 tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory,
+                                 nullptr);
             tr_params.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory = VK_NULL_HANDLE;
         }
 
         if (tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address != VK_NULL_HANDLE)
         {
-            device_table_->DestroyBuffer(device_info->handle,
-                                         tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address,
-                                         nullptr);
+            injected->DestroyBuffer(device_info->handle,
+                                    tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address,
+                                    nullptr);
             tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address = VK_NULL_HANDLE;
         }
 
         if (tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address_memory != VK_NULL_HANDLE)
         {
-            device_table_->FreeMemory(
-                device_info->handle,
-                tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address_memory,
-                nullptr);
+            injected->FreeMemory(device_info->handle,
+                                 tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address_memory,
+                                 nullptr);
             tr_params.trace_rays_params_union.trace_rays_indirect.buffer_on_device_address_memory = VK_NULL_HANDLE;
         }
     }
@@ -1987,7 +1991,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                                                              tlas_context,
                                                              acceleration_structures_context_,
                                                              device_info,
-                                                             *device_table_,
+                                                             device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
                                                              address_trackers_);
@@ -2037,7 +2041,7 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
     const auto*        parent_device_info = object_info_table_.GetVkDeviceInfo(
         disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->parent_id);
     VkResult res = CreateVkBuffer(size,
-                                  *device_table_,
+                                  device_table_,
                                   parent_device_info->handle,
                                   nullptr,
                                   nullptr,
@@ -2053,14 +2057,15 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
 
     // Inject a cmdCopyBuffer to copy the dispatch params into the new buffer
     {
-        const VkDeviceSize offset  = disp_params.dispatch_params_union.dispatch_indirect.params_buffer_offset;
-        const VkBufferCopy region  = { offset, 0, size };
-        VkCommandBuffer    cmd_buf = DR_command_buffer_;
-        device_table_->CmdCopyBuffer(cmd_buf,
-                                     disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle,
-                                     disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
-                                     1,
-                                     &region);
+        const VkDeviceSize offset   = disp_params.dispatch_params_union.dispatch_indirect.params_buffer_offset;
+        const VkBufferCopy region   = { offset, 0, size };
+        VkCommandBuffer    cmd_buf  = DR_command_buffer_;
+        auto               injected = device_table_.Open();
+        injected->CmdCopyBuffer(cmd_buf,
+                                disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle,
+                                disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
+                                1,
+                                &region);
 
         VkBufferMemoryBarrier buf_barrier;
         buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -2073,16 +2078,16 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
         buf_barrier.size                = size;
         buf_barrier.offset              = 0;
 
-        device_table_->CmdPipelineBarrier(cmd_buf,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags{ 0 },
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &buf_barrier,
-                                          0,
-                                          nullptr);
+        injected->CmdPipelineBarrier(cmd_buf,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VkDependencyFlags{ 0 },
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &buf_barrier,
+                                     0,
+                                     nullptr);
     }
 
     return VK_SUCCESS;
@@ -2111,7 +2116,7 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     VkBuffer       buffer_on_device_address;
     VkDeviceMemory buffer_on_device_address_memory;
     VkResult       res = CreateVkBuffer(size,
-                                  *device_table_,
+                                  device_table_,
                                   parent_device_,
                                   reinterpret_cast<const VkBaseInStructure*>(&bdaci),
                                   nullptr,
@@ -2131,7 +2136,7 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     VkBuffer       new_params_buffer;
     VkDeviceMemory new_params_buffer_memory;
     res = CreateVkBuffer(size,
-                         *device_table_,
+                         device_table_,
                          parent_device_,
                          reinterpret_cast<const VkBaseInStructure*>(&bdaci),
                          nullptr,
@@ -2147,8 +2152,9 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
 
     // Copy the parameters from one buffer into the other
     const VkBufferCopy region = { 0, 0, size };
-    assert(device_table_);
-    device_table_->CmdCopyBuffer(DR_command_buffer_, buffer_on_device_address, new_params_buffer, 1, &region);
+    assert(device_table_.IsValid());
+    auto injected = device_table_.Open();
+    injected->CmdCopyBuffer(DR_command_buffer_, buffer_on_device_address, new_params_buffer, 1, &region);
 
     VkBufferMemoryBarrier buf_barrier;
     buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -2161,16 +2167,16 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     buf_barrier.size                = size;
     buf_barrier.offset              = 0;
 
-    device_table_->CmdPipelineBarrier(DR_command_buffer_,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags{ 0 },
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &buf_barrier,
-                                      0,
-                                      nullptr);
+    injected->CmdPipelineBarrier(DR_command_buffer_,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags{ 0 },
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &buf_barrier,
+                                 0,
+                                 nullptr);
 
     if (params.type == kTraceRaysIndirect)
     {
@@ -2217,7 +2223,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
-                                                *device_table_,
+                                                device_table_,
                                                 *instance_table_,
                                                 device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
@@ -2368,7 +2374,8 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint
 
 void DispatchTraceRaysDumpingContext::EndCommandBuffer()
 {
-    device_table_->EndCommandBuffer(DR_command_buffer_);
+    auto injected = device_table_.Open();
+    injected->EndCommandBuffer(DR_command_buffer_);
 }
 
 void DispatchTraceRaysDumpingContext::AssignSecondary(

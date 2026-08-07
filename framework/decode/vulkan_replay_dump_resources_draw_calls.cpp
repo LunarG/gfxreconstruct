@@ -64,7 +64,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     active_renderpass_(nullptr), active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0),
     current_subpass_(0), delegate_(delegate), options_(options), compressor_(compressor),
     current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), instance_table_(nullptr),
     object_info_table_(object_info_table),
     replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
@@ -104,30 +104,32 @@ void DrawCallsDumpingContext::Release()
         }
 
         VkDevice device = device_info->handle;
-        assert(device_table_);
+        assert(device_table_.IsValid());
 
         const VulkanCommandPoolInfo* pool_info =
             object_info_table_.GetVkCommandPoolInfo(original_command_buffer_info_->pool_id);
         assert(pool_info);
 
+        auto injected = device_table_.Open();
+
         if (!command_buffers_.empty())
         {
-            device_table_->FreeCommandBuffers(device,
-                                              pool_info->handle,
-                                              GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size()),
-                                              command_buffers_.data());
+            injected->FreeCommandBuffers(device,
+                                         pool_info->handle,
+                                         GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size()),
+                                         command_buffers_.data());
         }
         command_buffers_.clear();
 
         if (aux_command_buffer_ != VK_NULL_HANDLE)
         {
-            device_table_->FreeCommandBuffers(device, pool_info->handle, 1, &aux_command_buffer_);
+            injected->FreeCommandBuffers(device, pool_info->handle, 1, &aux_command_buffer_);
             aux_command_buffer_ = VK_NULL_HANDLE;
         }
 
         if (aux_fence_ != VK_NULL_HANDLE)
         {
-            device_table_->DestroyFence(device, aux_fence_, nullptr);
+            injected->DestroyFence(device, aux_fence_, nullptr);
         }
 
         DestroyMutableResourceBackups();
@@ -140,7 +142,7 @@ void DrawCallsDumpingContext::Release()
             {
                 if (renderpass != VK_NULL_HANDLE)
                 {
-                    device_table_->DestroyRenderPass(device, renderpass, nullptr);
+                    injected->DestroyRenderPass(device, renderpass, nullptr);
                 }
             }
         }
@@ -160,14 +162,16 @@ void DrawCallsDumpingContext::Release()
 
 PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering() const
 {
-    if (device_table_->CmdBeginRendering != graphics::noop::vkCmdBeginRendering)
+    auto injected = device_table_.Open();
+
+    if (injected->CmdBeginRendering != graphics::noop::vkCmdBeginRendering)
     {
-        return device_table_->CmdBeginRendering;
+        return injected->CmdBeginRendering;
     }
 
-    if (device_table_->CmdBeginRenderingKHR != graphics::noop::vkCmdBeginRenderingKHR)
+    if (injected->CmdBeginRenderingKHR != graphics::noop::vkCmdBeginRenderingKHR)
     {
-        return device_table_->CmdBeginRenderingKHR;
+        return injected->CmdBeginRenderingKHR;
     }
 
     return nullptr;
@@ -175,14 +179,16 @@ PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering() cons
 
 PFN_vkCmdEndRendering DrawCallsDumpingContext::ResolveCmdEndRendering() const
 {
-    if (device_table_->CmdEndRendering != graphics::noop::vkCmdEndRendering)
+    auto injected = device_table_.Open();
+
+    if (injected->CmdEndRendering != graphics::noop::vkCmdEndRendering)
     {
-        return device_table_->CmdEndRendering;
+        return injected->CmdEndRendering;
     }
 
-    if (device_table_->CmdEndRenderingKHR != graphics::noop::vkCmdEndRenderingKHR)
+    if (injected->CmdEndRenderingKHR != graphics::noop::vkCmdEndRenderingKHR)
     {
-        return device_table_->CmdEndRenderingKHR;
+        return injected->CmdEndRenderingKHR;
     }
 
     return nullptr;
@@ -610,7 +616,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         VkResult res =
             CreateVkBuffer(copy_buffer_size,
-                           *device_table_,
+                           device_table_,
                            object_info_table_.GetVkDeviceInfo(ic_params.params_buffer_info->parent_id)->handle,
                            nullptr,
                            nullptr,
@@ -652,12 +658,13 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
                 regions[0].dstOffset = 0;
             }
 
-            VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
-            device_table_->CmdCopyBuffer(cmd_buf,
-                                         ic_params.params_buffer_info->handle,
-                                         ic_params.new_params_buffer,
-                                         GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
-                                         regions.data());
+            VkCommandBuffer cmd_buf  = command_buffers_[current_cb_index_];
+            auto            injected = device_table_.Open();
+            injected->CmdCopyBuffer(cmd_buf,
+                                    ic_params.params_buffer_info->handle,
+                                    ic_params.new_params_buffer,
+                                    GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
+                                    regions.data());
 
             VkBufferMemoryBarrier buf_barrier;
             buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -670,23 +677,23 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             buf_barrier.size                = copy_buffer_size;
             buf_barrier.offset              = 0;
 
-            device_table_->CmdPipelineBarrier(cmd_buf,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VkDependencyFlags{ 0 },
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buf_barrier,
-                                              0,
-                                              nullptr);
+            injected->CmdPipelineBarrier(cmd_buf,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VkDependencyFlags{ 0 },
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &buf_barrier,
+                                         0,
+                                         nullptr);
         }
 
         // Create a buffer to copy the draw count parameter
         const VkDeviceSize count_buffer_size = sizeof(uint32_t);
         assert(count_buffer_size <= ic_params.count_buffer_info->size);
         res = CreateVkBuffer(count_buffer_size,
-                             *device_table_,
+                             device_table_,
                              object_info_table_.GetVkDeviceInfo(ic_params.count_buffer_info->parent_id)->handle,
                              nullptr,
                              nullptr,
@@ -707,8 +714,9 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             region.srcOffset = ic_params.count_buffer_offset;
             region.dstOffset = 0;
 
-            VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
-            device_table_->CmdCopyBuffer(
+            VkCommandBuffer cmd_buf  = command_buffers_[current_cb_index_];
+            auto            injected = device_table_.Open();
+            injected->CmdCopyBuffer(
                 cmd_buf, ic_params.count_buffer_info->handle, ic_params.new_count_buffer, 1, &region);
 
             VkBufferMemoryBarrier buf_barrier;
@@ -722,16 +730,16 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             buf_barrier.size                = count_buffer_size;
             buf_barrier.offset              = 0;
 
-            device_table_->CmdPipelineBarrier(cmd_buf,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VkDependencyFlags{ 0 },
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buf_barrier,
-                                              0,
-                                              nullptr);
+            injected->CmdPipelineBarrier(cmd_buf,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VkDependencyFlags{ 0 },
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &buf_barrier,
+                                         0,
+                                         nullptr);
         }
     }
     else
@@ -758,7 +766,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         VkResult res =
             CreateVkBuffer(copy_buffer_size,
-                           *device_table_,
+                           device_table_,
                            object_info_table_.GetVkDeviceInfo(i_params.params_buffer_info->parent_id)->handle,
                            nullptr,
                            nullptr,
@@ -800,12 +808,13 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
                 regions[0].dstOffset = 0;
             }
 
-            VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
-            device_table_->CmdCopyBuffer(cmd_buf,
-                                         i_params.params_buffer_info->handle,
-                                         i_params.new_params_buffer,
-                                         GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
-                                         regions.data());
+            VkCommandBuffer cmd_buf  = command_buffers_[current_cb_index_];
+            auto            injected = device_table_.Open();
+            injected->CmdCopyBuffer(cmd_buf,
+                                    i_params.params_buffer_info->handle,
+                                    i_params.new_params_buffer,
+                                    GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
+                                    regions.data());
 
             VkBufferMemoryBarrier buf_barrier;
             buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -818,16 +827,16 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             buf_barrier.size                = copy_buffer_size;
             buf_barrier.offset              = 0;
 
-            device_table_->CmdPipelineBarrier(cmd_buf,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VkDependencyFlags{ 0 },
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buf_barrier,
-                                              0,
-                                              nullptr);
+            injected->CmdPipelineBarrier(cmd_buf,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VkDependencyFlags{ 0 },
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &buf_barrier,
+                                         0,
+                                         nullptr);
         }
     }
 
@@ -1032,15 +1041,17 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
 void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
 {
     assert(current_cb_index_ < command_buffers_.size());
-    assert(device_table_ != nullptr);
+    assert(device_table_.IsValid());
 
     VkCommandBuffer current_command_buffer = command_buffers_[current_cb_index_];
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
+    auto injected = device_table_.Open();
+
     if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
-        device_table_->CmdEndRenderPass(current_command_buffer);
+        injected->CmdEndRenderPass(current_command_buffer);
     }
     else if (current_render_pass_type_ == RenderPassType::kDynamicRendering)
     {
@@ -1071,16 +1082,16 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
                                                     0,
                                                     VK_REMAINING_ARRAY_LAYERS };
 
-                    device_table_->CmdPipelineBarrier(current_command_buffer,
-                                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                      0,
-                                                      0,
-                                                      nullptr,
-                                                      0,
-                                                      nullptr,
-                                                      1,
-                                                      &barrier);
+                    injected->CmdPipelineBarrier(current_command_buffer,
+                                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &barrier);
 
                     cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 }
@@ -1101,7 +1112,7 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
         CopyDrawIndirectParameters(*dc_params);
     }
 
-    device_table_->EndCommandBuffer(current_command_buffer);
+    injected->EndCommandBuffer(current_command_buffer);
 
     // Increment index of command buffer that is going to be finalized next
     ++current_cb_index_;
@@ -1155,7 +1166,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     GFXRECON_ASSERT(device_info);
 
-    TemporaryFence submission_fence(device_info->handle, *device_table_);
+    TemporaryFence submission_fence(device_info->handle, device_table_);
 
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
@@ -1177,7 +1188,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
         si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
 
-        VkResult res = SubmitInfo2OnQueue(*device_table_, queue, si, submission_fence.handle);
+        VkResult res = SubmitInfo2OnQueue(device_table_, queue, si, submission_fence.handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1337,8 +1348,10 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         return VK_SUCCESS;
     }
 
+    auto injected = device_table_.Open();
+
     const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
-    VkResult                       res = device_table_->BeginCommandBuffer(aux_command_buffer_, &bi);
+    VkResult                       res = injected.BeginCommandBuffer(aux_command_buffer_, &bi);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR(
@@ -1393,18 +1406,18 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 
     if (!img_barriers.empty())
     {
-        device_table_->CmdPipelineBarrier(aux_command_buffer_,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          GFXRECON_NARROWING_CAST(uint32_t, img_barriers.size()),
-                                          img_barriers.data());
+        injected->CmdPipelineBarrier(aux_command_buffer_,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     GFXRECON_NARROWING_CAST(uint32_t, img_barriers.size()),
+                                     img_barriers.data());
 
-        res = device_table_->EndCommandBuffer(aux_command_buffer_);
+        res = injected->EndCommandBuffer(aux_command_buffer_);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1427,7 +1440,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
             object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
         assert(device_info);
 
-        res = device_table_->ResetFences(device_info->handle, 1, &aux_fence_);
+        res = injected->ResetFences(device_info->handle, 1, &aux_fence_);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1435,7 +1448,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
             return res;
         }
 
-        res = device_table_->QueueSubmit(queue, 1, &si, aux_fence_);
+        res = injected->QueueSubmit(queue, 1, &si, aux_fence_);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1444,7 +1457,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         }
 
         // Wait
-        res = device_table_->WaitForFences(device_info->handle, 1, &aux_fence_, VK_TRUE, ~0UL);
+        res = injected->WaitForFences(device_info->handle, 1, &aux_fence_, VK_TRUE, ~0UL);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1460,7 +1473,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
                                                               DrawCallParams&           dc_params,
                                                               const DumpedResourceBase& dumped_resource_base)
 {
-    assert(device_table_ != nullptr);
+    assert(device_table_.IsValid());
 
     const Index dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_index)];
     GFXRECON_ASSERT(dc_params.draw_call_index == dc_index);
@@ -1970,7 +1983,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                              tlas_context,
                                                              acceleration_structures_context_,
                                                              device_info,
-                                                             *device_table_,
+                                                             device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
                                                              address_trackers_);
@@ -2025,7 +2038,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
-                                                *device_table_,
+                                                device_table_,
                                                 *instance_table_,
                                                 device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
@@ -2593,13 +2606,13 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t               
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
-                                                     const graphics::VulkanDeviceTable*   dev_table,
-                                                     const graphics::VulkanInstanceTable* inst_table,
-                                                     const VkCommandBufferBeginInfo*      begin_info)
+VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*                   orig_cmd_buf_info,
+                                                     const graphics::VulkanInjectedDeviceCalls& dev_table,
+                                                     const graphics::VulkanInstanceTable*       inst_table,
+                                                     const VkCommandBufferBeginInfo*            begin_info)
 {
     assert(orig_cmd_buf_info);
-    assert(dev_table);
+    GFXRECON_ASSERT(dev_table.IsValid());
     assert(inst_table);
 
     const VulkanCommandPoolInfo* cb_pool_info = object_info_table_.GetVkCommandPoolInfo(orig_cmd_buf_info->pool_id);
@@ -2617,17 +2630,18 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
 
     const VulkanDeviceInfo* dev_info = object_info_table_.GetVkDeviceInfo(orig_cmd_buf_info->parent_id);
 
+    auto injected = dev_table.Open();
     for (auto& command_buffer : command_buffers_)
     {
         GFXRECON_ASSERT(command_buffer == VK_NULL_HANDLE);
-        VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &command_buffer);
+        VkResult res = injected->AllocateCommandBuffers(dev_info->handle, &ai, &command_buffer);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
 
-        res = dev_table->BeginCommandBuffer(command_buffer, begin_info);
+        res = injected.BeginCommandBuffer(command_buffer, begin_info);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("BeginCommandBuffer failed with %s", util::ToString<VkResult>(res).c_str());
@@ -2638,7 +2652,7 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
     assert(original_command_buffer_info_ == nullptr);
     original_command_buffer_info_ = orig_cmd_buf_info;
 
-    assert(device_table_ == nullptr);
+    assert(!device_table_.IsValid());
     device_table_ = dev_table;
     assert(instance_table_ == nullptr);
     instance_table_ = inst_table;
@@ -2653,7 +2667,7 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
     replay_device_phys_mem_props_ = &phys_dev_info->replay_device_info->memory_properties.value();
 
     // Allocate auxiliary command buffer
-    VkResult res = device_table_->AllocateCommandBuffers(dev_info->handle, &ai, &aux_command_buffer_);
+    VkResult res = injected->AllocateCommandBuffers(dev_info->handle, &ai, &aux_command_buffer_);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
@@ -2661,7 +2675,7 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
     }
 
     const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-    res                        = device_table_->CreateFence(dev_info->handle, &ci, nullptr, &aux_fence_);
+    res                        = injected->CreateFence(dev_info->handle, &ci, nullptr, &aux_fence_);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
@@ -2787,6 +2801,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
     // Renderpass 2: Will contain 3 subpass.
     // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
     // subpasses it was called from in the original render pass
+    auto injected = device_table_.Open();
+
     std::vector<VkSubpassDescription> subpass_descs;
     for (uint32_t sub = 0; sub < original_render_pass_ci->subpassCount; ++sub)
     {
@@ -2873,7 +2889,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
         VkDevice device = device_info->handle;
 
         assert(sub < new_render_pass.size());
-        VkResult res = device_table_->CreateRenderPass(device, &ci, nullptr, &new_render_pass[sub]);
+        VkResult res = injected->CreateRenderPass(device, &ci, nullptr, &new_render_pass[sub]);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
@@ -2939,6 +2955,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
     // Renderpass 2: Will contain 3 subpass.
     // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
     // subpasses it was called from in the original render pass
+    auto injected = device_table_.Open();
+
     std::vector<VkSubpassDescription2> subpass_descs;
     for (uint32_t sub = 0; sub < original_render_pass_ci->subpassCount; ++sub)
     {
@@ -3034,12 +3052,12 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
         VkResult res;
         if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
         {
-            res = device_table_->CreateRenderPass2(device, &ci, nullptr, &new_render_pass[sub]);
+            res = injected->CreateRenderPass2(device, &ci, nullptr, &new_render_pass[sub]);
         }
         else
         {
             GFXRECON_ASSERT(render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2KHR);
-            res = device_table_->CreateRenderPass2KHR(device, &ci, nullptr, &new_render_pass[sub]);
+            res = injected->CreateRenderPass2KHR(device, &ci, nullptr, &new_render_pass[sub]);
         }
 
         if (res != VK_SUCCESS)
@@ -3282,6 +3300,8 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     // copy original begin-info
     VkRenderPassBeginInfo modified_renderpass_begin_info = *renderpass_begin_info;
 
+    auto injected = device_table_.Open();
+
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
@@ -3332,7 +3352,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
                 }
             }
         }
-        device_table_->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
+        injected->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
     }
 
     auto new_entry = rendering_attachment_layouts_.emplace(
@@ -3357,6 +3377,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
 
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
+    auto   injected    = device_table_.Open();
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
@@ -3364,7 +3385,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
         const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
         const uint64_t              rp       = RP_index.first;
 
-        device_table_->CmdNextSubpass(*it, contents);
+        injected->CmdNextSubpass(*it, contents);
     }
 
     VulkanImageInfo*    depth_img_info;
@@ -3432,6 +3453,7 @@ void DrawCallsDumpingContext::EndRenderPass()
 
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
+    auto   injected    = device_table_.Open();
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
@@ -3445,7 +3467,7 @@ void DrawCallsDumpingContext::EndRenderPass()
             continue;
         }
 
-        device_table_->CmdEndRenderPass(*it);
+        injected->CmdEndRenderPass(*it);
     }
 
     ++current_renderpass_;
@@ -3661,6 +3683,8 @@ void DrawCallsDumpingContext::ReleaseIndirectParams()
         return;
     }
 
+    auto injected = device_table_.Open();
+
     for (auto& dc_param_entry : draw_call_params_)
     {
         DrawCallParams& dc_params = *dc_param_entry.second;
@@ -3685,25 +3709,25 @@ void DrawCallsDumpingContext::ReleaseIndirectParams()
 
                 if (ic_params.new_params_buffer != VK_NULL_HANDLE)
                 {
-                    device_table_->DestroyBuffer(device_info->handle, ic_params.new_params_buffer, nullptr);
+                    injected->DestroyBuffer(device_info->handle, ic_params.new_params_buffer, nullptr);
                     ic_params.new_params_buffer = VK_NULL_HANDLE;
                 }
 
                 if (ic_params.new_params_memory != VK_NULL_HANDLE)
                 {
-                    device_table_->FreeMemory(device_info->handle, ic_params.new_params_memory, nullptr);
+                    injected->FreeMemory(device_info->handle, ic_params.new_params_memory, nullptr);
                     ic_params.new_params_memory = VK_NULL_HANDLE;
                 }
 
                 if (ic_params.new_count_buffer != VK_NULL_HANDLE)
                 {
-                    device_table_->DestroyBuffer(device_info->handle, ic_params.new_count_buffer, nullptr);
+                    injected->DestroyBuffer(device_info->handle, ic_params.new_count_buffer, nullptr);
                     ic_params.new_count_buffer = VK_NULL_HANDLE;
                 }
 
                 if (ic_params.new_count_memory != VK_NULL_HANDLE)
                 {
-                    device_table_->FreeMemory(device_info->handle, ic_params.new_count_memory, nullptr);
+                    injected->FreeMemory(device_info->handle, ic_params.new_count_memory, nullptr);
                     ic_params.new_count_memory = VK_NULL_HANDLE;
                 }
             }
@@ -3726,13 +3750,13 @@ void DrawCallsDumpingContext::ReleaseIndirectParams()
 
                 if (i_params.new_params_buffer != VK_NULL_HANDLE)
                 {
-                    device_table_->DestroyBuffer(device_info->handle, i_params.new_params_buffer, nullptr);
+                    injected->DestroyBuffer(device_info->handle, i_params.new_params_buffer, nullptr);
                     i_params.new_params_buffer = VK_NULL_HANDLE;
                 }
 
                 if (i_params.new_params_memory != VK_NULL_HANDLE)
                 {
-                    device_table_->FreeMemory(device_info->handle, i_params.new_params_memory, nullptr);
+                    injected->FreeMemory(device_info->handle, i_params.new_params_memory, nullptr);
                     i_params.new_params_memory = VK_NULL_HANDLE;
                 }
             }
@@ -3752,14 +3776,16 @@ void DrawCallsDumpingContext::DestroyMutableResourceBackups()
 
     VkDevice device = device_info->handle;
 
+    auto injected = device_table_.Open();
+
     for (const auto& image : mutable_resource_backups_.images)
     {
-        device_table_->DestroyImage(device, image, nullptr);
+        injected->DestroyImage(device, image, nullptr);
     }
 
     for (const auto& image_memory : mutable_resource_backups_.image_memories)
     {
-        device_table_->FreeMemory(device, image_memory, nullptr);
+        injected->FreeMemory(device, image_memory, nullptr);
     }
 
     mutable_resource_backups_.images.clear();
@@ -3768,12 +3794,12 @@ void DrawCallsDumpingContext::DestroyMutableResourceBackups()
 
     for (const auto& buffer : mutable_resource_backups_.buffers)
     {
-        device_table_->DestroyBuffer(device, buffer, nullptr);
+        injected->DestroyBuffer(device, buffer, nullptr);
     }
 
     for (const auto& buffer_memory : mutable_resource_backups_.buffer_memories)
     {
-        device_table_->FreeMemory(device, buffer_memory, nullptr);
+        injected->FreeMemory(device, buffer_memory, nullptr);
     }
 
     mutable_resource_backups_.buffers.clear();

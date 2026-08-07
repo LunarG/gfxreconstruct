@@ -36,10 +36,10 @@ struct PushConstantBlock
     uint32_t        count;
 };
 
-static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device_table,
-                                       VkDevice                           device,
-                                       VkPipeline*                        compute_ppl,
-                                       VkPipelineLayout*                  ppl_layout)
+static VkResult CreateComputeResources(const graphics::VulkanInjectedDeviceCalls& device_table,
+                                       VkDevice                                   device,
+                                       VkPipeline*                                compute_ppl,
+                                       VkPipelineLayout*                          ppl_layout)
 {
     GFXRECON_ASSERT(compute_ppl != nullptr);
     GFXRECON_ASSERT(ppl_layout != nullptr);
@@ -50,7 +50,8 @@ static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device
         VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO, nullptr, 0, 0, nullptr, 1, &push_constant_range
     };
 
-    VkResult res = device_table.CreatePipelineLayout(device, &pipelineLayoutCI, nullptr, ppl_layout);
+    auto     injected = device_table.Open();
+    VkResult res      = injected->CreatePipelineLayout(device, &pipelineLayoutCI, nullptr, ppl_layout);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_WARNING("vkCreatePipelineLayout failed (%s)", util::ToString(res).c_str());
@@ -61,10 +62,10 @@ static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device
         VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, nullptr, 0, sizeof(g_CompShaderMain), g_CompShaderMain
     };
     VkShaderModule compute_shader;
-    res = device_table.CreateShaderModule(device, &sci, nullptr, &compute_shader);
+    res = injected->CreateShaderModule(device, &sci, nullptr, &compute_shader);
     if (res != VK_SUCCESS)
     {
-        device_table.DestroyPipelineLayout(device, *ppl_layout, nullptr);
+        injected->DestroyPipelineLayout(device, *ppl_layout, nullptr);
         GFXRECON_LOG_WARNING("vkCreateShaderModule failed (%s)", util::ToString(res).c_str());
         return res;
     }
@@ -81,14 +82,14 @@ static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device
         VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO, nullptr, 0, stage_ci, *ppl_layout, VK_NULL_HANDLE, 0
     };
 
-    res = device_table.CreateComputePipelines(device, VK_NULL_HANDLE, 1, &ppl_ci, nullptr, compute_ppl);
+    res = injected->CreateComputePipelines(device, VK_NULL_HANDLE, 1, &ppl_ci, nullptr, compute_ppl);
     if (res != VK_SUCCESS)
     {
-        device_table.DestroyPipelineLayout(device, *ppl_layout, nullptr);
+        injected->DestroyPipelineLayout(device, *ppl_layout, nullptr);
         GFXRECON_LOG_WARNING("vkCreateComputePipelines failed (%s)", util::ToString(res).c_str());
     }
 
-    device_table.DestroyShaderModule(device, compute_shader, nullptr);
+    injected->DestroyShaderModule(device, compute_shader, nullptr);
 
     return VK_SUCCESS;
 }
@@ -483,26 +484,28 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                         continue;
                     }
 
+                    auto injected = device_table.Open();
+
                     const VkBufferDeviceAddressInfo bdai = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
                                                              nullptr,
                                                              new_instances.instance_buffer };
                     const VkDeviceAddress           output_buffer_device_address =
-                        device_table.GetBufferDeviceAddress(device, &bdai);
+                        injected->GetBufferDeviceAddress(device, &bdai);
 
-                    device_table.CmdBindPipeline(
+                    injected->CmdBindPipeline(
                         command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, new_instances.compute_ppl);
 
                     const PushConstantBlock references{ instances.data.deviceAddress,
                                                         output_buffer_device_address,
                                                         range.primitiveCount };
-                    device_table.CmdPushConstants(command_buffer,
-                                                  new_instances.compute_ppl_layout,
-                                                  VK_SHADER_STAGE_COMPUTE_BIT,
-                                                  0,
-                                                  sizeof(PushConstantBlock),
-                                                  &references);
+                    injected->CmdPushConstants(command_buffer,
+                                               new_instances.compute_ppl_layout,
+                                               VK_SHADER_STAGE_COMPUTE_BIT,
+                                               0,
+                                               sizeof(PushConstantBlock),
+                                               &references);
 
-                    device_table.CmdDispatch(command_buffer, 1, 1, 1);
+                    injected->CmdDispatch(command_buffer, 1, 1, 1);
 
                     const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                                                  nullptr,
@@ -513,16 +516,16 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                                                                  new_instances.instance_buffer,
                                                                  0,
                                                                  VK_WHOLE_SIZE };
-                    device_table.CmdPipelineBarrier(command_buffer,
-                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                    0,
-                                                    0,
-                                                    nullptr,
-                                                    1,
-                                                    &buff_barrier,
-                                                    0,
-                                                    nullptr);
+                    injected->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &buff_barrier,
+                                                 0,
+                                                 nullptr);
                 }
             }
             break;
@@ -766,13 +769,15 @@ void AccelerationStructureDumpResourcesContext::ReleaseSerializedResources()
 
     if (serialized_data.buffer != VK_NULL_HANDLE)
     {
-        device_table.DestroyBuffer(device, serialized_data.buffer, nullptr);
+        auto injected = device_table.Open();
+        injected->DestroyBuffer(device, serialized_data.buffer, nullptr);
         serialized_data.buffer = VK_NULL_HANDLE;
     }
 
     if (serialized_data.memory != VK_NULL_HANDLE)
     {
-        device_table.FreeMemory(device, serialized_data.memory, nullptr);
+        auto injected = device_table.Open();
+        injected->FreeMemory(device, serialized_data.memory, nullptr);
         serialized_data.memory = VK_NULL_HANDLE;
     }
 }
@@ -795,43 +800,44 @@ void AccelerationStructureDumpResourcesContext::ReleaseInputBuffersResources()
 
     const VkDevice device = device_info->handle;
 
+    auto injected = device_table.Open();
     for (auto& as_data : as_build_objects)
     {
         if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&as_data))
         {
             if (triangles->vertex_buffer != VK_NULL_HANDLE)
             {
-                device_table.DestroyBuffer(device, triangles->vertex_buffer, nullptr);
+                injected->DestroyBuffer(device, triangles->vertex_buffer, nullptr);
                 triangles->vertex_buffer = VK_NULL_HANDLE;
             }
 
             if (triangles->vertex_buffer_memory != VK_NULL_HANDLE)
             {
-                device_table.FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
+                injected->FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
                 triangles->vertex_buffer_memory = VK_NULL_HANDLE;
             }
 
             if (triangles->index_buffer != VK_NULL_HANDLE)
             {
-                device_table.DestroyBuffer(device, triangles->index_buffer, nullptr);
+                injected->DestroyBuffer(device, triangles->index_buffer, nullptr);
                 triangles->index_buffer = VK_NULL_HANDLE;
             }
 
             if (triangles->index_buffer_memory != VK_NULL_HANDLE)
             {
-                device_table.FreeMemory(device, triangles->index_buffer_memory, nullptr);
+                injected->FreeMemory(device, triangles->index_buffer_memory, nullptr);
                 triangles->index_buffer_memory = VK_NULL_HANDLE;
             }
 
             if (triangles->transform_buffer != VK_NULL_HANDLE)
             {
-                device_table.DestroyBuffer(device, triangles->transform_buffer, nullptr);
+                injected->DestroyBuffer(device, triangles->transform_buffer, nullptr);
                 triangles->transform_buffer = VK_NULL_HANDLE;
             }
 
             if (triangles->transform_buffer_memory != VK_NULL_HANDLE)
             {
-                device_table.FreeMemory(device, triangles->transform_buffer_memory, nullptr);
+                injected->FreeMemory(device, triangles->transform_buffer_memory, nullptr);
                 triangles->transform_buffer_memory = VK_NULL_HANDLE;
             }
         }
@@ -839,25 +845,25 @@ void AccelerationStructureDumpResourcesContext::ReleaseInputBuffersResources()
         {
             if (instance->instance_buffer != VK_NULL_HANDLE)
             {
-                device_table.DestroyBuffer(device, instance->instance_buffer, nullptr);
+                injected->DestroyBuffer(device, instance->instance_buffer, nullptr);
                 instance->instance_buffer = VK_NULL_HANDLE;
             }
 
             if (instance->instance_buffer_memory != VK_NULL_HANDLE)
             {
-                device_table.FreeMemory(device, instance->instance_buffer_memory, nullptr);
+                injected->FreeMemory(device, instance->instance_buffer_memory, nullptr);
                 instance->instance_buffer_memory = VK_NULL_HANDLE;
             }
 
             if (instance->compute_ppl != VK_NULL_HANDLE)
             {
-                device_table.DestroyPipeline(device, instance->compute_ppl, nullptr);
+                injected->DestroyPipeline(device, instance->compute_ppl, nullptr);
                 instance->compute_ppl = VK_NULL_HANDLE;
             }
 
             if (instance->compute_ppl_layout != VK_NULL_HANDLE)
             {
-                device_table.DestroyPipelineLayout(device, instance->compute_ppl_layout, nullptr);
+                injected->DestroyPipelineLayout(device, instance->compute_ppl_layout, nullptr);
                 instance->compute_ppl_layout = VK_NULL_HANDLE;
             }
         }
@@ -865,13 +871,13 @@ void AccelerationStructureDumpResourcesContext::ReleaseInputBuffersResources()
         {
             if (aabb->buffer != VK_NULL_HANDLE)
             {
-                device_table.DestroyBuffer(device, aabb->buffer, nullptr);
+                injected->DestroyBuffer(device, aabb->buffer, nullptr);
                 aabb->buffer = VK_NULL_HANDLE;
             }
 
             if (aabb->buffer_memory != VK_NULL_HANDLE)
             {
-                device_table.FreeMemory(device, aabb->buffer_memory, nullptr);
+                injected->FreeMemory(device, aabb->buffer_memory, nullptr);
                 aabb->buffer_memory = VK_NULL_HANDLE;
             }
         }

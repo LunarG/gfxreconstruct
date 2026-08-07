@@ -4901,9 +4901,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
     {
-        auto* device_table = GetDeviceTable(queue_info->handle);
-        GFXRECON_ASSERT(device_table != nullptr);
-        resource_dumper_->QueueSubmit(current_submits_span, *device_table, queue_info, fence, index);
+        resource_dumper_->QueueSubmit(
+            current_submits_span, GetInjectedDeviceCalls(queue_info->handle), queue_info, fence, index);
     }
     else
     {
@@ -5171,9 +5170,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
     {
-        auto* device_table = GetDeviceTable(queue_info->handle);
-        GFXRECON_ASSERT(device_table != nullptr);
-        resource_dumper_->QueueSubmit2(current_submits_span, *device_table, queue_info, fence, index);
+        resource_dumper_->QueueSubmit2(
+            current_submits_span, GetInjectedDeviceCalls(queue_info->handle), queue_info, fence, index);
     }
     else
     {
@@ -10190,7 +10188,7 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     if (options_.dumping_resources)
     {
         resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
-            command_buffer_info, *GetDeviceTable(device_info->handle), infoCount, pInfos, ppBuildRangeInfos);
+            command_buffer_info, GetInjectedDeviceCalls(device_info->handle), infoCount, pInfos, ppBuildRangeInfos);
     }
 
     if (UseAddressReplacement(device_info))
@@ -10220,7 +10218,7 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
         const auto* src       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
         const auto* dst       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
         resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
-            *GetDeviceTable(device_info->handle), command_buffer_info, src, dst);
+            GetInjectedDeviceCalls(device_info->handle), command_buffer_info, src, dst);
     }
 
     VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -10875,8 +10873,11 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     {
         const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 
-        res = resource_dumper_->BeginCommandBuffer(
-            index, command_buffer_info, GetDeviceTable(device->handle), GetInstanceTable(device->parent), begin_info);
+        res = resource_dumper_->BeginCommandBuffer(index,
+                                                   command_buffer_info,
+                                                   GetInjectedDeviceCalls(device->handle),
+                                                   GetInstanceTable(device->parent),
+                                                   begin_info);
     }
 
     if (res == VK_SUCCESS)
@@ -12548,14 +12549,13 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplateKHR(
-            call_info,
-            GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplateKHR,
-            in_commandBuffer,
-            in_descriptorUpdateTemplate,
-            in_layout,
-            args.set,
-            args.pData.GetPointer());
+        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplateKHR(call_info,
+                                                                        GetInjectedDeviceCalls(in_commandBuffer),
+                                                                        in_commandBuffer,
+                                                                        in_descriptorUpdateTemplate,
+                                                                        in_layout,
+                                                                        args.set,
+                                                                        args.pData.GetPointer());
     }
 }
 
@@ -12586,7 +12586,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     if (options_.dumping_resources)
     {
         resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-            call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR, in_commandBuffer, value);
+            call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, value);
     }
 }
 
@@ -12680,7 +12680,7 @@ void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
                 const auto* src = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
                 const auto* dst = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
                 resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
-                    *GetDeviceTable(device_info->handle), nullptr, src, dst);
+                    GetInjectedDeviceCalls(device_info->handle), nullptr, src, dst);
             }
         }
 
@@ -12715,7 +12715,7 @@ void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
         if (options_.dumping_resources)
         {
             resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
-                nullptr, *GetDeviceTable(device_info->handle), info_count, pInfos, ppRangeInfos);
+                nullptr, GetInjectedDeviceCalls(device_info->handle), info_count, pInfos, ppRangeInfos);
         }
 
         if (UseAddressReplacement(device_info))
@@ -12728,14 +12728,13 @@ void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
         if (options_.dumping_resources)
         {
             ApiCallInfo call_info{ block_index_, 0 };
-            resource_dumper_->Process_vkCmdBuildAccelerationStructuresKHR(
-                call_info,
-                GetDeviceTable(device_info->handle)->CmdBuildAccelerationStructuresKHR,
-                VK_NULL_HANDLE,
-                info_count,
-                pInfos,
-                ppRangeInfos,
-                false);
+            resource_dumper_->Process_vkCmdBuildAccelerationStructuresKHR(call_info,
+                                                                          GetInjectedDeviceCalls(device_info->handle),
+                                                                          VK_NULL_HANDLE,
+                                                                          info_count,
+                                                                          pInfos,
+                                                                          ppRangeInfos,
+                                                                          false);
         }
     }
 }

@@ -524,18 +524,20 @@ void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(decode::Index qs_inde
 
 VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t                 bcb_index,
                                                            VulkanCommandBufferInfo* original_command_buffer_info,
-                                                           const graphics::VulkanDeviceTable*   device_table,
-                                                           const graphics::VulkanInstanceTable* inst_table,
-                                                           const VkCommandBufferBeginInfo*      begin_info)
+                                                           const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                           const graphics::VulkanInstanceTable*       inst_table,
+                                                           const VkCommandBufferBeginInfo*            begin_info)
 {
-    assert(device_table);
+    GFXRECON_ASSERT(device_table.IsValid());
     assert(inst_table);
+
+    const graphics::VulkanInjectedDeviceCalls injected_device_calls(device_table);
 
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(bcb_index);
     for (auto dc_context : dc_contexts)
     {
         VkResult res =
-            dc_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table, begin_info);
+            dc_context->BeginCommandBuffer(original_command_buffer_info, injected_device_calls, inst_table, begin_info);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Cloning command buffer for dumping draw calls failed (%s).",
@@ -549,7 +551,7 @@ VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t             
     for (auto dr_context : dr_contexts)
     {
         VkResult res =
-            dr_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table, begin_info);
+            dr_context->BeginCommandBuffer(original_command_buffer_info, injected_device_calls, inst_table, begin_info);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Cloning command buffer for dumping compute/ray tracing failed (%s).",
@@ -1962,11 +1964,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderingKHR(const ApiCallInfo
     OverrideCmdEndRendering(call_info, func, original_command_buffer);
 }
 
-VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
-                                                    const graphics::VulkanDeviceTable& device_table,
-                                                    const VulkanQueueInfo*             queue,
-                                                    VkFence                            fence,
-                                                    uint64_t                           index)
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo>              submit_infos,
+                                                    const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                    const VulkanQueueInfo*                     queue,
+                                                    VkFence                                    fence,
+                                                    uint64_t                                   index)
 {
     // Losslessly widen each VkSubmitInfo into a VkSubmitInfo2 and forward to the canonical QueueSubmit2 implementation.
     // The translator owns the storage referenced by the produced VkSubmitInfo2 array and must outlive the submit call.
@@ -1975,11 +1977,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
     return QueueSubmit2(translated.GetSubmitInfos2(), device_table, queue, fence, index);
 }
 
-VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInfo2>     submit_infos,
-                                                     const graphics::VulkanDeviceTable& device_table,
-                                                     const VulkanQueueInfo*             queue_info,
-                                                     VkFence                            fence,
-                                                     uint64_t                           qs_index)
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInfo2>             submit_infos,
+                                                     const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                     const VulkanQueueInfo*                     queue_info,
+                                                     VkFence                                    fence,
+                                                     uint64_t                                   qs_index)
 {
 #define CHECK_VK_ERROR(_res_, _func_)                                                                               \
     if (_res_ != VK_SUCCESS)                                                                                        \
@@ -2437,10 +2439,9 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
     }
 }
 
-
 void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
     const VulkanCommandBufferInfo*                                             original_command_buffer,
-    const graphics::VulkanDeviceTable&                                         device_table,
+    const graphics::VulkanInjectedDeviceCalls&                                 device_table,
     uint32_t                                                                   infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
@@ -2481,10 +2482,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
 }
 
 void VulkanReplayDumpResourcesBase::HandleCmdCopyAccelerationStructureKHR(
-    const graphics::VulkanDeviceTable&        device_table,
-    const VulkanCommandBufferInfo*            original_command_buffer,
-    const VulkanAccelerationStructureKHRInfo* src,
-    const VulkanAccelerationStructureKHRInfo* dst)
+    const graphics::VulkanInjectedDeviceCalls& device_table,
+    const VulkanCommandBufferInfo*             original_command_buffer,
+    const VulkanAccelerationStructureKHRInfo*  src,
+    const VulkanAccelerationStructureKHRInfo*  dst)
 {
     GFXRECON_ASSERT(src != nullptr);
     GFXRECON_ASSERT(dst != nullptr);
