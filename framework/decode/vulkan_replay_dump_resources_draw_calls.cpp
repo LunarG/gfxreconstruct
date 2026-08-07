@@ -1085,6 +1085,44 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
                     cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 }
             }
+
+            // Transition the depth attachment as well, so that it matches the layout assumed when it is dumped and
+            // reverted. Gated on dump_resources_dump_depth to mirror DumpRenderTargetAttachments/RevertRenderTargetImageLayouts.
+            if (options_.dump_resources_dump_depth && rt.depth_att_img != nullptr &&
+                rt.depth_att_img->intermediate_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+            {
+                VulkanImageInfo* depth = rt.depth_att_img;
+
+                VkImageMemoryBarrier barrier;
+                barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                barrier.pNext               = nullptr;
+                barrier.srcAccessMask       = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+                barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barrier.oldLayout           = depth->intermediate_layout;
+                barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                barrier.image               = depth->handle;
+                barrier.subresourceRange    = { graphics::GetFormatAspects(depth->format),
+                                                0,
+                                                VK_REMAINING_MIP_LEVELS,
+                                                0,
+                                                VK_REMAINING_ARRAY_LAYERS };
+
+                device_table_->CmdPipelineBarrier(current_command_buffer,
+                                                  VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                                                      VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                  0,
+                                                  0,
+                                                  nullptr,
+                                                  0,
+                                                  nullptr,
+                                                  1,
+                                                  &barrier);
+
+                depth->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            }
         }
     }
 
@@ -1374,7 +1412,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         img_barrier.image         = image_info->handle;
         img_barriers.push_back(img_barrier);
 
-        image_info->intermediate_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        image_info->intermediate_layout = entry->second.color_attachment_layouts[i];
     }
 
     if (options_.dump_resources_dump_depth && render_targets_[rp][sp].depth_att_img != nullptr)
@@ -1388,14 +1426,18 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         img_barrier.image         = image_info->handle;
         img_barriers.push_back(img_barrier);
 
-        image_info->intermediate_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        image_info->intermediate_layout = entry->second.depth_attachment_layout;
     }
 
     if (!img_barriers.empty())
     {
+        // The destination scope must cover both color-output (color attachments) and the depth/stencil fragment-test
+        // stages (depth attachment), since img_barriers may contain barriers of either kind.
         device_table_->CmdPipelineBarrier(aux_command_buffer_,
                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                                              VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                                              VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
                                           0,
                                           0,
                                           nullptr,
@@ -1732,7 +1774,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                         auto& image_raw_data = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
                         VkResult res = DumpImage(new_dumped_image,
-                                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                 image_info->intermediate_layout,
                                                  options_.dump_resources_scale,
                                                  options_.dump_resources_dump_raw_images,
                                                  img_subres_range,
