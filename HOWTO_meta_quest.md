@@ -56,6 +56,18 @@ Next, follow the instructions in the [BUILD.md doc](./BUILD.md)
 found in the top-level of the GFXReconstruct repo for building
 for an [Android target](./BUILD.md#building-for-android).
 
+The Quest OpenXR replay entry point is an opt-in add-on within the `replay`
+app module, off by default. To build it, pass `-PEnableOpenXR` to
+Gradle:
+
+```bash
+gradlew :replay:assembleDebug -PEnableOpenXR
+```
+
+Without that property, the resulting `replay-debug.apk` still installs and
+runs the regular (non-Quest) replay activities, it just won't have a working
+Quest replay entry point.
+
 
 ## Attaching GFXReconstruct to an Existing Application
 
@@ -327,18 +339,18 @@ adb shell ls /sdcard/Download/openxr_capture*.gfxr
 ## Replaying a Capture File
 
 
-### 1. Install the Quest Replay Application
+### 1. Install the Replay Application
 
-Install the GFXReconstruct Quest Replay application
-that is built as part of the Android build of
-GFXReconstruct using the `gfxrecon.py` script:
+The Quest replay entry point ships as part of the same `replay` APK used on
+handsets (build it with `-PEnableOpenXR`, see
+[Building GFXReconstruct](#building-gfxreconstruct)). Install it using the
+`gfxrecon.py` script:
 
-For example, if installing the Debug build of
-the Quest replay app:
+For example, if installing the Debug build:
 
 ```bash
 cd {gfxreconstruct_root}
-python3 android/scripts/gfxrecon.py install-apk android/tools/quest_replay/build/outputs/apk/debug/quest_replay-debug.apk
+python3 android/scripts/gfxrecon.py install-apk android/tools/replay/build/outputs/apk/debug/replay-debug.apk
 ```
 
 Replace `{gfxreconstruct_root}` with the location of your
@@ -364,7 +376,7 @@ adb shell appops set --uid com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STOR
 Run the replay using the `gfxrecon.py` script:
 
 ```bash
-python3 android/scripts/gfxrecon.py replay sdcard/Download/{capture_file_name}
+python3 android/scripts/gfxrecon.py quest-replay sdcard/Download/{capture_file_name}
 ```
 
 Replace `{capture_file_name}` with the name of a
@@ -380,16 +392,17 @@ does require some additional changes.
 
 ### 1. Build the Replay Enabling Capture
 
-By default, the Quest replay application does not include the
+By default, the replay application does not include the
 necessary OpenXR capture layer manifest files.
 Because of this, you need to pass in the `EnableOpenXRCaptureOfReplay`
 Gradle property during build to properly define all the dependencies
-for the capture layer.
+for the capture layer, alongside `EnableOpenXR` to build the Quest
+entry point itself.
 
 This can be done in the following way:
 
 ```bash
-gradlew assembleDebug -PEnableOpenXRCaptureOfReplay=true
+gradlew :replay:assembleDebug -PEnableOpenXR -PEnableOpenXRCaptureOfReplay=true
 ```
 
 Once rebuilt, the capture should be ready from the OpenXR side, however,
@@ -417,7 +430,7 @@ adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/replay_capture
 ### 2. Install the Updated Replay Tool
 
 (Follow instructions in the 
-[1. Install the Quest Replay Application](#1-install-the-quest-replay-application))section above (especially if the Quest replay application was
+[1. Install the Replay Application](#1-install-the-replay-application))section above (especially if the Quest replay application was
 previously installed without re-capture enabled).
 
 Repeat the permissions modification as noted in the
@@ -444,7 +457,7 @@ adb push {capture_file_name} /sdcard/Download
 Run the replay using the `gfxrecon.py` script:
 
 ```bash
-python3 android/scripts/gfxrecon.py replay /sdcard/Download/{capture_file_name}
+python3 android/scripts/gfxrecon.py quest-replay /sdcard/Download/{capture_file_name}
 ```
 
 ## OpenXR Capture Known Limitations

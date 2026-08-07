@@ -51,7 +51,7 @@ public class ReplayActivity extends NativeActivity
         mFrameLayout = new FrameLayout(this);
         setContentView(mFrameLayout);
 
-        System.loadLibrary("gfxrecon-replay");
+        System.loadLibrary("gfxrecon-multiwin-replay");
     }
 
     private class VKSurfaceView extends SurfaceView implements SurfaceHolder.Callback
@@ -97,7 +97,7 @@ public class ReplayActivity extends NativeActivity
         runOnUiThread(new Runnable() {
             @Override public void run()
             {
-                System.loadLibrary("gfxrecon-replay");
+                System.loadLibrary("gfxrecon-multiwin-replay");
                 VKSurfaceView newSurfaceView = new VKSurfaceView(context, wid, hei);
                 mFrameLayout.addView(newSurfaceView,
                                     new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
