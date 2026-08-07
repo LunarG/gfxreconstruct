@@ -3485,6 +3485,17 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         }
     }
 
+    // Remove VK_EXT_device_memory_report callback structures if set.
+    // The callbacks cannot be restored anyway, so the easiest is to remove them entirely
+    if (graphics::vulkan_struct_remove_pnext<VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>(&modified_create_info))
+    {
+        GFXRECON_LOG_WARNING("VkPhysicalDeviceDeviceMemoryReportFeaturesEXT was removed at device creation");
+    }
+    while (graphics::vulkan_struct_remove_pnext<VkDeviceDeviceMemoryReportCreateInfoEXT>(&modified_create_info))
+    {
+        GFXRECON_LOG_WARNING("VkDeviceDeviceMemoryReportCreateInfoEXT callback was removed at device creation");
+    }
+
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
     if (graphics::feature_util::GetDeviceExtensions(
@@ -3890,9 +3901,8 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         device_frame_warmups_.erase(device_info);
 
         device_info->allocator->Destroy();
+        func(device, GetAllocationCallbacks(pAllocator));
     }
-
-    func(device, GetAllocationCallbacks(pAllocator));
 }
 
 VkResult
