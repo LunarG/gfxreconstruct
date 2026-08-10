@@ -2162,42 +2162,91 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                              num_barriers,
                                              memory_barriers);
 
-            VkResolveImageInfo2 resolve_info = { VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2 };
-            resolve_info.srcImage            = image;
-            resolve_info.srcImageLayout      = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            resolve_info.dstImage            = *resolved_image;
-            resolve_info.dstImageLayout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            resolve_info.regionCount         = 1;
+            bool is_depth_or_stencil = vkuFormatIsDepthOrStencil(format);
 
-            VkImageResolve2 region               = { VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2 };
-            region.srcSubresource.aspectMask     = aspect_mask;
-            region.srcSubresource.mipLevel       = 0;
-            region.srcSubresource.baseArrayLayer = 0;
-            region.srcSubresource.layerCount     = array_layers;
-            region.srcOffset.x                   = 0;
-            region.srcOffset.y                   = 0;
-            region.srcOffset.z                   = 0;
-            region.dstSubresource.aspectMask     = aspect_mask;
-            region.dstSubresource.mipLevel       = 0;
-            region.dstSubresource.baseArrayLayer = 0;
-            region.dstSubresource.layerCount     = array_layers;
-            region.dstOffset.x                   = 0;
-            region.dstOffset.y                   = 0;
-            region.dstOffset.z                   = 0;
-            region.extent.width                  = extent.width;
-            region.extent.height                 = extent.height;
-            region.extent.depth                  = extent.depth;
-
-            resolve_info.pRegions = &region;
-
-            VkResolveImageModeInfoKHR resolve_mode_info = { VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR };
-            if (vkuFormatIsDepthOrStencil(format))
+            if (device_table_.CmdResolveImage2 != noop::vkCmdResolveImage2 ||
+                device_table_.CmdResolveImage2KHR != noop::vkCmdResolveImage2KHR)
             {
-                resolve_mode_info.resolveMode        = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
-                resolve_mode_info.stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
-                resolve_info.pNext                   = &resolve_mode_info;
+                VkImageResolve2 region               = { VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2 };
+                region.srcSubresource.aspectMask     = aspect_mask;
+                region.srcSubresource.mipLevel       = 0;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount     = array_layers;
+                region.srcOffset.x                   = 0;
+                region.srcOffset.y                   = 0;
+                region.srcOffset.z                   = 0;
+                region.dstSubresource.aspectMask     = aspect_mask;
+                region.dstSubresource.mipLevel       = 0;
+                region.dstSubresource.baseArrayLayer = 0;
+                region.dstSubresource.layerCount     = array_layers;
+                region.dstOffset.x                   = 0;
+                region.dstOffset.y                   = 0;
+                region.dstOffset.z                   = 0;
+                region.extent.width                  = extent.width;
+                region.extent.height                 = extent.height;
+                region.extent.depth                  = extent.depth;
+
+                VkResolveImageInfo2 resolve_info = { VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2 };
+                resolve_info.srcImage            = image;
+                resolve_info.srcImageLayout      = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                resolve_info.dstImage            = *resolved_image;
+                resolve_info.dstImageLayout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                resolve_info.regionCount         = 1;
+                resolve_info.pRegions            = &region;
+
+                VkResolveImageModeInfoKHR resolve_mode_info = { VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR };
+                if (is_depth_or_stencil)
+                {
+                    resolve_mode_info.resolveMode        = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+                    resolve_mode_info.stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+                    resolve_info.pNext                   = &resolve_mode_info;
+                }
+
+                if (device_table_.CmdResolveImage2 != noop::vkCmdResolveImage2)
+                {
+                    device_table_.CmdResolveImage2(command_buffer, &resolve_info);
+                }
+                else
+                {
+                    device_table_.CmdResolveImage2KHR(command_buffer, &resolve_info);
+                }
             }
-            device_table_.CmdResolveImage2(command_buffer, &resolve_info);
+            else
+            {
+                VkImageResolve region;
+                region.srcSubresource.aspectMask     = aspect_mask;
+                region.srcSubresource.mipLevel       = 0;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount     = array_layers;
+                region.srcOffset.x                   = 0;
+                region.srcOffset.y                   = 0;
+                region.srcOffset.z                   = 0;
+                region.dstSubresource.aspectMask     = aspect_mask;
+                region.dstSubresource.mipLevel       = 0;
+                region.dstSubresource.baseArrayLayer = 0;
+                region.dstSubresource.layerCount     = array_layers;
+                region.dstOffset.x                   = 0;
+                region.dstOffset.y                   = 0;
+                region.dstOffset.z                   = 0;
+                region.extent.width                  = extent.width;
+                region.extent.height                 = extent.height;
+                region.extent.depth                  = extent.depth;
+
+                if (is_depth_or_stencil)
+                {
+                    GFXRECON_LOG_ERROR(
+                        "The image is depth or stencil. It requires CmdCmdResolveImage2, but this device does not "
+                        "support it. It run CmdCmdResolveImage instead, but it might fail in some drivers.");
+                }
+
+                device_table_.CmdResolveImage(command_buffer,
+                                              image,
+                                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                              *resolved_image,
+                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                              1,
+                                              &region);
+            }
 
             // Prepare the resolved image for the next staging copy.
             memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
