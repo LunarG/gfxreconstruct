@@ -3916,7 +3916,9 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
             }
 
             VmaAllocationCreateInfo allocation_create_info{};
-            allocation_create_info.usage          = VMA_MEMORY_USAGE_UNKNOWN;
+            // Session memory is device-side working memory that is never mapped. Without a preference VMA
+            // takes the lowest compatible memory type index, which is not device-local everywhere.
+            allocation_create_info.usage          = VMA_MEMORY_USAGE_GPU_ONLY;
             allocation_create_info.memoryTypeBits = compatible_memory_type_bits;
             allocation_create_info.requiredFlags  = protected_session ? VK_MEMORY_PROPERTY_PROTECTED_BIT : 0;
 
