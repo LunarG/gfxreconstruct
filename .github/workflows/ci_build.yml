@@ -84,7 +84,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev
     - uses: lukka/get-cmake@latest
       with:
         cmakeVersion: 3.24
@@ -239,18 +239,9 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v3
-      with:
-        path: ~/deps
-        key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
-    - name: Build dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
+        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
       env:
         SCCACHE_GHA_ENABLED: on
         SCCACHE_CACHE_MULTIARCH: on
