@@ -3822,16 +3822,16 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
     for (uint32_t q = 0; q < create_state.modified_create_info.queueCreateInfoCount; ++q)
     {
         const VkDeviceQueueCreateInfo* queue_create_info = &create_state.modified_create_info.pQueueCreateInfos[q];
-        GFXRECON_ASSERT(device_info->enabled_queue_family_flags.queue_family_creation_flags.find(
-                            queue_create_info->queueFamilyIndex) ==
-                        device_info->enabled_queue_family_flags.queue_family_creation_flags.end());
-        device_info->enabled_queue_family_flags.queue_family_creation_flags[queue_create_info->queueFamilyIndex] =
-            queue_create_info->flags;
+
+        // a queue-family can appear more than once, distinguished by its flags
+        // (VUID-VkDeviceCreateInfo-queueFamilyIndex-02802)
+        device_info->enabled_queue_family_flags
+            .queue_family_queue_counts[queue_create_info->queueFamilyIndex][queue_create_info->flags] =
+            queue_create_info->queueCount;
+
         device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
         device_info->enabled_queue_family_flags.queue_family_properties_flags[queue_create_info->queueFamilyIndex] =
             phys_dev_queue_props[queue_create_info->queueFamilyIndex].queueFlags;
-        device_info->enabled_queue_family_flags.queue_family_queue_counts[queue_create_info->queueFamilyIndex] =
-            queue_create_info->queueCount;
     }
 
     // Restore modified property/feature create info values to the original application values
@@ -4233,22 +4233,35 @@ uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo* d
     return substitute;
 }
 
-void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo* device_info,
-                                              uint32_t&               queue_family_index,
-                                              uint32_t&               queue_index)
+void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo*  device_info,
+                                              VkDeviceQueueCreateFlags create_flags,
+                                              uint32_t&                queue_family_index,
+                                              uint32_t&                queue_index)
 {
     const uint32_t captured_family_index = queue_family_index;
     const uint32_t captured_queue_index  = queue_index;
 
     queue_family_index = MapQueueFamilyIndex(device_info, queue_family_index);
 
-    // queue-counts are clamped to the replay-device at device-creation, which is reported there
+    // queue-counts are clamped to the replay-device at device-creation, which is reported there.
+    // they are tracked per (family, flags), so look up the combination that was requested.
     const auto& queue_counts = device_info->enabled_queue_family_flags.queue_family_queue_counts;
-    auto        count_entry  = queue_counts.find(queue_family_index);
+    const auto  family_entry = queue_counts.find(queue_family_index);
 
-    if (count_entry != queue_counts.end() && queue_index >= count_entry->second)
+    if (family_entry != queue_counts.end())
     {
-        queue_index = count_entry->second - 1;
+        auto count_entry = family_entry->second.find(create_flags);
+
+        // a substituted family may not provide the requested combination, fall back to its first one
+        if (count_entry == family_entry->second.end())
+        {
+            count_entry = family_entry->second.begin();
+        }
+
+        if (count_entry != family_entry->second.end() && queue_index >= count_entry->second)
+        {
+            queue_index = count_entry->second - 1;
+        }
     }
 
     if ((queue_family_index != captured_family_index) || (queue_index != captured_queue_index))
@@ -4274,7 +4287,8 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue      
     }
     VkQueue* out_pQueue = pQueue->GetHandlePointer();
 
-    MapDeviceQueue(device_info, queueFamilyIndex, queueIndex);
+    // vkGetDeviceQueue can only retrieve queues created without flags
+    MapDeviceQueue(device_info, 0, queueFamilyIndex, queueIndex);
 
     func(device, queueFamilyIndex, queueIndex, out_pQueue);
 
@@ -4301,7 +4315,8 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2    
     VkQueue* out_pQueue = pQueue->GetHandlePointer();
 
     VkDeviceQueueInfo2 modified_queue_info = *in_pQueueInfo;
-    MapDeviceQueue(device_info, modified_queue_info.queueFamilyIndex, modified_queue_info.queueIndex);
+    MapDeviceQueue(
+        device_info, modified_queue_info.flags, modified_queue_info.queueFamilyIndex, modified_queue_info.queueIndex);
 
     func(device, &modified_queue_info, out_pQueue);
 

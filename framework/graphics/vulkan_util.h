@@ -29,6 +29,8 @@
 
 #include "vulkan/vulkan.h"
 
+#include <map>
+
 #if VK_USE_64_BIT_PTR_DEFINES == 1
 #define VK_HANDLE_TO_UINT64(value) reinterpret_cast<uint64_t>(value)
 #define UINT64_TO_VK_HANDLE(handle_type, value) reinterpret_cast<handle_type>(value)
@@ -135,10 +137,15 @@ static constexpr VkExtent3D ScaleExtent3DNoDepth(const VkExtent3D& extent, float
  */
 struct VulkanQueueFamilyFlags
 {
-    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
-    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_properties_flags;
-    std::unordered_map<uint32_t, uint32_t>                 queue_family_queue_counts;
-    std::vector<bool>                                      queue_family_index_enabled;
+    //! number of queues created per (queue-family, VkDeviceQueueCreateFlags). the combination is what
+    //! VUID-VkDeviceCreateInfo-queueFamilyIndex-02802 requires to be unique, a family-index alone is not.
+    //! the inner map is ordered, so an unprotected entry (flags 0) sorts first.
+    std::unordered_map<uint32_t, std::map<VkDeviceQueueCreateFlags, uint32_t>> queue_family_queue_counts;
+
+    //! physical-device queue-flags, a property of the family itself
+    std::unordered_map<uint32_t, VkQueueFlags> queue_family_properties_flags;
+
+    std::vector<bool> queue_family_index_enabled;
 };
 /**
  * @brief   Function pointer type for queue family index finder functions
