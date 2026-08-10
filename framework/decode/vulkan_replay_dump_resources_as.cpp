@@ -489,8 +489,13 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     const VkBufferDeviceAddressInfo bdai = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
                                                              nullptr,
                                                              new_instances.instance_buffer };
-                    const VkDeviceAddress           output_buffer_device_address =
-                        injected->GetBufferDeviceAddress(device, &bdai);
+
+                    const PFN_vkGetBufferDeviceAddress get_buffer_device_address =
+                        phys_dev_info->parent_info.api_version >= VK_API_VERSION_1_2
+                            ? injected.GetTable()->GetBufferDeviceAddress
+                            : injected.GetTable()->GetBufferDeviceAddressKHR;
+
+                    const VkDeviceAddress output_buffer_device_address = get_buffer_device_address(device, &bdai);
 
                     injected->CmdBindPipeline(
                         command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, new_instances.compute_ppl);
@@ -767,16 +772,15 @@ void AccelerationStructureDumpResourcesContext::ReleaseSerializedResources()
 
     const VkDevice device = device_info->handle;
 
+    auto injected = device_table.Open();
     if (serialized_data.buffer != VK_NULL_HANDLE)
     {
-        auto injected = device_table.Open();
         injected->DestroyBuffer(device, serialized_data.buffer, nullptr);
         serialized_data.buffer = VK_NULL_HANDLE;
     }
 
     if (serialized_data.memory != VK_NULL_HANDLE)
     {
-        auto injected = device_table.Open();
         injected->FreeMemory(device, serialized_data.memory, nullptr);
         serialized_data.memory = VK_NULL_HANDLE;
     }

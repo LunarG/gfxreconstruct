@@ -74,16 +74,6 @@ struct MinMaxVertexIndex
 
 using BoundDescriptorSets = std::map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
 
-DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*                    device_info,
-                                       const graphics::VulkanInjectedDeviceCalls& device_table,
-                                       const graphics::VulkanInstanceTable*       instance_table,
-                                       const CommonObjectInfoTable&               object_info_table,
-                                       VkFormat                                   src_format,
-                                       VkImageTiling                              src_image_tiling,
-                                       VkImageType                                type,
-                                       util::ScreenshotFormat                     image_file_format,
-                                       bool                                       dump_raw = false);
-
 const char* ImageFileExtension(DumpedImageFormat image_format);
 
 VkResult CreateVkImage(const CommonObjectInfoTable&               object_info_table,

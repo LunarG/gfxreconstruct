@@ -101,6 +101,8 @@ VkResult TransferDumpingContext::HandleInitBufferCommand(
 
     if (MustDumpTransfer(cmd_index))
     {
+        GetDispatchTables(device_id);
+
         auto [new_entry, success] = transfer_params_.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(cmd_index),
