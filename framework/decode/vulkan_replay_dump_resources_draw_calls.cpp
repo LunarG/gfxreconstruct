@@ -160,35 +160,35 @@ void DrawCallsDumpingContext::Release()
     current_cb_index_   = 0;
 }
 
-PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering() const
+PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering(
+    const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const
 {
-    auto injected = device_table_.Open();
-
-    if (injected->CmdBeginRendering != graphics::noop::vkCmdBeginRendering)
+    const auto raw_table = injected_commands_scope.GetTable();
+    if (raw_table->CmdBeginRendering != graphics::noop::vkCmdBeginRendering)
     {
-        return injected->CmdBeginRendering;
+        return raw_table->CmdBeginRendering;
     }
 
-    if (injected->CmdBeginRenderingKHR != graphics::noop::vkCmdBeginRenderingKHR)
+    if (raw_table->CmdBeginRenderingKHR != graphics::noop::vkCmdBeginRenderingKHR)
     {
-        return injected->CmdBeginRenderingKHR;
+        return raw_table->CmdBeginRenderingKHR;
     }
 
     return nullptr;
 }
 
-PFN_vkCmdEndRendering DrawCallsDumpingContext::ResolveCmdEndRendering() const
+PFN_vkCmdEndRendering DrawCallsDumpingContext::ResolveCmdEndRendering(
+    const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const
 {
-    auto injected = device_table_.Open();
-
-    if (injected->CmdEndRendering != graphics::noop::vkCmdEndRendering)
+    const auto raw_table = injected_commands_scope.GetTable();
+    if (raw_table->CmdEndRendering != graphics::noop::vkCmdEndRendering)
     {
-        return injected->CmdEndRendering;
+        return raw_table->CmdEndRendering;
     }
 
-    if (injected->CmdEndRenderingKHR != graphics::noop::vkCmdEndRenderingKHR)
+    if (raw_table->CmdEndRenderingKHR != graphics::noop::vkCmdEndRenderingKHR)
     {
-        return injected->CmdEndRenderingKHR;
+        return raw_table->CmdEndRenderingKHR;
     }
 
     return nullptr;
@@ -197,7 +197,8 @@ PFN_vkCmdEndRendering DrawCallsDumpingContext::ResolveCmdEndRendering() const
 void DrawCallsDumpingContext::RecordCmdBeginRendering(VkCommandBuffer        command_buffer,
                                                       const VkRenderingInfo* rendering_info) const
 {
-    const PFN_vkCmdBeginRendering cmd_begin_rendering = ResolveCmdBeginRendering();
+    auto                          injected            = device_table_.Open();
+    const PFN_vkCmdBeginRendering cmd_begin_rendering = ResolveCmdBeginRendering(injected);
     if (cmd_begin_rendering != nullptr)
     {
         cmd_begin_rendering(command_buffer, rendering_info);
@@ -206,7 +207,8 @@ void DrawCallsDumpingContext::RecordCmdBeginRendering(VkCommandBuffer        com
 
 void DrawCallsDumpingContext::RecordCmdEndRendering(VkCommandBuffer command_buffer) const
 {
-    const PFN_vkCmdEndRendering cmd_end_rendering = ResolveCmdEndRendering();
+    auto                        injected          = device_table_.Open();
+    const PFN_vkCmdEndRendering cmd_end_rendering = ResolveCmdEndRendering(injected);
     if (cmd_end_rendering != nullptr)
     {
         cmd_end_rendering(command_buffer);

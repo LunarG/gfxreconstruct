@@ -531,13 +531,11 @@ VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t             
     GFXRECON_ASSERT(device_table.IsValid());
     assert(inst_table);
 
-    const graphics::VulkanInjectedDeviceCalls injected_device_calls(device_table);
-
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(bcb_index);
     for (auto dc_context : dc_contexts)
     {
         VkResult res =
-            dc_context->BeginCommandBuffer(original_command_buffer_info, injected_device_calls, inst_table, begin_info);
+            dc_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table, begin_info);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Cloning command buffer for dumping draw calls failed (%s).",
@@ -551,7 +549,7 @@ VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t             
     for (auto dr_context : dr_contexts)
     {
         VkResult res =
-            dr_context->BeginCommandBuffer(original_command_buffer_info, injected_device_calls, inst_table, begin_info);
+            dr_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table, begin_info);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Cloning command buffer for dumping compute/ray tracing failed (%s).",

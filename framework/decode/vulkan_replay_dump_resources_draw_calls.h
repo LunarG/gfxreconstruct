@@ -297,9 +297,11 @@ class DrawCallsDumpingContext
 
     void ResetFetchedIndirectParams();
 
-    PFN_vkCmdBeginRendering ResolveCmdBeginRendering() const;
+    PFN_vkCmdBeginRendering
+    ResolveCmdBeginRendering(const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const;
 
-    PFN_vkCmdEndRendering ResolveCmdEndRendering() const;
+    PFN_vkCmdEndRendering
+    ResolveCmdEndRendering(const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const;
 
     VkResult BackUpMutableResources(VkQueue queue);
 

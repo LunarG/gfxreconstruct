@@ -291,15 +291,14 @@ class TransferDumpingContext
 
             ~InitImageMetaCommand()
             {
+                auto injected = device_table_.Open();
                 if (copied_image.image != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->DestroyImage(parent_device_info_->handle, copied_image.image, nullptr);
                 }
 
                 if (copied_image.memory != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->FreeMemory(parent_device_info_->handle, copied_image.memory, nullptr);
                 }
             }
@@ -326,17 +325,16 @@ class TransferDumpingContext
 
             ~CopyBuffer()
             {
+                auto injected = device_table_.Open();
                 for (const auto& region : regions)
                 {
                     if (region.vk_objects.buffer != VK_NULL_HANDLE)
                     {
-                        auto injected = device_table_.Open();
                         injected->DestroyBuffer(parent_device_info_->handle, region.vk_objects.buffer, nullptr);
                     }
 
                     if (region.vk_objects.memory != VK_NULL_HANDLE)
                     {
-                        auto injected = device_table_.Open();
                         injected->FreeMemory(parent_device_info_->handle, region.vk_objects.memory, nullptr);
                     }
                 }
@@ -374,15 +372,14 @@ class TransferDumpingContext
 
             ~CopyBufferToImage()
             {
+                auto injected = device_table_.Open();
                 if (copied_image.image != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->DestroyImage(parent_device_info_->handle, copied_image.image, nullptr);
                 }
 
                 if (copied_image.memory != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->FreeMemory(parent_device_info_->handle, copied_image.memory, nullptr);
                 }
             }
@@ -416,15 +413,14 @@ class TransferDumpingContext
 
             ~CopyImage()
             {
+                auto injected = device_table_.Open();
                 if (copied_image.image != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->DestroyImage(parent_device_info_->handle, copied_image.image, nullptr);
                 }
 
                 if (copied_image.memory != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->FreeMemory(parent_device_info_->handle, copied_image.memory, nullptr);
                 }
             }
@@ -457,17 +453,16 @@ class TransferDumpingContext
 
             ~CopyImageToBuffer()
             {
+                auto injected = device_table_.Open();
                 for (const auto& region : regions)
                 {
                     if (region.vk_objects.buffer != VK_NULL_HANDLE)
                     {
-                        auto injected = device_table_.Open();
                         injected->DestroyBuffer(parent_device_info_->handle, region.vk_objects.buffer, nullptr);
                     }
 
                     if (region.vk_objects.memory != VK_NULL_HANDLE)
                     {
-                        auto injected = device_table_.Open();
                         injected->FreeMemory(parent_device_info_->handle, region.vk_objects.memory, nullptr);
                     }
                 }
@@ -508,15 +503,14 @@ class TransferDumpingContext
 
             ~BlitImage()
             {
+                auto injected = device_table_.Open();
                 if (copied_image.image != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->DestroyImage(parent_device_info_->handle, copied_image.image, nullptr);
                 }
 
                 if (copied_image.memory != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table_.Open();
                     injected->FreeMemory(parent_device_info_->handle, copied_image.memory, nullptr);
                 }
             }
@@ -555,21 +549,19 @@ class TransferDumpingContext
 
             ~CopiedAccelerationStructure()
             {
+                auto injected = device_table.Open();
                 if (as_info->handle != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->DestroyAccelerationStructureKHR(parent_device, as_info->handle, nullptr);
                 }
 
                 if (as_info->buffer != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->DestroyBuffer(parent_device, as_info->buffer, nullptr);
                 }
 
                 if (as_memory != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->FreeMemory(parent_device, as_memory, nullptr);
                 }
             }
