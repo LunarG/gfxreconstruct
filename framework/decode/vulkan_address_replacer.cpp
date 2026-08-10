@@ -2028,9 +2028,13 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         use_host_mem ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
                      : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    // derive the capture-time(!) memory-index from memory_property_flags
-    const uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
-        capture_memory_properties_, memory_requirements.memoryTypeBits, memory_property_flags);
+    // derive the capture-time(!) memory-index from memory_property_flags.
+    // memory_requirements.memoryTypeBits is a replay-device mask and must not be used to filter capture-device
+    // memory-types. this index is only used to look up its property-flags, the actual replay-device memory-type
+    // is picked by the rebind-allocator when the buffer is bound.
+    constexpr uint32_t any_memory_type = std::numeric_limits<uint32_t>::max();
+    const uint32_t     memory_type_index =
+        graphics::GetMemoryTypeIndex(capture_memory_properties_, any_memory_type, memory_property_flags);
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
 
