@@ -291,6 +291,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          CreateDeviceInfoState&    create_state,
                                          VulkanDeviceInfo*         device_info);
 
+    // Map a captured (queue-family, queue-index) pair onto a queue that exists on the replay-device.
+    static void
+    MapDeviceQueue(const VulkanDeviceInfo* device_info, uint32_t& queue_family_index, uint32_t& queue_index);
+
     void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
     PFN_vkGetInstanceProcAddr GetGetInstanceProcAddr()

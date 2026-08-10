@@ -137,6 +137,7 @@ struct VulkanQueueFamilyFlags
 {
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_properties_flags;
+    std::unordered_map<uint32_t, uint32_t>                 queue_family_queue_counts;
     std::vector<bool>                                      queue_family_index_enabled;
 };
 /**

@@ -3830,6 +3830,8 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
         device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
         device_info->enabled_queue_family_flags.queue_family_properties_flags[queue_create_info->queueFamilyIndex] =
             phys_dev_queue_props[queue_create_info->queueFamilyIndex].queueFlags;
+        device_info->enabled_queue_family_flags.queue_family_queue_counts[queue_create_info->queueFamilyIndex] =
+            queue_create_info->queueCount;
     }
 
     // Restore modified property/feature create info values to the original application values
@@ -4176,6 +4178,78 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     return result;
 }
 
+void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo* device_info,
+                                              uint32_t&               queue_family_index,
+                                              uint32_t&               queue_index)
+{
+    // queue-families that cannot run graphics, compute or transfer work are no substitute for a captured queue,
+    // even when the replay-device happens to provide the same family-index (e.g. compute -> video-decode).
+    constexpr VkQueueFlags usable_queue_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
+
+    const graphics::VulkanQueueFamilyFlags& family_flags = device_info->enabled_queue_family_flags;
+
+    auto queue_flags = [&family_flags](uint32_t family_index) -> VkQueueFlags {
+        auto it = family_flags.queue_family_properties_flags.find(family_index);
+        return it != family_flags.queue_family_properties_flags.end() ? it->second : 0;
+    };
+    auto is_usable = [&](uint32_t family_index) {
+        return family_flags.queue_family_queue_counts.count(family_index) != 0 &&
+               (queue_flags(family_index) & usable_queue_flags) != 0;
+    };
+
+    const uint32_t captured_family_index = queue_family_index;
+    const uint32_t captured_queue_index  = queue_index;
+
+    if (!is_usable(queue_family_index))
+    {
+        // prefer a graphics-capable family, fall back to the first usable one
+        uint32_t substitute = std::numeric_limits<uint32_t>::max();
+
+        for (uint32_t i = 0; i < family_flags.queue_family_index_enabled.size(); ++i)
+        {
+            if (is_usable(i))
+            {
+                if (substitute == std::numeric_limits<uint32_t>::max())
+                {
+                    substitute = i;
+                }
+                if (queue_flags(i) & VK_QUEUE_GRAPHICS_BIT)
+                {
+                    substitute = i;
+                    break;
+                }
+            }
+        }
+
+        if (substitute == std::numeric_limits<uint32_t>::max())
+        {
+            GFXRECON_LOG_ERROR_ONCE("No queue-family on the replay-device can substitute for captured queue-family %u.",
+                                    captured_family_index);
+            return;
+        }
+        queue_family_index = substitute;
+    }
+
+    const uint32_t queue_count = family_flags.queue_family_queue_counts.at(queue_family_index);
+
+    if (queue_index >= queue_count)
+    {
+        queue_index = queue_count - 1;
+    }
+
+    if ((queue_family_index != captured_family_index) || (queue_index != captured_queue_index))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Not all captured queues exist on the replay-device; they are remapped onto queues "
+                                  "that do. Submissions originally distributed across queues may serialize, and replay "
+                                  "may fail or produce incorrect results.");
+        GFXRECON_LOG_DEBUG("Remapped queue (family %u, index %u) -> (family %u, index %u)",
+                           captured_family_index,
+                           captured_queue_index,
+                           queue_family_index,
+                           queue_index);
+    }
+}
+
 void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue           func,
                                                       VulkanDeviceInfo*              device_info,
                                                       uint32_t                       queueFamilyIndex,
@@ -4188,6 +4262,8 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue      
         pQueue->SetHandleLength(1);
     }
     VkQueue* out_pQueue = pQueue->GetHandlePointer();
+
+    MapDeviceQueue(device_info, queueFamilyIndex, queueIndex);
 
     func(device, queueFamilyIndex, queueIndex, out_pQueue);
 
@@ -4213,15 +4289,18 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2    
     }
     VkQueue* out_pQueue = pQueue->GetHandlePointer();
 
-    func(device, in_pQueueInfo, out_pQueue);
+    VkDeviceQueueInfo2 modified_queue_info = *in_pQueueInfo;
+    MapDeviceQueue(device_info, modified_queue_info.queueFamilyIndex, modified_queue_info.queueIndex);
+
+    func(device, &modified_queue_info, out_pQueue);
 
     // Add tracking for which VkQueue objects are associated with what queue family and index.
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
     auto queue_info          = reinterpret_cast<VulkanQueueInfo*>(pQueue->GetConsumerData(0));
     queue_info->parent       = device;
-    queue_info->family_index = in_pQueueInfo->queueFamilyIndex;
-    queue_info->queue_index  = in_pQueueInfo->queueIndex;
+    queue_info->family_index = modified_queue_info.queueFamilyIndex;
+    queue_info->queue_index  = modified_queue_info.queueIndex;
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
