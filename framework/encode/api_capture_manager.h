@@ -245,6 +245,7 @@ class ApiCaptureManager
 
     util::ThreadData*      GetThreadData() { return common_manager_->GetThreadData(); }
     util::Compressor*      GetCompressor() { return common_manager_->GetCompressor(); }
+    format::CompressionType GetCompressionType() const { return common_manager_->GetCompressionType(); }
     std::mutex&            GetMappedMemoryLock() { return common_manager_->GetMappedMemoryLock(); }
     util::Keyboard&        GetKeyboard() { return common_manager_->GetKeyboard(); }
     const std::string&     GetScreenshotPrefix() const { return common_manager_->GetScreenshotPrefix(); }

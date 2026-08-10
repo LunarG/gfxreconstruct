@@ -280,33 +280,34 @@ class ExtendedParseInterface
         parser_.HandleBlockReadError(error_code, error_message);
     }
 
-    ParameterReadResult
-    ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer)
+    ParameterReadResult ReadParameterBuffer(const char*  label,
+                                            BlockBuffer& block_buffer,
+                                            uint64_t     uncompressed_size = kReadSizeFromBuffer) const
     {
         return parser_.ReadParameterBuffer(label, block_buffer, uncompressed_size);
     }
 
     template <typename T, typename... Args>
-    requires std::constructible_from<T, Args&&...> T* Emplace(Args&&... args)
+    requires std::constructible_from<T, Args&&...> T* Emplace(Args&&... args) const
     {
         return parser_.Emplace<T>(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    ParsedBlock& EmplaceBlock(Args&&... args)
+    ParsedBlock& EmplaceBlock(Args&&... args) const
     {
         return parser_.EmplaceBlock(std::forward<Args>(args)...);
     }
 
     template <typename ArgPayload>
     [[nodiscard]] ParsedBlock&
-    MakeCompressibleParsedBlock(BlockBuffer& block_buffer, const ParameterReadResult& result, ArgPayload* args)
+    MakeCompressibleParsedBlock(BlockBuffer& block_buffer, const ParameterReadResult& result, ArgPayload* args) const
     {
         return parser_.MakeCompressibleParsedBlock(block_buffer, result, args);
     }
 
     template <typename ArgPayload>
-    ParsedBlock& MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload* args)
+    ParsedBlock& MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload* args) const
     {
         return parser_.MakeIncompressibleParsedBlock(block_buffer, args);
     }

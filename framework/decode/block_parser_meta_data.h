@@ -79,7 +79,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 //     next block. Payloads that reference block data must go through
 //     MakeCompressibleParsedBlock/MakeIncompressibleParsedBlock, which handle retention
 //     according to the current OperationMode.
-inline ParsedBlock* ParseExtendedMetaData(const ExtendedParseInterface& /* parser_interface */,
+inline ParsedBlock* ParseExtendedMetaData(ExtendedParseInterface& /* parser_interface */,
                                           format::MetaDataType /* meta_data_type */,
                                           format::MetaDataId /* meta_data_id */,
                                           BlockBuffer& /* block_buffer */)
