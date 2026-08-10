@@ -10470,14 +10470,18 @@ VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperati
     VkDevice               device             = device_info->handle;
     VkDeferredOperationKHR deferred_operation = deferred_operation_info->handle;
 
-    auto device_table = GetInjectedDeviceCalls(device);
-    auto injected     = device_table.Open();
+    uint32_t max_concurrency;
+    {
+        auto device_table = GetInjectedDeviceCalls(device);
+        auto injected     = device_table.Open();
 
-    PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR =
-        injected->GetDeferredOperationMaxConcurrencyKHR;
+        PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR =
+            injected->GetDeferredOperationMaxConcurrencyKHR;
+        max_concurrency = vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation);
+    }
 
-    uint32_t max_threads  = std::thread::hardware_concurrency();
-    uint32_t thread_count = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation), max_threads);
+    uint32_t                       max_threads                  = std::thread::hardware_concurrency();
+    uint32_t                       thread_count                 = std::min(max_concurrency, max_threads);
     std::atomic_bool               deferred_operation_completed = false;
     std::vector<std::future<void>> deferred_operation_joins;
 
