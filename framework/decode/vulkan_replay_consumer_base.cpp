@@ -4178,11 +4178,9 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     return result;
 }
 
-void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo* device_info,
-                                              uint32_t&               queue_family_index,
-                                              uint32_t&               queue_index)
+uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo* device_info, uint32_t queue_family_index)
 {
-    // queue-families that cannot run graphics, compute or transfer work are no substitute for a captured queue,
+    // queue-families that cannot run graphics, compute or transfer work are no substitute for a captured family,
     // even when the replay-device happens to provide the same family-index (e.g. compute -> video-decode).
     constexpr VkQueueFlags usable_queue_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
 
@@ -4197,51 +4195,64 @@ void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo* device_inf
                (queue_flags(family_index) & usable_queue_flags) != 0;
     };
 
+    if (is_usable(queue_family_index))
+    {
+        return queue_family_index;
+    }
+
+    // prefer a graphics-capable family, fall back to the first usable one
+    uint32_t substitute = std::numeric_limits<uint32_t>::max();
+
+    for (uint32_t i = 0; i < family_flags.queue_family_index_enabled.size(); ++i)
+    {
+        if (is_usable(i))
+        {
+            if (substitute == std::numeric_limits<uint32_t>::max())
+            {
+                substitute = i;
+            }
+            if (queue_flags(i) & VK_QUEUE_GRAPHICS_BIT)
+            {
+                substitute = i;
+                break;
+            }
+        }
+    }
+
+    if (substitute == std::numeric_limits<uint32_t>::max())
+    {
+        GFXRECON_LOG_ERROR_ONCE("No queue-family on the replay-device can substitute for captured queue-family %u.",
+                                queue_family_index);
+        return queue_family_index;
+    }
+
+    GFXRECON_LOG_WARNING_ONCE("Captured queue-families that do not exist on the replay-device, or cannot run "
+                              "graphics/compute/transfer work there, are remapped onto ones that can. Work originally "
+                              "distributed across queues may serialize, and replay may fail or produce incorrect "
+                              "results.");
+    return substitute;
+}
+
+void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo* device_info,
+                                              uint32_t&               queue_family_index,
+                                              uint32_t&               queue_index)
+{
     const uint32_t captured_family_index = queue_family_index;
     const uint32_t captured_queue_index  = queue_index;
 
-    if (!is_usable(queue_family_index))
+    queue_family_index = MapQueueFamilyIndex(device_info, queue_family_index);
+
+    // queue-counts are clamped to the replay-device at device-creation, which is reported there
+    const auto& queue_counts = device_info->enabled_queue_family_flags.queue_family_queue_counts;
+    auto        count_entry  = queue_counts.find(queue_family_index);
+
+    if (count_entry != queue_counts.end() && queue_index >= count_entry->second)
     {
-        // prefer a graphics-capable family, fall back to the first usable one
-        uint32_t substitute = std::numeric_limits<uint32_t>::max();
-
-        for (uint32_t i = 0; i < family_flags.queue_family_index_enabled.size(); ++i)
-        {
-            if (is_usable(i))
-            {
-                if (substitute == std::numeric_limits<uint32_t>::max())
-                {
-                    substitute = i;
-                }
-                if (queue_flags(i) & VK_QUEUE_GRAPHICS_BIT)
-                {
-                    substitute = i;
-                    break;
-                }
-            }
-        }
-
-        if (substitute == std::numeric_limits<uint32_t>::max())
-        {
-            GFXRECON_LOG_ERROR_ONCE("No queue-family on the replay-device can substitute for captured queue-family %u.",
-                                    captured_family_index);
-            return;
-        }
-        queue_family_index = substitute;
-    }
-
-    const uint32_t queue_count = family_flags.queue_family_queue_counts.at(queue_family_index);
-
-    if (queue_index >= queue_count)
-    {
-        queue_index = queue_count - 1;
+        queue_index = count_entry->second - 1;
     }
 
     if ((queue_family_index != captured_family_index) || (queue_index != captured_queue_index))
     {
-        GFXRECON_LOG_WARNING_ONCE("Not all captured queues exist on the replay-device; they are remapped onto queues "
-                                  "that do. Submissions originally distributed across queues may serialize, and replay "
-                                  "may fail or produce incorrect results.");
         GFXRECON_LOG_DEBUG("Remapped queue (family %u, index %u) -> (family %u, index %u)",
                            captured_family_index,
                            captured_queue_index,
@@ -10713,17 +10724,20 @@ VkResult VulkanReplayConsumerBase::OverrideCreateCommandPool(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
     HandlePointerDecoder<VkCommandPool>*                         pCommandPool)
 {
-    const VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
+    const VkCommandPoolCreateInfo* create_info          = pCreateInfo->GetPointer();
+    VkCommandPoolCreateInfo        modified_create_info = {};
+
     if (create_info != nullptr)
     {
         auto* command_pool_info         = reinterpret_cast<VulkanCommandPoolInfo*>(pCommandPool->GetConsumerData(0));
         command_pool_info->create_flags = create_info->flags;
+
+        modified_create_info                  = *create_info;
+        modified_create_info.queueFamilyIndex = MapQueueFamilyIndex(device_info, modified_create_info.queueFamilyIndex);
+        create_info                           = &modified_create_info;
     }
 
-    return func(device_info->handle,
-                pCreateInfo->GetPointer(),
-                GetAllocationCallbacks(pAllocator),
-                pCommandPool->GetHandlePointer());
+    return func(device_info->handle, create_info, GetAllocationCallbacks(pAllocator), pCommandPool->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPool  func,
