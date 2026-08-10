@@ -269,6 +269,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     struct CreateDeviceInfoState
     {
         VkDeviceCreateInfo                        modified_create_info;
+        std::vector<VkDeviceQueueCreateInfo>      modified_queue_create_infos;
         std::vector<const char*>                  modified_extensions;
         std::vector<std::string>                  trim_extensions;
         VkDeviceGroupDeviceCreateInfo             modified_device_group_create_info;

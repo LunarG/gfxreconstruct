@@ -3445,6 +3445,72 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         replay_next          = replay_next->pNext;
     }
 
+    // The captured queue-create-infos refer to the capture-device's queue-families, which may not exist on the
+    // replay-device. Drop out-of-range families and clamp queue-counts, so that no invalid device is created.
+    {
+        uint32_t replay_queue_family_count = 0;
+        instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &replay_queue_family_count, nullptr);
+
+        std::vector<VkQueueFamilyProperties> replay_queue_family_properties(replay_queue_family_count);
+        instance_table->GetPhysicalDeviceQueueFamilyProperties(
+            physical_device, &replay_queue_family_count, replay_queue_family_properties.data());
+
+        std::vector<VkDeviceQueueCreateInfo>& modified_queue_create_infos = create_state.modified_queue_create_infos;
+        modified_queue_create_infos.reserve(modified_create_info.queueCreateInfoCount);
+        std::string adjustments;
+        auto        append_adjustment = [&adjustments](const std::string& text) {
+            if (!adjustments.empty())
+            {
+                adjustments += ", ";
+            }
+            adjustments += text;
+        };
+
+        for (uint32_t i = 0; i < modified_create_info.queueCreateInfoCount; ++i)
+        {
+            VkDeviceQueueCreateInfo queue_create_info = modified_create_info.pQueueCreateInfos[i];
+            const uint32_t          family_index      = queue_create_info.queueFamilyIndex;
+
+            if (family_index >= replay_queue_family_count)
+            {
+                append_adjustment("family " + std::to_string(family_index) + " dropped");
+                continue;
+            }
+
+            const uint32_t replay_queue_count = replay_queue_family_properties[family_index].queueCount;
+
+            if (queue_create_info.queueCount > replay_queue_count)
+            {
+                append_adjustment("family " + std::to_string(family_index) + " queueCount " +
+                                  std::to_string(queue_create_info.queueCount) + " -> " +
+                                  std::to_string(replay_queue_count));
+                queue_create_info.queueCount = replay_queue_count;
+            }
+            modified_queue_create_infos.push_back(queue_create_info);
+        }
+
+        if (!adjustments.empty())
+        {
+            GFXRECON_LOG_WARNING("Replay device provides %u queue-families; adjusted VkDeviceCreateInfo (%s). Replay "
+                                 "may fail when the application uses a queue that could not be created.",
+                                 replay_queue_family_count,
+                                 adjustments.c_str());
+        }
+
+        if (modified_queue_create_infos.empty())
+        {
+            // vkCreateDevice requires at least one queue, so fall back to a single queue from the first family.
+            static const float      default_queue_priority = 1.0f;
+            VkDeviceQueueCreateInfo fallback_create_info   = { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO };
+            fallback_create_info.queueCount                = 1;
+            fallback_create_info.pQueuePriorities          = &default_queue_priority;
+            modified_queue_create_infos.push_back(fallback_create_info);
+        }
+
+        modified_create_info.queueCreateInfoCount = static_cast<uint32_t>(modified_queue_create_infos.size());
+        modified_create_info.pQueueCreateInfos    = modified_queue_create_infos.data();
+    }
+
     // Filter out portability subset if not on MoltenVK
     bool on_moltenvk = false;
     if (physical_device_info->replay_device_info->driver_properties)
