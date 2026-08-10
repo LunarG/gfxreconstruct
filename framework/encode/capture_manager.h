@@ -477,7 +477,10 @@ class CommonCaptureManager
     // The algorithm GetCompressor() was created for.  A command that compresses
     // its own payload records this, so the block says how to expand itself
     // rather than depending on the file option being reachable at decode time.
-    format::CompressionType GetCompressionType() const { return file_options_.compression_type; }
+    format::CompressionType GetCompressionType() const
+    {
+        return file_options_.compression_type;
+    }
     std::mutex& GetMappedMemoryLock()
     {
         return mapped_memory_lock_;

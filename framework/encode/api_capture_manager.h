@@ -243,17 +243,17 @@ class ApiCaptureManager
         common_manager_->CombineAndWriteToFile<N>(buffers);
     }
 
-    util::ThreadData*      GetThreadData() { return common_manager_->GetThreadData(); }
-    util::Compressor*      GetCompressor() { return common_manager_->GetCompressor(); }
+    util::ThreadData*       GetThreadData() { return common_manager_->GetThreadData(); }
+    util::Compressor*       GetCompressor() { return common_manager_->GetCompressor(); }
     format::CompressionType GetCompressionType() const { return common_manager_->GetCompressionType(); }
-    std::mutex&            GetMappedMemoryLock() { return common_manager_->GetMappedMemoryLock(); }
-    util::Keyboard&        GetKeyboard() { return common_manager_->GetKeyboard(); }
-    const std::string&     GetScreenshotPrefix() const { return common_manager_->GetScreenshotPrefix(); }
-    util::ScreenshotFormat GetScreenshotFormat() { return common_manager_->GetScreenshotFormat(); }
-    auto                   GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
-    auto                   GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
-    bool                   GetUseAssetFile() const { return common_manager_->GetUseAssetFile(); }
-    CommandWriter*         GetCommandWriter() { return common_manager_->GetCommandWriter(); }
+    std::mutex&             GetMappedMemoryLock() { return common_manager_->GetMappedMemoryLock(); }
+    util::Keyboard&         GetKeyboard() { return common_manager_->GetKeyboard(); }
+    const std::string&      GetScreenshotPrefix() const { return common_manager_->GetScreenshotPrefix(); }
+    util::ScreenshotFormat  GetScreenshotFormat() { return common_manager_->GetScreenshotFormat(); }
+    auto                    GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
+    auto                    GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
+    bool                    GetUseAssetFile() const { return common_manager_->GetUseAssetFile(); }
+    CommandWriter*          GetCommandWriter() { return common_manager_->GetCommandWriter(); }
     bool GetIgnoreFrameBoundaryAndroid() const { return common_manager_->GetIgnoreFrameBoundaryAndroid(); }
 
   protected:
