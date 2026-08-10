@@ -1353,7 +1353,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     auto injected = device_table_.Open();
 
     const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
-    VkResult                       res = injected.BeginCommandBuffer(aux_command_buffer_, &bi);
+    VkResult                       res = injected.BeginCommandBuffer(aux_command_buffer_, &bi, __func__);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR(
@@ -2643,7 +2643,7 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
             return res;
         }
 
-        res = injected.BeginCommandBuffer(command_buffer, begin_info);
+        res = injected.BeginCommandBuffer(command_buffer, begin_info, "DrawCallsDumpingContext::BeginCommandBuffer");
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("BeginCommandBuffer failed with %s", util::ToString<VkResult>(res).c_str());

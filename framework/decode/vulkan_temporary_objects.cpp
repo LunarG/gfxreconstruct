@@ -67,7 +67,7 @@ VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index)
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
     };
 
-    res = injected.BeginCommandBuffer(command_buffer, &begin_info);
+    res = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str());

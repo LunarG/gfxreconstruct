@@ -55,7 +55,7 @@ VulkanInjectedDeviceCalls::VulkanInjectedDeviceCalls(const VulkanDeviceTable* ta
     GFXRECON_ASSERT(table_ != nullptr);
 }
 
-void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffer, const char* category) const
+void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffer, const std::string& category) const
 {
     if ((command_buffer != VK_NULL_HANDLE) && GetAnnotateInjectedCommands() &&
         (table_->CmdInsertDebugUtilsLabelEXT != noop::vkCmdInsertDebugUtilsLabelEXT))
@@ -67,13 +67,19 @@ void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffe
 }
 
 VkResult VulkanInjectedDeviceCalls::Scope::BeginCommandBuffer(VkCommandBuffer                 command_buffer,
-                                                              const VkCommandBufferBeginInfo* begin_info) const
+                                                              const VkCommandBufferBeginInfo* begin_info,
+                                                              const char*                     label) const
 {
     VkResult result = table_->BeginCommandBuffer(command_buffer, begin_info);
 
     if (result == VK_SUCCESS)
     {
-        InsertLabel(command_buffer, "Synthesized command buffer");
+        std::string label_string = std::string("Synthesized command buffer");
+        if (label != nullptr)
+        {
+            label_string += std::string(": ") + label;
+        }
+        InsertLabel(command_buffer, label_string);
     }
     return result;
 }

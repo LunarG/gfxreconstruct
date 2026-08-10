@@ -1475,7 +1475,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     const VkCommandBufferBeginInfo cbbi = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
     };
-    res = injected.BeginCommandBuffer(cmd_buffer, &cbbi);
+    res = injected.BeginCommandBuffer(cmd_buffer, &cbbi, __func__ );
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
@@ -1575,7 +1575,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return res;
     }
 
-    res = injected.BeginCommandBuffer(cmd_buffer, &cbbi);
+    res = injected.BeginCommandBuffer(cmd_buffer, &cbbi, __func__);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: BeginCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())

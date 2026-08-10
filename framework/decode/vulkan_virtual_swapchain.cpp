@@ -565,7 +565,7 @@ VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice              
         return result;
     }
 
-    result = injected.BeginCommandBuffer(command_buffer, &begin_info);
+    result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed starting internal command buffer %d for "
@@ -1028,7 +1028,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
             {
                 return result;
             }
-            result = injected.BeginCommandBuffer(command_buffer, &begin_info);
+            result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
             if (result != VK_SUCCESS)
             {
                 return result;
@@ -1702,7 +1702,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
 
-        result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info);
+        result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info, __func__);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;

@@ -177,9 +177,7 @@ void VulkanCommandBufferUtil::SplitCommandBuffer(VulkanCommandBufferInfo* comman
     ReplaceWithAssociatedCommandBuffer(command_buffer_info);
 
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-    injected->BeginCommandBuffer(command_buffer_info->handle, &begin_info);
-    auto reinstate_cb_scope =
-        device_table_.Label(injected, command_buffer_info->handle, "Restore command buffer's state");
+    injected.BeginCommandBuffer(command_buffer_info->handle, &begin_info, "Restore command buffer's state");
 
     reissuing_command_buffer_state_ = true;
     decoder_->ReissueCommandBufferState(command_buffer_info->capture_id);

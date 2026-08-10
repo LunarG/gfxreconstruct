@@ -1453,7 +1453,7 @@ VkResult VulkanResourcesUtil::BeginCommandBuffer(VkCommandBuffer command_buffer)
     begin_info.pInheritanceInfo         = nullptr;
 
     auto     injected = device_table_.Open();
-    VkResult result   = injected.BeginCommandBuffer(command_buffer, &begin_info);
+    VkResult result   = injected.BeginCommandBuffer(command_buffer, &begin_info, "VulkanResourcesUtil");
 
     if (result != VK_SUCCESS)
     {

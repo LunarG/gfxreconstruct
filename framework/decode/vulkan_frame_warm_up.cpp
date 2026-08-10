@@ -297,7 +297,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                    
 
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-    injected.BeginCommandBuffer(command_buffer_, &begin_info);
+    injected.BeginCommandBuffer(command_buffer_, &begin_info, __func__);
     injected->CmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
     injected->CmdBindDescriptorSets(
         command_buffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout_, 0, 1, &descriptor_set_, 0, nullptr);

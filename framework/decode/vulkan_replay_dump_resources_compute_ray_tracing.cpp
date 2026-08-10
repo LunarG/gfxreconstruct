@@ -359,9 +359,10 @@ VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBuffer
         return res;
     }
 
-    res = injected.BeginCommandBuffer(DR_command_buffer_, begin_info);
+    res = injected.BeginCommandBuffer(DR_command_buffer_, begin_info, "DispatchTraceRaysDumpingContext::BeginCommandBuffer");
     if (res != VK_SUCCESS)
     {
+        injected->FreeCommandBuffers(dev_info->handle, cb_pool_info->handle, 1, &DR_command_buffer_);
         GFXRECON_LOG_ERROR("BeginCommandBuffer failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
