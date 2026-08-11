@@ -86,7 +86,7 @@ class VulkanCommandBufferAssociatedInfo
 
     [[nodiscard]] VulkanInjectedSemaphore& GetSplitSemaphore() { return split_semaphore_; }
 
-    void FreeCommandBuffers(VkCommandPool pool);
+    [[nodiscard]] VkCommandBuffer FreeAssociatedHandles(VkCommandPool pool);
 };
 
 class VulkanCommandBufferUtil

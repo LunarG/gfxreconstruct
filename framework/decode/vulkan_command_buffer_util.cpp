@@ -130,12 +130,18 @@ VkCommandBuffer VulkanCommandBufferAssociatedInfo::ResetAssociatedHandles()
     return original_handle_;
 }
 
-void VulkanCommandBufferAssociatedInfo::FreeCommandBuffers(VkCommandPool pool)
+VkCommandBuffer VulkanCommandBufferAssociatedInfo::FreeAssociatedHandles(VkCommandPool pool)
 {
     GFXRECON_ASSERT(!associated_handles_.empty());
 
     device_table_->FreeCommandBuffers(
         device_info_->handle, pool, static_cast<uint32_t>(associated_handles_.size()), associated_handles_.data());
+
+    associated_handles_.clear();
+    split_handles_.clear();
+    next_associated_index_ = 0;
+
+    return original_handle_;
 }
 
 void VulkanCommandBufferUtil::ReplaceWithAssociatedCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
@@ -330,15 +336,12 @@ void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                  
     // Check whether any of the command buffers being freed are split command buffers.
     for (format::HandleId command_buffer_id : command_buffer_ids)
     {
-
         // Make sure to clear the recorded state for this command buffer.
         decoder_->ClearRecordedState(command_buffer_id);
 
         auto* split_info = GetAssociatedInfo(command_buffer_id);
         if (split_info != nullptr)
         {
-            split_info->FreeCommandBuffers(command_pool);
-
             // Remove the associated handles from the tracking maps.
             for (VkCommandBuffer handle : split_info->GetAssociatedHandles())
             {
@@ -347,7 +350,7 @@ void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                  
 
             // Update the command buffer info to use the original handle for subsequent calls.
             VulkanCommandBufferInfo* command_buffer_info = object_table_->GetVkCommandBufferInfo(command_buffer_id);
-            command_buffer_info->handle                  = split_info->ResetAssociatedHandles();
+            command_buffer_info->handle                  = split_info->FreeAssociatedHandles(command_pool);
 
             split_infos_.erase(command_buffer_id);
         }
