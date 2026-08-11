@@ -63,6 +63,12 @@ class WaylandContext : public WsiContext
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
+    // Both are optional: a compositor that does not advertise them leaves these null and the
+    // window falls back to integer wl_output scaling. See WaylandWindow::UpdateViewportDestination.
+    struct wp_viewporter* GetViewporter() const { return viewporter_; }
+
+    struct wp_fractional_scale_manager_v1* GetFractionalScaleManager() const { return fractional_scale_manager_; }
+
     const OutputInfo& GetOutputInfo(const struct wl_output* wl_output) { return output_info_map_[wl_output]; }
 
     bool RegisterWaylandWindow(WaylandWindow* window);
@@ -138,25 +144,27 @@ class WaylandContext : public WsiContext
     typedef std::unordered_map<struct wl_surface*, WaylandWindow*>  WaylandWindowMap;
     typedef std::unordered_map<const struct wl_output*, OutputInfo> OutputInfoMap;
 
-    static struct wl_pointer_listener  pointer_listener_;
-    static struct wl_keyboard_listener keyboard_listener_;
-    static struct wl_seat_listener     seat_listener_;
-    static struct wl_registry_listener registry_listener_;
-    static struct wl_output_listener   output_listener_;
-    static struct xdg_wm_base_listener xdg_wm_base_listener_;
-    struct wl_display*                 display_{};
-    struct wl_shell*                   shell_{};
-    struct xdg_wm_base*                xdg_wm_base_{};
-    struct wl_compositor*              compositor_{};
-    struct wl_registry*                registry_{};
-    struct wl_seat*                    seat_{};
-    struct wl_pointer*                 pointer_{};
-    struct wl_keyboard*                keyboard_{};
-    struct wl_surface*                 current_keyboard_surface_{};
-    struct wl_surface*                 current_pointer_surface_{};
-    WaylandWindowMap                   wayland_windows_{};
-    OutputInfoMap                      output_info_map_{};
-    util::WaylandLoader                wayland_loader_{};
+    static struct wl_pointer_listener      pointer_listener_;
+    static struct wl_keyboard_listener     keyboard_listener_;
+    static struct wl_seat_listener         seat_listener_;
+    static struct wl_registry_listener     registry_listener_;
+    static struct wl_output_listener       output_listener_;
+    static struct xdg_wm_base_listener     xdg_wm_base_listener_;
+    struct wl_display*                     display_{};
+    struct wl_shell*                       shell_{};
+    struct xdg_wm_base*                    xdg_wm_base_{};
+    struct wl_compositor*                  compositor_{};
+    struct wp_viewporter*                  viewporter_{};
+    struct wp_fractional_scale_manager_v1* fractional_scale_manager_{};
+    struct wl_registry*                    registry_{};
+    struct wl_seat*                        seat_{};
+    struct wl_pointer*                     pointer_{};
+    struct wl_keyboard*                    keyboard_{};
+    struct wl_surface*                     current_keyboard_surface_{};
+    struct wl_surface*                     current_pointer_surface_{};
+    WaylandWindowMap                       wayland_windows_{};
+    OutputInfoMap                          output_info_map_{};
+    util::WaylandLoader                    wayland_loader_{};
 };
 
 GFXRECON_END_NAMESPACE(application)

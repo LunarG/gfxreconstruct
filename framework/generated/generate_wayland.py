@@ -69,7 +69,7 @@ def wayland_arg_to_cpp_type(arg: ET.Element) -> str:
     elif arg_type == 'uint':
         return 'uint32_t'
     elif arg_type == 'fixed':
-        return 'wl_fixed'
+        return 'wl_fixed_t'
     elif arg_type == 'object' or arg_type == 'new_id':
         return arg.attrib['interface'] + '*'
     elif arg_type == 'string':
@@ -408,6 +408,10 @@ def clone_wayland_protocols():
 def main():
     clone_wayland_protocols()
     generate(os.path.join(PROTOCOLS_DIR, 'stable', 'xdg-shell', 'xdg-shell.xml'))
+    # viewporter and fractional-scale together let a window size itself correctly on a
+    # fractionally scaled output, which wl_surface::set_buffer_scale cannot express.
+    generate(os.path.join(PROTOCOLS_DIR, 'stable', 'viewporter', 'viewporter.xml'))
+    generate(os.path.join(PROTOCOLS_DIR, 'staging', 'fractional-scale', 'fractional-scale-v1.xml'))
 
 
 if __name__ == '__main__':
