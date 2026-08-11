@@ -35,18 +35,18 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: 'recursive'
     - name: Set up Java
-      uses: "actions/setup-java@v4"
+      uses: "actions/setup-java@v5"
       with:
         java-version: 17
         distribution: "temurin"
     - name: Gradle build
       run: |
         cd android
-        sh gradlew assembleRelease assembleDebug
+        sh gradlew -Parm64-v8a :layer:assembleRelease :replay:assembleDebug :multi-win-replay:assembleDebug
     - name: Prepare artifacts
       run: |
         mkdir gfxreconstruct-dev
@@ -57,8 +57,8 @@ jobs:
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
         cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
-        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
         cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        cp android/tools/multi-win-replay/build/outputs/apk/debug/multi-win-replay-debug.apk gfxreconstruct-dev/tools/
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -74,8 +74,7 @@ jobs:
     - name: Get sdk version string
       id: get_sdk_version
       run: |
-        sdk_version=`echo "${{ github.ref }}" | cut -d "-" -f 2`
-        echo "::set-output name=sdk_version::$sdk_version"
+        echo "sdk_version=${GITHUB_REF_NAME#vulkan-sdk-}" >> "$GITHUB_OUTPUT"
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -83,13 +82,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Android binaries for ${{ steps.get_tag_body.outputs.sdk_version }} SDK release
+        release_name: Android binaries for ${{ steps.get_sdk_version.outputs.sdk_version }} SDK release
         body: |
-          Android binaries to compliment the desktop binaries distributed with the Vulkan ${{ steps.get_tag_body.outputs.sdk_version }} SDK.
+          Android binaries to compliment the desktop binaries distributed with the Vulkan ${{ steps.get_sdk_version.outputs.sdk_version }} SDK.
 
           Build Info:
-          - Android SDK Version: 27 (Android 8.1)
-          - Android NDK Version: 21.3.6528147 (r21d)
+          - Android SDK Version: 34 (Android 14)
+          - Android NDK Version: 26.3.11579264 (r26d)
         draft: false
         prerelease: false
     - name: Get release URL
