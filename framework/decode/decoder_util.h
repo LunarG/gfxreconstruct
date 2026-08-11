@@ -62,6 +62,7 @@ static VkQueue GetDeviceQueue(const graphics::VulkanDeviceTable* device_table,
 
     if (family_entry == queue_counts.end() || family_entry->second.empty())
     {
+        GFXRECON_LOG_ERROR("No queues were created for queue-family %u, returning a null queue.", queue_family_index);
         return queue;
     }
 

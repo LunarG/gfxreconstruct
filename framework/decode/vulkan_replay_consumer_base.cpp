@@ -3448,12 +3448,17 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     // The captured queue-create-infos refer to the capture-device's queue-families, which may not exist on the
     // replay-device. Drop out-of-range families and clamp queue-counts, so that no invalid device is created.
     {
-        uint32_t replay_queue_family_count = 0;
+        uint32_t                             replay_queue_family_count = 0;
+        std::vector<VkQueueFamilyProperties> replay_queue_family_properties;
+
+        // queries the capture did not make
+        util::BeginInjectedCommands();
         instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &replay_queue_family_count, nullptr);
 
-        std::vector<VkQueueFamilyProperties> replay_queue_family_properties(replay_queue_family_count);
+        replay_queue_family_properties.resize(replay_queue_family_count);
         instance_table->GetPhysicalDeviceQueueFamilyProperties(
             physical_device, &replay_queue_family_count, replay_queue_family_properties.data());
+        util::EndInjectedCommands();
 
         std::vector<VkDeviceQueueCreateInfo>& modified_queue_create_infos = create_state.modified_queue_create_infos;
         modified_queue_create_infos.reserve(modified_create_info.queueCreateInfoCount);
