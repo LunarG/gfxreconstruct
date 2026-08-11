@@ -33,9 +33,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-/// This helper class manages command buffer handles addressing cases where a single command buffer is reset and
-/// recorded multiple times. In such cases, after splitting the command buffer for the first time, a reset is expected
-/// before the next recording, and we want to avoid splitting again and instead reuse the handles of the first split.
+/// @brief Handles and semaphore that belong to the splits of one command buffer.
+///
+/// Replay can split one recording across multiple command buffers. This class owns the
+/// extra handles, named associated handles, that replay allocates for the splits of one
+/// original command buffer. When the application resets and records the command buffer
+/// again, a new split reuses these handles. When all handles are in use, replay
+/// allocates more. This class also owns the timeline semaphore that orders the submits
+/// of the split parts.
 class VulkanCommandBufferAssociatedInfo
 {
   private:
@@ -64,6 +69,11 @@ class VulkanCommandBufferAssociatedInfo
     std::vector<VkCommandBuffer> split_handles_;
 
   public:
+    /// @brief Stores the original handle of the command buffer with the given capture ID.
+    /// @param device_info Device that owns the command buffer.
+    /// @param device_table Dispatch table of that device.
+    /// @param object_table Table that maps capture IDs to replay objects.
+    /// @param command_buffer_id Capture ID of the original command buffer.
     VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*            device_info,
                                       const graphics::VulkanDeviceTable* device_table,
                                       CommonObjectInfoTable*             object_table,
@@ -75,23 +85,53 @@ class VulkanCommandBufferAssociatedInfo
     VulkanCommandBufferAssociatedInfo& operator=(VulkanCommandBufferAssociatedInfo&&)      = default;
     ~VulkanCommandBufferAssociatedInfo()                                                   = default;
 
+    /// @brief Sets the handle of the command buffer info to the next associated handle.
+    ///
+    /// If no handle is free, the function allocates more. The new handle is not reset and
+    /// is not in the recording state.
+    /// @param command_buffer_info Command buffer info that receives the new handle.
     void ReplaceWithNewHandle(VulkanCommandBufferInfo* command_buffer_info);
 
+    /// @return All handles allocated for splits of this command buffer, without the original handle.
     [[nodiscard]] const std::vector<VkCommandBuffer>& GetAssociatedHandles() const { return associated_handles_; }
 
+    /// @brief Stores the handle of a finished part of the current recording.
     void PushSplitHandle(VkCommandBuffer handle) { split_handles_.push_back(handle); }
+
+    /// @return Handles of the finished parts of the current recording, in record order.
+    /// The newest part is not included: its handle is in the command buffer info.
     [[nodiscard]] const std::vector<VkCommandBuffer>& GetSplitHandles() const { return split_handles_; }
 
+    /// @brief Resets all associated command buffers and clears the current split.
+    /// @return The original handle. The caller must put it back in the command buffer info.
     [[nodiscard]] VkCommandBuffer ResetAssociatedHandles();
 
+    /// @return The timeline semaphore that orders the submits of the split parts.
     [[nodiscard]] VulkanInjectedSemaphore& GetSplitSemaphore() { return split_semaphore_; }
 
+    /// @brief Frees all associated command buffers and clears the current split.
+    /// @param pool Pool that owns the command buffers.
+    /// @return The original handle. The caller must put it back in the command buffer info.
     [[nodiscard]] VkCommandBuffer FreeAssociatedHandles(VkCommandPool pool);
 };
 
+/// @brief Splits command buffers during replay and submits the split parts in order.
+///
+/// The `--isolate-render-passes` replay option puts each render pass in its own queue
+/// submit. For this option, replay calls SplitCommandBuffer() at each render pass
+/// boundary. The call ends the current command buffer and continues the recording in a
+/// fresh one. At queue submission, SubmitPreviouslySplitCommandBuffers() submits the
+/// earlier parts first, one queue submit for each part. An injected timeline semaphore
+/// keeps these submits in order. The reset, begin, and free entry points keep the split
+/// handles and the recorded state of the decoder consistent. Replay creates one instance
+/// of this class for each device (see VulkanPerDeviceCommandBufferUtils).
 class VulkanCommandBufferUtil
 {
   public:
+    /// @param device_info Device that this utility serves.
+    /// @param device_table Dispatch table of that device.
+    /// @param object_table Table that maps capture IDs to replay objects.
+    /// @param decoder Decoder that records and reissues command buffer state.
     VulkanCommandBufferUtil(const VulkanDeviceInfo*            device_info,
                             const graphics::VulkanDeviceTable* device_table,
                             CommonObjectInfoTable*             object_table,
@@ -104,40 +144,88 @@ class VulkanCommandBufferUtil
     VulkanCommandBufferUtil(VulkanCommandBufferUtil&&)                 = default;
     VulkanCommandBufferUtil& operator=(VulkanCommandBufferUtil&&)      = default;
 
+    /// @brief Replaces the handle of the command buffer with a fresh associated handle.
+    ///
+    /// The function resets the new handle. Later replay calls on this command buffer go to
+    /// the new handle.
+    /// @param command_buffer_info Command buffer info that receives the new handle.
     void ReplaceWithAssociatedCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
+    /// @brief Ends the current recording and continues it in a fresh command buffer.
+    ///
+    /// The function ends the current handle, replaces it with an associated handle, and
+    /// begins the new handle. It then reissues the recorded state commands, so the new
+    /// part starts with the same state. The function does nothing while a reissue is in
+    /// progress.
+    /// @param command_buffer_info Command buffer that is in the recording state.
     void SplitCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
+    /// @brief Submits the earlier parts of the split command buffers found in the given submits.
+    ///
+    /// Call this function before you replay the queue submission itself. For each command
+    /// buffer that was split, the earlier parts go to the queue first, one queue submit
+    /// for each part. An injected timeline semaphore orders these submits. The wait
+    /// semaphores gate only the first of these submits.
+    /// @param queue_info Queue that receives the submits.
+    /// @param current_submits_span Submit infos of the queue submission that replay is about to make.
+    /// @param wait_semaphores Semaphores that the first submit waits on.
+    /// @return Semaphore that the queue submission of the caller must wait on. If there
+    /// was nothing to submit, the handle of the semaphore is VK_NULL_HANDLE.
     graphics::VulkanSemaphore
     SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*                     queue_info,
                                         const std::span<VkSubmitInfo>              current_submits_span,
                                         const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
+    /// @brief Overload of SubmitPreviouslySplitCommandBuffers() for vkQueueSubmit2 submissions.
     graphics::VulkanSemaphore
     SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*                     queue_info,
                                         const std::span<VkSubmitInfo2>             current_submits_span,
                                         const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
+    /// @brief Removes the split state of command buffers that the application frees.
+    ///
+    /// When replay frees command buffers, call this function. The function clears the
+    /// recorded state of each command buffer. If a command buffer was split, the function
+    /// frees its associated handles and restores its original handle.
+    /// @param command_pool Pool that owns the command buffers.
+    /// @param command_buffer_ids Capture IDs of the command buffers.
     void FreeCommandBuffers(VkCommandPool command_pool, const std::span<const format::HandleId> command_buffer_ids);
 
-    /// @brief To be called after resetting the current command buffer.
-    /// @param command_buffer_info The command buffer info structure to reset.
+    /// @brief Clears the replay state of a reset command buffer.
+    ///
+    /// Call this function after the command buffer reset. The function clears the recorded
+    /// state. If the command buffer was split, the function also resets its associated
+    /// handles and restores its original handle.
+    /// @param command_buffer_info Command buffer that was reset.
     void ResetCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
+    /// @brief Prepares a command buffer for a new recording.
+    ///
+    /// Call this function before replay begins the command buffer. A new recording makes
+    /// the recorded state of the previous one invalid, so the function clears it. If the
+    /// pool has the VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag, vkBeginCommandBuffer does an implicit
+    /// reset. In that case, if the command buffer was split, the function resets its
+    /// associated handles and restores its original handle.
+    /// @param command_buffer_info Command buffer that replay is about to begin.
     void BeginCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
   private:
+    /// Shared implementation of the public overloads, on plain lists of command buffer handles.
     graphics::VulkanSemaphore
     SubmitPreviouslySplitCommandBuffers(const VulkanQueueInfo*                        queue_info,
                                         const std::span<std::vector<VkCommandBuffer>> current_submits_cmdbufs,
                                         const std::span<graphics::VulkanSemaphore>    wait_semaphores = {});
 
+    /// Collects the command buffer handles of each submit info.
     std::vector<std::vector<VkCommandBuffer>>
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo> submits_span);
     std::vector<std::vector<VkCommandBuffer>>
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span);
 
+    /// Returns the split info of the command buffer. Creates it on first use.
     VulkanCommandBufferAssociatedInfo& GetOrCreateAssociatedInfo(format::HandleId command_buffer_id);
+
+    /// Returns the split info of the command buffer, or nullptr if it was never split.
     VulkanCommandBufferAssociatedInfo* GetAssociatedInfo(format::HandleId command_buffer_id);
 
     const VulkanDeviceInfo*            device_info_  = nullptr;
@@ -156,6 +244,7 @@ class VulkanCommandBufferUtil
     bool reissuing_command_buffer_state_ = false;
 };
 
+/// One VulkanCommandBufferUtil for each device.
 using VulkanPerDeviceCommandBufferUtils = std::unordered_map<const VulkanDeviceInfo*, VulkanCommandBufferUtil>;
 
 GFXRECON_END_NAMESPACE(decode)
