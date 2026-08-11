@@ -45,13 +45,15 @@
     }
 #endif
 
+#include "generated/generated_vulkan_dispatch_table.h"
+
 // This file needs to be included first to ensure it is processed with the VMA_IMPLEMENTATION directive, in case it is
 // indirectly included by other include files.
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_rebind_allocator.h"
-
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "format/format.h"
@@ -88,8 +90,8 @@ extern VKAPI_ATTR void VKAPI_CALL OnVmaFreeDeviceMemory(
 }
 
 VulkanRebindAllocator::VulkanRebindAllocator() :
-    device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), vma_functions_{},
-    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
+    VulkanResourceAllocator(), allocator_(VK_NULL_HANDLE), vma_functions_{},
+    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}
 {}
 
 std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_memory)
@@ -104,18 +106,27 @@ std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_m
     return *mutex_ptr;
 }
 
-VkResult VulkanRebindAllocator::Initialize(uint32_t                                api_version,
-                                           VkInstance                              instance,
-                                           VkPhysicalDevice                        physical_device,
-                                           VkDevice                                device,
-                                           const VkDeviceCreateInfo&               device_create_info,
-                                           const std::vector<std::string>&         enabled_device_extensions,
-                                           VkPhysicalDeviceType                    capture_device_type,
-                                           const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                           const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                           const Functions&                        functions)
+VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                           VkDevice                             device,
+                                           const VkDeviceCreateInfo&            device_create_info,
+                                           const std::vector<std::string>&      enabled_device_extensions,
+                                           const graphics::VulkanInstanceTable& instance_table,
+                                           const graphics::VulkanDeviceTable*   device_table)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result = VulkanResourceAllocator::Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, instance_table, device_table);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    result = VK_ERROR_INITIALIZATION_FAILED;
+
+    GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
+    GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
+    const VkPhysicalDeviceMemoryProperties& replay_memory_properties =
+        *physical_device_info->replay_device_info->memory_properties;
+    const VkPhysicalDeviceMemoryProperties& capture_memory_properties = physical_device_info->capture_memory_properties;
 
     if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
     {
@@ -124,11 +135,8 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
     }
     else if (allocator_ == VK_NULL_HANDLE)
     {
-        device_                    = device;
-        functions_                 = functions;
-        capture_device_type_       = capture_device_type;
+        capture_device_type_       = physical_device_info->capture_device_type;
         capture_memory_properties_ = capture_memory_properties;
-        replay_memory_properties_  = replay_memory_properties;
 
         vma_functions_.vkGetPhysicalDeviceProperties           = functions_.get_physical_device_properties;
         vma_functions_.vkGetPhysicalDeviceMemoryProperties     = functions_.get_physical_device_memory_properties;
@@ -157,10 +165,15 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
         VmaAllocatorCreateInfo create_info = {};
 
+        GFXRECON_ASSERT(physical_device_info->replay_device_info->properties.has_value());
+        const VkPhysicalDevice physical_device = physical_device_info->handle;
+        const uint32_t         api_version     = std::min(physical_device_info->parent_info.api_version,
+                                              physical_device_info->replay_device_info->properties->apiVersion);
+
         create_info.physicalDevice   = physical_device;
         create_info.device           = device;
         create_info.pVulkanFunctions = &vma_functions_;
-        create_info.instance         = instance;
+        create_info.instance         = physical_device_info->parent;
         create_info.vulkanApiVersion = api_version;
 
         // register our custom handler, invoked when blocks are freed

@@ -20,39 +20,39 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_remap_allocator.h"
 
 #include "decode/portability.h"
 #include "util/logging.h"
 
 #include <cassert>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanRemapAllocator::Initialize(uint32_t                                api_version,
-                                          VkInstance                              instance,
-                                          VkPhysicalDevice                        physical_device,
-                                          VkDevice                                device,
-                                          const VkDeviceCreateInfo&               device_create_info,
-                                          const std::vector<std::string>&         enabled_device_extensions,
-                                          VkPhysicalDeviceType                    capture_device_type,
-                                          const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                          const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                          const Functions&                        functions)
+VkResult VulkanRemapAllocator::Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                          VkDevice                             device,
+                                          const VkDeviceCreateInfo&            device_create_info,
+                                          const std::vector<std::string>&      enabled_device_extensions,
+                                          const graphics::VulkanInstanceTable& instance_table,
+                                          const graphics::VulkanDeviceTable*   device_table)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
+    GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
+    const VkPhysicalDeviceMemoryProperties& replay_memory_properties =
+        *physical_device_info->replay_device_info->memory_properties;
+    const VkPhysicalDeviceMemoryProperties& capture_memory_properties = physical_device_info->capture_memory_properties;
 
-    VulkanDefaultAllocator::Initialize(api_version,
-                                       instance,
-                                       physical_device,
-                                       device,
-                                       device_create_info,
-                                       enabled_device_extensions,
-                                       capture_device_type,
-                                       capture_memory_properties,
-                                       replay_memory_properties,
-                                       functions);
+    VkResult result = VulkanDefaultAllocator::Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, instance_table, device_table);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    result = VK_ERROR_INITIALIZATION_FAILED;
 
     if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
     {

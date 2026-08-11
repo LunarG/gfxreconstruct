@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_REBIND_ALLOCATOR_H
 
 #include "decode/vulkan_resource_allocator.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include "vk_mem_alloc.h"
@@ -45,16 +46,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     ~VulkanRebindAllocator() override = default;
 
-    virtual VkResult Initialize(uint32_t                                api_version,
-                                VkInstance                              instance,
-                                VkPhysicalDevice                        physical_device,
-                                VkDevice                                device,
-                                const VkDeviceCreateInfo&               device_create_info,
-                                const std::vector<std::string>&         enabled_device_extensions,
-                                VkPhysicalDeviceType                    capture_device_type,
-                                const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                const Functions&                        functions) override;
+    virtual VkResult Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                VkDevice                             device,
+                                const VkDeviceCreateInfo&            device_create_info,
+                                const std::vector<std::string>&      enabled_device_extensions,
+                                const graphics::VulkanInstanceTable& instance_table,
+                                const graphics::VulkanDeviceTable*   device_table) override;
 
     virtual void Destroy() override;
 
@@ -816,13 +813,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // which became private in VMA 3.3.0.
     std::mutex& GetOrCreateBlockMutex(VkDeviceMemory device_memory);
 
-    VkDevice                         device_ = VK_NULL_HANDLE;
     VmaAllocator                     allocator_;
-    Functions                        functions_;
     VmaVulkanFunctions               vma_functions_;
     VkPhysicalDeviceType             capture_device_type_;
     VkPhysicalDeviceMemoryProperties capture_memory_properties_;
-    VkPhysicalDeviceMemoryProperties replay_memory_properties_;
     VkCommandPool                    cmd_pool_      = VK_NULL_HANDLE;
     VkQueue                          staging_queue_ = VK_NULL_HANDLE;
     uint32_t                         staging_queue_family_{};

@@ -40,16 +40,12 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     VulkanDefaultAllocator(std::string&& custom_error_string);
 
-    virtual VkResult Initialize(uint32_t                                api_version,
-                                VkInstance                              instance,
-                                VkPhysicalDevice                        physical_device,
-                                VkDevice                                device,
-                                const VkDeviceCreateInfo&               device_create_info,
-                                const std::vector<std::string>&         enabled_device_extensions,
-                                VkPhysicalDeviceType                    capture_device_type,
-                                const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                const Functions&                        functions) override;
+    virtual VkResult Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                VkDevice                             device,
+                                const VkDeviceCreateInfo&            device_create_info,
+                                const std::vector<std::string>&      enabled_device_extensions,
+                                const graphics::VulkanInstanceTable& instance_table,
+                                const graphics::VulkanDeviceTable*   device_table) override;
 
     virtual void Destroy() override;
 
@@ -235,12 +231,14 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     // Direct allocation methods that perform memory allocation and resource creation without performing memory
     // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
-    // that the allocator is aware of all allocations performed at replay.
+    // that the allocator is aware of all allocations performed at replay.  Because these calls are synthesized by
+    // replay rather than replayed from the capture, they are dispatched inside an injected-commands scope.
     virtual VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
                                         const VkAllocationCallbacks* allocation_callbacks,
                                         VkBuffer*                    buffer,
                                         ResourceData*                allocator_data) override
     {
+        auto injected = device_table_.Open();
         return CreateBuffer(create_info, allocation_callbacks, format::kNullHandleId, buffer, allocator_data);
     }
 
@@ -248,6 +246,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                      const VkAllocationCallbacks* allocation_callbacks,
                                      ResourceData                 allocator_data) override
     {
+        auto injected = device_table_.Open();
         DestroyBuffer(buffer, allocation_callbacks, allocator_data);
     }
 
@@ -256,6 +255,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                        VkImage*                     image,
                                        ResourceData*                allocator_data) override
     {
+        auto injected = device_table_.Open();
         return CreateImage(create_info, allocation_callbacks, format::kNullHandleId, image, allocator_data);
     }
 
@@ -263,6 +263,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                     const VkAllocationCallbacks* allocation_callbacks,
                                     ResourceData                 allocator_data) override
     {
+        auto injected = device_table_.Open();
         DestroyImage(image, allocation_callbacks, allocator_data);
     }
 
@@ -271,6 +272,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                           VkDeviceMemory*              memory,
                                           MemoryData*                  allocator_data) override
     {
+        auto injected = device_table_.Open();
         return Allocate(allocate_info, allocation_callbacks, format::kNullHandleId, memory, allocator_data);
     }
 
@@ -278,6 +280,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                   const VkAllocationCallbacks* allocation_callbacks,
                                   MemoryData                   allocator_data) override
     {
+        auto injected = device_table_.Open();
         FreeMemory(memory, allocation_callbacks, allocator_data);
     }
 
@@ -288,6 +291,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                             MemoryData             allocator_memory_data,
                                             VkMemoryPropertyFlags* bind_memory_properties) override
     {
+        auto injected = device_table_.Open();
         return BindBufferMemory(
             buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties);
     }
@@ -299,6 +303,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                            MemoryData             allocator_memory_data,
                                            VkMemoryPropertyFlags* bind_memory_properties) override
     {
+        auto injected = device_table_.Open();
         return BindImageMemory(
             image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties);
     }
@@ -314,6 +319,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                    const VkMappedMemoryRange* memory_ranges,
                                                    const MemoryData*          allocator_datas) override
     {
+        auto injected = device_table_.Open();
         return FlushMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
     }
 
@@ -321,6 +327,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                         const VkMappedMemoryRange* memory_ranges,
                                                         const MemoryData*          allocator_datas) override
     {
+        auto injected = device_table_.Open();
         return InvalidateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
     }
 
@@ -369,6 +376,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                 VkTensorARM*                 tensor,
                                 ResourceData*                allocator_data) override
     {
+        auto injected = device_table_.Open();
         return CreateTensor(create_info, allocation_callbacks, format::kNullHandleId, tensor, allocator_data);
     }
 
@@ -376,6 +384,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                              const VkAllocationCallbacks* allocation_callbacks,
                              ResourceData                 allocator_data) override
     {
+        auto injected = device_table_.Open();
         DestroyTensor(tensor, allocation_callbacks, allocator_data);
     }
 
@@ -385,6 +394,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                     const MemoryData*                allocator_memory_datas,
                                     VkMemoryPropertyFlags*           bind_memory_properties) override
     {
+        auto injected = device_table_.Open();
         return BindTensorMemory(
             bind_info_count, bind_infos, allocator_tensor_datas, allocator_memory_datas, bind_memory_properties);
     }
@@ -495,10 +505,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                          VkMemoryPropertyFlags* bind_memory_property);
 
   private:
-    VkDevice                         device_;
-    Functions                        functions_;
-    VkPhysicalDeviceMemoryProperties memory_properties_;
-    std::string                      custom_error_string_;
+    std::string custom_error_string_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
