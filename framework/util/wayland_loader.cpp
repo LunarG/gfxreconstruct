@@ -138,11 +138,11 @@ bool WaylandLoader::Initialize()
                 util::platform::GetProcAddress(libwayland_, "wl_shell_surface_interface"));
 
             // additional protocols
-            function_table_.xdg = std::make_unique<wayland_xdg_shell_table>();
+            function_table_.xdg = std::make_unique<WaylandXdgShellTable>();
             function_table_.xdg->initialize(this);
-            function_table_.viewporter = std::make_unique<wayland_viewporter_table>();
+            function_table_.viewporter = std::make_unique<WaylandViewporterTable>();
             function_table_.viewporter->initialize(this);
-            function_table_.frac_scale = std::make_unique<wayland_fractional_scale_v1_table>();
+            function_table_.frac_scale = std::make_unique<WaylandFractionalScaleV1Table>();
             function_table_.frac_scale->initialize(this);
         }
         else

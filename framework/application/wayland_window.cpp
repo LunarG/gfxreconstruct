@@ -32,11 +32,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-struct wl_surface_listener             WaylandWindow::surface_listener_;
-struct wl_shell_surface_listener       WaylandWindow::shell_surface_listener_;
-struct xdg_surface_listener            WaylandWindow::xdg_surface_listener_;
-struct xdg_toplevel_listener           WaylandWindow::xdg_toplevel_listener_;
-struct wp_fractional_scale_v1_listener WaylandWindow::fractional_scale_listener_;
+struct wl_surface_listener       WaylandWindow::surface_listener_;
+struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
+GfxrXdgSurfaceListener           WaylandWindow::xdg_surface_listener_;
+GfxrXdgToplevelListener          WaylandWindow::xdg_toplevel_listener_;
+GfxrWpFractionalScaleV1Listener  WaylandWindow::fractional_scale_listener_;
 
 WaylandWindow::WaylandWindow(WaylandContext* wayland_context) :
     wayland_context_(wayland_context), surface_(nullptr), shell_surface_(nullptr), xdg_surface_(nullptr),
@@ -418,9 +418,9 @@ void WaylandWindow::UpdateViewportDestination()
                        static_cast<uint32_t>(denominator));
 }
 
-void WaylandWindow::HandlePreferredScale(void*                          data,
-                                         struct wp_fractional_scale_v1* fractional_scale,
-                                         uint32_t                       scale_fixed_point)
+void WaylandWindow::HandlePreferredScale(void*                    data,
+                                         GfxrWpFractionalScaleV1* fractional_scale,
+                                         uint32_t                 scale_fixed_point)
 {
     GFXRECON_UNREFERENCED_PARAMETER(fractional_scale);
 
@@ -455,7 +455,7 @@ void WaylandWindow::HandleShellSurfaceConfigure(
 
 void WaylandWindow::HandleShellSurfacePopupDone(void* data, wl_shell_surface* shell_surface) {}
 
-void WaylandWindow::HandleXdgSurfaceConfigure(void* data, struct xdg_surface* xdg_surface, uint32_t serial)
+void WaylandWindow::HandleXdgSurfaceConfigure(void* data, GfxrXdgSurface* xdg_surface, uint32_t serial)
 {
     WaylandWindow* window = reinterpret_cast<WaylandWindow*>(data);
 
@@ -466,10 +466,10 @@ void WaylandWindow::HandleXdgSurfaceConfigure(void* data, struct xdg_surface* xd
 }
 
 void WaylandWindow::HandleXdgToplevelConfigure(
-    void* data, struct xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states)
+    void* data, GfxrXdgToplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states)
 {}
 
-void WaylandWindow::HandleXdgToplevelClose(void* data, struct xdg_toplevel* xdg_toplevel) {}
+void WaylandWindow::HandleXdgToplevelClose(void* data, GfxrXdgToplevel* xdg_toplevel) {}
 
 WaylandWindowFactory::WaylandWindowFactory(WaylandContext* wayland_context) : wayland_context_(wayland_context)
 {

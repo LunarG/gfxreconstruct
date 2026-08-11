@@ -31,21 +31,21 @@
 #include "util/defines.h"
 #include "util/wayland_loader.h"
 
-struct wp_fractional_scale_manager_v1;
-struct wp_fractional_scale_v1;
+struct GfxrWpFractionalScaleManagerV1;
+struct GfxrWpFractionalScaleV1;
 
 // wp_fractional_scale_manager_v1 static declarations
 
-enum wp_fractional_scale_manager_v1_error
+enum GfxrWpFractionalScaleManagerV1Error
 {
-	WP_FRACTIONAL_SCALE_MANAGER_V1_ERROR_FRACTIONAL_SCALE_EXISTS = 0,
+    GFXR_WP_FRACTIONAL_SCALE_MANAGER_V1_ERROR_FRACTIONAL_SCALE_EXISTS = 0,
 };
 
 // wp_fractional_scale_v1 static declarations
 
-struct wp_fractional_scale_v1_listener
+struct GfxrWpFractionalScaleV1Listener
 {
-	void (*preferred_scale)(void* data, wp_fractional_scale_v1* object, uint32_t scale);
+    void (*preferred_scale)(void* data, GfxrWpFractionalScaleV1* object, uint32_t scale);
 };
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -53,68 +53,68 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 // Global to fractional_scale_v1
 
-class wayland_fractional_scale_v1_table
+class WaylandFractionalScaleV1Table
 {
-	private:
+  private:
 
-		const WaylandLoader::FunctionTable* _wl;
-		std::vector<wl_message> _messages;
-		std::vector<const wl_interface*> _messageArgs;
+    const WaylandLoader::FunctionTable* _wl;
+    std::vector<wl_message> _messages;
+    std::vector<const wl_interface*> _messageArgs;
 
-	public:
+  public:
 
-		// wp_fractional_scale_manager_v1 dynamic declarations
+    // wp_fractional_scale_manager_v1 dynamic declarations
 
-		wl_interface wp_fractional_scale_manager_v1_interface;
+    wl_interface wp_fractional_scale_manager_v1_interface;
 
-		void wp_fractional_scale_manager_v1_destroy(wp_fractional_scale_manager_v1* self) const
-		{
-			_wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
-			_wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
-		}
+    void wp_fractional_scale_manager_v1_destroy(GfxrWpFractionalScaleManagerV1* self) const
+    {
+        _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
+        _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
+    }
 
-		wp_fractional_scale_v1* wp_fractional_scale_manager_v1_get_fractional_scale(wp_fractional_scale_manager_v1* self, wl_surface* surface) const
-		{
-			return reinterpret_cast<wp_fractional_scale_v1*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &wp_fractional_scale_v1_interface, NULL, surface));
-		}
+    GfxrWpFractionalScaleV1* wp_fractional_scale_manager_v1_get_fractional_scale(GfxrWpFractionalScaleManagerV1* self, wl_surface* surface) const
+    {
+        return reinterpret_cast<GfxrWpFractionalScaleV1*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &wp_fractional_scale_v1_interface, NULL, surface));
+    }
 
-		// wp_fractional_scale_v1 dynamic declarations
+    // wp_fractional_scale_v1 dynamic declarations
 
-		wl_interface wp_fractional_scale_v1_interface;
+    wl_interface wp_fractional_scale_v1_interface;
 
-		int wp_fractional_scale_v1_add_listener(wp_fractional_scale_v1* self, wp_fractional_scale_v1_listener* listener, void* data) const
-		{
-			return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
-		}
+    int wp_fractional_scale_v1_add_listener(GfxrWpFractionalScaleV1* self, GfxrWpFractionalScaleV1Listener* listener, void* data) const
+    {
+        return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
+    }
 
-		void wp_fractional_scale_v1_destroy(wp_fractional_scale_v1* self) const
-		{
-			_wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
-			_wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
-		}
+    void wp_fractional_scale_v1_destroy(GfxrWpFractionalScaleV1* self) const
+    {
+        _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
+        _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
+    }
 
-		// Call this once libwayland-client is successfully loaded
+    // Call this once libwayland-client is successfully loaded
 
-		void initialize(const WaylandLoader* waylandLoader)
-		{
-			_wl = &waylandLoader->GetFunctionTable();
+    void initialize(const WaylandLoader* waylandLoader)
+    {
+        _wl = &waylandLoader->GetFunctionTable();
 
-			_messageArgs = {
-				&wp_fractional_scale_v1_interface,
-				_wl->surface_interface,
-				nullptr,
-			};
+        _messageArgs = {
+            &wp_fractional_scale_v1_interface,
+            _wl->surface_interface,
+            nullptr,
+        };
 
-			_messages = {
-				{ "destroy", "", _messageArgs.data() + 0 },
-				{ "get_fractional_scale", "no", _messageArgs.data() + 0 },
-				{ "destroy", "", _messageArgs.data() + 0 },
-				{ "preferred_scale", "u", _messageArgs.data() + 2 },
-			};
+        _messages = {
+            { "destroy", "", _messageArgs.data() + 0 },
+            { "get_fractional_scale", "no", _messageArgs.data() + 0 },
+            { "destroy", "", _messageArgs.data() + 0 },
+            { "preferred_scale", "u", _messageArgs.data() + 2 },
+        };
 
-			wp_fractional_scale_manager_v1_interface = { "wp_fractional_scale_manager_v1", 1, 2, _messages.data() + 0, 0, _messages.data() + 2 };
-			wp_fractional_scale_v1_interface = { "wp_fractional_scale_v1", 1, 1, _messages.data() + 2, 1, _messages.data() + 3 };
-		}
+        wp_fractional_scale_manager_v1_interface = { "wp_fractional_scale_manager_v1", 1, 2, _messages.data() + 0, 0, _messages.data() + 2 };
+        wp_fractional_scale_v1_interface = { "wp_fractional_scale_v1", 1, 1, _messages.data() + 2, 1, _messages.data() + 3 };
+    }
 };
 
 GFXRECON_END_NAMESPACE(util)
