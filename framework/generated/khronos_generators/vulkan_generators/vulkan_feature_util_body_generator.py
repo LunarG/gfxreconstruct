@@ -50,6 +50,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
 
         self.begin_end_file_data.specific_headers.extend((
             'graphics/vulkan_feature_util.h',
+            'graphics/vulkan_struct_get_pnext.h',
             '',
             'util/logging.h',
             '',
@@ -81,6 +82,12 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
         self.physical_device_features2_stypes = dict()
         # List of 1.0 features
         self.physical_device_features = []
+        self.is_extension = False
+
+    def beginFeature(self, interface, emit):
+        """Method override. Start processing in superclass."""
+        VulkanBaseGenerator.beginFeature(self, interface, emit)
+        self.is_extension = (interface.tag == 'extension')
 
     def endFile(self):
         """Method override."""
@@ -108,7 +115,8 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
                     self.physical_device_features2_stypes[typename] = {
                         'sType':
                         self.make_structure_type_enum(typeinfo, typename),
-                        'members': members
+                        'members': members,
+                        'extension': self.featureName if self.is_extension else None
                     }
 
             #  Get all core 1.0 features
@@ -210,6 +218,35 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
         result += '    if (!remove_unsupported && found_unsupported)\n'
         result += '    {\n'
         result += '        GFXRECON_LOG_WARNING("Unsupported features were requested. This might cause vkCreateDevice to fail. Try \\"--remove-unsupported\\" option to remove those features at replay.");\n'
+        result += '    }\n'
+        result += '}\n\n'
+
+        result += 'struct FeatureExtensionMapping {\n'
+        result += '    VkStructureType sType;\n'
+        result += '    const char* extensionName;\n'
+        result += '    const char* structName;\n'
+        result += '};\n\n'
+
+        result += 'static const FeatureExtensionMapping kFeatureExtensionMappings[] = {\n'
+        for typename, info in self.physical_device_features2_stypes.items():
+            ext = info['extension']
+            if ext:
+                result += '    {{ {}, "{}", "{}" }},\n'.format(info['sType'], ext, typename)
+        result += '};\n\n'
+
+        result += 'void FilterPNextFeatures(VkDeviceCreateInfo* createInfo,\n'
+        result += '                         const std::vector<const char*>& enabled_extensions)\n'
+        result += '{\n'
+        result += '    if (createInfo == nullptr) return;\n\n'
+        result += '    for (const auto& mapping : kFeatureExtensionMappings)\n'
+        result += '    {\n'
+        result += '        if (!IsSupportedExtension(enabled_extensions, mapping.extensionName))\n'
+        result += '        {\n'
+        result += '            if (vulkan_struct_remove_pnext_by_stype(createInfo, mapping.sType) != nullptr)\n'
+        result += '            {\n'
+        result += '                GFXRECON_LOG_INFO("Removed %s from pNext because %s is not enabled.", mapping.structName, mapping.extensionName);\n'
+        result += '            }\n'
+        result += '        }\n'
         result += '    }\n'
         result += '}'
         return result
