@@ -145,6 +145,10 @@ struct VulkanQueueFamilyFlags
     //! physical-device queue-flags, a property of the family itself
     std::unordered_map<uint32_t, VkQueueFlags> queue_family_properties_flags;
 
+    //! capture-device queue-flags, indexed by captured family-index. empty when the application
+    //! never queried them, in which case a substitute can only be chosen by generic capability.
+    std::vector<VkQueueFlags> capture_queue_family_properties_flags;
+
     std::vector<bool> queue_family_index_enabled;
 };
 /**

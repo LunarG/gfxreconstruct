@@ -352,6 +352,10 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 
     // keep track of queried surface-formats
     std::optional<std::vector<VkSurfaceFormatKHR>> surface_formats;
+
+    // capture-time queue-family properties, used to find a replay queue-family with matching capabilities.
+    // available whenever the application queried them, which trimmed captures replay from their state-block.
+    std::vector<VkQueueFamilyProperties> capture_queue_family_properties;
 };
 
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>

@@ -3815,6 +3815,17 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
     device_info->enabled_queue_family_flags.queue_family_index_enabled.clear();
     device_info->enabled_queue_family_flags.queue_family_index_enabled.resize(max_queue_family + 1, false);
 
+    // carry the capture-device's queue-family capabilities along, so a substituted family can be
+    // matched against what the application originally requested
+    auto& capture_family_flags = device_info->enabled_queue_family_flags.capture_queue_family_properties_flags;
+    capture_family_flags.clear();
+    capture_family_flags.reserve(physical_device_info->capture_queue_family_properties.size());
+
+    for (const VkQueueFamilyProperties& properties : physical_device_info->capture_queue_family_properties)
+    {
+        capture_family_flags.push_back(properties.queueFlags);
+    }
+
     uint32_t                             phys_dev_queue_families_count = 0;
     std::vector<VkQueueFamilyProperties> phys_dev_queue_props;
     table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &phys_dev_queue_families_count, nullptr);
@@ -4216,7 +4227,20 @@ uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo*  
         return queue_family_index;
     }
 
-    // prefer a graphics-capable family, fall back to the first usable one
+    // what the captured family could do, when the application queried it.
+    // -> a substitute should cover the same work-types.
+    // when unavailable: fallback to a graphics-capable family (guaranteed to exist).
+    const VkQueueFlags captured_queue_flags =
+        queue_family_index < family_flags.capture_queue_family_properties_flags.size()
+            ? family_flags.capture_queue_family_properties_flags[queue_family_index] & usable_queue_flags
+            : 0;
+
+    auto is_preferred = [&](uint32_t family_index) {
+        return captured_queue_flags != 0 ? (queue_flags(family_index) & captured_queue_flags) == captured_queue_flags
+                                         : (queue_flags(family_index) & VK_QUEUE_GRAPHICS_BIT) != 0;
+    };
+
+    // prefer a family covering the captured capabilities, fall back to the first usable one
     auto select_substitute = [&](bool require_flags) {
         uint32_t substitute = no_substitute;
 
@@ -4230,7 +4254,7 @@ uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo*  
             {
                 substitute = i;
             }
-            if (queue_flags(i) & VK_QUEUE_GRAPHICS_BIT)
+            if (is_preferred(i))
             {
                 return i;
             }
@@ -8274,6 +8298,58 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
         return allocator->SetDebugUtilsObjectTagEXT(device_info->handle, info, allocator_data);
     }
     return func(device_info->handle, info);
+}
+
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceQueueFamilyProperties(
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties           func,
+    decode::VulkanPhysicalDeviceInfo*                      physical_device_info,
+    PointerDecoder<uint32_t>*                              pQueueFamilyPropertyCount,
+    StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties)
+{
+    GFXRECON_ASSERT(physical_device_info != nullptr);
+
+    func(physical_device_info->handle,
+         pQueueFamilyPropertyCount->GetOutputPointer(),
+         pQueueFamilyProperties->GetOutputPointer());
+
+    // retain the capture-time properties, they describe what the application asked for
+    const uint32_t*                capture_count      = pQueueFamilyPropertyCount->GetPointer();
+    const VkQueueFamilyProperties* capture_properties = pQueueFamilyProperties->GetPointer();
+
+    if (capture_count != nullptr && capture_properties != nullptr)
+    {
+        physical_device_info->capture_queue_family_properties = { capture_properties,
+                                                                  capture_properties + *capture_count };
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceQueueFamilyProperties2(
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties2           func,
+    decode::VulkanPhysicalDeviceInfo*                       physical_device_info,
+    PointerDecoder<uint32_t>*                               pQueueFamilyPropertyCount,
+    StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
+{
+    GFXRECON_ASSERT(physical_device_info != nullptr);
+
+    func(physical_device_info->handle,
+         pQueueFamilyPropertyCount->GetOutputPointer(),
+         pQueueFamilyProperties->GetOutputPointer());
+
+    // retain the capture-time properties, they describe what the application asked for
+    const uint32_t*                 capture_count      = pQueueFamilyPropertyCount->GetPointer();
+    const VkQueueFamilyProperties2* capture_properties = pQueueFamilyProperties->GetPointer();
+
+    if (capture_count != nullptr && capture_properties != nullptr)
+    {
+        auto& properties = physical_device_info->capture_queue_family_properties;
+        properties.clear();
+        properties.reserve(*capture_count);
+
+        for (uint32_t i = 0; i < *capture_count; ++i)
+        {
+            properties.push_back(capture_properties[i].queueFamilyProperties);
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormatsKHR(

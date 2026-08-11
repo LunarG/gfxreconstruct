@@ -1053,6 +1053,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                const VulkanDeviceInfo*         device_info,
                                                StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* tag_info);
 
+    void OverrideGetPhysicalDeviceQueueFamilyProperties(
+        PFN_vkGetPhysicalDeviceQueueFamilyProperties           func,
+        decode::VulkanPhysicalDeviceInfo*                      physical_device_info,
+        PointerDecoder<uint32_t>*                              pQueueFamilyPropertyCount,
+        StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties);
+
+    void OverrideGetPhysicalDeviceQueueFamilyProperties2(
+        PFN_vkGetPhysicalDeviceQueueFamilyProperties2           func,
+        decode::VulkanPhysicalDeviceInfo*                       physical_device_info,
+        PointerDecoder<uint32_t>*                               pQueueFamilyPropertyCount,
+        StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties);
+
     VkResult
     OverrideGetPhysicalDeviceSurfaceFormatsKHR(PFN_vkGetPhysicalDeviceSurfaceFormatsKHR          func,
                                                VkResult                                          original_result,
