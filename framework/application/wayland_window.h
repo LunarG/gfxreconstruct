@@ -34,6 +34,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
+// Denominator of the fixed-point scale carried by wp_fractional_scale_v1::preferred_scale:
+// 120 is 1.0, 150 is 1.25, 180 is 1.5.
+constexpr uint32_t kFractionalScaleDenominator = 120;
+
 class WaylandWindow : public decode::Window
 {
   public:
@@ -45,7 +49,7 @@ class WaylandWindow : public decode::Window
 
     struct wl_shell_surface* GetShellSurface() const { return shell_surface_; }
 
-    struct xdg_toplevel* GetXdgToplevel() const { return xdg_toplevel_; }
+    util::XdgToplevel* GetXdgToplevel() const { return xdg_toplevel_; }
 
     virtual bool Create(const std::string& title,
                         const int32_t      x,
@@ -92,29 +96,45 @@ class WaylandWindow : public decode::Window
         void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);
     static void HandleShellSurfacePopupDone(void* data, wl_shell_surface* shell_surface);
 
-    static void HandleXdgSurfaceConfigure(void* data, struct xdg_surface* xdg_surface, uint32_t serial);
+    static void HandleXdgSurfaceConfigure(void* data, util::XdgSurface* xdg_surface, uint32_t serial);
 
     static void HandleXdgToplevelConfigure(
-        void* data, struct xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states);
-    static void HandleXdgToplevelClose(void* data, struct xdg_toplevel* xdg_toplevel);
+        void* data, util::XdgToplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states);
+    static void HandleXdgToplevelClose(void* data, util::XdgToplevel* xdg_toplevel);
+
+    static void
+    HandlePreferredScale(void* data, util::WpFractionalScaleV1* fractional_scale, uint32_t scale_fixed_point);
 
     void UpdateWindowSize();
 
+    // Recomputes the wp_viewport destination from the current buffer size and preferred scale.
+    // A no-op when the compositor does not support wp_viewporter.
+    void UpdateViewportDestination();
+
   private:
-    static struct wl_surface_listener       surface_listener_;
-    static struct wl_shell_surface_listener shell_surface_listener_;
-    static struct xdg_surface_listener      xdg_surface_listener_;
-    static struct xdg_toplevel_listener     xdg_toplevel_listener_;
-    WaylandContext*                         wayland_context_;
-    struct wl_surface*                      surface_;
-    struct wl_shell_surface*                shell_surface_;
-    struct xdg_surface*                     xdg_surface_;
-    struct xdg_toplevel*                    xdg_toplevel_;
-    uint32_t                                width_;
-    uint32_t                                height_;
-    int32_t                                 scale_;
-    struct wl_output*                       output_;
-    bool                                    xdg_surface_configured_;
+    static struct wl_surface_listener        surface_listener_;
+    static struct wl_shell_surface_listener  shell_surface_listener_;
+    static util::XdgSurfaceListener          xdg_surface_listener_;
+    static util::XdgToplevelListener         xdg_toplevel_listener_;
+    static util::WpFractionalScaleV1Listener fractional_scale_listener_;
+    WaylandContext*                          wayland_context_;
+    struct wl_surface*                       surface_;
+    struct wl_shell_surface*                 shell_surface_;
+    util::XdgSurface*                        xdg_surface_;
+    util::XdgToplevel*                       xdg_toplevel_;
+    util::WpViewport*                        viewport_;
+    util::WpFractionalScaleV1*               fractional_scale_;
+    // width_ and height_ are buffer dimensions, in device pixels. The logical size the window
+    // occupies is derived from them and scale_fixed_point_, the compositor's preferred scale as
+    // reported by wp_fractional_scale_v1::preferred_scale: a fixed-point value over a denominator
+    // of kFractionalScaleDenominator, so 120 is 1.0, 150 is 1.25, and 180 is 1.5. It defaults to a
+    // 1.0 scale, which is what applies until the compositor reports otherwise.
+    uint32_t          width_;
+    uint32_t          height_;
+    uint32_t          scale_fixed_point_;
+    int32_t           scale_;
+    struct wl_output* output_;
+    bool              xdg_surface_configured_;
 };
 
 class WaylandWindowFactory : public decode::WindowFactory
