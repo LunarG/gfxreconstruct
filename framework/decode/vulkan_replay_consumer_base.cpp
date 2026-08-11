@@ -4178,11 +4178,15 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     return result;
 }
 
-uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo* device_info, uint32_t queue_family_index)
+uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo*  device_info,
+                                                       uint32_t                 queue_family_index,
+                                                       VkDeviceQueueCreateFlags create_flags)
 {
     // queue-families that cannot run graphics, compute or transfer work are no substitute for a captured family,
     // even when the replay-device happens to provide the same family-index (e.g. compute -> video-decode).
     constexpr VkQueueFlags usable_queue_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
+
+    constexpr uint32_t no_substitute = std::numeric_limits<uint32_t>::max();
 
     const graphics::VulkanQueueFamilyFlags& family_flags = device_info->enabled_queue_family_flags;
 
@@ -4195,34 +4199,66 @@ uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo* d
                (queue_flags(family_index) & usable_queue_flags) != 0;
     };
 
-    if (is_usable(queue_family_index))
+    // queues are created per (family, flags), so a family only serves a request when it was created
+    // with the requested flags (e.g. a protected queue cannot come from an unprotected family-entry)
+    auto provides_flags = [&family_flags, create_flags](uint32_t family_index) {
+        auto it = family_flags.queue_family_queue_counts.find(family_index);
+        return it != family_flags.queue_family_queue_counts.end() && it->second.count(create_flags) != 0;
+    };
+
+    if (is_usable(queue_family_index) && provides_flags(queue_family_index))
     {
         return queue_family_index;
     }
 
     // prefer a graphics-capable family, fall back to the first usable one
-    uint32_t substitute = std::numeric_limits<uint32_t>::max();
+    auto select_substitute = [&](bool require_flags) {
+        uint32_t substitute = no_substitute;
 
-    for (uint32_t i = 0; i < family_flags.queue_family_index_enabled.size(); ++i)
-    {
-        if (is_usable(i))
+        for (uint32_t i = 0; i < family_flags.queue_family_index_enabled.size(); ++i)
         {
-            if (substitute == std::numeric_limits<uint32_t>::max())
+            if (!is_usable(i) || (require_flags && !provides_flags(i)))
+            {
+                continue;
+            }
+            if (substitute == no_substitute)
             {
                 substitute = i;
             }
             if (queue_flags(i) & VK_QUEUE_GRAPHICS_BIT)
             {
-                substitute = i;
-                break;
+                return i;
             }
+        }
+        return substitute;
+    };
+
+    uint32_t substitute = select_substitute(true);
+
+    if (substitute == no_substitute)
+    {
+        // nothing provides the requested flags, take a usable family regardless
+        substitute = select_substitute(false);
+
+        if (substitute != no_substitute)
+        {
+            GFXRECON_LOG_WARNING_ONCE("Queues were captured with VkDeviceQueueCreateFlags that no queue-family on the "
+                                      "replay-device was created with; they are substituted by families without those "
+                                      "flags and will be missing. Enable debug-logging for the individual cases.");
+            GFXRECON_LOG_DEBUG("No queue-family provides VkDeviceQueueCreateFlags 0x%x, captured family %u -> %u",
+                               create_flags,
+                               queue_family_index,
+                               substitute);
         }
     }
 
-    if (substitute == std::numeric_limits<uint32_t>::max())
+    if (substitute == no_substitute)
     {
-        GFXRECON_LOG_ERROR_ONCE("No queue-family on the replay-device can substitute for captured queue-family %u.",
-                                queue_family_index);
+        GFXRECON_LOG_ERROR_ONCE("No queue-family on the replay-device can substitute for the captured queue-families. "
+                                "Enable debug-logging for the individual cases.");
+        GFXRECON_LOG_DEBUG("No substitute for captured queue-family %u (VkDeviceQueueCreateFlags 0x%x)",
+                           queue_family_index,
+                           create_flags);
         return queue_family_index;
     }
 
@@ -4234,14 +4270,14 @@ uint32_t VulkanReplayConsumerBase::MapQueueFamilyIndex(const VulkanDeviceInfo* d
 }
 
 void VulkanReplayConsumerBase::MapDeviceQueue(const VulkanDeviceInfo*  device_info,
-                                              VkDeviceQueueCreateFlags create_flags,
                                               uint32_t&                queue_family_index,
-                                              uint32_t&                queue_index)
+                                              uint32_t&                queue_index,
+                                              VkDeviceQueueCreateFlags create_flags)
 {
     const uint32_t captured_family_index = queue_family_index;
     const uint32_t captured_queue_index  = queue_index;
 
-    queue_family_index = MapQueueFamilyIndex(device_info, queue_family_index);
+    queue_family_index = MapQueueFamilyIndex(device_info, queue_family_index, create_flags);
 
     // queue-counts are clamped to the replay-device at device-creation, which is reported there.
     // they are tracked per (family, flags), so look up the combination that was requested.
@@ -4288,7 +4324,7 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue      
     VkQueue* out_pQueue = pQueue->GetHandlePointer();
 
     // vkGetDeviceQueue can only retrieve queues created without flags
-    MapDeviceQueue(device_info, 0, queueFamilyIndex, queueIndex);
+    MapDeviceQueue(device_info, queueFamilyIndex, queueIndex, 0);
 
     func(device, queueFamilyIndex, queueIndex, out_pQueue);
 
@@ -4316,7 +4352,7 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2    
 
     VkDeviceQueueInfo2 modified_queue_info = *in_pQueueInfo;
     MapDeviceQueue(
-        device_info, modified_queue_info.flags, modified_queue_info.queueFamilyIndex, modified_queue_info.queueIndex);
+        device_info, modified_queue_info.queueFamilyIndex, modified_queue_info.queueIndex, modified_queue_info.flags);
 
     func(device, &modified_queue_info, out_pQueue);
 
@@ -10747,9 +10783,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateCommandPool(
         auto* command_pool_info         = reinterpret_cast<VulkanCommandPoolInfo*>(pCommandPool->GetConsumerData(0));
         command_pool_info->create_flags = create_info->flags;
 
-        modified_create_info                  = *create_info;
-        modified_create_info.queueFamilyIndex = MapQueueFamilyIndex(device_info, modified_create_info.queueFamilyIndex);
-        create_info                           = &modified_create_info;
+        modified_create_info = *create_info;
+        // a protected command-pool requires a queue-family that was created protected-capable
+        const VkDeviceQueueCreateFlags queue_create_flags =
+            (create_info->flags & VK_COMMAND_POOL_CREATE_PROTECTED_BIT) ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0;
+
+        modified_create_info.queueFamilyIndex =
+            MapQueueFamilyIndex(device_info, modified_create_info.queueFamilyIndex, queue_create_flags);
+        create_info = &modified_create_info;
     }
 
     return func(device_info->handle, create_info, GetAllocationCallbacks(pAllocator), pCommandPool->GetHandlePointer());

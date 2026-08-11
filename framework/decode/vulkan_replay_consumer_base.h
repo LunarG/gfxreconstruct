@@ -292,13 +292,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VulkanDeviceInfo*         device_info);
 
     // Map a captured queue-family index onto one the replay-device created and can run work on.
-    static uint32_t MapQueueFamilyIndex(const VulkanDeviceInfo* device_info, uint32_t queue_family_index);
+    static uint32_t MapQueueFamilyIndex(const VulkanDeviceInfo*  device_info,
+                                        uint32_t                 queue_family_index,
+                                        VkDeviceQueueCreateFlags create_flags);
 
     // Map a captured (queue-family, queue-index) pair onto a queue that exists on the replay-device.
     static void MapDeviceQueue(const VulkanDeviceInfo*  device_info,
-                               VkDeviceQueueCreateFlags create_flags,
                                uint32_t&                queue_family_index,
-                               uint32_t&                queue_index);
+                               uint32_t&                queue_index,
+                               VkDeviceQueueCreateFlags create_flags);
 
     void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
