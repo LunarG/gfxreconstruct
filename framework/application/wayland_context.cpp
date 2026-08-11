@@ -143,6 +143,16 @@ WaylandContext::~WaylandContext()
         wl.xdg->xdg_wm_base_destroy(xdg_wm_base_);
     }
 
+    if (fractional_scale_manager_)
+    {
+        wl.frac_scale->wp_fractional_scale_manager_v1_destroy(fractional_scale_manager_);
+    }
+
+    if (viewporter_)
+    {
+        wl.viewporter->wp_viewporter_destroy(viewporter_);
+    }
+
     if (compositor_)
     {
         wl.compositor_destroy(compositor_);
@@ -222,6 +232,17 @@ void WaylandContext::HandleRegistryGlobal(
         wayland_context->xdg_wm_base_ =
             reinterpret_cast<xdg_wm_base*>(wl.registry_bind(registry, id, &wl.xdg->xdg_wm_base_interface, 1));
         wl.xdg->xdg_wm_base_add_listener(wayland_context->xdg_wm_base_, &xdg_wm_base_listener_, wayland_context);
+    }
+    else if (util::platform::StringCompare(interface, wl.viewporter->wp_viewporter_interface.name) == 0)
+    {
+        wayland_context->viewporter_ = reinterpret_cast<wp_viewporter*>(
+            wl.registry_bind(registry, id, &wl.viewporter->wp_viewporter_interface, 1));
+    }
+    else if (util::platform::StringCompare(interface, wl.frac_scale->wp_fractional_scale_manager_v1_interface.name) ==
+             0)
+    {
+        wayland_context->fractional_scale_manager_ = reinterpret_cast<wp_fractional_scale_manager_v1*>(
+            wl.registry_bind(registry, id, &wl.frac_scale->wp_fractional_scale_manager_v1_interface, 1));
     }
     else if (util::platform::StringCompare(interface, wl.seat_interface->name) == 0)
     {
