@@ -65,16 +65,7 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
     functions_.get_image_subresource_layout          = device_table->GetImageSubresourceLayout;
     functions_.bind_image_memory                     = device_table->BindImageMemory;
     functions_.get_device_proc_addr                  = device_table->GetDeviceProcAddr;
-    functions_.get_device_queue                      = device_table->GetDeviceQueue;
-    functions_.create_command_pool                   = device_table->CreateCommandPool;
-    functions_.allocate_command_buffers              = device_table->AllocateCommandBuffers;
-    functions_.begin_command_buffer                  = device_table->BeginCommandBuffer;
     functions_.cmd_copy_buffer                       = device_table->CmdCopyBuffer;
-    functions_.cmd_copy_buffer_to_image              = device_table->CmdCopyBufferToImage;
-    functions_.end_command_buffer                    = device_table->EndCommandBuffer;
-    functions_.queue_submit                          = device_table->QueueSubmit;
-    functions_.free_command_buffers                  = device_table->FreeCommandBuffers;
-    functions_.destroy_command_pool                  = device_table->DestroyCommandPool;
     functions_.create_video_session                  = device_table->CreateVideoSessionKHR;
     functions_.destroy_video_session                 = device_table->DestroyVideoSessionKHR;
     functions_.bind_video_session_memory             = device_table->BindVideoSessionMemoryKHR;
@@ -97,17 +88,11 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
     functions_.get_acceleration_structure_memory_requirements_nv =
         device_table->GetAccelerationStructureMemoryRequirementsNV;
     functions_.queue_bind_sparse                           = device_table->QueueBindSparse;
-    functions_.create_semaphore                            = device_table->CreateSemaphore;
-    functions_.destroy_semaphore                           = device_table->DestroySemaphore;
     functions_.get_memory_fd                               = device_table->GetMemoryFdKHR;
     functions_.get_device_memory_opaque_capture_address    = device_table->GetDeviceMemoryOpaqueCaptureAddressKHR;
     functions_.get_physical_device_queue_family_properties = instance_table.GetPhysicalDeviceQueueFamilyProperties;
     functions_.set_debug_utils_object_name                 = instance_table.SetDebugUtilsObjectNameEXT;
     functions_.set_debug_utils_object_tag                  = instance_table.SetDebugUtilsObjectTagEXT;
-    functions_.get_android_hardware_buffer_properties      = device_table->GetAndroidHardwareBufferPropertiesANDROID;
-    functions_.create_fence                                = device_table->CreateFence;
-    functions_.wait_for_fences                             = device_table->WaitForFences;
-    functions_.destroy_fence                               = device_table->DestroyFence;
     functions_.create_tensor                               = device_table->CreateTensorARM;
     functions_.destroy_tensor                              = device_table->DestroyTensorARM;
     functions_.get_tensor_memory_requirements              = device_table->GetTensorMemoryRequirementsARM;

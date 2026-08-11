@@ -210,10 +210,14 @@ VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      
         cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         cmd_pool_info.queueFamilyIndex        = staging_queue_family_;
 
-        result = functions_.create_command_pool(device_, &cmd_pool_info, NULL, &cmd_pool_);
-        assert(result == VK_SUCCESS);
+        {
+            auto injected = device_table_.Open();
 
-        functions_.get_device_queue(device_, staging_queue_family_, 0, &staging_queue_);
+            result = injected->CreateCommandPool(device_, &cmd_pool_info, NULL, &cmd_pool_);
+            assert(result == VK_SUCCESS);
+
+            injected->GetDeviceQueue(device_, staging_queue_family_, 0, &staging_queue_);
+        }
 
         // Select creation flags from enabled extensions.
         bool have_memory_reqs2         = false;
@@ -269,7 +273,10 @@ VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      
 void VulkanRebindAllocator::Destroy()
 {
     ClearStagingResources();
-    functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
+    {
+        auto injected = device_table_.Open();
+        injected->DestroyCommandPool(device_, cmd_pool_, nullptr);
+    }
 
     if (allocator_ != VK_NULL_HANDLE)
     {
@@ -873,6 +880,7 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
+    auto injected = device_table_.Open();
     auto result =
         vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
@@ -1104,8 +1112,11 @@ VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_
     VkAndroidHardwareBufferPropertiesANDROID androidHardwareBufferProperties;
     androidHardwareBufferProperties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
     androidHardwareBufferProperties.pNext = nullptr;
-    functions_.get_android_hardware_buffer_properties(
-        device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
+    {
+        auto injected = device_table_.Open();
+        injected->GetAndroidHardwareBufferPropertiesANDROID(
+            device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
+    }
 
     VkMemoryAllocateInfo allocate_info{};
     allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -1198,6 +1209,7 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
+    auto injected = device_table_.Open();
     auto result =
         vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
@@ -2010,7 +2022,10 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
     cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     cmd_buff_alloc_info.commandBufferCount          = 1;
 
-    VkResult result = functions_.allocate_command_buffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
+    // Everything below is replay-synthesized staging work; one injected-commands window covers it all.
+    auto injected = device_table_.Open();
+
+    VkResult result = injected->AllocateCommandBuffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
 
     if (result == VK_SUCCESS)
     {
@@ -2050,7 +2065,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         VkCommandBufferBeginInfo cmd_buf_begin_info = {};
         cmd_buf_begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        result = functions_.begin_command_buffer(staging_resources.cmd_buffer, &cmd_buf_begin_info);
+        result = injected.BeginCommandBuffer(staging_resources.cmd_buffer, &cmd_buf_begin_info, __func__);
     }
 
     if (result == VK_SUCCESS)
@@ -2089,12 +2104,12 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                     region.imageSubresource  = { aspect_flags, 0, 0, 1 };
                     region.imageOffset       = { 0, 0, 0 };
                     region.imageExtent       = { 1, 1, 1 };
-                    functions_.cmd_copy_buffer_to_image(staging_resources.cmd_buffer,
-                                                        staging_resources.staging_buf,
-                                                        original_image,
-                                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                        1,
-                                                        &region);
+                    injected->CmdCopyBufferToImage(staging_resources.cmd_buffer,
+                                                   staging_resources.staging_buf,
+                                                   original_image,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                   1,
+                                                   &region);
                 }
             }
         }
@@ -2117,7 +2132,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                 copy_region.dstOffset = dst_offset;
                 copy_region.size      = data_size;
 
-                functions_.cmd_copy_buffer(
+                injected->CmdCopyBuffer(
                     staging_resources.cmd_buffer, staging_resources.staging_buf, original_buffer, 1, &copy_region);
             }
         }
@@ -2125,7 +2140,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
 
     if (result == VK_SUCCESS)
     {
-        result = functions_.end_command_buffer(staging_resources.cmd_buffer);
+        result = injected->EndCommandBuffer(staging_resources.cmd_buffer);
     }
 
     if (result == VK_SUCCESS)
@@ -2134,7 +2149,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
         result =
-            functions_.create_semaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
+            injected->CreateSemaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
     }
 
     if (result == VK_SUCCESS)
@@ -2142,7 +2157,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         VkFenceCreateInfo fence_create_info{};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-        result = functions_.create_fence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
+        result = injected->CreateFence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -2157,7 +2172,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         compute_submit_info.signalSemaphoreCount = 1;
         compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
 
-        result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
+        result = injected->QueueSubmit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -2192,6 +2207,7 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
         if (bound_memory_info->mapped_pointer == nullptr)
         {
             // After first map, the allocation will stay mapped until it is destroyed.
+            auto injected = device_table_.Open();
             result = vmaMapMemory(allocator_, bound_memory_info->allocation, &bound_memory_info->mapped_pointer);
         }
 
@@ -2298,7 +2314,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
     VmaMemoryInfo* bound_memory_info,
     VkDeviceSize   original_start,
     VkDeviceSize   original_end,
-    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult       (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult     result     = VK_SUCCESS;
     VkDeviceSize src_offset = 0;
@@ -2310,6 +2326,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
         if (bound_memory_info->mapped_pointer == nullptr)
         {
             // After first map, the allocation will stay mapped until it is destroyed.
+            auto injected = device_table_.Open();
             result = vmaMapMemory(allocator_, bound_memory_info->allocation, &bound_memory_info->mapped_pointer);
         }
 
@@ -2326,7 +2343,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
     uint32_t                   memory_range_count,
     const VkMappedMemoryRange* memory_ranges,
     const MemoryData*          allocator_datas,
-    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult                   (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult result = VK_SUCCESS;
 
@@ -2623,6 +2640,7 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
 
             if (mem_info->mapped_pointer == nullptr)
             {
+                auto injected = device_table_.Open();
                 result = vmaMapMemory(allocator_, mem_info->allocation, &mem_info->mapped_pointer);
             }
             else
@@ -3056,6 +3074,7 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
         {
             if (mem_info->allocation != VK_NULL_HANDLE)
             {
+                auto injected = device_table_.Open();
                 if (mem_info->mapped_pointer != nullptr)
                 {
                     vmaUnmapMemory(allocator_, mem_info->allocation);
@@ -3530,20 +3549,23 @@ void VulkanRebindAllocator::ClearStagingResources()
     {
         fences[i] = staging_resources_[i].staging_fence;
     }
-    functions_.wait_for_fences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
+    // Tearing down replay-synthesized staging resources; one injected-commands window covers it all.
+    auto injected = device_table_.Open();
+
+    injected->WaitForFences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
     std::vector<VkCommandBuffer> cmd_buffers_to_delete;
 
     for (auto& staging_resource : staging_resources_)
     {
         cmd_buffers_to_delete.push_back(staging_resource.cmd_buffer);
-        functions_.destroy_fence(device_, staging_resource.staging_fence, nullptr);
-        functions_.destroy_semaphore(device_, staging_resource.staging_semaphore, nullptr);
+        injected->DestroyFence(device_, staging_resource.staging_fence, nullptr);
+        injected->DestroySemaphore(device_, staging_resource.staging_semaphore, nullptr);
         vmaDestroyBuffer(allocator_, staging_resource.staging_buf, staging_resource.staging_alloc);
     }
-    functions_.free_command_buffers(device_,
-                                    cmd_pool_,
-                                    GFXRECON_NARROWING_CAST(uint32_t, cmd_buffers_to_delete.size()),
-                                    cmd_buffers_to_delete.data());
+    injected->FreeCommandBuffers(device_,
+                                 cmd_pool_,
+                                 GFXRECON_NARROWING_CAST(uint32_t, cmd_buffers_to_delete.size()),
+                                 cmd_buffers_to_delete.data());
     staging_resources_.clear();
 }
 
@@ -3789,6 +3811,7 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
+    auto injected = device_table_.Open();
     auto result =
         vmaAllocateMemory(allocator_, &replay_req, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
@@ -3947,6 +3970,7 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
             memory_info.alc_create_info                    = allocation_create_info;
             memory_info.offset_from_original_device_memory = 0;
 
+            auto injected = device_table_.Open();
             result = vmaAllocateMemory(allocator_,
                                        &memory_requirements.memoryRequirements,
                                        &allocation_create_info,
@@ -4077,6 +4101,7 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                         RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(tensor));
                         if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
                         {
+                            auto injected = device_table_.Open();
                             vmaFreeMemory(allocator_, vma_mem_info->allocation);
                             memory_alloc_info->vma_mem_infos.pop_back();
                         }

@@ -2409,15 +2409,12 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     auto device_table   = GetDeviceTable(device);
     assert((instance_table != nullptr) && (device_table != nullptr));
 
-    auto replay_device_info = physical_device_info->replay_device_info;
-    assert(replay_device_info->memory_properties);
-
     VkResult result = allocator->Initialize(physical_device_info,
                                             device,
                                             device_create_info,
                                             enabled_device_extensions,
                                             *instance_table,
-                                            GetDeviceTable(device));
+                                            device_table);
 
     if (result < 0)
     {

@@ -261,6 +261,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                         VkBuffer*                    buffer,
                                         ResourceData*                allocator_data) override
     {
+        auto injected = device_table_.Open();
         return CreateBuffer(create_info, allocation_callbacks, format::kNullHandleId, buffer, allocator_data);
     }
 
@@ -268,6 +269,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                      const VkAllocationCallbacks* allocation_callbacks,
                                      ResourceData                 allocator_data) override
     {
+        auto injected = device_table_.Open();
         DestroyBuffer(buffer, allocation_callbacks, allocator_data);
     }
 
@@ -276,6 +278,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                        VkImage*                     image,
                                        ResourceData*                allocator_data) override
     {
+        auto injected = device_table_.Open();
         return CreateImage(create_info, allocation_callbacks, format::kNullHandleId, image, allocator_data);
     }
 
@@ -283,6 +286,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                     const VkAllocationCallbacks* allocation_callbacks,
                                     ResourceData                 allocator_data) override
     {
+        auto injected = device_table_.Open();
         DestroyImage(image, allocation_callbacks, allocator_data);
     }
 
@@ -291,6 +295,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                           VkDeviceMemory*              memory,
                                           MemoryData*                  allocator_data) override
     {
+        auto injected = device_table_.Open();
         return AllocateMemory(allocate_info, allocation_callbacks, format::kNullHandleId, memory, allocator_data);
     }
 
@@ -298,6 +303,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                   const VkAllocationCallbacks* allocation_callbacks,
                                   MemoryData                   allocator_data) override
     {
+        auto injected = device_table_.Open();
         FreeMemory(memory, allocation_callbacks, allocator_data);
     }
 
@@ -308,6 +314,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                             MemoryData             allocator_memory_data,
                                             VkMemoryPropertyFlags* bind_memory_properties) override
     {
+        auto injected = device_table_.Open();
         return BindBufferMemory(buffer,
                                 memory,
                                 memory_offset,
@@ -324,6 +331,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                            MemoryData             allocator_memory_data,
                                            VkMemoryPropertyFlags* bind_memory_properties) override
     {
+        auto injected = device_table_.Open();
         return BindImageMemory(image,
                                memory,
                                memory_offset,
@@ -344,6 +352,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                    const VkMappedMemoryRange* memory_ranges,
                                                    const MemoryData*          allocator_datas) override
     {
+        auto injected = device_table_.Open();
         return FlushMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
     }
 
@@ -351,6 +360,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                         const VkMappedMemoryRange* memory_ranges,
                                                         const MemoryData*          allocator_datas) override
     {
+        auto injected = device_table_.Open();
         return InvalidateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
     }
 
@@ -398,6 +408,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                         VkTensorARM*                 tensor,
                                         ResourceData*                allocator_data) override
     {
+        auto injected = device_table_.Open();
         return CreateTensor(create_info, allocation_callbacks, format::kNullHandleId, tensor, allocator_data);
     }
 
@@ -405,6 +416,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                      const VkAllocationCallbacks* allocation_callbacks,
                                      ResourceData                 allocator_data) override
     {
+        auto injected = device_table_.Open();
         DestroyTensor(tensor, allocation_callbacks, allocator_data);
     }
 
@@ -414,6 +426,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                             const MemoryData*                allocator_memory_datas,
                                             VkMemoryPropertyFlags*           bind_memory_properties) override
     {
+        auto injected = device_table_.Open();
         return BindTensorMemory(
             bind_info_count, bind_infos, allocator_tensor_datas, allocator_memory_datas, bind_memory_properties);
     }

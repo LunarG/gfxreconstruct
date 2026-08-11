@@ -52,6 +52,9 @@ class VulkanResourceAllocator
   public:
     struct Functions
     {
+        PFN_vkGetPhysicalDeviceProperties                  get_physical_device_properties{ nullptr };
+        PFN_vkGetPhysicalDeviceMemoryProperties            get_physical_device_memory_properties{ nullptr };
+        PFN_vkGetPhysicalDeviceMemoryProperties2           get_physical_device_memory_properties2{ nullptr };
         PFN_vkAllocateMemory                               allocate_memory{ nullptr };
         PFN_vkFreeMemory                                   free_memory{ nullptr };
         PFN_vkGetDeviceMemoryCommitment                    get_device_memory_commitment{ nullptr };
@@ -67,6 +70,7 @@ class VulkanResourceAllocator
         PFN_vkGetBufferMemoryRequirements2                 get_buffer_memory_requirements2{ nullptr };
         PFN_vkBindBufferMemory                             bind_buffer_memory{ nullptr };
         PFN_vkBindBufferMemory2                            bind_buffer_memory2{ nullptr };
+        PFN_vkCmdCopyBuffer                                cmd_copy_buffer{ nullptr };
         PFN_vkCreateImage                                  create_image{ nullptr };
         PFN_vkDestroyImage                                 destroy_image{ nullptr };
         PFN_vkCreateVideoSessionKHR                        create_video_session{ nullptr };
@@ -78,6 +82,9 @@ class VulkanResourceAllocator
         PFN_vkBindImageMemory                              bind_image_memory{ nullptr };
         PFN_vkBindImageMemory2                             bind_image_memory2{ nullptr };
         PFN_vkBindVideoSessionMemoryKHR                    bind_video_session_memory{ nullptr };
+        PFN_vkGetInstanceProcAddr                          get_instance_proc_addr{ nullptr };
+        PFN_vkGetDeviceProcAddr                            get_device_proc_addr{ nullptr };
+        PFN_vkGetPhysicalDeviceQueueFamilyProperties       get_physical_device_queue_family_properties{ nullptr };
         PFN_vkSetDebugUtilsObjectNameEXT                   set_debug_utils_object_name{ nullptr };
         PFN_vkSetDebugUtilsObjectTagEXT                    set_debug_utils_object_tag{ nullptr };
         PFN_vkSetDeviceMemoryPriorityEXT                   set_device_memory_priority{ nullptr };
@@ -101,31 +108,6 @@ class VulkanResourceAllocator
         PFN_vkDestroyDataGraphPipelineSessionARM    destroy_data_graph_pipeline_session{ nullptr };
         PFN_vkGetDataGraphPipelineSessionBindPointRequirementsARM
             get_data_graph_pipeline_session_bind_point_requirements{ nullptr };
-
-        // ---------------------------------------------------------------------------------------
-
-        PFN_vkGetDeviceQueue                            get_device_queue{ nullptr };
-        PFN_vkCreateCommandPool                         create_command_pool{ nullptr };
-        PFN_vkAllocateCommandBuffers                    allocate_command_buffers{ nullptr };
-        PFN_vkBeginCommandBuffer                        begin_command_buffer{ nullptr };
-        PFN_vkEndCommandBuffer                          end_command_buffer{ nullptr };
-        PFN_vkQueueSubmit                               queue_submit{ nullptr };
-        PFN_vkCmdCopyBuffer                             cmd_copy_buffer{ nullptr };
-        PFN_vkCmdCopyBufferToImage                      cmd_copy_buffer_to_image{ nullptr };
-        PFN_vkFreeCommandBuffers                        free_command_buffers{ nullptr };
-        PFN_vkDestroyCommandPool                        destroy_command_pool{ nullptr };
-        PFN_vkCreateSemaphore                           create_semaphore{ nullptr };
-        PFN_vkDestroySemaphore                          destroy_semaphore{ nullptr };
-        PFN_vkCreateFence                               create_fence{ nullptr };
-        PFN_vkDestroyFence                              destroy_fence{ nullptr };
-        PFN_vkWaitForFences                             wait_for_fences{ nullptr };
-        PFN_vkGetPhysicalDeviceQueueFamilyProperties    get_physical_device_queue_family_properties{ nullptr };
-        PFN_vkGetAndroidHardwareBufferPropertiesANDROID get_android_hardware_buffer_properties{ nullptr };
-        PFN_vkGetPhysicalDeviceProperties               get_physical_device_properties{ nullptr };
-        PFN_vkGetPhysicalDeviceMemoryProperties         get_physical_device_memory_properties{ nullptr };
-        PFN_vkGetPhysicalDeviceMemoryProperties2        get_physical_device_memory_properties2{ nullptr };
-        PFN_vkGetInstanceProcAddr                       get_instance_proc_addr{ nullptr };
-        PFN_vkGetDeviceProcAddr                         get_device_proc_addr{ nullptr };
     };
 
   public:
