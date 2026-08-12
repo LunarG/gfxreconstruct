@@ -8688,6 +8688,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     swapchain_info->height             = modified_create_info.imageExtent.height;
     swapchain_info->format             = modified_create_info.imageFormat;
 
+    if (const auto* format_list = graphics::vulkan_struct_get_pnext<VkImageFormatListCreateInfo>(replay_create_info);
+        format_list != nullptr && format_list->viewFormatCount > 0)
+    {
+        swapchain_info->supported_view_formats.assign(format_list->pViewFormats,
+                                                      format_list->pViewFormats + format_list->viewFormatCount);
+    }
+
     // Track the application's original intended pre-transform instead of modified_create_info.preTransform.
     // When replaying Android traces on Desktop, the WSI layer may override the transform to IDENTITY since Desktop
     // surfaces often don't support rotation. However, the captured drawing commands remain rotated, so we must
@@ -8831,16 +8838,16 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
                     break;
                 }
 
-                image_info->format             = swapchain_info->format;
-                image_info->extent             = { swapchain_info->width, swapchain_info->height, 1 };
-                image_info->layer_count        = swapchain_info->image_array_layers;
-                image_info->level_count        = 1;
-                image_info->tiling             = VK_IMAGE_TILING_OPTIMAL;
-                image_info->usage              = swapchain_info->image_usage;
-                image_info->sample_count       = VK_SAMPLE_COUNT_1_BIT;
-                image_info->type               = VK_IMAGE_TYPE_2D;
-                image_info->current_layout     = VK_IMAGE_LAYOUT_UNDEFINED;
-                image_info->is_swapchain_image = true;
+                image_info->format         = swapchain_info->format;
+                image_info->extent         = { swapchain_info->width, swapchain_info->height, 1 };
+                image_info->layer_count    = swapchain_info->image_array_layers;
+                image_info->level_count    = 1;
+                image_info->tiling         = VK_IMAGE_TILING_OPTIMAL;
+                image_info->usage          = swapchain_info->image_usage;
+                image_info->sample_count   = VK_SAMPLE_COUNT_1_BIT;
+                image_info->type           = VK_IMAGE_TYPE_2D;
+                image_info->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+                image_info->swapchain_id   = swapchain_info->capture_id;
 
                 // Create a copy of the image info to use for image cleanup when the swapchain is destroyed.
                 swapchain_info->image_infos.push_back(*image_info);
@@ -8873,16 +8880,16 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
                 auto* image_info = static_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 GFXRECON_ASSERT(image_info != nullptr);
 
-                image_info->format             = swapchain_info->format;
-                image_info->extent             = { swapchain_info->width, swapchain_info->height, 1 };
-                image_info->layer_count        = swapchain_info->image_array_layers;
-                image_info->level_count        = 1;
-                image_info->tiling             = VK_IMAGE_TILING_OPTIMAL;
-                image_info->usage              = swapchain_info->image_usage;
-                image_info->sample_count       = VK_SAMPLE_COUNT_1_BIT;
-                image_info->type               = VK_IMAGE_TYPE_2D;
-                image_info->current_layout     = VK_IMAGE_LAYOUT_UNDEFINED;
-                image_info->is_swapchain_image = true;
+                image_info->format         = swapchain_info->format;
+                image_info->extent         = { swapchain_info->width, swapchain_info->height, 1 };
+                image_info->layer_count    = swapchain_info->image_array_layers;
+                image_info->level_count    = 1;
+                image_info->tiling         = VK_IMAGE_TILING_OPTIMAL;
+                image_info->usage          = swapchain_info->image_usage;
+                image_info->sample_count   = VK_SAMPLE_COUNT_1_BIT;
+                image_info->type           = VK_IMAGE_TYPE_2D;
+                image_info->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+                image_info->swapchain_id   = swapchain_info->capture_id;
             }
 
             // Store image handles for screenshot generation.
@@ -11456,19 +11463,37 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
             modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
         }
     }
-    else if (img_info->is_swapchain_image && img_info->format != modified_create_info.format)
+    else if (img_info->swapchain_id != format::kNullHandleId)
     {
-        // for swapchain-images set image-view to a fallback format, avoid issues with distorted HDR/SRGB colors.
-        // when the swapchain fell back to a BGRA8 format we preserve the captured view's sRGB-ness; for any other
-        // fallback format we match the swapchain image format exactly to keep the view format-compatible.
-        if (img_info->format == VK_FORMAT_B8G8R8A8_UNORM || img_info->format == VK_FORMAT_B8G8R8A8_SRGB)
+        auto* swapchain_info = GetObjectInfoTable().GetVkSwapchainKHRInfo(img_info->swapchain_id);
+        GFXRECON_ASSERT(swapchain_info != nullptr);
+
+        // If the CreateSwapchainKHR has VkImageFormatListCreateInfo, the swapchain could support multiple view formats.
+        // The view format doesn't have to be the same as the swapchain image format.
+        if (!swapchain_info->supported_view_formats.empty())
         {
-            modified_create_info.format =
-                vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
+            const auto found = std::find(swapchain_info->supported_view_formats.begin(),
+                                         swapchain_info->supported_view_formats.end(),
+                                         modified_create_info.format);
+            if (found == swapchain_info->supported_view_formats.end())
+            {
+                modified_create_info.format = swapchain_info->supported_view_formats[0];
+            }
         }
         else
         {
-            modified_create_info.format = img_info->format;
+            // for swapchain-images set image-view to a fallback format, avoid issues with distorted HDR/SRGB colors.
+            // when the swapchain fell back to a BGRA8 format we preserve the captured view's sRGB-ness; for any other
+            // fallback format we match the swapchain image format exactly to keep the view format-compatible.
+            if (img_info->format == VK_FORMAT_B8G8R8A8_UNORM || img_info->format == VK_FORMAT_B8G8R8A8_SRGB)
+            {
+                modified_create_info.format =
+                    vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
+            }
+            else
+            {
+                modified_create_info.format = img_info->format;
+            }
         }
     }
 
