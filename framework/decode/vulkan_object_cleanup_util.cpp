@@ -52,7 +52,7 @@ void AddChildObject<VulkanImageInfo>(
 {
     assert(objects != nullptr);
 
-    if (!info->is_swapchain_image)
+    if (info->swapchain_id == format::kNullHandleId)
     {
         (*objects)[info->parent_id].insert(std::make_pair(info->handle, info));
     }

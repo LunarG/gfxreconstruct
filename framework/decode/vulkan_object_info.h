@@ -469,7 +469,7 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 
-    bool is_swapchain_image{ false };
+    format::HandleId swapchain_id{ format::kNullHandleId };
 
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
@@ -639,6 +639,7 @@ struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t             width{ 0 };
     uint32_t             height{ 0 };
     VkFormat             format{ VK_FORMAT_UNDEFINED };
+    std::vector<VkFormat> supported_view_formats; // Based on VkImageFormatListCreateInfo
     std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 

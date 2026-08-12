@@ -47,9 +47,11 @@ class SwapchainData : public BaseReplayData<XrSwapchain>
     void
     InitSwapchainData(const GraphicsBinding& binding, const XrSwapchainCreateInfo& info, XrSwapchain replay_handle);
     XrResult ImportReplaySwapchain(StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images);
-    XrResult InitVirtualSwapchain(PointerDecoder<uint32_t>*                                 imageCountOutput,
+    XrResult InitVirtualSwapchain(format::HandleId                                          swapchain_id,
+                                  PointerDecoder<uint32_t>*                                 imageCountOutput,
                                   StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* capture_images);
-    XrResult InitVirtualSwapchain(PointerDecoder<uint32_t>*                                imageCountOutput,
+    XrResult InitVirtualSwapchain(format::HandleId                                         swapchain_id,
+                                  PointerDecoder<uint32_t>*                                imageCountOutput,
                                   StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>* vk_capture_images);
     XrResult AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index);
     XrResult ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo);
