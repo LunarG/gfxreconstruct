@@ -354,10 +354,35 @@ void WaylandWindow::UpdateWindowSize()
         // Only the fallback path drives the buffer scale. When a viewport is in use the buffer
         // stays at scale 1 and UpdateViewportDestination owns the sizing, including the
         // fractional case that wl_output::scale cannot express.
-        if (viewport_ == nullptr && output_info.scale > 0 && output_info.scale != scale_)
+        if (viewport_ == nullptr)
         {
-            wl.surface_set_buffer_scale(surface_, output_info.scale);
-            scale_ = output_info.scale;
+            // wl_surface::set_buffer_scale requires every buffer attached afterwards to divide
+            // evenly by the scale. One that does not is wl_surface::invalid_size, a fatal protocol
+            // error that takes down the connection and, with it, the replay device. Buffer
+            // dimensions come from the capture, and captures recorded in a browser routinely carry
+            // an odd canvas dimension, so decline a scale the current size cannot satisfy and
+            // present unscaled instead. Both this and SetSize reach here, so the decision is
+            // re-made whenever either the size or the output changes.
+            int32_t desired_scale = 1;
+            if ((output_info.scale > 0) && ((width_ % static_cast<uint32_t>(output_info.scale)) == 0) &&
+                ((height_ % static_cast<uint32_t>(output_info.scale)) == 0))
+            {
+                desired_scale = output_info.scale;
+            }
+            else if (output_info.scale > 1)
+            {
+                GFXRECON_LOG_DEBUG("Wayland output scale %d cannot divide the %ux%u replay buffer; presenting at "
+                                   "scale 1 to avoid a fatal wl_surface::invalid_size protocol error",
+                                   output_info.scale,
+                                   width_,
+                                   height_);
+            }
+
+            if (desired_scale != scale_)
+            {
+                wl.surface_set_buffer_scale(surface_, desired_scale);
+                scale_ = desired_scale;
+            }
         }
 
         if (output_info.width == width_ && output_info.height == height_)
