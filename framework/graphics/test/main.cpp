@@ -176,4 +176,54 @@ TEST_CASE("FilterPNextFeatures - remove unsupported", "[feature_util]")
         REQUIRE(mixed_create_info.pNext == &group_create_info);
         REQUIRE(group_create_info.pNext == nullptr);
     }
+
+    SECTION("Multi-extension mapping - kept when either extension is enabled")
+    {
+        VkPhysicalDeviceRobustness2FeaturesKHR robustness2_features = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR, nullptr
+        };
+        VkDeviceCreateInfo rob_create_info = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, &robustness2_features };
+
+        // Test with only VK_EXT_robustness2 enabled
+        std::vector<const char*> enabled_ext = { "VK_EXT_robustness2" };
+        gfxrecon::graphics::feature_util::FilterPNextFeatures(&rob_create_info, enabled_ext);
+        REQUIRE(rob_create_info.pNext == &robustness2_features);
+
+        // Test with only VK_KHR_robustness2 enabled
+        rob_create_info.pNext                = &robustness2_features;
+        std::vector<const char*> enabled_khr = { "VK_KHR_robustness2" };
+        gfxrecon::graphics::feature_util::FilterPNextFeatures(&rob_create_info, enabled_khr);
+        REQUIRE(rob_create_info.pNext == &robustness2_features);
+
+        // Test with neither enabled - should be removed
+        rob_create_info.pNext                 = &robustness2_features;
+        std::vector<const char*> enabled_none = { "VK_KHR_surface" };
+        gfxrecon::graphics::feature_util::FilterPNextFeatures(&rob_create_info, enabled_none);
+        REQUIRE(rob_create_info.pNext == nullptr);
+    }
+
+    SECTION("Ratified EXT extension retains vendor-aliased feature structure")
+    {
+        VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT raster_features = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT, nullptr
+        };
+        VkDeviceCreateInfo raster_create_info = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, &raster_features };
+
+        // Test with only ratified VK_EXT_rasterization_order_attachment_access enabled
+        std::vector<const char*> enabled_ratified = { "VK_EXT_rasterization_order_attachment_access" };
+        gfxrecon::graphics::feature_util::FilterPNextFeatures(&raster_create_info, enabled_ratified);
+        REQUIRE(raster_create_info.pNext == &raster_features);
+
+        // Test with vendor VK_ARM_rasterization_order_attachment_access enabled
+        raster_create_info.pNext             = &raster_features;
+        std::vector<const char*> enabled_arm = { "VK_ARM_rasterization_order_attachment_access" };
+        gfxrecon::graphics::feature_util::FilterPNextFeatures(&raster_create_info, enabled_arm);
+        REQUIRE(raster_create_info.pNext == &raster_features);
+
+        // Test with neither enabled
+        raster_create_info.pNext              = &raster_features;
+        std::vector<const char*> enabled_none = {};
+        gfxrecon::graphics::feature_util::FilterPNextFeatures(&raster_create_info, enabled_none);
+        REQUIRE(raster_create_info.pNext == nullptr);
+    }
 }
