@@ -120,7 +120,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+    bool PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                            const VulkanSemaphoreInfo*                 semaphore_info,
                            const VulkanImageInfo*                     image_info,
                            VulkanInstanceInfo*                        instance_info,

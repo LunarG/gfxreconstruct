@@ -11679,6 +11679,8 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         screenshot_handler_->EndFrame();
     }
 
+    bool presented_ad_hoc = false;
+
     if (options_.swapchain_option == util::SwapchainOption::kVirtual)
     {
         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
@@ -11692,16 +11694,17 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-        swapchain_->PresentImageAdHoc(device_info,
-                                      semaphore_info,
-                                      image_info,
-                                      instance_info,
-                                      instance_table,
-                                      GetInjectedDeviceCalls(device_info->handle),
-                                      application_.get(),
-                                      {});
+        presented_ad_hoc = swapchain_->PresentImageAdHoc(device_info,
+                                                         semaphore_info,
+                                                         image_info,
+                                                         instance_info,
+                                                         instance_table,
+                                                         GetInjectedDeviceCalls(device_info->handle),
+                                                         application_.get(),
+                                                         {});
     }
-    else
+
+    if (!presented_ad_hoc)
     {
         VkDevice    device    = device_info->handle;
         VkSemaphore semaphore = semaphore_info ? semaphore_info->handle : VK_NULL_HANDLE;

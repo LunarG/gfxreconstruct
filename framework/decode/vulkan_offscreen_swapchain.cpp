@@ -271,7 +271,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     return result;
 }
 
-void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+bool VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                                  const VulkanSemaphoreInfo*                 semaphore_info,
                                                  const VulkanImageInfo*                     image_info,
                                                  VulkanInstanceInfo*                        instance_info,
@@ -290,6 +290,7 @@ void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*        
     GFXRECON_UNREFERENCED_PARAMETER(scale);
 
     GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
+    return false;
 }
 
 VkResult VulkanOffscreenSwapchain::SignalAcquireNextImageSemaphoreFence(const VulkanDeviceInfo* device_info,

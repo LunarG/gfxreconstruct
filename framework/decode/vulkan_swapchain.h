@@ -174,7 +174,7 @@ class VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) = 0;
 
-    virtual void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+    virtual bool PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                    const VulkanSemaphoreInfo*                 semaphore_info,
                                    const VulkanImageInfo*                     image_info,
                                    VulkanInstanceInfo*                        instance_info,
