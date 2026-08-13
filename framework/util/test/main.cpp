@@ -32,13 +32,9 @@
 #include "util/to_string.h"
 #include "util/strings.h"
 #include "util/date_time.h"
+#include "util/file_path.h"
 #include "util/logging.h"
 #include "generated/generated_vulkan_enum_to_string.h"
-
-#ifdef __ANDROID__
-#include <unistd.h>
-#include <sys/types.h>
-#endif
 
 using namespace gfxrecon::util::strings;
 using namespace gfxrecon::util::datetime;
@@ -422,12 +418,8 @@ TEST_CASE("ExpandPathVariables", "[strings]")
     // Empty AppName
     REQUIRE(ExpandPathVariables(info, "${AppName}/file.gfxr") == "/file.gfxr");
 #ifdef __ANDROID__
-    {
-        uid_t       uid                     = getuid();
-        uid_t       user_id                 = uid / 100000;
-        std::string expected_empty_internal = "//data/user/" + std::to_string(user_id) + "/";
-        REQUIRE(ExpandPathVariables(info, "${AppName}/${InternalDataPath}") == expected_empty_internal);
-    }
+    REQUIRE(ExpandPathVariables(info, "${AppName}/${InternalDataPath}") ==
+            "//data/user/" + std::to_string(filepath::GetAndroidUserId()) + "/");
 #endif
 
 #define APP_NAME "com.example.app"
@@ -435,11 +427,9 @@ TEST_CASE("ExpandPathVariables", "[strings]")
     strncpy(info.AppName, app_name, std::strlen(app_name));
 
 #ifdef __ANDROID__
-    uid_t             uid               = getuid();
-    uid_t             user_id           = uid / 100000;
-    const std::string expected_internal = "/data/user/" + std::to_string(user_id) + "/" APP_NAME;
-    const std::string expected_external =
-        "/storage/emulated/" + std::to_string(user_id) + "/Android/data/" APP_NAME "/files";
+    const std::string expected_internal = "/data/user/" + std::to_string(filepath::GetAndroidUserId()) + "/" APP_NAME;
+#else
+    const std::string expected_internal = "/data/data/" APP_NAME;
 #endif
 
     // No variables
@@ -462,8 +452,6 @@ TEST_CASE("ExpandPathVariables", "[strings]")
     // Mixed known and unknown variables
     REQUIRE(ExpandPathVariables(info, "${AppName}/${UnknownVar}/${InternalDataPath}") ==
             APP_NAME "/${UnknownVar}/" + expected_internal);
-    // ExternalDataPath variable
-    REQUIRE(ExpandPathVariables(info, "${ExternalDataPath}/file.gfxr") == expected_external + "/file.gfxr");
 #endif
 
     Log::Release();

@@ -599,7 +599,6 @@ enum PathVariable : uint32_t
 {
     kAppName,
     kInternalDataPath,
-    kExternalDataPath,
 
     kMaxValue,
 };
@@ -611,7 +610,6 @@ std::vector<const char*> GetPathVariables()
 
     path_variables[PathVariable::kAppName]          = "${AppName}";
     path_variables[PathVariable::kInternalDataPath] = "${InternalDataPath}";
-    path_variables[PathVariable::kExternalDataPath] = "${ExternalDataPath}";
 
     return path_variables;
 }
@@ -619,9 +617,9 @@ std::vector<const char*> GetPathVariables()
 #ifdef __ANDROID__
 // Android user ID is determined by dividing UID by 100,000 (PER_USER_RANGE).
 // We resolve this dynamically to support multi-user profiles.
-static uid_t GetAndroidUserId()
+uid_t GetAndroidUserId()
 {
-    return getuid() / 100000;
+    return getuid() / kPerUserRange;
 }
 #endif
 
@@ -655,17 +653,6 @@ std::string ExpandPathVariables(const FileInfo& info, const std::string& path)
                         "Unimplemented path variable pattern: %s. This pattern is only supported on Android.", pattern);
 #endif
                 break;
-                case PathVariable::kExternalDataPath:
-#ifdef __ANDROID__
-                {
-                    replacement = "/storage/emulated/" + std::to_string(GetAndroidUserId()) + "/Android/data/" +
-                                  std::string(info.AppName) + "/files";
-                }
-#else
-                    GFXRECON_LOG_WARNING(
-                        "Unimplemented path variable pattern: %s. This pattern is only supported on Android.", pattern);
-#endif
-                    break;
                 default:
                     GFXRECON_LOG_WARNING("Unimplemented path variable pattern: %s", pattern);
             }
