@@ -267,15 +267,24 @@ void UpdateWindowSize(uint32_t width,
                          XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
                          values);
 
-    // Wait until the window size has changed
-    while (true) {
+    // Wait until the window size has changed.  A window manager can refuse the
+    // request, so give up after a limited time instead of waiting forever.
+    const uint32_t kMaxWaitIterations = 200; // 200 * 5 ms = 1 second
+    for (uint32_t wait = 0; wait < kMaxWaitIterations; ++wait) {
       xcb_get_geometry_cookie_t geometryCookie =
           xcb_get_geometry(appdata.connection, appdata.window);
       xcb_get_geometry_reply_t* geometry =
           xcb_get_geometry_reply(appdata.connection, geometryCookie, NULL);
 
-      if (geometry != NULL && geometry->width != appdata.width ||
-          geometry->height != appdata.height) {
+      if (geometry == NULL) {
+        break;
+      }
+
+      bool size_changed = (geometry->width != appdata.width) ||
+                          (geometry->height != appdata.height);
+      free(geometry);
+
+      if (size_changed) {
         break;
       }
       usleep(5000);
@@ -1746,11 +1755,26 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
     VkResult result = VK_SUCCESS;
     if (expected_result == VK_SUCCESS)
     {
-        while ((result = loaded_vkAcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, replay_index)) !=
-               VK_SUCCESS)
+        // Retry only while the runtime has no image ready.  VK_SUBOPTIMAL_KHR is a
+        // success code, so it must not cause a retry.  A retry after a success also
+        // signals the semaphore a second time, which is not valid.
+        do
         {
-            usleep(5000);
-        };
+            result = loaded_vkAcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, replay_index);
+            if (result == VK_TIMEOUT || result == VK_NOT_READY)
+            {
+                usleep(5000);
+                continue;
+            }
+            break;
+        } while (true);
+
+        if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        {
+            printf("ERROR: vkAcquireNextImageKHR returned %d for swapchain %p\n",
+                   static_cast<int>(result),
+                   static_cast<void*>(swapchain));
+        }
     }
     else
     {
@@ -1758,8 +1782,10 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
     }
 
 #if USE_VIRTUAL_SWAPCHAIN
-    // Record the capture versus replay indices
-    if (result == VK_SUCCESS && g_swapchain_info.find(swapchain) != g_swapchain_info.end())
+    // Record the capture versus replay indices.  VK_SUBOPTIMAL_KHR still gives a
+    // valid image, so it must record the index as well.
+    if ((result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) &&
+        g_swapchain_info.find(swapchain) != g_swapchain_info.end())
     {
         ToCppSwapchainInfo* swapchain_info     = g_swapchain_info[swapchain];
         uint32_t            replay_image_index = *replay_index;
