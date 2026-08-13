@@ -26,7 +26,7 @@ EOF
 curl -L \
 	-O "https://github.com/facebook/zstd/releases/download/v$ZSTD/zstd-$ZSTD.tar.gz" \
 	-O "https://github.com/lz4/lz4/releases/download/v$LZ4/lz4-$LZ4.tar.gz" \
-	-O "https://www.zlib.net/zlib-$ZLIB.tar.gz" \
+	-O "https://github.com/madler/zlib/releases/download/v$ZLIB/zlib-$ZLIB.tar.gz" \
 
 shasum -a 256 --check SHASUMS
 
