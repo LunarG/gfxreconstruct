@@ -29,6 +29,7 @@
 #include <unordered_map>
 
 #include "decode/vulkan_object_info.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_semaphore_util.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_submit_info_helper.h"
@@ -211,7 +212,8 @@ class VulkanSubmitJobExecutor
      * @param device_info Pointer to VulkanDeviceInfo for the device this executor manages.
      * @param device_table Pointer to the Vulkan device dispatch table used to create/destroy resources.
      */
-    VulkanSubmitJobExecutor(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* device_table);
+    VulkanSubmitJobExecutor(const VulkanDeviceInfo*                    device_info,
+                            const graphics::VulkanInjectedDeviceCalls& device_table);
 
     /**
      * @brief Create a short-lived execution object for a single queue-submit call.
@@ -254,8 +256,8 @@ class VulkanSubmitJobExecutor
     void PruneSignaledTimelineSemaphoreInfos();
 
   private:
-    const VulkanDeviceInfo*            device_info_  = nullptr;
-    const graphics::VulkanDeviceTable* device_table_ = nullptr;
+    const VulkanDeviceInfo*             device_info_ = nullptr;
+    graphics::VulkanInjectedDeviceCalls device_table_;
 
     std::vector<std::unique_ptr<VulkanInjectedSemaphore>>     injected_semaphores_;
     std::vector<std::unique_ptr<VulkanInjectedSemaphoreInfo>> injected_semaphore_infos_;

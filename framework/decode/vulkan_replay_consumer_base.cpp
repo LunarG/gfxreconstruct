@@ -363,11 +363,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     // Finally destroy vkInstances
     object_cleanup::FreeAllLiveInstances(
-        object_info_table_,
-        false,
-        true,
-        [this](const void* handle) { return GetInstanceTable(handle); },
-        [this](const void* handle) { return GetDeviceTable(handle); });
+        object_info_table_, false, true, [this](const void* handle) { return GetInstanceTable(handle); });
 
     if (loader_handle_ != nullptr)
     {
@@ -1078,9 +1074,6 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
         auto allocator = device_info->allocator.get();
         GFXRECON_ASSERT(allocator != nullptr);
 
-        auto table = GetDeviceTable(device);
-        GFXRECON_ASSERT(table != nullptr);
-
         VkPhysicalDevice physical_device = device_info->parent;
         GFXRECON_ASSERT(physical_device != VK_NULL_HANDLE);
 
@@ -1102,15 +1095,14 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
             have_shader_stencil_write = true;
         }
 
-        device_info->resource_initializer =
-            std::make_shared<VulkanResourceInitializer>(device_info,
-                                                        total_copy_size,
-                                                        max_copy_size,
-                                                        properties,
-                                                        memory_properties,
-                                                        have_shader_stencil_write,
-                                                        allocator,
-                                                        graphics::VulkanInjectedDeviceCalls(table));
+        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(device_info,
+                                                                                        total_copy_size,
+                                                                                        max_copy_size,
+                                                                                        properties,
+                                                                                        memory_properties,
+                                                                                        have_shader_stencil_write,
+                                                                                        allocator,
+                                                                                        GetInjectedDeviceCalls(device));
     }
 }
 
@@ -12411,7 +12403,8 @@ VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(co
 
     auto [new_it, success] = device_command_buffer_utils_.insert(
         { device_info,
-          VulkanCommandBufferUtil(device_info, GetDeviceTable(device_info->handle), object_info_table_, decoder) });
+          VulkanCommandBufferUtil(
+              device_info, GetInjectedDeviceCalls(device_info->handle), object_info_table_, decoder) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
@@ -12424,7 +12417,7 @@ VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(co
     }
 
     auto [new_it, success] = device_submit_job_executors_.insert(
-        { device_info, VulkanSubmitJobExecutor(device_info, GetDeviceTable(device_info->handle)) });
+        { device_info, VulkanSubmitJobExecutor(device_info, GetInjectedDeviceCalls(device_info->handle)) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }
