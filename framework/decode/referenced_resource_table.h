@@ -126,6 +126,10 @@ class ReferencedResourceTable
 
     bool IsUsed(const ResourceInfo* resource_info) const;
 
+    void ProcessUserSubmission(format::HandleId user_id, std::unordered_set<format::HandleId>& processed_users);
+
+    static void MarkResourceUsed(ResourceInfo* resource_info);
+
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceInfo>>          resources_;
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceContainerInfo>> containers_;
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceUserInfo>>      users_;

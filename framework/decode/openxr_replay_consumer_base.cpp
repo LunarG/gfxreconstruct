@@ -1443,7 +1443,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
     XrResult result = swapchain_data.ImportReplaySwapchain(images);
     if (XR_SUCCEEDED(result))
     {
-        result = swapchain_data.InitVirtualSwapchain(imageCountOutput, images);
+        result = swapchain_data.InitVirtualSwapchain(swapchain, imageCountOutput, images);
     }
 
     if (!XR_SUCCEEDED(result))

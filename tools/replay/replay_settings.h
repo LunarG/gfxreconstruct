@@ -46,7 +46,7 @@ const char kArguments[] =
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
-    "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
+    "format,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
     "present-mode,--wait-before-first-submit,--present-override,--frame-"
     "warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,--loop-count,--"
     "replay-event-plugin-path,--replay-event-plugin-params";
