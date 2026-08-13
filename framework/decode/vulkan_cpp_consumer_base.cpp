@@ -130,7 +130,12 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
     FILE*       header_file = nullptr;
     std::string filename    = util::filepath::Join(out_dir_, src_out_dir_ + "/global_var.h");
     int32_t     result      = util::platform::FileOpen(&header_file, filename.c_str(), "w");
-    if (result == 0)
+    if (result != 0)
+    {
+        GFXRECON_LOG_ERROR("Error while opening file: %s", filename.c_str());
+        return false;
+    }
+
     {
         switch (platform_)
         {
@@ -186,11 +191,8 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
 
         util::platform::FileClose(header_file);
     }
-    else
-    {
-        fprintf(stderr, "Error while opening file: %s\n", filename.c_str());
-    }
-    return result;
+
+    return true;
 }
 
 void VulkanCppConsumerBase::PrintOutCMakeFile()
@@ -457,8 +459,7 @@ void VulkanCppConsumerBase::Destroy()
     if (main_file_ != nullptr)
     {
         PrintOutGlobalVar();
-        bool result = WriteGlobalHeaderFile();
-        if (result == 0)
+        if (WriteGlobalHeaderFile())
         {
             WriteMainFooter();
             util::platform::FileClose(main_file_);
@@ -1135,7 +1136,7 @@ void VulkanCppConsumerBase::Generate_vkCreateBuffer(args::CreateBuffer& args)
         fprintf(file, "\t\t\t\tVkBufferUsageFlags  address_usage_flags  = 0;\n");
         fprintf(file, "\n");
         fprintf(file,
-                "\t\t\t\tif ((%s->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==\n",
+                "\t\t\t\tif ((%s.usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==\n",
                 pcreate_info_struct.c_str());
         fprintf(file, "\t\t\t\t    VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)\n");
         fprintf(file, "\t\t\t\t{\n");
@@ -1143,7 +1144,7 @@ void VulkanCppConsumerBase::Generate_vkCreateBuffer(args::CreateBuffer& args)
         fprintf(file, "\t\t\t\t    address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;\n");
         fprintf(file, "\t\t\t\t}\n");
         fprintf(file,
-                "\t\t\t\tif ((%s->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==\n",
+                "\t\t\t\tif ((%s.usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==\n",
                 pcreate_info_struct.c_str());
         fprintf(file, "\t\t\t\t    VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)\n");
         fprintf(file, "\t\t\t\t{\n");
@@ -1166,11 +1167,11 @@ void VulkanCppConsumerBase::Generate_vkCreateBuffer(args::CreateBuffer& args)
                 "\t\t\t\t\t// the buffer address extension struct at the start of the list to avoid modifying "
                 "the original by appending\n");
         fprintf(file, "\t\t\t\t\t// to the end.\n");
-        fprintf(file, "\t\tt\t\taddress_info.pNext = %s.pNext;\n", this->GetHandle(args.device).c_str());
-        fprintf(file, "\t\t\t\t\t%s.pNext = &address_info;\n", this->GetHandle(args.device).c_str());
+        fprintf(file, "\t\t\t\t\taddress_info.pNext = %s.pNext;\n", pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t\t\t%s.pNext = &address_info;\n", pcreate_info_struct.c_str());
         fprintf(file, "\n");
-        fprintf(file, "\t\t\t\t\t%s.flags |= address_create_flags;\n", this->GetHandle(args.device).c_str());
-        fprintf(file, "\t\t\t\t\t%s.usage |= address_usage_flags;\n", this->GetHandle(args.device).c_str());
+        fprintf(file, "\t\t\t\t\t%s.flags |= address_create_flags;\n", pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t\t\t%s.usage |= address_usage_flags;\n", pcreate_info_struct.c_str());
         fprintf(file, "\t\t\t\t}\n");
         fprintf(file, "\t\t\t}\n");
         fprintf(file, "\t\t}\n");
@@ -1786,7 +1787,7 @@ void VulkanCppConsumerBase::Generate_vkAcquireNextImage2KHR(args::AcquireNextIma
     if (args.result == VK_SUCCESS)
     {
         fprintf(file,
-                "\twhile (loaded_vkAcquireNextImage2KHR(%s, %s, &%s)) != VK_SUCCESS) { usleep(5000); };\n",
+                "\twhile (loaded_vkAcquireNextImage2KHR(%s, &%s, &%s) != VK_SUCCESS) { usleep(5000); };\n",
                 GetHandle(args.device).c_str(),
                 acquire_info_var_name.c_str(),
                 image_index_var_name.c_str());
@@ -2857,10 +2858,14 @@ void VulkanCppConsumerBase::SetMemoryResourceMap(
     memory_resource_map_ = memoryImageMap;
 }
 
-void VulkanCppConsumerBase::SetWindowSize(uint32_t width, uint32_t height)
+void VulkanCppConsumerBase::SetMaxWindowSize(uint32_t maxWindowWidth, uint32_t maxWindowHeight)
 {
-    window_width_  = width;
-    window_height_ = height;
+    max_window_width_  = maxWindowWidth;
+    max_window_height_ = maxWindowHeight;
+
+    // Apply the new limit to the current size.
+    window_width_  = std::min(window_width_, max_window_width_);
+    window_height_ = std::min(window_height_, max_window_height_);
 }
 
 uint32_t VulkanCppConsumerBase::GetNextId()
@@ -2935,11 +2940,11 @@ void VulkanCppConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
                 "\t\t\t\tsize_t   replay_row_pitch  = %s.plane_info[0].replay_row_pitch;\n",
                 android_hw_mem_name.c_str());
         fprintf(file, "\t\t\t\tuint32_t height            = %s.plane_info[0].height;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\tCopyImageSubresourceMemory(%s,\n", file_info.file_path.c_str());
+        fprintf(file, "\t\t\t\tCopyImageSubresourceMemory(\"%s\",\n", file_info.file_path.c_str());
         fprintf(file, "\t\t\t\t\t\t\t\t\t%" PRIu64 ",\n", file_info.byte_offset);
         fprintf(file, "\t\t\t\t\t\t\t\t\tstatic_cast<uint8_t*>(buffer_data),\n");
-        fprintf(file, "\t\t\t\t\t\t\t\t\toffset,v\n");
-        fprintf(file, "\t\t\t\t\t\t\t\t\tdata_size,v\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\tdata_offset,\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\tdata_size,\n");
         fprintf(file, "\t\t\t\t\t\t\t\t\treplay_row_pitch,\n");
         fprintf(file, "\t\t\t\t\t\t\t\t\tcapture_row_pitch,\n");
         fprintf(file, "\t\t\t\t\t\t\t\t\theight,\n");
@@ -2953,7 +2958,7 @@ void VulkanCppConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
                 "format and\"\n");
         fprintf(file, "\t\t\t\t\t\"mismatched capture/replay strides (Memory ID = %%\" PRIu64\n");
         fprintf(file, "\t\t\t\t\t\"): support not yet implemented\",\n");
-        fprintf(file, "\t\t\t\t\tmemory_id);\n");
+        fprintf(file, "\t\t\t\t\t%" PRIu64 ");\n", memory_id);
         fprintf(file, "\t\t\t}\n");
         fprintf(file,
                 "\t\t\tlock_result = AHardwareBuffer_unlock(%s, nullptr);\n",
@@ -2990,8 +2995,8 @@ void VulkanCppConsumerBase::ProcessResizeWindowCommand2(format::HandleId surface
 {
     FILE* file = GetFrameFile();
 
-    window_width_  = width;
-    window_height_ = height;
+    window_width_  = std::min(width, max_window_width_);
+    window_height_ = std::min(height, max_window_height_);
 
     if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
     {
@@ -3530,9 +3535,9 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
                         \t\tinfo.sType = VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR;\n\
                         \t\tinfo.pNext = nullptr;\n\
                         \t\tinfo.descriptorUpdateTemplate = %s;\n\
-                        \t\tinfo.layout = %s\n\
-                        \t\tinfo.set = %u\n\
-                        \t\tinfo.pData = %s\n",
+                        \t\tinfo.layout = %s;\n\
+                        \t\tinfo.set = %u;\n\
+                        \t\tinfo.pData = &%s;\n",
             this->GetHandle(decoded_info->descriptorUpdateTemplate).c_str(),
             this->GetHandle(decoded_info->layout).c_str(),
             decoded_info->decoded_value->set,
