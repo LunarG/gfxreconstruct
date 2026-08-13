@@ -139,6 +139,7 @@ const char kFrameRange[]                          = "--frame-range";
 const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
 const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 const char kWaitBeforePresent[]                   = "--wait-before-present";
+const char kAnnotateInjectedCommands[]            = "--annotate-injected-commands";
 const char kPrintBlockInfoAllOption[]             = "--pbi-all";
 const char kPrintBlockInfosArgument[]             = "--pbis";
 const char kNumPipelineCreationJobs[]             = "--pipeline-creation-jobs";
@@ -1349,6 +1350,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (arg_parser.IsOptionSet(kWaitBeforePresent))
     {
         replay_options.wait_before_present = true;
+    }
+    if (arg_parser.IsOptionSet(kAnnotateInjectedCommands))
+    {
+        replay_options.annotate_injected_commands = true;
     }
     if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
     {

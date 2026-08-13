@@ -52,6 +52,8 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_injected_calls.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_injected_calls.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_semaphore_util.h

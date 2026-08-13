@@ -240,6 +240,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const graphics::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
     const graphics::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
+
+    // Handle for the replay-injected device calls of `handle`'s device, built
+    // from the registered device table, which must exist.
+    graphics::VulkanInjectedDeviceCalls GetInjectedDeviceCalls(const void* handle) const;
+
     void AddImageHandle(format::HandleId parent_id, format::HandleId id, VkImage handle, VulkanImageInfo&& initial_info)
     {
         AddHandle<VulkanImageInfo>(

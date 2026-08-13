@@ -68,7 +68,7 @@ inline void WriteImageFile(
 
 void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
                                    const VulkanDeviceInfo*                    device_info,
-                                   const graphics::VulkanDeviceTable*         device_table,
+                                   const graphics::VulkanInjectedDeviceCalls& injected_calls,
                                    const VkPhysicalDeviceMemoryProperties&    memory_properties,
                                    VulkanResourceAllocator*                   allocator,
                                    VkImage                                    image,
@@ -80,11 +80,14 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                    VkImageLayout                              image_layout,
                                    VkSurfaceTransformFlagBitsKHR              pre_transform)
 {
-    if (device_table == nullptr || allocator == nullptr)
+    if (!injected_calls.IsValid() || allocator == nullptr)
     {
         GFXRECON_LOG_ERROR("Screenshot could not be created: missing device table or allocator");
         return;
     }
+
+    // The screenshot copy below is made by replay and is not in the capture file.
+    auto injected = injected_calls.Open();
 
     if (width == 0 || height == 0)
     {
@@ -125,7 +128,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         create_info.queueFamilyIndex        = kDefaultQueueFamilyIndex;
 
         VkCommandPool command_pool = VK_NULL_HANDLE;
-        result                     = device_table->CreateCommandPool(device, &create_info, nullptr, &command_pool);
+        result                     = injected->CreateCommandPool(device, &create_info, nullptr, &command_pool);
 
         if (result == VK_SUCCESS)
         {
@@ -149,7 +152,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         VkQueue queue         = VK_NULL_HANDLE;
 
         // Get a queue.
-        queue = GetDeviceQueue(device_table, device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
+        queue = GetDeviceQueue(injected.GetTable(), device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
 
         // Get a buffer size.
         VkDeviceSize buffer_size     = copy_resource.buffer_size;
@@ -159,7 +162,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         if (buffer_size == 0 || copy_resource.width != copy_width || copy_resource.height != copy_height ||
             copy_resource.format != copy_format || copy_resource.flip_x != flip_x || copy_resource.flip_y != flip_y)
         {
-            buffer_size     = GetCopyBufferSize(device, device_table, copy_format, copy_width, copy_height);
+            buffer_size     = GetCopyBufferSize(device, injected, copy_format, copy_width, copy_height);
             create_resource = true;
         }
 
@@ -169,7 +172,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
             DestroyCopyResource(device, &copy_resource);
 
             result = CreateCopyResource(device,
-                                        device_table,
+                                        injected,
                                         memory_properties,
                                         buffer_size,
                                         format,
@@ -199,7 +202,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
             allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             allocate_info.commandBufferCount          = 1;
 
-            result = device_table->AllocateCommandBuffers(device, &allocate_info, &command_buffer);
+            result = injected->AllocateCommandBuffers(device, &allocate_info, &command_buffer);
             if (result == VK_SUCCESS)
             {
                 VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
@@ -207,7 +210,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                 begin_info.flags                    = 0;
                 begin_info.pInheritanceInfo         = nullptr;
 
-                result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
+                result = injected.BeginCommandBuffer(command_buffer, &begin_info);
             }
 
             if (result == VK_SUCCESS)
@@ -230,16 +233,16 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                 src_image_barrier.subresourceRange.baseMipLevel   = 0;
                 src_image_barrier.subresourceRange.levelCount     = 1;
 
-                device_table->CmdPipelineBarrier(command_buffer,
-                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 1,
-                                                 &src_image_barrier);
+                injected->CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &src_image_barrier);
 
                 // The 'copy_image' is the image to be used with the image to buffer copy.
                 VkImage copy_image             = image;
@@ -266,16 +269,16 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                     convert_image_barrier.subresourceRange.baseMipLevel   = 0;
                     convert_image_barrier.subresourceRange.levelCount     = 1;
 
-                    device_table->CmdPipelineBarrier(command_buffer,
-                                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     0,
-                                                     0,
-                                                     nullptr,
-                                                     0,
-                                                     nullptr,
-                                                     1,
-                                                     &convert_image_barrier);
+                    injected->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &convert_image_barrier);
 
                     VkImageBlit blit_region;
                     blit_region.srcSubresource.aspectMask     = image_aspect_mask;
@@ -299,14 +302,14 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                     blit_region.dstOffsets[1].y               = flip_y ? 0 : copy_height;
                     blit_region.dstOffsets[1].z               = 1;
 
-                    device_table->CmdBlitImage(command_buffer,
-                                               image,
-                                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                               copy_image,
-                                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                               1,
-                                               &blit_region,
-                                               VK_FILTER_NEAREST);
+                    injected->CmdBlitImage(command_buffer,
+                                           image,
+                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                           copy_image,
+                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                           1,
+                                           &blit_region,
+                                           VK_FILTER_NEAREST);
 
                     // Transition blit target from the TRANSFER_DST layout to TRANSFER_SRC layout for the image to
                     // buffer copy.
@@ -315,16 +318,16 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                     convert_image_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                     convert_image_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
-                    device_table->CmdPipelineBarrier(command_buffer,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     0,
-                                                     0,
-                                                     nullptr,
-                                                     0,
-                                                     nullptr,
-                                                     1,
-                                                     &convert_image_barrier);
+                    injected->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &convert_image_barrier);
                 }
 
                 VkBufferImageCopy copy_region;
@@ -338,12 +341,12 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                 copy_region.imageOffset                     = { 0, 0, 0 };
                 copy_region.imageExtent                     = { copy_width, copy_height, 1 };
 
-                device_table->CmdCopyImageToBuffer(command_buffer,
-                                                   copy_image,
-                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                   copy_resource.buffer,
-                                                   1,
-                                                   &copy_region);
+                injected->CmdCopyImageToBuffer(command_buffer,
+                                               copy_image,
+                                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                               copy_resource.buffer,
+                                               1,
+                                               &copy_region);
 
                 // Transition source image back to image_layout after the screenshot.
                 src_image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
@@ -353,22 +356,22 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                 src_image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
                 src_image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-                device_table->CmdPipelineBarrier(command_buffer,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 1,
-                                                 &src_image_barrier);
+                injected->CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &src_image_barrier);
 
-                device_table->EndCommandBuffer(command_buffer);
+                injected->EndCommandBuffer(command_buffer);
 
                 // Make sure any pending work is finished, as we are not waiting on any semaphores from previous
                 // submissions.
-                result = device_table->DeviceWaitIdle(device);
+                result = injected->DeviceWaitIdle(device);
                 if (result != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("ScreenshotHandler: DeviceWaitIdle failed with %s",
@@ -386,7 +389,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                     submit_info.signalSemaphoreCount = 0;
                     submit_info.pSignalSemaphores    = nullptr;
 
-                    result = device_table->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+                    result = injected->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
                     if (result != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("ScreenshotHandler: Queue submission %sfailed with %s",
@@ -397,7 +400,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
 
                 if (result == VK_SUCCESS)
                 {
-                    result = device_table->QueueWaitIdle(queue);
+                    result = injected->QueueWaitIdle(queue);
                     if (result != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("ScreenshotHandler: Queue wait failed with %s",
@@ -511,7 +514,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                     GFXRECON_LOG_ERROR("Screenshot could not be created: failed to execute image transfer");
                 }
 
-                device_table->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+                injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
             }
         }
         else
@@ -521,16 +524,18 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice                                   device,
+                                               const graphics::VulkanInjectedDeviceCalls& injected_calls)
 {
     auto entry = copy_resources_.find(device);
     if (entry != copy_resources_.end())
     {
         auto& copy_resource = entry->second;
 
-        if (device_table != nullptr)
+        if (injected_calls.IsValid())
         {
-            device_table->DestroyCommandPool(entry->first, copy_resource.command_pool, nullptr);
+            auto injected = injected_calls.Open();
+            injected->DestroyCommandPool(entry->first, copy_resource.command_pool, nullptr);
         }
 
         DestroyCopyResource(device, &copy_resource);
@@ -587,11 +592,11 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
     return IsSrgbFormat(image_format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
 }
 
-VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                           device,
-                                                  const graphics::VulkanDeviceTable* device_table,
-                                                  VkFormat                           format,
-                                                  uint32_t                           width,
-                                                  uint32_t                           height) const
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                                          device,
+                                                  const graphics::VulkanInjectedDeviceCalls::Scope& injected,
+                                                  VkFormat                                          format,
+                                                  uint32_t                                          width,
+                                                  uint32_t                                          height) const
 {
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -612,11 +617,11 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
     VkImage              image               = VK_NULL_HANDLE;
     VkMemoryRequirements memory_requirements = {};
 
-    VkResult result = device_table->CreateImage(device, &create_info, nullptr, &image);
+    VkResult result = injected->CreateImage(device, &create_info, nullptr, &image);
     if (result == VK_SUCCESS)
     {
-        device_table->GetImageMemoryRequirements(device, image, &memory_requirements);
-        device_table->DestroyImage(device, image, nullptr);
+        injected->GetImageMemoryRequirements(device, image, &memory_requirements);
+        injected->DestroyImage(device, image, nullptr);
     }
     else
     {
@@ -626,22 +631,20 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
     return memory_requirements.size;
 }
 
-VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
-                                               const graphics::VulkanDeviceTable*      device_table,
-                                               const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                               VkDeviceSize                            buffer_size,
-                                               VkFormat                                image_format,
-                                               VkFormat                                screenshot_format,
-                                               uint32_t                                width,
-                                               uint32_t                                height,
-                                               uint32_t                                copy_width,
-                                               uint32_t                                copy_height,
-                                               bool                                    flip_x,
-                                               bool                                    flip_y,
-                                               CopyResource*                           copy_resource) const
+VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                          device,
+                                               const graphics::VulkanInjectedDeviceCalls::Scope& injected,
+                                               const VkPhysicalDeviceMemoryProperties&           memory_properties,
+                                               VkDeviceSize                                      buffer_size,
+                                               VkFormat                                          image_format,
+                                               VkFormat                                          screenshot_format,
+                                               uint32_t                                          width,
+                                               uint32_t                                          height,
+                                               uint32_t                                          copy_width,
+                                               uint32_t                                          copy_height,
+                                               bool                                              flip_x,
+                                               bool                                              flip_y,
+                                               CopyResource*                                     copy_resource) const
 {
-    assert(device_table != nullptr);
-
     if ((buffer_size == 0) || (copy_resource == nullptr))
     {
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -664,7 +667,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
     if (result == VK_SUCCESS)
     {
         VkMemoryRequirements memory_requirements;
-        device_table->GetBufferMemoryRequirements(device, copy_resource->buffer, &memory_requirements);
+        injected->GetBufferMemoryRequirements(device, copy_resource->buffer, &memory_requirements);
 
         uint32_t memory_type_index =
             graphics::GetMemoryTypeIndex(memory_properties,
@@ -728,7 +731,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         if (result == VK_SUCCESS)
         {
             VkMemoryRequirements memory_requirements;
-            device_table->GetImageMemoryRequirements(device, copy_resource->convert_image, &memory_requirements);
+            injected->GetImageMemoryRequirements(device, copy_resource->convert_image, &memory_requirements);
 
             uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
                 memory_properties, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);

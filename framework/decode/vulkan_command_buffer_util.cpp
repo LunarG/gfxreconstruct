@@ -28,15 +28,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanCommandBufferAssociatedInfo::VulkanCommandBufferAssociatedInfo(const VulkanDeviceInfo*            device_info,
-                                                                     const graphics::VulkanDeviceTable* device_table,
-                                                                     CommonObjectInfoTable*             object_table,
-                                                                     format::HandleId command_buffer_id) :
+VulkanCommandBufferAssociatedInfo::VulkanCommandBufferAssociatedInfo(
+    const VulkanDeviceInfo*                    device_info,
+    const graphics::VulkanInjectedDeviceCalls& device_table,
+    CommonObjectInfoTable*                     object_table,
+    format::HandleId                           command_buffer_id) :
     device_info_(device_info),
     device_table_(device_table), object_table_(object_table), split_semaphore_(device_info, device_table)
 {
     GFXRECON_ASSERT(device_info != nullptr);
-    GFXRECON_ASSERT(device_table != nullptr);
     GFXRECON_ASSERT(object_table != nullptr);
 
     // Store the original command buffer handle and map it to the command buffer ID for future reference.
@@ -68,7 +68,8 @@ void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBuffer
         alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         alloc_info.commandBufferCount          = NEW_COMMAND_BUFFER_COUNT;
 
-        VkResult result = device_table_->AllocateCommandBuffers(device_info_->handle, &alloc_info, new_handles_ptr);
+        auto     injected = device_table_.Open();
+        VkResult result   = injected->AllocateCommandBuffers(device_info_->handle, &alloc_info, new_handles_ptr);
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
@@ -78,15 +79,14 @@ void VulkanCommandBufferAssociatedInfo::ReplaceWithNewHandle(VulkanCommandBuffer
     command_buffer_info->handle = next_handle;
 }
 
-VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*            device_info,
-                                                 const graphics::VulkanDeviceTable* device_table,
-                                                 CommonObjectInfoTable*             object_table,
-                                                 VulkanStateRecordingDecoder*       decoder) :
+VulkanCommandBufferUtil::VulkanCommandBufferUtil(const VulkanDeviceInfo*                    device_info,
+                                                 const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                 CommonObjectInfoTable*                     object_table,
+                                                 VulkanStateRecordingDecoder*               decoder) :
     device_info_(device_info),
     device_table_(device_table), object_table_(object_table), decoder_(decoder)
 {
     GFXRECON_ASSERT(device_info != nullptr);
-    GFXRECON_ASSERT(device_table != nullptr);
     GFXRECON_ASSERT(object_table != nullptr);
 }
 
@@ -119,7 +119,8 @@ VkCommandBuffer VulkanCommandBufferAssociatedInfo::ResetAssociatedHandles()
     // Reset all the associated command buffers.
     for (VkCommandBuffer handle : associated_handles_)
     {
-        VkResult result = device_table_->ResetCommandBuffer(handle, 0);
+        auto     injected = device_table_.Open();
+        VkResult result   = injected->ResetCommandBuffer(handle, 0);
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
@@ -134,7 +135,8 @@ VkCommandBuffer VulkanCommandBufferAssociatedInfo::FreeAssociatedHandles(VkComma
 {
     GFXRECON_ASSERT(!associated_handles_.empty());
 
-    device_table_->FreeCommandBuffers(
+    auto injected = device_table_.Open();
+    injected->FreeCommandBuffers(
         device_info_->handle, pool, static_cast<uint32_t>(associated_handles_.size()), associated_handles_.data());
 
     associated_handles_.clear();
@@ -156,7 +158,8 @@ void VulkanCommandBufferUtil::ReplaceWithAssociatedCommandBuffer(VulkanCommandBu
     original_command_buffer_id_[command_buffer_info->handle] = command_buffer_info->capture_id;
 
     // Reset the command buffer just in case it was recycled.
-    VkResult result = device_table_->ResetCommandBuffer(command_buffer_info->handle, 0);
+    auto     injected = device_table_.Open();
+    VkResult result   = injected->ResetCommandBuffer(command_buffer_info->handle, 0);
     GFXRECON_ASSERT(result == VK_SUCCESS);
 }
 
@@ -167,13 +170,16 @@ void VulkanCommandBufferUtil::SplitCommandBuffer(VulkanCommandBufferInfo* comman
         return;
     }
 
-    device_table_->EndCommandBuffer(command_buffer_info->handle);
+    auto injected = device_table_.Open();
+    injected->EndCommandBuffer(command_buffer_info->handle);
 
     GetOrCreateAssociatedInfo(command_buffer_info->capture_id).PushSplitHandle(command_buffer_info->handle);
     ReplaceWithAssociatedCommandBuffer(command_buffer_info);
 
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-    device_table_->BeginCommandBuffer(command_buffer_info->handle, &begin_info);
+    injected->BeginCommandBuffer(command_buffer_info->handle, &begin_info);
+    auto reinstate_cb_scope =
+        device_table_.Label(injected, command_buffer_info->handle, "Restore command buffer's state");
 
     reissuing_command_buffer_state_ = true;
     decoder_->ReissueCommandBufferState(command_buffer_info->capture_id);
@@ -203,8 +209,9 @@ graphics::VulkanSemaphore VulkanCommandBufferUtil::SubmitPreviouslySplitCommandB
     const std::span<std::vector<VkCommandBuffer>> current_submits_cmdbufs,
     const std::span<graphics::VulkanSemaphore>    wait_semaphores)
 {
-    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-    graphics::VulkanSemaphore        signal_semaphore{ VK_NULL_HANDLE, 0 };
+    auto injected = device_table_.Open();
+
+    graphics::VulkanSemaphore signal_semaphore{ VK_NULL_HANDLE, 0 };
 
     // A QueueSubmit might have multiple submit infos (current_submits_span).
     // Each submit info might have multiple command buffers.
@@ -285,7 +292,7 @@ graphics::VulkanSemaphore VulkanCommandBufferUtil::SubmitPreviouslySplitCommandB
 
             prev_submits[i] = submit_info;
 
-            VkResult result = device_table_->QueueSubmit(queue_info->handle, 1, &prev_submits[i], VK_NULL_HANDLE);
+            VkResult result = injected->QueueSubmit(queue_info->handle, 1, &prev_submits[i], VK_NULL_HANDLE);
             GFXRECON_ASSERT(result == VK_SUCCESS);
         }
     }
@@ -393,7 +400,8 @@ void VulkanCommandBufferUtil::BeginCommandBuffer(VulkanCommandBufferInfo* comman
         if (original_command_buffer_id_.contains(command_buffer_info->handle))
         {
             // Reset current handle and let `ResetCommandBuffer` handle the rest of the split handles.
-            device_table_->ResetCommandBuffer(command_buffer_info->handle, 0);
+            auto injected = device_table_.Open();
+            injected->ResetCommandBuffer(command_buffer_info->handle, 0);
             ResetCommandBuffer(command_buffer_info);
         }
     }
