@@ -273,6 +273,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
             const auto* meta_create_info = pCreateInfos->GetMetaStructPointer() + i;
 
+            // Track the base pipeline of a derivative pipeline as a child, so that creation of the base pipeline is
+            // preserved whenever the derivative pipeline is referenced (its create info names the base handle).
+            table_.AddResource(pipeline_id, meta_create_info->basePipelineHandle);
+
             if (auto* meta_pipeline_info =
                     GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(meta_create_info->pNext))
             {
