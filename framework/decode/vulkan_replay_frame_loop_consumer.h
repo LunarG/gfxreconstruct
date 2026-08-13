@@ -186,6 +186,48 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                               uint32_t                               commandBufferCount,
                                               HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
 
+    void Process_vkCmdCopyBuffer(const ApiCallInfo&                          call_info,
+                                 format::HandleId                            commandBuffer,
+                                 format::HandleId                            srcBuffer,
+                                 format::HandleId                            dstBuffer,
+                                 uint32_t                                    regionCount,
+                                 StructPointerDecoder<Decoded_VkBufferCopy>* pRegions) override;
+
+    void Process_vkCmdCopyImageToBuffer(const ApiCallInfo&                               call_info,
+                                        format::HandleId                                 commandBuffer,
+                                        format::HandleId                                 srcImage,
+                                        VkImageLayout                                    srcImageLayout,
+                                        format::HandleId                                 dstBuffer,
+                                        uint32_t                                         regionCount,
+                                        StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions) override;
+
+    void Process_vkCmdUpdateBuffer(const ApiCallInfo&       call_info,
+                                   format::HandleId         commandBuffer,
+                                   format::HandleId         dstBuffer,
+                                   VkDeviceSize             dstOffset,
+                                   VkDeviceSize             dataSize,
+                                   PointerDecoder<uint8_t>* pData) override;
+
+    void Process_vkCmdFillBuffer(const ApiCallInfo& call_info,
+                                 format::HandleId   commandBuffer,
+                                 format::HandleId   dstBuffer,
+                                 VkDeviceSize       dstOffset,
+                                 VkDeviceSize       size,
+                                 uint32_t           data) override;
+
+    void Process_vkCmdPipelineBarrier(
+        const ApiCallInfo&                                   call_info,
+        format::HandleId                                     commandBuffer,
+        VkPipelineStageFlags                                 srcStageMask,
+        VkPipelineStageFlags                                 dstStageMask,
+        VkDependencyFlags                                    dependencyFlags,
+        uint32_t                                             memoryBarrierCount,
+        StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
+        uint32_t                                             bufferMemoryBarrierCount,
+        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+        uint32_t                                             imageMemoryBarrierCount,
+        StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers) override;
+
     virtual void Process_vkCreateEvent(const ApiCallInfo&                                   call_info,
                                        VkResult                                             returnValue,
                                        format::HandleId                                     device,
@@ -289,6 +331,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     VkCommandPool   restoration_command_pool_{ VK_NULL_HANDLE };
     VkCommandBuffer restoration_command_buffer_{ VK_NULL_HANDLE };
     VkDevice        restoration_device_{ VK_NULL_HANDLE };
+    uint32_t        restoration_queue_family_index_{ std::numeric_limits<uint32_t>::max() };
 
     // Buffer restoration data
     struct ShadowBufferInfo
@@ -331,9 +374,19 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                VulkanResourceAllocator::ResourceData* alloc_data,
                                VulkanResourceAllocator::MemoryData*   mem_data);
 
-    void RecordInitialBufferStates(VkDevice                           device,
-                                   const graphics::VulkanDeviceTable* device_table,
-                                   VulkanQueueInfo*                   queue_info);
+    VkResult CreateShadowBuffer(VkDevice                               device,
+                                const VulkanBufferInfo*                orig_info,
+                                VkBuffer*                              shadow_buffer,
+                                VkDeviceMemory*                        shadow_memory,
+                                VulkanResourceAllocator::ResourceData* alloc_data,
+                                VulkanResourceAllocator::MemoryData*   mem_data);
+
+    std::unordered_set<format::HandleId> loop_touched_buffers_;
+
+    void TrackBoundBuffer(format::HandleId commandBuffer, format::HandleId buffer_id);
+    void CollectTouchedBuffersFromCommandBuffer(format::HandleId                      cb_id,
+                                                std::unordered_set<format::HandleId>& visited_cbs);
+    void LazyBackupBuffersForSubmit(VkQueue queue, uint32_t cb_count, const format::HandleId* cb_ids);
     void RestoreBufferStates(VkDevice                           device,
                              const graphics::VulkanDeviceTable* device_table,
                              VulkanQueueInfo*                   queue_info);

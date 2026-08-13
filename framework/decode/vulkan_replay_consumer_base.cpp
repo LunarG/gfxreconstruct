@@ -10365,6 +10365,7 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->dynamic_rendering_image_view_ids.clear();
     command_buffer_info->image_layout_barriers.clear();
+    command_buffer_info->bound_buffers.clear();
     command_buffer_info->bound_pipelines.clear();
     command_buffer_info->push_constant_data.clear();
     command_buffer_info->push_constant_stage_flags     = 0;
