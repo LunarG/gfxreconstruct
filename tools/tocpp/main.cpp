@@ -68,6 +68,8 @@ CommandLineArgument g_target_argument = { true,
                                           "The type of platform for the intended target Vulkan source.\n"
                                           "\t\t\t\t\t\t\t  Available Platforms:\n"
                                           "\t\t\t\t\t\t\t     android    Generate for Android.\n"
+                                          "\t\t\t\t\t\t\t     wayland    Generate for Wayland.\n"
+                                          "\t\t\t\t\t\t\t     win32      Generate for Win32.\n"
                                           "\t\t\t\t\t\t\t     xcb        Generate for XCB." };
 CommandLineArgument g_output_argument = {
     true, true, "-o", "--output", "<dir>\t\t\t\t", "", "Directory path where the output will be generated into."
@@ -396,9 +398,10 @@ int main(int argc, const char** argv)
     std::string max_dimensions_argument = arg_parser.GetArgumentValue(g_max_window_dimensions_argument.short_option);
 
     // Remove the consecutive path separators from the end of the path.
+    // The path can be empty here, because the argument check occurs later.
     if (target_platform == gfxrecon::decode::GfxToCppPlatform::PLATFORM_ANDROID)
     {
-        while (android_template_root.back() == kPathSep)
+        while (!android_template_root.empty() && android_template_root.back() == kPathSep)
         {
             android_template_root.pop_back();
         }
@@ -466,6 +469,19 @@ int main(int argc, const char** argv)
 
     gfxrecon::decode::VulkanCppConsumer cpp_consumer;
     bool                                result;
+
+    // --max-window-dimensions
+    if (dimensions.size() == 2)
+    {
+        cpp_consumer.SetMaxWindowSize(dimensions[0], dimensions[1]);
+    }
+    else if (!dimensions.empty())
+    {
+        GFXRECON_LOG_ERROR("The --max-window-dimensions option needs a width and a height,"
+                           " for example \"-d 1920,1080\"");
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
 
     // --captured-swapchain
     if (arg_parser.IsOptionSet(g_captured_swapchain_argument.short_option))

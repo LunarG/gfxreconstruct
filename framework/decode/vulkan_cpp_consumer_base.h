@@ -39,6 +39,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// The window size that the generated source uses when the capture file has no
+// resize command and the user gives no --max-window-dimensions option.
+constexpr uint32_t kDefaultWindowWidth  = 1920;
+constexpr uint32_t kDefaultWindowHeight = 1080;
+
 struct DescriptorUpdateTemplateEntries
 {
     std::vector<VkDescriptorUpdateTemplateEntry> data;
@@ -79,8 +84,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     GfxToCppPlatform GetPlatform() { return platform_; }
 
-    uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, window_width_); };
-    uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, window_height_); };
+    uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, max_window_width_); };
+    uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, max_window_height_); };
     uint32_t GetCurrentFrameNumber() { return frame_number_; }
     uint32_t GetCurrentFrameSplitNumber() { return frame_split_number_; }
     uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
@@ -131,7 +136,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
                            uint32_t                count);
     void SetMemoryResourceMap(
         const std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memoryImageMap);
-    void SetWindowSize(uint32_t appWindowWidth, uint32_t appWindowHeight);
+    // Set the upper limit for the window size, from the --max-window-dimensions option.
+    void SetMaxWindowSize(uint32_t maxWindowWidth, uint32_t maxWindowHeight);
     void SetMaxCommandLimit(uint32_t max) { max_command_limit_ = max; }
 
     void DisableVirtualSwapchain() { enable_virtual_swapchain_ = false; }
@@ -450,8 +456,12 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<format::HandleId, std::queue<std::string>>         next_image_map_;
     std::unordered_map<void*, std::string>                                ptr_map_;
     std::unordered_map<uint64_t, std::string>                             struct_map_; // hash -> name
-    uint32_t                                                              window_width_;
-    uint32_t                                                              window_height_;
+    // The current window size, which a resize command in the capture file can change.
+    uint32_t window_width_{ kDefaultWindowWidth };
+    uint32_t window_height_{ kDefaultWindowHeight };
+    // The upper limit for the window size. UINT32_MAX applies no limit.
+    uint32_t                                                              max_window_width_{ UINT32_MAX };
+    uint32_t                                                              max_window_height_{ UINT32_MAX };
     uint32_t                                                              max_command_limit_{ 1000 };
     std::vector<GfxToCppVariable>                                         variable_data_;
     std::vector<format::HandleId>                                         imported_semaphores_;

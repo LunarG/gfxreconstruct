@@ -1617,5 +1617,5 @@ std::string GenerateStruct_VkDataGraphPipelineConstantARM(std::ostream&         
     return {};
 }
 
-GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
