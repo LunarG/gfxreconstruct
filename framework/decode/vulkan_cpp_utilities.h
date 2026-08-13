@@ -93,7 +93,7 @@ std::string DescriptorCreateInfoTypeToString(VkDescriptorType descriptorType);
 
 DescriptorBaseType GetDescriptorBaseType(VkDescriptorType descriptorType);
 
-GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXREC_VULKAN_CPP_UTILITIES_H
