@@ -454,7 +454,15 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
     std::unordered_map<uint64_t, VulkanCppAndroidMemoryInfo>              android_memory_id_map_;
     std::unordered_map<format::HandleId, std::queue<std::string>>         next_image_map_;
-    std::unordered_map<void*, std::string>                                ptr_map_;
+    // Count variable names for the two-call query idiom.  The first call asks for
+    // the count, the second call asks for the data.  These are separate Process_
+    // calls with separate argument objects, so the key must be the handle that the
+    // query is about.  A pointer into the argument object is not stable across the
+    // two calls.  One map for each query, because two queries can share a handle.
+    std::unordered_map<format::HandleId, std::string>                     swapchain_image_count_map_;
+    std::unordered_map<format::HandleId, std::string>                     surface_format_count_map_;
+    std::unordered_map<format::HandleId, std::string>                     surface_present_mode_count_map_;
+    std::unordered_map<format::HandleId, std::string>                     queue_family_count_map_;
     std::unordered_map<uint64_t, std::string>                             struct_map_; // hash -> name
     // The current window size, which a resize command in the capture file can change.
     uint32_t window_width_{ kDefaultWindowWidth };
