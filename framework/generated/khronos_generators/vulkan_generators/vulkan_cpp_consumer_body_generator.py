@@ -959,10 +959,19 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                 # There should be only primitive types here
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
 
-                if arg.is_array:
+                if arg.base_type == 'char' and arg.pointer_count == 1:
+                    # A pointer to char is a string.  Write it into the generated
+                    # source as a string literal.  The address in the capture file
+                    # belongs to the application that made the capture, so it has no
+                    # meaning when the generated source runs.
+                    callArg = f'VulkanCppConsumerBase::ToEscape({arg.prefixed_name}{arg.op}GetPointer()).c_str()'
+                    callTemplate = '%s'
+                elif arg.is_array:
                     newArray, callArg, callTemplate = self.buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
                     body += newArray
                 elif arg.base_type != 'void':
+                    # TODO: A capture-time address has no meaning at replay time.
+                    # No entry point reaches this today.  See the string case above.
                     callArg = f'{arg.prefixed_name}{arg.op}GetPointer()'
                     callTemplate = "%p"
                 else:

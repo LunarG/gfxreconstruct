@@ -9109,15 +9109,15 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
     fprintf(file, "\t{\n");
     pfn_loader_.AddMethodName("vkDebugReportMessageEXT");
     fprintf(file,
-            "\t\tloaded_vkDebugReportMessageEXT(%s, %s, %s, %" PRIu64 "UL, %" PRIu64 ", %d, %p, %p);\n",
+            "\t\tloaded_vkDebugReportMessageEXT(%s, %s, %s, %" PRIu64 "UL, %" PRIu64 ", %d, %s, %s);\n",
             this->GetHandle(args.instance).c_str(),
             util::ToString<VkDebugReportFlagsEXT>(args.flags).c_str(),
             util::ToString<VkDebugReportObjectTypeEXT>(args.objectType).c_str(),
             args.object,
             util::platform::SizeTtoUint64(args.location),
             args.messageCode,
-            args.pLayerPrefix.GetPointer(),
-            args.pMessage.GetPointer());
+            VulkanCppConsumerBase::ToEscape(args.pLayerPrefix.GetPointer()).c_str(),
+            VulkanCppConsumerBase::ToEscape(args.pMessage.GetPointer()).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDebugReportMessageEXT);
 }
