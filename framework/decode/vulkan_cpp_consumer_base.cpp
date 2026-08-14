@@ -195,6 +195,18 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
     return true;
 }
 
+uint32_t VulkanCppConsumerBase::GetCapturedPhysicalDeviceIndex(format::HandleId physicalDevice) const
+{
+    for (uint32_t index = 0; index < enumerated_physical_devices_.size(); ++index)
+    {
+        if (enumerated_physical_devices_[index] == physicalDevice)
+        {
+            return index;
+        }
+    }
+    return 0;
+}
+
 void VulkanCppConsumerBase::RecordDeviceSelectionData(format::HandleId          physicalDevice,
                                                       const VkDeviceCreateInfo* createInfo)
 {
@@ -304,8 +316,23 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
         FILE* global_file = GetGlobalFile();
         fputs(sCommonGlobalCppHeader, global_file);
 
+        // Write one row for each slot of the enumeration, so that row N holds the
+        // memory types of the device that the capture called physicalDevices[N].
+        // The order in which the meta commands arrive is not that order.
+        std::vector<std::vector<format::DeviceMemoryType>> rows;
+        for (format::HandleId device : enumerated_physical_devices_)
+        {
+            auto found = captured_memory_types_.find(device);
+            rows.push_back((found != captured_memory_types_.end()) ? found->second
+                                                                   : std::vector<format::DeviceMemoryType>());
+        }
+        if (rows.empty())
+        {
+            rows = original_memory_types_;
+        }
+
         size_t max_second_dimension = 1;
-        for (const auto& pd_mem_types : original_memory_types_)
+        for (const auto& pd_mem_types : rows)
         {
             if (pd_mem_types.size() > max_second_dimension)
             {
@@ -315,9 +342,10 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
 
         fprintf(global_file,
                 "VkMemoryType originalMemoryTypes[%" PRIu64 "][%" PRIu64 "] = {\n",
-                util::platform::SizeTtoUint64(original_memory_types_.size()),
+                util::platform::SizeTtoUint64(rows.size()),
                 util::platform::SizeTtoUint64(max_second_dimension));
-        for (const auto& pd_mem_types : original_memory_types_)
+        fprintf(global_file, "// One row for each slot of vkEnumeratePhysicalDevices during capture.\n");
+        for (const auto& pd_mem_types : rows)
         {
             fprintf(global_file, "  {\n");
             for (size_t index = 0; index < max_second_dimension; ++index)
@@ -832,6 +860,8 @@ void VulkanCppConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     const std::vector<format::DeviceMemoryType>& memory_types,
     const std::vector<format::DeviceMemoryHeap>& memory_heaps)
 {
+    captured_memory_types_[physical_device_id] = memory_types;
+
     original_memory_types_.push_back(memory_types);
     original_memory_heaps_.push_back(memory_heaps);
 }

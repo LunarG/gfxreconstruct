@@ -260,7 +260,10 @@ void VulkanCppConsumerBase::Generate_vkCreateDevice(args::CreateDevice& args)
     RecordDeviceSelectionData(args.physicalDevice, args.pCreateInfo.GetPointer());
 
     fprintf(file, "\t{\n");
-    fprintf(file, "\t\tQueryPhysicalDeviceMemoryProperties(%s);\n", this->GetHandle(args.physicalDevice).c_str());
+    fprintf(file,
+            "\t\tQueryPhysicalDeviceMemoryProperties(%s, %u);\n",
+            this->GetHandle(args.physicalDevice).c_str(),
+            GetCapturedPhysicalDeviceIndex(args.physicalDevice));
     // physicalDevice
     // pCreateInfo
     std::stringstream stream_pcreate_info;
