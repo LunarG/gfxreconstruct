@@ -181,11 +181,15 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
         GfxToCppPlatform cur_platform       = consumer.GetPlatform();
         std::string      cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
 
-        // Generate a map of WSI extensions to the new extension for this current platform
+        // Point every surface extension that the tool retargets at the extension
+        // for this platform.  kTargetPlatforms is not the right list, because it
+        // holds only the platforms that the tool can generate for.  A capture can
+        // use a surface that is not a target, such as Xlib, and that surface still
+        // needs rewriting.
         std::map<std::string, std::string> replace_map;
-        for (const auto& [platform_enum, info] : kTargetPlatforms)
+        for (const std::string& surface_extension : kRetargetedSurfaceExtensionNames)
         {
-            replace_map[info.wsiSurfaceExtName] = cur_extension_name;
+            replace_map[surface_extension] = cur_extension_name;
         }
 
         extension_names =
