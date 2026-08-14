@@ -120,6 +120,7 @@ class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
         self.is_header = genOpts.is_header
         self.cases = []
         self.caseBodies = []
+        self.structNames = []
 
     # Method override
     def endFile(self):
@@ -127,15 +128,46 @@ class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
             self.writeout('class VulkanCppConsumerBase;')
             self.writeout('std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer);')
         else:
-            defaultBody = [makeGen('next_var_name = "NULL";', indent=0),
-                        makeGen('break;', indent=0)]
+            # GenerateExtension calls itself through the pNext chain, so its stack
+            # frame sets the longest chain that the tool can process.  A switch that
+            # builds a string in each case is expensive: a debug build gives the
+            # scope of each case its own stack slot, and each case needs two
+            # std::string temporaries.  Several hundred cases then give one frame of
+            # tens of kilobytes, and a chain of a few hundred structures exhausts an
+            # 8 MB stack.
+            #
+            # So give each structure its own small function, and let the switch
+            # select one of them.  Each case is then a single pointer assignment
+            # with no temporary, and the one call site needs one temporary.  The
+            # frame of GenerateExtension drops to a few hundred bytes.
+            helpers = []
+            for structName in self.structNames:
+                helpers.append(
+                    f'static std::string GenerateExtensionStruct_{structName}(\n'
+                    f'    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)\n'
+                    f'{{\n'
+                    f'    return "&" + GenerateStruct_{structName}(\n'
+                    f'        out,\n'
+                    f'        reinterpret_cast<const {structName}*>(struct_info),\n'
+                    f'        reinterpret_cast<Decoded_{structName}*>(pnext_meta_data->GetMetaStructPointer()),\n'
+                    f'        consumer);\n'
+                    f'}}\n')
+            self.writeout('typedef std::string (*PFN_GenerateExtensionStruct)(\n'
+                          '    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer);\n')
+            self.writeout('\n'.join(helpers))
+
+            defaultBody = [makeGen('break;', indent=0)]
             function = [makeGen('std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer) {{', indent=0),
                         makeGen('std::string next_var_name = "NULL";'),
                         makeGenCond('struct_info != nullptr && meta_info != nullptr',
                                     [makeGenCastVar('reinterpret_cast', 'const VkBaseInStructure*',
                                                     'base_struct', 'struct_info', indent=8),
                                     makeGen('PNextNode* pnext_meta_data = reinterpret_cast<PNextNode*>(meta_info);', indent=8),
-                                    makeGenSwitch('base_struct->sType', self.cases, self.caseBodies, defaultBody, indent=4)], [], locals(), indent=4),
+                                    makeGen('PFN_GenerateExtensionStruct next_struct_generator = nullptr;', indent=8),
+                                    makeGenSwitch('base_struct->sType', self.cases, self.caseBodies, defaultBody, indent=4),
+                                    makeGenCond('next_struct_generator != nullptr',
+                                                [makeGen('next_var_name = next_struct_generator(out, struct_info, pnext_meta_data, consumer);', indent=12)],
+                                                [], locals(), indent=8)], [], locals(), indent=4),
                         makeGen('return next_var_name;', indent=4),
                         makeGen('}}', indent=0)]
             body = ''.join(function)
@@ -165,15 +197,10 @@ class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
                 continue
 
             self.cases.append(sType)
+            self.structNames.append(structName)
+            # Each case only selects a function.  See the note in endFile.
             caseBody = [
-                makeGenCastVar('reinterpret_cast', 'const %s*' % structName, 'casted_struct', 'struct_info', use_auto=True, indent=0),
-                makeGenCastVar('reinterpret_cast', 'Decoded_%s*' % structName, 'decoded_struct', 'pnext_meta_data->GetMetaStructPointer()', use_auto=True, indent=0),
-                makeGen('next_var_name = "&" + ' + makeGenCall(f'GenerateStruct_{structName}',
-                                                            ['out',
-                                                            'casted_struct',
-                                                            'decoded_struct',
-                                                            'consumer'],
-                                                            locals(), indent=1), indent=0),
+                makeGen(f'next_struct_generator = GenerateExtensionStruct_{structName};', indent=0),
                 makeGen('break;', indent=0)
             ]
             self.caseBodies.append(caseBody)
