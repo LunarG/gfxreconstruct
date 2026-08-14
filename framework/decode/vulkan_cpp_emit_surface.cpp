@@ -78,14 +78,14 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        plat
                                                     void*                   pSurfaceCreateInfo,
                                                     const format::HandleId* pSurface)
 {
-    FILE* file = GetFrameFile();
+    CodeWriter& writer = GetFrameWriter();
 
     std::stringstream stream_create_info;
     std::string       surface_var_name            = "pSurface_" + std::to_string(GetNextId());
     std::string       create_info_struct_var_name = "";
     std::string       surface_create_func_call    = "";
 
-    fprintf(file, "\t{\n");
+    CodeWriter::Scope scope(writer);
 
     switch (platform_)
     {
@@ -161,20 +161,18 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        plat
             GFXRECON_LOG_FATAL("Failed to generate surface creation: Invalid platform (%d)", platform_);
             break;
     }
-    fprintf(file, "\n%s", stream_create_info.str().c_str());
+    writer.Blank();
+    writer.Raw(stream_create_info.str());
     AddKnownVariables("VkSurfaceKHR", surface_var_name, pSurface);
     AddHandles(surface_var_name, pSurface);
     pfn_loader_.AddMethodName(surface_create_func_call);
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_%s(%s, &%s, %s, &%s), %s);\n",
-            surface_create_func_call.c_str(),
-            GetHandle(instance).c_str(),
-            create_info_struct_var_name.c_str(),
-            "nullptr",
-            surface_var_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-
-    fprintf(file, "\t}\n");
+    writer.Line("VK_CALL_CHECK(loaded_%s(%s, &%s, %s, &%s), %s);",
+                surface_create_func_call.c_str(),
+                GetHandle(instance).c_str(),
+                create_info_struct_var_name.c_str(),
+                "nullptr",
+                surface_var_name.c_str(),
+                util::ToString<VkResult>(returnValue).c_str());
 }
 
 GFXRECON_END_NAMESPACE(decode)
