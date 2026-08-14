@@ -55,8 +55,9 @@ extern void FilterDeviceExtensions(VkPhysicalDevice device, VkDeviceCreateInfo* 
 // capturedDeviceIndex names the row of originalMemoryTypes to compare against,
 // which is the slot that the capture used in vkEnumeratePhysicalDevices.
 extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, uint32_t capturedDeviceIndex);
-extern uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements);
-extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex);
+extern VkDeviceSize RecalculateAllocationSize(VkDeviceSize originalSize,
+                                              const VkMemoryRequirements& memoryRequirements);
+extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex, uint32_t allowedTypeBits);
 extern void LogVkError(const char* function, VkResult returnValue, const char* file, int line, VkResult capturedReturnValue);
 )";
 
@@ -377,13 +378,13 @@ void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, uint32
 )";
 
 static const char* sCommonRecalculateAllocationSize = R"(
-uint32_t RecalculateAllocationSize(VkDeviceSize originalSize,
-                                   VkMemoryRequirements memoryRequirements) {
+VkDeviceSize RecalculateAllocationSize(VkDeviceSize originalSize,
+                                       const VkMemoryRequirements& memoryRequirements) {
     if (originalSize >= memoryRequirements.size) {
         return originalSize;
     }
     printf("Warning: allocation size changed from %lu to %lu.\n",
-           originalSize, memoryRequirements.size);
+           (unsigned long)originalSize, (unsigned long)memoryRequirements.size);
     return memoryRequirements.size;
 }
 )";
@@ -394,7 +395,11 @@ static uint8_t CountBits(uint32_t val) {
   return ((val & 1) + CountBits(val >> 1));
 }
 
-uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
+// allowedTypeBits comes from VkMemoryRequirements::memoryTypeBits.  A resource
+// only accepts a memory type whose bit is set there, so a type that matches the
+// property flags but not the bits would make the bind call fail.  UINT32_MAX
+// means that the caller does not know, so every type is allowed.
+uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex, uint32_t allowedTypeBits) {
     // Use the row for the device in use.  Row 0 belongs to the first device of
     // the capture, which is often not the device that the capture used.
     VkMemoryPropertyFlags target_property_flags =
@@ -402,7 +407,8 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
     uint32_t memory_type_index = UINT32_MAX;
 
     // Always try the same index in case we are attempting a replay on the same device as it was recorded on.
-    if ((s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & target_property_flags) ==
+    if (((allowedTypeBits & (1u << originalMemoryTypeIndex)) != 0) &&
+        (s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & target_property_flags) ==
         target_property_flags) {
         memory_type_index = originalMemoryTypeIndex;
     } else {
@@ -411,6 +417,9 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
         uint8_t  fallback_important_bits = 0;
         uint8_t  fallback_normal_bits    = 0;
         for (uint32_t i = 0; i < s_physicalDeviceMemoryProperties.memoryTypeCount; i++) {
+            if ((allowedTypeBits & (1u << i)) == 0) {
+              continue;
+            }
             if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags) == target_property_flags) {
               memory_type_index = i;
               break;
