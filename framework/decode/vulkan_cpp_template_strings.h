@@ -35,6 +35,17 @@ static const char* sCommonHeaderOutputHeaders = R"(
 )";
 
 static const char* sCommonOutputHeaderFunctions = R"(
+// The device extensions that the capture file needed, and the physical device
+// slots that it used.  global_var.cpp defines both.
+extern const char* const g_required_device_extensions[];
+extern const uint32_t    g_required_device_extension_count;
+extern const uint32_t    g_captured_device_indices[];
+extern const uint32_t    g_captured_device_index_count;
+
+// Set by the --gpu option.  A negative value means choose automatically.
+extern int32_t g_gpu_override_index;
+
+extern void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count);
 extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice);
 extern uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements);
 extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex);
@@ -58,6 +69,168 @@ static const char* sCommonFrameSourceHeader = R"(
 
 static const char* sCommonFrameSourceFooter = R"(
 } // frame end
+)";
+
+static const char* sCommonSelectPhysicalDevices = R"(
+int32_t g_gpu_override_index = -1;
+
+// Prefer a discrete GPU, then an integrated one, and leave a software device
+// last.
+static uint32_t DeviceTypeRank(VkPhysicalDeviceType type)
+{
+    switch (type)
+    {
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            return 4;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+            return 3;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            return 2;
+        case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+            return 1;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+        default:
+            return 0;
+    }
+}
+
+// Count the extensions that the capture file needs and this device does not have.
+static uint32_t CountMissingExtensions(VkPhysicalDevice device)
+{
+    uint32_t available_count = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, nullptr);
+
+    std::vector<VkExtensionProperties> available(available_count);
+    if (available_count > 0)
+    {
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, available.data());
+    }
+
+    uint32_t missing = 0;
+    for (uint32_t want = 0; want < g_required_device_extension_count; ++want)
+    {
+        bool found = false;
+        for (uint32_t have = 0; have < available_count; ++have)
+        {
+            if (strcmp(available[have].extensionName, g_required_device_extensions[want]) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            ++missing;
+        }
+    }
+    return missing;
+}
+
+// Put a usable device in each slot that the capture file used.
+//
+// The capture file names a device by its position in the list that
+// vkEnumeratePhysicalDevices returns.  That position means nothing on another
+// machine, which can hold a different set of devices in a different order.  So
+// choose by what a device can do: first the number of needed extensions that it
+// does not have, then the kind of device.
+void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count)
+{
+    if (devices == nullptr || device_count == 0)
+    {
+        return;
+    }
+
+    std::vector<VkPhysicalDeviceProperties> properties(device_count);
+    std::vector<uint32_t>                   missing(device_count, 0);
+    std::vector<uint8_t>                    taken(device_count, 0);
+
+    for (uint32_t index = 0; index < device_count; ++index)
+    {
+        vkGetPhysicalDeviceProperties(devices[index], &properties[index]);
+        missing[index] = CountMissingExtensions(devices[index]);
+    }
+
+    for (uint32_t slot = 0; slot < g_captured_device_index_count; ++slot)
+    {
+        uint32_t want = g_captured_device_indices[slot];
+        if (want >= device_count)
+        {
+            continue;
+        }
+
+        int32_t best = -1;
+        if (slot == 0 && g_gpu_override_index >= 0)
+        {
+            // The user named a device, so use it and do not score.
+            if (static_cast<uint32_t>(g_gpu_override_index) < device_count)
+            {
+                best = g_gpu_override_index;
+            }
+            else
+            {
+                printf("WARNING: --gpu %d is out of range.  This machine has %u devices.\n",
+                       g_gpu_override_index,
+                       device_count);
+            }
+        }
+
+        if (best < 0)
+        {
+            for (uint32_t index = 0; index < device_count; ++index)
+            {
+                if (taken[index] != 0)
+                {
+                    continue;
+                }
+                if (best < 0)
+                {
+                    best = static_cast<int32_t>(index);
+                }
+                else if (missing[index] < missing[best])
+                {
+                    best = static_cast<int32_t>(index);
+                }
+                else if (missing[index] == missing[best] &&
+                         DeviceTypeRank(properties[index].deviceType) > DeviceTypeRank(properties[best].deviceType))
+                {
+                    best = static_cast<int32_t>(index);
+                }
+            }
+        }
+
+        if (best < 0)
+        {
+            continue;
+        }
+
+        uint32_t chosen = static_cast<uint32_t>(best);
+        if (chosen != want)
+        {
+            VkPhysicalDevice           swap_device     = devices[want];
+            VkPhysicalDeviceProperties swap_properties = properties[want];
+            uint32_t                   swap_missing    = missing[want];
+            uint8_t                    swap_taken      = taken[want];
+
+            devices[want]      = devices[chosen];
+            properties[want]   = properties[chosen];
+            missing[want]      = missing[chosen];
+            taken[want]        = taken[chosen];
+            devices[chosen]    = swap_device;
+            properties[chosen] = swap_properties;
+            missing[chosen]    = swap_missing;
+            taken[chosen]      = swap_taken;
+        }
+        taken[want] = 1;
+
+        printf("Using device \"%s\" for slot %u.\n", properties[want].deviceName, want);
+        if (missing[want] > 0)
+        {
+            printf("WARNING: That device is missing %u of the %u extensions that the capture used.\n",
+                   missing[want],
+                   g_required_device_extension_count);
+        }
+    }
+}
 )";
 
 static const char* sCommonQueryPhysicalDeviceMemoryProperties = R"(

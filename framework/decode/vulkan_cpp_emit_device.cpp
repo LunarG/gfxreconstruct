@@ -56,6 +56,11 @@ void VulkanCppConsumerBase::Generate_vkEnumeratePhysicalDevices(args::EnumerateP
                 physical_device_names.c_str());
 
         AddHandles(physical_device_names, args.pPhysicalDevices.GetPointer(), recorded_count);
+
+        enumerated_physical_devices_.assign(args.pPhysicalDevices.GetPointer(),
+                                            args.pPhysicalDevices.GetPointer() + recorded_count);
+
+        fprintf(file, "\t\tSelectPhysicalDevices(%s, deviceCount);\n", physical_device_names.c_str());
         fprintf(file, "\t}\n");
     }
 }
@@ -245,6 +250,10 @@ void VulkanCppConsumerBase::Generate_vkCreateDevice(args::CreateDevice& args)
     VkDeviceInfo* new_dev_info                   = new VkDeviceInfo();
     new_dev_info->parent                         = args.physicalDevice;
     device_info_map_[*args.pDevice.GetPointer()] = new_dev_info;
+
+    // Remember which slot in the enumeration this device came from, and which
+    // extensions it needed.  The generated source chooses a device with these.
+    RecordDeviceSelectionData(args.physicalDevice, args.pCreateInfo.GetPointer());
 
     fprintf(file, "\t{\n");
     fprintf(file, "\t\tQueryPhysicalDeviceMemoryProperties(%s);\n", this->GetHandle(args.physicalDevice).c_str());
