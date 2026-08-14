@@ -490,6 +490,9 @@ void VulkanCppConsumerBase::NewFrameFile(uint32_t frameNumber, uint32_t frameSpl
         exit(-1);
     }
 
+    // The frame body is inside a function, so statements start one level in.
+    frame_writer_.SetFile(frame_file_, 1);
+
     fprintf(frame_file_, "%s\n", sCommonFrameSourceHeader);
 
     std::string frameFunctionName = "void " + new_frame_filename + "()";
@@ -505,6 +508,7 @@ void VulkanCppConsumerBase::EndFrameFile(uint32_t frameNumber, uint32_t frameSpl
     fprintf(frame_file_, "%s", sCommonFrameSourceFooter);
     util::platform::FileClose(frame_file_);
     frame_file_ = nullptr;
+    frame_writer_.SetFile(nullptr);
 
     // The 'struct tracking' mechanism's restricted for every frame call.
     struct_map_.clear();
