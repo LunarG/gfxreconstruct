@@ -46,13 +46,32 @@ std::string GenerateStruct_VkMemoryAllocateInfo(std::ostream&                 ou
     // pNext
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    // allocationSize
-    struct_body << "\t\t\t" << structInfo->allocationSize << "UL"
-                << "," << std::endl;
-    // memoryTypeIndex
+    // allocationSize.  Another device can need more room for the same resource,
+    // so take the larger of the recorded size and what the device asks for.
+    struct_body << "\t\t\t";
+    if (new_size)
+    {
+        struct_body << "RecalculateAllocationSize(" << structInfo->allocationSize << "UL, " << memory_reqs << ")";
+    }
+    else
+    {
+        struct_body << structInfo->allocationSize << "UL";
+    }
+    struct_body << "," << std::endl;
+
+    // memoryTypeIndex.  A resource only accepts the memory types in its
+    // requirements, so pass those along when they are known.
     struct_body << "\t\t\t"
-                << "RecalculateMemoryTypeIndex(" << structInfo->memoryTypeIndex << ")"
-                << ",";
+                << "RecalculateMemoryTypeIndex(" << structInfo->memoryTypeIndex << ", ";
+    if (new_size)
+    {
+        struct_body << memory_reqs << ".memoryTypeBits";
+    }
+    else
+    {
+        struct_body << "UINT32_MAX";
+    }
+    struct_body << "),";
 
     std::string variable_name = consumer.AddStruct(struct_body, "memoryAllocateInfo");
     out << "\t\tVkMemoryAllocateInfo " << variable_name << " {" << std::endl;
