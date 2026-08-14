@@ -494,11 +494,24 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void PrintOutGlobalVar();
     bool WriteSwapchainFiles();
 
+    // Write the device extension list and the device slots that the capture used.
+    void PrintOutDeviceSelectionData(FILE* file);
+
+    // Note the slot and the extensions that one vkCreateDevice call needed.
+    void RecordDeviceSelectionData(format::HandleId physicalDevice, const VkDeviceCreateInfo* createInfo);
+
     struct FrameTempMemory
     {
         std::string name;
         size_t      size;
     };
+
+    // The physical devices in the order that vkEnumeratePhysicalDevices gave during
+    // capture, the slots that vkCreateDevice used, and every device extension that
+    // the capture enabled.  The generated source uses these to choose a device.
+    std::vector<format::HandleId> enumerated_physical_devices_;
+    std::vector<uint32_t>         used_physical_device_indices_;
+    std::vector<std::string>      required_device_extensions_;
 
     bool                                               enable_virtual_swapchain_{ true };
     uint32_t                                           frame_number_;

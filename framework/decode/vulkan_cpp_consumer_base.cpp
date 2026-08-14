@@ -195,6 +195,76 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
     return true;
 }
 
+void VulkanCppConsumerBase::RecordDeviceSelectionData(format::HandleId          physicalDevice,
+                                                      const VkDeviceCreateInfo* createInfo)
+{
+    // Find which slot of the enumeration held this physical device.
+    for (uint32_t index = 0; index < enumerated_physical_devices_.size(); ++index)
+    {
+        if (enumerated_physical_devices_[index] != physicalDevice)
+        {
+            continue;
+        }
+        if (std::find(used_physical_device_indices_.begin(), used_physical_device_indices_.end(), index) ==
+            used_physical_device_indices_.end())
+        {
+            used_physical_device_indices_.push_back(index);
+        }
+        break;
+    }
+
+    if (createInfo == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t index = 0; index < createInfo->enabledExtensionCount; ++index)
+    {
+        const char* name = createInfo->ppEnabledExtensionNames[index];
+        if (name == nullptr)
+        {
+            continue;
+        }
+        if (std::find(required_device_extensions_.begin(), required_device_extensions_.end(), name) ==
+            required_device_extensions_.end())
+        {
+            required_device_extensions_.emplace_back(name);
+        }
+    }
+}
+
+void VulkanCppConsumerBase::PrintOutDeviceSelectionData(FILE* file)
+{
+    fprintf(file, "\nconst char* const g_required_device_extensions[] = {\n");
+    for (const std::string& name : required_device_extensions_)
+    {
+        fprintf(file, "    \"%s\",\n", name.c_str());
+    }
+    // Keep at least one entry so that the array is valid C++.
+    if (required_device_extensions_.empty())
+    {
+        fprintf(file, "    nullptr,\n");
+    }
+    fprintf(file, "};\n");
+    fprintf(file,
+            "const uint32_t g_required_device_extension_count = %" PRIu64 ";\n",
+            util::platform::SizeTtoUint64(required_device_extensions_.size()));
+
+    fprintf(file, "\nconst uint32_t g_captured_device_indices[] = {\n");
+    for (uint32_t index : used_physical_device_indices_)
+    {
+        fprintf(file, "    %u,\n", index);
+    }
+    if (used_physical_device_indices_.empty())
+    {
+        fprintf(file, "    0,\n");
+    }
+    fprintf(file, "};\n");
+    fprintf(file,
+            "const uint32_t g_captured_device_index_count = %" PRIu64 ";\n",
+            util::platform::SizeTtoUint64(used_physical_device_indices_.size()));
+}
+
 void VulkanCppConsumerBase::PrintOutCMakeFile()
 {
     std::string filename = util::filepath::Join(out_dir_, "CMakeLists.txt");
@@ -268,6 +338,8 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
         }
         fprintf(global_file, "};\n");
 
+        PrintOutDeviceSelectionData(global_file);
+        fputs(sCommonSelectPhysicalDevices, global_file);
         fputs(sCommonQueryPhysicalDeviceMemoryProperties, global_file);
         fputs(sCommonRecalculateAllocationSize, global_file);
         fputs(sCommonRecalculateMemoryTypeIndex, global_file);
