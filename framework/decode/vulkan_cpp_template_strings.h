@@ -502,10 +502,15 @@ struct XCBApp {
         width = w;
         height = h;
     }
+    ~XCBApp();
+
     uint32_t width { 320 };
     uint32_t height { 240 };
     xcb_connection_t *connection { nullptr };
-    xcb_window_t window;
+    xcb_window_t window { 0 };
+    // Every window that the program made.  A capture can create more than one
+    // surface, and each window has to go at the end.
+    std::vector<xcb_window_t> windows;
 };
 
 extern XCBApp appdata;
@@ -530,15 +535,43 @@ extern size_t LoadBinaryData(const char* filename,
 )";
 
 static const char* sXcbOutputOverrideMethod = R"(
+XCBApp::~XCBApp()
+{
+    if (connection == nullptr) {
+        return;
+    }
+
+    for (xcb_window_t open_window : windows) {
+        xcb_destroy_window(connection, open_window);
+    }
+    windows.clear();
+    window = 0;
+
+    xcb_flush(connection);
+    xcb_disconnect(connection);
+    connection = nullptr;
+}
+
 void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
                                        struct XCBApp& appdata) {
-    // Open the connection to the X server
-    xcb_connection_t *connection = xcb_connect(NULL, NULL);
+    // Open the connection to the X server once and keep it.  A new connection for
+    // each surface leaves the earlier windows on the screen until the X server
+    // notices that the client has gone.
+    if (appdata.connection == nullptr) {
+        appdata.connection = xcb_connect(NULL, NULL);
 
-    if (xcb_connection_has_error(connection) > 0)
-    {
-      printf("Cannot open display\n");
-      exit(1);
+        if (xcb_connection_has_error(appdata.connection) > 0)
+        {
+          printf("Cannot open display\n");
+          exit(1);
+        }
+    }
+    xcb_connection_t *connection = appdata.connection;
+
+    // Take the window that came before off the screen.  This structure holds one
+    // window, so the program draws to the newest one only.
+    if (appdata.window != 0) {
+        xcb_unmap_window(connection, appdata.window);
     }
 
     // Get the first screen
@@ -565,8 +598,8 @@ void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
     // Make sure commands are sent before we pause so that the window gets shown
     xcb_flush(connection);
 
-    appdata.connection = connection;
     appdata.window = window;
+    appdata.windows.push_back(window);
 
     createInfo->sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     createInfo->connection = connection;
@@ -737,16 +770,17 @@ static const char* sWaylandOutputOverrideMethod = R"(
 
 WaylandApp::~WaylandApp()
 {
-  wl_buffer_destroy(appdata.wl.buffer);
-  wl_shm_pool_destroy(appdata.wl.shm_pool);
-  wl_shm_destroy(appdata.wl.shm);
-  close(appdata.wl.shm_fd);
-  xdg_wm_base_destroy(appdata.xdg.wm_base);
-  xdg_toplevel_destroy(appdata.xdg.toplevel);
-  xdg_surface_destroy(appdata.xdg.surface);
-  wl_surface_destroy(appdata.wl.surface);
-  wl_compositor_destroy(appdata.wl.compositor);
-  wl_display_disconnect(appdata.wl.display);
+  // A capture that makes no surface leaves all of these empty, so test each one.
+  if (appdata.wl.buffer != nullptr)     { wl_buffer_destroy(appdata.wl.buffer); }
+  if (appdata.wl.shm_pool != nullptr)   { wl_shm_pool_destroy(appdata.wl.shm_pool); }
+  if (appdata.wl.shm != nullptr)        { wl_shm_destroy(appdata.wl.shm); }
+  if (appdata.wl.shm_fd >= 0)           { close(appdata.wl.shm_fd); }
+  if (appdata.xdg.wm_base != nullptr)   { xdg_wm_base_destroy(appdata.xdg.wm_base); }
+  if (appdata.xdg.toplevel != nullptr)  { xdg_toplevel_destroy(appdata.xdg.toplevel); }
+  if (appdata.xdg.surface != nullptr)   { xdg_surface_destroy(appdata.xdg.surface); }
+  if (appdata.wl.surface != nullptr)    { wl_surface_destroy(appdata.wl.surface); }
+  if (appdata.wl.compositor != nullptr) { wl_compositor_destroy(appdata.wl.compositor); }
+  if (appdata.wl.display != nullptr)    { wl_display_disconnect(appdata.wl.display); }
 }
 
 static void Randname(char *buf)
@@ -1251,11 +1285,15 @@ struct Win32App {
         width = w;
         height = h;
     }
+    ~Win32App();
+
     uint32_t width { 320 };
     uint32_t height { 240 };
-    GLFWwindow* window;
-    HINSTANCE hInstance;
-    HWND hWnd;
+    GLFWwindow* window { nullptr };
+    HINSTANCE hInstance { nullptr };
+    HWND hWnd { nullptr };
+    // Every window that the program made.
+    std::vector<GLFWwindow*> windows;
 };
 
 extern Win32App appdata;
@@ -1280,14 +1318,31 @@ extern size_t LoadBinaryData(const char* filename,
 )";
 
 static const char* sWin32OutputOverrideMethod = R"(
+Win32App::~Win32App()
+{
+    for (GLFWwindow* open_window : windows) {
+        glfwDestroyWindow(open_window);
+    }
+    windows.clear();
+    window = nullptr;
+
+    glfwTerminate();
+}
+
 void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo,
                                          struct Win32App& appdata)
 {
+    // This structure holds one window, so hide the one that came before.
+    if (appdata.window != nullptr) {
+        glfwHideWindow(appdata.window);
+    }
+
     appdata.window = glfwCreateWindow(appdata.width,
                                       appdata.height,
                                       "Vulkan",
                                       nullptr,
                                       nullptr);
+    appdata.windows.push_back(appdata.window);
     appdata.hWnd = glfwGetWin32Window(appdata.window);
     appdata.hInstance = GetModuleHandle(nullptr);
 
