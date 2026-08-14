@@ -666,20 +666,39 @@ void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(args::GetSwapchainI
 {
     FILE* file = GetFrameFile();
 
-    std::string swapchain_images_var_name = "NULL";
-    if (args.pSwapchainImages.GetPointer() == NULL)
+    uint32_t captured_swapchain_count = 0;
+    if (args.pSwapchainImageCount.GetPointer() != nullptr)
     {
-        const std::string swapchain_image_count_var_name = "pSwapchainImageCount_" + std::to_string(GetNextId());
-        AddKnownVariables("uint32_t", swapchain_image_count_var_name);
-        ptr_map_[&args.pSwapchainImageCount] = swapchain_image_count_var_name;
+        captured_swapchain_count = *args.pSwapchainImageCount.GetPointer();
     }
-    else
+
+    // An application normally calls this twice: once to get the image count, then
+    // again to get the images.  A trimmed capture file can hold the second call
+    // without the first, because the first call happened before the trim point.
+    // So make sure that a count variable exists for either call.
+    auto count_entry = swapchain_image_count_map_.find(args.swapchain);
+    if (count_entry == swapchain_image_count_map_.end())
+    {
+        const std::string new_count_var_name = "pSwapchainImageCount_" + std::to_string(GetNextId());
+        AddKnownVariables("uint32_t", new_count_var_name);
+        count_entry = swapchain_image_count_map_.emplace(args.swapchain, new_count_var_name).first;
+
+        if (args.pSwapchainImages.GetPointer() != nullptr)
+        {
+            // No count call came first, so start from the count in the capture file.
+            fprintf(file, "\t%s = %u;\n", new_count_var_name.c_str(), captured_swapchain_count);
+        }
+    }
+    const std::string& swapchain_image_count_var_name = count_entry->second;
+
+    std::string swapchain_images_var_name = "NULL";
+    if (args.pSwapchainImages.GetPointer() != NULL)
     {
         swapchain_images_var_name = "pSwapchainImages_" + std::to_string(GetNextId());
         fprintf(file,
                 "\t%s = new VkImage[%s];\n",
                 swapchain_images_var_name.c_str(),
-                ptr_map_[&args.pSwapchainImageCount].c_str());
+                swapchain_image_count_var_name.c_str());
         AddKnownVariables("VkImage*", swapchain_images_var_name);
         if (args.result == VK_SUCCESS)
         {
@@ -691,18 +710,12 @@ void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(args::GetSwapchainI
 
     pfn_loader_.AddMethodName("vkGetSwapchainImagesKHR");
 
-    uint32_t captured_swapchain_count = 0;
-    if (args.pSwapchainImageCount.GetPointer() != nullptr)
-    {
-        captured_swapchain_count = *args.pSwapchainImageCount.GetPointer();
-    }
-
     fprintf(file,
             "\tVK_CALL_CHECK(toCppGetSwapchainImagesKHR(%s, %s, %u, &%s, %s), %s);\n",
             GetHandle(args.device).c_str(),
             handle_id_map_[args.swapchain].c_str(),
             captured_swapchain_count,
-            ptr_map_[&args.pSwapchainImageCount].c_str(),
+            swapchain_image_count_var_name.c_str(),
             swapchain_images_var_name.c_str(),
             util::ToString<VkResult>(args.result).c_str());
 }
@@ -717,7 +730,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(
     {
         const std::string surface_format_count_name = "pSurfaceFormatCount_" + std::to_string(GetNextId());
         fprintf(file, "\tuint32_t %s;\n", surface_format_count_name.c_str());
-        ptr_map_[&args.pSurfaceFormatCount] = surface_format_count_name;
+        surface_format_count_map_[args.surface] = surface_format_count_name;
     }
     else
     {
@@ -725,7 +738,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(
         fprintf(file,
                 "\tVkSurfaceFormatKHR %s[%s];\n",
                 surface_formats_var_name.c_str(),
-                ptr_map_[&args.pSurfaceFormatCount].c_str());
+                surface_format_count_map_[args.surface].c_str());
         // TODO: connect these formats to their usages? How?
     }
 
@@ -734,7 +747,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(
             "\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceFormatsKHR(%s, %s, &%s, %s), %s);\n",
             GetHandle(args.physicalDevice).c_str(),
             GetHandle(args.surface).c_str(),
-            ptr_map_[&args.pSurfaceFormatCount].c_str(),
+            surface_format_count_map_[args.surface].c_str(),
             surface_formats_var_name.c_str(),
             util::ToString<VkResult>(args.result).c_str());
 
@@ -751,7 +764,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(
     {
         const std::string present_mode_count_var_name = "pPresentModeCount_" + std::to_string(GetNextId());
         fprintf(file, "\tuint32_t %s;\n", present_mode_count_var_name.c_str());
-        ptr_map_[&args.pPresentModeCount] = present_mode_count_var_name;
+        surface_present_mode_count_map_[args.surface] = present_mode_count_var_name;
     }
     else
     {
@@ -759,7 +772,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(
         fprintf(file,
                 "\tVkPresentModeKHR %s[%s];\n",
                 present_modes_var_name.c_str(),
-                ptr_map_[&args.pPresentModeCount].c_str());
+                surface_present_mode_count_map_[args.surface].c_str());
         // TODO: connect these formats to their usages? How?
     }
 
@@ -768,7 +781,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(
             "\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfacePresentModesKHR(%s, %s, &%s, %s), %s);\n",
             GetHandle(args.physicalDevice).c_str(),
             GetHandle(args.surface).c_str(),
-            ptr_map_[&args.pPresentModeCount].c_str(),
+            surface_present_mode_count_map_[args.surface].c_str(),
             present_modes_var_name.c_str(),
             util::ToString<VkResult>(args.result).c_str());
 
@@ -786,7 +799,7 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceQueueFamilyProperties(
         const std::string queue_family_props_count_var_name =
             "pQueueFamilyPropertyCount_" + std::to_string(GetNextId());
         fprintf(file, "\tuint32_t %s;\n", queue_family_props_count_var_name.c_str());
-        ptr_map_[&args.pQueueFamilyPropertyCount] = queue_family_props_count_var_name;
+        queue_family_count_map_[args.physicalDevice] = queue_family_props_count_var_name;
     }
     else
     {
@@ -794,14 +807,14 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceQueueFamilyProperties(
         fprintf(file,
                 "\tVkQueueFamilyProperties %s[%s];\n",
                 queue_family_props_var_name.c_str(),
-                ptr_map_[&args.pQueueFamilyPropertyCount].c_str());
+                queue_family_count_map_[args.physicalDevice].c_str());
         // TODO: connect these formats to their usages? How?
     }
 
     fprintf(file,
             "\tvkGetPhysicalDeviceQueueFamilyProperties(%s, &%s, %s);\n",
             GetHandle(args.physicalDevice).c_str(),
-            ptr_map_[&args.pQueueFamilyPropertyCount].c_str(),
+            queue_family_count_map_[args.physicalDevice].c_str(),
             queue_family_props_var_name.c_str());
 
     fprintf(file, "\n");
