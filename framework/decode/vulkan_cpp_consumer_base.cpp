@@ -340,6 +340,7 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
 
         PrintOutDeviceSelectionData(global_file);
         fputs(sCommonSelectPhysicalDevices, global_file);
+        fputs(sCommonParseCommandLine, global_file);
         fputs(sCommonQueryPhysicalDeviceMemoryProperties, global_file);
         fputs(sCommonRecalculateAllocationSize, global_file);
         fputs(sCommonRecalculateMemoryTypeIndex, global_file);

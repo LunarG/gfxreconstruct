@@ -45,6 +45,11 @@ extern const uint32_t    g_captured_device_index_count;
 // Set by the --gpu option.  A negative value means choose automatically.
 extern int32_t g_gpu_override_index;
 
+// Set by the --list-gpu option.
+extern bool g_list_gpus;
+
+extern bool ParseCommandLine(int argc, char** argv);
+
 extern void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count);
 extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice);
 extern uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements);
@@ -71,8 +76,57 @@ static const char* sCommonFrameSourceFooter = R"(
 } // frame end
 )";
 
+static const char* sCommonParseCommandLine = R"(
+// Read the options that this program accepts.  Returns false when the program
+// should stop, for example after --help.
+bool ParseCommandLine(int argc, char** argv)
+{
+    const char* program_name = (argc > 0) ? argv[0] : "vulkan_app";
+
+    for (int index = 1; index < argc; ++index)
+    {
+        const char* argument = argv[index];
+
+        if (strcmp(argument, "--help") == 0 || strcmp(argument, "-h") == 0)
+        {
+            printf("Usage: %s [options]\n", program_name);
+            printf("  --gpu <index>  Use the physical device at <index> of the list that\n");
+            printf("                 vkEnumeratePhysicalDevices returns.  Without this option\n");
+            printf("                 the program takes the device that has the most of the\n");
+            printf("                 extensions that the capture needed, and prefers a\n");
+            printf("                 discrete GPU over an integrated one, and an integrated\n");
+            printf("                 one over a software device.\n");
+            printf("  --list-gpu     List each physical device as the program selects.\n");
+            printf("  --help         Print this text and stop.\n");
+            return false;
+        }
+        else if (strcmp(argument, "--gpu") == 0)
+        {
+            if (index + 1 >= argc)
+            {
+                printf("ERROR: --gpu needs an index.\n");
+                return false;
+            }
+            g_gpu_override_index = atoi(argv[++index]);
+        }
+        else if (strcmp(argument, "--list-gpu") == 0)
+        {
+            g_list_gpus = true;
+        }
+        else
+        {
+            printf("ERROR: Unknown option \"%s\".  Use --help for the list.\n", argument);
+            return false;
+        }
+    }
+
+    return true;
+}
+)";
+
 static const char* sCommonSelectPhysicalDevices = R"(
 int32_t g_gpu_override_index = -1;
+bool    g_list_gpus          = false;
 
 // Prefer a discrete GPU, then an integrated one, and leave a software device
 // last.
@@ -148,6 +202,20 @@ void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count)
     {
         vkGetPhysicalDeviceProperties(devices[index], &properties[index]);
         missing[index] = CountMissingExtensions(devices[index]);
+    }
+
+    if (g_list_gpus)
+    {
+        printf("Physical devices on this machine:\n");
+        for (uint32_t index = 0; index < device_count; ++index)
+        {
+            printf("  %u: \"%s\", type rank %u, missing %u of %u needed extensions\n",
+                   index,
+                   properties[index].deviceName,
+                   DeviceTypeRank(properties[index].deviceType),
+                   missing[index],
+                   g_required_device_extension_count);
+        }
     }
 
     for (uint32_t slot = 0; slot < g_captured_device_index_count; ++slot)
@@ -334,7 +402,10 @@ void LogVkError(const char* function,
 static const char* sXcbOutputMainStart = R"(
 #include "global_var.h"
 
-int main() {
+int main(int argc, char** argv) {
+    if (!ParseCommandLine(argc, argv)) {
+        return 0;
+    }
 )";
 
 static const char* sXcbOutputMainEnd = R"(
@@ -510,7 +581,10 @@ target_link_libraries(vulkan_app vulkan xcb)
 static const char* sWaylandOutputMainStart = R"(
 #include "global_var.h"
 
-int main() {
+int main(int argc, char** argv) {
+    if (!ParseCommandLine(argc, argv)) {
+        return 0;
+    }
 )";
 
 static const char* sWaylandOutputMainEnd = R"(
@@ -1068,7 +1142,11 @@ static const char* sWin32OutputMainStart = R"(
 
 #include "global_var.h"
 
-int main() {
+int main(int argc, char** argv) {
+    if (!ParseCommandLine(argc, argv)) {
+        return 0;
+    }
+
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
