@@ -396,6 +396,10 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         const ApiCallInfo&                          call_info,
         args::CmdUpdatePipelineIndirectBufferNV&    args) override;
 
+    void Process_vkCmdCopyTensorARM(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyTensorARM&                     args) override;
+
     void Process_vkCmdPreprocessGeneratedCommandsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdPreprocessGeneratedCommandsEXT&    args) override;

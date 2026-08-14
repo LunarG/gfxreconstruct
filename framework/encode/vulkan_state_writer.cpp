@@ -5051,6 +5051,11 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
                                                  wrapper->pipeline_dependency.create_parameters.get()));
         }
 
+        // All objects for a session are emitted together. Splitting them into separate calls can make the second call
+        // an invalid attempt to bind a bind point that was already bound by the first call.
+        std::vector<VkBindDataGraphPipelineSessionMemoryInfoARM> bind_infos;
+        bind_infos.reserve(wrapper->memory_bindings.size());
+
         for (const auto& binding : wrapper->memory_bindings)
         {
             const auto* memory_wrapper = state_table.GetVulkanDeviceMemoryWrapper(binding.bind_memory_id);
@@ -5059,7 +5064,7 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
                 continue;
             }
 
-            VkBindDataGraphPipelineSessionMemoryInfoARM info{};
+            auto& info        = bind_infos.emplace_back();
             info.sType        = VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM;
             info.pNext        = nullptr;
             info.session      = wrapper->handle;
@@ -5067,10 +5072,16 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
             info.memoryOffset = binding.bind_offset;
             info.bindPoint    = binding.bind_point;
             info.objectIndex  = binding.object_index;
+        }
+
+        if (!bind_infos.empty())
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, bind_infos.size());
+            const uint32_t bind_info_count = static_cast<uint32_t>(bind_infos.size());
 
             encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
-            encoder_.EncodeUInt32Value(1);
-            EncodeStructArray(&encoder_, &info, 1);
+            encoder_.EncodeUInt32Value(bind_info_count);
+            EncodeStructArray(&encoder_, bind_infos.data(), bind_info_count);
             encoder_.EncodeEnumValue(VK_SUCCESS);
             WriteFunctionCall(format::ApiCallId::ApiCall_vkBindDataGraphPipelineSessionMemoryARM, &parameter_stream_);
             parameter_stream_.Clear();
