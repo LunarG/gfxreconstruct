@@ -65,6 +65,22 @@ const std::map<std::string, GfxToCppPlatform> kTargetPlatformByName = {
     //{ "xlib", GfxToCppPlatform::PLATFORM_XLIB},
 };
 
+// The surface extensions that GenerateSurfaceCreation rewrites to the surface
+// extension of the target platform.  Keep this list in step with the
+// Generate_vkCreate*Surface* functions in vulkan_cpp_emit_surface.cpp.
+//
+// These are literal names, not the VK_*_EXTENSION_NAME macros.  A macro is only
+// defined when the host build enables that VK_USE_PLATFORM_ macro, and the tool
+// must rewrite every one of these whatever host it runs on.
+//
+// VK_EXT_headless_surface is absent on purpose.  The tool does not intercept
+// vkCreateHeadlessSurfaceEXT, so the generated source still calls it and still
+// needs that extension enabled.
+const std::vector<std::string> kRetargetedSurfaceExtensionNames = {
+    "VK_KHR_android_surface", "VK_EXT_metal_surface", "VK_KHR_wayland_surface",
+    "VK_KHR_win32_surface",   "VK_KHR_xcb_surface",   "VK_KHR_xlib_surface",
+};
+
 struct GfxToCppVariable
 {
     std::string type;
