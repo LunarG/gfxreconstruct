@@ -1118,6 +1118,13 @@ GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream&           
                                                         Decoded_VkImportAndroidHardwareBufferInfoANDROID* metaInfo,
                                                         VulkanCppConsumerBase&                            consumer)
 {
+    // An Android hardware buffer has no meaning on another platform, and the type
+    // does not exist there, so leave the structure out of the chain.
+    if (!consumer.SupportsAndroidHardwareBuffers())
+    {
+        return "NULL";
+    }
+
     std::stringstream struct_body;
     std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     // sType

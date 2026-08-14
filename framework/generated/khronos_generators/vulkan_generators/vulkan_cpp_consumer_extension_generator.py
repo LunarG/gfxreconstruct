@@ -146,11 +146,16 @@ class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
                     f'static std::string GenerateExtensionStruct_{structName}(\n'
                     f'    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)\n'
                     f'{{\n'
-                    f'    return "&" + GenerateStruct_{structName}(\n'
+                    f'    std::string struct_name = GenerateStruct_{structName}(\n'
                     f'        out,\n'
                     f'        reinterpret_cast<const {structName}*>(struct_info),\n'
                     f'        reinterpret_cast<Decoded_{structName}*>(pnext_meta_data->GetMetaStructPointer()),\n'
                     f'        consumer);\n'
+                    f'\n'
+                    f'    // A structure generator returns "NULL" when it leaves the structure\n'
+                    f'    // out, for example when the target platform does not have the type.\n'
+                    f'    // Taking the address of that would not be valid C++.\n'
+                    f'    return (struct_name == "NULL") ? struct_name : ("&" + struct_name);\n'
                     f'}}\n')
             self.writeout('typedef std::string (*PFN_GenerateExtensionStruct)(\n'
                           '    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer);\n')
