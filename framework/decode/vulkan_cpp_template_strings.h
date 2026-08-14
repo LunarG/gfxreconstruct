@@ -51,6 +51,7 @@ extern bool g_list_gpus;
 extern bool ParseCommandLine(int argc, char** argv);
 
 extern void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count);
+extern void FilterDeviceExtensions(VkPhysicalDevice device, VkDeviceCreateInfo* create_info);
 extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice);
 extern uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements);
 extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex);
@@ -74,6 +75,62 @@ static const char* sCommonFrameSourceHeader = R"(
 
 static const char* sCommonFrameSourceFooter = R"(
 } // frame end
+)";
+
+static const char* sCommonFilterDeviceExtensions = R"(
+// Drop the device extensions that this device does not have.
+//
+// The capture asks for the extension set of the machine that made it.  Another
+// machine, or another driver, does not always have every one of them, and
+// vkCreateDevice fails with VK_ERROR_EXTENSION_NOT_PRESENT if even one is
+// absent.  Removing an extension can make a later call fail, but keeping it
+// stops the program before it draws anything.
+void FilterDeviceExtensions(VkPhysicalDevice device, VkDeviceCreateInfo* create_info)
+{
+    if (create_info == nullptr || create_info->enabledExtensionCount == 0 ||
+        create_info->ppEnabledExtensionNames == nullptr)
+    {
+        return;
+    }
+
+    uint32_t available_count = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, nullptr);
+
+    std::vector<VkExtensionProperties> available(available_count);
+    if (available_count > 0)
+    {
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, available.data());
+    }
+
+    // The array came from a local definition in the generated source, so it is
+    // safe to write to.  Keep the names that this device has, in order.
+    const char** names = const_cast<const char**>(create_info->ppEnabledExtensionNames);
+    uint32_t     kept  = 0;
+
+    for (uint32_t want = 0; want < create_info->enabledExtensionCount; ++want)
+    {
+        bool found = false;
+        for (uint32_t have = 0; have < available_count; ++have)
+        {
+            if (strcmp(available[have].extensionName, names[want]) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+        {
+            names[kept++] = names[want];
+        }
+        else
+        {
+            printf("WARNING: Removing device extension \"%s\".  This device does not have it.\n", names[want]);
+        }
+    }
+
+    create_info->enabledExtensionCount = kept;
+}
 )";
 
 static const char* sCommonParseCommandLine = R"(
