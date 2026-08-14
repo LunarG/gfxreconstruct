@@ -497,6 +497,10 @@ class VulkanCppConsumerBase : public VulkanConsumer
     // Write the device extension list and the device slots that the capture used.
     void PrintOutDeviceSelectionData(FILE* file);
 
+    // The slot that this physical device had in vkEnumeratePhysicalDevices during
+    // capture.  Returns 0 when the slot is not known.
+    uint32_t GetCapturedPhysicalDeviceIndex(format::HandleId physicalDevice) const;
+
     // Note the slot and the extensions that one vkCreateDevice call needed.
     void RecordDeviceSelectionData(format::HandleId physicalDevice, const VkDeviceCreateInfo* createInfo);
 
@@ -533,6 +537,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
     DataFilePacker                                     spv_saver_;
     std::vector<std::vector<format::DeviceMemoryType>> original_memory_types_;
     std::vector<std::vector<format::DeviceMemoryHeap>> original_memory_heaps_;
+
+    // The memory types that the capture file recorded, by physical device.  The
+    // generated source needs the row for the device that it uses, and the order in
+    // which the meta commands arrive is not that order.
+    std::unordered_map<format::HandleId, std::vector<format::DeviceMemoryType>> captured_memory_types_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
