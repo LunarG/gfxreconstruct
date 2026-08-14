@@ -19,6 +19,7 @@
 #define GFXRECON_DECODE_VULKAN_CPP_CONSUMER_BASE_H
 
 #include "vulkan_cpp_utilities.h"
+#include "decode/vulkan_cpp_code_writer.h"
 #include "decode/vulkan_cpp_loader_generator.h"
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/platform_types.h"
@@ -415,6 +416,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
   protected:
     FILE* GetFrameFile();
+
+    // Writes into the current frame file and owns the indent level.  The frame
+    // body sits inside a function, so the indent starts at one.
+    CodeWriter& GetFrameWriter() { return frame_writer_; }
+
     FILE* GetGlobalFile() const { return global_file_; };
 
     std::string GenFrameName(uint32_t frameNumber, uint32_t frameSplitNumber, uint32_t fillLength);
@@ -501,6 +507,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     uint32_t                                           api_call_number_;
     std::vector<FrameTempMemory>                       frame_split_temp_memory_;
     FILE*                                              frame_file_;
+    CodeWriter                                         frame_writer_;
     FILE*                                              global_file_;
     FILE*                                              main_file_;
     std::string                                        filename_;
