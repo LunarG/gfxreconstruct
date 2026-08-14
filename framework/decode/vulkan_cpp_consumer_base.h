@@ -111,18 +111,23 @@ class VulkanCppConsumerBase : public VulkanConsumer
     bool GetResourceMemoryRequirements(format::HandleId memoryHandleId, std::string& requirements)
     {
         auto found_resource = memory_resource_map_.find(memoryHandleId);
-        if (found_resource != memory_resource_map_.end())
+        if (found_resource == memory_resource_map_.end() || found_resource->second.empty())
         {
-            std::queue<std::pair<format::HandleId, VkDeviceSize>>& resource_handles =
-                memory_resource_map_[memoryHandleId];
-
-            format::HandleId resource_handle = resource_handles.front().first;
-            resource_handles.pop();
-
-            requirements = resource_memory_req_map_[resource_handle];
-            return true;
+            return false;
         }
-        return false;
+
+        format::HandleId resource_handle = found_resource->second.front().first;
+        found_resource->second.pop();
+
+        auto found_requirements = resource_memory_req_map_.find(resource_handle);
+        if (found_requirements == resource_memory_req_map_.end() || found_requirements->second.empty())
+        {
+            // The capture never asked this resource what it needs.
+            return false;
+        }
+
+        requirements = found_requirements->second;
+        return true;
     }
 
     std::string AddStruct(const std::stringstream& content, const std::string& varnamePrefix);

@@ -23,6 +23,7 @@
 #include "tool_command_line.h"
 
 #include "decode/file_processor.h"
+#include "decode/vulkan_cpp_memory_scan_consumer.h"
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_cpp_consumer.h"
@@ -293,6 +294,38 @@ static std::string GetOutputFilename(const std::string& capture_file)
     return gfxrecon::util::filepath::Join(output_dirname, output_filename);
 }
 
+// Read the capture file once and note which resource each memory allocation
+// carries.  The generated source needs the size that a resource requires at the
+// point where it writes the allocation, and the bind call comes after the
+// allocate call in the file.
+static bool ScanMemoryBinds(const std::string&                   input_filename,
+                            gfxrecon::decode::VulkanCppConsumer& cpp_consumer,
+                            const uint32_t                       frame_limit)
+{
+    gfxrecon::decode::FileProcessor               file_processor;
+    gfxrecon::decode::VulkanDecoder               decoder;
+    gfxrecon::decode::VulkanCppMemoryScanConsumer scan_consumer;
+
+    if (!file_processor.Initialize(input_filename))
+    {
+        GFXRECON_LOG_ERROR("Initialization of file processor has failed for the memory scan");
+        return false;
+    }
+
+    file_processor.AddDecoder(&decoder);
+    decoder.AddConsumer(&scan_consumer);
+    file_processor.InitializeFrameProcessing();
+
+    // Read only as far as the generated source goes.  A bind after that point
+    // belongs to an allocation that the source never writes.
+    printf("Scanning capture file for memory binds\n");
+    while (file_processor.ProcessNextFrame() && file_processor.GetCurrentFrameNumber() <= frame_limit)
+    {}
+
+    cpp_consumer.SetMemoryResourceMap(scan_consumer.GetMemoryResourceMap());
+    return (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone);
+}
+
 bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
                     const std::string&                        input_filename,
                     const std::string&                        output_filename,
@@ -496,6 +529,7 @@ int main(int argc, const char** argv)
     }
 
     int64_t process_start_time = gfxrecon::util::datetime::GetTimestamp();
+    ScanMemoryBinds(input_filename, cpp_consumer, frame_limit);
     result = ProcessCapture(cpp_consumer, input_filename, output_filename, target_platform, frame_limit);
     int64_t  process_end_time           = gfxrecon::util::datetime::GetTimestamp();
     uint32_t cpp_consumer_apicall_count = cpp_consumer.GetCurrentApiCallNumber();
