@@ -214,6 +214,22 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
     }
 }
 
+bool VulkanCppConsumerBase::SupportsAndroidHardwareBuffers()
+{
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
+    {
+        return true;
+    }
+
+    if (!warned_about_android_hardware_buffers_)
+    {
+        warned_about_android_hardware_buffers_ = true;
+        GFXRECON_LOG_WARNING("The capture file uses Android hardware buffers.  The target platform does not have "
+                             "them, so the generated source leaves that work out.  Use \"-t android\" to keep it.");
+    }
+    return false;
+}
+
 std::string VulkanCppConsumerBase::GetAndroidHwBufferName(uint64_t buffer)
 {
     if (android_buffer_id_map_.find(buffer) != android_buffer_id_map_.end())
@@ -226,6 +242,11 @@ std::string VulkanCppConsumerBase::GetAndroidHwBufferName(uint64_t buffer)
 void VulkanCppConsumerBase::Generate_vkGetAndroidHardwareBufferPropertiesANDROID(
     args::GetAndroidHardwareBufferPropertiesANDROID& args)
 {
+    if (!SupportsAndroidHardwareBuffers())
+    {
+        return;
+    }
+
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 
@@ -259,6 +280,11 @@ void VulkanCppConsumerBase::Generate_vkGetAndroidHardwareBufferPropertiesANDROID
 void VulkanCppConsumerBase::Generate_vkGetMemoryAndroidHardwareBufferANDROID(
     args::GetMemoryAndroidHardwareBufferANDROID& args)
 {
+    if (!SupportsAndroidHardwareBuffers())
+    {
+        return;
+    }
+
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 

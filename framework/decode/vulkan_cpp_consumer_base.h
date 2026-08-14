@@ -148,6 +148,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     std::string GetAndroidHwBufferName(uint64_t buffer);
 
+    // True when the target platform has AHardwareBuffer.  Only Android does.  The
+    // types and the entry points do not exist anywhere else, so the generated
+    // source must leave that work out or it will not compile.
+    bool SupportsAndroidHardwareBuffers();
+
     void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
 
     // Custom code generation commands
@@ -484,6 +489,9 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<format::HandleId, std::string>                                 resource_memory_req_map_;
 
     bool needs_debug_util_callback_ = false;
+
+    // Warn once, not for each call that the capture made.
+    bool warned_about_android_hardware_buffers_ = false;
 
   private:
     bool CreateSubOutputDirectories(const std::vector<std::string>& subDirs);
