@@ -275,6 +275,12 @@ void VulkanCppConsumerBase::Generate_vkCreateDevice(args::CreateDevice& args)
     {
         this->AddHandles(pdevice_name, args.pDevice.GetPointer());
     }
+    // Take out the extensions that this device does not have, or vkCreateDevice
+    // stops the program.
+    fprintf(file,
+            "\t\tFilterDeviceExtensions(%s, &%s);\n",
+            this->GetHandle(args.physicalDevice).c_str(),
+            pcreate_info_struct.c_str());
     fprintf(file,
             "\t\tVK_CALL_CHECK(vkCreateDevice(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(args.physicalDevice).c_str(),
