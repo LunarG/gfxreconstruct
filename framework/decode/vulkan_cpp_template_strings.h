@@ -52,7 +52,9 @@ extern bool ParseCommandLine(int argc, char** argv);
 
 extern void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count);
 extern void FilterDeviceExtensions(VkPhysicalDevice device, VkDeviceCreateInfo* create_info);
-extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice);
+// capturedDeviceIndex names the row of originalMemoryTypes to compare against,
+// which is the slot that the capture used in vkEnumeratePhysicalDevices.
+extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, uint32_t capturedDeviceIndex);
 extern uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements);
 extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex);
 extern void LogVkError(const char* function, VkResult returnValue, const char* file, int line, VkResult capturedReturnValue);
@@ -360,8 +362,17 @@ void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count)
 
 static const char* sCommonQueryPhysicalDeviceMemoryProperties = R"(
 static VkPhysicalDeviceMemoryProperties s_physicalDeviceMemoryProperties;
-void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice) {
+static uint32_t                         s_capturedDeviceIndex = 0;
+void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, uint32_t capturedDeviceIndex) {
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &s_physicalDeviceMemoryProperties);
+
+    const uint32_t recorded_rows = sizeof(originalMemoryTypes) / sizeof(originalMemoryTypes[0]);
+    if (capturedDeviceIndex < recorded_rows) {
+        s_capturedDeviceIndex = capturedDeviceIndex;
+    } else {
+        printf("WARNING: The capture file holds no memory types for device slot %u.\n", capturedDeviceIndex);
+        s_capturedDeviceIndex = 0;
+    }
 }
 )";
 
@@ -384,7 +395,10 @@ static uint8_t CountBits(uint32_t val) {
 }
 
 uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
-    VkMemoryPropertyFlags target_property_flags = originalMemoryTypes[0][originalMemoryTypeIndex].propertyFlags;
+    // Use the row for the device in use.  Row 0 belongs to the first device of
+    // the capture, which is often not the device that the capture used.
+    VkMemoryPropertyFlags target_property_flags =
+        originalMemoryTypes[s_capturedDeviceIndex][originalMemoryTypeIndex].propertyFlags;
     uint32_t memory_type_index = UINT32_MAX;
 
     // Always try the same index in case we are attempting a replay on the same device as it was recorded on.
@@ -403,11 +417,15 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
             }
             uint32_t cur_flags = (s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags);
             uint8_t normal_bits = CountBits(cur_flags);
-            uint32_t important_flags = (cur_flags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT));
+            // These three decide whether the memory still works for the use that
+            // the capture made of it, so weigh them above the others.
+            uint32_t important_flags = (cur_flags & (VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
+                                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
             uint8_t important_bits = CountBits(important_flags);
             if (important_bits > fallback_important_bits && normal_bits >= fallback_normal_bits) {
               fallback_index = i;
-              fallback_found = false;
+              fallback_found = true;
               fallback_important_bits = important_bits;
               fallback_normal_bits    = normal_bits;
             }
