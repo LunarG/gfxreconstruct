@@ -937,12 +937,15 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     if arg.array_length.isnumeric() or arg.array_length.isupper():
                         body += makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=4)
                     else:
-                        body += makeGenConditions([
-                                    ['{arg.prefixed_array_length} == 1', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
-                                    ['{arg.prefixed_array_length} > 1', [
-                                        makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
-                                        makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)]],
-                                ], locals(), indent=4)
+                        # An enumeration or a flag renders as a literal, for example
+                        # "15" or "VK_FORMAT_R8_UNORM".  The address of a literal is
+                        # not valid C++, so a count of one must still declare a real
+                        # array.  An array name decays to a pointer, so one element
+                        # and many elements both work.
+                        body += makeGenCond('{arg.prefixed_array_length} > 0', [
+                                    makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
+                                    makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)],
+                                [], locals(), indent=4)
 
                     callArgs.append('{0}.c_str()'.format(strArrayVarName))
                     callTempl.append('%s')

@@ -14157,9 +14157,7 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteMaskEXT(
                                                          args.pColorWriteMasks.GetPointer() + args.attachmentCount,
                                                          [&](const VkColorComponentFlags current) { return util::ToString(current); },
                                                          ", ");
-    if (args.attachmentCount == 1) {
-        pcolor_write_masks_array = "&" + pcolor_write_masks_values;
-    } else if (args.attachmentCount > 1) {
+    if (args.attachmentCount > 0) {
         pcolor_write_masks_array = "pcolor_write_masks_array_" + std::to_string(this->GetNextId());
         fprintf(file, "\t\tVkColorComponentFlags %s[] = { %s };\n", pcolor_write_masks_array.c_str(), pcolor_write_masks_values.c_str());
     }
@@ -15019,9 +15017,7 @@ void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
                                               args.pStages.GetPointer() + args.stageCount,
                                               [&](const VkShaderStageFlagBits current) { return util::ToString(current); },
                                               ", ");
-    if (args.stageCount == 1) {
-        pstages_array = "&" + pstages_values;
-    } else if (args.stageCount > 1) {
+    if (args.stageCount > 0) {
         pstages_array = "pstages_array_" + std::to_string(this->GetNextId());
         fprintf(file, "\t\tVkShaderStageFlagBits %s[] = { %s };\n", pstages_array.c_str(), pstages_values.c_str());
     }
