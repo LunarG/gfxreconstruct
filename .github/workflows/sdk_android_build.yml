@@ -52,8 +52,8 @@ jobs:
         mkdir gfxreconstruct-dev
         mkdir gfxreconstruct-dev/layer
         mkdir gfxreconstruct-dev/tools
-        cp LICENSE.txt gfxreconstruct-dev/
-        cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
+        cp LICENSES/LICENSE.txt gfxreconstruct-dev/
+        cp LICENSES/LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
         cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
