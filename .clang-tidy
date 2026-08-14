@@ -1,1 +1,1 @@
-Checks: '-*,bugprone-virtual-near-miss,clang-analyzer-optin.cplusplus.VirtualCall,bugprone-use-after-move,bugprone-sizeof-expression,bugprone-suspicious-memset-usage'
+Checks: '-*,bugprone-virtual-near-miss,clang-analyzer-optin.cplusplus.VirtualCall,bugprone-use-after-move,bugprone-sizeof-expression,bugprone-suspicious-memset-usage,clang-analyzer-core.*'
