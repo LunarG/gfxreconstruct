@@ -111,7 +111,7 @@ class VulkanResourceAllocator
     };
 
   public:
-    VulkanResourceAllocator() : device_{ VK_NULL_HANDLE }, functions_{}, replay_memory_properties_{} {}
+    VulkanResourceAllocator() = default;
 
     virtual ~VulkanResourceAllocator() {}
 
@@ -309,61 +309,109 @@ class VulkanResourceAllocator
     // creation and resource initialization during the initial state setup for trimmed files. Allocating staging
     // resources through the resource allocator allows the resource allocator to be aware of all memory allocations
     // performed for replay.
-    virtual VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
-                                        const VkAllocationCallbacks* allocation_callbacks,
-                                        VkBuffer*                    buffer,
-                                        ResourceData*                allocator_data) = 0;
+    VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
+                                const VkAllocationCallbacks* allocation_callbacks,
+                                VkBuffer*                    buffer,
+                                ResourceData*                allocator_data)
+    {
+        auto injected = device_table_.Open();
+        return CreateBuffer(create_info, allocation_callbacks, format::kNullHandleId, buffer, allocator_data);
+    }
 
-    virtual void DestroyBufferDirect(VkBuffer                     buffer,
-                                     const VkAllocationCallbacks* allocation_callbacks,
-                                     ResourceData                 allocator_data) = 0;
+    void
+    DestroyBufferDirect(VkBuffer buffer, const VkAllocationCallbacks* allocation_callbacks, ResourceData allocator_data)
+    {
+        auto injected = device_table_.Open();
+        DestroyBuffer(buffer, allocation_callbacks, allocator_data);
+    }
 
-    virtual VkResult CreateImageDirect(const VkImageCreateInfo*     create_info,
-                                       const VkAllocationCallbacks* allocation_callbacks,
-                                       VkImage*                     image,
-                                       ResourceData*                allocator_data) = 0;
+    VkResult CreateImageDirect(const VkImageCreateInfo*     create_info,
+                               const VkAllocationCallbacks* allocation_callbacks,
+                               VkImage*                     image,
+                               ResourceData*                allocator_data)
+    {
+        auto injected = device_table_.Open();
+        return CreateImage(create_info, allocation_callbacks, format::kNullHandleId, image, allocator_data);
+    }
 
-    virtual void DestroyImageDirect(VkImage                      image,
-                                    const VkAllocationCallbacks* allocation_callbacks,
-                                    ResourceData                 allocator_data) = 0;
+    void
+    DestroyImageDirect(VkImage image, const VkAllocationCallbacks* allocation_callbacks, ResourceData allocator_data)
+    {
+        auto injected = device_table_.Open();
+        DestroyImage(image, allocation_callbacks, allocator_data);
+    }
 
-    virtual VkResult AllocateMemoryDirect(const VkMemoryAllocateInfo*  allocate_info,
-                                          const VkAllocationCallbacks* allocation_callbacks,
-                                          VkDeviceMemory*              memory,
-                                          MemoryData*                  allocator_data) = 0;
-
-    virtual void FreeMemoryDirect(VkDeviceMemory               memory,
+    VkResult AllocateMemoryDirect(const VkMemoryAllocateInfo*  allocate_info,
                                   const VkAllocationCallbacks* allocation_callbacks,
-                                  MemoryData                   allocator_data) = 0;
+                                  VkDeviceMemory*              memory,
+                                  MemoryData*                  allocator_data)
+    {
+        auto injected = device_table_.Open();
+        return AllocateMemoryDirectImpl(allocate_info, allocation_callbacks, memory, allocator_data);
+    }
 
-    virtual VkResult BindBufferMemoryDirect(VkBuffer               buffer,
-                                            VkDeviceMemory         memory,
-                                            VkDeviceSize           memory_offset,
-                                            ResourceData           allocator_buffer_data,
-                                            MemoryData             allocator_memory_data,
-                                            VkMemoryPropertyFlags* bind_memory_properties) = 0;
+    void FreeMemoryDirect(VkDeviceMemory               memory,
+                          const VkAllocationCallbacks* allocation_callbacks,
+                          MemoryData                   allocator_data)
+    {
+        auto injected = device_table_.Open();
+        FreeMemory(memory, allocation_callbacks, allocator_data);
+    }
 
-    virtual VkResult BindImageMemoryDirect(VkImage                image,
-                                           VkDeviceMemory         memory,
-                                           VkDeviceSize           memory_offset,
-                                           ResourceData           allocator_image_data,
-                                           MemoryData             allocator_memory_data,
-                                           VkMemoryPropertyFlags* bind_memory_properties) = 0;
+    VkResult BindBufferMemoryDirect(VkBuffer               buffer,
+                                    VkDeviceMemory         memory,
+                                    VkDeviceSize           memory_offset,
+                                    ResourceData           allocator_buffer_data,
+                                    MemoryData             allocator_memory_data,
+                                    VkMemoryPropertyFlags* bind_memory_properties)
+    {
+        auto injected = device_table_.Open();
+        return BindBufferMemoryDirectImpl(
+            buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties);
+    }
+
+    VkResult BindImageMemoryDirect(VkImage                image,
+                                   VkDeviceMemory         memory,
+                                   VkDeviceSize           memory_offset,
+                                   ResourceData           allocator_image_data,
+                                   MemoryData             allocator_memory_data,
+                                   VkMemoryPropertyFlags* bind_memory_properties)
+    {
+        auto injected = device_table_.Open();
+        return BindImageMemoryDirectImpl(
+            image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties);
+    }
 
     // Map the memory that the buffer was bound to.  The returned pointer references the start of the buffer memory (it
     // is the start of the memory the resource was bound to plus the resource bind offset).
-    virtual VkResult
-    MapResourceMemoryDirect(VkDeviceSize size, VkMemoryMapFlags flags, void** data, ResourceData allocator_data) = 0;
+    VkResult
+    MapResourceMemoryDirect(VkDeviceSize size, VkMemoryMapFlags flags, void** data, ResourceData allocator_data)
+    {
+        auto injected = device_table_.Open();
+        return MapResourceMemoryDirectImpl(size, flags, data, allocator_data);
+    }
 
-    virtual void UnmapResourceMemoryDirect(ResourceData allocator_data) = 0;
+    void UnmapResourceMemoryDirect(ResourceData allocator_data)
+    {
+        auto injected = device_table_.Open();
+        UnmapResourceMemoryDirectImpl(allocator_data);
+    }
 
-    virtual VkResult FlushMappedMemoryRangesDirect(uint32_t                   memory_range_count,
-                                                   const VkMappedMemoryRange* memory_ranges,
-                                                   const MemoryData*          allocator_datas) = 0;
+    VkResult FlushMappedMemoryRangesDirect(uint32_t                   memory_range_count,
+                                           const VkMappedMemoryRange* memory_ranges,
+                                           const MemoryData*          allocator_datas)
+    {
+        auto injected = device_table_.Open();
+        return FlushMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
+    }
 
-    virtual VkResult InvalidateMappedMemoryRangesDirect(uint32_t                   memory_range_count,
-                                                        const VkMappedMemoryRange* memory_ranges,
-                                                        const MemoryData*          allocator_datas) = 0;
+    VkResult InvalidateMappedMemoryRangesDirect(uint32_t                   memory_range_count,
+                                                const VkMappedMemoryRange* memory_ranges,
+                                                const MemoryData*          allocator_datas)
+    {
+        auto injected = device_table_.Open();
+        return InvalidateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
+    }
 
     virtual bool SupportsOpaqueDeviceAddresses() = 0;
     virtual bool SupportBindVideoSessionMemory() = 0;
@@ -404,20 +452,33 @@ class VulkanResourceAllocator
                                       const MemoryData*                allocator_memory_datas,
                                       VkMemoryPropertyFlags*           bind_memory_properties) = 0;
 
-    virtual VkResult CreateTensorDirect(const VkTensorCreateInfoARM* create_info,
-                                        const VkAllocationCallbacks* allocation_callbacks,
-                                        VkTensorARM*                 tensor,
-                                        ResourceData*                allocator_data) = 0;
+    VkResult CreateTensorDirect(const VkTensorCreateInfoARM* create_info,
+                                const VkAllocationCallbacks* allocation_callbacks,
+                                VkTensorARM*                 tensor,
+                                ResourceData*                allocator_data)
+    {
+        auto injected = device_table_.Open();
+        return CreateTensor(create_info, allocation_callbacks, format::kNullHandleId, tensor, allocator_data);
+    }
 
-    virtual void DestroyTensorDirect(VkTensorARM                  tensor,
-                                     const VkAllocationCallbacks* allocation_callbacks,
-                                     ResourceData                 allocator_data) = 0;
+    void DestroyTensorDirect(VkTensorARM                  tensor,
+                             const VkAllocationCallbacks* allocation_callbacks,
+                             ResourceData                 allocator_data)
+    {
+        auto injected = device_table_.Open();
+        DestroyTensor(tensor, allocation_callbacks, allocator_data);
+    }
 
-    virtual VkResult BindTensorMemoryDirect(uint32_t                         bind_info_count,
-                                            const VkBindTensorMemoryInfoARM* bind_infos,
-                                            const ResourceData*              allocator_tensor_datas,
-                                            const MemoryData*                allocator_memory_datas,
-                                            VkMemoryPropertyFlags*           bind_memory_properties) = 0;
+    VkResult BindTensorMemoryDirect(uint32_t                         bind_info_count,
+                                    const VkBindTensorMemoryInfoARM* bind_infos,
+                                    const ResourceData*              allocator_tensor_datas,
+                                    const MemoryData*                allocator_memory_datas,
+                                    VkMemoryPropertyFlags*           bind_memory_properties)
+    {
+        auto injected = device_table_.Open();
+        return BindTensorMemory(
+            bind_info_count, bind_infos, allocator_tensor_datas, allocator_memory_datas, bind_memory_properties);
+    }
 
     virtual void SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data) = 0;
 
@@ -467,10 +528,50 @@ class VulkanResourceAllocator
     virtual void     ClearStagingResources(){};
 
   protected:
+    // Customization points for the *Direct dispatchers above.  They run inside the injected-commands scope the
+    // dispatcher has already opened; overrides that need the call table may open a nested scope, which is cheap.
+    virtual VkResult AllocateMemoryDirectImpl(const VkMemoryAllocateInfo*  allocate_info,
+                                              const VkAllocationCallbacks* allocation_callbacks,
+                                              VkDeviceMemory*              memory,
+                                              MemoryData*                  allocator_data)
+    {
+        return AllocateMemory(allocate_info, allocation_callbacks, format::kNullHandleId, memory, allocator_data);
+    }
+
+    virtual VkResult BindBufferMemoryDirectImpl(VkBuffer               buffer,
+                                                VkDeviceMemory         memory,
+                                                VkDeviceSize           memory_offset,
+                                                ResourceData           allocator_buffer_data,
+                                                MemoryData             allocator_memory_data,
+                                                VkMemoryPropertyFlags* bind_memory_properties)
+    {
+        return BindBufferMemory(
+            buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties);
+    }
+
+    virtual VkResult BindImageMemoryDirectImpl(VkImage                image,
+                                               VkDeviceMemory         memory,
+                                               VkDeviceSize           memory_offset,
+                                               ResourceData           allocator_image_data,
+                                               MemoryData             allocator_memory_data,
+                                               VkMemoryPropertyFlags* bind_memory_properties)
+    {
+        return BindImageMemory(
+            image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties);
+    }
+
+    virtual VkResult MapResourceMemoryDirectImpl(VkDeviceSize     size,
+                                                 VkMemoryMapFlags flags,
+                                                 void**           data,
+                                                 ResourceData     allocator_data) = 0;
+
+    virtual void UnmapResourceMemoryDirectImpl(ResourceData allocator_data) = 0;
+
+  protected:
     VkDevice                            device_{ VK_NULL_HANDLE };
     Functions                           functions_;
     graphics::VulkanInjectedDeviceCalls device_table_;
-    VkPhysicalDeviceMemoryProperties    replay_memory_properties_;
+    VkPhysicalDeviceMemoryProperties    replay_memory_properties_{};
 };
 
 GFXRECON_END_NAMESPACE(decode)

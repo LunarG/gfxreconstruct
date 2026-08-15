@@ -359,10 +359,12 @@ VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBuffer
         return res;
     }
 
-    res = injected.BeginCommandBuffer(DR_command_buffer_, begin_info, "DispatchTraceRaysDumpingContext::BeginCommandBuffer");
+    res = injected.BeginCommandBuffer(
+        DR_command_buffer_, begin_info, "DispatchTraceRaysDumpingContext::BeginCommandBuffer");
     if (res != VK_SUCCESS)
     {
         injected->FreeCommandBuffers(dev_info->handle, cb_pool_info->handle, 1, &DR_command_buffer_);
+        DR_command_buffer_ = VK_NULL_HANDLE;
         GFXRECON_LOG_ERROR("BeginCommandBuffer failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
@@ -573,24 +575,8 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const VulkanBufferInfo*
                                  0,
                                  nullptr);
 
-    VkBufferCopy region = { offset, 0, size };
-    injected->CmdCopyBuffer(DR_command_buffer_, src_buffer_info->handle, dst_buffer, 1, &region);
-
-    buf_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    buf_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-    buf_barrier.buffer        = dst_buffer;
-    buf_barrier.offset        = 0;
-
-    injected->CmdPipelineBarrier(DR_command_buffer_,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VkDependencyFlags(0),
-                                 0,
-                                 nullptr,
-                                 1,
-                                 &buf_barrier,
-                                 0,
-                                 nullptr);
+    const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ offset, 0, size } };
+    CopyBufferAndBarrier(DR_command_buffer_, device_table_, src_buffer_info->handle, dst_buffer, copy_region);
 }
 
 void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image)
@@ -2063,37 +2049,15 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
 
     // Inject a cmdCopyBuffer to copy the dispatch params into the new buffer
     {
-        const VkDeviceSize offset   = disp_params.dispatch_params_union.dispatch_indirect.params_buffer_offset;
-        const VkBufferCopy region   = { offset, 0, size };
-        VkCommandBuffer    cmd_buf  = DR_command_buffer_;
-        auto               injected = device_table_.Open();
-        injected->CmdCopyBuffer(cmd_buf,
-                                disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle,
-                                disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
-                                1,
-                                &region);
+        const VkDeviceSize offset  = disp_params.dispatch_params_union.dispatch_indirect.params_buffer_offset;
+        VkCommandBuffer    cmd_buf = DR_command_buffer_;
 
-        VkBufferMemoryBarrier buf_barrier;
-        buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-        buf_barrier.pNext               = nullptr;
-        buf_barrier.buffer              = disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer;
-        buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-        buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-        buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        buf_barrier.size                = size;
-        buf_barrier.offset              = 0;
-
-        injected->CmdPipelineBarrier(cmd_buf,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VkDependencyFlags{ 0 },
-                                     0,
-                                     nullptr,
-                                     1,
-                                     &buf_barrier,
-                                     0,
-                                     nullptr);
+        const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ offset, 0, size } };
+        CopyBufferAndBarrier(cmd_buf,
+                             device_table_,
+                             disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle,
+                             disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
+                             copy_region);
     }
 
     return VK_SUCCESS;
@@ -2157,32 +2121,8 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     }
 
     // Copy the parameters from one buffer into the other
-    const VkBufferCopy region = { 0, 0, size };
-    assert(device_table_.IsValid());
-    auto injected = device_table_.Open();
-    injected->CmdCopyBuffer(DR_command_buffer_, buffer_on_device_address, new_params_buffer, 1, &region);
-
-    VkBufferMemoryBarrier buf_barrier;
-    buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    buf_barrier.pNext               = nullptr;
-    buf_barrier.buffer              = new_params_buffer;
-    buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-    buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-    buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    buf_barrier.size                = size;
-    buf_barrier.offset              = 0;
-
-    injected->CmdPipelineBarrier(DR_command_buffer_,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VkDependencyFlags{ 0 },
-                                 0,
-                                 nullptr,
-                                 1,
-                                 &buf_barrier,
-                                 0,
-                                 nullptr);
+    const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, size } };
+    CopyBufferAndBarrier(DR_command_buffer_, device_table_, buffer_on_device_address, new_params_buffer, copy_region);
 
     if (params.type == kTraceRaysIndirect)
     {

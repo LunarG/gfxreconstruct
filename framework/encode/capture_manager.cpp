@@ -64,7 +64,7 @@ bool                                           CommonCaptureManager::initialize_
 std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
 uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
 thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
-int64_t                                    CommonCaptureManager::avoid_api_call_lock_ = 0;
+int64_t                                        CommonCaptureManager::avoid_api_call_lock_ = 0;
 
 static std::mutex external_trim_trigger_mutex_g;
 static bool       externally_set_trimming_state_g          = false;

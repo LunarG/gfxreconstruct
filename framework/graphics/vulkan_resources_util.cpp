@@ -950,6 +950,8 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
 
 VulkanResourcesUtil::~VulkanResourcesUtil()
 {
+    auto injected = device_table_.Open();
+
     DestroyStagingBuffer();
     DestroyStagingTensor();
     DestroyStagingTensorMemory();
@@ -958,14 +960,12 @@ VulkanResourcesUtil::~VulkanResourcesUtil()
     {
         if (command_asset.command_buffer != VK_NULL_HANDLE)
         {
-            auto injected = device_table_.Open();
             GFXRECON_ASSERT(command_asset.command_pool != VK_NULL_HANDLE);
             injected->FreeCommandBuffers(device_, command_asset.command_pool, 1, &command_asset.command_buffer);
         }
 
         if (command_asset.command_pool != VK_NULL_HANDLE)
         {
-            auto injected = device_table_.Open();
             injected->DestroyCommandPool(device_, command_asset.command_pool, nullptr);
         }
     }
@@ -1259,16 +1259,15 @@ void VulkanResourcesUtil::DestroyStagingBuffer()
 {
     UnmapStagingMemory(staging_buffer_.mem);
 
+    auto injected = device_table_.Open();
     if (staging_buffer_.buffer != VK_NULL_HANDLE)
     {
-        auto injected = device_table_.Open();
         injected->DestroyBuffer(device_, staging_buffer_.buffer, nullptr);
         staging_buffer_.buffer = VK_NULL_HANDLE;
     }
 
     if (staging_buffer_.mem.memory != VK_NULL_HANDLE)
     {
-        auto injected = device_table_.Open();
         injected->FreeMemory(device_, staging_buffer_.mem.memory, nullptr);
     }
 
@@ -1354,9 +1353,9 @@ void VulkanResourcesUtil::DestroyStagingTensor()
 {
     UnmapStagingMemory(staging_tensor_.mem);
 
+    auto injected = device_table_.Open();
     if (staging_tensor_.tensor != VK_NULL_HANDLE)
     {
-        auto injected = device_table_.Open();
         injected->DestroyTensorARM(device_, staging_tensor_.tensor, nullptr);
         staging_tensor_.tensor = VK_NULL_HANDLE;
     }
@@ -1380,6 +1379,7 @@ VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_
 {
     auto& command_asset = command_asset_map_[queue_family_index];
 
+    auto injected = device_table_.Open();
     if (command_asset.command_pool == VK_NULL_HANDLE)
     {
         VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
@@ -1387,8 +1387,7 @@ VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_
         create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         create_info.queueFamilyIndex        = queue_family_index;
 
-        auto     injected = device_table_.Open();
-        VkResult result   = injected->CreateCommandPool(device_, &create_info, nullptr, &command_asset.command_pool);
+        VkResult result = injected->CreateCommandPool(device_, &create_info, nullptr, &command_asset.command_pool);
 
         if (result != VK_SUCCESS)
         {
@@ -1407,8 +1406,7 @@ VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_
         alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         alloc_info.commandBufferCount          = 1;
 
-        auto     injected = device_table_.Open();
-        VkResult result   = injected->AllocateCommandBuffers(device_, &alloc_info, &command_asset.command_buffer);
+        VkResult result = injected->AllocateCommandBuffers(device_, &alloc_info, &command_asset.command_buffer);
 
         if (result != VK_SUCCESS)
         {
@@ -2469,9 +2467,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         {
             if (device_table.IsValid() && device != VK_NULL_HANDLE)
             {
+                auto injected = device_table.Open();
                 if (resolve_image != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->DestroyImage(device, resolve_image, nullptr);
                     injected->FreeMemory(device, resolve_memory, nullptr);
                 }
@@ -2479,18 +2477,15 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                 // Image views created by the render-pass resolve path (null for the transfer path).
                 if (resolve_image_view != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->DestroyImageView(device, resolve_image_view, nullptr);
                 }
                 if (ms_image_view != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->DestroyImageView(device, ms_image_view, nullptr);
                 }
 
                 if (scaled_image != VK_NULL_HANDLE)
                 {
-                    auto injected = device_table.Open();
                     injected->DestroyImage(device, scaled_image, nullptr);
                     injected->FreeMemory(device, scaled_image_memory, nullptr);
                 }
@@ -2583,6 +2578,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         tmp_data[i].staging_offset = current_batch_size;
         current_batch_size += resource_size;
     } // image_resources, 1st batch-splitting pass
+
+    auto injected = device_table_.Open();
 
     VkResult result = CreateStagingBuffer(staging_buffer_size);
     if (result != VK_SUCCESS)
@@ -2753,7 +2750,6 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             buffer_barrier.offset              = 0;
             buffer_barrier.size                = VK_WHOLE_SIZE;
 
-            auto injected = device_table_.Open();
             injected->CmdPipelineBarrier(command_buffer,
                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
                                          VK_PIPELINE_STAGE_HOST_BIT,
@@ -2849,6 +2845,10 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
 {
     GFXRECON_ASSERT(buffer != VK_NULL_HANDLE);
     GFXRECON_ASSERT(size);
+
+    // All helper functions called from here Open() scopes to issue api calls. Opening a scope here should avoid
+    // triggering multiple callbacks
+    util::MarkInjectedCommandsHelper injected_commands_scope;
 
     VkQueue queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)

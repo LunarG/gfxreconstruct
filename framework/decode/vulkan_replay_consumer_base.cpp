@@ -1561,7 +1561,13 @@ const graphics::VulkanDeviceTable* VulkanReplayConsumerBase::GetDeviceTable(cons
 
 graphics::VulkanInjectedDeviceCalls VulkanReplayConsumerBase::GetInjectedDeviceCalls(const void* handle) const
 {
-    return graphics::VulkanInjectedDeviceCalls(GetDeviceTable(handle));
+    const graphics::VulkanDeviceTable* raw_table = GetDeviceTable(handle);
+    if (raw_table == nullptr)
+    {
+        GFXRECON_LOG_FATAL("Could not find device table for object %p", handle);
+    }
+
+    return graphics::VulkanInjectedDeviceCalls(raw_table);
 }
 
 void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
@@ -2409,12 +2415,8 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     auto device_table   = GetDeviceTable(device);
     assert((instance_table != nullptr) && (device_table != nullptr));
 
-    VkResult result = allocator->Initialize(physical_device_info,
-                                            device,
-                                            device_create_info,
-                                            enabled_device_extensions,
-                                            *instance_table,
-                                            device_table);
+    VkResult result = allocator->Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, *instance_table, device_table);
 
     if (result < 0)
     {

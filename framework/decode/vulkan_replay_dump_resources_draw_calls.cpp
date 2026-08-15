@@ -592,6 +592,10 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 {
     GFXRECON_ASSERT(IsDrawCallIndirect(dc_params.type));
 
+    // All helper functions called from here Open() scopes to issue api calls. Opening a scope here should avoid
+    // triggering multiple callbacks
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     if (IsDrawCallIndirectCount(dc_params.type))
     {
         DrawCallParams::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
@@ -660,35 +664,9 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
                 regions[0].dstOffset = 0;
             }
 
-            VkCommandBuffer cmd_buf  = command_buffers_[current_cb_index_];
-            auto            injected = device_table_.Open();
-            injected->CmdCopyBuffer(cmd_buf,
-                                    ic_params.params_buffer_info->handle,
-                                    ic_params.new_params_buffer,
-                                    GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
-                                    regions.data());
-
-            VkBufferMemoryBarrier buf_barrier;
-            buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            buf_barrier.pNext               = nullptr;
-            buf_barrier.buffer              = ic_params.new_params_buffer;
-            buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-            buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-            buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            buf_barrier.size                = copy_buffer_size;
-            buf_barrier.offset              = 0;
-
-            injected->CmdPipelineBarrier(cmd_buf,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VkDependencyFlags{ 0 },
-                                         0,
-                                         nullptr,
-                                         1,
-                                         &buf_barrier,
-                                         0,
-                                         nullptr);
+            VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
+            CopyBufferAndBarrier(
+                cmd_buf, device_table_, ic_params.params_buffer_info->handle, ic_params.new_params_buffer, regions);
         }
 
         // Create a buffer to copy the draw count parameter
@@ -710,39 +688,12 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
         }
 
         // Inject a cmdCopyBuffer to copy the count into the new buffer
-        {
-            VkBufferCopy region;
-            region.size      = count_buffer_size;
-            region.srcOffset = ic_params.count_buffer_offset;
-            region.dstOffset = 0;
+        const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{
+            ic_params.count_buffer_offset, 0, count_buffer_size } };
 
-            VkCommandBuffer cmd_buf  = command_buffers_[current_cb_index_];
-            auto            injected = device_table_.Open();
-            injected->CmdCopyBuffer(
-                cmd_buf, ic_params.count_buffer_info->handle, ic_params.new_count_buffer, 1, &region);
-
-            VkBufferMemoryBarrier buf_barrier;
-            buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            buf_barrier.pNext               = nullptr;
-            buf_barrier.buffer              = ic_params.new_count_buffer;
-            buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-            buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-            buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            buf_barrier.size                = count_buffer_size;
-            buf_barrier.offset              = 0;
-
-            injected->CmdPipelineBarrier(cmd_buf,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VkDependencyFlags{ 0 },
-                                         0,
-                                         nullptr,
-                                         1,
-                                         &buf_barrier,
-                                         0,
-                                         nullptr);
-        }
+        VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
+        CopyBufferAndBarrier(
+            cmd_buf, device_table_, ic_params.count_buffer_info->handle, ic_params.new_count_buffer, copy_region);
     }
     else
     {
@@ -810,35 +761,9 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
                 regions[0].dstOffset = 0;
             }
 
-            VkCommandBuffer cmd_buf  = command_buffers_[current_cb_index_];
-            auto            injected = device_table_.Open();
-            injected->CmdCopyBuffer(cmd_buf,
-                                    i_params.params_buffer_info->handle,
-                                    i_params.new_params_buffer,
-                                    GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
-                                    regions.data());
-
-            VkBufferMemoryBarrier buf_barrier;
-            buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            buf_barrier.pNext               = nullptr;
-            buf_barrier.buffer              = i_params.new_params_buffer;
-            buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-            buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-            buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            buf_barrier.size                = copy_buffer_size;
-            buf_barrier.offset              = 0;
-
-            injected->CmdPipelineBarrier(cmd_buf,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VkDependencyFlags{ 0 },
-                                         0,
-                                         nullptr,
-                                         1,
-                                         &buf_barrier,
-                                         0,
-                                         nullptr);
+            VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
+            CopyBufferAndBarrier(
+                cmd_buf, device_table_, i_params.params_buffer_info->handle, i_params.new_params_buffer, regions);
         }
     }
 
@@ -1352,15 +1277,6 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 
     auto injected = device_table_.Open();
 
-    const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
-    VkResult                       res = injected.BeginCommandBuffer(aux_command_buffer_, &bi, __func__);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR(
-            "(%s:%u) BeginCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-        return res;
-    }
-
     std::vector<VkImageMemoryBarrier> img_barriers;
 
     VkImageMemoryBarrier img_barrier;
@@ -1408,6 +1324,15 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 
     if (!img_barriers.empty())
     {
+        const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
+        VkResult                       res = injected.BeginCommandBuffer(aux_command_buffer_, &bi, __func__);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) BeginCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+
         injected->CmdPipelineBarrier(aux_command_buffer_,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,

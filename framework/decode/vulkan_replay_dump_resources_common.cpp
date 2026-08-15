@@ -25,6 +25,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -41,6 +42,7 @@
 #include <sstream>
 #include <tuple>
 #include <utility>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -1410,82 +1412,24 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
     const VkDevice                          device    = device_info->handle;
 
-    // A query pool is required for vkCmdWriteAccelerationStructuresPropertiesKHR
-    const VkQueryPoolCreateInfo qci = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
-                                        nullptr,
-                                        VkQueryPoolCreateFlagBits(0),
-                                        VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
-                                        static_cast<uint32_t>(query_count),
-                                        VkQueryPipelineStatisticFlags(0) };
-
     auto injected = device_table.Open();
 
-    VkQueryPool query_pool;
-    VkResult    res = injected->CreateQueryPool(device, &qci, nullptr, &query_pool);
+    TemporaryCommandBuffer temp_command_buffer(*device_info, device_table);
+    VkResult               res = temp_command_buffer.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: CreateQueryPool failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    const uint32_t compute_queue_family_index = FindComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (compute_queue_family_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("%s: Failed to find a compute queue family index", __func__)
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        return VK_ERROR_UNKNOWN;
-    }
-
-    // Create temporary command pool and buffer to execute vkCmdWriteAccelerationStructuresPropertiesKHR
-    const VkCommandPoolCreateInfo cpci = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-                                           nullptr,
-                                           VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                                           compute_queue_family_index };
-    VkCommandPool                 cmd_pool;
-    res = injected->CreateCommandPool(device, &cpci, nullptr, &cmd_pool);
+    // Create a query pool
+    TemporaryQueryPool query(device, device_table);
+    res = query.Create(query_count);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("(%s) CreateCommandPool failed (%s)", __func__, util::ToString(res).c_str());
-        injected->DestroyQueryPool(device, query_pool, nullptr);
         return res;
     }
 
-    const VkCommandBufferAllocateInfo cbai = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, nullptr, cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1
-    };
-    VkCommandBuffer cmd_buffer;
-    res = injected->AllocateCommandBuffers(device, &cbai, &cmd_buffer);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("(%s) AllocateCommandBuffers failed (%s)", __func__, util::ToString(res).c_str());
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    res = injected->ResetCommandBuffer(cmd_buffer, 0);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: ResetCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    const VkCommandBufferBeginInfo cbbi = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
-    };
-    res = injected.BeginCommandBuffer(cmd_buffer, &cbbi, __func__ );
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    // Reset query pool
-    injected->CmdResetQueryPool(cmd_buffer, query_pool, 0, 1);
+    injected->CmdResetQueryPool(temp_command_buffer.command_buffer, query.query_pool, 0, 1);
 
     // Flush any pending writes to the acceleration structure
     const VkMemoryBarrier mem_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER,
@@ -1494,7 +1438,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                           VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT };
 
     injected->CmdPipelineBarrier(
-        cmd_buffer,
+        temp_command_buffer.command_buffer,
         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
         VkDependencyFlagBits(0),
@@ -1510,39 +1454,15 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     for (uint32_t i = 0; i < query_count; ++i)
     {
         injected->CmdWriteAccelerationStructuresPropertiesKHR(
-            cmd_buffer,
+            temp_command_buffer.command_buffer,
             1,
             &acceleration_structure->as_info->handle,
             VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
-            query_pool,
+            query.query_pool,
             static_cast<uint32_t>(i));
     }
 
-    injected->EndCommandBuffer(cmd_buffer);
-
-    VkQueue compute_queue = VK_NULL_HANDLE;
-    injected->GetDeviceQueue(device, compute_queue_family_index, 0, &compute_queue);
-    if (compute_queue == VK_NULL_HANDLE)
-    {
-        GFXRECON_LOG_ERROR("%s: GetDeviceQueue failed to get family index %u", __func__, compute_queue_family_index)
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return VK_ERROR_UNKNOWN;
-    }
-
-    TemporaryFence fence(device, device_table);
-
-    const VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &cmd_buffer, 0, nullptr };
-    res                   = injected->QueueSubmit(compute_queue, 1, &si, fence.handle);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: QueueSubmit failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    res = fence.Wait();
+    res = temp_command_buffer.SubmitAndReset();
     if (res != VK_SUCCESS)
     {
         return res;
@@ -1551,7 +1471,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     // Read query results
     std::vector<VkDeviceSize> query_results(query_count);
     res = injected->GetQueryPoolResults(device,
-                                        query_pool,
+                                        query.query_pool,
                                         0,
                                         query_count,
                                         query_results.size() * sizeof(VkDeviceSize),
@@ -1561,26 +1481,6 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: GetQueryPoolResults failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    res = injected->ResetCommandBuffer(cmd_buffer, 0);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: ResetCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    res = injected.BeginCommandBuffer(cmd_buffer, &cbbi, __func__);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: BeginCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
         return res;
     }
 
@@ -1609,8 +1509,6 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("%s: CreateBuffer failed (%s)", __func__, util::ToString(res).c_str())
-            injected->DestroyQueryPool(device, query_pool, nullptr);
-            injected->DestroyCommandPool(device, cmd_pool, nullptr);
             return res;
         }
 
@@ -1629,7 +1527,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
             device_address,
             VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR
         };
-        injected->CmdCopyAccelerationStructureToMemoryKHR(cmd_buffer, &castmi);
+        injected->CmdCopyAccelerationStructureToMemoryKHR(temp_command_buffer.command_buffer, &castmi);
 
         const VkBufferMemoryBarrier buf_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                                     nullptr,
@@ -1641,7 +1539,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                                     0,
                                                     serialized_size };
 
-        injected->CmdPipelineBarrier(cmd_buffer,
+        injected->CmdPipelineBarrier(temp_command_buffer.command_buffer,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT |
                                          VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -1654,30 +1552,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                      nullptr);
     }
 
-    injected->EndCommandBuffer(cmd_buffer);
-
-    res = fence.Reset();
-    if (res != VK_SUCCESS)
-    {
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    res = injected->QueueSubmit(compute_queue, 1, &si, fence.handle);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: QueueSubmit (2) failed (%s)", __func__, util::ToString(res).c_str())
-        injected->DestroyQueryPool(device, query_pool, nullptr);
-        injected->DestroyCommandPool(device, cmd_pool, nullptr);
-        return res;
-    }
-
-    res = fence.Wait();
-
-    // Release temporary vulkan objects
-    injected->DestroyCommandPool(device, cmd_pool, nullptr);
-    injected->DestroyQueryPool(device, query_pool, nullptr);
+    res = temp_command_buffer.SubmitAndDestroy();
 
     return res;
 }
@@ -2022,6 +1897,8 @@ void CopyBufferAndBarrier(VkCommandBuffer                            command_buf
                           VkPipelineStageFlags                       src_stage_mask,
                           VkPipelineStageFlags                       dst_stage_mask)
 {
+    GFXRECON_ASSERT(device_table.IsValid());
+
     auto injected = device_table.Open();
     injected->CmdCopyBuffer(
         command_buffer, src, dst, GFXRECON_NARROWING_CAST(uint32_t, regions.size()), regions.data());

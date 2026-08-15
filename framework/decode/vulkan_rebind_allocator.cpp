@@ -122,13 +122,9 @@ VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      
 
     result = VK_ERROR_INITIALIZATION_FAILED;
 
-    GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
-    GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
-    const VkPhysicalDeviceMemoryProperties& replay_memory_properties =
-        *physical_device_info->replay_device_info->memory_properties;
     const VkPhysicalDeviceMemoryProperties& capture_memory_properties = physical_device_info->capture_memory_properties;
 
-    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
+    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties_.memoryTypeCount == 0))
     {
         GFXRECON_LOG_FATAL("Capture file does not contain physical device memory properties and cannot be used with "
                            "memory translation.");
@@ -264,6 +260,8 @@ VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      
             create_info.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
         }
 
+        // Mark vma's api calls as synthesized
+        util::MarkInjectedCommandsHelper injected;
         result = vmaCreateAllocator(&create_info, &allocator_);
     }
 
@@ -272,9 +270,9 @@ VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      
 
 void VulkanRebindAllocator::Destroy()
 {
+    auto injected = device_table_.Open();
     ClearStagingResources();
     {
-        auto injected = device_table_.Open();
         injected->DestroyCommandPool(device_, cmd_pool_, nullptr);
     }
 
@@ -880,8 +878,9 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto injected = device_table_.Open();
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -1003,6 +1002,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
 
             auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+            // Mark vma's api calls as synthesized
+            util::MarkInjectedCommandsHelper injected;
             result = vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, nullptr);
 
             if (result >= 0)
@@ -1066,6 +1067,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                     auto bind_info = &bind_infos[i];
                     auto offset    = GetRebindOffsetFromVMA(bind_info->memoryOffset, *vma_mem_info);
 
+                    // Mark vma's api calls as synthesized
+                    util::MarkInjectedCommandsHelper injected;
                     result =
                         vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, bind_info->pNext);
 
@@ -1209,8 +1212,9 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto injected = device_table_.Open();
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -1279,6 +1283,8 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
 
                 auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+                // Mark vma's api calls as synthesized
+                util::MarkInjectedCommandsHelper injected;
                 result = vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, nullptr);
 
                 if (result >= 0)
@@ -1363,6 +1369,8 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
 
                         auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+                        // Mark vma's api calls as synthesized
+                        util::MarkInjectedCommandsHelper injected;
                         result =
                             vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, bind_info->pNext);
 
@@ -2207,7 +2215,8 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
         if (bound_memory_info->mapped_pointer == nullptr)
         {
             // After first map, the allocation will stay mapped until it is destroyed.
-            auto injected = device_table_.Open();
+            // Mark vma's api calls as synthesized
+            util::MarkInjectedCommandsHelper injected;
             result = vmaMapMemory(allocator_, bound_memory_info->allocation, &bound_memory_info->mapped_pointer);
         }
 
@@ -2314,7 +2323,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
     VmaMemoryInfo* bound_memory_info,
     VkDeviceSize   original_start,
     VkDeviceSize   original_end,
-    VkResult       (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult     result     = VK_SUCCESS;
     VkDeviceSize src_offset = 0;
@@ -2326,7 +2335,6 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
         if (bound_memory_info->mapped_pointer == nullptr)
         {
             // After first map, the allocation will stay mapped until it is destroyed.
-            auto injected = device_table_.Open();
             result = vmaMapMemory(allocator_, bound_memory_info->allocation, &bound_memory_info->mapped_pointer);
         }
 
@@ -2343,7 +2351,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
     uint32_t                   memory_range_count,
     const VkMappedMemoryRange* memory_ranges,
     const MemoryData*          allocator_datas,
-    VkResult                   (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult result = VK_SUCCESS;
 
@@ -2365,6 +2373,9 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
 
                 VkDeviceSize range_start = memory_ranges[i].offset;
                 VkDeviceSize range_end   = range_start + size;
+
+                // Mark vma's api calls as synthesized
+                auto injected = device_table_.Open();
 
                 for (const auto& entry : memory_alloc_info->original_objects)
                 {
@@ -2623,10 +2634,10 @@ void VulkanRebindAllocator::ReportBindIncompatibility(const ResourceData* alloca
     }
 }
 
-VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
-                                                        VkMemoryMapFlags flags,
-                                                        void**           data,
-                                                        ResourceData     allocator_data)
+VkResult VulkanRebindAllocator::MapResourceMemoryDirectImpl(VkDeviceSize     size,
+                                                            VkMemoryMapFlags flags,
+                                                            void**           data,
+                                                            ResourceData     allocator_data)
 {
     VkResult result = VK_ERROR_MEMORY_MAP_FAILED;
 
@@ -2640,7 +2651,7 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
 
             if (mem_info->mapped_pointer == nullptr)
             {
-                auto injected = device_table_.Open();
+                // vma's api calls are marked as synthesized by the scope MapResourceMemoryDirect opened.
                 result = vmaMapMemory(allocator_, mem_info->allocation, &mem_info->mapped_pointer);
             }
             else
@@ -2692,6 +2703,8 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
     VkDebugUtilsObjectTagInfoEXT tag_info;
     tag_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT;
     tag_info.pNext = nullptr;
+
+    auto injected = device_table_.Open();
 
     if (!memory_alloc_info->debug_utils_name.empty())
     {
@@ -3063,6 +3076,8 @@ bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               mem
 
 void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_alloc_info, uint64_t object_hanlde)
 {
+    auto injected = device_table_.Open();
+
     // It could bind sparse memories. It could have plural memories.
     for (auto& mem_info : resource_alloc_info.bound_memory_infos)
     {
@@ -3074,7 +3089,6 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
         {
             if (mem_info->allocation != VK_NULL_HANDLE)
             {
-                auto injected = device_table_.Open();
                 if (mem_info->mapped_pointer != nullptr)
                 {
                     vmaUnmapMemory(allocator_, mem_info->allocation);
@@ -3811,8 +3825,9 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto injected = device_table_.Open();
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemory(allocator_, &replay_req, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -3971,7 +3986,7 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
             memory_info.offset_from_original_device_memory = 0;
 
             auto injected = device_table_.Open();
-            result = vmaAllocateMemory(allocator_,
+            result        = vmaAllocateMemory(allocator_,
                                        &memory_requirements.memoryRequirements,
                                        &allocation_create_info,
                                        &memory_info.allocation,
@@ -4101,7 +4116,8 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                         RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(tensor));
                         if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
                         {
-                            auto injected = device_table_.Open();
+                            // Mark vma's api calls as synthesized
+                            util::MarkInjectedCommandsHelper injected;
                             vmaFreeMemory(allocator_, vma_mem_info->allocation);
                             memory_alloc_info->vma_mem_infos.pop_back();
                         }

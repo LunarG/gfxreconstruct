@@ -22,8 +22,6 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_resource_allocator.h"
-
-#include "decode/vulkan_object_info.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "util/logging.h"
 
@@ -41,6 +39,11 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
                                              const graphics::VulkanDeviceTable*   device_table)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_create_info);
+
+    if (device_ != VK_NULL_HANDLE)
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
 
     assert((physical_device_info != nullptr) && (physical_device_info->replay_device_info != nullptr));
 

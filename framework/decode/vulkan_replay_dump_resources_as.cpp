@@ -91,7 +91,7 @@ static VkResult CreateComputeResources(const graphics::VulkanInjectedDeviceCalls
 
     injected->DestroyShaderModule(device, compute_shader, nullptr);
 
-    return VK_SUCCESS;
+    return res;
 }
 
 VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStructuresInputBuffers(
@@ -406,17 +406,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             {
                 const VkAccelerationStructureGeometryInstancesDataKHR& instances = geometry->geometry.instances;
 
-                auto& new_variant = as_build_objects.emplace_back(
-                    std::in_place_type<AccelerationStructureDumpResourcesContext::Instances>);
-                auto& new_instances = std::get<AccelerationStructureDumpResourcesContext::Instances>(new_variant);
-                new_instances.array_of_pointers = instances.arrayOfPointers;
-
-                // Addresses and VkAccelerationStructureInstanceKHR structures should be tightly packed
-                const size_t instance_buffer_stride = sizeof(VkAccelerationStructureInstanceKHR);
-                const size_t instance_buffer_size   = range.primitiveCount * instance_buffer_stride;
-                new_instances.instance_count        = range.primitiveCount;
-                GFXRECON_NARROWING_ASSIGN(new_instances.instance_buffer_size, instance_buffer_size);
-
                 size_t                  buffer_device_address_offset;
                 const VulkanBufferInfo* instances_buffer_info =
                     after_address_replacer
@@ -428,6 +417,17 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 {
                     continue;
                 }
+
+                auto& new_variant = as_build_objects.emplace_back(
+                    std::in_place_type<AccelerationStructureDumpResourcesContext::Instances>);
+                auto& new_instances = std::get<AccelerationStructureDumpResourcesContext::Instances>(new_variant);
+                new_instances.array_of_pointers = instances.arrayOfPointers;
+
+                // Addresses and VkAccelerationStructureInstanceKHR structures should be tightly packed
+                const size_t instance_buffer_stride = sizeof(VkAccelerationStructureInstanceKHR);
+                const size_t instance_buffer_size   = range.primitiveCount * instance_buffer_stride;
+                new_instances.instance_count        = range.primitiveCount;
+                GFXRECON_NARROWING_ASSIGN(new_instances.instance_buffer_size, instance_buffer_size);
 
                 if (!instances.arrayOfPointers)
                 {
@@ -445,6 +445,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                         GFXRECON_LOG_ERROR("Failed cloning instances buffer used as input in "
                                            "vkCmdBuildAccelerationstructuresKHR (%s)",
                                            util::ToString(res).c_str());
+                        as_build_objects.pop_back();
                         continue;
                     }
 
@@ -461,26 +462,31 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 else
                 {
                     // If instances.arrayOfPointers is true then we go through a compute path
-                    CreateComputeResources(
+                    VkResult res = CreateComputeResources(
                         device_table, device, &new_instances.compute_ppl, &new_instances.compute_ppl_layout);
+                    if (res != VK_SUCCESS)
+                    {
+                        as_build_objects.pop_back();
+                        continue;
+                    }
 
                     // In this case we will also need VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
-                    VkResult res =
-                        CreateVkBuffer(instance_buffer_size,
-                                       device_table,
-                                       device,
-                                       nullptr,
-                                       nullptr,
-                                       &mem_props,
-                                       VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
-                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                       &new_instances.instance_buffer,
-                                       &new_instances.instance_buffer_memory);
+                    res = CreateVkBuffer(instance_buffer_size,
+                                         device_table,
+                                         device,
+                                         nullptr,
+                                         nullptr,
+                                         &mem_props,
+                                         VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                         &new_instances.instance_buffer,
+                                         &new_instances.instance_buffer_memory);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Failed cloning instances buffer used as input in "
                                            "vkCmdBuildAccelerationstructuresKHR (%s)",
                                            util::ToString(res).c_str());
+                        as_build_objects.pop_back();
                         continue;
                     }
 
@@ -492,8 +498,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
                     const PFN_vkGetBufferDeviceAddress get_buffer_device_address =
                         phys_dev_info->parent_info.api_version >= VK_API_VERSION_1_2
-                            ? injected.GetTable()->GetBufferDeviceAddress
-                            : injected.GetTable()->GetBufferDeviceAddressKHR;
+                            ? injected->GetBufferDeviceAddress
+                            : injected->GetBufferDeviceAddressKHR;
 
                     const VkDeviceAddress output_buffer_device_address = get_buffer_device_address(device, &bdai);
 

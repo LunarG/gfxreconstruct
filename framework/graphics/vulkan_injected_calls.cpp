@@ -22,6 +22,7 @@
 
 #include "graphics/vulkan_injected_calls.h"
 
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/logging.h"
 
 #include <atomic>
@@ -57,7 +58,7 @@ VulkanInjectedDeviceCalls::VulkanInjectedDeviceCalls(const VulkanDeviceTable* ta
 
 void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffer, const std::string& category) const
 {
-    if ((command_buffer != VK_NULL_HANDLE) && GetAnnotateInjectedCommands() &&
+    if ((command_buffer != VK_NULL_HANDLE) && GetAnnotateInjectedCommands() && (table_ != nullptr) &&
         (table_->CmdInsertDebugUtilsLabelEXT != noop::vkCmdInsertDebugUtilsLabelEXT))
     {
         const std::string          label_name = std::string(kInjectedCommandLabelPrefix) + category;
@@ -81,6 +82,7 @@ VkResult VulkanInjectedDeviceCalls::Scope::BeginCommandBuffer(VkCommandBuffer   
         }
         InsertLabel(command_buffer, label_string);
     }
+
     return result;
 }
 
@@ -90,9 +92,9 @@ VulkanInjectedDeviceCalls::LabelRegion::LabelRegion(const VulkanDeviceTable* tab
     table_(table),
     command_buffer_(command_buffer)
 {
-    active_ = GetAnnotateInjectedCommands() && (command_buffer_ != VK_NULL_HANDLE) &&
-              (table_->CmdBeginDebugUtilsLabelEXT != noop::vkCmdBeginDebugUtilsLabelEXT) &&
-              (table_->CmdEndDebugUtilsLabelEXT != noop::vkCmdEndDebugUtilsLabelEXT);
+    active_ = GetAnnotateInjectedCommands() && (command_buffer != VK_NULL_HANDLE) && (table != nullptr) &&
+              (table->CmdBeginDebugUtilsLabelEXT != noop::vkCmdBeginDebugUtilsLabelEXT) &&
+              (table->CmdEndDebugUtilsLabelEXT != noop::vkCmdEndDebugUtilsLabelEXT);
 
     if (active_)
     {

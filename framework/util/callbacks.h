@@ -36,9 +36,6 @@ using PFN_SetEventsCallbacks = void (*)(PFN_EventBeginCallBack, PFN_EventEndCall
 //! RAII helper to mark injected commands in scope
 struct MarkInjectedCommandsHelper
 {
-    // allow nested usage without hitting an assertion
-    static thread_local uint32_t semaphore;
-
     MarkInjectedCommandsHelper();
     ~MarkInjectedCommandsHelper();
 };
