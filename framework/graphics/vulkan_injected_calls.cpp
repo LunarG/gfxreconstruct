@@ -26,7 +26,7 @@
 #include "util/logging.h"
 
 #include <atomic>
-#include <string>
+#include <cstdio>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -43,11 +43,16 @@ bool GetAnnotateInjectedCommands()
     return annotate_injected_commands;
 }
 
-static VkDebugUtilsLabelEXT MakeLabel(const std::string& label_name)
+// Debug-utils label names are short human-readable tags; compose them on the
+// stack. Names longer than the buffer are truncated, which is harmless for a
+// debug label.
+constexpr size_t kMaxLabelNameLength = 128;
+
+static VkDebugUtilsLabelEXT MakeLabel(const char* label_name)
 {
     VkDebugUtilsLabelEXT label = {};
     label.sType                = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-    label.pLabelName           = label_name.c_str();
+    label.pLabelName           = label_name;
     return label;
 }
 
@@ -56,13 +61,14 @@ VulkanInjectedDeviceCalls::VulkanInjectedDeviceCalls(const VulkanDeviceTable* ta
     GFXRECON_ASSERT(table_ != nullptr);
 }
 
-void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffer, const std::string& category) const
+void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffer, const char* category) const
 {
     if ((command_buffer != VK_NULL_HANDLE) && GetAnnotateInjectedCommands() && (table_ != nullptr) &&
         (table_->CmdInsertDebugUtilsLabelEXT != noop::vkCmdInsertDebugUtilsLabelEXT))
     {
-        const std::string          label_name = std::string(kInjectedCommandLabelPrefix) + category;
-        const VkDebugUtilsLabelEXT label      = MakeLabel(label_name);
+        char label_name[kMaxLabelNameLength];
+        std::snprintf(label_name, sizeof(label_name), "%s%s", kInjectedCommandLabelPrefix, category);
+        const VkDebugUtilsLabelEXT label = MakeLabel(label_name);
         table_->CmdInsertDebugUtilsLabelEXT(command_buffer, &label);
     }
 }
@@ -73,14 +79,18 @@ VkResult VulkanInjectedDeviceCalls::Scope::BeginCommandBuffer(VkCommandBuffer   
 {
     VkResult result = table_->BeginCommandBuffer(command_buffer, begin_info);
 
-    if (result == VK_SUCCESS)
+    if (result == VK_SUCCESS && GetAnnotateInjectedCommands())
     {
-        std::string label_string = std::string("Synthesized command buffer");
         if (label != nullptr)
         {
-            label_string += std::string(": ") + label;
+            char label_string[kMaxLabelNameLength];
+            std::snprintf(label_string, sizeof(label_string), "Synthesized command buffer: %s", label);
+            InsertLabel(command_buffer, label_string);
         }
-        InsertLabel(command_buffer, label_string);
+        else
+        {
+            InsertLabel(command_buffer, "Synthesized command buffer");
+        }
     }
 
     return result;
@@ -98,8 +108,9 @@ VulkanInjectedDeviceCalls::LabelRegion::LabelRegion(const VulkanDeviceTable* tab
 
     if (active_)
     {
-        const std::string          label_name = std::string(kInjectedCommandLabelPrefix) + category;
-        const VkDebugUtilsLabelEXT label      = MakeLabel(label_name);
+        char label_name[kMaxLabelNameLength];
+        std::snprintf(label_name, sizeof(label_name), "%s%s", kInjectedCommandLabelPrefix, category);
+        const VkDebugUtilsLabelEXT label = MakeLabel(label_name);
         table_->CmdBeginDebugUtilsLabelEXT(command_buffer_, &label);
     }
 }

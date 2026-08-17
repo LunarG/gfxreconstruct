@@ -72,7 +72,7 @@ class VulkanInjectedDeviceCalls
 
         // Emits a single "GFXR Replay: <category>" label into command_buffer.
         // No-op when annotation is disabled or debug utils is unavailable.
-        void InsertLabel(VkCommandBuffer command_buffer, const std::string& category) const;
+        void InsertLabel(VkCommandBuffer command_buffer, const char* category) const;
 
         // Begins command_buffer and, on success, tags it with an inserted
         // "GFXR Replay: Synthesized command buffer" label so wholly

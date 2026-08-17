@@ -168,9 +168,9 @@ struct TemporaryQueryPool
 
     VkResult Create(uint32_t query_count);
 
-    VkQueryPool                                query_pool;
-    VkDevice                                   device;
-    const graphics::VulkanInjectedDeviceCalls& device_table;
+    VkQueryPool                         query_pool;
+    VkDevice                            device;
+    graphics::VulkanInjectedDeviceCalls device_table;
 };
 
 GFXRECON_END_NAMESPACE(decode)

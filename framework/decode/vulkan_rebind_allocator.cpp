@@ -2355,6 +2355,9 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
 {
     VkResult result = VK_SUCCESS;
 
+    // Mark vma's api calls as synthesized
+    auto injected = device_table_.Open();
+
     if ((memory_ranges != nullptr) && (allocator_datas != nullptr))
     {
         for (uint32_t i = 0; i < memory_range_count; ++i)
@@ -2373,9 +2376,6 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
 
                 VkDeviceSize range_start = memory_ranges[i].offset;
                 VkDeviceSize range_end   = range_start + size;
-
-                // Mark vma's api calls as synthesized
-                auto injected = device_table_.Open();
 
                 for (const auto& entry : memory_alloc_info->original_objects)
                 {
@@ -3923,6 +3923,8 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
     std::vector<VkBindDataGraphPipelineSessionMemoryInfoARM> replay_bind_infos;
     std::vector<std::unique_ptr<PendingBinding>>             pending_bindings;
 
+    auto injected = device_table_.Open();
+
     for (const auto& requirement : requirements)
     {
         if (requirement.bindPointType != VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM)
@@ -3985,8 +3987,7 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
             memory_info.alc_create_info                    = allocation_create_info;
             memory_info.offset_from_original_device_memory = 0;
 
-            auto injected = device_table_.Open();
-            result        = vmaAllocateMemory(allocator_,
+            result = vmaAllocateMemory(allocator_,
                                        &memory_requirements.memoryRequirements,
                                        &allocation_create_info,
                                        &memory_info.allocation,
