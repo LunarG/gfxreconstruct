@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 3.4.1)
+# CMake 4 removed support for a minimum below 3.5, and the Android SDK now ships
+# CMake 4.  Ask for 3.22, which is the older of the two versions that the SDK
+# provides, so that both of them work.
+cmake_minimum_required(VERSION 3.22)
 
 function(sublist INPUT_LIST START_IDX LENGTH OUTPUT_LIST)
     set(ENTRIES )

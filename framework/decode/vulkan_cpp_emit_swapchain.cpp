@@ -155,9 +155,11 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(
     {
         surface_formats_var_name = "pSurfaceFormats_" + std::to_string(GetNextId());
         fprintf(file,
-                "\tVkSurfaceFormatKHR %s[%s];\n",
+                "\tstd::vector<VkSurfaceFormatKHR> %s(%s);\n",
                 surface_formats_var_name.c_str(),
                 surface_format_count_map_[args.surface].c_str());
+        // The call wants a pointer, and the variable is a vector.
+        surface_formats_var_name += ".data()";
         // TODO: connect these formats to their usages? How?
     }
 
@@ -189,9 +191,11 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(
     {
         present_modes_var_name = "pPresentModes_" + std::to_string(GetNextId());
         fprintf(file,
-                "\tVkPresentModeKHR %s[%s];\n",
+                "\tstd::vector<VkPresentModeKHR> %s(%s);\n",
                 present_modes_var_name.c_str(),
                 surface_present_mode_count_map_[args.surface].c_str());
+        // The call wants a pointer, and the variable is a vector.
+        present_modes_var_name += ".data()";
         // TODO: connect these formats to their usages? How?
     }
 
