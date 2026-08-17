@@ -471,12 +471,14 @@ void LogVkError(const char* function,
                             "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                             function, returnValue, returnValue, fileName, line);
 
-        char message[size + 2];
-        snprintf(message, size + 2,
+        // A variable length array is not C++, and a compiler that treats the
+        // warning as an error rejects it.
+        std::vector<char> message(size + 2);
+        snprintf(message.data(), size + 2,
                  "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                  function, returnValue, returnValue, fileName, line);
 
-        throw std::runtime_error(message);
+        throw std::runtime_error(message.data());
     }
 }
 )";
