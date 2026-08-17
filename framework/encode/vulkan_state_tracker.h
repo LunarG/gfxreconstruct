@@ -891,6 +891,7 @@ class VulkanStateTracker
     std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker> device_address_trackers_;
 
     std::map<VkDevice, graphics::VulkanResourcesUtil> resource_utils_;
+    std::mutex                                        resource_utils_mutex_;
 
     VulkanStateWriter::AssetFileOffsetsInfo asset_file_offsets_;
 };
