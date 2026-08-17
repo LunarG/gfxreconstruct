@@ -266,7 +266,7 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func
     func(command_buffer, pDependencyInfo);
 }
 
-void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+bool VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                                 const VulkanSemaphoreInfo*                 semaphore_info,
                                                 const VulkanImageInfo*                     image_info,
                                                 VulkanInstanceInfo*                        instance_info,
@@ -285,6 +285,7 @@ void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*         
     GFXRECON_UNREFERENCED_PARAMETER(scale);
 
     GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
+    return false;
 }
 
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(

@@ -99,7 +99,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                      const VulkanQueueInfo*                      queue_info,
                                      const VkPresentInfoKHR*                     present_info) override;
 
-    void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+    bool PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                            const VulkanSemaphoreInfo*                 semaphore_info,
                            const VulkanImageInfo*                     image_info,
                            VulkanInstanceInfo*                        instance_info,

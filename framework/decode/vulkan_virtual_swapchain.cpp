@@ -1369,7 +1369,7 @@ VulkanVirtualSwapchain::AdhocSwapChain::~AdhocSwapChain()
     }
 }
 
-void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                                const VulkanSemaphoreInfo*                 semaphore_info,
                                                const VulkanImageInfo*                     image_info,
                                                VulkanInstanceInfo*                        instance_info,
@@ -1389,7 +1389,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     // If there is no image to present, do nothing
     if (image == VK_NULL_HANDLE || disable_adhoc_presentation_)
     {
-        return;
+        return false;
     }
 
     // we need to blit from the image, which requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
@@ -1398,7 +1398,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         GFXRECON_LOG_ERROR_ONCE("%s: image '%s' was created without VK_IMAGE_USAGE_TRANSFER_SRC_BIT, unable to present",
                                 __func__,
                                 image_info->debug_utils_name.c_str());
-        return;
+        return false;
     }
 
     // Everything below, including the ad-hoc present itself, is made by replay and is not in the
@@ -1458,7 +1458,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     // nothing to present
     if (layer_count == 0)
     {
-        return;
+        return false;
     }
 
     // all image-layers are tiled into a single window. one window per array-layer would rely on
@@ -1856,6 +1856,8 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
     result = injected->QueuePresentKHR(ofb_data.queue, &present_info);
     GFXRECON_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
+
+    return true;
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
