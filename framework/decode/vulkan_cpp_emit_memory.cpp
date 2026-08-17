@@ -106,7 +106,10 @@ void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2(args::GetBuf
             info_struct_name.c_str(),
             memory_requirements_var_name.c_str());
     fprintf(file, "\t}\n");
-    resource_memory_req_map_[args.pInfo.GetMetaStructPointer()->buffer] = memory_requirements_var_name;
+    // The variable is a VkMemoryRequirements2, so reach the plain requirements
+    // through its member.  The map always holds an expression of that type.
+    resource_memory_req_map_[args.pInfo.GetMetaStructPointer()->buffer] =
+        memory_requirements_var_name + ".memoryRequirements";
 }
 
 void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2KHR(args::GetBufferMemoryRequirements2KHR& args)
@@ -146,7 +149,10 @@ void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2(args::GetImag
             info_struct_name.c_str(),
             memory_requirements_var_name.c_str());
     fprintf(file, "\t}\n");
-    resource_memory_req_map_[args.pInfo.GetMetaStructPointer()->image] = memory_requirements_var_name;
+    // The variable is a VkMemoryRequirements2, so reach the plain requirements
+    // through its member.  The map always holds an expression of that type.
+    resource_memory_req_map_[args.pInfo.GetMetaStructPointer()->image] =
+        memory_requirements_var_name + ".memoryRequirements";
 }
 
 void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2KHR(args::GetImageMemoryRequirements2KHR& args)
@@ -174,7 +180,9 @@ void VulkanCppConsumerBase::Generate_vkGetImageSparseMemoryRequirements(args::Ge
             spare_memory_reqs_count_var_name.c_str(),
             sparse_mem_reqs_var_name.c_str());
 
-    resource_memory_req_map_[args.image] = sparse_mem_reqs_var_name;
+    // Do not record this one.  It names an array of VkSparseImageMemoryRequirements,
+    // which is a different type, and a sparse image does not bind whole memory the
+    // way that vkAllocateMemory assumes.
 }
 
 void VulkanCppConsumerBase::Generate_vkMapMemory(args::MapMemory& args)

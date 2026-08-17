@@ -82,9 +82,11 @@ void VulkanCppConsumerBase::Generate_vkGetPhysicalDeviceQueueFamilyProperties(
     {
         queue_family_props_var_name = "pQueueFamilyProperties_" + std::to_string(GetNextId());
         fprintf(file,
-                "\tVkQueueFamilyProperties %s[%s];\n",
+                "\tstd::vector<VkQueueFamilyProperties> %s(%s);\n",
                 queue_family_props_var_name.c_str(),
                 queue_family_count_map_[args.physicalDevice].c_str());
+        // The call wants a pointer, and the variable is a vector.
+        queue_family_props_var_name += ".data()";
         // TODO: connect these formats to their usages? How?
     }
 
