@@ -25,7 +25,6 @@ def gfxrTestWindows(
     String name,
     String buildMode,
     String label,
-    String bits,
     String testSuite,
     def branches
 ) {
@@ -68,7 +67,7 @@ def gfxrTestWindows(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
-                                "BITS=${bits}",
+                                "BITS=64",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
@@ -105,7 +104,6 @@ def gfxrTestLinux(
     String name,
     String buildMode,
     String label,
-    String bits,
     String testSuite,
     def branches
 ) {
@@ -146,7 +144,7 @@ def gfxrTestLinux(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
-                                "BITS=${bits}",
+                                "BITS=64",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
@@ -183,7 +181,6 @@ def gfxrTestAndroid(
     String name,
     String buildMode,
     String label,
-    String bits,
     String testSuite,
     def branches
 ) {
@@ -224,7 +221,7 @@ def gfxrTestAndroid(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
-                                "BITS=${bits}",
+                                "BITS=64",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
@@ -517,9 +514,6 @@ def gfxrTestAndroidManual(
 
 
 return [
-    Bit64 : '64',
-    Bit32 : '32',
-
     ReleaseMode : 'Release',
     DebugMode : 'Debug',
 
