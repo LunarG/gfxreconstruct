@@ -158,7 +158,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Image layout tracking data
     std::unordered_map<format::HandleId, std::vector<VkImageLayout>> render_pass_subpass_0_layouts_;
-    std::unordered_map<format::HandleId, VkImageLayout> initial_image_layouts_;
+    std::unordered_map<format::HandleId, VkImageLayout>              initial_image_layouts_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

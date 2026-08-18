@@ -250,8 +250,9 @@ void VulkanReplayFrameLoopConsumer::ApplyRenderingLayouts(format::HandleId      
         const Decoded_VkRenderingAttachmentInfo* color_meta = rendering_meta->pColorAttachments->GetMetaStructPointer();
         if (color_meta != nullptr)
         {
-            const uint32_t color_count = std::min(static_cast<uint32_t>(rendering_info->colorAttachmentCount),
-                                                  static_cast<uint32_t>(rendering_meta->pColorAttachments->GetLength()));
+            const uint32_t color_count =
+                std::min(static_cast<uint32_t>(rendering_info->colorAttachmentCount),
+                         static_cast<uint32_t>(rendering_meta->pColorAttachments->GetLength()));
             for (uint32_t i = 0; i < color_count; ++i)
             {
                 track_attachment(color_meta[i].imageView, rendering_info->pColorAttachments[i].imageLayout);
@@ -811,8 +812,8 @@ void VulkanReplayFrameLoopConsumer::FixupImageLayouts(format::HandleId device, f
         return;
     }
 
-    VulkanObjectInfoTable& table      = GetObjectInfoTable();
-    VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
+    VulkanObjectInfoTable& table       = GetObjectInfoTable();
+    VulkanQueueInfo*       queue_info  = table.GetVkQueueInfo(queue);
     VulkanDeviceInfo*      device_info = table.GetVkDeviceInfo(device);
     GFXRECON_ASSERT(queue_info != nullptr && device_info != nullptr);
 
@@ -841,11 +842,9 @@ void VulkanReplayFrameLoopConsumer::FixupImageLayouts(format::HandleId device, f
         barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
         barrier.image                = image_info->handle;
-        barrier.subresourceRange     = { graphics::GetFormatAspects(image_info->format),
-                                         0,
-                                         image_info->level_count,
-                                         0,
-                                         image_info->layer_count };
+        barrier.subresourceRange     = {
+                graphics::GetFormatAspects(image_info->format), 0, image_info->level_count, 0, image_info->layer_count
+        };
 
         barriers.push_back(barrier);
 
