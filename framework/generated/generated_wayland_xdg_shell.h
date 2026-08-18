@@ -31,158 +31,162 @@
 #include "util/defines.h"
 #include "util/wayland_loader.h"
 
-struct GfxrXdgWmBase;
-struct GfxrXdgPositioner;
-struct GfxrXdgSurface;
-struct GfxrXdgToplevel;
-struct GfxrXdgPopup;
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+
+struct XdgWmBase;
+struct XdgPositioner;
+struct XdgSurface;
+struct XdgToplevel;
+struct XdgPopup;
 
 // xdg_wm_base static declarations
 
-enum GfxrXdgWmBaseError
+enum XdgWmBaseError
 {
-    GFXR_XDG_WM_BASE_ERROR_ROLE = 0,
-    GFXR_XDG_WM_BASE_ERROR_DEFUNCT_SURFACES = 1,
-    GFXR_XDG_WM_BASE_ERROR_NOT_THE_TOPMOST_POPUP = 2,
-    GFXR_XDG_WM_BASE_ERROR_INVALID_POPUP_PARENT = 3,
-    GFXR_XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE = 4,
-    GFXR_XDG_WM_BASE_ERROR_INVALID_POSITIONER = 5,
-    GFXR_XDG_WM_BASE_ERROR_UNRESPONSIVE = 6,
+    XDG_WM_BASE_ERROR_ROLE = 0,
+    XDG_WM_BASE_ERROR_DEFUNCT_SURFACES = 1,
+    XDG_WM_BASE_ERROR_NOT_THE_TOPMOST_POPUP = 2,
+    XDG_WM_BASE_ERROR_INVALID_POPUP_PARENT = 3,
+    XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE = 4,
+    XDG_WM_BASE_ERROR_INVALID_POSITIONER = 5,
+    XDG_WM_BASE_ERROR_UNRESPONSIVE = 6,
 };
 
-struct GfxrXdgWmBaseListener
+struct XdgWmBaseListener
 {
-    void (*ping)(void* data, GfxrXdgWmBase* object, uint32_t serial);
+    void (*ping)(void* data, XdgWmBase* object, uint32_t serial);
 };
 
 // xdg_positioner static declarations
 
-enum GfxrXdgPositionerError
+enum XdgPositionerError
 {
-    GFXR_XDG_POSITIONER_ERROR_INVALID_INPUT = 0,
+    XDG_POSITIONER_ERROR_INVALID_INPUT = 0,
 };
 
-enum GfxrXdgPositionerAnchor
+enum XdgPositionerAnchor
 {
-    GFXR_XDG_POSITIONER_ANCHOR_NONE = 0,
-    GFXR_XDG_POSITIONER_ANCHOR_TOP = 1,
-    GFXR_XDG_POSITIONER_ANCHOR_BOTTOM = 2,
-    GFXR_XDG_POSITIONER_ANCHOR_LEFT = 3,
-    GFXR_XDG_POSITIONER_ANCHOR_RIGHT = 4,
-    GFXR_XDG_POSITIONER_ANCHOR_TOP_LEFT = 5,
-    GFXR_XDG_POSITIONER_ANCHOR_BOTTOM_LEFT = 6,
-    GFXR_XDG_POSITIONER_ANCHOR_TOP_RIGHT = 7,
-    GFXR_XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT = 8,
+    XDG_POSITIONER_ANCHOR_NONE = 0,
+    XDG_POSITIONER_ANCHOR_TOP = 1,
+    XDG_POSITIONER_ANCHOR_BOTTOM = 2,
+    XDG_POSITIONER_ANCHOR_LEFT = 3,
+    XDG_POSITIONER_ANCHOR_RIGHT = 4,
+    XDG_POSITIONER_ANCHOR_TOP_LEFT = 5,
+    XDG_POSITIONER_ANCHOR_BOTTOM_LEFT = 6,
+    XDG_POSITIONER_ANCHOR_TOP_RIGHT = 7,
+    XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT = 8,
 };
 
-enum GfxrXdgPositionerGravity
+enum XdgPositionerGravity
 {
-    GFXR_XDG_POSITIONER_GRAVITY_NONE = 0,
-    GFXR_XDG_POSITIONER_GRAVITY_TOP = 1,
-    GFXR_XDG_POSITIONER_GRAVITY_BOTTOM = 2,
-    GFXR_XDG_POSITIONER_GRAVITY_LEFT = 3,
-    GFXR_XDG_POSITIONER_GRAVITY_RIGHT = 4,
-    GFXR_XDG_POSITIONER_GRAVITY_TOP_LEFT = 5,
-    GFXR_XDG_POSITIONER_GRAVITY_BOTTOM_LEFT = 6,
-    GFXR_XDG_POSITIONER_GRAVITY_TOP_RIGHT = 7,
-    GFXR_XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT = 8,
+    XDG_POSITIONER_GRAVITY_NONE = 0,
+    XDG_POSITIONER_GRAVITY_TOP = 1,
+    XDG_POSITIONER_GRAVITY_BOTTOM = 2,
+    XDG_POSITIONER_GRAVITY_LEFT = 3,
+    XDG_POSITIONER_GRAVITY_RIGHT = 4,
+    XDG_POSITIONER_GRAVITY_TOP_LEFT = 5,
+    XDG_POSITIONER_GRAVITY_BOTTOM_LEFT = 6,
+    XDG_POSITIONER_GRAVITY_TOP_RIGHT = 7,
+    XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT = 8,
 };
 
-enum GfxrXdgPositionerConstraintAdjustment
+enum XdgPositionerConstraintAdjustment
 {
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_NONE = 0,
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_X = 1,
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_Y = 2,
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_X = 4,
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_Y = 8,
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_X = 16,
-    GFXR_XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 32,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_NONE = 0,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_X = 1,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_Y = 2,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_X = 4,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_Y = 8,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_X = 16,
+    XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 32,
 };
 
 // xdg_surface static declarations
 
-enum GfxrXdgSurfaceError
+enum XdgSurfaceError
 {
-    GFXR_XDG_SURFACE_ERROR_NOT_CONSTRUCTED = 1,
-    GFXR_XDG_SURFACE_ERROR_ALREADY_CONSTRUCTED = 2,
-    GFXR_XDG_SURFACE_ERROR_UNCONFIGURED_BUFFER = 3,
-    GFXR_XDG_SURFACE_ERROR_INVALID_SERIAL = 4,
-    GFXR_XDG_SURFACE_ERROR_INVALID_SIZE = 5,
-    GFXR_XDG_SURFACE_ERROR_DEFUNCT_ROLE_OBJECT = 6,
+    XDG_SURFACE_ERROR_NOT_CONSTRUCTED = 1,
+    XDG_SURFACE_ERROR_ALREADY_CONSTRUCTED = 2,
+    XDG_SURFACE_ERROR_UNCONFIGURED_BUFFER = 3,
+    XDG_SURFACE_ERROR_INVALID_SERIAL = 4,
+    XDG_SURFACE_ERROR_INVALID_SIZE = 5,
+    XDG_SURFACE_ERROR_DEFUNCT_ROLE_OBJECT = 6,
 };
 
-struct GfxrXdgSurfaceListener
+struct XdgSurfaceListener
 {
-    void (*configure)(void* data, GfxrXdgSurface* object, uint32_t serial);
+    void (*configure)(void* data, XdgSurface* object, uint32_t serial);
 };
 
 // xdg_toplevel static declarations
 
-enum GfxrXdgToplevelError
+enum XdgToplevelError
 {
-    GFXR_XDG_TOPLEVEL_ERROR_INVALID_RESIZE_EDGE = 0,
-    GFXR_XDG_TOPLEVEL_ERROR_INVALID_PARENT = 1,
-    GFXR_XDG_TOPLEVEL_ERROR_INVALID_SIZE = 2,
+    XDG_TOPLEVEL_ERROR_INVALID_RESIZE_EDGE = 0,
+    XDG_TOPLEVEL_ERROR_INVALID_PARENT = 1,
+    XDG_TOPLEVEL_ERROR_INVALID_SIZE = 2,
 };
 
-enum GfxrXdgToplevelResizeEdge
+enum XdgToplevelResizeEdge
 {
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_NONE = 0,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_TOP = 1,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM = 2,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_LEFT = 4,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT = 5,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT = 6,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_RIGHT = 8,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT = 9,
-    GFXR_XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT = 10,
+    XDG_TOPLEVEL_RESIZE_EDGE_NONE = 0,
+    XDG_TOPLEVEL_RESIZE_EDGE_TOP = 1,
+    XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM = 2,
+    XDG_TOPLEVEL_RESIZE_EDGE_LEFT = 4,
+    XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT = 5,
+    XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT = 6,
+    XDG_TOPLEVEL_RESIZE_EDGE_RIGHT = 8,
+    XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT = 9,
+    XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT = 10,
 };
 
-enum GfxrXdgToplevelState
+enum XdgToplevelState
 {
-    GFXR_XDG_TOPLEVEL_STATE_MAXIMIZED = 1,
-    GFXR_XDG_TOPLEVEL_STATE_FULLSCREEN = 2,
-    GFXR_XDG_TOPLEVEL_STATE_RESIZING = 3,
-    GFXR_XDG_TOPLEVEL_STATE_ACTIVATED = 4,
-    GFXR_XDG_TOPLEVEL_STATE_TILED_LEFT = 5,
-    GFXR_XDG_TOPLEVEL_STATE_TILED_RIGHT = 6,
-    GFXR_XDG_TOPLEVEL_STATE_TILED_TOP = 7,
-    GFXR_XDG_TOPLEVEL_STATE_TILED_BOTTOM = 8,
-    GFXR_XDG_TOPLEVEL_STATE_SUSPENDED = 9,
+    XDG_TOPLEVEL_STATE_MAXIMIZED = 1,
+    XDG_TOPLEVEL_STATE_FULLSCREEN = 2,
+    XDG_TOPLEVEL_STATE_RESIZING = 3,
+    XDG_TOPLEVEL_STATE_ACTIVATED = 4,
+    XDG_TOPLEVEL_STATE_TILED_LEFT = 5,
+    XDG_TOPLEVEL_STATE_TILED_RIGHT = 6,
+    XDG_TOPLEVEL_STATE_TILED_TOP = 7,
+    XDG_TOPLEVEL_STATE_TILED_BOTTOM = 8,
+    XDG_TOPLEVEL_STATE_SUSPENDED = 9,
+    XDG_TOPLEVEL_STATE_CONSTRAINED_LEFT = 10,
+    XDG_TOPLEVEL_STATE_CONSTRAINED_RIGHT = 11,
+    XDG_TOPLEVEL_STATE_CONSTRAINED_TOP = 12,
+    XDG_TOPLEVEL_STATE_CONSTRAINED_BOTTOM = 13,
 };
 
-enum GfxrXdgToplevelWmCapabilities
+enum XdgToplevelWmCapabilities
 {
-    GFXR_XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU = 1,
-    GFXR_XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE = 2,
-    GFXR_XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN = 3,
-    GFXR_XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE = 4,
+    XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU = 1,
+    XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE = 2,
+    XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN = 3,
+    XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE = 4,
 };
 
-struct GfxrXdgToplevelListener
+struct XdgToplevelListener
 {
-    void (*configure)(void* data, GfxrXdgToplevel* object, int32_t width, int32_t height, wl_array* states);
-    void (*close)(void* data, GfxrXdgToplevel* object);
-    void (*configure_bounds)(void* data, GfxrXdgToplevel* object, int32_t width, int32_t height);
-    void (*wm_capabilities)(void* data, GfxrXdgToplevel* object, wl_array* capabilities);
+    void (*configure)(void* data, XdgToplevel* object, int32_t width, int32_t height, wl_array* states);
+    void (*close)(void* data, XdgToplevel* object);
+    void (*configure_bounds)(void* data, XdgToplevel* object, int32_t width, int32_t height);
+    void (*wm_capabilities)(void* data, XdgToplevel* object, wl_array* capabilities);
 };
 
 // xdg_popup static declarations
 
-enum GfxrXdgPopupError
+enum XdgPopupError
 {
-    GFXR_XDG_POPUP_ERROR_INVALID_GRAB = 0,
+    XDG_POPUP_ERROR_INVALID_GRAB = 0,
 };
 
-struct GfxrXdgPopupListener
+struct XdgPopupListener
 {
-    void (*configure)(void* data, GfxrXdgPopup* object, int32_t x, int32_t y, int32_t width, int32_t height);
-    void (*popup_done)(void* data, GfxrXdgPopup* object);
-    void (*repositioned)(void* data, GfxrXdgPopup* object, uint32_t token);
+    void (*configure)(void* data, XdgPopup* object, int32_t x, int32_t y, int32_t width, int32_t height);
+    void (*popup_done)(void* data, XdgPopup* object);
+    void (*repositioned)(void* data, XdgPopup* object, uint32_t token);
 };
-
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
 
 // Global to xdg_shell
 
@@ -200,28 +204,28 @@ class WaylandXdgShellTable
 
     wl_interface xdg_wm_base_interface;
 
-    int xdg_wm_base_add_listener(GfxrXdgWmBase* self, GfxrXdgWmBaseListener* listener, void* data) const
+    int xdg_wm_base_add_listener(XdgWmBase* self, XdgWmBaseListener* listener, void* data) const
     {
         return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
     }
 
-    void xdg_wm_base_destroy(GfxrXdgWmBase* self) const
+    void xdg_wm_base_destroy(XdgWmBase* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    GfxrXdgPositioner* xdg_wm_base_create_positioner(GfxrXdgWmBase* self) const
+    XdgPositioner* xdg_wm_base_create_positioner(XdgWmBase* self) const
     {
-        return reinterpret_cast<GfxrXdgPositioner*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &xdg_positioner_interface, NULL));
+        return reinterpret_cast<XdgPositioner*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &xdg_positioner_interface, NULL));
     }
 
-    GfxrXdgSurface* xdg_wm_base_get_xdg_surface(GfxrXdgWmBase* self, wl_surface* surface) const
+    XdgSurface* xdg_wm_base_get_xdg_surface(XdgWmBase* self, wl_surface* surface) const
     {
-        return reinterpret_cast<GfxrXdgSurface*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 2, &xdg_surface_interface, NULL, surface));
+        return reinterpret_cast<XdgSurface*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 2, &xdg_surface_interface, NULL, surface));
     }
 
-    void xdg_wm_base_pong(GfxrXdgWmBase* self, uint32_t serial) const
+    void xdg_wm_base_pong(XdgWmBase* self, uint32_t serial) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 3, serial);
     }
@@ -230,53 +234,53 @@ class WaylandXdgShellTable
 
     wl_interface xdg_positioner_interface;
 
-    void xdg_positioner_destroy(GfxrXdgPositioner* self) const
+    void xdg_positioner_destroy(XdgPositioner* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    void xdg_positioner_set_size(GfxrXdgPositioner* self, int32_t width, int32_t height) const
+    void xdg_positioner_set_size(XdgPositioner* self, int32_t width, int32_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 1, width, height);
     }
 
-    void xdg_positioner_set_anchor_rect(GfxrXdgPositioner* self, int32_t x, int32_t y, int32_t width, int32_t height) const
+    void xdg_positioner_set_anchor_rect(XdgPositioner* self, int32_t x, int32_t y, int32_t width, int32_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 2, x, y, width, height);
     }
 
-    void xdg_positioner_set_anchor(GfxrXdgPositioner* self, uint32_t anchor) const
+    void xdg_positioner_set_anchor(XdgPositioner* self, uint32_t anchor) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 3, anchor);
     }
 
-    void xdg_positioner_set_gravity(GfxrXdgPositioner* self, uint32_t gravity) const
+    void xdg_positioner_set_gravity(XdgPositioner* self, uint32_t gravity) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 4, gravity);
     }
 
-    void xdg_positioner_set_constraint_adjustment(GfxrXdgPositioner* self, uint32_t constraint_adjustment) const
+    void xdg_positioner_set_constraint_adjustment(XdgPositioner* self, uint32_t constraint_adjustment) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 5, constraint_adjustment);
     }
 
-    void xdg_positioner_set_offset(GfxrXdgPositioner* self, int32_t x, int32_t y) const
+    void xdg_positioner_set_offset(XdgPositioner* self, int32_t x, int32_t y) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 6, x, y);
     }
 
-    void xdg_positioner_set_reactive(GfxrXdgPositioner* self) const
+    void xdg_positioner_set_reactive(XdgPositioner* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 7);
     }
 
-    void xdg_positioner_set_parent_size(GfxrXdgPositioner* self, int32_t parent_width, int32_t parent_height) const
+    void xdg_positioner_set_parent_size(XdgPositioner* self, int32_t parent_width, int32_t parent_height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 8, parent_width, parent_height);
     }
 
-    void xdg_positioner_set_parent_configure(GfxrXdgPositioner* self, uint32_t serial) const
+    void xdg_positioner_set_parent_configure(XdgPositioner* self, uint32_t serial) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 9, serial);
     }
@@ -285,33 +289,33 @@ class WaylandXdgShellTable
 
     wl_interface xdg_surface_interface;
 
-    int xdg_surface_add_listener(GfxrXdgSurface* self, GfxrXdgSurfaceListener* listener, void* data) const
+    int xdg_surface_add_listener(XdgSurface* self, XdgSurfaceListener* listener, void* data) const
     {
         return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
     }
 
-    void xdg_surface_destroy(GfxrXdgSurface* self) const
+    void xdg_surface_destroy(XdgSurface* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    GfxrXdgToplevel* xdg_surface_get_toplevel(GfxrXdgSurface* self) const
+    XdgToplevel* xdg_surface_get_toplevel(XdgSurface* self) const
     {
-        return reinterpret_cast<GfxrXdgToplevel*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &xdg_toplevel_interface, NULL));
+        return reinterpret_cast<XdgToplevel*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &xdg_toplevel_interface, NULL));
     }
 
-    GfxrXdgPopup* xdg_surface_get_popup(GfxrXdgSurface* self, GfxrXdgSurface* parent, GfxrXdgPositioner* positioner) const
+    XdgPopup* xdg_surface_get_popup(XdgSurface* self, XdgSurface* parent, XdgPositioner* positioner) const
     {
-        return reinterpret_cast<GfxrXdgPopup*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 2, &xdg_popup_interface, NULL, parent, positioner));
+        return reinterpret_cast<XdgPopup*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 2, &xdg_popup_interface, NULL, parent, positioner));
     }
 
-    void xdg_surface_set_window_geometry(GfxrXdgSurface* self, int32_t x, int32_t y, int32_t width, int32_t height) const
+    void xdg_surface_set_window_geometry(XdgSurface* self, int32_t x, int32_t y, int32_t width, int32_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 3, x, y, width, height);
     }
 
-    void xdg_surface_ack_configure(GfxrXdgSurface* self, uint32_t serial) const
+    void xdg_surface_ack_configure(XdgSurface* self, uint32_t serial) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 4, serial);
     }
@@ -320,78 +324,78 @@ class WaylandXdgShellTable
 
     wl_interface xdg_toplevel_interface;
 
-    int xdg_toplevel_add_listener(GfxrXdgToplevel* self, GfxrXdgToplevelListener* listener, void* data) const
+    int xdg_toplevel_add_listener(XdgToplevel* self, XdgToplevelListener* listener, void* data) const
     {
         return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
     }
 
-    void xdg_toplevel_destroy(GfxrXdgToplevel* self) const
+    void xdg_toplevel_destroy(XdgToplevel* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    void xdg_toplevel_set_parent(GfxrXdgToplevel* self, GfxrXdgToplevel* parent) const
+    void xdg_toplevel_set_parent(XdgToplevel* self, XdgToplevel* parent) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 1, parent);
     }
 
-    void xdg_toplevel_set_title(GfxrXdgToplevel* self, const char* title) const
+    void xdg_toplevel_set_title(XdgToplevel* self, const char* title) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 2, title);
     }
 
-    void xdg_toplevel_set_app_id(GfxrXdgToplevel* self, const char* app_id) const
+    void xdg_toplevel_set_app_id(XdgToplevel* self, const char* app_id) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 3, app_id);
     }
 
-    void xdg_toplevel_show_window_menu(GfxrXdgToplevel* self, wl_seat* seat, uint32_t serial, int32_t x, int32_t y) const
+    void xdg_toplevel_show_window_menu(XdgToplevel* self, wl_seat* seat, uint32_t serial, int32_t x, int32_t y) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 4, seat, serial, x, y);
     }
 
-    void xdg_toplevel_move(GfxrXdgToplevel* self, wl_seat* seat, uint32_t serial) const
+    void xdg_toplevel_move(XdgToplevel* self, wl_seat* seat, uint32_t serial) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 5, seat, serial);
     }
 
-    void xdg_toplevel_resize(GfxrXdgToplevel* self, wl_seat* seat, uint32_t serial, uint32_t edges) const
+    void xdg_toplevel_resize(XdgToplevel* self, wl_seat* seat, uint32_t serial, uint32_t edges) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 6, seat, serial, edges);
     }
 
-    void xdg_toplevel_set_max_size(GfxrXdgToplevel* self, int32_t width, int32_t height) const
+    void xdg_toplevel_set_max_size(XdgToplevel* self, int32_t width, int32_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 7, width, height);
     }
 
-    void xdg_toplevel_set_min_size(GfxrXdgToplevel* self, int32_t width, int32_t height) const
+    void xdg_toplevel_set_min_size(XdgToplevel* self, int32_t width, int32_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 8, width, height);
     }
 
-    void xdg_toplevel_set_maximized(GfxrXdgToplevel* self) const
+    void xdg_toplevel_set_maximized(XdgToplevel* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 9);
     }
 
-    void xdg_toplevel_unset_maximized(GfxrXdgToplevel* self) const
+    void xdg_toplevel_unset_maximized(XdgToplevel* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 10);
     }
 
-    void xdg_toplevel_set_fullscreen(GfxrXdgToplevel* self, wl_output* output) const
+    void xdg_toplevel_set_fullscreen(XdgToplevel* self, wl_output* output) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 11, output);
     }
 
-    void xdg_toplevel_unset_fullscreen(GfxrXdgToplevel* self) const
+    void xdg_toplevel_unset_fullscreen(XdgToplevel* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 12);
     }
 
-    void xdg_toplevel_set_minimized(GfxrXdgToplevel* self) const
+    void xdg_toplevel_set_minimized(XdgToplevel* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 13);
     }
@@ -400,23 +404,23 @@ class WaylandXdgShellTable
 
     wl_interface xdg_popup_interface;
 
-    int xdg_popup_add_listener(GfxrXdgPopup* self, GfxrXdgPopupListener* listener, void* data) const
+    int xdg_popup_add_listener(XdgPopup* self, XdgPopupListener* listener, void* data) const
     {
         return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
     }
 
-    void xdg_popup_destroy(GfxrXdgPopup* self) const
+    void xdg_popup_destroy(XdgPopup* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    void xdg_popup_grab(GfxrXdgPopup* self, wl_seat* seat, uint32_t serial) const
+    void xdg_popup_grab(XdgPopup* self, wl_seat* seat, uint32_t serial) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 1, seat, serial);
     }
 
-    void xdg_popup_reposition(GfxrXdgPopup* self, GfxrXdgPositioner* positioner, uint32_t token) const
+    void xdg_popup_reposition(XdgPopup* self, XdgPositioner* positioner, uint32_t token) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 2, positioner, token);
     }
@@ -496,11 +500,11 @@ class WaylandXdgShellTable
             { "repositioned", "3u", _messageArgs.data() + 3 },
         };
 
-        xdg_wm_base_interface = { "xdg_wm_base", 6, 4, _messages.data() + 0, 1, _messages.data() + 4 };
-        xdg_positioner_interface = { "xdg_positioner", 6, 10, _messages.data() + 5, 0, _messages.data() + 15 };
-        xdg_surface_interface = { "xdg_surface", 6, 5, _messages.data() + 15, 1, _messages.data() + 20 };
-        xdg_toplevel_interface = { "xdg_toplevel", 6, 14, _messages.data() + 21, 4, _messages.data() + 35 };
-        xdg_popup_interface = { "xdg_popup", 6, 3, _messages.data() + 39, 3, _messages.data() + 42 };
+        xdg_wm_base_interface = { "xdg_wm_base", 7, 4, _messages.data() + 0, 1, _messages.data() + 4 };
+        xdg_positioner_interface = { "xdg_positioner", 7, 10, _messages.data() + 5, 0, _messages.data() + 15 };
+        xdg_surface_interface = { "xdg_surface", 7, 5, _messages.data() + 15, 1, _messages.data() + 20 };
+        xdg_toplevel_interface = { "xdg_toplevel", 7, 14, _messages.data() + 21, 4, _messages.data() + 35 };
+        xdg_popup_interface = { "xdg_popup", 7, 3, _messages.data() + 39, 3, _messages.data() + 42 };
     }
 };
 

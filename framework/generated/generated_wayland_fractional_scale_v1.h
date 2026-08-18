@@ -31,25 +31,25 @@
 #include "util/defines.h"
 #include "util/wayland_loader.h"
 
-struct GfxrWpFractionalScaleManagerV1;
-struct GfxrWpFractionalScaleV1;
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+
+struct WpFractionalScaleManagerV1;
+struct WpFractionalScaleV1;
 
 // wp_fractional_scale_manager_v1 static declarations
 
-enum GfxrWpFractionalScaleManagerV1Error
+enum WpFractionalScaleManagerV1Error
 {
-    GFXR_WP_FRACTIONAL_SCALE_MANAGER_V1_ERROR_FRACTIONAL_SCALE_EXISTS = 0,
+    WP_FRACTIONAL_SCALE_MANAGER_V1_ERROR_FRACTIONAL_SCALE_EXISTS = 0,
 };
 
 // wp_fractional_scale_v1 static declarations
 
-struct GfxrWpFractionalScaleV1Listener
+struct WpFractionalScaleV1Listener
 {
-    void (*preferred_scale)(void* data, GfxrWpFractionalScaleV1* object, uint32_t scale);
+    void (*preferred_scale)(void* data, WpFractionalScaleV1* object, uint32_t scale);
 };
-
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
 
 // Global to fractional_scale_v1
 
@@ -67,27 +67,27 @@ class WaylandFractionalScaleV1Table
 
     wl_interface wp_fractional_scale_manager_v1_interface;
 
-    void wp_fractional_scale_manager_v1_destroy(GfxrWpFractionalScaleManagerV1* self) const
+    void wp_fractional_scale_manager_v1_destroy(WpFractionalScaleManagerV1* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    GfxrWpFractionalScaleV1* wp_fractional_scale_manager_v1_get_fractional_scale(GfxrWpFractionalScaleManagerV1* self, wl_surface* surface) const
+    WpFractionalScaleV1* wp_fractional_scale_manager_v1_get_fractional_scale(WpFractionalScaleManagerV1* self, wl_surface* surface) const
     {
-        return reinterpret_cast<GfxrWpFractionalScaleV1*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &wp_fractional_scale_v1_interface, NULL, surface));
+        return reinterpret_cast<WpFractionalScaleV1*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &wp_fractional_scale_v1_interface, NULL, surface));
     }
 
     // wp_fractional_scale_v1 dynamic declarations
 
     wl_interface wp_fractional_scale_v1_interface;
 
-    int wp_fractional_scale_v1_add_listener(GfxrWpFractionalScaleV1* self, GfxrWpFractionalScaleV1Listener* listener, void* data) const
+    int wp_fractional_scale_v1_add_listener(WpFractionalScaleV1* self, WpFractionalScaleV1Listener* listener, void* data) const
     {
         return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);
     }
 
-    void wp_fractional_scale_v1_destroy(GfxrWpFractionalScaleV1* self) const
+    void wp_fractional_scale_v1_destroy(WpFractionalScaleV1* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));

@@ -83,24 +83,20 @@ def interface_to_cpp_type(interface_name: str) -> str:
 
 
 def generated_type_name(*parts: str) -> str:
-    """Name for a type generated at global scope.
+    """Name for a type generated for a Wayland interface.
 
-    These sit next to the types declared by the Wayland protocol headers, so they carry a
-    "Gfxr" prefix to keep the two from colliding when both are visible.  Types generated
-    inside the gfxrecon::util namespace do not need it.
+    Everything the generator writes goes into the gfxrecon::util namespace, which keeps these
+    names apart from the ones the real Wayland protocol headers declare at global scope.
     """
-    return 'Gfxr' + ''.join(to_upper_camel_case(part) for part in parts)
+    return ''.join(to_upper_camel_case(part) for part in parts)
 
 
 def generated_enum_entry_name(*parts: str) -> str:
-    return '_'.join(['GFXR'] + [part.upper() for part in parts])
+    return '_'.join(part.upper() for part in parts)
 
 
 def protocol_table_type_name(protocol_name: str) -> str:
-    """Name of the table class generated for a protocol.
-
-    The table lives in gfxrecon::util, so unlike the global-scope types it needs no prefix.
-    """
+    """Name of the table class generated for a protocol."""
     return 'Wayland' + to_upper_camel_case(protocol_name) + 'Table'
 
 
@@ -288,6 +284,9 @@ def generate(protocol_path: str) -> None:
         file.write('#include "util/defines.h"\n')
         file.write('#include "util/wayland_loader.h"\n')
         file.write('\n')
+        file.write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)\n')
+        file.write('GFXRECON_BEGIN_NAMESPACE(util)\n')
+        file.write('\n')
 
         # Static declarations
 
@@ -335,9 +334,6 @@ def generate(protocol_path: str) -> None:
 
         # Protocol table
                 
-        file.write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)\n')
-        file.write('GFXRECON_BEGIN_NAMESPACE(util)\n')
-        file.write('\n')
         file.write(f'// Global to {protocol_name}\n')
         file.write('\n')
         file.write(f'class {protocol_table_type_name(protocol_name)}\n')

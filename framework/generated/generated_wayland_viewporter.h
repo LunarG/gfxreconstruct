@@ -31,28 +31,28 @@
 #include "util/defines.h"
 #include "util/wayland_loader.h"
 
-struct GfxrWpViewporter;
-struct GfxrWpViewport;
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+
+struct WpViewporter;
+struct WpViewport;
 
 // wp_viewporter static declarations
 
-enum GfxrWpViewporterError
+enum WpViewporterError
 {
-    GFXR_WP_VIEWPORTER_ERROR_VIEWPORT_EXISTS = 0,
+    WP_VIEWPORTER_ERROR_VIEWPORT_EXISTS = 0,
 };
 
 // wp_viewport static declarations
 
-enum GfxrWpViewportError
+enum WpViewportError
 {
-    GFXR_WP_VIEWPORT_ERROR_BAD_VALUE = 0,
-    GFXR_WP_VIEWPORT_ERROR_BAD_SIZE = 1,
-    GFXR_WP_VIEWPORT_ERROR_OUT_OF_BUFFER = 2,
-    GFXR_WP_VIEWPORT_ERROR_NO_SURFACE = 3,
+    WP_VIEWPORT_ERROR_BAD_VALUE = 0,
+    WP_VIEWPORT_ERROR_BAD_SIZE = 1,
+    WP_VIEWPORT_ERROR_OUT_OF_BUFFER = 2,
+    WP_VIEWPORT_ERROR_NO_SURFACE = 3,
 };
-
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
 
 // Global to viewporter
 
@@ -70,33 +70,33 @@ class WaylandViewporterTable
 
     wl_interface wp_viewporter_interface;
 
-    void wp_viewporter_destroy(GfxrWpViewporter* self) const
+    void wp_viewporter_destroy(WpViewporter* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    GfxrWpViewport* wp_viewporter_get_viewport(GfxrWpViewporter* self, wl_surface* surface) const
+    WpViewport* wp_viewporter_get_viewport(WpViewporter* self, wl_surface* surface) const
     {
-        return reinterpret_cast<GfxrWpViewport*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &wp_viewport_interface, NULL, surface));
+        return reinterpret_cast<WpViewport*>(_wl->proxy_marshal_constructor(reinterpret_cast<wl_proxy*>(self), 1, &wp_viewport_interface, NULL, surface));
     }
 
     // wp_viewport dynamic declarations
 
     wl_interface wp_viewport_interface;
 
-    void wp_viewport_destroy(GfxrWpViewport* self) const
+    void wp_viewport_destroy(WpViewport* self) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 0);
         _wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));
     }
 
-    void wp_viewport_set_source(GfxrWpViewport* self, wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height) const
+    void wp_viewport_set_source(WpViewport* self, wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 1, x, y, width, height);
     }
 
-    void wp_viewport_set_destination(GfxrWpViewport* self, int32_t width, int32_t height) const
+    void wp_viewport_set_destination(WpViewport* self, int32_t width, int32_t height) const
     {
         _wl->proxy_marshal(reinterpret_cast<wl_proxy*>(self), 2, width, height);
     }
