@@ -24,6 +24,7 @@
 #ifndef GFXRECON_GENERATED_WAYLAND_FRACTIONAL_SCALE_V1_H
 #define GFXRECON_GENERATED_WAYLAND_FRACTIONAL_SCALE_V1_H
 
+#include <cstdint>
 #include <vector>
 
 #include <wayland-client.h>
@@ -39,9 +40,9 @@ struct WpFractionalScaleV1;
 
 // wp_fractional_scale_manager_v1 static declarations
 
-enum WpFractionalScaleManagerV1Error
+enum class WpFractionalScaleManagerV1Error : uint32_t
 {
-    WP_FRACTIONAL_SCALE_MANAGER_V1_ERROR_FRACTIONAL_SCALE_EXISTS = 0,
+    FRACTIONAL_SCALE_EXISTS = 0,
 };
 
 // wp_fractional_scale_v1 static declarations

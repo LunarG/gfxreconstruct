@@ -91,8 +91,16 @@ def generated_type_name(*parts: str) -> str:
     return ''.join(to_upper_camel_case(part) for part in parts)
 
 
-def generated_enum_entry_name(*parts: str) -> str:
-    return '_'.join(part.upper() for part in parts)
+def generated_enum_entry_name(entry_name: str) -> str:
+    """Name for one entry of a generated enum.
+
+    The enum classes scope their entries, so an entry keeps only the name the protocol gives
+    it.  A protocol can name an entry with a leading digit, which C++ does not accept in an
+    identifier, so reject that here instead of writing a source file that does not compile.
+    """
+    if entry_name[:1].isdigit():
+        raise Exception(f'Enum entry "{entry_name}" starts with a digit: Case not handled.')
+    return entry_name.upper()
 
 
 def protocol_table_type_name(protocol_name: str) -> str:
@@ -277,6 +285,7 @@ def generate(protocol_path: str) -> None:
         file.write(f'#ifndef GFXRECON_GENERATED_WAYLAND_{protocol_name.upper()}_H\n')
         file.write(f'#define GFXRECON_GENERATED_WAYLAND_{protocol_name.upper()}_H\n')
         file.write('\n')
+        file.write('#include <cstdint>\n')
         file.write('#include <vector>\n')
         file.write('\n')
         file.write('#include <wayland-client.h>\n')
@@ -306,10 +315,10 @@ def generate(protocol_path: str) -> None:
             # Enums
 
             for enum in interface.findall('enum'):
-                file.write(f'enum {generated_type_name(interface_name, enum.attrib["name"])}\n')
+                file.write(f'enum class {generated_type_name(interface_name, enum.attrib["name"])} : uint32_t\n')
                 file.write('{\n')
                 for entry in enum.findall('entry'):
-                    entry_name = generated_enum_entry_name(interface_name, enum.attrib['name'], entry.attrib['name'])
+                    entry_name = generated_enum_entry_name(entry.attrib['name'])
                     file.write(f'{MEMBER_INDENT}{entry_name} = {entry.attrib["value"]},\n')
                 file.write('};\n')
                 file.write('\n')

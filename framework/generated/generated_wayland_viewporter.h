@@ -24,6 +24,7 @@
 #ifndef GFXRECON_GENERATED_WAYLAND_VIEWPORTER_H
 #define GFXRECON_GENERATED_WAYLAND_VIEWPORTER_H
 
+#include <cstdint>
 #include <vector>
 
 #include <wayland-client.h>
@@ -39,19 +40,19 @@ struct WpViewport;
 
 // wp_viewporter static declarations
 
-enum WpViewporterError
+enum class WpViewporterError : uint32_t
 {
-    WP_VIEWPORTER_ERROR_VIEWPORT_EXISTS = 0,
+    VIEWPORT_EXISTS = 0,
 };
 
 // wp_viewport static declarations
 
-enum WpViewportError
+enum class WpViewportError : uint32_t
 {
-    WP_VIEWPORT_ERROR_BAD_VALUE = 0,
-    WP_VIEWPORT_ERROR_BAD_SIZE = 1,
-    WP_VIEWPORT_ERROR_OUT_OF_BUFFER = 2,
-    WP_VIEWPORT_ERROR_NO_SURFACE = 3,
+    BAD_VALUE = 0,
+    BAD_SIZE = 1,
+    OUT_OF_BUFFER = 2,
+    NO_SURFACE = 3,
 };
 
 // Global to viewporter
