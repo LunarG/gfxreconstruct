@@ -38,15 +38,14 @@ const char kOptions[] =
     "screenshot-ignore-FrameBoundaryANDROID,--screenshot-apply-prerotation,--deduplicate-device,--log-timestamps,--"
     "capture,--idle-before-submit,--"
     "serialize-render-passes,--serialize-queue-submissions,--async-processing,--isolate-render-passes,--serialize-"
-    "compute-"
-    "and-transfer";
+    "compute-and-transfer,--annotate-injected-commands";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
-    "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
+    "format,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
     "present-mode,--wait-before-first-submit,--present-override,--frame-"
     "warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,--loop-count,--"
     "replay-event-plugin-path,--replay-event-plugin-params";
@@ -344,6 +343,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tForce wait on completion of queue operations for all queues");
     GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
     GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
+    GFXRECON_WRITE_CONSOLE("  --annotate-injected-commands");
+    GFXRECON_WRITE_CONSOLE("          \t\tWrap commands injected by replay (not present in the capture,");
+    GFXRECON_WRITE_CONSOLE("          \t\te.g. virtual-swapchain copies and ray-tracing SBT fixups) in");
+    GFXRECON_WRITE_CONSOLE("          \t\tVK_EXT_debug_utils labels named \"GFXR Replay: <category>\".");
 #if !defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("  --dump-resources <filename>.json");
     GFXRECON_WRITE_CONSOLE("          \t\tExtract dump resources block indices and options from the");

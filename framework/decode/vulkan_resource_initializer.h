@@ -25,6 +25,7 @@
 
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -41,14 +42,14 @@ struct VulkanDeviceInfo;
 class VulkanResourceInitializer
 {
   public:
-    VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
-                              VkDeviceSize                            total_copy_size,
-                              VkDeviceSize                            max_copy_size,
-                              const VkPhysicalDeviceProperties&       physical_device_properties,
-                              const VkPhysicalDeviceMemoryProperties& memory_properties,
-                              bool                                    have_shader_stencil_write,
-                              VulkanResourceAllocator*                resource_allocator,
-                              const graphics::VulkanDeviceTable*      device_table);
+    VulkanResourceInitializer(const VulkanDeviceInfo*                    device_info,
+                              VkDeviceSize                               total_copy_size,
+                              VkDeviceSize                               max_copy_size,
+                              const VkPhysicalDeviceProperties&          physical_device_properties,
+                              const VkPhysicalDeviceMemoryProperties&    memory_properties,
+                              bool                                       have_shader_stencil_write,
+                              VulkanResourceAllocator*                   resource_allocator,
+                              const graphics::VulkanInjectedDeviceCalls& injected_calls);
 
     ~VulkanResourceInitializer();
 
@@ -201,8 +202,10 @@ class VulkanResourceInitializer
     VkPhysicalDeviceMemoryProperties      memory_properties_{};
     bool                                  have_shader_stencil_write_;
     VulkanResourceAllocator*              resource_allocator_;
-    const graphics::VulkanDeviceTable*    device_table_;
-    const VulkanDeviceInfo*               device_info_;
+    // Every device call this class makes is replay-injected, i.e. has no
+    // corresponding block in the capture file.
+    graphics::VulkanInjectedDeviceCalls injected_calls_;
+    const VulkanDeviceInfo*             device_info_;
 
     // Copies of the copy information passed into the InitializeBuffer and InitializeImage respectively.
     // Vectors are kept and only grow in size in order to save the cost of reallocating them each time.

@@ -240,6 +240,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const graphics::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
     const graphics::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
+
+    // Handle for the replay-injected device calls of `handle`'s device, built
+    // from the registered device table, which must exist.
+    graphics::VulkanInjectedDeviceCalls GetInjectedDeviceCalls(const void* handle) const;
+
     void AddImageHandle(format::HandleId parent_id, format::HandleId id, VkImage handle, VulkanImageInfo&& initial_info)
     {
         AddHandle<VulkanImageInfo>(
@@ -269,6 +274,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     struct CreateDeviceInfoState
     {
         VkDeviceCreateInfo                        modified_create_info;
+        std::vector<VkDeviceQueueCreateInfo>      modified_queue_create_infos;
         std::vector<const char*>                  modified_extensions;
         std::vector<std::string>                  trim_extensions;
         VkDeviceGroupDeviceCreateInfo             modified_device_group_create_info;
@@ -289,6 +295,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkDevice                  replay_device,
                                          CreateDeviceInfoState&    create_state,
                                          VulkanDeviceInfo*         device_info);
+
+    // Map a captured queue-family index onto one the replay-device created and can run work on.
+    static uint32_t MapQueueFamilyIndex(const VulkanDeviceInfo*  device_info,
+                                        uint32_t                 queue_family_index,
+                                        VkDeviceQueueCreateFlags create_flags);
+
+    // Map a captured (queue-family, queue-index) pair onto a queue that exists on the replay-device.
+    static void MapDeviceQueue(const VulkanDeviceInfo*  device_info,
+                               uint32_t&                queue_family_index,
+                               uint32_t&                queue_index,
+                               VkDeviceQueueCreateFlags create_flags);
 
     void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
@@ -1040,6 +1057,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                VkResult                        original_result,
                                                const VulkanDeviceInfo*         device_info,
                                                StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* tag_info);
+
+    void OverrideGetPhysicalDeviceQueueFamilyProperties(
+        PFN_vkGetPhysicalDeviceQueueFamilyProperties           func,
+        decode::VulkanPhysicalDeviceInfo*                      physical_device_info,
+        PointerDecoder<uint32_t>*                              pQueueFamilyPropertyCount,
+        StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties);
+
+    void OverrideGetPhysicalDeviceQueueFamilyProperties2(
+        PFN_vkGetPhysicalDeviceQueueFamilyProperties2           func,
+        decode::VulkanPhysicalDeviceInfo*                       physical_device_info,
+        PointerDecoder<uint32_t>*                               pQueueFamilyPropertyCount,
+        StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties);
 
     VkResult
     OverrideGetPhysicalDeviceSurfaceFormatsKHR(PFN_vkGetPhysicalDeviceSurfaceFormatsKHR          func,

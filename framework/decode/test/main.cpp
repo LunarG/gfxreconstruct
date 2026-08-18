@@ -26,6 +26,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#include "decode/referenced_resource_table.h"
 #include "decode/screenshot_handler.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
@@ -312,5 +313,129 @@ TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslat
     for (uint32_t i = 0; i < submit_info.signalSemaphoreCount; ++i)
     {
         REQUIRE(r_device_group->pSignalSemaphoreDeviceIndices[i] == signal_device_indices[i]);
+    }
+}
+
+TEST_CASE("ReferencedResourceTable classifies destroyed command buffers", "[optimize]")
+{
+    using gfxrecon::decode::ReferencedResourceTable;
+    using gfxrecon::format::HandleId;
+
+    constexpr HandleId kPool     = 1;
+    constexpr HandleId kCmd      = 2;
+    constexpr HandleId kPipeline = 3;
+
+    ReferencedResourceTable table;
+    table.AddResource(kPipeline);
+    table.AddUser(kPool, kCmd);
+    table.AddResourceToUser(kCmd, kPipeline);
+
+    std::unordered_set<HandleId> unreferenced;
+
+    SECTION("recorded, never submitted, then freed: user and resource are both unreferenced")
+    {
+        // The recorded blocks of a destroyed command buffer stay in the capture file, so the user must still be
+        // classified as unreferenced for those blocks to be removed together with the pipeline creation call.
+        table.RemoveUser(kCmd); // vkFreeCommandBuffers
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kCmd) == 1);
+        REQUIRE(unreferenced.count(kPipeline) == 1);
+    }
+
+    SECTION("recorded, never submitted, then pool destroyed: user and resource are both unreferenced")
+    {
+        table.ClearUsers(kPool); // vkDestroyCommandPool
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kCmd) == 1);
+        REQUIRE(unreferenced.count(kPipeline) == 1);
+    }
+
+    SECTION("submitted and then freed: user and resource are both referenced")
+    {
+        table.ProcessUserSubmission(kCmd);
+        table.RemoveUser(kCmd);
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kCmd) == 0);
+        REQUIRE(unreferenced.count(kPipeline) == 0);
+    }
+}
+
+TEST_CASE("ReferencedResourceTable marks resources recorded into a previously submitted user", "[optimize]")
+{
+    using gfxrecon::decode::ReferencedResourceTable;
+    using gfxrecon::format::HandleId;
+
+    constexpr HandleId kPool      = 1;
+    constexpr HandleId kCmd       = 2;
+    constexpr HandleId kPipeline1 = 3;
+    constexpr HandleId kPipeline2 = 4;
+
+    ReferencedResourceTable table;
+    table.AddUser(kPool, kCmd);
+    table.AddResource(kPipeline1);
+    table.AddResourceToUser(kCmd, kPipeline1);
+    table.ProcessUserSubmission(kCmd);
+
+    // Re-record the command buffer with a new pipeline, without a following submission (e.g. the capture ended
+    // between recording and submission).  All blocks of the submitted command buffer stay in the capture file,
+    // including the new recording, so the new pipeline must be classified as referenced.
+    table.ResetUser(kCmd); // vkBeginCommandBuffer
+    table.AddResource(kPipeline2);
+    table.AddResourceToUser(kCmd, kPipeline2);
+
+    std::unordered_set<HandleId> unreferenced;
+    table.GetReferencedHandleIds(nullptr, &unreferenced);
+    REQUIRE(unreferenced.count(kPipeline1) == 0);
+    REQUIRE(unreferenced.count(kPipeline2) == 0);
+}
+
+TEST_CASE("ReferencedResourceTable processes executed secondary command buffers", "[optimize]")
+{
+    using gfxrecon::decode::ReferencedResourceTable;
+    using gfxrecon::format::HandleId;
+
+    constexpr HandleId kPool      = 1;
+    constexpr HandleId kPrimary   = 2;
+    constexpr HandleId kSecondary = 3;
+    constexpr HandleId kNested    = 4;
+    constexpr HandleId kPipeline  = 5;
+
+    ReferencedResourceTable table;
+    table.AddUser(kPool, kPrimary);
+    table.AddUser(kPool, kSecondary);
+
+    std::unordered_set<HandleId> unreferenced;
+
+    SECTION("nested secondaries of a submitted primary are marked recursively")
+    {
+        table.AddUser(kPool, kNested);
+        table.AddResource(kPipeline);
+        table.AddResourceToUser(kNested, kPipeline);
+        table.AddUserToUser(kSecondary, kNested);  // vkCmdExecuteCommands in the secondary
+        table.AddUserToUser(kPrimary, kSecondary); // vkCmdExecuteCommands in the primary
+        table.ProcessUserSubmission(kPrimary);
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kSecondary) == 0);
+        REQUIRE(unreferenced.count(kNested) == 0);
+        REQUIRE(unreferenced.count(kPipeline) == 0);
+    }
+
+    SECTION("execute-commands recorded into an already submitted primary marks the secondary")
+    {
+        table.ProcessUserSubmission(kPrimary);
+
+        // Trailing recording without a following submission: the primary's blocks all stay in the capture file,
+        // so the executed secondary and its resources must be classified as referenced.
+        table.AddResource(kPipeline);
+        table.AddResourceToUser(kSecondary, kPipeline);
+        table.AddUserToUser(kPrimary, kSecondary);
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kSecondary) == 0);
+        REQUIRE(unreferenced.count(kPipeline) == 0);
     }
 }

@@ -562,3 +562,42 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     def get_param_accessor(self):
         """get_param_accessor - return parameter accessor for the current generator."""
         return '.'
+
+    def get_object_type_handles(self):
+        """Return a list of (object_type, handle_name, short_handle_name) tuples, one per handle
+        type that has an object type enum. Aliases are skipped.
+        """
+        api_data = self.get_api_data()
+        handles = []
+
+        for handle_name in sorted(self.handle_names):
+            if handle_name in self.handle_aliases:
+                continue
+            if not handle_name.startswith(api_data.type_prefix):
+                continue
+
+            object_type = self.handle_object_types.get(handle_name)
+            if not object_type:
+                continue
+
+            handles.append(
+                (object_type, handle_name, handle_name[len(api_data.type_prefix):])
+            )
+
+        return handles
+
+    def get_debug_report_object_type(self, object_type):
+        """Return the VkDebugReportObjectTypeEXT counterpart of an object type
+        """
+        object_type_prefix = 'VK_OBJECT_TYPE_'
+        if not object_type.startswith(object_type_prefix):
+            return None
+
+        report_type = 'VK_DEBUG_REPORT_OBJECT_TYPE_{}_EXT'.format(
+            object_type[len(object_type_prefix):]
+        )
+
+        if report_type not in self.enumEnumerants.get('VkDebugReportObjectTypeEXT', dict()):
+            return None
+
+        return report_type

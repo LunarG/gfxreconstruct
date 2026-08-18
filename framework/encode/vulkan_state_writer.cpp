@@ -5036,67 +5036,6 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
     blocks_written_ += n_blocks + 1;
 }
 
-void VulkanStateWriter::WriteDebugUtilsState(const VulkanStateTable& state_table)
-{
-    auto write_debug_utils_calls = [&](const auto* wrapper) {
-        assert(wrapper != nullptr);
-        if (wrapper->debug_name_create_parameters)
-        {
-            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
-                              wrapper->debug_name_create_parameters.get());
-        }
-
-        if (wrapper->debug_tag_create_parameters)
-        {
-            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
-        }
-    };
-
-    // clang-format off
-    state_table.VisitWrappers([&](const vulkan_wrappers::InstanceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DeviceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::QueueWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::SemaphoreWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::FenceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DeviceMemoryWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::EventWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::QueryPoolWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::BufferViewWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::ImageViewWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::ShaderModuleWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineCacheWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineLayoutWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::RenderPassWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetLayoutWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorPoolWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::FramebufferWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::CommandPoolWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerYcbcrConversionWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorUpdateTemplateWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::SurfaceKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::SwapchainKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DisplayKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DisplayModeKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::PerformanceConfigurationINTELWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::DeferredOperationKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::IndirectCommandsLayoutNVWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::MicromapEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::PrivateDataSlotEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureNVWrapper* wrapper) { write_debug_utils_calls(wrapper); });
-    // clang-format on
-}
-
 void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanStateTable& state_table)
 {
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_pipelines;
@@ -5112,6 +5051,11 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
                                                  wrapper->pipeline_dependency.create_parameters.get()));
         }
 
+        // All objects for a session are emitted together. Splitting them into separate calls can make the second call
+        // an invalid attempt to bind a bind point that was already bound by the first call.
+        std::vector<VkBindDataGraphPipelineSessionMemoryInfoARM> bind_infos;
+        bind_infos.reserve(wrapper->memory_bindings.size());
+
         for (const auto& binding : wrapper->memory_bindings)
         {
             const auto* memory_wrapper = state_table.GetVulkanDeviceMemoryWrapper(binding.bind_memory_id);
@@ -5120,7 +5064,7 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
                 continue;
             }
 
-            VkBindDataGraphPipelineSessionMemoryInfoARM info{};
+            auto& info        = bind_infos.emplace_back();
             info.sType        = VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM;
             info.pNext        = nullptr;
             info.session      = wrapper->handle;
@@ -5128,10 +5072,16 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
             info.memoryOffset = binding.bind_offset;
             info.bindPoint    = binding.bind_point;
             info.objectIndex  = binding.object_index;
+        }
+
+        if (!bind_infos.empty())
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, bind_infos.size());
+            const uint32_t bind_info_count = static_cast<uint32_t>(bind_infos.size());
 
             encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
-            encoder_.EncodeUInt32Value(1);
-            EncodeStructArray(&encoder_, &info, 1);
+            encoder_.EncodeUInt32Value(bind_info_count);
+            EncodeStructArray(&encoder_, bind_infos.data(), bind_info_count);
             encoder_.EncodeEnumValue(VK_SUCCESS);
             WriteFunctionCall(format::ApiCallId::ApiCall_vkBindDataGraphPipelineSessionMemoryARM, &parameter_stream_);
             parameter_stream_.Clear();

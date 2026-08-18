@@ -92,7 +92,7 @@ class MarkInjectedCommands : public CallbackBase
     }
 };
 
-thread_local std::atomic<uint32_t> MarkInjectedCommandsHelper::semaphore = 0;
+thread_local uint32_t MarkInjectedCommandsHelper::semaphore = 0;
 
 MarkInjectedCommandsHelper::MarkInjectedCommandsHelper()
 {

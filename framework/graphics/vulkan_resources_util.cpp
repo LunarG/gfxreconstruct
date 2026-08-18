@@ -382,6 +382,59 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
     return found;
 }
 
+bool FindTensorStagingMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                      uint32_t                                memory_type_bits,
+                                      uint32_t*                               found_index,
+                                      VkMemoryPropertyFlags*                  found_flags)
+{
+    constexpr VkMemoryPropertyFlags kHostVisibleCached =
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    constexpr VkMemoryPropertyFlags kHostVisibleCoherent =
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    return FindMemoryTypeIndex(memory_properties, memory_type_bits, kHostVisibleCached, found_index, found_flags) ||
+           FindMemoryTypeIndex(memory_properties, memory_type_bits, kHostVisibleCoherent, found_index, found_flags) ||
+           FindMemoryTypeIndex(
+               memory_properties, memory_type_bits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, found_index, found_flags);
+}
+
+bool TensorFormatHasFeatures(const VkTensorFormatPropertiesARM& tensor_properties,
+                             VkTensorTilingARM                  tiling,
+                             VkFormatFeatureFlags2              required_features)
+{
+    VkFormatFeatureFlags2 available_features = 0;
+    switch (tiling)
+    {
+        case VK_TENSOR_TILING_OPTIMAL_ARM:
+            available_features = tensor_properties.optimalTilingTensorFeatures;
+            break;
+        case VK_TENSOR_TILING_LINEAR_ARM:
+            available_features = tensor_properties.linearTilingTensorFeatures;
+            break;
+        default:
+            return false;
+    }
+
+    return (required_features != 0) && ((available_features & required_features) == required_features);
+}
+
+bool TensorFormatSupportsFeatures(const VulkanInstanceTable*    instance_table,
+                                  VkPhysicalDevice              physical_device,
+                                  const VkTensorDescriptionARM* description,
+                                  VkFormatFeatureFlags2         required_features)
+{
+    if ((instance_table == nullptr) || (physical_device == VK_NULL_HANDLE) || (description == nullptr))
+    {
+        return false;
+    }
+
+    VkTensorFormatPropertiesARM tensor_properties = { VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM };
+    VkFormatProperties2         format_properties = { VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2, &tensor_properties };
+    instance_table->GetPhysicalDeviceFormatProperties2(physical_device, description->format, &format_properties);
+
+    return TensorFormatHasFeatures(tensor_properties, description->tiling, required_features);
+}
+
 // Get the info on target image format. The function returns true if the target format
 // is supported, and returns texel size and other info to the corresponding pointer if the
 // pointer is not nullptr and the image format is supported.
@@ -881,6 +934,7 @@ VulkanResourcesUtil::~VulkanResourcesUtil()
 {
     DestroyStagingBuffer();
     DestroyStagingTensor();
+    DestroyStagingTensorMemory();
 
     for (const auto& [queue_family_index, command_asset] : command_asset_map_)
     {
@@ -1074,7 +1128,8 @@ VkResult VulkanResourcesUtil::AllocateStagingMemory(const VkMemoryRequirements& 
     alloc_info.allocationSize       = requirements.size;
     alloc_info.memoryTypeIndex      = memory_type_index;
 
-    VkResult result = device_table_.AllocateMemory(device_, &alloc_info, nullptr, &ctx.memory);
+    VkResult result       = device_table_.AllocateMemory(device_, &alloc_info, nullptr, &ctx.memory);
+    ctx.memory_type_index = memory_type_index;
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to allocate staging memory for resource memory snapshot");
@@ -1215,26 +1270,56 @@ VkResult VulkanResourcesUtil::CreateStagingTensor(const VkTensorDescriptionARM* 
     VkMemoryRequirements2 mem_req2                 = { VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
     device_table_.GetTensorMemoryRequirementsARM(device_, &mem_req_info, &mem_req2);
 
-    result = AllocateStagingMemory(mem_req2.memoryRequirements, staging_tensor_.mem);
-    if (result != VK_SUCCESS)
+    const bool memory_type_is_compatible =
+        (staging_tensor_.mem.memory_type_index < VK_MAX_MEMORY_TYPES) &&
+        ((mem_req2.memoryRequirements.memoryTypeBits & (1U << staging_tensor_.mem.memory_type_index)) != 0);
+
+    if ((mem_req2.memoryRequirements.size > staging_tensor_.mem.size) || !memory_type_is_compatible)
     {
-        DestroyStagingTensor();
-        return result;
+        DestroyStagingTensorMemory();
+
+        uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
+        bool     found             = FindTensorStagingMemoryTypeIndex(*memory_properties_,
+                                                      mem_req2.memoryRequirements.memoryTypeBits,
+                                                      &memory_type_index,
+                                                      &staging_tensor_.mem.memory_property_flags);
+        if (!found)
+        {
+            GFXRECON_LOG_ERROR("Failed to find host-visible memory for staging tensor");
+            DestroyStagingTensor();
+            return VK_ERROR_FEATURE_NOT_PRESENT;
+        }
+
+        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        alloc_info.pNext                = nullptr;
+        alloc_info.allocationSize       = mem_req2.memoryRequirements.size;
+        alloc_info.memoryTypeIndex      = memory_type_index;
+
+        result = device_table_.AllocateMemory(device_, &alloc_info, nullptr, &staging_tensor_.mem.memory);
+        if (result == VK_SUCCESS)
+        {
+            staging_tensor_.mem.size              = mem_req2.memoryRequirements.size;
+            staging_tensor_.mem.memory_type_index = memory_type_index;
+        }
     }
 
-    VkBindTensorMemoryInfoARM bind_info = { VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM };
-    bind_info.tensor                    = staging_tensor_.tensor;
-    bind_info.memory                    = staging_tensor_.mem.memory;
-    bind_info.memoryOffset              = 0;
-    result                              = device_table_.BindTensorMemoryARM(device_, 1, &bind_info);
-    if (result != VK_SUCCESS)
+    if (result == VK_SUCCESS)
     {
-        DestroyStagingTensor();
-        return result;
+        VkBindTensorMemoryInfoARM bind_info = { VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM };
+        bind_info.tensor                    = staging_tensor_.tensor;
+        bind_info.memory                    = staging_tensor_.mem.memory;
+        bind_info.memoryOffset              = 0;
+        result                              = device_table_.BindTensorMemoryARM(device_, 1, &bind_info);
     }
 
-    staging_tensor_.mem.size = mem_req2.memoryRequirements.size;
-    return VK_SUCCESS;
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to allocate or bind staging tensor memory for resource memory snapshot");
+        DestroyStagingTensor();
+        DestroyStagingTensorMemory();
+    }
+
+    return result;
 }
 
 void VulkanResourcesUtil::DestroyStagingTensor()
@@ -1246,13 +1331,19 @@ void VulkanResourcesUtil::DestroyStagingTensor()
         device_table_.DestroyTensorARM(device_, staging_tensor_.tensor, nullptr);
         staging_tensor_.tensor = VK_NULL_HANDLE;
     }
+}
 
+void VulkanResourcesUtil::DestroyStagingTensorMemory()
+{
     if (staging_tensor_.mem.memory != VK_NULL_HANDLE)
     {
         device_table_.FreeMemory(device_, staging_tensor_.mem.memory, nullptr);
+        staging_tensor_.mem.memory = VK_NULL_HANDLE;
     }
 
-    staging_tensor_.mem = StagingMemoryContext{};
+    staging_tensor_.mem.memory_property_flags = VkMemoryPropertyFlags(0);
+    staging_tensor_.mem.memory_type_index     = std::numeric_limits<uint32_t>::max();
+    staging_tensor_.mem.size                  = 0;
 }
 
 VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_family_index)
@@ -1737,6 +1828,7 @@ bool VulkanResourcesUtil::CanTransferResolve(
                                                               ? format_properties.linearTilingFeatures
                                                               : format_properties.optimalTilingFeatures;
 
+    // Maintenace10 and depth/stencil formats require vkCmdResolveImage2 and VkResolveImageModeInfoKHR.
     const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
     if ((supported_feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT ||
         (maintenance10_supported && (supported_feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
@@ -2161,32 +2253,91 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                              num_barriers,
                                              memory_barriers);
 
-            VkImageResolve region;
-            region.srcSubresource.aspectMask     = aspect_mask;
-            region.srcSubresource.mipLevel       = 0;
-            region.srcSubresource.baseArrayLayer = 0;
-            region.srcSubresource.layerCount     = array_layers;
-            region.srcOffset.x                   = 0;
-            region.srcOffset.y                   = 0;
-            region.srcOffset.z                   = 0;
-            region.dstSubresource.aspectMask     = aspect_mask;
-            region.dstSubresource.mipLevel       = 0;
-            region.dstSubresource.baseArrayLayer = 0;
-            region.dstSubresource.layerCount     = array_layers;
-            region.dstOffset.x                   = 0;
-            region.dstOffset.y                   = 0;
-            region.dstOffset.z                   = 0;
-            region.extent.width                  = extent.width;
-            region.extent.height                 = extent.height;
-            region.extent.depth                  = extent.depth;
+            bool is_depth_or_stencil = vkuFormatIsDepthOrStencil(format);
 
-            device_table_.CmdResolveImage(command_buffer,
-                                          image,
-                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                          *resolved_image,
-                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                          1,
-                                          &region);
+            if (device_table_.CmdResolveImage2 != noop::vkCmdResolveImage2 ||
+                device_table_.CmdResolveImage2KHR != noop::vkCmdResolveImage2KHR)
+            {
+                VkImageResolve2 region               = { VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2 };
+                region.srcSubresource.aspectMask     = aspect_mask;
+                region.srcSubresource.mipLevel       = 0;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount     = array_layers;
+                region.srcOffset.x                   = 0;
+                region.srcOffset.y                   = 0;
+                region.srcOffset.z                   = 0;
+                region.dstSubresource.aspectMask     = aspect_mask;
+                region.dstSubresource.mipLevel       = 0;
+                region.dstSubresource.baseArrayLayer = 0;
+                region.dstSubresource.layerCount     = array_layers;
+                region.dstOffset.x                   = 0;
+                region.dstOffset.y                   = 0;
+                region.dstOffset.z                   = 0;
+                region.extent.width                  = extent.width;
+                region.extent.height                 = extent.height;
+                region.extent.depth                  = extent.depth;
+
+                VkResolveImageInfo2 resolve_info = { VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2 };
+                resolve_info.srcImage            = image;
+                resolve_info.srcImageLayout      = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                resolve_info.dstImage            = *resolved_image;
+                resolve_info.dstImageLayout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                resolve_info.regionCount         = 1;
+                resolve_info.pRegions            = &region;
+
+                VkResolveImageModeInfoKHR resolve_mode_info = { VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR };
+                if (is_depth_or_stencil)
+                {
+                    resolve_mode_info.resolveMode        = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+                    resolve_mode_info.stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+                    resolve_info.pNext                   = &resolve_mode_info;
+                }
+
+                if (device_table_.CmdResolveImage2 != noop::vkCmdResolveImage2)
+                {
+                    device_table_.CmdResolveImage2(command_buffer, &resolve_info);
+                }
+                else
+                {
+                    device_table_.CmdResolveImage2KHR(command_buffer, &resolve_info);
+                }
+            }
+            else
+            {
+                VkImageResolve region;
+                region.srcSubresource.aspectMask     = aspect_mask;
+                region.srcSubresource.mipLevel       = 0;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount     = array_layers;
+                region.srcOffset.x                   = 0;
+                region.srcOffset.y                   = 0;
+                region.srcOffset.z                   = 0;
+                region.dstSubresource.aspectMask     = aspect_mask;
+                region.dstSubresource.mipLevel       = 0;
+                region.dstSubresource.baseArrayLayer = 0;
+                region.dstSubresource.layerCount     = array_layers;
+                region.dstOffset.x                   = 0;
+                region.dstOffset.y                   = 0;
+                region.dstOffset.z                   = 0;
+                region.extent.width                  = extent.width;
+                region.extent.height                 = extent.height;
+                region.extent.depth                  = extent.depth;
+
+                if (is_depth_or_stencil)
+                {
+                    GFXRECON_LOG_ERROR(
+                        "The image is depth or stencil. It requires CmdCmdResolveImage2, but this device does not "
+                        "support it. It run CmdCmdResolveImage instead, but it might fail in some drivers.");
+                }
+
+                device_table_.CmdResolveImage(command_buffer,
+                                              image,
+                                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                              *resolved_image,
+                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                              1,
+                                              &region);
+            }
 
             // Prepare the resolved image for the next staging copy.
             memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -2698,6 +2849,22 @@ VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                
                                                      std::vector<uint8_t>&         data)
 {
     GFXRECON_ASSERT(tensor != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(desc != nullptr);
+
+    if (desc == nullptr)
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    constexpr VkFormatFeatureFlags2 required_features =
+        VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT;
+    if (!TensorFormatSupportsFeatures(&instance_table_, physical_device_, desc, required_features))
+    {
+        GFXRECON_LOG_WARNING(
+            "Skipping tensor resource snapshot: format does not support tensor transfer source and destination "
+            "operations for the requested tiling");
+        return VK_ERROR_FEATURE_NOT_PRESENT;
+    }
 
     const VkQueue queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)
@@ -2705,7 +2872,6 @@ VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    // Create a host-visible staging tensor with the same shape but TRANSFER_DST usage.
     VkTensorDescriptionARM staging_desc = *desc;
     staging_desc.usage                  = VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM;
 
@@ -2716,6 +2882,7 @@ VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                
     }
 
     VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(queue_family_index);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
     if (command_buffer == VK_NULL_HANDLE)
     {
         return VK_ERROR_UNKNOWN;
