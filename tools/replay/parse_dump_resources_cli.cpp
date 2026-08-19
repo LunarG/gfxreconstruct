@@ -163,6 +163,28 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         }
     }
 
+    // Verify that all BCB indices in the ExecuteCommands lists exist in the BeginCommandBufferQueueSubmit
+    for (const auto& execute_commands : vulkan_replay_options.ExecuteCommands_Indices)
+    {
+        for (const auto& execute_command : execute_commands)
+        {
+            for (const auto& secondary_bcb : execute_command.second)
+            {
+                if (!std::any_of(vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.begin(),
+                                 vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.end(),
+                                 [secondary_bcb](const decode::BeginCmdBufQueueSubmitPair& entry) {
+                                     return entry.first == secondary_bcb;
+                                 }))
+                {
+                    GFXRECON_LOG_ERROR("Malformed VDR input json: BeginCommandBuffer index %" PRIu64
+                                       " referenced in ExecuteCommands does not exist in the BeginCommandBuffer list",
+                                       secondary_bcb);
+                    return true;
+                }
+            }
+        }
+    }
+
     return false;
 }
 
