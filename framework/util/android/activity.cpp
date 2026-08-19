@@ -22,27 +22,53 @@
 
 #include "util/android/activity.h"
 
+#include "util/logging.h"
+
 #include <android_native_app_glue.h>
+
+#include <chrono>
+#include <cinttypes>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+// Maximum amount of time to wait for APP_CMD_DESTROY before giving up and continuing with shutdown.
+constexpr std::chrono::milliseconds kDestroyTimeout{ 5000 };
 
 void DestroyActivity(struct android_app* app)
 {
     ANativeActivity_finish(app->activity);
 
-    // Wait for APP_CMD_DESTROY
+    // Wait for APP_CMD_DESTROY. The wait is bounded because this runs during final shutdown: if the command never
+    // arrives, shutdown must continue instead of hanging the process.
+    const auto deadline = std::chrono::steady_clock::now() + kDestroyTimeout;
+
     while (app->destroyRequested == 0)
     {
+        // ALooper_pollOnce() takes a whole number of milliseconds, so the remainder of the wait is truncated to that
+        // resolution.  A sub-millisecond remainder truncates to zero and ends the wait, which is the intent.
+        const std::chrono::milliseconds remaining =
+            std::chrono::duration_cast<std::chrono::milliseconds>(deadline - std::chrono::steady_clock::now());
+
+        if (remaining <= std::chrono::milliseconds::zero())
+        {
+            GFXRECON_LOG_WARNING("Timed out after %" PRId64 " ms waiting for APP_CMD_DESTROY; continuing with shutdown",
+                                 static_cast<int64_t>(kDestroyTimeout.count()));
+            break;
+        }
+
         struct android_poll_source* source = nullptr;
         int                         events = 0;
-        const int                   result = ALooper_pollOnce(-1, nullptr, &events, reinterpret_cast<void**>(&source));
+        const int                   result =
+            ALooper_pollOnce(static_cast<int>(remaining.count()), nullptr, &events, reinterpret_cast<void**>(&source));
 
         // An event dispatched to a registered looper callback, an ALooper_wake(), or a file descriptor with no
-        // android_poll_source all mean APP_CMD_DESTROY has not been received yet, so keep polling.  Only
-        // ALOOPER_POLL_ERROR is unrecoverable.
+        // android_poll_source all mean APP_CMD_DESTROY has not been received yet, so keep polling until the deadline
+        // expires.  Only ALOOPER_POLL_ERROR is unrecoverable.
         if (result == ALOOPER_POLL_ERROR)
         {
+            GFXRECON_LOG_WARNING("ALooper_pollOnce() failed while waiting for APP_CMD_DESTROY; continuing with "
+                                 "shutdown");
             break;
         }
 
