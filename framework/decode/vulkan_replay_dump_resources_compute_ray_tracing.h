@@ -71,6 +71,8 @@ class DispatchTraceRaysDumpingContext
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
 
+    VkCommandBuffer GetOriginalCommandBuffer() const { return original_command_buffer_info_->handle; }
+
     void CmdDispatch(const ApiCallInfo& call_info,
                      PFN_vkCmdDispatch  func,
                      VkCommandBuffer    original_command_buffer,
@@ -148,7 +150,8 @@ class DispatchTraceRaysDumpingContext
     void AssignSecondary(uint64_t                                         execute_commands_index,
                          std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context);
 
-    bool ShouldHandleExecuteCommands(uint64_t index) const;
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
+    SecondariesToExecute(uint64_t execute_commands_index) const;
 
   private:
     void InsertNewDispatchParameters(uint64_t index, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);

@@ -136,8 +136,6 @@ class DrawCallsDumpingContext
 
     bool ShouldHandleRenderPass(uint64_t index) const;
 
-    bool ShouldHandleExecuteCommands(uint64_t index) const;
-
     void BindDescriptorSets(VkPipelineBindPoint                                pipeline_bind_point,
                             uint32_t                                           first_set,
                             const std::vector<const VulkanDescriptorSetInfo*>& descriptor_sets_infos,
@@ -230,7 +228,11 @@ class DrawCallsDumpingContext
 
     const std::vector<VkCommandBuffer>& GetCommandBuffers() const { return command_buffers_; }
 
+    VkCommandBuffer GetOriginalCommandBuffer() const { return original_command_buffer_info_->handle; }
+
     void AssignSecondary(uint64_t execute_commands_index, std::shared_ptr<DrawCallsDumpingContext> secondary_context);
+
+    std::vector<std::shared_ptr<DrawCallsDumpingContext>> SecondariesToExecute(uint64_t execute_commands_index) const;
 
     uint32_t RecaclulateCommandBuffers();
 

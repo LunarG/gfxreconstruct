@@ -2380,9 +2380,16 @@ void DispatchTraceRaysDumpingContext::AssignSecondary(
     secondary_context->command_buffer_level_ = DumpResourcesCommandBufferLevel::kSecondary;
 }
 
-bool DispatchTraceRaysDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
+std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
+DispatchTraceRaysDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) const
 {
-    return secondaries_.find(index) != secondaries_.end();
+    auto entry = secondaries_.find(execute_commands_index);
+    if (entry != secondaries_.end())
+    {
+        return entry->second;
+    }
+
+    return std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>();
 }
 
 void DispatchTraceRaysDumpingContext::UpdateSecondaries(DispatchTraceRaysDumpingContext& secondary_context,

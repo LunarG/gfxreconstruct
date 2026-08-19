@@ -174,7 +174,22 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         }
     }
 
-    // Once all contexts are created do a second pass and assign the secondaries to the primaries the are executed from
+    // Once all contexts are created do a second pass and assign the secondaries to the primaries they are executed
+    // from. For each pair (BCBp, QS) for a primary that executes a secondary there should be the secondary's
+    // corresponding (BCBs, QS) pair. QS is the same block index for both Primary and Secondary since in the end they
+    // are submitted in the same QueueSubmit index. A primary that has one BCB but is submitted in multiple QS is a
+    // different context and should be paired with the corresponding secondary's context (if that secondary is marked
+    // for dumping too).
+    //
+    // An example:
+    // (BCBp, QS0), (BCBp, QS1), (BCBs, QS0), (BSBs, QS1)
+    // The same recorded primary (BSBp) is marked for dumping in two different queue submissions (QS0 and QS1).
+    // The primary executes the secondary recorded in BCBs. This request will create 4 draw call dumping contexts:
+    // (BCBp, QS0): Primary context 0 (PC0)
+    // (BCBp, QS1): Primary context 1 (PC1)
+    // (BCBs, QS0): Secondary context 0 (SC0)
+    // (BCBs, QS1): Secondary context 1 (SC1)
+    // PC0 must be assigned with SC0 and PC1 with SC1.
     for (size_t i = 0;
          i < options.BeginCommandBufferQueueSubmit_Indices.size() && i < options.ExecuteCommands_Indices.size();
          ++i)
@@ -187,17 +202,19 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         const decode::Index bcb_index = BeginCommandBufferQueueSubmit_Indices_[i].first;
         const decode::Index qs_index  = BeginCommandBufferQueueSubmit_Indices_[i].second;
 
-        std::vector<std::shared_ptr<DrawCallsDumpingContext>> primary_dc_contexts =
-            FindDrawCallDumpingContexts(bcb_index);
+        std::shared_ptr<DrawCallsDumpingContext> primary_dc_context =
+            FindContext(draw_call_contexts_, bcb_index, qs_index);
         for (auto& [execute_commands_index, secondary_bcbs] : options.ExecuteCommands_Indices[i])
         {
             for (auto& secondary_bcb : secondary_bcbs)
             {
-                std::vector<std::shared_ptr<DrawCallsDumpingContext>> secondary_dc_contexts =
-                    FindDrawCallDumpingContexts(secondary_bcb);
-                if (!secondary_dc_contexts.empty())
+                std::shared_ptr<DrawCallsDumpingContext> secondary_dc_context =
+                    FindContext(draw_call_contexts_, secondary_bcb, qs_index);
+                if (secondary_dc_context != nullptr)
                 {
-                    if (primary_dc_contexts.empty())
+                    // If a primary has not been marked for dumping but executes a secondary that has been marked, then
+                    // that primary will not have a context created. Create one now.
+                    if (primary_dc_context == nullptr)
                     {
                         auto [new_primary_it, success] =
                             draw_call_contexts_.emplace(std::piecewise_construct,
@@ -215,33 +232,28 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                             acceleration_structures_context_,
                                                             address_trackers)));
                         GFXRECON_ASSERT(success);
-
-                        primary_dc_contexts.push_back(new_primary_it->second);
+                        primary_dc_context = new_primary_it->second;
                     }
 
-                    for (auto prim_contex : primary_dc_contexts)
-                    {
-                        for (auto sec_context : secondary_dc_contexts)
-                        {
-                            prim_contex->AssignSecondary(execute_commands_index, sec_context);
-                        }
-                    }
+                    primary_dc_context->AssignSecondary(execute_commands_index, secondary_dc_context);
                 }
             }
         }
 
-        std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> primary_disp_contexts =
-            FindDispatchTraceRaysContexts(bcb_index);
-        for (auto& execute_commands : options.ExecuteCommands_Indices[i])
+        std::shared_ptr<DispatchTraceRaysDumpingContext> primary_disp_context =
+            FindContext(dispatch_ray_contexts_, bcb_index, qs_index);
+        for (auto& [execute_commands_index, secondary_bcbs] : options.ExecuteCommands_Indices[i])
         {
-            const uint64_t execute_commands_index = execute_commands.first;
-            for (auto& secondary : execute_commands.second)
+            for (auto& secondary_bcb : secondary_bcbs)
             {
-                std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> secondary_disp_contexts =
-                    FindDispatchTraceRaysContexts(secondary);
-                if (!secondary_disp_contexts.empty())
+                std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_disp_context =
+                    FindContext(dispatch_ray_contexts_, secondary_bcb, qs_index);
+
+                if (secondary_disp_context != nullptr)
                 {
-                    if (primary_disp_contexts.empty())
+                    // If a primary has not been marked for dumping but executes a secondary that has been marked, then
+                    // that primary will not have a context created. Create one now.
+                    if (primary_disp_context == nullptr)
                     {
                         auto [new_primary_it, success] = dispatch_ray_contexts_.emplace(
                             std::piecewise_construct,
@@ -260,17 +272,10 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                                                   acceleration_structures_context_,
                                                                                   address_trackers)));
                         GFXRECON_ASSERT(success);
-
-                        primary_disp_contexts.push_back(new_primary_it->second);
+                        primary_disp_context = new_primary_it->second;
                     }
 
-                    for (auto prim_context : primary_disp_contexts)
-                    {
-                        for (auto sec_context : secondary_disp_contexts)
-                        {
-                            prim_context->AssignSecondary(execute_commands_index, sec_context);
-                        }
-                    }
+                    primary_disp_context->AssignSecondary(execute_commands_index, secondary_disp_context);
                 }
             }
         }
@@ -280,7 +285,9 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     // secondaries. This is done in a separate pass since we need to be sure that all assignments have been completed.
     if (!options.ExecuteCommands_Indices.empty())
     {
-        for (size_t i = 0; i < BeginCommandBufferQueueSubmit_Indices_.size(); ++i)
+        for (size_t i = 0;
+             i < BeginCommandBufferQueueSubmit_Indices_.size() && i < options.ExecuteCommands_Indices.size();
+             ++i)
         {
             if (options.ExecuteCommands_Indices[i].empty())
             {
@@ -288,14 +295,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
             }
 
             const uint64_t bcb_index = BeginCommandBufferQueueSubmit_Indices_[i].first;
-            std::vector<std::shared_ptr<DrawCallsDumpingContext>> primary_dc_contexts =
-                FindDrawCallDumpingContexts(bcb_index);
-            if (!primary_dc_contexts.empty())
+            const uint64_t qs_index  = BeginCommandBufferQueueSubmit_Indices_[i].second;
+
+            std::shared_ptr<DrawCallsDumpingContext> primary_dc_context =
+                FindContext(draw_call_contexts_, bcb_index, qs_index);
+            if (primary_dc_context != nullptr)
             {
-                for (std::shared_ptr<DrawCallsDumpingContext> prim_context : primary_dc_contexts)
-                {
-                    prim_context->RecaclulateCommandBuffers();
-                }
+                primary_dc_context->RecaclulateCommandBuffers();
             }
         }
     }
@@ -347,7 +353,8 @@ VulkanReplayDumpResourcesBase::FindDrawCallDumpingContexts(VkCommandBuffer origi
 }
 
 std::shared_ptr<DrawCallsDumpingContext>
-VulkanReplayDumpResourcesBase::FindDrawCallContext(VkCommandBuffer original_command_buffer, decode::Index qs_index)
+VulkanReplayDumpResourcesBase::FindDrawCallDumpingContext(VkCommandBuffer original_command_buffer,
+                                                          decode::Index   qs_index)
 {
     auto begin_entry = cb_bcb_map_.find(original_command_buffer);
     if (begin_entry == cb_bcb_map_.end())
@@ -474,20 +481,6 @@ VulkanReplayDumpResourcesBase::FindTransferContextBcbIndex(uint64_t bcb_index) c
     }
 
     return transf_contexts;
-}
-
-std::shared_ptr<TransferDumpingContext> VulkanReplayDumpResourcesBase::FindTransferContextBcbQsIndex(uint64_t bcb_index,
-                                                                                                     uint64_t qs_index)
-{
-    for (auto& transf_context : transfer_contexts_)
-    {
-        if (transf_context.first.first == bcb_index && transf_context.first.second == qs_index)
-        {
-            return transf_context.second;
-        }
-    }
-
-    return nullptr;
 }
 
 template <typename MapOfContexts>
@@ -2065,7 +2058,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                 }
 
                 // Handle Draw commands
-                if (auto dc_context = FindDrawCallContext(command_buffer, qs_index))
+                if (auto dc_context = FindDrawCallDumpingContext(command_buffer, qs_index))
                 {
                     // Submit previous command buffers from this VkSubmitInfo before dumping draw calls
                     if (!submit_cbs.empty())
@@ -2325,59 +2318,72 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         CommandBufferIterator primary_first, primary_last;
         dc_primary_context->GetDrawCallActiveCommandBuffers(primary_first, primary_last);
 
-        if (dc_primary_context->ShouldHandleExecuteCommands(call_info.index))
+        std::vector<std::shared_ptr<DrawCallsDumpingContext>> secondaries_to_execute =
+            dc_primary_context->SecondariesToExecute(call_info.index);
+        if (!secondaries_to_execute.empty())
         {
             uint32_t                     finalized_primaries = 0;
             std::vector<VkCommandBuffer> accumulated_secondaries_command_buffers;
-            for (uint32_t i = 0; (i < commandBufferCount) && (finalized_primaries < primary_last - primary_first); ++i)
+            for (uint32_t i = 0; (i < commandBufferCount); ++i)
             {
-                const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_secondary_contexts =
-                    FindDrawCallDumpingContexts(pCommandBuffers[i]);
-                if (!dc_secondary_contexts.empty())
+                // Handle the executed secondaries that are marked for dumping separately
+                auto secondary_to_execute = secondaries_to_execute.begin();
+                for (; secondary_to_execute != secondaries_to_execute.end(); ++secondary_to_execute)
                 {
-                    for (auto dc_secondary_context : dc_secondary_contexts)
+                    if (pCommandBuffers[i] == secondary_to_execute->get()->GetOriginalCommandBuffer())
                     {
-                        const std::vector<VkCommandBuffer>& secondaries_command_buffers =
-                            dc_secondary_context->GetCommandBuffers();
-                        GFXRECON_ASSERT(secondaries_command_buffers.size() <=
-                                        primary_last - (primary_first + finalized_primaries));
-                        for (size_t scb = 0; scb < secondaries_command_buffers.size(); ++scb)
-                        {
-                            // Each primary should execute the command buffer from the previous
-                            // secondary contexts as well
-                            func(*(primary_first + finalized_primaries),
-                                 GFXRECON_NARROWING_CAST(uint32_t, accumulated_secondaries_command_buffers.size()),
-                                 accumulated_secondaries_command_buffers.data());
-
-                            func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
-                            dc_primary_context->MergeRenderPasses(*dc_secondary_context);
-                            ++finalized_primaries;
-                        }
-
-                        // Keep accumulating the command buffer from all secondary contexts
-                        accumulated_secondaries_command_buffers.insert(accumulated_secondaries_command_buffers.end(),
-                                                                       secondaries_command_buffers.begin(),
-                                                                       secondaries_command_buffers.end());
-
-                        // The other primaries need to execute this secondary as well
-                        for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
-                             primary_it < primary_last;
-                             ++primary_it)
-                        {
-                            func(*primary_it, 1, &pCommandBuffers[i]);
-                        }
-
-                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get(), call_info.index, i);
-
-                        // All primaries have been finalized. Nothing else to do
-                        if (finalized_primaries == primary_last - primary_first)
-                        {
-                            break;
-                        }
+                        break;
                     }
+                }
+
+                if (secondary_to_execute != secondaries_to_execute.end())
+                {
+                    const std::vector<VkCommandBuffer>& secondaries_command_buffers =
+                        secondary_to_execute->get()->GetCommandBuffers();
+                    GFXRECON_ASSERT(secondaries_command_buffers.size() <=
+                                    primary_last - (primary_first + finalized_primaries));
+                    for (size_t scb = 0; scb < secondaries_command_buffers.size(); ++scb)
+                    {
+                        // Each primary should execute the command buffer from the previous
+                        // secondary contexts as well
+                        func(*(primary_first + finalized_primaries),
+                             GFXRECON_NARROWING_CAST(uint32_t, accumulated_secondaries_command_buffers.size()),
+                             accumulated_secondaries_command_buffers.data());
+
+                        func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
+                        dc_primary_context->MergeRenderPasses(*secondary_to_execute->get());
+                        ++finalized_primaries;
+                    }
+
+                    // Keep accumulating the command buffer from all secondary contexts
+                    accumulated_secondaries_command_buffers.insert(accumulated_secondaries_command_buffers.end(),
+                                                                   secondaries_command_buffers.begin(),
+                                                                   secondaries_command_buffers.end());
+
+                    // The other primaries need to execute this secondary as well
+                    for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
+                         primary_it < primary_last;
+                         ++primary_it)
+                    {
+                        func(*primary_it, 1, &pCommandBuffers[i]);
+                    }
+
+                    dc_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
+
+                    // All primaries have been finalized. Nothing else to do
+                    if (finalized_primaries == primary_last - primary_first)
+                    {
+                        break;
+                    }
+
+                    // Dumping the same secondary multiple times from the same execution is not handled yet.
+                    // Remove the entry from the vector to prevent from attempting to handle the same secondary again
+                    secondaries_to_execute.erase(secondary_to_execute);
                 }
                 else
                 {
+                    // The command buffer either has no dumping context or its context belongs to a
+                    // different vkCmdExecuteCommands call.
                     for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
                          primary_it < primary_last;
                          ++primary_it)
@@ -2405,22 +2411,34 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
             VkCommandBuffer dispatch_rays_command_buffer = dr_primary_context->GetDispatchRaysCommandBuffer();
             if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
             {
-                if (dr_primary_context->ShouldHandleExecuteCommands(call_info.index))
+                std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> secondaries_to_execute =
+                    dr_primary_context->SecondariesToExecute(call_info.index);
+                if (!secondaries_to_execute.empty())
                 {
                     for (uint32_t i = 0; i < commandBufferCount; ++i)
                     {
-                        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_secondary_contexts =
-                            FindDispatchTraceRaysContexts(pCommandBuffers[i]);
-                        if (!dr_secondary_contexts.empty())
+                        // Handle the executed secondaries that are marked for dumping separately
+                        auto secondary_to_execute = secondaries_to_execute.begin();
+                        for (; secondary_to_execute != secondaries_to_execute.end(); ++secondary_to_execute)
                         {
-                            for (auto dr_secondary_context : dr_secondary_contexts)
+                            if (pCommandBuffers[i] == secondary_to_execute->get()->GetOriginalCommandBuffer())
                             {
-                                VkCommandBuffer secondary_command_buffer =
-                                    dr_secondary_context->GetDispatchRaysCommandBuffer();
-                                func(dispatch_rays_command_buffer, 1, &secondary_command_buffer);
-
-                                dr_primary_context->UpdateSecondaries(*dr_secondary_context, call_info.index, i);
+                                break;
                             }
+                        }
+
+                        if (secondary_to_execute != secondaries_to_execute.end())
+                        {
+                            VkCommandBuffer secondary_command_buffer =
+                                secondary_to_execute->get()->GetDispatchRaysCommandBuffer();
+                            func(dispatch_rays_command_buffer, 1, &secondary_command_buffer);
+
+                            dr_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
+
+                            // Dumping the same secondary multiple times from the same execution is not handled yet.
+                            // Remove the entry from the vector to prevent from attempting to handle the same secondary
+                            // again
+                            secondaries_to_execute.erase(secondary_to_execute);
                         }
                         else
                         {
@@ -2436,7 +2454,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         }
     }
 }
-
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
     const VulkanCommandBufferInfo*                                             original_command_buffer,
@@ -2527,7 +2544,7 @@ void VulkanReplayDumpResourcesBase::HandleDestroyAccelerationStructureKHR(
 void VulkanReplayDumpResourcesBase::ProcessInitBufferCommand(
     uint64_t cmd_index, format::HandleId device_id, format::HandleId buffer_id, uint64_t data_size, const uint8_t* data)
 {
-    std::shared_ptr<TransferDumpingContext> transf_context = FindTransferContextBcbQsIndex(0, 0);
+    std::shared_ptr<TransferDumpingContext> transf_context = FindContext(transfer_contexts_, 0, 0);
     if (transf_context != nullptr)
     {
         transf_context->HandleInitBufferCommand(cmd_index, device_id, buffer_id, data_size, data);
@@ -2544,7 +2561,7 @@ void VulkanReplayDumpResourcesBase::ProcessInitImageCommand(VkCommandBuffer     
                                                             const std::vector<uint64_t>& level_sizes,
                                                             const uint8_t*               data)
 {
-    std::shared_ptr<TransferDumpingContext> transf_context = FindTransferContextBcbQsIndex(0, 0);
+    std::shared_ptr<TransferDumpingContext> transf_context = FindContext(transfer_contexts_, 0, 0);
     if (transf_context != nullptr)
     {
         transf_context->HandleInitImageCommand(command_buffer,
@@ -3355,7 +3372,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyAccelerationStructureKHR(
 
 void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
 {
-    std::shared_ptr<TransferDumpingContext> transfer_context = FindTransferContextBcbQsIndex(0, 0);
+    std::shared_ptr<TransferDumpingContext> transfer_context = FindContext(transfer_contexts_, 0, 0);
     if (transfer_context != nullptr)
     {
         VkResult res = transfer_context->DumpTransferCommands(0, 0);

@@ -823,8 +823,16 @@ class VulkanReplayDumpResourcesBase
     FindDispatchTraceRaysContext(VkCommandBuffer original_command_buffer, decode::Index qs_index);
 
     std::vector<std::shared_ptr<DrawCallsDumpingContext>> FindDrawCallDumpingContexts(uint64_t bcb_id);
-    std::shared_ptr<DrawCallsDumpingContext>              FindDrawCallContext(VkCommandBuffer original_command_buffer,
-                                                                              decode::Index   qs_index);
+    std::shared_ptr<DrawCallsDumpingContext> FindDrawCallDumpingContext(VkCommandBuffer original_command_buffer,
+                                                                        decode::Index   qs_index);
+
+    template <typename ContextMap>
+    static typename ContextMap::mapped_type
+    FindContext(ContextMap& contexts, decode::Index bcb_index, decode::Index qs_index)
+    {
+        const auto entry = contexts.find(std::make_pair(bcb_index, qs_index));
+        return (entry != contexts.end()) ? entry->second : nullptr;
+    }
 
     template <typename Callback>
     void ForEachDrawCallCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
@@ -860,7 +868,6 @@ class VulkanReplayDumpResourcesBase
     // Transfer contexts search funcs
     std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextBcbIndex(uint64_t bcb_index) const;
     std::vector<std::shared_ptr<TransferDumpingContext>>       FindTransferContextCmdIndex(uint64_t cmd_index);
-    std::shared_ptr<TransferDumpingContext> FindTransferContextBcbQsIndex(uint64_t bcb_index, uint64_t qs_index);
 
     // Context tracking. This functions should be called when a dumping context has done its job.
     // The context will be erased from its corresponding map and the active_contexts_ counter will be
@@ -944,7 +951,6 @@ class VulkanReplayDumpResourcesBase
 
     DumpResourcesAccelerationStructuresContext acceleration_structures_context_;
     bool                                       dump_as_build_input_buffers_;
-
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

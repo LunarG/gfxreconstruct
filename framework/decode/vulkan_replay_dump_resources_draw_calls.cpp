@@ -1140,11 +1140,6 @@ bool DrawCallsDumpingContext::ShouldHandleRenderPass(uint64_t index) const
     return false;
 }
 
-bool DrawCallsDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
-{
-    return secondaries_.find(index) != secondaries_.end();
-}
-
 VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
                                                 const VkSubmitInfo2& submit_info,
                                                 Index                submit_info_index,
@@ -3944,6 +3939,18 @@ void DrawCallsDumpingContext::AssignSecondary(uint64_t                          
 
     secondaries_[execute_commands_index].push_back(secondary_context);
     secondary_context->command_buffer_level_ = DumpResourcesCommandBufferLevel::kSecondary;
+}
+
+std::vector<std::shared_ptr<DrawCallsDumpingContext>>
+DrawCallsDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) const
+{
+    auto entry = secondaries_.find(execute_commands_index);
+    if (entry != secondaries_.end())
+    {
+        return entry->second;
+    }
+
+    return std::vector<std::shared_ptr<DrawCallsDumpingContext>>();
 }
 
 uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
