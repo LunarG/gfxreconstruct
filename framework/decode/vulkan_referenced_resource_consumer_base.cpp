@@ -26,6 +26,35 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+void VulkanReferencedResourceConsumerBase::MarkFrameBoundaryResourcesAsUsed(const PNextNode* pnext)
+{
+    const auto* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pnext);
+    if (frame_boundary == nullptr)
+    {
+        return;
+    }
+
+    if (!frame_boundary->pImages.IsNull() && frame_boundary->pImages.HasData())
+    {
+        const auto image_count = frame_boundary->pImages.GetLength();
+        const auto image_ids   = frame_boundary->pImages.GetPointer();
+        for (size_t i = 0; i < image_count; ++i)
+        {
+            table_.MarkResourceAsUsed(image_ids[i]);
+        }
+    }
+
+    if (!frame_boundary->pBuffers.IsNull() && frame_boundary->pBuffers.HasData())
+    {
+        const auto buffer_count = frame_boundary->pBuffers.GetLength();
+        const auto buffer_ids   = frame_boundary->pBuffers.GetPointer();
+        for (size_t i = 0; i < buffer_count; ++i)
+        {
+            table_.MarkResourceAsUsed(buffer_ids[i]);
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
     if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
@@ -35,6 +64,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
 
         for (size_t i = 0; i < submit_count; ++i)
         {
+            MarkFrameBoundaryResourcesAsUsed(submits[i].pNext);
+
             size_t     command_buffer_count = submits[i].pCommandBuffers.GetLength();
             const auto command_buffer_ids   = submits[i].pCommandBuffers.GetPointer();
 
