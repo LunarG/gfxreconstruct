@@ -913,29 +913,33 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
     return result;
 }
 
-VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               device,
-                                         VkPhysicalDevice                       physical_device,
-                                         const graphics::VulkanDeviceTable&     device_table,
-                                         const graphics::VulkanInstanceTable&   instance_table,
-                                         const VulkanDevicePropertyFeatureInfo& physical_device_features_info,
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
+                                         VkPhysicalDevice                        physical_device,
+                                         const graphics::VulkanDeviceTable&      device_table,
+                                         const graphics::VulkanInstanceTable&    instance_table,
+                                         const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+                                         const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
     VulkanResourcesUtil(device,
                         physical_device,
                         graphics::VulkanInjectedDeviceCalls(&device_table),
                         instance_table,
                         physical_device_features_info,
+                        device_version_extension_info,
                         memory_properties)
 {}
 
-VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               device,
-                                         VkPhysicalDevice                       physical_device,
-                                         const VulkanInjectedDeviceCalls&       injected_device_calls,
-                                         const graphics::VulkanInstanceTable&   instance_table,
-                                         const VulkanDevicePropertyFeatureInfo& physical_device_features_info,
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
+                                         VkPhysicalDevice                        physical_device,
+                                         const VulkanInjectedDeviceCalls&        injected_device_calls,
+                                         const graphics::VulkanInstanceTable&    instance_table,
+                                         const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+                                         const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
     device_(device),
     device_table_(injected_device_calls), physical_device_(physical_device), instance_table_(instance_table),
-    memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info)
+    memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info),
+    device_version_extension_info_(device_version_extension_info)
 
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -2296,8 +2300,12 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
 
             bool is_depth_or_stencil = vkuFormatIsDepthOrStencil(format);
 
-            if (injected->CmdResolveImage2 != noop::vkCmdResolveImage2 ||
-                injected->CmdResolveImage2KHR != noop::vkCmdResolveImage2KHR)
+            const PFN_vkCmdResolveImage2 resolve_image2_func =
+                device_version_extension_info_.SelectApiCallFlavor(VK_API_VERSION_1_3,
+                                                                   injected->CmdResolveImage2,
+                                                                   VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME,
+                                                                   injected->CmdResolveImage2KHR);
+            if (resolve_image2_func != nullptr)
             {
                 VkImageResolve2 region               = { VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2 };
                 region.srcSubresource.aspectMask     = aspect_mask;
@@ -2334,14 +2342,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                     resolve_info.pNext                   = &resolve_mode_info;
                 }
 
-                if (injected->CmdResolveImage2 != noop::vkCmdResolveImage2)
-                {
-                    injected->CmdResolveImage2(command_buffer, &resolve_info);
-                }
-                else
-                {
-                    injected->CmdResolveImage2KHR(command_buffer, &resolve_info);
-                }
+                resolve_image2_func(command_buffer, &resolve_info);
             }
             else
             {

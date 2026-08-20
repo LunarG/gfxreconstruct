@@ -163,35 +163,29 @@ void DrawCallsDumpingContext::Release()
 PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering(
     const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const
 {
+    GFXRECON_ASSERT(original_command_buffer_info_ != nullptr);
+    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
     const auto raw_table = injected_commands_scope.GetTable();
-    if (raw_table->CmdBeginRendering != graphics::noop::vkCmdBeginRendering)
-    {
-        return raw_table->CmdBeginRendering;
-    }
-
-    if (raw_table->CmdBeginRenderingKHR != graphics::noop::vkCmdBeginRenderingKHR)
-    {
-        return raw_table->CmdBeginRenderingKHR;
-    }
-
-    return nullptr;
+    return device_info->version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_3,
+                                                                   raw_table->CmdBeginRendering,
+                                                                   VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+                                                                   raw_table->CmdBeginRenderingKHR);
 }
 
 PFN_vkCmdEndRendering DrawCallsDumpingContext::ResolveCmdEndRendering(
     const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const
 {
+    GFXRECON_ASSERT(original_command_buffer_info_ != nullptr);
+    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
     const auto raw_table = injected_commands_scope.GetTable();
-    if (raw_table->CmdEndRendering != graphics::noop::vkCmdEndRendering)
-    {
-        return raw_table->CmdEndRendering;
-    }
-
-    if (raw_table->CmdEndRenderingKHR != graphics::noop::vkCmdEndRenderingKHR)
-    {
-        return raw_table->CmdEndRenderingKHR;
-    }
-
-    return nullptr;
+    return device_info->version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_3,
+                                                                   raw_table->CmdEndRendering,
+                                                                   VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+                                                                   raw_table->CmdEndRenderingKHR);
 }
 
 void DrawCallsDumpingContext::RecordCmdBeginRendering(VkCommandBuffer        command_buffer,
@@ -1115,7 +1109,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
         si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
 
-        VkResult res = SubmitInfo2OnQueue(device_table_, queue, si, submission_fence.handle);
+        VkResult res =
+            SubmitInfo2OnQueue(device_table_, device_info->version_extension_info, queue, si, submission_fence.handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1968,6 +1963,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
                                                 device_table_,
                                                 *instance_table_,
                                                 device_info->property_feature_info,
+                                                device_info->version_extension_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     if (!IsDrawCallIndirect(dc_params.type))

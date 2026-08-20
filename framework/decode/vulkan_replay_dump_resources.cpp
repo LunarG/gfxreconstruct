@@ -1992,6 +1992,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
     std::map<std::pair<Index, Index>, std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
     std::map<std::pair<Index, Index>, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
 
+    const VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(queue_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
     if (!output_json_per_command)
     {
         active_delegate_->DumpStart();
@@ -2072,8 +2075,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                     {
                         modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
                         modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
-                        res                                         = SubmitInfo2OnQueue(
-                            device_table, queue_info->handle, modified_submit_info, submission_fence.handle);
+                        res                                         = SubmitInfo2OnQueue(device_table,
+                                                 device_info->version_extension_info,
+                                                 queue_info->handle,
+                                                 modified_submit_info,
+                                                 submission_fence.handle);
                         CHECK_VK_ERROR(res, "QueueSubmit")
 
                         // The fence might be reused. Wait and reset
@@ -2123,7 +2129,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
         {
             modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
             modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
-            res = SubmitInfo2OnQueue(device_table, queue_info->handle, modified_submit_info, submission_fence.handle);
+            res                                         = SubmitInfo2OnQueue(device_table,
+                                     device_info->version_extension_info,
+                                     queue_info->handle,
+                                     modified_submit_info,
+                                     submission_fence.handle);
             CHECK_VK_ERROR(res, "QueueSubmit")
 
             res = submission_fence.Wait();

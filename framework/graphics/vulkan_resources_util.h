@@ -50,6 +50,7 @@ class VulkanResourcesUtil
                         const VulkanDeviceTable&                               device_table,
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     VulkanResourcesUtil(VkDevice                                               device,
@@ -57,6 +58,7 @@ class VulkanResourcesUtil
                         const VulkanInjectedDeviceCalls&                       injected_device_calls,
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
@@ -392,6 +394,9 @@ class VulkanResourcesUtil
 
     // Required to check available physical device features
     const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info_;
+
+    // Effective device version and enabled device extensions, for selecting core vs extension entry point flavors.
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info_;
 
     struct command_assets_t
     {

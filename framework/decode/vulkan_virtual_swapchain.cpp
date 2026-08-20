@@ -1429,8 +1429,12 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // create a copy-util, used for image-transitions and blits (leave out memory-properties, no allocation needed)
-        ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
-            device, device_info->parent, *injected.GetTable(), *instance_table, device_info->property_feature_info);
+        ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(device,
+                                                                             device_info->parent,
+                                                                             *injected.GetTable(),
+                                                                             *instance_table,
+                                                                             device_info->property_feature_info,
+                                                                             device_info->version_extension_info);
     }
 
     // derive output-size and orientation from provided scale

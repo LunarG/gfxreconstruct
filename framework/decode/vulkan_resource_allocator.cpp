@@ -47,6 +47,14 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
 
     assert((physical_device_info != nullptr) && (physical_device_info->replay_device_info != nullptr));
 
+    // Effective device version and enabled extensions, used to select core vs extension entry point flavors.
+    GFXRECON_ASSERT(physical_device_info->replay_device_info->properties.has_value());
+    graphics::VulkanDeviceVersionExtensionInfo device_version_extension_info;
+    device_version_extension_info.api_version =
+        std::min(physical_device_info->parent_info.api_version,
+                 physical_device_info->replay_device_info->properties->apiVersion);
+    device_version_extension_info.enabled_extensions = enabled_device_extensions;
+
     functions_.get_physical_device_properties        = instance_table.GetPhysicalDeviceProperties;
     functions_.get_physical_device_memory_properties = instance_table.GetPhysicalDeviceMemoryProperties;
     functions_.get_instance_proc_addr                = instance_table.GetInstanceProcAddr;
@@ -73,20 +81,16 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
     functions_.destroy_video_session                 = device_table->DestroyVideoSessionKHR;
     functions_.bind_video_session_memory             = device_table->BindVideoSessionMemoryKHR;
     functions_.get_video_session_memory_requirements = device_table->GetVideoSessionMemoryRequirementsKHR;
-    if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 4, 0))
-    {
-        functions_.map_memory2   = device_table->MapMemory2;
-        functions_.unmap_memory2 = device_table->UnmapMemory2;
-    }
-    else
-    {
-        functions_.map_memory2   = device_table->MapMemory2KHR;
-        functions_.unmap_memory2 = device_table->UnmapMemory2KHR;
-    }
-    functions_.set_device_memory_priority            = device_table->SetDeviceMemoryPriorityEXT;
-    functions_.get_memory_remote_address_nv          = device_table->GetMemoryRemoteAddressNV;
-    functions_.create_acceleration_structure_nv      = device_table->CreateAccelerationStructureNV;
-    functions_.destroy_acceleration_structure_nv     = device_table->DestroyAccelerationStructureNV;
+    functions_.map_memory2                           = device_version_extension_info.SelectApiCallFlavor(
+        VK_API_VERSION_1_4, device_table->MapMemory2, VK_KHR_MAP_MEMORY_2_EXTENSION_NAME, device_table->MapMemory2KHR);
+    functions_.unmap_memory2                     = device_version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_4,
+                                                                                 device_table->UnmapMemory2,
+                                                                                 VK_KHR_MAP_MEMORY_2_EXTENSION_NAME,
+                                                                                 device_table->UnmapMemory2KHR);
+    functions_.set_device_memory_priority        = device_table->SetDeviceMemoryPriorityEXT;
+    functions_.get_memory_remote_address_nv      = device_table->GetMemoryRemoteAddressNV;
+    functions_.create_acceleration_structure_nv  = device_table->CreateAccelerationStructureNV;
+    functions_.destroy_acceleration_structure_nv = device_table->DestroyAccelerationStructureNV;
     functions_.bind_acceleration_structure_memory_nv = device_table->BindAccelerationStructureMemoryNV;
     functions_.get_acceleration_structure_memory_requirements_nv =
         device_table->GetAccelerationStructureMemoryRequirementsNV;
@@ -108,41 +112,38 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
     functions_.get_data_graph_pipeline_session_bind_point_requirements =
         device_table->GetDataGraphPipelineSessionBindPointRequirementsARM;
 
+    // vkGetPhysicalDeviceMemoryProperties2 is an instance-level function, so its selection criterion is the
+    // instance's api version and enabled instance extensions rather than the device's.
     if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         functions_.get_physical_device_memory_properties2 = instance_table.GetPhysicalDeviceMemoryProperties2;
-        functions_.get_buffer_memory_requirements2        = device_table->GetBufferMemoryRequirements2;
-        functions_.get_image_memory_requirements2         = device_table->GetImageMemoryRequirements2;
-        functions_.bind_buffer_memory2                    = device_table->BindBufferMemory2;
-        functions_.bind_image_memory2                     = device_table->BindImageMemory2;
     }
-    else
+    else if (physical_device_info->parent_info.IsEnabledExtension(
+                 VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
     {
-        const auto& instance_extensions = physical_device_info->parent_info.enabled_extensions;
-
-        if (std::find(instance_extensions.begin(),
-                      instance_extensions.end(),
-                      VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) != instance_extensions.end())
-        {
-            functions_.get_physical_device_memory_properties2 = instance_table.GetPhysicalDeviceMemoryProperties2KHR;
-        }
-
-        if (std::find(enabled_device_extensions.begin(),
-                      enabled_device_extensions.end(),
-                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME) != enabled_device_extensions.end())
-        {
-            functions_.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2KHR;
-            functions_.get_image_memory_requirements2  = device_table->GetImageMemoryRequirements2KHR;
-        }
-
-        if (std::find(enabled_device_extensions.begin(),
-                      enabled_device_extensions.end(),
-                      VK_KHR_BIND_MEMORY_2_EXTENSION_NAME) != enabled_device_extensions.end())
-        {
-            functions_.bind_buffer_memory2 = device_table->BindBufferMemory2KHR;
-            functions_.bind_image_memory2  = device_table->BindImageMemory2KHR;
-        }
+        functions_.get_physical_device_memory_properties2 = instance_table.GetPhysicalDeviceMemoryProperties2KHR;
     }
+
+    functions_.get_buffer_memory_requirements2 =
+        device_version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_1,
+                                                          device_table->GetBufferMemoryRequirements2,
+                                                          VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                                          device_table->GetBufferMemoryRequirements2KHR);
+    functions_.get_image_memory_requirements2 =
+        device_version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_1,
+                                                          device_table->GetImageMemoryRequirements2,
+                                                          VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                                          device_table->GetImageMemoryRequirements2KHR);
+    functions_.bind_buffer_memory2 =
+        device_version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_1,
+                                                          device_table->BindBufferMemory2,
+                                                          VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+                                                          device_table->BindBufferMemory2KHR);
+    functions_.bind_image_memory2 =
+        device_version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_1,
+                                                          device_table->BindImageMemory2,
+                                                          VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+                                                          device_table->BindImageMemory2KHR);
 
     auto replay_device_info = physical_device_info->replay_device_info;
     GFXRECON_ASSERT(replay_device_info->memory_properties.has_value());

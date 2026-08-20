@@ -3692,11 +3692,24 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
         table->GetPhysicalDeviceMemoryProperties(physical_device, &replay_device_info->memory_properties.value());
     }
 
+    if (replay_device_info->properties == std::nullopt)
+    {
+        // Properties weren't queried before device creation, so retrieve them now.
+        replay_device_info->properties = VkPhysicalDeviceProperties();
+        table->GetPhysicalDeviceProperties(physical_device, &replay_device_info->properties.value());
+    }
+
     auto allocator = options_.create_resource_allocator();
 
     std::vector<std::string> enabled_extensions(create_state.modified_create_info.ppEnabledExtensionNames,
                                                 create_state.modified_create_info.ppEnabledExtensionNames +
                                                     create_state.modified_create_info.enabledExtensionCount);
+
+    // Track the effective device version and enabled extensions for selecting core vs extension entry point flavors.
+    device_info->version_extension_info.api_version =
+        std::min(physical_device_info->parent_info.api_version, replay_device_info->properties->apiVersion);
+    device_info->version_extension_info.enabled_extensions = enabled_extensions;
+
     InitializeResourceAllocator(
         physical_device_info, replay_device, create_state.modified_create_info, enabled_extensions, allocator);
 

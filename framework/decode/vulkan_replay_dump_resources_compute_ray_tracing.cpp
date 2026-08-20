@@ -2172,6 +2172,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
                                                 device_table_,
                                                 *instance_table_,
                                                 device_info->property_feature_info,
+                                                device_info->version_extension_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     for (auto& params : dispatch_params_)

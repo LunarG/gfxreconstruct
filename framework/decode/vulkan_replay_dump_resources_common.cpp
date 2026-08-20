@@ -357,6 +357,7 @@ VkResult DumpImage(DumpedImage&                               dumped_image,
                                                 device_table,
                                                 *instance_table,
                                                 device_info->property_feature_info,
+                                                device_info->version_extension_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     // Choose the format in which the image will be dumped from the gpu into the host memory
@@ -550,6 +551,7 @@ VkResult DumpBuffer(const DumpedBuffer&                        dumped_buffer,
                                                 device_table,
                                                 *instance_table,
                                                 device_info->property_feature_info,
+                                                device_info->version_extension_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     GFXRECON_ASSERT(dumped_buffer.size);
@@ -1516,8 +1518,20 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                                  nullptr,
                                                  acceleration_structure->serialized_data.buffer };
 
+        const PFN_vkGetBufferDeviceAddress get_buffer_device_address =
+            device_info->version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_2,
+                                                                    injected->GetBufferDeviceAddress,
+                                                                    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+                                                                    injected->GetBufferDeviceAddressKHR);
+        if (get_buffer_device_address == nullptr)
+        {
+            GFXRECON_LOG_ERROR("%s: Neither vkGetBufferDeviceAddress nor vkGetBufferDeviceAddressKHR is available",
+                               __func__)
+            return VK_ERROR_UNKNOWN;
+        }
+
         VkDeviceOrHostAddressKHR device_address;
-        device_address.deviceAddress = injected->GetBufferDeviceAddressKHR(device, &bdai);
+        device_address.deviceAddress = get_buffer_device_address(device, &bdai);
 
         GFXRECON_ASSERT(acceleration_structure->as_info->handle != VK_NULL_HANDLE);
         const VkCopyAccelerationStructureToMemoryInfoKHR castmi = {
@@ -1924,22 +1938,21 @@ void CopyBufferAndBarrier(VkCommandBuffer                            command_buf
                                  nullptr);
 }
 
-VkResult SubmitInfo2OnQueue(const graphics::VulkanInjectedDeviceCalls& device_table,
-                            VkQueue                                    queue,
-                            const VkSubmitInfo2&                       submit_info_2,
-                            VkFence                                    fence)
+VkResult SubmitInfo2OnQueue(const graphics::VulkanInjectedDeviceCalls&        device_table,
+                            const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                            VkQueue                                           queue,
+                            const VkSubmitInfo2&                              submit_info_2,
+                            VkFence                                           fence)
 {
     auto injected = device_table.Open();
 
     // Check if the implementation supports either vkQueueSubmit2 (Vulkan 1.3) or vkQueueSubmit2KHR
     // (VK_KHR_synchronization2). In either case submit directly without converting
-    if (injected->QueueSubmit2 != graphics::noop::vkQueueSubmit2)
+    const PFN_vkQueueSubmit2 queue_submit2 = device_version_extension_info.SelectApiCallFlavor(
+        VK_API_VERSION_1_3, injected->QueueSubmit2, VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, injected->QueueSubmit2KHR);
+    if (queue_submit2 != nullptr)
     {
-        return injected->QueueSubmit2(queue, 1, &submit_info_2, fence);
-    }
-    else if (injected->QueueSubmit2KHR != graphics::noop::vkQueueSubmit2KHR)
-    {
-        return injected->QueueSubmit2KHR(queue, 1, &submit_info_2, fence);
+        return queue_submit2(queue, 1, &submit_info_2, fence);
     }
 
     // Otherwise fall back to vkQueueSubmit. SubmitInfoTranslator narrows the VkSubmitInfo2 back into a VkSubmitInfo,

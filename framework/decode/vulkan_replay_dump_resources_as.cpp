@@ -497,9 +497,19 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                                                              new_instances.instance_buffer };
 
                     const PFN_vkGetBufferDeviceAddress get_buffer_device_address =
-                        phys_dev_info->parent_info.api_version >= VK_API_VERSION_1_2
-                            ? injected->GetBufferDeviceAddress
-                            : injected->GetBufferDeviceAddressKHR;
+                        device_info->version_extension_info.SelectApiCallFlavor(
+                            VK_API_VERSION_1_2,
+                            injected->GetBufferDeviceAddress,
+                            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+                            injected->GetBufferDeviceAddressKHR);
+                    if (get_buffer_device_address == nullptr)
+                    {
+                        GFXRECON_LOG_ERROR("Neither vkGetBufferDeviceAddress nor vkGetBufferDeviceAddressKHR is "
+                                           "available. Cannot clone instances buffer used as input in "
+                                           "vkCmdBuildAccelerationstructuresKHR");
+                        as_build_objects.pop_back();
+                        continue;
+                    }
 
                     const VkDeviceAddress output_buffer_device_address = get_buffer_device_address(device, &bdai);
 

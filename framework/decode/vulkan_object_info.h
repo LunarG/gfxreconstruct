@@ -377,6 +377,9 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
+    // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
+    graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
+
     graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;
@@ -394,6 +397,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
         extensions                 = source_info->extensions;
         resource_initializer       = source_info->resource_initializer;
         property_feature_info      = source_info->property_feature_info;
+        version_extension_info     = source_info->version_extension_info;
         enabled_queue_family_flags = source_info->enabled_queue_family_flags;
         replay_device_group        = source_info->replay_device_group;
         duplicate_source_id        = source_info->capture_id;
