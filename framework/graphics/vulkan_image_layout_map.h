@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_VULKAN_IMAGE_LAYOUT_TRACKER_H
-#define GFXRECON_DECODE_VULKAN_IMAGE_LAYOUT_TRACKER_H
+#ifndef GFXRECON_GRAPHICS_VULKAN_IMAGE_LAYOUT_MAP_H
+#define GFXRECON_GRAPHICS_VULKAN_IMAGE_LAYOUT_MAP_H
 
 #include "util/defines.h"
 
@@ -31,22 +31,23 @@
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(graphics)
 
-// Tracks the layout of every subresource of a single VkImage.
+// Maps every subresource of a single VkImage to the VkImageLayout it is currently in.
 //
 // A VkImage does not have one layout: each (aspect, mip level, array layer) subresource has its own. Depth/stencil
 // images routinely hold split layouts, and applications generating mipmaps transition individual mip levels.
-class ImageSubresourceLayoutTracker
+class ImageLayoutMap
 {
   public:
-    struct SubresourceLayout
+    // A subresource range and the layout its subresources are in.
+    struct RangeLayout
     {
         VkImageSubresourceRange range;
         VkImageLayout           layout;
     };
 
-    ImageSubresourceLayoutTracker() = default;
+    ImageLayoutMap() = default;
 
     void Initialize(uint32_t mip_levels, uint32_t array_layers, VkImageAspectFlags aspects);
 
@@ -61,9 +62,10 @@ class ImageSubresourceLayoutTracker
 
     void SetLayout(const VkImageSubresourceRange& range, VkImageLayout layout);
 
-    VkImageLayout GetLayout(VkImageAspectFlags aspect, uint32_t mip_level, uint32_t array_layer) const;
+    // Layout of a single subresource, or VK_IMAGE_LAYOUT_UNDEFINED if the image has no such aspect.
+    VkImageLayout GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const;
 
-    std::vector<SubresourceLayout> GetSubresourceLayouts() const;
+    std::vector<RangeLayout> GetSubresourceLayouts() const;
 
   private:
     // Highest slot supported for aspect.
@@ -89,7 +91,7 @@ class ImageSubresourceLayoutTracker
     std::vector<VkImageLayout> subresource_layouts_;
 };
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_IMAGE_LAYOUT_TRACKER_H
+#endif // GFXRECON_GRAPHICS_VULKAN_IMAGE_LAYOUT_MAP_H

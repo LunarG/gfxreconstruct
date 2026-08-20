@@ -228,8 +228,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_mapping_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_image_layout_tracker.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_image_layout_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table_base.h

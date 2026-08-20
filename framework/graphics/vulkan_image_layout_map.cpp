@@ -20,14 +20,14 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_image_layout_tracker.h"
+#include "graphics/vulkan_image_layout_map.h"
 
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(graphics)
 
-VkImageAspectFlags ImageSubresourceLayoutTracker::GetAspectFromIndex(uint32_t aspect_index)
+VkImageAspectFlags ImageLayoutMap::GetAspectFromIndex(uint32_t aspect_index)
 {
     switch (aspect_index)
     {
@@ -48,7 +48,7 @@ VkImageAspectFlags ImageSubresourceLayoutTracker::GetAspectFromIndex(uint32_t as
     }
 }
 
-uint32_t ImageSubresourceLayoutTracker::GetAspectSlotCount() const
+uint32_t ImageLayoutMap::GetAspectSlotCount() const
 {
     uint32_t slot_count = 0;
     for (uint32_t aspect_index = 0; aspect_index < kAspectSlotCount; ++aspect_index)
@@ -61,7 +61,7 @@ uint32_t ImageSubresourceLayoutTracker::GetAspectSlotCount() const
     return slot_count;
 }
 
-void ImageSubresourceLayoutTracker::Initialize(uint32_t mip_levels, uint32_t array_layers, VkImageAspectFlags aspects)
+void ImageLayoutMap::Initialize(uint32_t mip_levels, uint32_t array_layers, VkImageAspectFlags aspects)
 {
     mip_levels_   = (mip_levels != 0) ? mip_levels : 1;
     array_layers_ = (array_layers != 0) ? array_layers : 1;
@@ -74,25 +74,25 @@ void ImageSubresourceLayoutTracker::Initialize(uint32_t mip_levels, uint32_t arr
     subresource_layouts_.clear();
 }
 
-void ImageSubresourceLayoutTracker::SetUniformLayout(VkImageLayout layout)
+void ImageLayoutMap::SetUniformLayout(VkImageLayout layout)
 {
     is_uniform_     = true;
     uniform_layout_ = layout;
     subresource_layouts_.clear();
 }
 
-void ImageSubresourceLayoutTracker::SetLayout(const VkImageSubresourceRange& range, VkImageLayout layout)
+void ImageLayoutMap::SetLayout(const VkImageSubresourceRange& range, VkImageLayout layout)
 {
     if (!IsInitialized())
     {
         return;
     }
 
-    // Aspects the image does not have still indicates a transition, so apply to all aspects rather than ignoring.
-    VkImageAspectFlags aspect_mask = range.aspectMask & aspects_;
+    // A range naming no aspect this image has tells us nothing about which subresources moved, so record nothing.
+    const VkImageAspectFlags aspect_mask = range.aspectMask & aspects_;
     if (aspect_mask == 0)
     {
-        aspect_mask = aspects_;
+        return;
     }
 
     // Clamping to make sure we don't go out of bounds
@@ -141,8 +141,7 @@ void ImageSubresourceLayoutTracker::SetLayout(const VkImageSubresourceRange& ran
     }
 }
 
-VkImageLayout
-ImageSubresourceLayoutTracker::GetLayout(VkImageAspectFlags aspect, uint32_t mip_level, uint32_t array_layer) const
+VkImageLayout ImageLayoutMap::GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const
 {
     if (is_uniform_)
     {
@@ -166,10 +165,9 @@ ImageSubresourceLayoutTracker::GetLayout(VkImageAspectFlags aspect, uint32_t mip
     return VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
-std::vector<ImageSubresourceLayoutTracker::SubresourceLayout>
-ImageSubresourceLayoutTracker::GetSubresourceLayouts() const
+std::vector<ImageLayoutMap::RangeLayout> ImageLayoutMap::GetSubresourceLayouts() const
 {
-    std::vector<SubresourceLayout> result;
+    std::vector<RangeLayout> result;
 
     if (!IsInitialized())
     {
@@ -211,12 +209,12 @@ ImageSubresourceLayoutTracker::GetSubresourceLayouts() const
     return result;
 }
 
-void ImageSubresourceLayoutTracker::ExpandUniform()
+void ImageLayoutMap::ExpandUniform()
 {
     is_uniform_ = false;
     subresource_layouts_.assign(static_cast<size_t>(GetAspectSlotCount()) * mip_levels_ * array_layers_,
                                 uniform_layout_);
 }
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
