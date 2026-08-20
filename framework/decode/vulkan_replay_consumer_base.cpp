@@ -2707,109 +2707,106 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
     }
 }
 
-bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
-    const VulkanCommandBufferInfo* command_buffer_info)
+void VulkanReplayConsumerBase::WriteFrameBoundaryImage(const VulkanImageInfo* image_info,
+                                                       const std::string&     filename_prefix,
+                                                       uint32_t               layer)
 {
-    GFXRECON_ASSERT(command_buffer_info != nullptr);
-    if (command_buffer_info->is_frame_boundary)
-    {
-        if (screenshot_handler_->IsScreenshotFrame())
-        {
-            VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
+    GFXRECON_ASSERT(image_info != nullptr);
 
-            VkPhysicalDeviceMemoryProperties memory_properties;
-            {
-                util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-                auto                             instance_table = GetInstanceTable(device_info->parent);
-                GFXRECON_ASSERT(instance_table != nullptr);
-
-                // TODO: This should be stored in the VulkanDeviceInfo structure to avoid the need for frequent
-                // queries.
-                instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
-            }
-
-            for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
-            {
-                auto framebuffer_info =
-                    object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
-
-                for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
-                {
-                    auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
-                    auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-                    auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
-
-                    // Only screenshot images that are color attachments.
-                    if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
-                    {
-                        continue;
-                    }
-
-                    std::string filename_prefix = screenshot_file_prefix_;
-                    filename_prefix += "_frame_";
-                    filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
-
-                    if (command_buffer_info->frame_buffer_ids.size() > 0)
-                    {
-                        filename_prefix += "_renderpass_";
-                        filename_prefix += std::to_string(i);
-                    }
-
-                    if (framebuffer_info->attachment_image_view_ids.size() > 0)
-                    {
-                        filename_prefix += "_attachment_";
-                        filename_prefix += std::to_string(j);
-                    }
-
-                    // NOTE: optional scale takes precedence over explicit screenshot width/height
-                    auto screenshot_scale = options_.screenshot_scale;
-                    if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
-                    {
-                        screenshot_scale = { static_cast<float>(options_.screenshot_width) /
-                                                 static_cast<float>(image_info->extent.width),
-                                             static_cast<float>(options_.screenshot_height) /
-                                                 static_cast<float>(image_info->extent.height) };
-                    }
-
-                    screenshot_handler_->WriteImage(filename_prefix,
-                                                    device_info,
-                                                    GetInjectedDeviceCalls(device_info->handle),
-                                                    memory_properties,
-                                                    device_info->allocator.get(),
-                                                    image_info->handle,
-                                                    image_info->format,
-                                                    image_info->extent.width,
-                                                    image_info->extent.height,
-                                                    0,
-                                                    screenshot_scale,
-                                                    image_info->current_layout,
-                                                    VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
-                }
-            }
-        }
-        screenshot_handler_->EndFrame();
-        return true;
-    }
-    return false;
-}
-
-bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
-                                                               const PNextNode*        pnext)
-{
-    const auto* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pnext);
-    if (frame_boundary == nullptr ||
-        ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) == 0))
-    {
-        return false;
-    }
+    auto* device_info = object_info_table_->GetVkDeviceInfo(image_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
 
     VkPhysicalDeviceMemoryProperties memory_properties;
     {
         util::MarkInjectedCommandsHelper mark_injected_commands_helper;
         auto                             instance_table = GetInstanceTable(device_info->parent);
         GFXRECON_ASSERT(instance_table != nullptr);
-
         instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+    }
+
+    // NOTE: optional scale takes precedence over explicit screenshot width/height
+    auto screenshot_scale = options_.screenshot_scale;
+    if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
+    {
+        screenshot_scale = {
+            static_cast<float>(options_.screenshot_width) / static_cast<float>(image_info->extent.width),
+            static_cast<float>(options_.screenshot_height) / static_cast<float>(image_info->extent.height)
+        };
+    }
+
+    screenshot_handler_->WriteImage(filename_prefix,
+                                    device_info,
+                                    GetInjectedDeviceCalls(device_info->handle),
+                                    memory_properties,
+                                    device_info->allocator.get(),
+                                    image_info->handle,
+                                    image_info->format,
+                                    image_info->extent.width,
+                                    image_info->extent.height,
+                                    layer,
+                                    screenshot_scale,
+                                    image_info->current_layout,
+                                    VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+}
+
+bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
+    const VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    if (!command_buffer_info->is_frame_boundary)
+    {
+        return false;
+    }
+
+    if (screenshot_handler_->IsScreenshotFrame())
+    {
+        for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
+        {
+            auto* framebuffer_info = object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+
+            for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
+            {
+                auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
+                auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+                auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
+
+                // Only screenshot images that are color attachments.
+                if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+                {
+                    continue;
+                }
+
+                std::string filename_prefix =
+                    screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+
+                if (!command_buffer_info->frame_buffer_ids.empty())
+                {
+                    filename_prefix += "_renderpass_" + std::to_string(i);
+                }
+
+                if (!framebuffer_info->attachment_image_view_ids.empty())
+                {
+                    filename_prefix += "_attachment_" + std::to_string(j);
+                }
+
+                WriteFrameBoundaryImage(image_info, filename_prefix, 0);
+            }
+        }
+    }
+    screenshot_handler_->EndFrame();
+    return true;
+}
+
+bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
+                                                               const PNextNode*        pnext)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+
+    const auto* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pnext);
+    if (frame_boundary == nullptr ||
+        ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) == 0))
+    {
+        return false;
     }
 
     if (screenshot_handler_->IsScreenshotFrame())
@@ -2824,31 +2821,9 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                 filename_prefix += "_image_" + std::to_string(i);
             }
 
-            const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
-            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
-
-            // NOTE: optional scale takes precedence over explicit screenshot width/height
-            auto screenshot_scale = options_.screenshot_scale;
-            if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
-            {
-                screenshot_scale = {
-                    static_cast<float>(options_.screenshot_width) / static_cast<float>(image_info->extent.width),
-                    static_cast<float>(options_.screenshot_height) / static_cast<float>(image_info->extent.height)
-                };
-            }
-
-            screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info,
-                                            GetInjectedDeviceCalls(device_info->handle),
-                                            memory_properties,
-                                            device_info->allocator.get(),
-                                            image_info->handle,
-                                            image_info->format,
-                                            image_info->extent.width,
-                                            image_info->extent.height,
-                                            0,
-                                            screenshot_scale,
-                                            image_info->current_layout);
+            const format::HandleId handle_id  = frame_boundary->pImages.GetPointer()[i];
+            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handle_id);
+            WriteFrameBoundaryImage(image_info, filename_prefix, 0);
         }
     }
 
