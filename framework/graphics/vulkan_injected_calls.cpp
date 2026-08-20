@@ -66,7 +66,7 @@ void VulkanInjectedDeviceCalls::Scope::InsertLabel(VkCommandBuffer command_buffe
     if ((command_buffer != VK_NULL_HANDLE) && GetAnnotateInjectedCommands() && (table_ != nullptr) &&
         (table_->CmdInsertDebugUtilsLabelEXT != noop::vkCmdInsertDebugUtilsLabelEXT))
     {
-        char label_name[kMaxLabelNameLength];
+        char label_name[kMaxLabelNameLength + sizeof(kInjectedCommandLabelPrefix)];
         std::snprintf(label_name, sizeof(label_name), "%s%s", kInjectedCommandLabelPrefix, category);
         const VkDebugUtilsLabelEXT label = MakeLabel(label_name);
         table_->CmdInsertDebugUtilsLabelEXT(command_buffer, &label);
