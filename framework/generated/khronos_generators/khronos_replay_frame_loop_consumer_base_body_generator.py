@@ -69,18 +69,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             vkCreateSharedSwapchainsKHR, and any future call with the same
             (..., count, pCreateInfos, pAllocator, pHandles) trailing shape).
             """
-            base_name         = name[2:]
             count_param       = values[-4]
             create_info_param = values[-3]
             handles_param     = values[-1]
-
-            # Any parameters between the device handle and the count are extra
-            # "companion" handles that the Override function needs looked up
-            # in the object info table (e.g. VkPipelineCache, VkDeferredOperationKHR).
-            # Discovering them positionally means this code keeps working for any
-            # future *CreateXxx(device, ..., count, pCreateInfos, pAllocator, pHandles)
-            # entry point without needing to special-case it by name below.
-            extra_params = values[1:-4]
 
             count_name       = count_param.prefixed_name
             createinfo_name  = create_info_param.prefixed_name
@@ -89,9 +80,6 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             createinfo_base_type = create_info_param.base_type   # e.g. VkShaderCreateInfoEXT
             handle_base_type     = handles_param.base_type       # e.g. VkShaderEXT
             decoded_type          = 'Decoded_{}'.format(createinfo_base_type)
-            info_type = '{}{}Info'.format(
-                self.get_api_prefix_from_type(handle_base_type), handle_base_type[2:]
-            )
 
             body = ''
             body += '    // Pass the call along unchanged if we are not looping.\n'
@@ -131,46 +119,58 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    // Mixed case: some handles in this batch already exist, others do not.\n'
             body += '    {}* raw_infos  = {}.GetPointer();\n'.format(createinfo_base_type, createinfo_name)
             body += '    {}* meta_infos = {}.GetMetaStructPointer();\n\n'.format(decoded_type, createinfo_name)
-            body += '    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);\n'
-            body += '    VkDevice in_device  = device_info->handle;\n'
+
+            body += '    // Process_{}() reads the capture-id array via {}, not through a\n'.format(name, handles_name)
+            body += '    // separate parameter, so that array has to be kept in sync with the\n'
+            body += '    // {}/{} swap below in order for its internal handle registration\n'.format(createinfo_name, handles_name)
+            body += '    // (AddHandles) to associate the new {} with the correct capture id.\n'.format(handle_base_type)
+            body += '    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);\n\n'
+
+            body += '    // {}/{} retain their original (full-batch) decoded length\n'.format(createinfo_name, handles_name)
+            body += '    // regardless of {}, so Process_{}() will still\n'.format(count_name, name)
+            body += '    // run MapStructArrayHandles() over the whole {} array on each iteration below.\n'.format(createinfo_name)
+            body += '    // That is harmless: MapStructHandles() writes mapped handles into the struct\'s live\n'
+            body += '    // fields while leaving the wrapper\'s original capture-id fields untouched..\n'
+            body += '    const uint32_t original_count_value = {};\n\n'.format(count_name)
+
             body += '    for (uint32_t i : to_create)\n'
             body += '    {\n'
-            body += '        // Move index i into slot 0 so Override/driver code (which always\n'
-            body += '        // starts at index 0) operates on the shader we actually want.\n'
+            body += '        format::HandleId target_capture_id = capture_ids[i];\n\n'
+            body += '        // Move index i into slot 0 so Process_{}/driver code (which\n'.format(name)
+            body += '        // always starts at index 0) operates on the {} we actually want.\n'.format(handle_base_type)
             body += '        std::swap(raw_infos[0], raw_infos[i]);\n'
             body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
             body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'
             body += '        meta_infos[i].decoded_value = &raw_infos[i];\n'
-            body += '        {}.SetHandleLength(1);   // (re)allocate a 1-element output slot\n'.format(handles_name)
+            body += '        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);\n'
             body += '\n'
-            body += '         VkResult replay_result = Override{}(\n'.format(base_name)
-            body += '                                            GetDeviceTable(in_device)->{},\n'.format(base_name)
-            body += '                                            args.result,\n'
-            body += '                                            device_info,\n'
-            for extra_param in extra_params:
-                body += '                                            GetObjectInfoTable().Get{}Info({}),\n'.format(
-                    extra_param.base_type, extra_param.prefixed_name)
-            body += '                                            1,\n'
-            body += '                                            &args.pCreateInfos,\n'
-            body += '                                            &args.pAllocator,\n'
-            body += '                                            &{});\n'.format(handles_name)
+            body += '        // Restrict this call to a single create info/handle: Process_{}()\n'.format(name)
+            body += '        // uses {} (not GetLength()) to size the output handle array and to\n'.format(count_name)
+            body += '        // decide how many entries of {} to pass along, so overriding it to 1\n'.format(createinfo_name)
+            body += '        // makes it operate only on slot 0.\n'
+            body += '        {} = 1;\n'.format(count_name)
             body += '\n'
+            body += '        // Calls MapStructArrayHandles on {} to fix up the handles referenced\n'.format(createinfo_name)
+            body += '        // by the create info, invokes the driver, and registers the resulting\n'
+            body += '        // {} under target_capture_id in the object info table.\n'.format(handle_base_type)
+            body += '        ' + self.genCallReplayConsumer(None, name, values)
+            body += '\n'
+            body += '        {} = original_{}_value;\n\n'.format(count_name, 'count')
             body += '        {} out_handle = {}.GetHandlePointer()[0];\n'.format(handle_base_type, handles_name)
             body += '\n'
-            body += '        if (replay_result == VK_SUCCESS)\n'
+            body += '        if (out_handle != VK_NULL_HANDLE)\n'
             body += '        {\n'
-            body += '            AddHandle<{}>(\n'.format(info_type)
-            body += '                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::Add{}Info);\n'.format(handle_base_type)
-            body += '            allocatedLoopResources.insert(capture_ids[i]);\n'
+            body += '            allocatedLoopResources.insert(target_capture_id);\n'
             body += '        }\n'
             body += '        else\n'
             body += '        {\n'
             body += '            GFXRECON_LOG_ERROR(\n'
-            body += '                "Frame loop: failed to create {} (capture id %" PRIu64 ") during loop repetition, VkResult = %d",\n'.format(handle_base_type)
-            body += '                capture_ids[i], replay_result);\n'
+            body += '                "Frame loop: failed to create {} (capture id %" PRIu64 ") during loop repetition",\n'.format(handle_base_type)
+            body += '                target_capture_id);\n'
             body += '        }\n'
             body += '\n'
             body += '        // Restore original order before moving to the next index.\n'
+            body += '        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);\n'
             body += '        std::swap(raw_infos[0], raw_infos[i]);\n'
             body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
             body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'

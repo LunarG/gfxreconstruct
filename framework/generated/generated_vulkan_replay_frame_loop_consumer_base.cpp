@@ -930,44 +930,59 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     VkComputePipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkComputePipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
-    VkDevice in_device  = device_info->handle;
+    // Process_vkCreateComputePipelines() reads the capture-id array via args.pPipelines, not through a
+    // separate parameter, so that array has to be kept in sync with the
+    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
+    // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
+
+    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
+    // regardless of args.createInfoCount, so Process_vkCreateComputePipelines() will still
+    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
+    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
+    // fields while leaving the wrapper's original capture-id fields untouched..
+    const uint32_t original_count_value = args.createInfoCount;
+
     for (uint32_t i : to_create)
     {
-        // Move index i into slot 0 so Override/driver code (which always
-        // starts at index 0) operates on the shader we actually want.
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateComputePipelines/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
 
-         VkResult replay_result = OverrideCreateComputePipelines(
-                                            GetDeviceTable(in_device)->CreateComputePipelines,
-                                            args.result,
-                                            device_info,
-                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
-                                            1,
-                                            &args.pCreateInfos,
-                                            &args.pAllocator,
-                                            &args.pPipelines);
+        // Restrict this call to a single create info/handle: Process_vkCreateComputePipelines()
+        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
+        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
+        // makes it operate only on slot 0.
+        args.createInfoCount = 1;
+
+        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
+        // by the create info, invokes the driver, and registers the resulting
+        // VkPipeline under target_capture_id in the object info table.
+        VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
+
+        args.createInfoCount = original_count_value;
 
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
-        if (replay_result == VK_SUCCESS)
+        if (out_handle != VK_NULL_HANDLE)
         {
-            AddHandle<VulkanPipelineInfo>(
-                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
-            allocatedLoopResources.insert(capture_ids[i]);
+            allocatedLoopResources.insert(target_capture_id);
         }
         else
         {
             GFXRECON_LOG_ERROR(
-                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
-                capture_ids[i], replay_result);
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
         }
 
         // Restore original order before moving to the next index.
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -1247,44 +1262,59 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     VkGraphicsPipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkGraphicsPipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
-    VkDevice in_device  = device_info->handle;
+    // Process_vkCreateGraphicsPipelines() reads the capture-id array via args.pPipelines, not through a
+    // separate parameter, so that array has to be kept in sync with the
+    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
+    // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
+
+    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
+    // regardless of args.createInfoCount, so Process_vkCreateGraphicsPipelines() will still
+    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
+    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
+    // fields while leaving the wrapper's original capture-id fields untouched..
+    const uint32_t original_count_value = args.createInfoCount;
+
     for (uint32_t i : to_create)
     {
-        // Move index i into slot 0 so Override/driver code (which always
-        // starts at index 0) operates on the shader we actually want.
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateGraphicsPipelines/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
 
-         VkResult replay_result = OverrideCreateGraphicsPipelines(
-                                            GetDeviceTable(in_device)->CreateGraphicsPipelines,
-                                            args.result,
-                                            device_info,
-                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
-                                            1,
-                                            &args.pCreateInfos,
-                                            &args.pAllocator,
-                                            &args.pPipelines);
+        // Restrict this call to a single create info/handle: Process_vkCreateGraphicsPipelines()
+        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
+        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
+        // makes it operate only on slot 0.
+        args.createInfoCount = 1;
+
+        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
+        // by the create info, invokes the driver, and registers the resulting
+        // VkPipeline under target_capture_id in the object info table.
+        VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
+
+        args.createInfoCount = original_count_value;
 
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
-        if (replay_result == VK_SUCCESS)
+        if (out_handle != VK_NULL_HANDLE)
         {
-            AddHandle<VulkanPipelineInfo>(
-                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
-            allocatedLoopResources.insert(capture_ids[i]);
+            allocatedLoopResources.insert(target_capture_id);
         }
         else
         {
             GFXRECON_LOG_ERROR(
-                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
-                capture_ids[i], replay_result);
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
         }
 
         // Restore original order before moving to the next index.
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -1848,43 +1878,59 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     VkSwapchainCreateInfoKHR* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkSwapchainCreateInfoKHR* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
-    VkDevice in_device  = device_info->handle;
+    // Process_vkCreateSharedSwapchainsKHR() reads the capture-id array via args.pSwapchains, not through a
+    // separate parameter, so that array has to be kept in sync with the
+    // args.pCreateInfos/args.pSwapchains swap below in order for its internal handle registration
+    // (AddHandles) to associate the new VkSwapchainKHR with the correct capture id.
+    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
+
+    // args.pCreateInfos/args.pSwapchains retain their original (full-batch) decoded length
+    // regardless of args.swapchainCount, so Process_vkCreateSharedSwapchainsKHR() will still
+    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
+    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
+    // fields while leaving the wrapper's original capture-id fields untouched..
+    const uint32_t original_count_value = args.swapchainCount;
+
     for (uint32_t i : to_create)
     {
-        // Move index i into slot 0 so Override/driver code (which always
-        // starts at index 0) operates on the shader we actually want.
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateSharedSwapchainsKHR/driver code (which
+        // always starts at index 0) operates on the VkSwapchainKHR we actually want.
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        args.pSwapchains.SetHandleLength(1);   // (re)allocate a 1-element output slot
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
 
-         VkResult replay_result = OverrideCreateSharedSwapchainsKHR(
-                                            GetDeviceTable(in_device)->CreateSharedSwapchainsKHR,
-                                            args.result,
-                                            device_info,
-                                            1,
-                                            &args.pCreateInfos,
-                                            &args.pAllocator,
-                                            &args.pSwapchains);
+        // Restrict this call to a single create info/handle: Process_vkCreateSharedSwapchainsKHR()
+        // uses args.swapchainCount (not GetLength()) to size the output handle array and to
+        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
+        // makes it operate only on slot 0.
+        args.swapchainCount = 1;
+
+        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
+        // by the create info, invokes the driver, and registers the resulting
+        // VkSwapchainKHR under target_capture_id in the object info table.
+        VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
+
+        args.swapchainCount = original_count_value;
 
         VkSwapchainKHR out_handle = args.pSwapchains.GetHandlePointer()[0];
 
-        if (replay_result == VK_SUCCESS)
+        if (out_handle != VK_NULL_HANDLE)
         {
-            AddHandle<VulkanSwapchainKHRInfo>(
-                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkSwapchainKHRInfo);
-            allocatedLoopResources.insert(capture_ids[i]);
+            allocatedLoopResources.insert(target_capture_id);
         }
         else
         {
             GFXRECON_LOG_ERROR(
-                "Frame loop: failed to create VkSwapchainKHR (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
-                capture_ids[i], replay_result);
+                "Frame loop: failed to create VkSwapchainKHR (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
         }
 
         // Restore original order before moving to the next index.
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -2884,44 +2930,59 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     VkRayTracingPipelineCreateInfoNV* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkRayTracingPipelineCreateInfoNV* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
-    VkDevice in_device  = device_info->handle;
+    // Process_vkCreateRayTracingPipelinesNV() reads the capture-id array via args.pPipelines, not through a
+    // separate parameter, so that array has to be kept in sync with the
+    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
+    // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
+
+    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
+    // regardless of args.createInfoCount, so Process_vkCreateRayTracingPipelinesNV() will still
+    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
+    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
+    // fields while leaving the wrapper's original capture-id fields untouched..
+    const uint32_t original_count_value = args.createInfoCount;
+
     for (uint32_t i : to_create)
     {
-        // Move index i into slot 0 so Override/driver code (which always
-        // starts at index 0) operates on the shader we actually want.
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateRayTracingPipelinesNV/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
 
-         VkResult replay_result = OverrideCreateRayTracingPipelinesNV(
-                                            GetDeviceTable(in_device)->CreateRayTracingPipelinesNV,
-                                            args.result,
-                                            device_info,
-                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
-                                            1,
-                                            &args.pCreateInfos,
-                                            &args.pAllocator,
-                                            &args.pPipelines);
+        // Restrict this call to a single create info/handle: Process_vkCreateRayTracingPipelinesNV()
+        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
+        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
+        // makes it operate only on slot 0.
+        args.createInfoCount = 1;
+
+        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
+        // by the create info, invokes the driver, and registers the resulting
+        // VkPipeline under target_capture_id in the object info table.
+        VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
+
+        args.createInfoCount = original_count_value;
 
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
-        if (replay_result == VK_SUCCESS)
+        if (out_handle != VK_NULL_HANDLE)
         {
-            AddHandle<VulkanPipelineInfo>(
-                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
-            allocatedLoopResources.insert(capture_ids[i]);
+            allocatedLoopResources.insert(target_capture_id);
         }
         else
         {
             GFXRECON_LOG_ERROR(
-                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
-                capture_ids[i], replay_result);
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
         }
 
         // Restore original order before moving to the next index.
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -3500,43 +3561,59 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     VkShaderCreateInfoEXT* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkShaderCreateInfoEXT* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
-    VkDevice in_device  = device_info->handle;
+    // Process_vkCreateShadersEXT() reads the capture-id array via args.pShaders, not through a
+    // separate parameter, so that array has to be kept in sync with the
+    // args.pCreateInfos/args.pShaders swap below in order for its internal handle registration
+    // (AddHandles) to associate the new VkShaderEXT with the correct capture id.
+    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
+
+    // args.pCreateInfos/args.pShaders retain their original (full-batch) decoded length
+    // regardless of args.createInfoCount, so Process_vkCreateShadersEXT() will still
+    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
+    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
+    // fields while leaving the wrapper's original capture-id fields untouched..
+    const uint32_t original_count_value = args.createInfoCount;
+
     for (uint32_t i : to_create)
     {
-        // Move index i into slot 0 so Override/driver code (which always
-        // starts at index 0) operates on the shader we actually want.
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateShadersEXT/driver code (which
+        // always starts at index 0) operates on the VkShaderEXT we actually want.
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        args.pShaders.SetHandleLength(1);   // (re)allocate a 1-element output slot
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
 
-         VkResult replay_result = OverrideCreateShadersEXT(
-                                            GetDeviceTable(in_device)->CreateShadersEXT,
-                                            args.result,
-                                            device_info,
-                                            1,
-                                            &args.pCreateInfos,
-                                            &args.pAllocator,
-                                            &args.pShaders);
+        // Restrict this call to a single create info/handle: Process_vkCreateShadersEXT()
+        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
+        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
+        // makes it operate only on slot 0.
+        args.createInfoCount = 1;
+
+        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
+        // by the create info, invokes the driver, and registers the resulting
+        // VkShaderEXT under target_capture_id in the object info table.
+        VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
+
+        args.createInfoCount = original_count_value;
 
         VkShaderEXT out_handle = args.pShaders.GetHandlePointer()[0];
 
-        if (replay_result == VK_SUCCESS)
+        if (out_handle != VK_NULL_HANDLE)
         {
-            AddHandle<VulkanShaderEXTInfo>(
-                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkShaderEXTInfo);
-            allocatedLoopResources.insert(capture_ids[i]);
+            allocatedLoopResources.insert(target_capture_id);
         }
         else
         {
             GFXRECON_LOG_ERROR(
-                "Frame loop: failed to create VkShaderEXT (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
-                capture_ids[i], replay_result);
+                "Frame loop: failed to create VkShaderEXT (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
         }
 
         // Restore original order before moving to the next index.
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -3621,45 +3698,59 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     VkDataGraphPipelineCreateInfoARM* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkDataGraphPipelineCreateInfoARM* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    auto*   device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
-    VkDevice in_device  = device_info->handle;
+    // Process_vkCreateDataGraphPipelinesARM() reads the capture-id array via args.pPipelines, not through a
+    // separate parameter, so that array has to be kept in sync with the
+    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
+    // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
+
+    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
+    // regardless of args.createInfoCount, so Process_vkCreateDataGraphPipelinesARM() will still
+    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
+    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
+    // fields while leaving the wrapper's original capture-id fields untouched..
+    const uint32_t original_count_value = args.createInfoCount;
+
     for (uint32_t i : to_create)
     {
-        // Move index i into slot 0 so Override/driver code (which always
-        // starts at index 0) operates on the shader we actually want.
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateDataGraphPipelinesARM/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        args.pPipelines.SetHandleLength(1);   // (re)allocate a 1-element output slot
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
 
-         VkResult replay_result = OverrideCreateDataGraphPipelinesARM(
-                                            GetDeviceTable(in_device)->CreateDataGraphPipelinesARM,
-                                            args.result,
-                                            device_info,
-                                            GetObjectInfoTable().GetVkDeferredOperationKHRInfo(args.deferredOperation),
-                                            GetObjectInfoTable().GetVkPipelineCacheInfo(args.pipelineCache),
-                                            1,
-                                            &args.pCreateInfos,
-                                            &args.pAllocator,
-                                            &args.pPipelines);
+        // Restrict this call to a single create info/handle: Process_vkCreateDataGraphPipelinesARM()
+        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
+        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
+        // makes it operate only on slot 0.
+        args.createInfoCount = 1;
+
+        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
+        // by the create info, invokes the driver, and registers the resulting
+        // VkPipeline under target_capture_id in the object info table.
+        VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
+
+        args.createInfoCount = original_count_value;
 
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
-        if (replay_result == VK_SUCCESS)
+        if (out_handle != VK_NULL_HANDLE)
         {
-            AddHandle<VulkanPipelineInfo>(
-                args.device, &capture_ids[i], &out_handle, &CommonObjectInfoTable::AddVkPipelineInfo);
-            allocatedLoopResources.insert(capture_ids[i]);
+            allocatedLoopResources.insert(target_capture_id);
         }
         else
         {
             GFXRECON_LOG_ERROR(
-                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition, VkResult = %d",
-                capture_ids[i], replay_result);
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
         }
 
         // Restore original order before moving to the next index.
+        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
