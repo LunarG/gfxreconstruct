@@ -79,20 +79,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, args::ReleaseProfilingLockKHR& args) override;
 
-    void Process_vkCreateRenderPass(const ApiCallInfo& call_info, args::CreateRenderPass& args) override;
-
-    void Process_vkCreateRenderPass2(const ApiCallInfo& call_info, args::CreateRenderPass2& args) override;
-
-    void Process_vkCreateRenderPass2KHR(const ApiCallInfo& call_info, args::CreateRenderPass2KHR& args) override;
-
-    void Process_vkDestroyRenderPass(const ApiCallInfo& call_info, args::DestroyRenderPass& args) override;
-
-    void Process_vkCmdBeginRenderPass(const ApiCallInfo& call_info, args::CmdBeginRenderPass& args) override;
-
-    void Process_vkCmdBeginRenderPass2(const ApiCallInfo& call_info, args::CmdBeginRenderPass2& args) override;
-
-    void Process_vkCmdBeginRenderPass2KHR(const ApiCallInfo& call_info, args::CmdBeginRenderPass2KHR& args) override;
-
     void Process_vkCmdBeginRendering(const ApiCallInfo& call_info, args::CmdBeginRendering& args) override;
 
     void Process_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info, args::CmdBeginRenderingKHR& args) override;
@@ -123,9 +109,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Image layout tracking and restoration.
     void TrackImageLayouts();
-    void TrackSubpass0Layouts(format::HandleId render_pass, const VkRenderPassCreateInfo* create_info);
-    void TrackSubpass0Layouts(format::HandleId render_pass, const VkRenderPassCreateInfo2* create_info);
-    void ApplySubpass0Layouts(format::HandleId command_buffer);
     void ApplyRenderingLayouts(format::HandleId command_buffer, StructPointerDecoder<Decoded_VkRenderingInfo>& info);
     void PropagateImageLayouts(format::HandleId command_buffer);
     void FixupImageLayouts(format::HandleId device, format::HandleId queue);
@@ -157,8 +140,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_map<format::HandleId, bool> profilingLockState;
 
     // Image layout tracking data
-    std::unordered_map<format::HandleId, std::vector<VkImageLayout>> render_pass_subpass_0_layouts_;
-    std::unordered_map<format::HandleId, VkImageLayout>              initial_image_layouts_;
+    std::unordered_map<format::HandleId, VkImageLayout> initial_image_layouts_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
