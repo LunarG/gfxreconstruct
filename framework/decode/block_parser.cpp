@@ -495,7 +495,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
     if (!success)
     {
-        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read block header");
         return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
     }
 
