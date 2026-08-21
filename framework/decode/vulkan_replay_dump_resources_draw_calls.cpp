@@ -3154,7 +3154,8 @@ static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPas
         {
             att_img_view_info =
                 object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_ref.attachment]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
+            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].push_back(
+                { att_img_view_info->subresource_range, att_ref.layout });
         }
         else if (!render_pass_info->begin_renderpass_override_attachments.empty())
         {
@@ -3182,15 +3183,17 @@ static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPas
         {
             att_img_view_info =
                 object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
-                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
+            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].push_back(
+                { att_img_view_info->subresource_range,
+                  original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout });
         }
         else if (!render_pass_info->begin_renderpass_override_attachments.empty())
         {
             att_img_view_info = object_info_table.GetVkImageViewInfo(
                 render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
-                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
+            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].push_back(
+                { att_img_view_info->subresource_range,
+                  original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout });
         }
     }
 }

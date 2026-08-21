@@ -24,13 +24,13 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 
-#include "decode/vulkan_image_layout_tracker.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_image_layout_map.h"
 #include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "graphics/vulkan_util.h"
@@ -496,7 +496,9 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              level_count{ 0 };
     uint32_t              queue_family_index{ 0 };
 
-    VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+
+    graphics::ImageLayoutMap subresource_layouts;
+
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
@@ -679,7 +681,8 @@ struct VulkanValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheE
 
 struct VulkanImageViewInfo : public VulkanObjectInfo<VkImageView>
 {
-    format::HandleId image_id{ format::kNullHandleId };
+    format::HandleId        image_id{ format::kNullHandleId };
+    VkImageSubresourceRange subresource_range{};
 };
 
 struct VulkanFramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
@@ -733,7 +736,10 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
     format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
     std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
-    std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
+    std::vector<format::HandleId>                             executed_secondary_command_buffers;
+
+    std::unordered_map<format::HandleId, std::vector<graphics::ImageLayoutMap::RangeLayout>> image_layout_barriers;
+
     std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
     std::vector<uint8_t>                                      push_constant_data;
     VkShaderStageFlags                                        push_constant_stage_flags     = 0;
@@ -753,6 +759,7 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
 {
     std::vector<VkImageLayout>           attachment_description_final_layouts;
+
     std::vector<VkAttachmentDescription> attachment_descs;
 
     std::vector<uint8_t> create_info;
