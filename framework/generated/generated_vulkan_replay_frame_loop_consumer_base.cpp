@@ -934,13 +934,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     // separate parameter, so that array has to be kept in sync with the
     // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
     // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
+    // below is required to reorder it in place.
     format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
 
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateComputePipelines() will still
-    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
-    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
-    // fields while leaving the wrapper's original capture-id fields untouched..
+    // regardless of args.createInfoCount, so Process_vkCreateComputePipelines() will still run
+    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
+    // below (not just the single slot-0 entry being replayed that iteration). That
+    // repeated work does no harm since MapStructHandles() writes mapped handles into
+    // each struct's live fields while leaving the wrapper's original capture-id
+    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
 
     for (uint32_t i : to_create)
@@ -968,6 +972,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
 
         args.createInfoCount = original_count_value;
 
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateComputePipelines()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
         if (out_handle != VK_NULL_HANDLE)
@@ -1266,13 +1275,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     // separate parameter, so that array has to be kept in sync with the
     // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
     // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
+    // below is required to reorder it in place.
     format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
 
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateGraphicsPipelines() will still
-    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
-    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
-    // fields while leaving the wrapper's original capture-id fields untouched..
+    // regardless of args.createInfoCount, so Process_vkCreateGraphicsPipelines() will still run
+    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
+    // below (not just the single slot-0 entry being replayed that iteration). That
+    // repeated work does no harm since MapStructHandles() writes mapped handles into
+    // each struct's live fields while leaving the wrapper's original capture-id
+    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
 
     for (uint32_t i : to_create)
@@ -1300,6 +1313,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
 
         args.createInfoCount = original_count_value;
 
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateGraphicsPipelines()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
         if (out_handle != VK_NULL_HANDLE)
@@ -1882,13 +1900,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     // separate parameter, so that array has to be kept in sync with the
     // args.pCreateInfos/args.pSwapchains swap below in order for its internal handle registration
     // (AddHandles) to associate the new VkSwapchainKHR with the correct capture id.
+    // args.pSwapchains.GetPointer() only exposes a const array so the const_cast
+    // below is required to reorder it in place.
     format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
 
     // args.pCreateInfos/args.pSwapchains retain their original (full-batch) decoded length
-    // regardless of args.swapchainCount, so Process_vkCreateSharedSwapchainsKHR() will still
-    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
-    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
-    // fields while leaving the wrapper's original capture-id fields untouched..
+    // regardless of args.swapchainCount, so Process_vkCreateSharedSwapchainsKHR() will still run
+    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
+    // below (not just the single slot-0 entry being replayed that iteration). That
+    // repeated work does no harm since MapStructHandles() writes mapped handles into
+    // each struct's live fields while leaving the wrapper's original capture-id
+    // fields untouched.
     const uint32_t original_count_value = args.swapchainCount;
 
     for (uint32_t i : to_create)
@@ -1916,6 +1938,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
 
         args.swapchainCount = original_count_value;
 
+        // args.pSwapchains.SetHandleLength(), called internally by Process_vkCreateSharedSwapchainsKHR()
+        // above, (re)allocates args.pSwapchains's handle buffer to exactly args.swapchainCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
         VkSwapchainKHR out_handle = args.pSwapchains.GetHandlePointer()[0];
 
         if (out_handle != VK_NULL_HANDLE)
@@ -2934,13 +2961,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     // separate parameter, so that array has to be kept in sync with the
     // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
     // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
+    // below is required to reorder it in place.
     format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
 
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateRayTracingPipelinesNV() will still
-    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
-    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
-    // fields while leaving the wrapper's original capture-id fields untouched..
+    // regardless of args.createInfoCount, so Process_vkCreateRayTracingPipelinesNV() will still run
+    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
+    // below (not just the single slot-0 entry being replayed that iteration). That
+    // repeated work does no harm since MapStructHandles() writes mapped handles into
+    // each struct's live fields while leaving the wrapper's original capture-id
+    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
 
     for (uint32_t i : to_create)
@@ -2968,6 +2999,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
 
         args.createInfoCount = original_count_value;
 
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateRayTracingPipelinesNV()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
         if (out_handle != VK_NULL_HANDLE)
@@ -3565,13 +3601,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     // separate parameter, so that array has to be kept in sync with the
     // args.pCreateInfos/args.pShaders swap below in order for its internal handle registration
     // (AddHandles) to associate the new VkShaderEXT with the correct capture id.
+    // args.pShaders.GetPointer() only exposes a const array so the const_cast
+    // below is required to reorder it in place.
     format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
 
     // args.pCreateInfos/args.pShaders retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateShadersEXT() will still
-    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
-    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
-    // fields while leaving the wrapper's original capture-id fields untouched..
+    // regardless of args.createInfoCount, so Process_vkCreateShadersEXT() will still run
+    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
+    // below (not just the single slot-0 entry being replayed that iteration). That
+    // repeated work does no harm since MapStructHandles() writes mapped handles into
+    // each struct's live fields while leaving the wrapper's original capture-id
+    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
 
     for (uint32_t i : to_create)
@@ -3599,6 +3639,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
 
         args.createInfoCount = original_count_value;
 
+        // args.pShaders.SetHandleLength(), called internally by Process_vkCreateShadersEXT()
+        // above, (re)allocates args.pShaders's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
         VkShaderEXT out_handle = args.pShaders.GetHandlePointer()[0];
 
         if (out_handle != VK_NULL_HANDLE)
@@ -3702,13 +3747,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     // separate parameter, so that array has to be kept in sync with the
     // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
     // (AddHandles) to associate the new VkPipeline with the correct capture id.
+    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
+    // below is required to reorder it in place.
     format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
 
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateDataGraphPipelinesARM() will still
-    // run MapStructArrayHandles() over the whole args.pCreateInfos array on each iteration below.
-    // That is harmless: MapStructHandles() writes mapped handles into the struct's live
-    // fields while leaving the wrapper's original capture-id fields untouched..
+    // regardless of args.createInfoCount, so Process_vkCreateDataGraphPipelinesARM() will still run
+    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
+    // below (not just the single slot-0 entry being replayed that iteration). That
+    // repeated work does no harm since MapStructHandles() writes mapped handles into
+    // each struct's live fields while leaving the wrapper's original capture-id
+    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
 
     for (uint32_t i : to_create)
@@ -3736,6 +3785,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
 
         args.createInfoCount = original_count_value;
 
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateDataGraphPipelinesARM()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
         VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
 
         if (out_handle != VK_NULL_HANDLE)

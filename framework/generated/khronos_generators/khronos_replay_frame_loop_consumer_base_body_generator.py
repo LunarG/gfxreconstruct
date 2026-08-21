@@ -63,12 +63,11 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES:
 
-            """Generates per-element create/skip logic for batched multi-handle create calls
-            (vkCreateShadersEXT, vkCreateGraphicsPipelines, vkCreateComputePipelines,
-            vkCreateRayTracingPipelinesNV, vkCreateDataGraphPipelinesARM,
-            vkCreateSharedSwapchainsKHR, and any future call with the same
-            (..., count, pCreateInfos, pAllocator, pHandles) trailing shape).
-            """
+            # Generates per-element create/skip logic for batched multi-handle create calls
+            # (vkCreateShadersEXT, vkCreateGraphicsPipelines, vkCreateComputePipelines,
+            # vkCreateRayTracingPipelinesNV, vkCreateDataGraphPipelinesARM,
+            # vkCreateSharedSwapchainsKHR, and any future call with the same
+            # (..., count, pCreateInfos, pAllocator, pHandles) trailing shape).
             count_param       = values[-4]
             create_info_param = values[-3]
             handles_param     = values[-1]
@@ -124,13 +123,17 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    // separate parameter, so that array has to be kept in sync with the\n'
             body += '    // {}/{} swap below in order for its internal handle registration\n'.format(createinfo_name, handles_name)
             body += '    // (AddHandles) to associate the new {} with the correct capture id.\n'.format(handle_base_type)
+            body += '    // {}.GetPointer() only exposes a const array so the const_cast\n'.format(handles_name)
+            body += '    // below is required to reorder it in place.\n'
             body += '    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);\n\n'
 
             body += '    // {}/{} retain their original (full-batch) decoded length\n'.format(createinfo_name, handles_name)
-            body += '    // regardless of {}, so Process_{}() will still\n'.format(count_name, name)
-            body += '    // run MapStructArrayHandles() over the whole {} array on each iteration below.\n'.format(createinfo_name)
-            body += '    // That is harmless: MapStructHandles() writes mapped handles into the struct\'s live\n'
-            body += '    // fields while leaving the wrapper\'s original capture-id fields untouched..\n'
+            body += '    // regardless of {}, so Process_{}() will still run\n'.format(count_name, name)
+            body += '    // MapStructArrayHandles() over the *entire* {} array once per to_create entry\n'.format(createinfo_name)
+            body += '    // below (not just the single slot-0 entry being replayed that iteration). That\n'
+            body += '    // repeated work does no harm since MapStructHandles() writes mapped handles into\n'
+            body += '    // each struct\'s live fields while leaving the wrapper\'s original capture-id\n'
+            body += '    // fields untouched.\n'
             body += '    const uint32_t original_count_value = {};\n\n'.format(count_name)
 
             body += '    for (uint32_t i : to_create)\n'
@@ -155,7 +158,13 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        // {} under target_capture_id in the object info table.\n'.format(handle_base_type)
             body += '        ' + self.genCallReplayConsumer(None, name, values)
             body += '\n'
-            body += '        {} = original_{}_value;\n\n'.format(count_name, 'count')
+            body += '        {} = original_count_value;\n\n'.format(count_name)
+
+            body += '        // {}.SetHandleLength(), called internally by Process_{}()\n'.format(handles_name, name)
+            body += '        // above, (re)allocates {}\'s handle buffer to exactly {} = 1\n'.format(handles_name, count_name)
+            body += '        // elements on every call, so this pointer must be re-fetched here and only\n'
+            body += '        // index [0] may ever be read, so do not attempt to swap or index this array by\n'
+            body += '        // anything other than 0.\n'
             body += '        {} out_handle = {}.GetHandlePointer()[0];\n'.format(handle_base_type, handles_name)
             body += '\n'
             body += '        if (out_handle != VK_NULL_HANDLE)\n'
