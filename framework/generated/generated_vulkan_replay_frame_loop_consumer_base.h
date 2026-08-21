@@ -114,6 +114,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroyQueryPool&                     args) override;
 
+    void Process_vkGetQueryPoolResults(
+        const ApiCallInfo&                          call_info,
+        args::GetQueryPoolResults&                  args) override;
+
     void Process_vkCreateBuffer(
         const ApiCallInfo&                          call_info,
         args::CreateBuffer&                         args) override;
@@ -149,6 +153,26 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkFreeCommandBuffers(
         const ApiCallInfo&                          call_info,
         args::FreeCommandBuffers&                   args) override;
+
+    void Process_vkCmdBeginQuery(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginQuery&                        args) override;
+
+    void Process_vkCmdEndQuery(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndQuery&                          args) override;
+
+    void Process_vkCmdResetQueryPool(
+        const ApiCallInfo&                          call_info,
+        args::CmdResetQueryPool&                    args) override;
+
+    void Process_vkCmdWriteTimestamp(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteTimestamp&                    args) override;
+
+    void Process_vkCmdCopyQueryPoolResults(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyQueryPoolResults&              args) override;
 
     void Process_vkCreateEvent(
         const ApiCallInfo&                          call_info,
@@ -266,6 +290,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::DestroySamplerYcbcrConversion&        args) override;
 
+    void Process_vkResetQueryPool(
+        const ApiCallInfo&                          call_info,
+        args::ResetQueryPool&                       args) override;
+
     void Process_vkCreateRenderPass2(
         const ApiCallInfo&                          call_info,
         args::CreateRenderPass2&                    args) override;
@@ -277,6 +305,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkDestroyPrivateDataSlot(
         const ApiCallInfo&                          call_info,
         args::DestroyPrivateDataSlot&               args) override;
+
+    void Process_vkCmdWriteTimestamp2(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteTimestamp2&                   args) override;
 
     void Process_vkMapMemory2(
         const ApiCallInfo&                          call_info,
@@ -406,6 +438,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::UnmapMemory2KHR&                      args) override;
 
+    void Process_vkCmdWriteTimestamp2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteTimestamp2KHR&                args) override;
+
+    void Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyQueryPoolResultsToMemoryKHR&   args) override;
+
     void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         args::CreatePipelineBinariesKHR&            args) override;
@@ -429,6 +469,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkDestroyDebugReportCallbackEXT(
         const ApiCallInfo&                          call_info,
         args::DestroyDebugReportCallbackEXT&        args) override;
+
+    void Process_vkCmdBeginQueryIndexedEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginQueryIndexedEXT&              args) override;
+
+    void Process_vkCmdEndQueryIndexedEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndQueryIndexedEXT&                args) override;
 
     void Process_vkCreateStreamDescriptorSurfaceGGP(
         const ApiCallInfo&                          call_info,
@@ -509,6 +557,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkCreateHeadlessSurfaceEXT(
         const ApiCallInfo&                          call_info,
         args::CreateHeadlessSurfaceEXT&             args) override;
+
+    void Process_vkResetQueryPoolEXT(
+        const ApiCallInfo&                          call_info,
+        args::ResetQueryPoolEXT&                    args) override;
 
     void Process_vkReleaseSwapchainImagesEXT(
         const ApiCallInfo&                          call_info,

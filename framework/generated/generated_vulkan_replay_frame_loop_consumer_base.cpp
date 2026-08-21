@@ -412,6 +412,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkGetQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    args::GetQueryPoolResults&                  args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkGetQueryPoolResults(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
     const ApiCallInfo&                          call_info,
     args::CreateBuffer&                         args)
@@ -637,6 +648,61 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
         return;
     }
     VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginQuery(
+    const ApiCallInfo&                          call_info,
+    args::CmdBeginQuery&                        args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBeginQuery(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEndQuery(
+    const ApiCallInfo&                          call_info,
+    args::CmdEndQuery&                          args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdEndQuery(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdResetQueryPool(
+    const ApiCallInfo&                          call_info,
+    args::CmdResetQueryPool&                    args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdResetQueryPool(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteTimestamp&                    args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyQueryPoolResults&              args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
@@ -1433,6 +1499,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkResetQueryPool(
+    const ApiCallInfo&                          call_info,
+    args::ResetQueryPool&                       args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkResetQueryPool(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2(
     const ApiCallInfo&                          call_info,
     args::CreateRenderPass2&                    args)
@@ -1512,6 +1589,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, args);
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteTimestamp2&                   args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp2(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
@@ -2236,6 +2324,28 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     VulkanReplayConsumer::Process_vkUnmapMemory2KHR(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteTimestamp2KHR&                args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp2KHR(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyQueryPoolResultsToMemoryKHR&   args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     args::CreatePipelineBinariesKHR&            args)
@@ -2358,6 +2468,28 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, args);
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginQueryIndexedEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBeginQueryIndexedEXT&              args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBeginQueryIndexedEXT(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEndQueryIndexedEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdEndQueryIndexedEXT&                args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdEndQueryIndexedEXT(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateStreamDescriptorSurfaceGGP(
@@ -2781,6 +2913,17 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateHeadlessSurfaceEXT(
             allocatedLoopResources.insert(handle);
         }
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkResetQueryPoolEXT(
+    const ApiCallInfo&                          call_info,
+    args::ResetQueryPoolEXT&                    args)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkResetQueryPoolEXT(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(
