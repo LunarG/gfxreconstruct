@@ -209,6 +209,23 @@ std::vector<ImageLayoutMap::RangeLayout> ImageLayoutMap::GetSubresourceLayouts()
     return result;
 }
 
+VkImageAspectFlags GetLayoutAspects(VkImageLayout layout)
+{
+    switch (layout)
+    {
+        case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL:
+        case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+
+        case VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL:
+        case VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL:
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+
+        default:
+            return ~VkImageAspectFlags(0);
+    }
+}
+
 void ImageLayoutMap::ExpandUniform()
 {
     is_uniform_ = false;

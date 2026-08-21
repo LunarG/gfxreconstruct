@@ -7404,6 +7404,19 @@ VkResult VulkanReplayConsumerBase::OverrideGetVideoSessionMemoryRequirementsKHR(
         video_session_info->allocator_data);
 }
 
+static VkImageLayout GetAttachmentStencilFinalLayout(const VkAttachmentDescription&)
+{
+    // Overload when VkAttachmentDescription has no pNext chain, so it can never carry a separate stencil final layout.
+    return VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+static VkImageLayout GetAttachmentStencilFinalLayout(const VkAttachmentDescription2& attachment_desc)
+{
+    const auto* stencil_layout =
+        graphics::vulkan_struct_get_pnext<VkAttachmentDescriptionStencilLayout>(&attachment_desc);
+    return (stencil_layout != nullptr) ? stencil_layout->stencilFinalLayout : VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
 template <typename T>
 void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerDecoder<VkRenderPass>* pRenderPass)
 {
@@ -7418,9 +7431,12 @@ void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerD
 
         // Save attachment descriptions to VulkanRenderPassInfo.
         render_pass_info->attachment_description_final_layouts.resize(attachment_count);
+        render_pass_info->attachment_description_stencil_final_layouts.resize(attachment_count);
         for (uint32_t i = 0; i < attachment_count; ++i)
         {
             render_pass_info->attachment_description_final_layouts[i] = attachment_descs[i].finalLayout;
+            render_pass_info->attachment_description_stencil_final_layouts[i] =
+                GetAttachmentStencilFinalLayout(attachment_descs[i]);
         }
     }
 }
@@ -11302,14 +11318,41 @@ void VulkanReplayConsumerBase::UpdateTrackedRenderPassFinalLayouts(VulkanCommand
             continue;
         }
 
-        // The render pass transitions only the subresources the attachment view covers, not the whole image.
-        command_buffer_info->image_layout_barriers[image_view_info->image_id].push_back(
-            { image_view_info->subresource_range, render_pass_info->attachment_description_final_layouts[i] });
+        const VkImageLayout final_layout = render_pass_info->attachment_description_final_layouts[i];
+        const VkImageLayout stencil_final_layout =
+            (i < render_pass_info->attachment_description_stencil_final_layouts.size())
+                ? render_pass_info->attachment_description_stencil_final_layouts[i]
+                : VK_IMAGE_LAYOUT_UNDEFINED;
+
+        const VkImageAspectFlags view_aspects = image_view_info->subresource_range.aspectMask;
+        auto&                    transitions  = command_buffer_info->image_layout_barriers[image_view_info->image_id];
+
+        VkImageSubresourceRange range = image_view_info->subresource_range;
+        range.aspectMask              = view_aspects & graphics::GetLayoutAspects(final_layout);
+
+        if (stencil_final_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            // finalLayout describes the depth aspect only, stencilFinalLayout describes the stencil aspect.
+            range.aspectMask &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
+        }
+
+        if (range.aspectMask != 0)
+        {
+            transitions.push_back({ range, final_layout });
+        }
+
+        // Track transition of the stencil aspect.
+        if ((stencil_final_layout != VK_IMAGE_LAYOUT_UNDEFINED) && ((view_aspects & VK_IMAGE_ASPECT_STENCIL_BIT) != 0))
+        {
+            VkImageSubresourceRange stencil_range = image_view_info->subresource_range;
+            stencil_range.aspectMask              = VK_IMAGE_ASPECT_STENCIL_BIT;
+            transitions.push_back({ stencil_range, stencil_final_layout });
+        }
 
         VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_view_info->image_id);
         if (img_info != nullptr)
         {
-            img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
+            img_info->intermediate_layout = final_layout;
         }
     }
 }

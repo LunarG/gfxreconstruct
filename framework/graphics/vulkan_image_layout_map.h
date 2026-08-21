@@ -91,6 +91,9 @@ class ImageLayoutMap
     std::vector<VkImageLayout> subresource_layouts_;
 };
 
+// Aspects that a layout describes.
+VkImageAspectFlags GetLayoutAspects(VkImageLayout layout);
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

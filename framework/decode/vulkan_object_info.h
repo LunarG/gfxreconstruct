@@ -760,6 +760,8 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
 {
     std::vector<VkImageLayout>           attachment_description_final_layouts;
 
+    std::vector<VkImageLayout>           attachment_description_stencil_final_layouts;
+
     std::vector<VkAttachmentDescription> attachment_descs;
 
     std::vector<uint8_t> create_info;
