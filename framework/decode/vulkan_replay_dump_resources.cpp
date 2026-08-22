@@ -830,8 +830,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
             // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
             // It will be handled by DrawCallsDumpingContext::BeginRenderPass
             const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
-            VkResult    res =
-                dc_context->BeginRenderPass(render_pass_info, framebuffer_info, renderpass_begin_info, contents);
+            VkResult    res                   = dc_context->BeginRenderPass(
+                call_info.index, render_pass_info, framebuffer_info, renderpass_begin_info, contents);
             assert(res == VK_SUCCESS);
         }
         else
@@ -902,8 +902,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
             // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
             // It will be handled by DrawCallsDumpingContext::BeginRenderPass
             const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
-            VkResult    res                   = dc_context->BeginRenderPass(
-                render_pass_info, framebuffer_info, renderpass_begin_info, pSubpassBeginInfo->GetPointer()->contents);
+            VkResult    res                   = dc_context->BeginRenderPass(call_info.index,
+                                                       render_pass_info,
+                                                       framebuffer_info,
+                                                       renderpass_begin_info,
+                                                       pSubpassBeginInfo->GetPointer()->contents);
 
             assert(res == VK_SUCCESS);
         }
@@ -2348,7 +2351,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                              accumulated_secondaries_command_buffers.data());
 
                         func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
-                        dc_primary_context->MergeRenderPasses(*secondary_to_execute->get());
                         ++finalized_primaries;
                     }
 

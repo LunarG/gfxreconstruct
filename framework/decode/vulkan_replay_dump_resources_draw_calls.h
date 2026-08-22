@@ -33,7 +33,9 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
@@ -154,7 +156,8 @@ class DrawCallsDumpingContext
                                 const graphics::VulkanInstanceTable* inst_table,
                                 const VkCommandBufferBeginInfo*      begin_info);
 
-    VkResult BeginRenderPass(const VulkanRenderPassInfo*  render_pass_info,
+    VkResult BeginRenderPass(uint64_t                     block_index,
+                             const VulkanRenderPassInfo*  render_pass_info,
                              const VulkanFramebufferInfo* framebuffer_info,
                              const VkRenderPassBeginInfo* renderpass_begin_info,
                              VkSubpassContents            contents);
@@ -234,8 +237,6 @@ class DrawCallsDumpingContext
                            Index                    execute_cmd_index,
                            Index                    command_buffer_execute_index);
 
-    void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
-
   private:
     DrawCallParams* InsertNewDrawParameters(
         uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
@@ -308,9 +309,6 @@ class DrawCallsDumpingContext
     const VulkanReplayOptions&   options_;
     const util::Compressor*      compressor_;
 
-    using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
-    std::map<Index, RenderPassSubpassPair> draw_call_render_pass_correlation_;
-
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
 
@@ -324,22 +322,27 @@ class DrawCallsDumpingContext
     {
         RenderPassContext() = delete;
 
-        RenderPassContext(RenderPassType                  t,
-                          const VulkanRenderPassInfo*     rp,
+        // Render pass
+        RenderPassContext(const VulkanRenderPassInfo*     rp,
                           const VulkanFramebufferInfo*    fb,
                           DumpResourcesCommandBufferLevel level) :
-            type(t),
+            type(RenderPassType::kRenderPass),
             renderpass_info(rp), framebuffer_info(fb), cmd_buf_level(level)
-        {}
+        {
+            GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
+        }
 
-        RenderPassContext(RenderPassType                       t,
-                          const std::vector<VulkanImageInfo*>& color_attachments,
+        // Dynamic rendering
+        RenderPassContext(const std::vector<VulkanImageInfo*>& color_attachments,
                           const std::vector<VkImageLayout>&    color_attachment_layouts,
                           VulkanImageInfo*                     depth_attachment,
                           VkImageLayout                        depth_attachment_layout,
                           DumpResourcesCommandBufferLevel      level) :
-            RenderPassContext(t, nullptr, nullptr, level)
+            type(RenderPassType::kDynamicRendering),
+            renderpass_info(nullptr), framebuffer_info(nullptr), cmd_buf_level(level)
         {
+            GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
+
             auto& new_render_targets                    = render_targets.emplace_back();
             new_render_targets.color_att_imgs           = color_attachments;
             new_render_targets.color_attachment_layouts = color_attachment_layouts;
@@ -347,32 +350,12 @@ class DrawCallsDumpingContext
             new_render_targets.depth_attachment_layout  = depth_attachment_layout;
         }
 
-        // Copies deliberately leave render_pass_clones empty: the cloned VkRenderPass handles stay owned by the
-        // source context (e.g. a secondary context merged into a primary) so that Release() destroys them exactly
-        // once. Moves must transfer them, otherwise reallocations of render_pass_contexts_ would leak the handles.
-        RenderPassContext(const RenderPassContext& other) :
-            RenderPassContext(other.type, other.renderpass_info, other.framebuffer_info, other.cmd_buf_level)
-        {
-            render_targets = other.render_targets;
-        }
+        // Contexts are shared through shared_ptr (render_pass_contexts_ and DrawCallParams::render_pass_context)
+        // and own their cloned VkRenderPass handles, which Release() destroys exactly once.
+        RenderPassContext(const RenderPassContext&)            = delete;
+        RenderPassContext& operator=(const RenderPassContext&) = delete;
 
-        RenderPassContext& operator=(const RenderPassContext& other)
-        {
-            if (this != &other)
-            {
-                type             = other.type;
-                cmd_buf_level    = other.cmd_buf_level;
-                renderpass_info  = other.renderpass_info;
-                framebuffer_info = other.framebuffer_info;
-                render_targets   = other.render_targets;
-                render_pass_clones.clear();
-            }
-            return *this;
-        }
-
-        RenderPassContext(RenderPassContext&&) noexcept            = default;
-        RenderPassContext& operator=(RenderPassContext&&) noexcept = default;
-
+        // Render targets context for each subpass
         struct RenderTargets
         {
             RenderTargets() : depth_att_img(nullptr), depth_attachment_layout(VK_IMAGE_LAYOUT_UNDEFINED) {}
@@ -389,13 +372,19 @@ class DrawCallsDumpingContext
         const VulkanRenderPassInfo*     renderpass_info;
         const VulkanFramebufferInfo*    framebuffer_info;
 
+        // Position of this render pass within the owning context, used to label dumped resources
+        uint64_t ordinal{ 0 };
+
         // One entry per subpass
         std::vector<RenderTargets> render_targets;
-        std::vector<VkRenderPass>  render_pass_clones;
+
+        // Also one entry per subpass. For each subpass we create a new render pass
+        std::vector<VkRenderPass> render_pass_clones;
     };
 
-    // One entry per render pass
-    std::vector<RenderPassContext> render_pass_contexts_;
+    // One entry per render pass, in replay order. Held through shared_ptr so that each DrawCallParams can point
+    // at the context its draw call was recorded in.
+    std::vector<std::shared_ptr<RenderPassContext>> render_pass_contexts_;
 
     // True while a render pass (or dynamic rendering) instance begun by this context is active. Used by
     // FinalizeCommandBuffer to decide whether a CmdEndRenderPass/CmdEndRendering must be recorded.
@@ -801,6 +790,13 @@ class DrawCallsDumpingContext
         // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
         std::map<Index, SecondaryIdentifiers> secondary_identifiers;
 
+        // The render pass context this draw call was recorded in and the subpass ordinal within it. Captured in
+        // FinalizeCommandBuffer while the render pass is active. For draw calls recorded in a secondary command
+        // buffer that inherits the primary's render pass (RENDER_PASS_CONTINUE), it is filled in from the primary
+        // at vkCmdExecuteCommands time.
+        std::shared_ptr<RenderPassContext> render_pass_context;
+        uint64_t                           subpass{ 0 };
+
         DumpedResourcesInfo dumped_resources;
     };
 
@@ -809,10 +805,9 @@ class DrawCallsDumpingContext
     using DrawCallParameters = std::map<uint64_t, std::shared_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
-    DrawCallParameters&      GetDrawCallParameters() { return draw_call_params_; }
-    CommandIndices&          GetDrawCallIndices() { return dc_indices_; }
-    const CommandIndices&    GetDrawCallIndices() const { return dc_indices_; }
-    const RenderPassIndices& GetRenderPassIndices() const { return RP_indices_; }
+    DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
+    CommandIndices&       GetDrawCallIndices() { return dc_indices_; }
+    const CommandIndices& GetDrawCallIndices() const { return dc_indices_; }
 
     struct
     {
@@ -835,7 +830,8 @@ class DrawCallsDumpingContext
         std::map<DescriptorLocation, const DumpedAccelerationStructure&> acceleration_structures;
     };
 
-    std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
+    // Keyed by the render pass context a draw call was recorded in (nullptr for uncorrelated draw calls)
+    std::unordered_map<const RenderPassContext*, RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
 
     VkCommandBuffer                 aux_command_buffer_;
     VkFence                         aux_fence_;
@@ -873,15 +869,6 @@ class DrawCallsDumpingContext
     // tracked image layouts in the original command buffer info.
     template <typename CreateInfoType>
     void FinalizeRenderPassClone(RenderPassContext& renderpass_context, const CreateInfoType* create_info);
-
-    // Assign to each draw call a [render pass, subpass] index pair.
-    void AssignRenderPassIndices();
-
-    // Find the position in RP_indices_ of the render pass/subpass block range that contains the given block index.
-    bool FindRenderPassSubpass(uint64_t block_index, uint64_t& rp, uint64_t& sp) const;
-
-    // Checked lookup into draw_call_render_pass_correlation_.
-    bool GetRenderPassSubpassIndices(Index dc_index, uint64_t& rp, uint64_t& sp) const;
 
     void SnapshotState(DrawCallParams& dc_params);
 
