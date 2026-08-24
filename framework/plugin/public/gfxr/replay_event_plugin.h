@@ -43,6 +43,8 @@ typedef enum GfxrReplayEventType
     GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END   = 2,
     GFXR_REPLAY_EVENT_FRAME_BEGIN        = 3,
     GFXR_REPLAY_EVENT_FRAME_END          = 4,
+    GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN  = 5,
+    GFXR_REPLAY_EVENT_STATE_SETUP_END    = 6,
 } GfxrReplayEventType;
 
 static_assert(sizeof(GfxrReplayEventType) == sizeof(uint32_t));
@@ -82,6 +84,16 @@ typedef struct GfxrReplayEventHeader
     uint64_t            timestamp_ns;
     uint64_t            frame_index;
 } GfxrReplayEventHeader;
+
+typedef struct GfxrReplayStateSetupBeginEvent
+{
+    GfxrReplayEventHeader header;
+} GfxrReplayStateSetupBeginEvent;
+
+typedef struct GfxrReplayStateSetupEndEvent
+{
+    GfxrReplayEventHeader header;
+} GfxrReplayStateSetupEndEvent;
 
 typedef struct GfxrReplayQueueSubmitBeginEvent
 {

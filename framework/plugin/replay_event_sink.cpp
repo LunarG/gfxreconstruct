@@ -56,6 +56,22 @@ GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType typ
     return header;
 }
 
+void ReplayEventSink::StateSetupBegin()
+{
+    GfxrReplayStateSetupBeginEvent event = {};
+    event.header                         = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN);
+
+    EmitStateSetupBegin(event);
+}
+
+void ReplayEventSink::StateSetupEnd()
+{
+    GfxrReplayStateSetupEndEvent event = {};
+    event.header                       = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_SETUP_END);
+
+    EmitStateSetupEnd(event);
+}
+
 uint64_t ReplayEventSink::QueueSubmitBegin(format::HandleId queue_id)
 {
     GFXRECON_ASSERT(frame_active_);
@@ -149,6 +165,16 @@ PluginReplayEventSink::~PluginReplayEventSink()
     {
         close_library_(library_);
     }
+}
+
+void PluginReplayEventSink::EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event)
+{
+    Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event)
