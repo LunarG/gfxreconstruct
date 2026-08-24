@@ -618,9 +618,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 {
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
-    for (const Decoded_VkSubmitInfo& submit : args.pSubmits.GetMetaStructSpan())
+    if (frame_loop_info_.IsLooping())
     {
-        if (frame_loop_info_.IsLooping())
+        for (Decoded_VkSubmitInfo submit : args.pSubmits.GetMetaStructSpan())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
         }
@@ -631,9 +631,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 {
     VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, args);
 
-    for (const Decoded_VkSubmitInfo2& submit : args.pSubmits.GetMetaStructSpan())
+    if (frame_loop_info_.IsLooping())
     {
-        if (frame_loop_info_.IsLooping())
+        for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
         }
