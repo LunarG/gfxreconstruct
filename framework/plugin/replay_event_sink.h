@@ -36,6 +36,9 @@ class ReplayEventSink
   public:
     virtual ~ReplayEventSink() = default;
 
+    void StateSetupBegin();
+    void StateSetupEnd();
+
     uint64_t QueueSubmitBegin(format::HandleId queue_id);
     void     QueueSubmitEnd(uint64_t                              submit_index,
                             format::HandleId                      queue_id,
@@ -48,6 +51,8 @@ class ReplayEventSink
     bool IsFrameActive() const { return frame_active_; }
 
   protected:
+    virtual void EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event)   = 0;
+    virtual void EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event)       = 0;
     virtual void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) = 0;
     virtual void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event)     = 0;
     virtual void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event)             = 0;
@@ -67,6 +72,8 @@ class ReplayEventSink
 class NullReplayEventSink final : public ReplayEventSink
 {
   protected:
+    void EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event) override {}
+    void EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event) override {}
     void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent&) override {}
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent&) override {}
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent&) override {}
@@ -84,6 +91,8 @@ class PluginReplayEventSink final : public ReplayEventSink
     ~PluginReplayEventSink();
 
   protected:
+    void EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event) override;
+    void EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event) override;
     void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override;
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override;
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override;
