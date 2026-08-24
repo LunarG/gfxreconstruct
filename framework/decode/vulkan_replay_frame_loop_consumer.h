@@ -109,7 +109,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Image layout tracking and restoration.
     void TrackImageLayouts();
-    void UpdateTrackedImageLayouts(format::HandleId command_buffer, StructPointerDecoder<Decoded_VkRenderingInfo>& info);
+    void UpdateTrackedImageLayouts(format::HandleId                               command_buffer,
+                                   StructPointerDecoder<Decoded_VkRenderingInfo>& info);
     void PropagateImageLayouts(format::HandleId command_buffer);
     void FixupImageLayouts(format::HandleId device, format::HandleId queue);
     void SubmitImageLayoutBarriers(const VulkanDeviceInfo*                  device_info,

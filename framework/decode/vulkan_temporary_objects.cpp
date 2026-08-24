@@ -27,8 +27,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp,
-                                               uint32_t                          queue_index)
+VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp, uint32_t queue_index)
 {
     const uint32_t queue_family_index = queue_finder_fp(device_info.enabled_queue_family_flags);
     GFXRECON_ASSERT(queue_family_index != VK_QUEUE_FAMILY_IGNORED);

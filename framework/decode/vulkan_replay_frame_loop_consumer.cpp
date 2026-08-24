@@ -66,8 +66,8 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
     TrackImageLayouts();
 }
 
-void VulkanReplayFrameLoopConsumer::UpdateTrackedImageLayouts(format::HandleId                               command_buffer,
-                                                          StructPointerDecoder<Decoded_VkRenderingInfo>& info)
+void VulkanReplayFrameLoopConsumer::UpdateTrackedImageLayouts(format::HandleId command_buffer,
+                                                              StructPointerDecoder<Decoded_VkRenderingInfo>& info)
 {
     VulkanCommandBufferInfo*       cb_info        = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer);
     const VkRenderingInfo*         rendering_info = info.GetPointer();
