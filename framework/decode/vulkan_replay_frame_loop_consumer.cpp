@@ -542,6 +542,19 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkQueueSubmit2KHR(call_info, args);
+
+    if (frame_loop_info_.IsLooping())
+    {
+        for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
+        {
+            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args)
 {
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, args);
