@@ -65,7 +65,7 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
     TrackImageLayouts();
 }
 
-void VulkanReplayFrameLoopConsumer::ApplyRenderingLayouts(format::HandleId                               command_buffer,
+void VulkanReplayFrameLoopConsumer::UpdateTrackedImageLayouts(format::HandleId                               command_buffer,
                                                           StructPointerDecoder<Decoded_VkRenderingInfo>& info)
 {
     VulkanCommandBufferInfo*       cb_info        = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer);
@@ -121,14 +121,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRendering(const ApiCallInf
                                                                 args::CmdBeginRendering& args)
 {
     VulkanReplayConsumer::Process_vkCmdBeginRendering(call_info, args);
-    ApplyRenderingLayouts(args.commandBuffer, args.pRenderingInfo);
+    UpdateTrackedImageLayouts(args.commandBuffer, args.pRenderingInfo);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderingKHR(const ApiCallInfo&          call_info,
                                                                    args::CmdBeginRenderingKHR& args)
 {
     VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(call_info, args);
-    ApplyRenderingLayouts(args.commandBuffer, args.pRenderingInfo);
+    UpdateTrackedImageLayouts(args.commandBuffer, args.pRenderingInfo);
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceStates()
