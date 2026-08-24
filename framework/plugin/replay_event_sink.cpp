@@ -39,6 +39,10 @@ static size_t GetSizeOfStruct(GfxrReplayEventType type)
             return sizeof(GfxrReplayFrameBeginEvent);
         case GFXR_REPLAY_EVENT_FRAME_END:
             return sizeof(GfxrReplayFrameEndEvent);
+        case GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN:
+            return sizeof(GfxrReplayStateSetupBeginEvent);
+        case GFXR_REPLAY_EVENT_STATE_SETUP_END:
+            return sizeof(GfxrReplayStateSetupEndEvent);
         default:
             GFXRECON_ASSERT(false && "Unknown event type");
             return 0;
