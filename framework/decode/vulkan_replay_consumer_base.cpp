@@ -3767,6 +3767,13 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
             }
         }
     }
+
+    if (options_.remove_unsupported_features)
+    {
+        // Remove feature structures from pNext for extensions that are not enabled,
+        // to prevent drivers or layers (like RenderDoc) from failing device creation.
+        graphics::feature_util::FilterPNextFeatures(&modified_create_info, modified_extensions);
+    }
 }
 
 VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,
