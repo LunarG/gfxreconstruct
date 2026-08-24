@@ -4912,9 +4912,22 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
+    // Update layout on the image infos.
+    if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const size_t command_buffer_count = submit_info_data[i].pCommandBuffers.GetLength();
+            const auto   command_buffer_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
+            for (size_t j = 0; (command_buffer_ids != nullptr) && (j < command_buffer_count); ++j)
+            {
+                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]));
+            }
+        }
+    }
+
     if (screenshot_handler_ != nullptr)
     {
-        VulkanCommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -4931,17 +4944,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 {
                     auto command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]);
 
-                    // Apply any layouts from submitted command lists.
-                    for (auto image_layout : command_buffer_info->image_layout_barriers)
-                    {
-                        auto image_info = GetObjectInfoTable().GetVkImageInfo(image_layout.first);
-                        if (image_info != nullptr)
-                        {
-                            image_info->current_layout = image_layout.second;
-                        }
-                    }
-
-                    // Check whether any of the submitted command lists buffers are frame boundaries.
                     if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
                     {
                         break;
@@ -5182,10 +5184,29 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
+    // Update layout on the image infos.
+    if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            if (submit_info_data[i].pCommandBufferInfos == nullptr)
+            {
+                continue;
+            }
+
+            const size_t command_buffer_count = submit_info_data[i].pCommandBufferInfos->GetLength();
+            const auto   command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            for (size_t j = 0; (command_buffer_infos != nullptr) && (j < command_buffer_count); ++j)
+            {
+                PropagateImageLayouts(
+                    GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer));
+            }
+        }
+    }
+
     // Check whether any of the submitted command buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
-        bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -11230,7 +11251,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
 }
 
-void VulkanReplayConsumerBase::ApplyRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info)
+void VulkanReplayConsumerBase::UpdateTrackedRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
 
@@ -11268,12 +11289,111 @@ void VulkanReplayConsumerBase::ApplyRenderPassFinalLayouts(VulkanCommandBufferIn
     }
 }
 
+void VulkanReplayConsumerBase::UpdateTrackedImageViewLayout(VulkanCommandBufferInfo* command_buffer_info,
+                                                            format::HandleId         image_view_id,
+                                                            VkImageLayout            layout)
+{
+    if ((image_view_id == format::kNullHandleId) || (layout == VK_IMAGE_LAYOUT_UNDEFINED))
+    {
+        return;
+    }
+
+    const VulkanImageViewInfo* image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+    if (image_view_info == nullptr)
+    {
+        return;
+    }
+
+    command_buffer_info->image_layout_barriers[image_view_info->image_id] = layout;
+
+    VulkanImageInfo* image_info = object_info_table_->GetVkImageInfo(image_view_info->image_id);
+    if (image_info != nullptr)
+    {
+        image_info->intermediate_layout = layout;
+    }
+}
+
+void VulkanReplayConsumerBase::UpdateTrackedAttachmentLayout(VulkanCommandBufferInfo*         command_buffer_info,
+                                                             const VkRenderingAttachmentInfo* attachment,
+                                                             const Decoded_VkRenderingAttachmentInfo* attachment_meta)
+{
+    if ((attachment == nullptr) || (attachment_meta == nullptr))
+    {
+        return;
+    }
+
+    UpdateTrackedImageViewLayout(command_buffer_info, attachment_meta->imageView, attachment->imageLayout);
+
+    if (attachment->resolveMode != VK_RESOLVE_MODE_NONE)
+    {
+        UpdateTrackedImageViewLayout(
+            command_buffer_info, attachment_meta->resolveImageView, attachment->resolveImageLayout);
+    }
+}
+
+void VulkanReplayConsumerBase::UpdateTrackedRenderingLayouts(
+    VulkanCommandBufferInfo* command_buffer_info, StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    if (rendering_info_decoder == nullptr)
+    {
+        return;
+    }
+
+    const VkRenderingInfo*         rendering_info = rendering_info_decoder->GetPointer();
+    const Decoded_VkRenderingInfo* rendering_meta = rendering_info_decoder->GetMetaStructPointer();
+    if ((rendering_info == nullptr) || (rendering_meta == nullptr))
+    {
+        return;
+    }
+
+    if ((rendering_info->pColorAttachments != nullptr) && (rendering_meta->pColorAttachments != nullptr))
+    {
+        const Decoded_VkRenderingAttachmentInfo* color_meta = rendering_meta->pColorAttachments->GetMetaStructPointer();
+        const size_t color_count = std::min(static_cast<size_t>(rendering_info->colorAttachmentCount),
+                                            rendering_meta->pColorAttachments->GetLength());
+        for (size_t i = 0; (color_meta != nullptr) && (i < color_count); ++i)
+        {
+            UpdateTrackedAttachmentLayout(command_buffer_info, &rendering_info->pColorAttachments[i], &color_meta[i]);
+        }
+    }
+
+    UpdateTrackedAttachmentLayout(command_buffer_info,
+                                  rendering_info->pDepthAttachment,
+                                  (rendering_meta->pDepthAttachment != nullptr)
+                                      ? rendering_meta->pDepthAttachment->GetMetaStructPointer()
+                                      : nullptr);
+    UpdateTrackedAttachmentLayout(command_buffer_info,
+                                  rendering_info->pStencilAttachment,
+                                  (rendering_meta->pStencilAttachment != nullptr)
+                                      ? rendering_meta->pStencilAttachment->GetMetaStructPointer()
+                                      : nullptr);
+}
+
+void VulkanReplayConsumerBase::PropagateImageLayouts(const VulkanCommandBufferInfo* command_buffer_info)
+{
+    if (command_buffer_info == nullptr)
+    {
+        return;
+    }
+
+    for (const auto& [image_id, layout] : command_buffer_info->image_layout_barriers)
+    {
+        VulkanImageInfo* image_info = object_info_table_->GetVkImageInfo(image_id);
+        if (image_info != nullptr)
+        {
+            image_info->current_layout = layout;
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass   func,
                                                         VulkanCommandBufferInfo* command_buffer_info)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     func(command_buffer_info->handle);
-    ApplyRenderPassFinalLayouts(command_buffer_info);
+    UpdateTrackedRenderPassFinalLayouts(command_buffer_info);
     command_buffer_info->active_render_pass_id = format::kNullHandleId;
     command_buffer_info->active_framebuffer_id = format::kNullHandleId;
     command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
@@ -11293,7 +11413,7 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     func(command_buffer_info->handle, pSubpassEndInfo->GetPointer());
-    ApplyRenderPassFinalLayouts(command_buffer_info);
+    UpdateTrackedRenderPassFinalLayouts(command_buffer_info);
     command_buffer_info->active_render_pass_id = format::kNullHandleId;
     command_buffer_info->active_framebuffer_id = format::kNullHandleId;
     command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
@@ -11323,6 +11443,8 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     command_buffer_info->in_rendering_scope = true;
 
     func(command_buffer_info->handle, rendering_info_decoder->GetPointer());
+
+    UpdateTrackedRenderingLayouts(command_buffer_info, rendering_info_decoder);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdEndRendering(PFN_vkCmdEndRendering    func,
