@@ -81,10 +81,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, args::ReleaseProfilingLockKHR& args) override;
 
-    void Process_vkCmdBeginRendering(const ApiCallInfo& call_info, args::CmdBeginRendering& args) override;
-
-    void Process_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info, args::CmdBeginRenderingKHR& args) override;
-
     virtual void StartLooping() override;
 
     // Private declarations
@@ -111,9 +107,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Image layout tracking and restoration.
     void TrackImageLayouts();
-    void UpdateTrackedImageLayouts(format::HandleId                               command_buffer,
-                                   StructPointerDecoder<Decoded_VkRenderingInfo>& info);
-    void PropagateImageLayouts(format::HandleId command_buffer);
     void FixupImageLayouts(format::HandleId device, format::HandleId queue);
     void SubmitImageLayoutBarriers(const VulkanDeviceInfo*                  device_info,
                                    const VulkanQueueInfo*                   queue_info,

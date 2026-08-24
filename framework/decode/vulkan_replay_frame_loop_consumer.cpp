@@ -66,72 +66,6 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
     TrackImageLayouts();
 }
 
-void VulkanReplayFrameLoopConsumer::UpdateTrackedImageLayouts(format::HandleId command_buffer,
-                                                              StructPointerDecoder<Decoded_VkRenderingInfo>& info)
-{
-    VulkanCommandBufferInfo*       cb_info        = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer);
-    const VkRenderingInfo*         rendering_info = info.GetPointer();
-    const Decoded_VkRenderingInfo* rendering_meta = info.GetMetaStructPointer();
-    if (cb_info == nullptr || rendering_info == nullptr || rendering_meta == nullptr)
-    {
-        return;
-    }
-
-    auto track_attachment = [this, cb_info](format::HandleId image_view_id, VkImageLayout layout) {
-        if (layout != VK_IMAGE_LAYOUT_UNDEFINED && image_view_id != format::kNullHandleId)
-        {
-            auto image_view_info = GetObjectInfoTable().GetVkImageViewInfo(image_view_id);
-            if (image_view_info != nullptr)
-            {
-                cb_info->image_layout_barriers[image_view_info->image_id] = layout;
-            }
-        }
-    };
-
-    if (rendering_info->pColorAttachments != nullptr && rendering_meta->pColorAttachments != nullptr)
-    {
-        const Decoded_VkRenderingAttachmentInfo* color_meta = rendering_meta->pColorAttachments->GetMetaStructPointer();
-        if (color_meta != nullptr)
-        {
-            const uint32_t color_count =
-                std::min(static_cast<uint32_t>(rendering_info->colorAttachmentCount),
-                         static_cast<uint32_t>(rendering_meta->pColorAttachments->GetLength()));
-            for (uint32_t i = 0; i < color_count; ++i)
-            {
-                track_attachment(color_meta[i].imageView, rendering_info->pColorAttachments[i].imageLayout);
-            }
-        }
-    }
-
-    if (rendering_info->pDepthAttachment != nullptr && rendering_meta->pDepthAttachment != nullptr &&
-        rendering_meta->pDepthAttachment->GetMetaStructPointer() != nullptr)
-    {
-        track_attachment(rendering_meta->pDepthAttachment->GetMetaStructPointer()->imageView,
-                         rendering_info->pDepthAttachment->imageLayout);
-    }
-
-    if (rendering_info->pStencilAttachment != nullptr && rendering_meta->pStencilAttachment != nullptr &&
-        rendering_meta->pStencilAttachment->GetMetaStructPointer() != nullptr)
-    {
-        track_attachment(rendering_meta->pStencilAttachment->GetMetaStructPointer()->imageView,
-                         rendering_info->pStencilAttachment->imageLayout);
-    }
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRendering(const ApiCallInfo&       call_info,
-                                                                args::CmdBeginRendering& args)
-{
-    VulkanReplayConsumer::Process_vkCmdBeginRendering(call_info, args);
-    UpdateTrackedImageLayouts(args.commandBuffer, args.pRenderingInfo);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderingKHR(const ApiCallInfo&          call_info,
-                                                                   args::CmdBeginRenderingKHR& args)
-{
-    VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(call_info, args);
-    UpdateTrackedImageLayouts(args.commandBuffer, args.pRenderingInfo);
-}
-
 void VulkanReplayFrameLoopConsumer::TrackFenceStates()
 {
     GetObjectInfoTable().VisitVkFenceInfo([this](const VulkanFenceInfo* fence_info) {
@@ -572,24 +506,6 @@ void VulkanReplayFrameLoopConsumer::TrackImageLayouts()
     });
 }
 
-void VulkanReplayFrameLoopConsumer::PropagateImageLayouts(format::HandleId command_buffer)
-{
-    VulkanCommandBufferInfo* cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer);
-    if (cb_info == nullptr)
-    {
-        return;
-    }
-
-    for (const auto& [image_id, layout] : cb_info->image_layout_barriers)
-    {
-        VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(image_id);
-        if (image_info != nullptr)
-        {
-            image_info->current_layout = layout;
-        }
-    }
-}
-
 void VulkanReplayFrameLoopConsumer::SubmitImageLayoutBarriers(const VulkanDeviceInfo*                  device_info,
                                                               const VulkanQueueInfo*                   queue_info,
                                                               const std::vector<VkImageMemoryBarrier>& barriers)
@@ -704,11 +620,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 
     for (const Decoded_VkSubmitInfo& submit : args.pSubmits.GetMetaStructSpan())
     {
-        for (format::HandleId command_buffer : submit.pCommandBuffers.GetSpan())
-        {
-            PropagateImageLayouts(command_buffer);
-        }
-
         if (frame_loop_info_.IsLooping())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
@@ -722,14 +633,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 
     for (const Decoded_VkSubmitInfo2& submit : args.pSubmits.GetMetaStructSpan())
     {
-        if (submit.pCommandBufferInfos != nullptr)
-        {
-            for (const Decoded_VkCommandBufferSubmitInfo& cb_submit : submit.pCommandBufferInfos->GetMetaStructSpan())
-            {
-                PropagateImageLayouts(cb_submit.commandBuffer);
-            }
-        }
-
         if (frame_loop_info_.IsLooping())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
