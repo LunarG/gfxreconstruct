@@ -27,15 +27,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp)
+VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp,
+                                               uint32_t                          queue_index)
 {
-    const uint32_t queue_index = queue_finder_fp(device_info.enabled_queue_family_flags);
-    GFXRECON_ASSERT(queue_index != VK_QUEUE_FAMILY_IGNORED);
+    const uint32_t queue_family_index = queue_finder_fp(device_info.enabled_queue_family_flags);
+    GFXRECON_ASSERT(queue_family_index != VK_QUEUE_FAMILY_IGNORED);
 
-    return CreateAndBegin(queue_index);
+    return CreateAndBegin(queue_family_index, queue_index);
 }
 
-VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index)
+VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index, uint32_t queue_index)
 {
     auto                          injected         = device_table.Open();
     const VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -59,7 +60,7 @@ VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index)
         return res;
     }
 
-    queue = GetDeviceQueue(injected.GetTable(), &device_info, queue_family_index, 0);
+    queue = GetDeviceQueue(injected.GetTable(), &device_info, queue_family_index, queue_index);
 
     injected->ResetCommandBuffer(command_buffer, VkCommandBufferResetFlagBits(0));
 

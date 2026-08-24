@@ -21,6 +21,7 @@
 */
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
+#include "decode/vulkan_temporary_objects.h"
 
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
@@ -596,30 +597,12 @@ void VulkanReplayFrameLoopConsumer::SubmitImageLayoutBarriers(const VulkanDevice
     const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
     GFXRECON_ASSERT(device_table != nullptr);
 
-    VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-    pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    pool_create_info.queueFamilyIndex        = queue_info->family_index;
+    TemporaryCommandBuffer temp_command_buffer(*device_info, *device_table);
 
-    VkCommandPool command_pool = VK_NULL_HANDLE;
-    VkResult result = device_table->CreateCommandPool(device_info->handle, &pool_create_info, nullptr, &command_pool);
-    CHECK_VK_RESULT(result, "vkCreateCommandPool");
+    VkResult result = temp_command_buffer.CreateAndBegin(queue_info->family_index, queue_info->queue_index);
+    CHECK_VK_RESULT(result, "TemporaryCommandBuffer::CreateAndBegin");
 
-    VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-    allocate_info.commandPool                 = command_pool;
-    allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocate_info.commandBufferCount          = 1;
-
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-    result = device_table->AllocateCommandBuffers(device_info->handle, &allocate_info, &command_buffer);
-    CHECK_VK_RESULT(result, "vkAllocateCommandBuffers");
-
-    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-    begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
-    CHECK_VK_RESULT(result, "vkBeginCommandBuffer");
-
-    device_table->CmdPipelineBarrier(command_buffer,
+    device_table->CmdPipelineBarrier(temp_command_buffer.command_buffer,
                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                      0,
@@ -630,21 +613,8 @@ void VulkanReplayFrameLoopConsumer::SubmitImageLayoutBarriers(const VulkanDevice
                                      static_cast<uint32_t>(barriers.size()),
                                      barriers.data());
 
-    result = device_table->EndCommandBuffer(command_buffer);
-    CHECK_VK_RESULT(result, "vkEndCommandBuffer");
-
-    VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-    submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers    = &command_buffer;
-
-    result = device_table->QueueSubmit(queue_info->handle, 1, &submit_info, VK_NULL_HANDLE);
-    CHECK_VK_RESULT(result, "vkQueueSubmit");
-
-    // The pool is destroyed after, so the command buffer cannot be left in flight.
-    result = device_table->QueueWaitIdle(queue_info->handle);
-    CHECK_VK_RESULT(result, "vkQueueWaitIdle");
-
-    device_table->DestroyCommandPool(device_info->handle, command_pool, nullptr);
+    result = temp_command_buffer.SubmitAndDestroy();
+    CHECK_VK_RESULT(result, "TemporaryCommandBuffer::SubmitAndDestroy");
 }
 
 void VulkanReplayFrameLoopConsumer::FixupImageLayouts(format::HandleId device, format::HandleId queue)
