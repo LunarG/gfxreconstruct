@@ -38,6 +38,8 @@
 #ifndef GFXRECON_DECODE_BLOCK_PARSER_META_DATA_H
 #define GFXRECON_DECODE_BLOCK_PARSER_META_DATA_H
 
+#ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
+
 #include "decode/block_parser.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -90,5 +92,7 @@ inline ParsedBlock* ParseExtendedMetaData(ExtendedParseInterface& /* parser_inte
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 
 #endif // GFXRECON_DECODE_BLOCK_PARSER_META_DATA_H

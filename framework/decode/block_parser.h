@@ -36,7 +36,9 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 class BlockBuffer;
+#ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 class ExtendedParseInterface;
+#endif // GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 
 // As the BlockParser is doing all the Read/Peek, this is the best place to define this
 // NOTE: Eventually FileInputStream will be an abstract base class for whatever input stream is in use
@@ -167,11 +169,13 @@ class BlockParser
         return EmplaceBlock(args);
     }
 
+#ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
     // Returns the restricted facade that parsing code outside this class uses to build blocks --
     // today the parsers for extended meta-data types (see block_parser_meta_data.h). It is the only
     // surface of the BlockParser those parsers see, so what it exposes is what has to be conserved
     // for them.
     ExtendedParseInterface GetExtendedParserInterface() noexcept;
+#endif // GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 
   private:
     // Define parsers for every block and sub-block type
@@ -191,10 +195,12 @@ class BlockParser
     const uint8_t*
     DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
 
+#ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
     // The parsing primitives below stay private; parsing code outside this class reaches them
     // through the interface handed out by GetExtendedParserInterface() rather than through a widened public
     // interface. That interface is the sole friend, so this is the whole of the extension surface.
     friend class ExtendedParseInterface;
+#endif // GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 
     BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
 
@@ -244,6 +250,9 @@ class BlockParser
     BlockAllocator block_allocator_;
 };
 
+// NOTE: The following functionality is a work-in-progress and may change
+// design over time.
+#ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 // -----------------------------------------------------------------------------
 // ExtendedParseInterface
 //
@@ -325,6 +334,7 @@ inline ExtendedParseInterface BlockParser::GetExtendedParserInterface() noexcept
 {
     return ExtendedParseInterface(*this);
 }
+#endif // GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

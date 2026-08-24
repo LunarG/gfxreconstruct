@@ -1719,6 +1719,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else
     {
+#ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
         // The built-in parsers do not know this meta-data type. Give an extended parser for the type
         // -- if this build defines one -- a chance to parse it before skipping the block.
         ExtendedParseInterface parser_interface = GetExtendedParserInterface();
@@ -1727,6 +1728,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         {
             return *parsed_block;
         }
+#endif // GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
 
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||
             meta_data_type == format::MetaDataType::kReserved23 || meta_data_type == format::MetaDataType::kReserved25)
