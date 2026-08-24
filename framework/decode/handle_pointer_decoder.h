@@ -59,6 +59,8 @@ class HandlePointerDecoder
 
     const format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
 
+    format::HandleId* GetPointerMutable() { return decoder_.GetPointer(); }
+
     std::span<const format::HandleId> GetSpan() const { return decoder_.GetSpan(); }
 
     void SetExternalMemory(T* data, size_t capacity)

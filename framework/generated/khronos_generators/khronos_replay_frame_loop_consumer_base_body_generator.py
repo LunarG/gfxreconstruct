@@ -88,7 +88,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        return;\n'
             body += '    }\n\n'
 
-            body += '    const format::HandleId* capture_ids = {}.GetPointer();\n\n'.format(handles_name)
+            body += '    format::HandleId* capture_ids = {}.GetPointerMutable();\n\n'.format(handles_name)
             body += '    std::vector<uint32_t> to_create;\n'
             body += '    for (uint32_t i = 0; i < {}; ++i)\n'.format(count_name)
             body += '    {\n'
@@ -119,14 +119,6 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {}* raw_infos  = {}.GetPointer();\n'.format(createinfo_base_type, createinfo_name)
             body += '    {}* meta_infos = {}.GetMetaStructPointer();\n\n'.format(decoded_type, createinfo_name)
 
-            body += '    // Process_{}() reads the capture-id array via {}, not through a\n'.format(name, handles_name)
-            body += '    // separate parameter, so that array has to be kept in sync with the\n'
-            body += '    // {}/{} swap below in order for its internal handle registration\n'.format(createinfo_name, handles_name)
-            body += '    // (AddHandles) to associate the new {} with the correct capture id.\n'.format(handle_base_type)
-            body += '    // {}.GetPointer() only exposes a const array so the const_cast\n'.format(handles_name)
-            body += '    // below is required to reorder it in place.\n'
-            body += '    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);\n\n'
-
             body += '    // {}/{} retain their original (full-batch) decoded length\n'.format(createinfo_name, handles_name)
             body += '    // regardless of {}, so Process_{}() will still run\n'.format(count_name, name)
             body += '    // MapStructArrayHandles() over the *entire* {} array once per to_create entry\n'.format(createinfo_name)
@@ -145,7 +137,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
             body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'
             body += '        meta_infos[i].decoded_value = &raw_infos[i];\n'
-            body += '        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);\n'
+            body += '        std::swap(capture_ids[0], capture_ids[i]);\n'
             body += '\n'
             body += '        // Restrict this call to a single create info/handle: Process_{}()\n'.format(name)
             body += '        // uses {} (not GetLength()) to size the output handle array and to\n'.format(count_name)
@@ -179,7 +171,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        }\n'
             body += '\n'
             body += '        // Restore original order before moving to the next index.\n'
-            body += '        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);\n'
+            body += '        std::swap(capture_ids[0], capture_ids[i]);\n'
             body += '        std::swap(raw_infos[0], raw_infos[i]);\n'
             body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
             body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'

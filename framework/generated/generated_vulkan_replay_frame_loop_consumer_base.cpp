@@ -897,7 +897,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         return;
     }
 
-    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
 
     std::vector<uint32_t> to_create;
     for (uint32_t i = 0; i < args.createInfoCount; ++i)
@@ -930,14 +930,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     VkComputePipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkComputePipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // Process_vkCreateComputePipelines() reads the capture-id array via args.pPipelines, not through a
-    // separate parameter, so that array has to be kept in sync with the
-    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
-    // (AddHandles) to associate the new VkPipeline with the correct capture id.
-    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
-    // below is required to reorder it in place.
-    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
-
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
     // regardless of args.createInfoCount, so Process_vkCreateComputePipelines() will still run
     // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
@@ -957,7 +949,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
 
         // Restrict this call to a single create info/handle: Process_vkCreateComputePipelines()
         // uses args.createInfoCount (not GetLength()) to size the output handle array and to
@@ -991,7 +983,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         }
 
         // Restore original order before moving to the next index.
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -1238,7 +1230,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
         return;
     }
 
-    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
 
     std::vector<uint32_t> to_create;
     for (uint32_t i = 0; i < args.createInfoCount; ++i)
@@ -1271,14 +1263,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     VkGraphicsPipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkGraphicsPipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // Process_vkCreateGraphicsPipelines() reads the capture-id array via args.pPipelines, not through a
-    // separate parameter, so that array has to be kept in sync with the
-    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
-    // (AddHandles) to associate the new VkPipeline with the correct capture id.
-    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
-    // below is required to reorder it in place.
-    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
-
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
     // regardless of args.createInfoCount, so Process_vkCreateGraphicsPipelines() will still run
     // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
@@ -1298,7 +1282,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
 
         // Restrict this call to a single create info/handle: Process_vkCreateGraphicsPipelines()
         // uses args.createInfoCount (not GetLength()) to size the output handle array and to
@@ -1332,7 +1316,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
         }
 
         // Restore original order before moving to the next index.
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -1863,7 +1847,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
         return;
     }
 
-    const format::HandleId* capture_ids = args.pSwapchains.GetPointer();
+    format::HandleId* capture_ids = args.pSwapchains.GetPointerMutable();
 
     std::vector<uint32_t> to_create;
     for (uint32_t i = 0; i < args.swapchainCount; ++i)
@@ -1896,14 +1880,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     VkSwapchainCreateInfoKHR* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkSwapchainCreateInfoKHR* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // Process_vkCreateSharedSwapchainsKHR() reads the capture-id array via args.pSwapchains, not through a
-    // separate parameter, so that array has to be kept in sync with the
-    // args.pCreateInfos/args.pSwapchains swap below in order for its internal handle registration
-    // (AddHandles) to associate the new VkSwapchainKHR with the correct capture id.
-    // args.pSwapchains.GetPointer() only exposes a const array so the const_cast
-    // below is required to reorder it in place.
-    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
-
     // args.pCreateInfos/args.pSwapchains retain their original (full-batch) decoded length
     // regardless of args.swapchainCount, so Process_vkCreateSharedSwapchainsKHR() will still run
     // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
@@ -1923,7 +1899,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
 
         // Restrict this call to a single create info/handle: Process_vkCreateSharedSwapchainsKHR()
         // uses args.swapchainCount (not GetLength()) to size the output handle array and to
@@ -1957,7 +1933,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
         }
 
         // Restore original order before moving to the next index.
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -2924,7 +2900,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         return;
     }
 
-    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
 
     std::vector<uint32_t> to_create;
     for (uint32_t i = 0; i < args.createInfoCount; ++i)
@@ -2957,14 +2933,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     VkRayTracingPipelineCreateInfoNV* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkRayTracingPipelineCreateInfoNV* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // Process_vkCreateRayTracingPipelinesNV() reads the capture-id array via args.pPipelines, not through a
-    // separate parameter, so that array has to be kept in sync with the
-    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
-    // (AddHandles) to associate the new VkPipeline with the correct capture id.
-    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
-    // below is required to reorder it in place.
-    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
-
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
     // regardless of args.createInfoCount, so Process_vkCreateRayTracingPipelinesNV() will still run
     // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
@@ -2984,7 +2952,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
 
         // Restrict this call to a single create info/handle: Process_vkCreateRayTracingPipelinesNV()
         // uses args.createInfoCount (not GetLength()) to size the output handle array and to
@@ -3018,7 +2986,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         }
 
         // Restore original order before moving to the next index.
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -3564,7 +3532,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
         return;
     }
 
-    const format::HandleId* capture_ids = args.pShaders.GetPointer();
+    format::HandleId* capture_ids = args.pShaders.GetPointerMutable();
 
     std::vector<uint32_t> to_create;
     for (uint32_t i = 0; i < args.createInfoCount; ++i)
@@ -3597,14 +3565,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     VkShaderCreateInfoEXT* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkShaderCreateInfoEXT* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // Process_vkCreateShadersEXT() reads the capture-id array via args.pShaders, not through a
-    // separate parameter, so that array has to be kept in sync with the
-    // args.pCreateInfos/args.pShaders swap below in order for its internal handle registration
-    // (AddHandles) to associate the new VkShaderEXT with the correct capture id.
-    // args.pShaders.GetPointer() only exposes a const array so the const_cast
-    // below is required to reorder it in place.
-    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
-
     // args.pCreateInfos/args.pShaders retain their original (full-batch) decoded length
     // regardless of args.createInfoCount, so Process_vkCreateShadersEXT() will still run
     // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
@@ -3624,7 +3584,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
 
         // Restrict this call to a single create info/handle: Process_vkCreateShadersEXT()
         // uses args.createInfoCount (not GetLength()) to size the output handle array and to
@@ -3658,7 +3618,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
         }
 
         // Restore original order before moving to the next index.
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
@@ -3710,7 +3670,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
         return;
     }
 
-    const format::HandleId* capture_ids = args.pPipelines.GetPointer();
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
 
     std::vector<uint32_t> to_create;
     for (uint32_t i = 0; i < args.createInfoCount; ++i)
@@ -3743,14 +3703,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     VkDataGraphPipelineCreateInfoARM* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkDataGraphPipelineCreateInfoARM* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // Process_vkCreateDataGraphPipelinesARM() reads the capture-id array via args.pPipelines, not through a
-    // separate parameter, so that array has to be kept in sync with the
-    // args.pCreateInfos/args.pPipelines swap below in order for its internal handle registration
-    // (AddHandles) to associate the new VkPipeline with the correct capture id.
-    // args.pPipelines.GetPointer() only exposes a const array so the const_cast
-    // below is required to reorder it in place.
-    format::HandleId* mutable_capture_ids = const_cast<format::HandleId*>(capture_ids);
-
     // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
     // regardless of args.createInfoCount, so Process_vkCreateDataGraphPipelinesARM() will still run
     // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
@@ -3770,7 +3722,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
 
         // Restrict this call to a single create info/handle: Process_vkCreateDataGraphPipelinesARM()
         // uses args.createInfoCount (not GetLength()) to size the output handle array and to
@@ -3804,7 +3756,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
         }
 
         // Restore original order before moving to the next index.
-        std::swap(mutable_capture_ids[0], mutable_capture_ids[i]);
+        std::swap(capture_ids[0], capture_ids[i]);
         std::swap(raw_infos[0], raw_infos[i]);
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
