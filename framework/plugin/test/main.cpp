@@ -35,6 +35,22 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
     GfxrReplayFrameEndEvent       last_frame_end_event  = {};
 
   protected:
+    void EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayStateSetupBeginEvent));
+        last_event_header = event.header;
+    }
+
+    void EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_STATE_SETUP_END);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayStateSetupEndEvent));
+        last_event_header = event.header;
+    }
+
     void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override
     {
         REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
