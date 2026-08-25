@@ -62,6 +62,40 @@ jobs:
           -warnings-as-errors='*' \
           '(framework/(?!generated/)|tools/|layer/)'
 
+  clang-tidy-windows:
+    name: "Check Windows code quality with clang-tidy"
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Set up MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Install clang-tidy
+      shell: bash
+      run: |
+        pip install clang-tidy==18.1.8
+        curl -sfLO https://raw.githubusercontent.com/llvm/llvm-project/release/18.x/clang-tools-extra/clang-tidy/tool/run-clang-tidy.py
+    - name: Configure
+      shell: bash
+      run: |
+        cmake -S . -B tidy-build -G Ninja \
+          -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DD3D12_SUPPORT=ON
+    - name: Run clang-tidy
+      shell: bash
+      run: |
+        # Check only the sources guarded by Windows-specific macros; the rest
+        # of the code is covered by the Linux clang-tidy job.
+        set -f  # keep bash from glob-expanding the [/\\] in the file regexes
+        MACROS='WIN32|_WIN32|VK_USE_PLATFORM_WIN32_KHR|D3D12_SUPPORT|GFXRECON_AGS_SUPPORT'
+        CPPS=$(python .github/scripts/guarded_sources.py "$MACROS")
+        HDRS=$(python .github/scripts/guarded_sources.py "$MACROS" --headers)
+        python run-clang-tidy.py -p tidy-build -quiet \
+          -warnings-as-errors='*' \
+          -header-filter="$HDRS" \
+          $CPPS
+
   linux:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
