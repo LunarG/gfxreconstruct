@@ -71,17 +71,40 @@ jobs:
         submodules: 'recursive'
     - name: Set up MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
-    - name: Install clang-tidy
+    - name: Get run-clang-tidy
       shell: bash
       run: |
-        pip install clang-tidy==18.1.8
-        curl -sfLO https://raw.githubusercontent.com/llvm/llvm-project/release/18.x/clang-tools-extra/clang-tidy/tool/run-clang-tidy.py
+        # Use the runner's LLVM clang-tidy, which matches the clang-cl the
+        # build is configured with; fetch the run-clang-tidy driver to match.
+        curl -sfLO https://raw.githubusercontent.com/llvm/llvm-project/release/20.x/clang-tools-extra/clang-tidy/tool/run-clang-tidy.py
     - name: Configure
       shell: bash
       run: |
         cmake -S . -B tidy-build -G Ninja \
           -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl \
           -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DD3D12_SUPPORT=ON
+    - name: Repair compile database for clang-tidy
+      shell: bash
+      run: |
+        # CMake writes the GFXR_*_PATH defines (DLL paths from CMakeLists.txt)
+        # with quoting that clang's Windows command-line tokenizer cannot
+        # re-parse: the whole rest of each compile command, source file
+        # included, is swallowed into one token and clang-tidy fails with
+        # "no input files". Rewrite them in the well-formed escaped-quote
+        # form, and drop the MSVC-only /MP flag, which clang-cl reports as
+        # unused (fatal under /WX).
+        python - <<'EOF'
+        import json
+        import re
+        path = 'tidy-build/compile_commands.json'
+        db = json.load(open(path))
+        def_pat = re.compile(r'-D"(GFXR_\w+)=\\"([^"\\]*)\\"\\"')
+        for entry in db:
+            command = def_pat.sub(r'-D\1=\\"\2\\"', entry['command'])
+            entry['command'] = command.replace(' /MP ', ' ')
+        json.dump(db, open(path, 'w'), indent=1)
+        print('rewrote', len(db), 'compile commands')
+        EOF
     - name: Run clang-tidy
       shell: bash
       run: |
@@ -93,17 +116,8 @@ jobs:
         HDRS=$(python .github/scripts/guarded_sources.py "$MACROS" --headers)
         test -n "$CPPS"  # an empty list would silently check nothing
         echo "Checking $(printf '%s\n' "$CPPS" | wc -l) guarded sources"
-        # TEMP diagnostics: inspect the compile database (remove once green)
-        printf '%s\n' "$CPPS" | cat -A | head -3
-        python - <<'EOF'
-        import json
-        db = json.load(open('tidy-build/compile_commands.json'))
-        print(len(db), 'database entries')
-        for e in db:
-            if 'tocpp' in e['file'].replace('\\', '/'):
-                print(json.dumps(e, indent=1)[:4000])
-        EOF
         python run-clang-tidy.py -p tidy-build -quiet \
+          -clang-tidy-binary "C:/Program Files/LLVM/bin/clang-tidy.exe" \
           -warnings-as-errors='*' \
           -header-filter="$HDRS" \
           $CPPS
