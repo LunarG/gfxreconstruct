@@ -2896,20 +2896,20 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                                                  static_cast<float>(image_info->extent.height) };
                     }
 
-                    screenshot_handler_->WriteImage(filename_prefix,
-                                                    device_info,
-                                                    GetInjectedDeviceCalls(device_info->handle),
-                                                    memory_properties,
-                                                    device_info->allocator.get(),
-                                                    image_info->handle,
-                                                    image_info->format,
-                                                    image_info->extent.width,
-                                                    image_info->extent.height,
-                                                    0,
-                                                    screenshot_scale,
-                                                    image_info->subresource_layouts.GetLayout(
-                                                        VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
-                                                    VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+                    screenshot_handler_->WriteImage(
+                        filename_prefix,
+                        device_info,
+                        GetInjectedDeviceCalls(device_info->handle),
+                        memory_properties,
+                        device_info->allocator.get(),
+                        image_info->handle,
+                        image_info->format,
+                        image_info->extent.width,
+                        image_info->extent.height,
+                        0,
+                        screenshot_scale,
+                        image_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
+                        VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
         }
@@ -8901,13 +8901,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
                     break;
                 }
 
-                image_info->format         = swapchain_info->format;
-                image_info->extent         = { swapchain_info->width, swapchain_info->height, 1 };
-                image_info->layer_count    = swapchain_info->image_array_layers;
-                image_info->level_count    = 1;
-                image_info->tiling         = VK_IMAGE_TILING_OPTIMAL;
-                image_info->usage          = swapchain_info->image_usage;
-                image_info->sample_count   = VK_SAMPLE_COUNT_1_BIT;
+                image_info->format       = swapchain_info->format;
+                image_info->extent       = { swapchain_info->width, swapchain_info->height, 1 };
+                image_info->layer_count  = swapchain_info->image_array_layers;
+                image_info->level_count  = 1;
+                image_info->tiling       = VK_IMAGE_TILING_OPTIMAL;
+                image_info->usage        = swapchain_info->image_usage;
+                image_info->sample_count = VK_SAMPLE_COUNT_1_BIT;
                 image_info->type         = VK_IMAGE_TYPE_2D;
                 image_info->swapchain_id = swapchain_info->capture_id;
 
@@ -8946,13 +8946,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
                 auto* image_info = static_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 GFXRECON_ASSERT(image_info != nullptr);
 
-                image_info->format         = swapchain_info->format;
-                image_info->extent         = { swapchain_info->width, swapchain_info->height, 1 };
-                image_info->layer_count    = swapchain_info->image_array_layers;
-                image_info->level_count    = 1;
-                image_info->tiling         = VK_IMAGE_TILING_OPTIMAL;
-                image_info->usage          = swapchain_info->image_usage;
-                image_info->sample_count   = VK_SAMPLE_COUNT_1_BIT;
+                image_info->format       = swapchain_info->format;
+                image_info->extent       = { swapchain_info->width, swapchain_info->height, 1 };
+                image_info->layer_count  = swapchain_info->image_array_layers;
+                image_info->level_count  = 1;
+                image_info->tiling       = VK_IMAGE_TILING_OPTIMAL;
+                image_info->usage        = swapchain_info->image_usage;
+                image_info->sample_count = VK_SAMPLE_COUNT_1_BIT;
                 image_info->type         = VK_IMAGE_TYPE_2D;
                 image_info->swapchain_id = swapchain_info->capture_id;
 

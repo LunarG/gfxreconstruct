@@ -496,7 +496,6 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              level_count{ 0 };
     uint32_t              queue_family_index{ 0 };
 
-
     graphics::ImageLayoutMap subresource_layouts;
 
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
@@ -636,14 +635,14 @@ struct VulkanSurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 
 struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
-    VkSurfaceKHR         surface{ VK_NULL_HANDLE };
-    format::HandleId     surface_id{ format::kNullHandleId };
-    VulkanDeviceInfo*    device_info{ nullptr };
-    uint32_t             width{ 0 };
-    uint32_t             height{ 0 };
-    VkFormat             format{ VK_FORMAT_UNDEFINED };
+    VkSurfaceKHR          surface{ VK_NULL_HANDLE };
+    format::HandleId      surface_id{ format::kNullHandleId };
+    VulkanDeviceInfo*     device_info{ nullptr };
+    uint32_t              width{ 0 };
+    uint32_t              height{ 0 };
+    VkFormat              format{ VK_FORMAT_UNDEFINED };
     std::vector<VkFormat> supported_view_formats; // Based on VkImageFormatListCreateInfo
-    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
+    std::vector<VkImage>  images; // This image could be virtual or real according to if it uses VirtualSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The acquired_indices value and the remapping performed with it.
@@ -731,12 +730,12 @@ struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                                                      is_frame_boundary{ false };
-    std::vector<format::HandleId>                             frame_buffer_ids;
-    format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
-    format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
-    std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
-    std::vector<format::HandleId>                             executed_secondary_command_buffers;
+    bool                          is_frame_boundary{ false };
+    std::vector<format::HandleId> frame_buffer_ids;
+    format::HandleId              active_render_pass_id{ format::kNullHandleId };
+    format::HandleId              active_framebuffer_id{ format::kNullHandleId };
+    std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+    std::vector<format::HandleId> executed_secondary_command_buffers;
 
     std::unordered_map<format::HandleId, std::vector<graphics::ImageLayoutMap::RangeLayout>> image_layout_barriers;
 
@@ -758,9 +757,9 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
 {
-    std::vector<VkImageLayout>           attachment_description_final_layouts;
+    std::vector<VkImageLayout> attachment_description_final_layouts;
 
-    std::vector<VkImageLayout>           attachment_description_stencil_final_layouts;
+    std::vector<VkImageLayout> attachment_description_stencil_final_layouts;
 
     std::vector<VkAttachmentDescription> attachment_descs;
 
