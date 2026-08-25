@@ -589,17 +589,22 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     assert(src_image_info != nullptr);
     assert(dst_image != VK_NULL_HANDLE);
 
-    VkImageLayout old_layout;
+    // The barrier below covers the whole image, so this should have a single layout. Query the first subresource of
+    // the format's first aspect.
+    const VkImageAspectFlags    aspects = graphics::GetFormatAspects(src_image_info->format);
+    const VkImageAspectFlagBits first_aspect =
+        static_cast<VkImageAspectFlagBits>(aspects & ~(aspects - 1)); // Lowest set aspect bit.
+
+    VkImageLayout old_layout = VK_IMAGE_LAYOUT_GENERAL;
     assert(original_command_buffer_info_ != nullptr);
     const auto img_layout_entry = original_command_buffer_info_->image_layout_barriers.find(src_image_info->capture_id);
-    if ((img_layout_entry != original_command_buffer_info_->image_layout_barriers.end()) &&
-        !img_layout_entry->second.empty())
+    if (img_layout_entry != original_command_buffer_info_->image_layout_barriers.end())
     {
-        old_layout = img_layout_entry->second.back().layout;
-    }
-    else
-    {
-        old_layout = VK_IMAGE_LAYOUT_GENERAL;
+        const VkImageLayout command_buffer_layout = img_layout_entry->second.GetLayout(first_aspect, 0, 0);
+        if (command_buffer_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            old_layout = command_buffer_layout;
+        }
     }
 
     // Make sure any potential writes are complete and transition image to TRANSFER_SRC_OPTIMAL layout

@@ -737,7 +737,7 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
     std::vector<format::HandleId> executed_secondary_command_buffers;
 
-    std::unordered_map<format::HandleId, std::vector<graphics::ImageLayoutMap::RangeLayout>> image_layout_barriers;
+    std::unordered_map<format::HandleId, graphics::ImageLayoutMap> image_layout_barriers;
 
     std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
     std::vector<uint8_t>                                      push_constant_data;

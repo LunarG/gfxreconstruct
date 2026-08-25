@@ -28,6 +28,24 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+void InitializeCommandBufferImageLayouts(VulkanCommandBufferInfo* command_buffer_info,
+                                         const VulkanImageInfo*   image_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    GFXRECON_ASSERT(image_info != nullptr);
+
+    graphics::ImageLayoutMap& command_buffer_layouts =
+        command_buffer_info->image_layout_barriers[image_info->capture_id];
+    if (command_buffer_layouts.IsInitialized())
+    {
+        return;
+    }
+
+    const graphics::ImageLayoutMap& image_layouts = image_info->subresource_layouts;
+    command_buffer_layouts.Initialize(
+        image_layouts.GetMipLevels(), image_layouts.GetArrayLayers(), image_layouts.GetAspects());
+}
+
 VulkanCommandBufferAssociatedInfo::VulkanCommandBufferAssociatedInfo(
     const VulkanDeviceInfo*                    device_info,
     const graphics::VulkanInjectedDeviceCalls& device_table,
