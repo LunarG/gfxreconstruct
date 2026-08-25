@@ -47,7 +47,7 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 class ReplayFeatureBase : public util::FeatureBase
 {
   public:
-    virtual ~ReplayFeatureBase() { Destroy(); }
+    virtual ~ReplayFeatureBase() = default;
 
     // Options queries
     virtual void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) {}
