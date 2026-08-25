@@ -4915,13 +4915,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     // Update layout on the image infos.
     if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
     {
-        for (uint32_t i = 0; i < submitCount; ++i)
+        for (auto submit : pSubmits->GetMetaStructSpan())
         {
-            const size_t command_buffer_count = submit_info_data[i].pCommandBuffers.GetLength();
-            const auto   command_buffer_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
-            for (size_t j = 0; (command_buffer_ids != nullptr) && (j < command_buffer_count); ++j)
+            for (auto command_buffer : submit.pCommandBuffers.GetSpan())
             {
-                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]));
+                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer));
             }
         }
     }
@@ -5187,19 +5185,17 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     // Update layout on the image infos.
     if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
     {
-        for (uint32_t i = 0; i < submitCount; ++i)
+        for (const auto& submit : pSubmits->GetMetaStructSpan())
         {
-            if (submit_info_data[i].pCommandBufferInfos == nullptr)
+            if (submit.pCommandBufferInfos == nullptr)
             {
                 continue;
             }
 
-            const size_t command_buffer_count = submit_info_data[i].pCommandBufferInfos->GetLength();
-            const auto   command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
-            for (size_t j = 0; (command_buffer_infos != nullptr) && (j < command_buffer_count); ++j)
+            for (const auto& command_buffer_info : submit.pCommandBufferInfos->GetMetaStructSpan())
             {
                 PropagateImageLayouts(
-                    GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer));
+                    GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_info.commandBuffer));
             }
         }
     }
