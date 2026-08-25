@@ -5194,8 +5194,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
             for (const auto& command_buffer_info : submit.pCommandBufferInfos->GetMetaStructSpan())
             {
-                PropagateImageLayouts(
-                    GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_info.commandBuffer));
+                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_info.commandBuffer));
             }
         }
     }
