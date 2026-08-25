@@ -23,9 +23,11 @@
 
 #include "vulkan_frame_warm_up.h"
 
+#include "decoder_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -49,11 +51,24 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*                    
     device_ = device_info->handle;
     GFXRECON_ASSERT(device_ != VK_NULL_HANDLE);
 
-    injected->GetDeviceQueue(device_, 0, 0, &queue_);
+    uint32_t queue_family_index = graphics::FindComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
+    if (queue_family_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        if (!device_info->enabled_queue_family_flags.queue_family_queue_counts.empty())
+        {
+            queue_family_index = device_info->enabled_queue_family_flags.queue_family_queue_counts.begin()->first;
+        }
+        else
+        {
+            queue_family_index = 0;
+        }
+    }
+
+    queue_ = GetDeviceQueue(injected.GetTable(), device_info, queue_family_index, 0);
     GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
 
     VkCommandPoolCreateInfo cmd_pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-    cmd_pool_info.queueFamilyIndex        = 0;
+    cmd_pool_info.queueFamilyIndex        = queue_family_index;
     cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     VkResult result = injected->CreateCommandPool(device_, &cmd_pool_info, nullptr, &command_pool_);
 
