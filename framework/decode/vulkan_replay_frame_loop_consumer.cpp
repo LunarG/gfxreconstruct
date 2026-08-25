@@ -452,6 +452,31 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCal
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
+                                                                 args::BeginCommandBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
+
+    if (frame_loop_info_.IsLooping())
+    {
+        // Record query pool reset commands
+        VulkanCommandBufferInfo* cb_info       = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+        format::HandleId         device        = cb_info->parent_id;
+        VkDevice                 replay_device = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
+        GFXRECON_ASSERT(replay_device != 0);
+        GetObjectInfoTable().VisitVkQueryPoolInfo([this, replay_device, cb_info](const VulkanQueryPoolInfo* info) {
+            GFXRECON_ASSERT(query_pool_sizes_.contains(info->capture_id));
+            const graphics::VulkanDeviceTable* device_table = GetDeviceTable(replay_device);
+            GFXRECON_ASSERT(device_table != nullptr);
+            VkQueryPool pool_handle = info->handle;
+            uint32_t    pool_size   = query_pool_sizes_[info->capture_id];
+            GFXRECON_LOG_DEBUG(
+                "Resetting pool 0x%" PRIx64 " (replay time handle == 0x%" PRIx64 ")", info->handle, info->capture_id);
+            device_table->CmdResetQueryPool(cb_info->handle, pool_handle, 0, pool_size);
+        });
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
 {
     std::vector<format::HandleId> handles_to_delete;
@@ -786,6 +811,20 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroySemaphore(const ApiCallInfo
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCreateQueryPool(const ApiCallInfo& call_info, args::CreateQueryPool& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateQueryPool(call_info, args);
+
+    if (!frame_loop_info_.IsLooping() || (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition()))
+    {
+        // If this query pool was created outside the loop range or if it's the first iteration
+        // of the loop range, save query pool creation sizes
+        uint32_t               count  = args.pCreateInfo.GetPointer()->queryCount;
+        const format::HandleId handle = *args.pQueryPool.GetPointer();
+        query_pool_sizes_[handle]     = count;
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_info, args::MapMemory& args)
