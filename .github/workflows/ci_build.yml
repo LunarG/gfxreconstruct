@@ -91,6 +91,18 @@ jobs:
         MACROS='WIN32|_WIN32|VK_USE_PLATFORM_WIN32_KHR|D3D12_SUPPORT|GFXRECON_AGS_SUPPORT'
         CPPS=$(python .github/scripts/guarded_sources.py "$MACROS")
         HDRS=$(python .github/scripts/guarded_sources.py "$MACROS" --headers)
+        test -n "$CPPS"  # an empty list would silently check nothing
+        echo "Checking $(printf '%s\n' "$CPPS" | wc -l) guarded sources"
+        # TEMP diagnostics: inspect the compile database (remove once green)
+        printf '%s\n' "$CPPS" | cat -A | head -3
+        python - <<'EOF'
+        import json
+        db = json.load(open('tidy-build/compile_commands.json'))
+        print(len(db), 'database entries')
+        for e in db:
+            if 'tocpp' in e['file'].replace('\\', '/'):
+                print(json.dumps(e, indent=1)[:4000])
+        EOF
         python run-clang-tidy.py -p tidy-build -quiet \
           -warnings-as-errors='*' \
           -header-filter="$HDRS" \

@@ -23,6 +23,9 @@ import sys
 def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__.splitlines()[2])
+    # Keep '\n' as-is on Windows: a '\r\n' separator would leave a stray
+    # '\r' in the regexes after shell word splitting.
+    sys.stdout.reconfigure(newline='\n')
     macros = sys.argv[1]
     pattern = rf'#\s*(if|ifdef|ifndef|elif).*\b({macros})\b'
     result = subprocess.run(
