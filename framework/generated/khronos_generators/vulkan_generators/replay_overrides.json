@@ -82,6 +82,7 @@
     "vkAcquireNextImageKHR": "OverrideAcquireNextImageKHR",
     "vkAcquireNextImage2KHR": "OverrideAcquireNextImage2KHR",
     "vkQueuePresentKHR": "OverrideQueuePresentKHR",
+    "vkCreateSemaphore": "OverrideCreateSemaphore",
     "vkImportSemaphoreFdKHR": "OverrideImportSemaphoreFdKHR",
     "vkGetSemaphoreFdKHR": "OverrideGetSemaphoreFdKHR",
     "vkImportSemaphoreWin32HandleKHR": "OverrideImportSemaphoreWin32HandleKHR",

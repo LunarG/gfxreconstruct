@@ -43,6 +43,271 @@ GFXRECON_BEGIN_NAMESPACE(decode)
         }                                                                     \
     }
 
+bool VulkanReplayFrameLoopConsumer::SemaphoreTracking::IsBinary(format::HandleId semaphore) const
+{
+    const VulkanSemaphoreInfo* info = object_table_.GetVkSemaphoreInfo(semaphore);
+    return info != nullptr && !info->is_timeline;
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::ClassifySignal(format::HandleId semaphore)
+{
+    if (!IsBinary(semaphore))
+    {
+        return;
+    }
+    // At this point, this semaphore is considered an unconsumed in-loop-signal.
+    // If still present at the loop boundary, it gets drained.
+    in_loop_signaled_semaphores_.insert(semaphore);
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::ClassifyWait(format::HandleId semaphore)
+{
+    if (!IsBinary(semaphore))
+    {
+        return;
+    }
+
+    // Attempt to consume a pending in-loop signal.
+    bool consumed = in_loop_signaled_semaphores_.erase(semaphore) > 0;
+
+    if (!consumed)
+    {
+        // This semaphores is expected to be signaled before the loop range.
+        // This means that every repetition needs to signal this semaphore synthetically.
+        before_loop_signaled_semaphores_.insert(semaphore);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackSemaphores(const args::QueuePresentKHR& args)
+{
+    const auto* present_info = args.pPresentInfo.GetMetaStructPointer();
+    for (format::HandleId semaphore : present_info->pWaitSemaphores.GetSpan())
+    {
+        ClassifyWait(semaphore);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackSemaphores(const args::QueueSubmit& args)
+{
+    for (const auto& submit_info : args.pSubmits.GetMetaStructSpan())
+    {
+        for (format::HandleId semaphore : submit_info.pWaitSemaphores.GetSpan())
+        {
+            ClassifyWait(semaphore);
+        }
+
+        for (format::HandleId semaphore : submit_info.pSignalSemaphores.GetSpan())
+        {
+            ClassifySignal(semaphore);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackSemaphores(const args::QueueSubmit2KHR& args)
+{
+    for (const auto& submit_info : args.pSubmits.GetMetaStructSpan())
+    {
+        if (submit_info.pWaitSemaphoreInfos != nullptr)
+        {
+            const auto wait_semaphore_infos = submit_info.pWaitSemaphoreInfos->GetMetaStructSpan();
+            for (const auto& wait_info : wait_semaphore_infos)
+            {
+                ClassifyWait(wait_info.semaphore);
+            }
+        }
+
+        if (submit_info.pSignalSemaphoreInfos != nullptr)
+        {
+            const auto signal_semaphore_infos = submit_info.pSignalSemaphoreInfos->GetMetaStructSpan();
+            for (const auto& signal_info : signal_semaphore_infos)
+            {
+                ClassifySignal(signal_info.semaphore);
+            }
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackSemaphores(const args::QueueSubmit2& args)
+{
+    for (const auto& submit_info : args.pSubmits.GetMetaStructSpan())
+    {
+        if (submit_info.pWaitSemaphoreInfos != nullptr)
+        {
+            const auto wait_semaphore_infos = submit_info.pWaitSemaphoreInfos->GetMetaStructSpan();
+            for (const auto& wait_info : wait_semaphore_infos)
+            {
+                ClassifyWait(wait_info.semaphore);
+            }
+        }
+
+        if (submit_info.pSignalSemaphoreInfos != nullptr)
+        {
+            const auto signal_semaphore_infos = submit_info.pSignalSemaphoreInfos->GetMetaStructSpan();
+            for (const auto& signal_info : signal_semaphore_infos)
+            {
+                ClassifySignal(signal_info.semaphore);
+            }
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackSemaphores(const args::AcquireNextImageKHR& args)
+{
+    ClassifySignal(args.semaphore);
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackSemaphores(const args::AcquireNextImage2KHR& args)
+{
+    // This semaphore is going to be signaled by the loop range.
+    const auto* acquire_info = args.pAcquireInfo.GetMetaStructPointer();
+    ClassifySignal(acquire_info->semaphore);
+}
+
+static PFN_vkGetSemaphoreCounterValue GetSemaphoreCounterValueProc(const graphics::VulkanDeviceTable& device_table)
+{
+    if (device_table.GetSemaphoreCounterValue != graphics::noop::vkGetSemaphoreCounterValue)
+    {
+        return device_table.GetSemaphoreCounterValue;
+    }
+    return device_table.GetSemaphoreCounterValueKHR;
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::TrackTimelineValue(format::HandleId semaphore)
+{
+    if (initial_timeline_values_.contains(semaphore))
+    {
+        // Already snapshotted.
+        return;
+    }
+
+    const VulkanSemaphoreInfo* semaphore_info = object_table_.GetVkSemaphoreInfo(semaphore);
+    uint64_t                   initial_value  = 0;
+    CHECK_VK_RESULT(GetSemaphoreCounterValueProc(device_table_)(device_, semaphore_info->handle, &initial_value),
+                    "vkGetSemaphoreCounterValue");
+    GFXRECON_LOG_DEBUG("Tracking timeline semaphore %" PRIu64 " with initial value %" PRIu64, semaphore, initial_value);
+    initial_timeline_values_.emplace(semaphore, initial_value);
+}
+
+bool VulkanReplayFrameLoopConsumer::SemaphoreTracking::IsFixable(const VulkanSemaphoreInfo* semaphore_info) const
+{
+    return (semaphore_info != nullptr && semaphore_info->handle != VK_NULL_HANDLE && !semaphore_info->is_external &&
+            !semaphore_info->shadow_signaled && semaphore_info->forward_progress);
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupSemaphores(format::HandleId queue)
+{
+    // Device is expected to be idle at this point.
+    FixupBinarySemaphores(queue);
+    FixupTimelineSemaphores(queue);
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupBinarySemaphores(format::HandleId queue)
+{
+    // The semaphores collected in this vector are semaphores that end up signaled within the loop range.
+    // This means that, on repetition, they are going to be signaled again.
+    // So, before repeating the loop range, these semaphores are drained (waited on)
+    // to ensure that the next loop iteration starts with them in an unsignaled state.
+    std::vector<VkSemaphore>          drain;
+    std::vector<VkPipelineStageFlags> drain_stages;
+
+    // The semaphores collected in this vector are semaphores that have been waited on within the loop range,
+    // but are not signaled within the loop range.
+    // This means that, on repetition, they are going to be waited on again.
+    // So, before repeating the loop range, these semaphores are replenished (signaled)
+    // to ensure that the next loop iteration starts with them in a signaled state.
+    std::vector<VkSemaphore> replenish;
+
+    for (auto& semaphore : in_loop_signaled_semaphores_)
+    {
+        if (before_loop_signaled_semaphores_.contains(semaphore))
+        {
+            // This semaphore ends up signaled within the loop range,
+            // but is also expected to be signaled before the loop range.
+            // Net result: nothing to do.
+            continue;
+        }
+
+        const VulkanSemaphoreInfo* semaphore_info = object_table_.GetVkSemaphoreInfo(semaphore);
+        if (IsFixable(semaphore_info))
+        {
+            GFXRECON_LOG_DEBUG("Fixing up semaphore %" PRIu64 " for queue %" PRIu64, semaphore, queue);
+            drain.push_back(semaphore_info->handle);
+            drain_stages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        }
+    }
+
+    for (auto& semaphore : before_loop_signaled_semaphores_)
+    {
+        if (in_loop_signaled_semaphores_.contains(semaphore))
+        {
+            // Same as above: this semaphore ends up signaled within the loop range..
+            continue;
+        }
+
+        const VulkanSemaphoreInfo* semaphore_info = object_table_.GetVkSemaphoreInfo(semaphore);
+        if (IsFixable(semaphore_info))
+        {
+            GFXRECON_LOG_DEBUG("Fixing up semaphore %" PRIu64 " for queue %" PRIu64, semaphore, queue);
+            replenish.push_back(semaphore_info->handle);
+        }
+    }
+
+    if (!drain.empty() || !replenish.empty())
+    {
+        VkSubmitInfo submit_info{ VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.waitSemaphoreCount   = static_cast<uint32_t>(drain.size());
+        submit_info.pWaitSemaphores      = drain.data();
+        submit_info.pWaitDstStageMask    = drain_stages.data();
+        submit_info.signalSemaphoreCount = static_cast<uint32_t>(replenish.size());
+        submit_info.pSignalSemaphores    = replenish.data();
+
+        VkQueue queue_handle = object_table_.GetVkQueueInfo(queue)->handle;
+        CHECK_VK_RESULT(device_table_.QueueSubmit(queue_handle, 1, &submit_info, VK_NULL_HANDLE), "vkQueueSubmit");
+        CHECK_VK_RESULT(device_table_.QueueWaitIdle(queue_handle), "vkQueueWaitIdle");
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupTimelineSemaphores(format::HandleId queue)
+{
+    // Timeline semaphores cannot be rewound, so we need to replace each drifted semaphore with a fresh one.
+    for (const auto& [semaphore, initial_value] : initial_timeline_values_)
+    {
+        VulkanSemaphoreInfo* semaphore_info = object_table_.GetVkSemaphoreInfo(semaphore);
+        if (!IsFixable(semaphore_info))
+        {
+            continue;
+        }
+
+        uint64_t current_value = 0;
+        CHECK_VK_RESULT(GetSemaphoreCounterValueProc(device_table_)(device_, semaphore_info->handle, &current_value),
+                        "vkGetSemaphoreCounterValue");
+        GFXRECON_ASSERT(current_value >= initial_value);
+        if (current_value == initial_value)
+        {
+            // Semaphore is already at the expected value, no need to fix it.
+            continue;
+        }
+
+        GFXRECON_LOG_DEBUG("Timeline semaphore %" PRIu64 ": %" PRIu64 " -> recreate at %" PRIu64,
+                           semaphore,
+                           current_value,
+                           initial_value);
+
+        VkSemaphoreTypeCreateInfo type_info{ VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
+        type_info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+        type_info.initialValue  = initial_value;
+        VkSemaphoreCreateInfo create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+        create_info.pNext = &type_info;
+
+        VkSemaphore replacement = VK_NULL_HANDLE;
+        CHECK_VK_RESULT(device_table_.CreateSemaphore(device_, &create_info, nullptr, &replacement),
+                        "vkCreateSemaphore");
+        device_table_.DestroySemaphore(device_, semaphore_info->handle, nullptr);
+        // Handle replacement.
+        semaphore_info->handle = replacement;
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
 {
     VulkanReplayConsumer::ProcessStateEndMarker(frame_number);
@@ -52,8 +317,27 @@ void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
     {
         per_device_fence_tracking_.clear();
         per_device_event_tracking_.clear();
+        per_device_semaphore_tracking_.clear();
         StartLooping();
     }
+}
+
+VulkanReplayFrameLoopConsumer::SemaphoreTracking&
+VulkanReplayFrameLoopConsumer::GetSemaphoreTracking(format::HandleId device)
+{
+    auto it = per_device_semaphore_tracking_.find(device);
+    if (it == per_device_semaphore_tracking_.end())
+    {
+        auto&             object_table  = GetObjectInfoTable();
+        VulkanDeviceInfo* device_info   = object_table.GetVkDeviceInfo(device);
+        VkDevice          device_handle = device_info->handle;
+        const auto&       device_table  = *GetDeviceTable(device_handle);
+        auto              result        = per_device_semaphore_tracking_.emplace(
+            device, SemaphoreTracking(device_handle, device_table, object_table));
+        it = result.first;
+        GFXRECON_ASSERT(result.second);
+    }
+    return it->second;
 }
 
 void VulkanReplayFrameLoopConsumer::StartLooping()
@@ -62,6 +346,7 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
     GFXRECON_LOG_DEBUG("VulkanReplayFrameLoopConsumer::StartLooping()");
     TrackFenceStates();
     TrackEventStates();
+    TrackSemaphoreStates();
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceStates()
@@ -104,6 +389,18 @@ void VulkanReplayFrameLoopConsumer::TrackEventState(format::HandleId device, for
         GFXRECON_LOG_DEBUG("Event %" PRIu64 " set == %s", event, res == VK_EVENT_SET ? "true" : "false");
         t.initial_event_states_[event] = res == VK_EVENT_SET;
     }
+}
+
+void VulkanReplayFrameLoopConsumer::TrackSemaphoreStates()
+{
+    GetObjectInfoTable().VisitVkSemaphoreInfo([this](const VulkanSemaphoreInfo* semaphore_info) {
+        if (semaphore_info->is_timeline && !semaphore_info->is_external)
+        {
+            GFXRECON_LOG_DEBUG("Tracking semaphore state for semaphore %" PRIu64, semaphore_info->capture_id);
+            format::HandleId device_id = semaphore_info->parent_id;
+            this->GetSemaphoreTracking(device_id).TrackTimelineValue(semaphore_info->capture_id);
+        }
+    });
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
@@ -451,6 +748,46 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyEvent(const ApiCallInfo& ca
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkCreateSemaphore(const ApiCallInfo& call_info, args::CreateSemaphore& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateSemaphore(call_info, args);
+
+    if (args.pSemaphore.IsNull())
+    {
+        return;
+    }
+
+    format::HandleId     semaphore_id   = *args.pSemaphore.GetPointer();
+    VulkanSemaphoreInfo* semaphore_info = GetObjectInfoTable().GetVkSemaphoreInfo(semaphore_id);
+
+    // A semaphore created inside the loop range persists across iterations.
+    if (frame_loop_info_.IsFirstIteration() && semaphore_info->is_timeline)
+    {
+        auto& semaphore_tracking                                  = GetSemaphoreTracking(args.device);
+        semaphore_tracking.initial_timeline_values_[semaphore_id] = semaphore_info->initial_value;
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkDestroySemaphore(const ApiCallInfo&      call_info,
+                                                               args::DestroySemaphore& args)
+{
+    if (allocatedLoopResources.contains(args.semaphore))
+    {
+        // This semaphore was created and destroyed during the loop range.
+        // That means there is no cross-iteration state to reconcile.
+        auto semaphore_tracking_it = per_device_semaphore_tracking_.find(args.device);
+        if (semaphore_tracking_it != per_device_semaphore_tracking_.end())
+        {
+            auto& semaphore_tracking = semaphore_tracking_it->second;
+            semaphore_tracking.in_loop_signaled_semaphores_.erase(args.semaphore);
+            semaphore_tracking.before_loop_signaled_semaphores_.erase(args.semaphore);
+            semaphore_tracking.initial_timeline_values_.erase(args.semaphore);
+        }
+    }
+
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_info, args::MapMemory& args)
 {
     // Pass the call along if we are not looping or
@@ -501,6 +838,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
     }
     FixupDeviceEvents(device);
     FixupDeviceFences(device, queue);
+    GetSemaphoreTracking(device).FixupSemaphores(queue);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
@@ -522,6 +860,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 
     if (frame_loop_info_.IsLooping())
     {
+        if (frame_loop_info_.IsFirstIteration())
+        {
+            VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
+            GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
+        }
+
         for (Decoded_VkSubmitInfo submit : args.pSubmits.GetMetaStructSpan())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
@@ -535,6 +879,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 
     if (frame_loop_info_.IsLooping())
     {
+        if (frame_loop_info_.IsFirstIteration())
+        {
+            VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
+            GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
+        }
+
         for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
@@ -548,6 +898,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo&
 
     if (frame_loop_info_.IsLooping())
     {
+        if (frame_loop_info_.IsFirstIteration())
+        {
+            VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
+            GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
+        }
+
         for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
         {
             FrameBoundaryEndOfFrame(args.queue, submit.pNext);
@@ -555,19 +911,46 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo&
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImageKHR(const ApiCallInfo&         call_info,
+                                                                  args::AcquireNextImageKHR& args)
+{
+    VulkanReplayConsumer::Process_vkAcquireNextImageKHR(call_info, args);
+
+    if (frame_loop_info_.IsFirstIteration())
+    {
+        GetSemaphoreTracking(args.device).TrackSemaphores(args);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImage2KHR(const ApiCallInfo&          call_info,
+                                                                   args::AcquireNextImage2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkAcquireNextImage2KHR(call_info, args);
+
+    if (frame_loop_info_.IsFirstIteration())
+    {
+        GetSemaphoreTracking(args.device).TrackSemaphores(args);
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args)
 {
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, args);
 
-    CommonObjectInfoTable& table      = GetObjectInfoTable();
-    VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(args.queue);
-    VkDevice               device     = queue_info->parent;
-    GFXRECON_ASSERT(device != 0);
-    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
-    GFXRECON_ASSERT(device_table != nullptr);
-
     if (frame_loop_info_.IsLooping())
     {
+        CommonObjectInfoTable& table      = GetObjectInfoTable();
+        VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(args.queue);
+        VkDevice               device     = queue_info->parent;
+        GFXRECON_ASSERT(device != VK_NULL_HANDLE);
+        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+        GFXRECON_ASSERT(device_table != nullptr);
+
+        if (frame_loop_info_.IsFirstIteration())
+        {
+            GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
+        }
+
         GFXRECON_LOG_DEBUG("Waiting for device to idle...");
         VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
