@@ -56,7 +56,7 @@ void ReplayOpenXrFeature::CreateConsumer(decode::FileProcessor*                 
     {
         InitConsumer(file_processor, application);
         replay_consumer_ = std::make_unique<decode::OpenXrReplayConsumer>(application_, replay_options_);
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
         if (replay_consumer_ != nullptr)
         {
             replay_consumer_->SetAndroidApp(application->GetAndroidApplication());

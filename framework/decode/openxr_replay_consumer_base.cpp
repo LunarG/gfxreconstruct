@@ -24,7 +24,7 @@
 #include <array>
 #include <iterator>
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 #include <android_native_app_glue.h>
 #endif
 
@@ -606,7 +606,7 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
     xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&pfn_initialize_loader);
     if (pfn_initialize_loader)
     {
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
         XrLoaderInitInfoAndroidKHR loader_init = {
             XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR,
             nullptr,
@@ -673,7 +673,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                              "extension availability.");
     }
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     XrInstanceCreateInfoAndroidKHR init_android = {
         XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR,
         create_info->next,
@@ -698,7 +698,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
         next_struct = next_struct->next;
     }
     modified_create_info.next = &init_android;
-#endif // IGL_PLATFORM_ANDROID
+#endif // BUILD_ANDROID_APP
 
     modified_create_info.enabledExtensionCount = static_cast<uint32_t>(modified_extensions.size());
     modified_create_info.enabledExtensionNames = modified_extensions.data();
