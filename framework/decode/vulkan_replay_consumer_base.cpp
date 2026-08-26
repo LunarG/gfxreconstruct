@@ -7652,9 +7652,9 @@ void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
 
             for (uint32_t j = 0; j < dependency_info[i].imageMemoryBarrierCount; ++j)
             {
-                format::HandleId image_id                             = img_barriers_meta[j].image;
+                format::HandleId image_id                            = img_barriers_meta[j].image;
                 command_buffer_info->image_layout_barriers[image_id] = img_barriers[j].newLayout;
-                VulkanImageInfo* img_info                             = object_info_table_->GetVkImageInfo(image_id);
+                VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
                 if (img_info != nullptr)
                 {
                     img_info->intermediate_layout = img_barriers[j].newLayout;
