@@ -26,6 +26,32 @@ from khronos_base_generator import write
 class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
     """Base class for generating replay frame loop consumers body code."""
 
+    # Create-info structs (used by REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES)
+    # that embed a sub-struct BY VALUE, mapped to the name(s) of the embedding field(s),
+    # differ from the common case of a field that is a *pointer* to a nested struct/array (e.g.
+    # VkGraphicsPipelineCreateInfo::pStages): for a pointer field, the top-level raw_infos[0]/[i]
+    # swap below only swaps the pointer *value*, so the separately-allocated nested decoder object
+    # it points to correctly "follows" the swap on its own, and its own decoded_value (which
+    # points into ITS OWN independently-allocated buffer) never needs to change.
+    #
+    # An embedded field (e.g. VkComputePipelineCreateInfo::stage, declared as
+    # "VkPipelineShaderStageCreateInfo stage;" rather than a pointer) is different: at decode time
+    # its nested Decoded_<SubStructType>::decoded_value is set to point directly into the
+    # embedding struct's own storage (&raw_infos[<index>].stage). The raw_infos[0]/[i] swaps
+    # swap the embedded storage's *content*, but does not touch the nested decoder's
+    # decoded_value pointer, which still targets the pre-swap address. Left uncorrected, handle
+    # mapping (e.g. MapStructHandles on the sub-struct) writes the mapped handle through that
+    # stale pointer into the wrong raw_infos slot, leaving the slot actually passed to the driver
+    # with an unmapped (NULL) handle -- for VkComputePipelineCreateInfo::stage specifically, an
+    # incorrect NULL VkShaderModule value.
+    #
+    # Add an entry here for any future create-info struct in
+    # REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES that embeds a sub-struct
+    # field by value; fields that are pointers do not need an entry.
+    EMBEDDED_SUBSTRUCT_FIELDS = {
+        'VkComputePipelineCreateInfo': ['stage'],
+    }
+
     def skip_generating_command(self, command):
         return (command not in
                 (self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES +
@@ -80,6 +106,19 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             handle_base_type     = handles_param.base_type       # e.g. VkShaderEXT
             decoded_type          = 'Decoded_{}'.format(createinfo_base_type)
 
+            # Every parameter whose decoded array length is driven by count_param (typically
+            # create_info_param and handles_param, but written generically in case a future
+            # command in this override list has additional count_param-sized arrays). Each of
+            # these has its own independently-tracked decoded length (GetLength()), which is
+            # distinct from count_name and is NOT overridden just by reassigning count_name.
+            # Process_{name}() and any code it calls may consult either count_name or a given
+            # array's own GetLength() to determine how many elements to operate on, so both
+            # must be restricted to a single element for the duration of the singleton call
+            # below.
+            length_linked_params = [
+                value for value in values if value.array_length == count_param.name
+            ]
+
             body = ''
             body += '    // Pass the call along unchanged if we are not looping.\n'
             body += '    if (!getFrameLoopInfo().IsLooping())\n'
@@ -119,14 +158,12 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {}* raw_infos  = {}.GetPointer();\n'.format(createinfo_base_type, createinfo_name)
             body += '    {}* meta_infos = {}.GetMetaStructPointer();\n\n'.format(decoded_type, createinfo_name)
 
-            body += '    // {}/{} retain their original (full-batch) decoded length\n'.format(createinfo_name, handles_name)
-            body += '    // regardless of {}, so Process_{}() will still run\n'.format(count_name, name)
-            body += '    // MapStructArrayHandles() over the *entire* {} array once per to_create entry\n'.format(createinfo_name)
-            body += '    // below (not just the single slot-0 entry being replayed that iteration). That\n'
-            body += '    // repeated work does no harm since MapStructHandles() writes mapped handles into\n'
-            body += '    // each struct\'s live fields while leaving the wrapper\'s original capture-id\n'
-            body += '    // fields untouched.\n'
-            body += '    const uint32_t original_count_value = {};\n\n'.format(count_name)
+            body += '    const uint32_t original_count_value = {};\n'.format(count_name)
+            for value in length_linked_params:
+                body += '    const size_t original_{}_length = {}.GetLength();\n'.format(value.name, value.prefixed_name)
+            body += '\n'
+
+            embedded_substruct_fields = self.EMBEDDED_SUBSTRUCT_FIELDS.get(createinfo_base_type, [])
 
             body += '    for (uint32_t i : to_create)\n'
             body += '    {\n'
@@ -137,20 +174,40 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
             body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'
             body += '        meta_infos[i].decoded_value = &raw_infos[i];\n'
+            if embedded_substruct_fields:
+                body += '        // {} is a pointer to a separately-allocated Decoded_<Type>\n'.format(
+                    '/'.join('meta_infos[x].{}'.format(f) for f in embedded_substruct_fields)
+                )
+                body += '        // with its own decoded_value pointer, set at decode time to\n'
+                body += '        // &raw_infos[<original index>].{}. Swapping the outer wrapper above\n'.format(
+                    embedded_substruct_fields[0]
+                )
+                body += '        // does not update this nested pointer, so it must be re-pointed here too, or\n'
+                body += '        // handle-mapping code will write the mapped handle into the wrong raw_infos\n'
+                body += '        // slot, leaving this slot\'s embedded field unset.\n'
+                for field in embedded_substruct_fields:
+                    body += '        meta_infos[0].{f}->decoded_value = &raw_infos[0].{f};\n'.format(f=field)
+                    body += '        meta_infos[i].{f}->decoded_value = &raw_infos[i].{f};\n'.format(f=field)
             body += '        std::swap(capture_ids[0], capture_ids[i]);\n'
             body += '\n'
-            body += '        // Restrict this call to a single create info/handle: Process_{}()\n'.format(name)
-            body += '        // uses {} (not GetLength()) to size the output handle array and to\n'.format(count_name)
-            body += '        // decide how many entries of {} to pass along, so overriding it to 1\n'.format(createinfo_name)
-            body += '        // makes it operate only on slot 0.\n'
+            body += '        // Restrict this call to a single create info/handle. Process_{}()\n'.format(name)
+            body += '        // and anything it calls may consult either {} or the\n'.format(count_name)
+            body += '        // independently-tracked decoded length (GetLength()) of each\n'
+            body += '        // {}-sized array to determine how many entries to\n'.format(count_name)
+            body += '        // process, so both must be overridden to make this call operate on\n'
+            body += '        // only slot 0. Each array\'s length is restored below so that the\n'
+            body += '        // full-length raw_infos/meta_infos/capture_ids arrays remain valid\n'
+            body += '        // for the swap-based indexing used on the next to_create entry.\n'
             body += '        {} = 1;\n'.format(count_name)
+            for value in length_linked_params:
+                body += '        {}.SetLength(1);\n'.format(value.prefixed_name)
             body += '\n'
-            body += '        // Calls MapStructArrayHandles on {} to fix up the handles referenced\n'.format(createinfo_name)
-            body += '        // by the create info, invokes the driver, and registers the resulting\n'
-            body += '        // {} under target_capture_id in the object info table.\n'.format(handle_base_type)
             body += '        ' + self.genCallReplayConsumer(None, name, values)
             body += '\n'
-            body += '        {} = original_count_value;\n\n'.format(count_name)
+            body += '        {} = original_count_value;\n'.format(count_name)
+            for value in length_linked_params:
+                body += '        {}.SetLength(original_{}_length);\n'.format(value.prefixed_name, value.name)
+            body += '\n'
 
             body += '        // {}.SetHandleLength(), called internally by Process_{}()\n'.format(handles_name, name)
             body += '        // above, (re)allocates {}\'s handle buffer to exactly {} = 1\n'.format(handles_name, count_name)
@@ -176,6 +233,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        std::swap(meta_infos[0], meta_infos[i]);\n'
             body += '        meta_infos[0].decoded_value = &raw_infos[0];\n'
             body += '        meta_infos[i].decoded_value = &raw_infos[i];\n'
+            for field in embedded_substruct_fields:
+                body += '        meta_infos[0].{f}->decoded_value = &raw_infos[0].{f};\n'.format(f=field)
+                body += '        meta_infos[i].{f}->decoded_value = &raw_infos[i].{f};\n'.format(f=field)
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES:

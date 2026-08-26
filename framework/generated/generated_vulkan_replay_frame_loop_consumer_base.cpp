@@ -930,14 +930,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     VkComputePipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkComputePipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateComputePipelines() will still run
-    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
-    // below (not just the single slot-0 entry being replayed that iteration). That
-    // repeated work does no harm since MapStructHandles() writes mapped handles into
-    // each struct's live fields while leaving the wrapper's original capture-id
-    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
 
     for (uint32_t i : to_create)
     {
@@ -949,20 +944,33 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
+        // meta_infos[x].stage is a pointer to a separately-allocated Decoded_<Type>
+        // with its own decoded_value pointer, set at decode time to
+        // &raw_infos[<original index>].stage. Swapping the outer wrapper above
+        // does not update this nested pointer, so it must be re-pointed here too, or
+        // handle-mapping code will write the mapped handle into the wrong raw_infos
+        // slot, leaving this slot's embedded field unset.
+        meta_infos[0].stage->decoded_value = &raw_infos[0].stage;
+        meta_infos[i].stage->decoded_value = &raw_infos[i].stage;
         std::swap(capture_ids[0], capture_ids[i]);
 
-        // Restrict this call to a single create info/handle: Process_vkCreateComputePipelines()
-        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
-        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
-        // makes it operate only on slot 0.
+        // Restrict this call to a single create info/handle. Process_vkCreateComputePipelines()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
         args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
 
-        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
-        // by the create info, invokes the driver, and registers the resulting
-        // VkPipeline under target_capture_id in the object info table.
         VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
 
         args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
 
         // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateComputePipelines()
         // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
@@ -988,6 +996,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
+        meta_infos[0].stage->decoded_value = &raw_infos[0].stage;
+        meta_infos[i].stage->decoded_value = &raw_infos[i].stage;
     }
 }
 
@@ -1263,14 +1273,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     VkGraphicsPipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkGraphicsPipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateGraphicsPipelines() will still run
-    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
-    // below (not just the single slot-0 entry being replayed that iteration). That
-    // repeated work does no harm since MapStructHandles() writes mapped handles into
-    // each struct's live fields while leaving the wrapper's original capture-id
-    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
 
     for (uint32_t i : to_create)
     {
@@ -1284,18 +1289,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
         meta_infos[i].decoded_value = &raw_infos[i];
         std::swap(capture_ids[0], capture_ids[i]);
 
-        // Restrict this call to a single create info/handle: Process_vkCreateGraphicsPipelines()
-        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
-        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
-        // makes it operate only on slot 0.
+        // Restrict this call to a single create info/handle. Process_vkCreateGraphicsPipelines()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
         args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
 
-        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
-        // by the create info, invokes the driver, and registers the resulting
-        // VkPipeline under target_capture_id in the object info table.
         VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
 
         args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
 
         // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateGraphicsPipelines()
         // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
@@ -1880,14 +1890,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     VkSwapchainCreateInfoKHR* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkSwapchainCreateInfoKHR* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // args.pCreateInfos/args.pSwapchains retain their original (full-batch) decoded length
-    // regardless of args.swapchainCount, so Process_vkCreateSharedSwapchainsKHR() will still run
-    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
-    // below (not just the single slot-0 entry being replayed that iteration). That
-    // repeated work does no harm since MapStructHandles() writes mapped handles into
-    // each struct's live fields while leaving the wrapper's original capture-id
-    // fields untouched.
     const uint32_t original_count_value = args.swapchainCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pSwapchains_length = args.pSwapchains.GetLength();
 
     for (uint32_t i : to_create)
     {
@@ -1901,18 +1906,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
         meta_infos[i].decoded_value = &raw_infos[i];
         std::swap(capture_ids[0], capture_ids[i]);
 
-        // Restrict this call to a single create info/handle: Process_vkCreateSharedSwapchainsKHR()
-        // uses args.swapchainCount (not GetLength()) to size the output handle array and to
-        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
-        // makes it operate only on slot 0.
+        // Restrict this call to a single create info/handle. Process_vkCreateSharedSwapchainsKHR()
+        // and anything it calls may consult either args.swapchainCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.swapchainCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
         args.swapchainCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pSwapchains.SetLength(1);
 
-        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
-        // by the create info, invokes the driver, and registers the resulting
-        // VkSwapchainKHR under target_capture_id in the object info table.
         VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
 
         args.swapchainCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pSwapchains.SetLength(original_pSwapchains_length);
 
         // args.pSwapchains.SetHandleLength(), called internally by Process_vkCreateSharedSwapchainsKHR()
         // above, (re)allocates args.pSwapchains's handle buffer to exactly args.swapchainCount = 1
@@ -2933,14 +2943,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     VkRayTracingPipelineCreateInfoNV* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkRayTracingPipelineCreateInfoNV* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateRayTracingPipelinesNV() will still run
-    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
-    // below (not just the single slot-0 entry being replayed that iteration). That
-    // repeated work does no harm since MapStructHandles() writes mapped handles into
-    // each struct's live fields while leaving the wrapper's original capture-id
-    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
 
     for (uint32_t i : to_create)
     {
@@ -2954,18 +2959,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         meta_infos[i].decoded_value = &raw_infos[i];
         std::swap(capture_ids[0], capture_ids[i]);
 
-        // Restrict this call to a single create info/handle: Process_vkCreateRayTracingPipelinesNV()
-        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
-        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
-        // makes it operate only on slot 0.
+        // Restrict this call to a single create info/handle. Process_vkCreateRayTracingPipelinesNV()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
         args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
 
-        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
-        // by the create info, invokes the driver, and registers the resulting
-        // VkPipeline under target_capture_id in the object info table.
         VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
 
         args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
 
         // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateRayTracingPipelinesNV()
         // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
@@ -3565,14 +3575,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     VkShaderCreateInfoEXT* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkShaderCreateInfoEXT* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // args.pCreateInfos/args.pShaders retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateShadersEXT() will still run
-    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
-    // below (not just the single slot-0 entry being replayed that iteration). That
-    // repeated work does no harm since MapStructHandles() writes mapped handles into
-    // each struct's live fields while leaving the wrapper's original capture-id
-    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pShaders_length = args.pShaders.GetLength();
 
     for (uint32_t i : to_create)
     {
@@ -3586,18 +3591,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
         meta_infos[i].decoded_value = &raw_infos[i];
         std::swap(capture_ids[0], capture_ids[i]);
 
-        // Restrict this call to a single create info/handle: Process_vkCreateShadersEXT()
-        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
-        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
-        // makes it operate only on slot 0.
+        // Restrict this call to a single create info/handle. Process_vkCreateShadersEXT()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
         args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pShaders.SetLength(1);
 
-        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
-        // by the create info, invokes the driver, and registers the resulting
-        // VkShaderEXT under target_capture_id in the object info table.
         VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
 
         args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pShaders.SetLength(original_pShaders_length);
 
         // args.pShaders.SetHandleLength(), called internally by Process_vkCreateShadersEXT()
         // above, (re)allocates args.pShaders's handle buffer to exactly args.createInfoCount = 1
@@ -3703,14 +3713,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     VkDataGraphPipelineCreateInfoARM* raw_infos  = args.pCreateInfos.GetPointer();
     Decoded_VkDataGraphPipelineCreateInfoARM* meta_infos = args.pCreateInfos.GetMetaStructPointer();
 
-    // args.pCreateInfos/args.pPipelines retain their original (full-batch) decoded length
-    // regardless of args.createInfoCount, so Process_vkCreateDataGraphPipelinesARM() will still run
-    // MapStructArrayHandles() over the *entire* args.pCreateInfos array once per to_create entry
-    // below (not just the single slot-0 entry being replayed that iteration). That
-    // repeated work does no harm since MapStructHandles() writes mapped handles into
-    // each struct's live fields while leaving the wrapper's original capture-id
-    // fields untouched.
     const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
 
     for (uint32_t i : to_create)
     {
@@ -3724,18 +3729,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
         meta_infos[i].decoded_value = &raw_infos[i];
         std::swap(capture_ids[0], capture_ids[i]);
 
-        // Restrict this call to a single create info/handle: Process_vkCreateDataGraphPipelinesARM()
-        // uses args.createInfoCount (not GetLength()) to size the output handle array and to
-        // decide how many entries of args.pCreateInfos to pass along, so overriding it to 1
-        // makes it operate only on slot 0.
+        // Restrict this call to a single create info/handle. Process_vkCreateDataGraphPipelinesARM()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
         args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
 
-        // Calls MapStructArrayHandles on args.pCreateInfos to fix up the handles referenced
-        // by the create info, invokes the driver, and registers the resulting
-        // VkPipeline under target_capture_id in the object info table.
         VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
 
         args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
 
         // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateDataGraphPipelinesARM()
         // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1

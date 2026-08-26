@@ -57,6 +57,10 @@ class HandlePointerDecoder
 
     size_t GetLength() const { return decoder_.GetLength(); }
 
+    // See PointerDecoderBase::SetLength(): overrides the decoded array length reported by
+    // GetLength() without touching the underlying data/output buffers.
+    void SetLength(size_t len) { decoder_.SetLength(len); }
+
     const format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
 
     format::HandleId* GetPointerMutable() { return decoder_.GetPointer(); }
