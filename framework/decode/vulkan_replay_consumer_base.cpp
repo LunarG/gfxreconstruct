@@ -2779,9 +2779,10 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 uint32_t      num_layers   = 1;
 
                 // apply swapchain-image override, if any
+                const VulkanImageInfo* override_img_info = nullptr;
                 if (present_override_image_id_ != format::kNullHandleId)
                 {
-                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_);
+                    override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
                     if (override_img_info != nullptr)
@@ -2791,11 +2792,6 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image_width  = override_img_info->extent.width;
                         image_height = override_img_info->extent.height;
                         num_layers   = override_img_info->layer_count;
-                        const VkImageLayout override_layout =
-                            override_img_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
-                        image_layout = (override_layout != VK_IMAGE_LAYOUT_UNDEFINED)
-                                           ? override_layout
-                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
                     }
                 }
 
@@ -2811,6 +2807,17 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
                 for (uint32_t layer = 0; layer < num_layers; ++layer)
                 {
+                    // WriteImage barriers only the layer it copies, so it has to transition from that layer's layout.
+                    VkImageLayout layer_layout = image_layout;
+                    if (override_img_info != nullptr)
+                    {
+                        const VkImageLayout tracked_layout =
+                            override_img_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
+                        layer_layout = (tracked_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                                           ? tracked_layout
+                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+                    }
+
                     screenshot_handler_->WriteImage(
                         num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
                         device_info,
@@ -2823,7 +2830,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image_height,
                         layer,
                         screenshot_scale,
-                        image_layout,
+                        layer_layout,
                         options_.screenshot_apply_prerotation ? swapchain_info->pre_transform
                                                               : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
