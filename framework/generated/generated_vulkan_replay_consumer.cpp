@@ -1497,20 +1497,20 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents(
     const ApiCallInfo&                          call_info,
     args::CmdWaitEvents&                        args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkMemoryBarrier* in_pMemoryBarriers = args.pMemoryBarriers.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
+
     MapStructArrayHandles(args.pMemoryBarriers.GetMetaStructPointer(), args.pMemoryBarriers.GetLength(), GetObjectInfoTable());
-    const VkBufferMemoryBarrier* in_pBufferMemoryBarriers = args.pBufferMemoryBarriers.GetPointer();
+
     MapStructArrayHandles(args.pBufferMemoryBarriers.GetMetaStructPointer(), args.pBufferMemoryBarriers.GetLength(), GetObjectInfoTable());
-    const VkImageMemoryBarrier* in_pImageMemoryBarriers = args.pImageMemoryBarriers.GetPointer();
+
     MapStructArrayHandles(args.pImageMemoryBarriers.GetMetaStructPointer(), args.pImageMemoryBarriers.GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdWaitEvents(in_commandBuffer, args.eventCount, in_pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, in_pMemoryBarriers, args.bufferMemoryBarrierCount, in_pBufferMemoryBarriers, args.imageMemoryBarrierCount, in_pImageMemoryBarriers);
+    OverrideCmdWaitEvents(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents, in_commandBuffer, args.eventCount, &args.pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, &args.pMemoryBarriers, args.bufferMemoryBarrierCount, &args.pBufferMemoryBarriers, args.imageMemoryBarrierCount, &args.pImageMemoryBarriers);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents, in_commandBuffer, args.eventCount, in_pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, in_pMemoryBarriers, args.bufferMemoryBarrierCount, in_pBufferMemoryBarriers, args.imageMemoryBarrierCount, in_pImageMemoryBarriers);
+        resource_dumper_->Process_vkCmdWaitEvents(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents, in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, args.pMemoryBarriers.GetPointer(), args.bufferMemoryBarrierCount, args.pBufferMemoryBarriers.GetPointer(), args.imageMemoryBarrierCount, args.pImageMemoryBarriers.GetPointer());
     }
 }
 
@@ -2769,16 +2769,16 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2(
     const ApiCallInfo&                          call_info,
     args::CmdWaitEvents2&                       args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkDependencyInfo* in_pDependencyInfos = args.pDependencyInfos.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
+
     MapStructArrayHandles(args.pDependencyInfos.GetMetaStructPointer(), args.pDependencyInfos.GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdWaitEvents2(in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+    OverrideCmdWaitEvents2(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2, in_commandBuffer, args.eventCount, &args.pEvents, &args.pDependencyInfos);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents2(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents2, in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper_->Process_vkCmdWaitEvents2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2, in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.pDependencyInfos.GetPointer());
     }
 }
 
@@ -5192,16 +5192,16 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2KHR(
     const ApiCallInfo&                          call_info,
     args::CmdWaitEvents2KHR&                    args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkDependencyInfo* in_pDependencyInfos = args.pDependencyInfos.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
+
     MapStructArrayHandles(args.pDependencyInfos.GetMetaStructPointer(), args.pDependencyInfos.GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdWaitEvents2KHR(in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+    OverrideCmdWaitEvents2KHR(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2KHR, in_commandBuffer, args.eventCount, &args.pEvents, &args.pDependencyInfos);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents2KHR, in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper_->Process_vkCmdWaitEvents2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2KHR, in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.pDependencyInfos.GetPointer());
     }
 }
 

@@ -7585,6 +7585,95 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2KHR(
     OverrideCmdPipelineBarrier2(func, command_buffer_info, pDependencyInfo);
 }
 
+void VulkanReplayConsumerBase::OverrideCmdWaitEvents(
+    PFN_vkCmdWaitEvents                                        func,
+    VulkanCommandBufferInfo*                                   command_buffer_info,
+    uint32_t                                                   eventCount,
+    HandlePointerDecoder<VkEvent>*                             pEvents,
+    VkPipelineStageFlags                                       srcStageMask,
+    VkPipelineStageFlags                                       dstStageMask,
+    uint32_t                                                   memoryBarrierCount,
+    const StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
+    uint32_t                                                   bufferMemoryBarrierCount,
+    const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+    uint32_t                                                   imageMemoryBarrierCount,
+    const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers)
+{
+    func(command_buffer_info->handle,
+         eventCount,
+         pEvents->GetHandlePointer(),
+         srcStageMask,
+         dstStageMask,
+         memoryBarrierCount,
+         pMemoryBarriers->GetPointer(),
+         bufferMemoryBarrierCount,
+         pBufferMemoryBarriers->GetPointer(),
+         imageMemoryBarrierCount,
+         pImageMemoryBarriers->GetPointer());
+
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+    {
+        auto image_id                                        = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
+        command_buffer_info->image_layout_barriers[image_id] = pImageMemoryBarriers->GetPointer()[i].newLayout;
+        VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
+        if (img_info != nullptr)
+        {
+            img_info->intermediate_layout = pImageMemoryBarriers->GetPointer()[i].newLayout;
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
+    PFN_vkCmdWaitEvents2                                  func,
+    VulkanCommandBufferInfo*                              command_buffer_info,
+    uint32_t                                              eventCount,
+    HandlePointerDecoder<VkEvent>*                        pEvents,
+    const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
+{
+    func(command_buffer_info->handle, eventCount, pEvents->GetHandlePointer(), pDependencyInfos->GetPointer());
+
+    const auto* dependency_info_meta = pDependencyInfos->GetMetaStructPointer();
+    const auto* dependency_info      = pDependencyInfos->GetPointer();
+    if (dependency_info_meta != nullptr && dependency_info != nullptr)
+    {
+        for (uint32_t i = 0; i < pDependencyInfos->GetLength(); ++i)
+        {
+            if (dependency_info_meta[i].pImageMemoryBarriers == nullptr)
+            {
+                continue;
+            }
+
+            const auto* img_barriers_meta = dependency_info_meta[i].pImageMemoryBarriers->GetMetaStructPointer();
+            const auto* img_barriers      = dependency_info[i].pImageMemoryBarriers;
+            if (img_barriers_meta == nullptr || img_barriers == nullptr)
+            {
+                continue;
+            }
+
+            for (uint32_t j = 0; j < dependency_info[i].imageMemoryBarrierCount; ++j)
+            {
+                format::HandleId image_id                             = img_barriers_meta[j].image;
+                command_buffer_info->image_layout_barriers[image_id] = img_barriers[j].newLayout;
+                VulkanImageInfo* img_info                             = object_info_table_->GetVkImageInfo(image_id);
+                if (img_info != nullptr)
+                {
+                    img_info->intermediate_layout = img_barriers[j].newLayout;
+                }
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWaitEvents2KHR(
+    PFN_vkCmdWaitEvents2                                  func,
+    VulkanCommandBufferInfo*                              command_buffer_info,
+    uint32_t                                              eventCount,
+    HandlePointerDecoder<VkEvent>*                        pEvents,
+    const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
+{
+    OverrideCmdWaitEvents2(func, command_buffer_info, eventCount, pEvents, pDependencyInfos);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
     PFN_vkCreateDescriptorUpdateTemplate                                      func,
     VkResult                                                                  original_result,
