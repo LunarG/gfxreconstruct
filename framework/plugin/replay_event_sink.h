@@ -31,6 +31,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugin)
 
+struct EventTraits {
+  GfxrReplayEventType type;
+  size_t size;
+  uint32_t since_version;
+};
+
+constexpr EventTraits kEventTraits[] = {
+    { GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN, sizeof(GfxrReplayQueueSubmitBeginEvent), 1 },
+    { GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END,   sizeof(GfxrReplayQueueSubmitEndEvent),   1 },
+    { GFXR_REPLAY_EVENT_FRAME_BEGIN,        sizeof(GfxrReplayFrameBeginEvent),       1 },
+    { GFXR_REPLAY_EVENT_FRAME_END,          sizeof(GfxrReplayFrameEndEvent),         1 },
+    { GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN,  sizeof(GfxrReplayStateSetupBeginEvent),  2 },
+    { GFXR_REPLAY_EVENT_STATE_SETUP_END,    sizeof(GfxrReplayStateSetupEndEvent),    2 },
+};
+
 class ReplayEventSink
 {
   public:

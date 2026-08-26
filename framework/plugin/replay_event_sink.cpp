@@ -29,24 +29,8 @@ GFXRECON_BEGIN_NAMESPACE(plugin)
 
 static size_t GetSizeOfStruct(GfxrReplayEventType type)
 {
-    switch (type)
-    {
-        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
-            return sizeof(GfxrReplayQueueSubmitBeginEvent);
-        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END:
-            return sizeof(GfxrReplayQueueSubmitEndEvent);
-        case GFXR_REPLAY_EVENT_FRAME_BEGIN:
-            return sizeof(GfxrReplayFrameBeginEvent);
-        case GFXR_REPLAY_EVENT_FRAME_END:
-            return sizeof(GfxrReplayFrameEndEvent);
-        case GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN:
-            return sizeof(GfxrReplayStateSetupBeginEvent);
-        case GFXR_REPLAY_EVENT_STATE_SETUP_END:
-            return sizeof(GfxrReplayStateSetupEndEvent);
-        default:
-            GFXRECON_ASSERT(false && "Unknown event type");
-            return 0;
-    }
+    int idx = type - 1;
+    return kEventTraits[idx].size;
 }
 
 GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType type)
