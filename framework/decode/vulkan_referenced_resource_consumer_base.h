@@ -86,6 +86,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void Process_vkCreateAccelerationStructureKHR(const ApiCallInfo&                    call_info,
                                                   args::CreateAccelerationStructureKHR& args) override;
 
+    void Process_vkCreateTensorARM(const ApiCallInfo& call_info, args::CreateTensorARM& args) override;
+
+    void Process_vkCreateTensorViewARM(const ApiCallInfo& call_info, args::CreateTensorViewARM& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;

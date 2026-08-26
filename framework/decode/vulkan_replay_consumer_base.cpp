@@ -319,7 +319,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     }
 
     // Idle all devices before destroying other resources.
-    WaitDevicesIdle();
+    VulkanReplayConsumerBase::WaitDevicesIdle();
 
     // free replacer internal vulkan-resources
     device_address_replacers_.clear();
@@ -3766,6 +3766,13 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                     "compute-shaders may fail to create with -m rebind.");
             }
         }
+    }
+
+    if (options_.remove_unsupported_features)
+    {
+        // Remove feature structures from pNext for extensions that are not enabled,
+        // to prevent drivers or layers (like RenderDoc) from failing device creation.
+        graphics::feature_util::FilterPNextFeatures(&modified_create_info, modified_extensions);
     }
 }
 
@@ -9616,6 +9623,32 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateSemaphore(
+    PFN_vkCreateSemaphore                                      func,
+    VkResult                                                   original_result,
+    const VulkanDeviceInfo*                                    device_info,
+    const StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkSemaphore>*                         pSemaphore)
+{
+    auto* semaphore_info = reinterpret_cast<VulkanSemaphoreInfo*>(pSemaphore->GetConsumerData(0));
+
+    const auto* type_info =
+        GetPNextMetaStruct<Decoded_VkSemaphoreTypeCreateInfo>(pCreateInfo->GetMetaStructPointer()->pNext);
+
+    if (type_info != nullptr && type_info->decoded_value != nullptr &&
+        type_info->decoded_value->semaphoreType == VK_SEMAPHORE_TYPE_TIMELINE)
+    {
+        semaphore_info->is_timeline   = true;
+        semaphore_info->initial_value = type_info->decoded_value->initialValue;
+    }
+
+    return func(device_info->handle,
+                pCreateInfo->GetPointer(),
+                GetAllocationCallbacks(pAllocator),
+                pSemaphore->GetHandlePointer());
+}
+
 VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreFdKHR(
     PFN_vkImportSemaphoreFdKHR                                      func,
     VkResult                                                        original_result,
@@ -11802,6 +11835,8 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         screenshot_handler_->EndFrame();
     }
 
+    bool presented_ad_hoc = false;
+
     if (options_.swapchain_option == util::SwapchainOption::kVirtual)
     {
         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
@@ -11815,16 +11850,17 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-        swapchain_->PresentImageAdHoc(device_info,
-                                      semaphore_info,
-                                      image_info,
-                                      instance_info,
-                                      instance_table,
-                                      GetInjectedDeviceCalls(device_info->handle),
-                                      application_.get(),
-                                      {});
+        presented_ad_hoc = swapchain_->PresentImageAdHoc(device_info,
+                                                         semaphore_info,
+                                                         image_info,
+                                                         instance_info,
+                                                         instance_table,
+                                                         GetInjectedDeviceCalls(device_info->handle),
+                                                         application_.get(),
+                                                         {});
     }
-    else
+
+    if (!presented_ad_hoc)
     {
         VkDevice    device    = device_info->handle;
         VkSemaphore semaphore = semaphore_info ? semaphore_info->handle : VK_NULL_HANDLE;

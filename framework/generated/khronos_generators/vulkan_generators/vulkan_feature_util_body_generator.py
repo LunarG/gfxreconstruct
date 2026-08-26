@@ -21,6 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
+from collections import defaultdict
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
@@ -50,6 +51,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
 
         self.begin_end_file_data.specific_headers.extend((
             'graphics/vulkan_feature_util.h',
+            'graphics/vulkan_struct_get_pnext.h',
             '',
             'util/logging.h',
             '',
@@ -81,6 +83,22 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
         self.physical_device_features2_stypes = dict()
         # List of 1.0 features
         self.physical_device_features = []
+        self.feature_struct_stypes = dict()
+        self.struct_aliases = dict()
+        self.extension_required_types = defaultdict(set)
+        self.core_required_types = set()
+
+    def beginFeature(self, interface, emit):
+        """Method override. Start processing in superclass."""
+        VulkanBaseGenerator.beginFeature(self, interface, emit)
+        is_extension = (interface.tag == 'extension')
+        for req in interface.findall('require'):
+            for t in req.findall('type'):
+                tname = t.get('name')
+                if is_extension:
+                    self.extension_required_types[self.featureName].add(tname)
+                else:
+                    self.core_required_types.add(tname)
 
     def endFile(self):
         """Method override."""
@@ -95,20 +113,24 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
         """Method override."""
         VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if alias:
+            self.struct_aliases[typename] = alias
+        else:
             # Track this struct if it can be present in a pNext chain for features
             parent_structs = typeinfo.elem.get('structextends')
             if parent_structs:
                 if "VkPhysicalDeviceFeatures2" in parent_structs:
+                    stype = self.make_structure_type_enum(typeinfo, typename)
+                    self.feature_struct_stypes[typename] = stype
+
                     # Build list of all boolean members which are the feature bits
                     members = []
                     for member in self.feature_struct_members[typename]:
                         if member.base_type == "VkBool32":
                             members.append(member.name)
                     self.physical_device_features2_stypes[typename] = {
-                        'sType':
-                        self.make_structure_type_enum(typeinfo, typename),
-                        'members': members
+                        'sType': stype,
+                        'members': members,
                     }
 
             #  Get all core 1.0 features
@@ -116,6 +138,45 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
                 for member in self.feature_struct_members[typename]:
                     self.physical_device_features.append(member.name)
 
+    def genType(self, typeinfo, typename, alias):
+        """Method override."""
+        VulkanBaseGenerator.genType(self, typeinfo, typename, alias)
+        if alias:
+            self.struct_aliases[typename] = alias
+
+    def get_stype_extension_mappings(self):
+        """Returns list of (sType, structName, [extensionNames]) for feature structures."""
+        # Resolve all aliases for feature structs
+        full_stype_map = dict(self.feature_struct_stypes)
+        for name, alias in self.struct_aliases.items():
+            target = alias
+            while target in self.struct_aliases:
+                target = self.struct_aliases[target]
+            if target in self.feature_struct_stypes:
+                full_stype_map[name] = self.feature_struct_stypes[target]
+
+        # Identify sTypes belonging to core Vulkan versions
+        core_stypes = set()
+        for tname in self.core_required_types:
+            if tname in full_stype_map:
+                core_stypes.add(full_stype_map[tname])
+
+        # Map sType -> set of extension names (excluding core structs)
+        stype_to_extensions = defaultdict(set)
+        for ext_name, types in self.extension_required_types.items():
+            for tname in types:
+                if tname in full_stype_map:
+                    stype = full_stype_map[tname]
+                    if stype not in core_stypes:
+                        stype_to_extensions[stype].add(ext_name)
+
+        mappings = []
+        for typename, info in self.physical_device_features2_stypes.items():
+            stype = info['sType']
+            if stype in stype_to_extensions:
+                exts = sorted(stype_to_extensions[stype])
+                mappings.append((stype, typename, exts))
+        return mappings
 
     def make_feature_helper(self):
         """Generate help function for features on replaying at device creation time."""
@@ -210,6 +271,44 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
         result += '    if (!remove_unsupported && found_unsupported)\n'
         result += '    {\n'
         result += '        GFXRECON_LOG_WARNING("Unsupported features were requested. This might cause vkCreateDevice to fail. Try \\"--remove-unsupported\\" option to remove those features at replay.");\n'
+        result += '    }\n'
+        result += '}\n\n'
+
+        result += 'struct FeatureExtensionMapping {\n'
+        result += '    VkStructureType          sType;\n'
+        result += '    std::vector<const char*> extensionNames;\n'
+        result += '    const char*              structName;\n'
+        result += '};\n\n'
+
+        result += 'static const FeatureExtensionMapping kFeatureExtensionMappings[] = {\n'
+        mappings = self.get_stype_extension_mappings()
+        for stype, sname, exts in mappings:
+            ext_list_str = ', '.join('"{}"'.format(ext) for ext in exts)
+            result += '    {{ {}, {{ {} }}, "{}" }},\n'.format(stype, ext_list_str, sname)
+        result += '};\n\n'
+
+        result += 'void FilterPNextFeatures(VkDeviceCreateInfo* createInfo,\n'
+        result += '                         const std::vector<const char*>& enabled_extensions)\n'
+        result += '{\n'
+        result += '    if (createInfo == nullptr) return;\n\n'
+        result += '    for (const auto& mapping : kFeatureExtensionMappings)\n'
+        result += '    {\n'
+        result += '        bool is_supported = false;\n'
+        result += '        for (const char* ext_name : mapping.extensionNames)\n'
+        result += '        {\n'
+        result += '            if (IsSupportedExtension(enabled_extensions, ext_name))\n'
+        result += '            {\n'
+        result += '                is_supported = true;\n'
+        result += '                break;\n'
+        result += '            }\n'
+        result += '        }\n'
+        result += '        if (!is_supported)\n'
+        result += '        {\n'
+        result += '            if (vulkan_struct_remove_pnext_by_stype(createInfo, mapping.sType) != nullptr)\n'
+        result += '            {\n'
+        result += '                GFXRECON_LOG_INFO("Removed %s from pNext because none of its required extensions are enabled.", mapping.structName);\n'
+        result += '            }\n'
+        result += '        }\n'
         result += '    }\n'
         result += '}'
         return result

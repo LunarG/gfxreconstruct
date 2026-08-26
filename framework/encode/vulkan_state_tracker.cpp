@@ -2123,6 +2123,13 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceWrapper* wrapper)
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
+    {
+        // resource_utils_ needs to be updated when a device is destroyed, otherwise the entries left behind will
+        // attempt to access the device's call table during destruction
+        std::lock_guard<std::mutex> resource_utils_lock(resource_utils_mutex_);
+        resource_utils_.erase(wrapper->handle);
+    }
+
     // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
     // destroyed.
     std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -2203,16 +2210,17 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                     auto it = command.input_buffers.find(buffer_wrapper->handle_id);
                     if (it != command.input_buffers.end())
                     {
+                        std::lock_guard<std::mutex>               resource_utils_lock(resource_utils_mutex_);
                         encode::AccelerationStructureInputBuffer& buffer = it->second;
                         buffer.destroyed                                 = true;
-                        auto [resource_util, created]                    = resource_utils_.try_emplace(
-                            buffer.bind_device->handle,
-                            graphics::VulkanResourcesUtil(buffer.bind_device->handle,
-                                                          buffer.bind_device->physical_device->handle,
-                                                          buffer.bind_device->layer_table,
-                                                          *buffer.bind_device->physical_device->layer_table_ref,
-                                                          buffer.bind_device->property_feature_info,
-                                                          buffer.bind_device->physical_device->memory_properties));
+                        auto [resource_util, created] =
+                            resource_utils_.try_emplace(buffer.bind_device->handle,
+                                                        buffer.bind_device->handle,
+                                                        buffer.bind_device->physical_device->handle,
+                                                        buffer.bind_device->layer_table,
+                                                        *buffer.bind_device->physical_device->layer_table_ref,
+                                                        buffer.bind_device->property_feature_info,
+                                                        buffer.bind_device->physical_device->memory_properties);
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                         resource_util->second.ReadFromBufferResource(
@@ -2256,16 +2264,17 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
             auto  it      = command.input_buffers.find(buffer_wrapper->handle_id);
             if (it != command.input_buffers.end())
             {
+                std::lock_guard<std::mutex>               resource_utils_lock(resource_utils_mutex_);
                 encode::AccelerationStructureInputBuffer& buffer = it->second;
                 buffer.destroyed                                 = true;
-                auto [resource_util, created]                    = resource_utils_.try_emplace(
-                    buffer.bind_device->handle,
-                    graphics::VulkanResourcesUtil(buffer.bind_device->handle,
-                                                  buffer.bind_device->physical_device->handle,
-                                                  buffer.bind_device->layer_table,
-                                                  *buffer.bind_device->physical_device->layer_table_ref,
-                                                  buffer.bind_device->property_feature_info,
-                                                  buffer.bind_device->physical_device->memory_properties));
+                auto [resource_util, created] =
+                    resource_utils_.try_emplace(buffer.bind_device->handle,
+                                                buffer.bind_device->handle,
+                                                buffer.bind_device->physical_device->handle,
+                                                buffer.bind_device->layer_table,
+                                                *buffer.bind_device->physical_device->layer_table_ref,
+                                                buffer.bind_device->property_feature_info,
+                                                buffer.bind_device->physical_device->memory_properties);
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                 resource_util->second.ReadFromBufferResource(

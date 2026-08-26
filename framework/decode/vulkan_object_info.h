@@ -410,14 +410,21 @@ struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
 
 struct VulkanSemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
 {
+    /// Whether this is a timeline semaphore.
+    bool     is_timeline{ false };
+    uint64_t initial_value{ 0 };
+
+    /// Whether this is an external semaphore.
     bool is_external{ false };
 
     // If a null-swapchain/surface interacts with a semaphore, replay needs to shadow signal it until a future call
     // waits on it.
     bool shadow_signaled{ false };
+
     // Fences can be reset, semaphores can't, so replay needs to know when a semaphore will not be submitted for a wait
     // operation to prevent validation errors around queue forward progress.
     bool forward_progress{ true };
+
     // If a semaphore is signaled with vkAcquireNextImage and also VkSubmitInfo, then the semaphore needs to be shadow
     // signaled with vkAcquireNextImage and regularly signaled with VkSubmitInfo
     bool signaled{ false };
