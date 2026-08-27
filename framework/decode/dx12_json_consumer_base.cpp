@@ -157,6 +157,18 @@ void Dx12JsonConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoC
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumerBase::ProcessD3D12CreateDeviceAdapterInfo(
+    const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header)
+{
+    writer_->SetCurrentBlockIndex(block_index_);
+    auto& jdata        = writer_->WriteMetaCommandStart("D3D12CreateDeviceAdapterInfo");
+    jdata["thread_id"] = adapter_info_header.thread_id;
+    HandleToJson(jdata["adapter_id"], adapter_info_header.adapter_id);
+    FieldToJson(jdata["adapter_desc"], adapter_info_header.adapter_desc);
+    HandleToJson(jdata["device_id"], adapter_info_header.device_id);
+    writer_->WriteBlockEnd();
+}
+
 /// @see DriverInfoBlock in format.h
 void Dx12JsonConsumerBase::Process_DriverInfo(const char* info_record)
 {

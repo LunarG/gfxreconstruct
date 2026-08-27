@@ -3116,18 +3116,164 @@ void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterD
     }
 }
 
-void D3D12CaptureManager::WriteDxgiAdapterInfo()
+void D3D12CaptureManager::WriteDxgiAdapterInfo(const Dx12StateTable& state_table)
 {
     for (const auto& adapter : adapters_)
     {
-        const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
-
-        // Write adapter desc to file if it was marked active
-        if (adapter.second.active == true)
+        if (adapter.second.active == false)
         {
-            WriteDxgiAdapterInfoCommand(replay_adapter_desc);
+            continue;
+        }
+
+        bool in_use = false;
+
+        // Check if device is using this adapter
+        state_table.VisitWrappers([&](ID3D12Device_Wrapper* wrapper) {
+            auto device = wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+            if ((device != nullptr) && (pack_luid(device->GetAdapterLuid()) == adapter.first))
+            {
+                in_use = true;
+            }
+        });
+
+        if (in_use == true)
+        {
+            WriteDxgiAdapterInfoCommand(adapter.second.internal_desc);
         }
     }
+}
+
+void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(IUnknown* pAdapter, void** ppDevice)
+{
+    if ((ppDevice == nullptr) || (*ppDevice == nullptr))
+    {
+        return;
+    }
+
+    auto device = reinterpret_cast<ID3D12Device_Wrapper*>(*ppDevice);
+
+    const format::HandleId adapter_id = GetDx12WrappedId<IUnknown>(pAdapter);
+    auto                   info       = device->GetObjectInfo();
+
+    // Update saved adapter id during capture
+    if (info != nullptr)
+    {
+        info->adapter_id = adapter_id;
+    }
+
+    if (IsCaptureModeWrite() == false)
+    {
+        return;
+    }
+
+    if (adapters_.empty())
+    {
+        auto create_dxgi_factory1 = dxgi_dispatch_table_.CreateDXGIFactory1;
+
+        if (create_dxgi_factory1 != nullptr)
+        {
+            IDXGIFactory1* factory = nullptr;
+            HRESULT        result  = create_dxgi_factory1(IID_PPV_ARGS(&factory));
+            if (SUCCEEDED(result) && (factory != nullptr))
+            {
+                graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory), adapters_);
+                factory->Release();
+            }
+        }
+    }
+
+    const format::DxgiAdapterDesc* adapter_desc = nullptr;
+
+    if (pAdapter != nullptr)
+    {
+        IUnknown* real_unknown = GetWrappedObject<IUnknown>(pAdapter);
+        if (real_unknown != nullptr)
+        {
+            IDXGIAdapter* real_adapter = nullptr;
+            if (SUCCEEDED(real_unknown->QueryInterface(IID_PPV_ARGS(&real_adapter))) && (real_adapter != nullptr))
+            {
+                DXGI_ADAPTER_DESC dxgi_desc = {};
+                if (SUCCEEDED(real_adapter->GetDesc(&dxgi_desc)))
+                {
+                    adapter_desc = graphics::dx12::GetAdapterDescByLUID(dxgi_desc.AdapterLuid, adapters_);
+                }
+                real_adapter->Release();
+            }
+        }
+    }
+    else
+    {
+        // Default adapter (index 0)
+        for (const auto& adapter : adapters_)
+        {
+            if (adapter.second.adapter_idx == 0)
+            {
+                adapter_desc = &adapter.second.internal_desc;
+                break;
+            }
+        }
+    }
+
+    if (adapter_desc == nullptr)
+    {
+        return;
+    }
+
+    WriteD3D12CreateDeviceAdapterInfoCommand(adapter_id, *adapter_desc, device->GetCaptureId());
+}
+
+void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfoCommand(format::HandleId               adapter_id,
+                                                                   const format::DxgiAdapterDesc& adapter_desc,
+                                                                   format::HandleId               device_id)
+{
+    if (IsCaptureModeWrite() == false)
+    {
+        return;
+    }
+
+    format::D3D12CreateDeviceAdapterInfoCommandHeader adapter_info_header;
+    memset(&adapter_info_header, 0, sizeof(adapter_info_header));
+
+    auto thread_data = GetThreadData();
+    GFXRECON_ASSERT(thread_data != nullptr);
+
+    adapter_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    adapter_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(adapter_info_header);
+    adapter_info_header.meta_header.meta_data_id      = format::MakeMetaDataId(
+        format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kD3D12CreateDeviceAdapterInfoCommand);
+    adapter_info_header.thread_id    = thread_data->thread_id_;
+    adapter_info_header.adapter_id   = adapter_id;
+    adapter_info_header.adapter_desc = adapter_desc;
+    adapter_info_header.device_id    = device_id;
+
+    WriteToFile(&adapter_info_header, sizeof(adapter_info_header));
+}
+
+void D3D12CaptureManager::WriteD3D12CreateDeviceAdapterInfo(ID3D12Device_Wrapper* device_wrapper)
+{
+    if ((IsCaptureModeWrite() == false) || (device_wrapper == nullptr))
+    {
+        return;
+    }
+
+    auto info   = device_wrapper->GetObjectInfo();
+    auto device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+    if ((info == nullptr) || (device == nullptr))
+    {
+        return;
+    }
+
+    const format::DxgiAdapterDesc* adapter_desc =
+        graphics::dx12::GetAdapterDescByLUID(device->GetAdapterLuid(), adapters_);
+
+    if (adapter_desc == nullptr)
+    {
+        return;
+    }
+
+    WriteD3D12CreateDeviceAdapterInfoCommand(info->adapter_id, *adapter_desc, device_wrapper->GetCaptureId());
 }
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory)

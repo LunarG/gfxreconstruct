@@ -57,6 +57,10 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) {}
 
+    virtual void
+    ProcessD3D12CreateDeviceAdapterInfo(const format::D3D12CreateDeviceAdapterInfoCommandHeader& adapter_info_header)
+    {}
+
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) {}
 
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,

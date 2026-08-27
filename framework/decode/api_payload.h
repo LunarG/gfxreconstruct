@@ -450,6 +450,14 @@ struct GetDxgiAdapterArgs
 
     auto GetTuple() const { return std::tie(adapter_info_header); }
 };
+struct D3D12CreateDeviceAdapterInfoArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    format::D3D12CreateDeviceAdapterInfoCommandHeader adapter_info_header;
+
+    auto GetTuple() const { return std::tie(adapter_info_header); }
+};
 struct GetDx12RuntimeArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
@@ -749,6 +757,12 @@ struct DispatchTraits<GetDxgiAdapterArgs> : DispatchFlagTraits<GetDxgiAdapterArg
 };
 
 template <>
+struct DispatchTraits<D3D12CreateDeviceAdapterInfoArgs> : DispatchFlagTraits<D3D12CreateDeviceAdapterInfoArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchD3D12CreateDeviceAdapterInfo;
+};
+
+template <>
 struct DispatchTraits<GetDx12RuntimeArgs> : DispatchFlagTraits<GetDx12RuntimeArgs>
 {
     static constexpr auto kDecoderMethod = &ApiDecoder::DispatchGetDx12RuntimeInfo;
@@ -874,6 +888,7 @@ using DispatchArgs = std::variant<std::monostate,
                                   InitSubresourceArgs*,
                                   InitDx12AccelerationStructureArgs*,
                                   GetDxgiAdapterArgs*,
+                                  D3D12CreateDeviceAdapterInfoArgs*,
                                   GetDx12RuntimeArgs*,
                                   ExecuteBlocksFromFileArgs*,
                                   SetTlasToBlasDependencyArgs*,
