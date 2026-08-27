@@ -143,14 +143,14 @@ void ImageLayoutMap::SetLayout(const VkImageSubresourceRange& range, VkImageLayo
 
 VkImageLayout ImageLayoutMap::GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const
 {
+    if ((aspect & aspects_) == 0 || (mip_level >= mip_levels_) || (array_layer >= array_layers_))
+    {
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
+
     if (is_uniform_)
     {
         return uniform_layout_;
-    }
-
-    if ((mip_level >= mip_levels_) || (array_layer >= array_layers_))
-    {
-        return VK_IMAGE_LAYOUT_UNDEFINED;
     }
 
     const VkImageAspectFlags aspect_mask = aspect & aspects_;
