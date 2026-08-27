@@ -1449,10 +1449,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void UpdateTrackedRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
 
     template <typename ImageMemoryBarrierMetaT, typename ImageMemoryBarrierT>
-    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*           command_buffer_info,
-                                          uint32_t                           imageMemoryBarrierCount,
-                                          const ImageMemoryBarrierMetaT*     image_memory_barriers_meta,
-                                          const ImageMemoryBarrierT*         image_memory_barriers)
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*       command_buffer_info,
+                                          uint32_t                       imageMemoryBarrierCount,
+                                          const ImageMemoryBarrierMetaT* image_memory_barriers_meta,
+                                          const ImageMemoryBarrierT*     image_memory_barriers)
     {
         for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
         {
