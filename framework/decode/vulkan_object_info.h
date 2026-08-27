@@ -735,7 +735,6 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     format::HandleId              active_render_pass_id{ format::kNullHandleId };
     format::HandleId              active_framebuffer_id{ format::kNullHandleId };
     std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
-    std::vector<format::HandleId> executed_secondary_command_buffers;
 
     std::unordered_map<format::HandleId, graphics::ImageLayoutMap> image_layout_barriers;
 
