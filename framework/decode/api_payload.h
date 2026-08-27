@@ -24,6 +24,8 @@
 #define GFXRECON_API_PAYLOAD_H
 
 #include "api_decoder.h" // for ApiDecoder method pointers
+#include "decode/decode_allocator.h"
+#include "util/logging.h"
 #include "util/type_traits_extras.h"
 
 #include <array>
@@ -898,6 +900,45 @@ inline size_t GetDispatchArgsDataSize(Args& args)
         return args.command_header.data_size;
     }
     return 0;
+}
+
+template <typename Args>
+inline bool ApiDecoder::SupportsDispatch(const Args& args)
+{
+    if constexpr (DispatchTraits<Args>::kHasCallId)
+    {
+        return SupportsApiCall(args.call_id);
+    }
+    else if constexpr (DispatchTraits<Args>::kHasMetaDataId)
+    {
+        return SupportsMetaDataId(args.meta_data_id);
+    }
+    return true;
+}
+
+template <typename Args>
+inline bool ApiDecoder::Dispatch(const Args& args, uint64_t block_index)
+{
+    if (!SupportsDispatch(args))
+    {
+        return false;
+    }
+
+    [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
+
+    if constexpr (DispatchTraits<Args>::kHasCallId)
+    {
+        SetCurrentApiCallId(args.call_id);
+    }
+    GFXRECON_ASSERT(block_index != kInvalidBlockIndex);
+    SetCurrentBlockIndex(block_index);
+
+    constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
+    auto           dispatch_call = [this, decode_method](auto&&... expanded_args) {
+        (this->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
+    };
+    std::apply(dispatch_call, args.GetTuple());
+    return true;
 }
 
 GFXRECON_END_NAMESPACE(decode)
