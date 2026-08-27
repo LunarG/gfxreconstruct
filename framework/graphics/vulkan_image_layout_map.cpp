@@ -165,7 +165,7 @@ void ImageLayoutMap::MergeFrom(const ImageLayoutMap& src)
     }
 
     GFXRECON_ASSERT((mip_levels_ == src.mip_levels_) && (array_layers_ == src.array_layers_) &&
-                     (aspects_ == src.aspects_));
+                    (aspects_ == src.aspects_));
 
     for (size_t i = 0; i < subresource_layouts_.size(); ++i)
     {
