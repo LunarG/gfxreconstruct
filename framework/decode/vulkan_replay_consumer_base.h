@@ -1003,12 +1003,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                 HandlePointerDecoder<VkEvent>*                        pEvents,
                                 const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos);
 
-    void OverrideCmdWaitEvents2KHR(PFN_vkCmdWaitEvents2                                  func,
-                                   VulkanCommandBufferInfo*                              command_buffer_info,
-                                   uint32_t                                              eventCount,
-                                   HandlePointerDecoder<VkEvent>*                        pEvents,
-                                   const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos);
-
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
         VkResult                                                                  original_result,

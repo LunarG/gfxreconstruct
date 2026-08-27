@@ -7650,16 +7650,6 @@ void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
     }
 }
 
-void VulkanReplayConsumerBase::OverrideCmdWaitEvents2KHR(
-    PFN_vkCmdWaitEvents2                                  func,
-    VulkanCommandBufferInfo*                              command_buffer_info,
-    uint32_t                                              eventCount,
-    HandlePointerDecoder<VkEvent>*                        pEvents,
-    const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
-{
-    OverrideCmdWaitEvents2(func, command_buffer_info, eventCount, pEvents, pDependencyInfos);
-}
-
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
     PFN_vkCreateDescriptorUpdateTemplate                                      func,
     VkResult                                                                  original_result,

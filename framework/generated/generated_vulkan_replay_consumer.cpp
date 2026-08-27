@@ -5197,7 +5197,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2KHR(
 
     MapStructArrayHandles(args.pDependencyInfos.GetMetaStructPointer(), args.pDependencyInfos.GetLength(), GetObjectInfoTable());
 
-    OverrideCmdWaitEvents2KHR(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2KHR, in_commandBuffer, args.eventCount, &args.pEvents, &args.pDependencyInfos);
+    OverrideCmdWaitEvents2(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2KHR, in_commandBuffer, args.eventCount, &args.pEvents, &args.pDependencyInfos);
 
     if (options_.dumping_resources)
     {
