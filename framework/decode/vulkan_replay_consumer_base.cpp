@@ -5940,6 +5940,15 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
             in_commandBuffer->addresses_to_replace.insert(secondary_cmd_buffer_info->addresses_to_replace.begin(),
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
+
+        if (RequiresImageLayoutTracking())
+        {
+            // Update the image's layout based on the recorded layout transitions in the secondary command buffer.
+            for (const auto& [image_id, layout] : secondary_cmd_buffer_info->image_layout_barriers)
+            {
+                in_commandBuffer->image_layout_barriers[image_id] = layout;
+            }
+        }
     }
     func(command_buffer, commandBufferCount, command_buffers);
 }
