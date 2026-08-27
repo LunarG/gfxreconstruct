@@ -7550,14 +7550,10 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
                                    imageMemoryBarrierCount,
                                    pImageMemoryBarriers->GetPointer());
 
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
-    {
-        auto image_id                                        = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
-        command_buffer_info->image_layout_barriers[image_id] = pImageMemoryBarriers->GetPointer()[i].newLayout;
-        VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
-        assert(img_info != nullptr);
-        img_info->intermediate_layout = pImageMemoryBarriers->GetPointer()[i].newLayout;
-    }
+    UpdateTrackedImageLayoutBarriers(command_buffer_info,
+                                     imageMemoryBarrierCount,
+                                     pImageMemoryBarriers->GetMetaStructPointer(),
+                                     pImageMemoryBarriers->GetPointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
@@ -7572,16 +7568,11 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
         const auto* dependency_info_meta = pDependencyInfo->GetMetaStructPointer();
         if (dependency_info_meta->pImageMemoryBarriers != nullptr)
         {
-            const auto* img_barriers_meta = dependency_info_meta->pImageMemoryBarriers->GetMetaStructPointer();
-            for (uint32_t i = 0; i < dependency_info_meta->pImageMemoryBarriers->GetLength(); ++i)
-            {
-                format::HandleId image_id = img_barriers_meta[i].image;
-                command_buffer_info->image_layout_barriers[image_id] =
-                    dependency_info_meta->pImageMemoryBarriers->GetPointer()[i].newLayout;
-
-                VulkanImageInfo* img_info     = object_info_table_->GetVkImageInfo(image_id);
-                img_info->intermediate_layout = dependency_info_meta->pImageMemoryBarriers->GetPointer()[i].newLayout;
-            }
+            UpdateTrackedImageLayoutBarriers(
+                command_buffer_info,
+                static_cast<uint32_t>(dependency_info_meta->pImageMemoryBarriers->GetLength()),
+                dependency_info_meta->pImageMemoryBarriers->GetMetaStructPointer(),
+                dependency_info_meta->pImageMemoryBarriers->GetPointer());
         }
     }
 }
