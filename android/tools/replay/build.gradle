@@ -27,6 +27,9 @@ android {
             cmake {
                 cppFlags "-fexceptions", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
+                if (providers.gradleProperty("EnableOpenXR").present) {
+                    arguments "-DGFXRECON_ENABLE_OPENXR=ON"
+                }
             }
         }
     }
@@ -41,8 +44,16 @@ android {
             path "CMakeLists.txt"
         }
     }
-    androidResources {
-        ignoreAssetsPattern = "XrLayer_gfxreconstruct.json"
+    if (providers.gradleProperty("EnableOpenXRCaptureOfReplay").present)
+    {
+        logger.info('GFXReconstruct OpenXR capture layer enabled in replay application (you must also enable the Vulkan side as well manually)')
+    }
+    else
+    {
+        logger.info('GFXReconstruct OpenXR capture layer not enabled in replay application [default]')
+        androidResources {
+            ignoreAssetsPattern = "XrLayer_gfxreconstruct.json"
+        }
     }
     packagingOptions {
         jniLibs {
