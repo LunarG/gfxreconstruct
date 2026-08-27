@@ -51,11 +51,11 @@ class ImageLayoutMap
 
     void Initialize(uint32_t mip_levels, uint32_t array_layers, VkImageAspectFlags aspects);
 
-    bool               IsInitialized() const { return aspects_ != 0; }
-    bool               IsUniform() const { return is_uniform_; }
-    VkImageAspectFlags GetAspects() const { return aspects_; }
-    uint32_t           GetMipLevels() const { return mip_levels_; }
-    uint32_t           GetArrayLayers() const { return array_layers_; }
+    [[nodiscard]] bool               IsInitialized() const { return aspects_ != 0; }
+    [[nodiscard]] bool               IsUniform() const { return is_uniform_; }
+    [[nodiscard]] VkImageAspectFlags GetAspects() const { return aspects_; }
+    [[nodiscard]] uint32_t           GetMipLevels() const { return mip_levels_; }
+    [[nodiscard]] uint32_t           GetArrayLayers() const { return array_layers_; }
 
     // Put every subresource in the same layout.
     void SetUniformLayout(VkImageLayout layout);
@@ -63,19 +63,19 @@ class ImageLayoutMap
     void SetLayout(const VkImageSubresourceRange& range, VkImageLayout layout);
 
     // Layout of a single subresource, or VK_IMAGE_LAYOUT_UNDEFINED if the image has no such aspect.
-    VkImageLayout GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const;
+    [[nodiscard]] VkImageLayout GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const;
 
-    std::vector<RangeLayout> GetSubresourceLayouts() const;
+    [[nodiscard]] std::vector<RangeLayout> GetSubresourceLayouts() const;
 
   private:
     // Highest slot supported for aspect.
     static constexpr uint32_t kAspectSlotCount = 6;
 
-    static VkImageAspectFlags GetAspectFromIndex(uint32_t aspect_index);
+    [[nodiscard]] static VkImageAspectFlags GetAspectFromIndex(uint32_t aspect_index);
 
-    uint32_t GetAspectSlotCount() const;
+    [[nodiscard]] uint32_t GetAspectSlotCount() const;
 
-    uint32_t GetSubresourceIndex(uint32_t aspect_index, uint32_t mip_level, uint32_t array_layer) const
+    [[nodiscard]] uint32_t GetSubresourceIndex(uint32_t aspect_index, uint32_t mip_level, uint32_t array_layer) const
     {
         return (aspect_index * mip_levels_ * array_layers_) + (mip_level * array_layers_) + array_layer;
     }
