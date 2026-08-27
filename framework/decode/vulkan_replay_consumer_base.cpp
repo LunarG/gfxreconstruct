@@ -4927,7 +4927,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data->pNext))
+                                                    submit_info_data[i].pNext))
                 {
                     break;
                 }
@@ -5198,7 +5198,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data->pNext))
+                                                    submit_info_data[i].pNext))
                 {
                     break;
                 }
