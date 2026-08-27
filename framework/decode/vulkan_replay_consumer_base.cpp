@@ -2752,6 +2752,28 @@ void VulkanReplayConsumerBase::WriteFrameBoundaryImage(const VulkanImageInfo* im
     }
 }
 
+void VulkanReplayConsumerBase::PresentFrameBoundaryImage(const VulkanImageInfo* image_info)
+{
+    const auto* device_info = object_info_table_->GetVkDeviceInfo(image_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    const auto* physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+    GFXRECON_ASSERT(physical_device_info != nullptr);
+
+    auto* instance_info = object_info_table_->GetVkInstanceInfo(physical_device_info->parent_id);
+    GFXRECON_ASSERT(instance_info != nullptr);
+
+    const auto* instance_table = GetInstanceTable(instance_info->handle);
+    swapchain_->PresentImageAdHoc(device_info,
+                                  nullptr,
+                                  image_info,
+                                  instance_info,
+                                  instance_table,
+                                  GetInjectedDeviceCalls(device_info->handle),
+                                  application_.get(),
+                                  options_.screenshot_scale);
+}
+
 bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
     const VulkanCommandBufferInfo* command_buffer_info)
 {
@@ -2761,42 +2783,77 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
         return false;
     }
 
-    if (screenshot_handler_->IsScreenshotFrame())
+    const bool             override_requested  = !options_.present_override_image_name.empty();
+    const VulkanImageInfo* override_image_info = present_override_image_id_ != format::kNullHandleId
+                                                     ? object_info_table_->GetVkImageInfo(present_override_image_id_)
+                                                     : nullptr;
+
+    if (options_.present_frame_boundary)
     {
-        for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
+        if (override_image_info != nullptr)
         {
-            auto* framebuffer_info = object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
-
-            for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
-            {
-                auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
-                auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-                auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
-
-                // Only screenshot images that are color attachments.
-                if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
-                {
-                    continue;
-                }
-
-                std::string filename_prefix =
-                    screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
-
-                if (!command_buffer_info->frame_buffer_ids.empty())
-                {
-                    filename_prefix += "_renderpass_" + std::to_string(i);
-                }
-
-                if (!framebuffer_info->attachment_image_view_ids.empty())
-                {
-                    filename_prefix += "_attachment_" + std::to_string(j);
-                }
-
-                WriteFrameBoundaryImage(image_info, filename_prefix);
-            }
+            PresentFrameBoundaryImage(override_image_info);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "--present-frame-boundary: the frame boundary declares no image; provide --present-override "
+                "<debug-name>");
         }
     }
-    screenshot_handler_->EndFrame();
+
+    if (screenshot_handler_ != nullptr)
+    {
+        if (screenshot_handler_->IsScreenshotFrame())
+        {
+            if (override_requested)
+            {
+                if (override_image_info != nullptr)
+                {
+                    const std::string filename_prefix =
+                        screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+                    WriteFrameBoundaryImage(override_image_info, filename_prefix);
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
+                {
+                    auto* framebuffer_info =
+                        object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+
+                    for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
+                    {
+                        auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
+                        auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+                        auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
+
+                        // Only screenshot images that are color attachments.
+                        if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+                        {
+                            continue;
+                        }
+
+                        std::string filename_prefix = screenshot_file_prefix_ + "_frame_" +
+                                                      std::to_string(screenshot_handler_->GetCurrentFrame());
+
+                        if (!command_buffer_info->frame_buffer_ids.empty())
+                        {
+                            filename_prefix += "_renderpass_" + std::to_string(i);
+                        }
+
+                        if (!framebuffer_info->attachment_image_view_ids.empty())
+                        {
+                            filename_prefix += "_attachment_" + std::to_string(j);
+                        }
+
+                        WriteFrameBoundaryImage(image_info, filename_prefix);
+                    }
+                }
+            }
+        }
+        screenshot_handler_->EndFrame();
+    }
     return true;
 }
 
@@ -2812,25 +2869,62 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
         return false;
     }
 
-    if (screenshot_handler_->IsScreenshotFrame())
+    const bool             override_requested  = !options_.present_override_image_name.empty();
+    const VulkanImageInfo* override_image_info = present_override_image_id_ != format::kNullHandleId
+                                                     ? object_info_table_->GetVkImageInfo(present_override_image_id_)
+                                                     : nullptr;
+    const VulkanImageInfo* declared_image_info = nullptr;
+    if (frame_boundary->pImages.GetLength() > 0)
     {
-        for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
+        declared_image_info = GetObjectInfoTable().GetVkImageInfo(frame_boundary->pImages.GetPointer()[0]);
+        GFXRECON_ASSERT(declared_image_info != nullptr);
+    }
+
+    if (options_.present_frame_boundary)
+    {
+        const VulkanImageInfo* presentation_image = override_requested ? override_image_info : declared_image_info;
+        if (presentation_image != nullptr)
         {
-            std::string filename_prefix =
-                screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
-
-            if (frame_boundary->pImages.GetLength() > 1)
-            {
-                filename_prefix += "_image_" + std::to_string(i);
-            }
-
-            const format::HandleId handle_id  = frame_boundary->pImages.GetPointer()[i];
-            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handle_id);
-            WriteFrameBoundaryImage(image_info, filename_prefix);
+            PresentFrameBoundaryImage(presentation_image);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "--present-frame-boundary: the frame boundary declares no image; provide --present-override "
+                "<debug-name>");
         }
     }
 
-    screenshot_handler_->EndFrame();
+    if (screenshot_handler_ != nullptr)
+    {
+        if (screenshot_handler_->IsScreenshotFrame())
+        {
+            const std::string filename_prefix =
+                screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+
+            if (override_requested)
+            {
+                if (override_image_info != nullptr)
+                {
+                    WriteFrameBoundaryImage(override_image_info, filename_prefix);
+                }
+            }
+            else
+            {
+                for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
+                {
+                    const VulkanImageInfo* image_info =
+                        GetObjectInfoTable().GetVkImageInfo(frame_boundary->pImages.GetPointer()[i]);
+                    GFXRECON_ASSERT(image_info != nullptr);
+                    WriteFrameBoundaryImage(image_info,
+                                            frame_boundary->pImages.GetLength() > 1
+                                                ? filename_prefix + "_image_" + std::to_string(i)
+                                                : filename_prefix);
+                }
+            }
+        }
+        screenshot_handler_->EndFrame();
+    }
 
     return true;
 }
@@ -4793,7 +4887,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
-    if (screenshot_handler_ != nullptr)
+    if (screenshot_handler_ != nullptr || options_.present_frame_boundary)
     {
         VulkanCommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
@@ -5063,7 +5157,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     // Check whether any of the submitted command buffers are frame boundaries.
-    if (screenshot_handler_ != nullptr)
+    if (screenshot_handler_ != nullptr || options_.present_frame_boundary)
     {
         bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
