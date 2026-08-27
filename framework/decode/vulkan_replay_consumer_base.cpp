@@ -11401,8 +11401,14 @@ void VulkanReplayConsumerBase::UpdateTrackedImageViewLayout(VulkanCommandBufferI
     }
 
     InitializeCommandBufferImageLayouts(command_buffer_info, image_info);
-    command_buffer_info->image_layout_barriers[image_view_info->image_id].SetLayout(image_view_info->subresource_range,
-                                                                                    layout);
+
+    VkImageSubresourceRange range = image_view_info->subresource_range;
+    range.aspectMask &= graphics::GetLayoutAspects(layout);
+
+    if (range.aspectMask != 0)
+    {
+        command_buffer_info->image_layout_barriers[image_view_info->image_id].SetLayout(range, layout);
+    }
 
     image_info->intermediate_layout = layout;
 }
