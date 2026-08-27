@@ -5082,6 +5082,17 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 {
                     auto command_buffer_info =
                         GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer);
+
+                    // Apply any layouts from submitted command lists.
+                    for (auto image_layout : command_buffer_info->image_layout_barriers)
+                    {
+                        auto image_info = GetObjectInfoTable().GetVkImageInfo(image_layout.first);
+                        if (image_info != nullptr)
+                        {
+                            image_info->current_layout = image_layout.second;
+                        }
+                    }
+
                     if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
                     {
                         break;
