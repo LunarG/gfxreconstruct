@@ -1454,6 +1454,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void UpdateTrackedRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
 
+    template <typename ImageMemoryBarrierMetaT, typename ImageMemoryBarrierT>
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*           command_buffer_info,
+                                          uint32_t                           imageMemoryBarrierCount,
+                                          const ImageMemoryBarrierMetaT*     image_memory_barriers_meta,
+                                          const ImageMemoryBarrierT*         image_memory_barriers)
+    {
+        for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+        {
+            format::HandleId image_id                            = image_memory_barriers_meta[i].image;
+            command_buffer_info->image_layout_barriers[image_id] = image_memory_barriers[i].newLayout;
+            VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
+            if (img_info != nullptr)
+            {
+                img_info->intermediate_layout = image_memory_barriers[i].newLayout;
+            }
+        }
+    }
+
     void UpdateTrackedImageViewLayout(VulkanCommandBufferInfo* command_buffer_info,
                                       format::HandleId         image_view_id,
                                       VkImageLayout            layout);

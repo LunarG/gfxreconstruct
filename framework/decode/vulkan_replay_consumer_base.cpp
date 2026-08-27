@@ -7611,16 +7611,10 @@ void VulkanReplayConsumerBase::OverrideCmdWaitEvents(
          imageMemoryBarrierCount,
          pImageMemoryBarriers->GetPointer());
 
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
-    {
-        auto image_id                                        = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
-        command_buffer_info->image_layout_barriers[image_id] = pImageMemoryBarriers->GetPointer()[i].newLayout;
-        VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
-        if (img_info != nullptr)
-        {
-            img_info->intermediate_layout = pImageMemoryBarriers->GetPointer()[i].newLayout;
-        }
-    }
+    UpdateTrackedImageLayoutBarriers(command_buffer_info,
+                                     imageMemoryBarrierCount,
+                                     pImageMemoryBarriers->GetMetaStructPointer(),
+                                     pImageMemoryBarriers->GetPointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
@@ -7650,16 +7644,8 @@ void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
                 continue;
             }
 
-            for (uint32_t j = 0; j < dependency_info[i].imageMemoryBarrierCount; ++j)
-            {
-                format::HandleId image_id                            = img_barriers_meta[j].image;
-                command_buffer_info->image_layout_barriers[image_id] = img_barriers[j].newLayout;
-                VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
-                if (img_info != nullptr)
-                {
-                    img_info->intermediate_layout = img_barriers[j].newLayout;
-                }
-            }
+            UpdateTrackedImageLayoutBarriers(
+                command_buffer_info, dependency_info[i].imageMemoryBarrierCount, img_barriers_meta, img_barriers);
         }
     }
 }
