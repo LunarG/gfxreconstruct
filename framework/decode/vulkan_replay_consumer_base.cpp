@@ -4915,9 +4915,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     // Update layout on the image infos.
     if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
     {
-        for (auto submit : pSubmits->GetMetaStructSpan())
+        for (const auto& submit : pSubmits->GetMetaStructSpan())
         {
-            for (auto command_buffer : submit.pCommandBuffers.GetSpan())
+            for (const auto& command_buffer : submit.pCommandBuffers.GetSpan())
             {
                 PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer));
             }
