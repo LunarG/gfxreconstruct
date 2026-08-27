@@ -11486,13 +11486,7 @@ void VulkanReplayConsumerBase::PropagateImageLayouts(const VulkanCommandBufferIn
             continue;
         }
 
-        for (const auto& [range, layout] : command_buffer_layouts.GetSubresourceLayouts())
-        {
-            if (layout != VK_IMAGE_LAYOUT_UNDEFINED)
-            {
-                image_info->subresource_layouts.SetLayout(range, layout);
-            }
-        }
+        image_info->subresource_layouts.MergeFrom(command_buffer_layouts);
     }
 }
 

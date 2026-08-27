@@ -22,6 +22,8 @@
 
 #include "graphics/vulkan_image_layout_map.h"
 
+#include "util/logging.h"
+
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -137,6 +139,40 @@ void ImageLayoutMap::SetLayout(const VkImageSubresourceRange& range, VkImageLayo
             {
                 subresource_layouts_[GetSubresourceIndex(aspect_index, mip, layer)] = layout;
             }
+        }
+    }
+}
+
+void ImageLayoutMap::MergeFrom(const ImageLayoutMap& src)
+{
+    if (!IsInitialized() || !src.IsInitialized())
+    {
+        return;
+    }
+
+    if (src.is_uniform_)
+    {
+        if (src.uniform_layout_ != VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            SetLayout({ aspects_, 0, mip_levels_, 0, array_layers_ }, src.uniform_layout_);
+        }
+        return;
+    }
+
+    if (is_uniform_)
+    {
+        ExpandUniform();
+    }
+
+    GFXRECON_ASSERT((mip_levels_ == src.mip_levels_) && (array_layers_ == src.array_layers_) &&
+                     (aspects_ == src.aspects_));
+
+    for (size_t i = 0; i < subresource_layouts_.size(); ++i)
+    {
+        const VkImageLayout layout = src.subresource_layouts_[i];
+        if (layout != VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            subresource_layouts_[i] = layout;
         }
     }
 }

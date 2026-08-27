@@ -62,6 +62,9 @@ class ImageLayoutMap
 
     void SetLayout(const VkImageSubresourceRange& range, VkImageLayout layout);
 
+    // Merges every subresource layout from `src` that is not VK_IMAGE_LAYOUT_UNDEFINED into this map.
+    void MergeFrom(const ImageLayoutMap& src);
+
     // Layout of a single subresource, or VK_IMAGE_LAYOUT_UNDEFINED if the image has no such aspect.
     [[nodiscard]] VkImageLayout GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const;
 
