@@ -1007,11 +1007,15 @@ void VulkanReplayConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand(for
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
     if (device_info != nullptr)
     {
-        // There should only be one dataset per pipeline.
-        assert(device_info->shader_group_handles.find(pipeline_id) == device_info->shader_group_handles.end());
-
-        // Store the ray tracing shader group handle data to use at ray tracing pipeline creation.
-        device_info->shader_group_handles.emplace(pipeline_id, std::vector<uint8_t>(data, data + data_size));
+        // There should only be one dataset per pipeline. But if we are doing frame looping,
+        // pipeline_id may already have a dataset associated with it from a prior frame
+        // iteration. We check to see if pipeline_id has a dataset and skip adding the
+        // dataset if that is the case.
+        if (device_info->shader_group_handles.find(pipeline_id) == device_info->shader_group_handles.end())
+        {
+            // Store the ray tracing shader group handle data to use at ray tracing pipeline creation.
+            device_info->shader_group_handles.emplace(pipeline_id, std::vector<uint8_t>(data, data + data_size));
+        }
     }
 }
 
