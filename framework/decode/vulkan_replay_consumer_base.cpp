@@ -2730,8 +2730,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 }
 
 void VulkanReplayConsumerBase::WriteFrameBoundaryImage(const VulkanImageInfo* image_info,
-                                                       const std::string&     filename_prefix,
-                                                       uint32_t               layer)
+                                                       const std::string&     filename_prefix)
 {
     GFXRECON_ASSERT(image_info != nullptr);
 
@@ -2756,19 +2755,23 @@ void VulkanReplayConsumerBase::WriteFrameBoundaryImage(const VulkanImageInfo* im
         };
     }
 
-    screenshot_handler_->WriteImage(filename_prefix,
-                                    device_info,
-                                    GetInjectedDeviceCalls(device_info->handle),
-                                    memory_properties,
-                                    device_info->allocator.get(),
-                                    image_info->handle,
-                                    image_info->format,
-                                    image_info->extent.width,
-                                    image_info->extent.height,
-                                    layer,
-                                    screenshot_scale,
-                                    image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, layer),
-                                    VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+    for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+    {
+        screenshot_handler_->WriteImage(
+            image_info->layer_count > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
+            device_info,
+            GetInjectedDeviceCalls(device_info->handle),
+            memory_properties,
+            device_info->allocator.get(),
+            image_info->handle,
+            image_info->format,
+            image_info->extent.width,
+            image_info->extent.height,
+            layer,
+            screenshot_scale,
+            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, layer),
+            VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+    }
 }
 
 bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
@@ -2811,7 +2814,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                     filename_prefix += "_attachment_" + std::to_string(j);
                 }
 
-                WriteFrameBoundaryImage(image_info, filename_prefix, 0);
+                WriteFrameBoundaryImage(image_info, filename_prefix);
             }
         }
     }
@@ -2845,7 +2848,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
 
             const format::HandleId handle_id  = frame_boundary->pImages.GetPointer()[i];
             const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handle_id);
-            WriteFrameBoundaryImage(image_info, filename_prefix, 0);
+            WriteFrameBoundaryImage(image_info, filename_prefix);
         }
     }
 
