@@ -2165,10 +2165,8 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
     }
     else
     {
-        GFXRECON_LOG_ERROR("GetAndroidHardwareBufferPropertiesANDROID returned %s with allocationSize %" PRIu64
-                           ": hardware buffer data will be omitted from the capture file",
-                           util::ToString(vk_result).c_str(),
-                           static_cast<uint64_t>(properties.allocationSize));
+        GFXRECON_LOG_ERROR("GetAndroidHardwareBufferPropertiesANDROID failed: hardware buffer data will be omitted "
+                           "from the capture file");
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
