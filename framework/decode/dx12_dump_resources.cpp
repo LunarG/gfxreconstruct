@@ -828,6 +828,9 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             }
             break;
         }
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            // Byte-offset buffer SRC - no subresource indices applicable.
+            break;
         case D3D12_SRV_DIMENSION_UNKNOWN:
         default:
             GFXRECON_LOG_ERROR("Unknown D3D12_SRV_DIMENSION_UNKNOWN.");
@@ -898,6 +901,9 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
             info.subresource_indices = GetDescSubIndices(info.desc.Texture3D.MipSlice, 1, mip_count, 0, 1, 1, 0);
             break;
         }
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            // Byte-offset buffer UAV - no subresource indices applicable.
+            break;
         case D3D12_UAV_DIMENSION_UNKNOWN:
         default:
             GFXRECON_LOG_ERROR("Unknown D3D12_UAV_DIMENSION_UNKNOWN.");

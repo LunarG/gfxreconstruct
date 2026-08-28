@@ -147,6 +147,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_RESOURCE_VIEW_DE
         case D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE:
             EncodeStruct(encoder, value.RaytracingAccelerationStructure);
             break;
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            EncodeStruct(encoder, value.BufferByteOffset);
+            break;
         default:
             break;
     }
@@ -182,6 +185,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_UNORDERED_ACCESS_VIEW_D
             break;
         case D3D12_UAV_DIMENSION_TEXTURE3D:
             EncodeStruct(encoder, value.Texture3D);
+            break;
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            EncodeStruct(encoder, value.BufferByteOffset);
             break;
         default:
             break;
