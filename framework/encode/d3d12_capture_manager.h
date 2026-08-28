@@ -177,7 +177,8 @@ class D3D12CaptureManager : public ApiCaptureManager
     }
 
     void EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
-                                              ID3D12Device_Wrapper*       create_object_wrapper);
+                                              ID3D12Device_Wrapper*       create_object_wrapper,
+                                              HRESULT                     result = S_OK);
 
     void EndCommandListMethodCallCapture(ID3D12CommandList_Wrapper* list_wrapper);
 

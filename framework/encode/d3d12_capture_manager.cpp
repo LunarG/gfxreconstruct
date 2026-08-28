@@ -142,9 +142,10 @@ void D3D12CaptureManager::EndAgsApiCallCapture(ID3D12GraphicsCommandList_Wrapper
 #endif // GFXRECON_AGS_SUPPORT
 
 void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
-                                                               ID3D12Device_Wrapper*       create_object_wrapper)
+                                                               ID3D12Device_Wrapper*       create_object_wrapper,
+                                                               HRESULT                     result)
 {
-    if (IsCaptureModeTrack() && (dest_descriptor.ptr != 0))
+    if (SUCCEEDED(result) && IsCaptureModeTrack() && (dest_descriptor.ptr != 0))
     {
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
