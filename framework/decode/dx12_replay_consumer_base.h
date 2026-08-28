@@ -1413,7 +1413,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                   uint8_t                            parameters_data_sizeinbytes);
 
     void TrackConstantBufferViewCreation(StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
-                                         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+                                         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
 
     void TrackShaderResourceViewCreation(format::HandleId                                               pResource,
                                          StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
@@ -1427,7 +1427,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void TrackRenderTargetViewCreation(format::HandleId                                             pResource,
                                        StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
                                        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
-    
+
     void TrackDepthStencilViewCreation(format::HandleId                                             pResource,
                                        StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
                                        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);

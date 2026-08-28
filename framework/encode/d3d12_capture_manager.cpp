@@ -2883,7 +2883,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorder
 void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateShaderResourceView(
     ID3D12Device_Wrapper*                  device_wrapper,
     HRESULT                                return_value,
-    ID3D12Resource*                       pResource,
+    ID3D12Resource*                        pResource,
     const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
 {
@@ -2903,7 +2903,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateUnorderedAccessVie
 {
     if (SUCCEEDED(return_value))
     {
-        PostProcess_ID3D12Device_CreateUnorderedAccessView(device_wrapper, pResource, pCounterResource, pDesc, DestDescriptor);
+        PostProcess_ID3D12Device_CreateUnorderedAccessView(
+            device_wrapper, pResource, pCounterResource, pDesc, DestDescriptor);
     }
 }
 
@@ -2954,7 +2955,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateSamplerFeedbackUno
 {
     if (SUCCEEDED(return_value))
     {
-        PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(device_wrapper, pTargetedResource, pFeedbackResource, DestDescriptor);
+        PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
+            device_wrapper, pTargetedResource, pFeedbackResource, DestDescriptor);
     }
 }
 

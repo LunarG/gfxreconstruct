@@ -615,7 +615,7 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_ID3D12Device15_TryCreateShaderResourceView(ID3D12Device_Wrapper*                  device_wrapper,
                                                                 HRESULT                                return_value,
-                                                                ID3D12Resource*                       pResource,
+                                                                ID3D12Resource*                        pResource,
                                                                 const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
                                                                 D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor);
 
@@ -627,10 +627,10 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                                  D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
     void PostProcess_ID3D12Device15_TryCreateRenderTargetView(ID3D12Device_Wrapper*                device_wrapper,
-                                                               HRESULT                              return_value,
-                                                               ID3D12Resource*                      pResource,
-                                                               const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
-                                                               D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
+                                                              HRESULT                              return_value,
+                                                              ID3D12Resource*                      pResource,
+                                                              const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
+                                                              D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
 
     void PostProcess_ID3D12Device15_TryCreateDepthStencilView(ID3D12Device_Wrapper*                device_wrapper,
                                                               HRESULT                              return_value,
