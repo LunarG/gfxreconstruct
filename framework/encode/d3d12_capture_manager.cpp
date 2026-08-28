@@ -2880,6 +2880,84 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorder
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateShaderResourceView(
+    ID3D12Device_Wrapper*                  device_wrapper,
+    HRESULT                                return_value,
+    ID3D12Resource*                       pResource,
+    const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
+{
+    if (SUCCEEDED(return_value))
+    {
+        PostProcess_ID3D12Device_CreateShaderResourceView(device_wrapper, pResource, pDesc, DestDescriptor);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateUnorderedAccessView(
+    ID3D12Device_Wrapper*                   device_wrapper,
+    HRESULT                                 return_value,
+    ID3D12Resource*                         pResource,
+    ID3D12Resource*                         pCounterResource,
+    const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE             DestDescriptor)
+{
+    if (SUCCEEDED(return_value))
+    {
+        PostProcess_ID3D12Device_CreateUnorderedAccessView(device_wrapper, pResource, pCounterResource, pDesc, DestDescriptor);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateRenderTargetView(
+    ID3D12Device_Wrapper*                device_wrapper,
+    HRESULT                              return_value,
+    ID3D12Resource*                      pResource,
+    const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor)
+{
+    if (SUCCEEDED(return_value))
+    {
+        PostProcess_ID3D12Device_CreateRenderTargetView(device_wrapper, pResource, pDesc, DestDescriptor);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateDepthStencilView(
+    ID3D12Device_Wrapper*                device_wrapper,
+    HRESULT                              return_value,
+    ID3D12Resource*                      pResource,
+    const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor)
+{
+    if (SUCCEEDED(return_value))
+    {
+        PostProcess_ID3D12Device_CreateDepthStencilView(device_wrapper, pResource, pDesc, DestDescriptor);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateConstantBufferView(
+    ID3D12Device_Wrapper*                  device_wrapper,
+    HRESULT                                return_value,
+    const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
+{
+    if (SUCCEEDED(return_value))
+    {
+        PostProcess_ID3D12Device_CreateConstantBufferView(device_wrapper, pDesc, DestDescriptor);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(
+    ID3D12Device_Wrapper*       device_wrapper,
+    HRESULT                     return_value,
+    ID3D12Resource*             pTargetedResource,
+    ID3D12Resource*             pFeedbackResource,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    if (SUCCEEDED(return_value))
+    {
+        PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(device_wrapper, pTargetedResource, pFeedbackResource, DestDescriptor);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Debug_EnableDebugLayer(ID3D12Debug_Wrapper* debug_wrapper)
 {
     if (IsCaptureModeTrack())

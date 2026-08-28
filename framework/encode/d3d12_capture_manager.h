@@ -613,6 +613,43 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                                             ID3D12Resource*       pFeedbackResource,
                                                                             D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+    void PostProcess_ID3D12Device15_TryCreateShaderResourceView(ID3D12Device_Wrapper*                  device_wrapper,
+                                                                HRESULT                                return_value,
+                                                                ID3D12Resource*                       pResource,
+                                                                const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
+                                                                D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor);
+
+    void PostProcess_ID3D12Device15_TryCreateUnorderedAccessView(ID3D12Device_Wrapper* device_wrapper,
+                                                                 HRESULT               return_value,
+                                                                 ID3D12Resource*       pResource,
+                                                                 ID3D12Resource*       pCounterResource,
+                                                                 const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
+                                                                 D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
+    void PostProcess_ID3D12Device15_TryCreateRenderTargetView(ID3D12Device_Wrapper*                device_wrapper,
+                                                               HRESULT                              return_value,
+                                                               ID3D12Resource*                      pResource,
+                                                               const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
+                                                               D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
+
+    void PostProcess_ID3D12Device15_TryCreateDepthStencilView(ID3D12Device_Wrapper*                device_wrapper,
+                                                              HRESULT                              return_value,
+                                                              ID3D12Resource*                      pResource,
+                                                              const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
+                                                              D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
+
+    void PostProcess_ID3D12Device15_TryCreateConstantBufferView(ID3D12Device_Wrapper*                  device_wrapper,
+                                                                HRESULT                                return_value,
+                                                                const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+                                                                D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor);
+
+    void
+    PostProcess_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(ID3D12Device_Wrapper* device_wrapper,
+                                                                           HRESULT               return_value,
+                                                                           ID3D12Resource*       pTargetedResource,
+                                                                           ID3D12Resource*       pFeedbackResource,
+                                                                           D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
     void PostProcess_ID3D12Debug_EnableDebugLayer(ID3D12Debug_Wrapper* debug_wrapper);
 
     void PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1_Wrapper* debug1_wrapper);
