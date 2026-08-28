@@ -491,7 +491,7 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
     }
 }
 
-void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device)
+void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device, format::HandleId queue)
 {
     auto it = per_device_buffer_tracking_.find(device);
     if (it == per_device_buffer_tracking_.end() || it->second.shadow_buffers_.empty())
@@ -499,7 +499,13 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device)
         return;
     }
 
-    it->second.Restore();
+    VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(queue);
+    if (queue_info == nullptr)
+    {
+        return;
+    }
+
+    it->second.Restore(queue_info->family_index);
 }
 
 void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std::vector<format::HandleId>& buffer_ids)
@@ -613,7 +619,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
     }
 }
 
-void VulkanReplayFrameLoopConsumer::BufferTracking::Restore()
+void VulkanReplayFrameLoopConsumer::BufferTracking::Restore(uint32_t queue_family_index)
 {
     if (shadow_buffers_.empty())
     {
@@ -624,7 +630,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore()
     GFXRECON_ASSERT(device_info != nullptr);
 
     TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
-    if (temp_cmd_buff.CreateAndBegin(graphics::FindGraphicsOrComputeQueueFamilyIndex) != VK_SUCCESS)
+    if (temp_cmd_buff.CreateAndBegin(queue_family_index) != VK_SUCCESS)
     {
         return;
     }
@@ -1104,7 +1110,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
     }
     FixupDeviceEvents(device);
     FixupDeviceFences(device, queue);
-    FixupDeviceBuffers(device);
+    FixupDeviceBuffers(device, queue);
     GetSemaphoreTracking(device).FixupSemaphores(queue);
 }
 
