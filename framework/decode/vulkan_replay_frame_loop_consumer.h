@@ -41,9 +41,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         frame_loop_info_(frame_loop_info)
     {}
 
+    ~VulkanReplayFrameLoopConsumer() override;
+
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
+
+    void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
@@ -159,6 +163,45 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     SemaphoreTracking& GetSemaphoreTracking(format::HandleId device);
     void               TrackSemaphoreStates();
 
+    /// Tracks a device-local copy of each buffer's contents at the start of the loop range so that GPU
+    /// writes made to the buffer during the loop can be undone before each repetition.
+    struct BufferTracking
+    {
+        BufferTracking(format::HandleId                         device_id,
+                       const graphics::VulkanDeviceTable&       device_table,
+                       CommonObjectInfoTable&                   object_table,
+                       std::shared_ptr<VulkanResourceAllocator> allocator,
+                       const VkPhysicalDeviceMemoryProperties*  memory_properties) :
+            device_id_(device_id),
+            device_table_(device_table), object_table_(object_table), allocator_(allocator),
+            memory_properties_(memory_properties)
+        {}
+
+        struct ShadowBuffer
+        {
+            VkBuffer                              buffer{ VK_NULL_HANDLE };
+            VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+            VkDeviceSize                          size{ 0 };
+            VulkanResourceAllocator::ResourceData alloc_data{ 0 };
+            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+        };
+
+        void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
+        void Restore();
+        void DestroyShadowBuffers();
+
+        format::HandleId                                   device_id_;
+        const graphics::VulkanDeviceTable&                 device_table_;
+        CommonObjectInfoTable&                             object_table_;
+        std::shared_ptr<VulkanResourceAllocator>           allocator_;
+        const VkPhysicalDeviceMemoryProperties*            memory_properties_;
+        std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+    };
+
+    BufferTracking& GetBufferTracking(format::HandleId device);
+    void            RecordBufferStates();
+    void            FixupDeviceBuffers(format::HandleId device);
+
     // Private data
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
@@ -176,6 +219,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     std::unordered_set<format::HandleId>                host_visible_events_;
     std::unordered_map<format::HandleId, EventTracking> per_device_event_tracking_;
+
+    std::unordered_map<format::HandleId, BufferTracking> per_device_buffer_tracking_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;
