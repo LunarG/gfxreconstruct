@@ -5573,11 +5573,12 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateConstantBufferView(
     const ApiCallInfo&                                             call_info,
     DxObjectInfo*                                                  object_info,
-    HRESULT                                                        return_value,
+    HRESULT                                                        capture_return_value,
+    HRESULT                                                        replay_return_value,
     StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    if (SUCCEEDED(return_value))
+    if (SUCCEEDED(capture_return_value))
     {
         TrackConstantBufferViewCreation(pDesc, DestDescriptor);
     }
@@ -5586,12 +5587,13 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateConstantBufferView
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateShaderResourceView(
     const ApiCallInfo&                                             call_info,
     DxObjectInfo*                                                  object_info,
-    HRESULT                                                        return_value,
+    HRESULT                                                        capture_return_value,
+    HRESULT                                                        replay_return_value,
     format::HandleId                                               pResource,
     StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    if (SUCCEEDED(return_value))
+    if (SUCCEEDED(capture_return_value))
     {
         TrackShaderResourceViewCreation(pResource, pDesc, DestDescriptor);
     }
@@ -5600,13 +5602,14 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateShaderResourceView
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateUnorderedAccessView(
     const ApiCallInfo&                                              call_info,
     DxObjectInfo*                                                   object_info,
-    HRESULT                                                         return_value,
+    HRESULT                                                         capture_return_value,
+    HRESULT                                                         replay_return_value,
     format::HandleId                                                pResource,
     format::HandleId                                                pCounterResource,
     StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
 {
-    if (SUCCEEDED(return_value))
+    if (SUCCEEDED(capture_return_value))
     {
         TrackUnorderedAccessViewCreation(pResource, pCounterResource, pDesc, DestDescriptor);
     }
@@ -5615,12 +5618,13 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateUnorderedAccessVie
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateRenderTargetView(
     const ApiCallInfo&                                           call_info,
     DxObjectInfo*                                                object_info,
-    HRESULT                                                      return_value,
+    HRESULT                                                      capture_return_value,
+    HRESULT                                                      replay_return_value,
     format::HandleId                                             pResource,
     StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
 {
-    if (SUCCEEDED(return_value))
+    if (SUCCEEDED(capture_return_value))
     {
         TrackRenderTargetViewCreation(pResource, pDesc, DestDescriptor);
     }
@@ -5629,12 +5633,13 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateRenderTargetView(
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateDepthStencilView(
     const ApiCallInfo&                                           call_info,
     DxObjectInfo*                                                object_info,
-    HRESULT                                                      return_value,
+    HRESULT                                                      capture_return_value,
+    HRESULT                                                      replay_return_value,
     format::HandleId                                             pResource,
     StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
 {
-    if (SUCCEEDED(return_value))
+    if (SUCCEEDED(capture_return_value))
     {
         TrackDepthStencilViewCreation(pResource, pDesc, DestDescriptor);
     }

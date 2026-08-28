@@ -246,14 +246,16 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void PostCall_ID3D12Device15_TryCreateConstantBufferView(
         const ApiCallInfo&                                             call_info,
         DxObjectInfo*                                                  object_info,
-        HRESULT                                                        return_value,
+        HRESULT                                                        capture_return_value,
+        HRESULT                                                        replay_return_value,
         StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
 
     void PostCall_ID3D12Device15_TryCreateShaderResourceView(
         const ApiCallInfo&                                             call_info,
         DxObjectInfo*                                                  object_info,
-        HRESULT                                                        return_value,
+        HRESULT                                                        capture_return_value,
+        HRESULT                                                        replay_return_value,
         format::HandleId                                               pResource,
         StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
@@ -261,7 +263,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void PostCall_ID3D12Device15_TryCreateUnorderedAccessView(
         const ApiCallInfo&                                              call_info,
         DxObjectInfo*                                                   object_info,
-        HRESULT                                                         return_value,
+        HRESULT                                                         capture_return_value,
+        HRESULT                                                         replay_return_value,
         format::HandleId                                                pResource,
         format::HandleId                                                pCounterResource,
         StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
@@ -270,7 +273,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void PostCall_ID3D12Device15_TryCreateRenderTargetView(
         const ApiCallInfo&                                           call_info,
         DxObjectInfo*                                                object_info,
-        HRESULT                                                      return_value,
+        HRESULT                                                      capture_return_value,
+        HRESULT                                                      replay_return_value,
         format::HandleId                                             pResource,
         StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
@@ -278,7 +282,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void PostCall_ID3D12Device15_TryCreateDepthStencilView(
         const ApiCallInfo&                                           call_info,
         DxObjectInfo*                                                object_info,
-        HRESULT                                                      return_value,
+        HRESULT                                                      capture_return_value,
+        HRESULT                                                      replay_return_value,
         format::HandleId                                             pResource,
         StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
