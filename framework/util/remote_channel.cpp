@@ -40,6 +40,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cinttypes>
 #include <cstddef>
 #include <cstring>
 #include <limits>
@@ -373,6 +374,10 @@ bool RemoteChannel::Connect(const std::string& address)
         return false;
     }
 
+    {
+        const std::lock_guard<std::mutex> lock(queue_mutex_);
+        sender_active_ = true;
+    }
     sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
     return true;
 }
@@ -392,6 +397,7 @@ void RemoteChannel::Disconnect()
             stop_requested_ = true;
         }
         queue_cv_.notify_one();
+        space_cv_.notify_all(); // Release any sender blocked on queue space so it can drop its buffer and return.
         sender_thread_.join();
     }
 
@@ -401,7 +407,9 @@ void RemoteChannel::Disconnect()
     }
 
     send_queue_.clear();
+    queue_bytes_    = 0;
     stop_requested_ = false;
+    sender_active_  = false;
     send_failed_    = false;
 }
 
@@ -491,7 +499,31 @@ void RemoteChannel::SendFile(const std::string& name, const void* data, size_t s
     buffer.reserve((2 * sizeof(uint32_t)) + payload.size() + size);
     AppendFrame(buffer, payload.data(), static_cast<uint32_t>(payload.size()));
     AppendFrame(buffer, data, static_cast<uint32_t>(size));
-    EnqueueFrames(std::move(buffer));
+    EnqueueFrames(std::move(buffer), true);
+}
+
+void RemoteChannel::LogSendQueueStats() const
+{
+    const uint64_t stalls = stat_stalls_.load();
+    const size_t   peak   = stat_queue_peak_.load();
+
+    // Stalls mean replay waited on the controller, worth surfacing; a stall-free peak is only a tuning detail.
+    const LoggingSeverity severity = (stalls > 0) ? LoggingSeverity::kInfo : LoggingSeverity::kDebug;
+    if ((peak == 0) || !Log::WillOutputMessage(severity))
+    {
+        return;
+    }
+
+    Log::LogMessage(severity,
+                    __FILE__,
+                    __FUNCTION__,
+                    GFXRECON_STR(__LINE__),
+                    "Remote channel send queue: %.1f MiB peak against a %.1f MiB limit, %" PRIu64
+                    " stalls totaling %.1f ms",
+                    static_cast<double>(peak) / (1024.0 * 1024.0),
+                    static_cast<double>(kSendQueueLimit) / (1024.0 * 1024.0),
+                    stalls,
+                    static_cast<double>(stat_stall_ns_.load()) / 1e6);
 }
 
 void RemoteChannel::SendDone(bool success)
@@ -509,14 +541,39 @@ void RemoteChannel::AppendFrame(std::vector<uint8_t>& buffer, const void* data, 
     buffer.insert(buffer.end(), data_bytes, data_bytes + size);
 }
 
-void RemoteChannel::EnqueueFrames(std::vector<uint8_t>&& buffer)
+void RemoteChannel::EnqueueFrames(std::vector<uint8_t>&& buffer, bool stall_when_full)
 {
     {
-        const std::lock_guard<std::mutex> lock(queue_mutex_);
-        if (stop_requested_ || send_failed_)
+        std::unique_lock<std::mutex> lock(queue_mutex_);
+
+        if (stall_when_full)
+        {
+            // An idle channel always accepts, so a payload larger than the whole limit goes out on its own rather
+            // than waiting for space that could never exist.
+            const size_t size     = buffer.size();
+            const auto   has_room = [this, size] {
+                return !sender_active_ || stop_requested_ || send_failed_ || (queue_bytes_ == 0) ||
+                       ((queue_bytes_ + size) <= kSendQueueLimit);
+            };
+
+            if (!has_room())
+            {
+                const auto stall_start = std::chrono::steady_clock::now();
+                space_cv_.wait(lock, has_room);
+                ++stat_stalls_;
+                stat_stall_ns_ += static_cast<uint64_t>(
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - stall_start)
+                        .count());
+            }
+        }
+
+        if (!sender_active_ || stop_requested_ || send_failed_)
         {
             return;
         }
+
+        queue_bytes_ += buffer.size();
+        stat_queue_peak_ = std::max(stat_queue_peak_.load(), queue_bytes_);
         send_queue_.push_back(std::move(buffer));
     }
     queue_cv_.notify_one();
@@ -538,12 +595,28 @@ void RemoteChannel::SenderThread()
             send_queue_.pop_front();
         }
 
-        if (!SendAll(buffer.data(), buffer.size()))
+        // queue_bytes_ still counts this buffer, so a blocked sender waits for the socket to take it, not merely for
+        // it to leave the queue.
+        const bool sent = SendAll(buffer.data(), buffer.size());
+
         {
-            // The controller went away; drop queued messages and report the channel as disconnected.
-            send_failed_ = true;
             const std::lock_guard<std::mutex> lock(queue_mutex_);
-            send_queue_.clear();
+            if (sent)
+            {
+                queue_bytes_ -= buffer.size();
+            }
+            else
+            {
+                // The controller went away; drop queued messages and report the channel as disconnected.
+                send_failed_ = true;
+                send_queue_.clear();
+                queue_bytes_ = 0;
+            }
+        }
+        space_cv_.notify_all();
+
+        if (!sent)
+        {
             return;
         }
     }

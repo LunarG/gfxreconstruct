@@ -1092,6 +1092,13 @@ instead of to local disk. Some output is not yet streamed and is still written
 by replay itself: `--measurement-file`, `--save-pipeline-cache`, `--log-file`,
 the `--capture` recapture file, and the dump-resources JSON for D3D12 and OpenXR.
 
+Replay bounds how much output it will buffer for a slow controller, blocking the
+thread producing files once the bound is reached, so a controller that cannot
+keep up slows replay down rather than growing its memory without limit. A single
+payload larger than the bound is still sent once the channel is idle. When
+replay does wait on the controller it reports the peak, the number of waits and
+the total time lost in its log.
+
 The channel is neither authenticated nor encrypted. It is intended for a trusted
 lab network or a local socket forwarded over adb; do not expose the listening
 port on an untrusted network.
