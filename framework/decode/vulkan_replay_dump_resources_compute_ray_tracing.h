@@ -655,7 +655,9 @@ class DispatchTraceRaysDumpingContext
     TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }
 
     // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>> secondaries_;
+    // This must be an ordered map: secondary dispatch/trace rays indices are merged in iteration order,
+    // which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
+    std::map<Index, std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>> secondaries_;
 
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 

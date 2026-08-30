@@ -38,6 +38,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
@@ -310,7 +311,9 @@ class DrawCallsDumpingContext
     const util::Compressor*      compressor_;
 
     // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
+    // This must be an ordered map: RecaclulateCommandBuffers merges secondary draw call indices in iteration
+    // order, which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
+    std::map<Index, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
 
     enum RenderPassType
     {
