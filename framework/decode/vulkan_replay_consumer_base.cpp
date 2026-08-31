@@ -4738,17 +4738,23 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     // A captured VK_SUCCESS must be reproduced at replay to preserve synchronization, but:
     // wait only when the replayed stream makes all requested queries available -> avoid blocking forever.
     // e.g. trim state-setup cannot restore all query-types and resets the remainder.
-    if (original_result == VK_SUCCESS)
-    {
-        const auto& latched = query_pool_info->latched_query_available;
+    const auto& latched = query_pool_info->latched_query_available;
+    const bool  range_available =
+        firstQuery + queryCount <= latched.size() && std::all_of(latched.begin() + firstQuery,
+                                                                 latched.begin() + firstQuery + queryCount,
+                                                                 [](bool available) { return available; });
 
-        if (firstQuery + queryCount <= latched.size() &&
-            std::all_of(latched.begin() + firstQuery, latched.begin() + firstQuery + queryCount, [](bool available) {
-                return available;
-            }))
+    if (range_available)
+    {
+        if (original_result == VK_SUCCESS)
         {
             flags |= VK_QUERY_RESULT_WAIT_BIT;
         }
+    }
+    else if (flags & VK_QUERY_RESULT_WAIT_BIT)
+    {
+        // an app-supplied wait the stream cannot satisfy would hang -> strip it, CheckResult warns on mismatch
+        flags &= ~VK_QUERY_RESULT_WAIT_BIT;
     }
 
     const VkResult result =
