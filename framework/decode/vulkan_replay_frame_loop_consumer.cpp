@@ -520,6 +520,9 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device, 
     VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(queue);
     if (queue_info == nullptr)
     {
+        GFXRECON_LOG_ERROR("FixupDeviceBuffers: Could not find queue info for queue %" PRIu64
+                           "; buffer contents will not be restored.",
+                           queue);
         return;
     }
 
