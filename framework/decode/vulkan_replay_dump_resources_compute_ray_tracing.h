@@ -71,7 +71,10 @@ class DispatchTraceRaysDumpingContext
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
 
-    VkCommandBuffer GetOriginalCommandBuffer() const { return original_command_buffer_info_->handle; }
+    VkCommandBuffer GetOriginalCommandBuffer() const
+    {
+        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
+    }
 
     void CmdDispatch(const ApiCallInfo& call_info,
                      PFN_vkCmdDispatch  func,

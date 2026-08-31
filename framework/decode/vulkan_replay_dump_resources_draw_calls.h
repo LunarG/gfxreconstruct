@@ -226,7 +226,10 @@ class DrawCallsDumpingContext
 
     const std::vector<VkCommandBuffer>& GetCommandBuffers() const { return command_buffers_; }
 
-    VkCommandBuffer GetOriginalCommandBuffer() const { return original_command_buffer_info_->handle; }
+    VkCommandBuffer GetOriginalCommandBuffer() const
+    {
+        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
+    }
 
     void AssignSecondary(uint64_t execute_commands_index, std::shared_ptr<DrawCallsDumpingContext> secondary_context);
 
@@ -305,11 +308,16 @@ class DrawCallsDumpingContext
     decode::Index                qs_index_;
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
-    CommandIndices               dc_indices_;
 
-    // Parallel to dc_indices_: for draws merged from a secondary, the block index of the
-    // vkCmdExecuteCommands that executed them; UNDEFINED_INDEX for the primary's own draws.
-    CommandIndices dc_execute_indices_;
+    // One entry per dump slot, in finalization order: the draw call block index that finalizes
+    // the slot and, for draws merged from a secondary, the block index of the vkCmdExecuteCommands
+    // that executes them (UNDEFINED_INDEX for the primary's own draws).
+    struct DrawCallSlot
+    {
+        Index dc_index;
+        Index execute_index;
+    };
+    std::vector<DrawCallSlot> dc_slots_;
 
     RenderPassIndices            RP_indices_;
     CommandImageSubresource      dc_subresources_;
@@ -817,8 +825,8 @@ class DrawCallsDumpingContext
     DrawCallParameters draw_call_params_;
 
     DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
-    CommandIndices&       GetDrawCallIndices() { return dc_indices_; }
-    const CommandIndices& GetDrawCallIndices() const { return dc_indices_; }
+    std::vector<DrawCallSlot>&       GetDrawCallSlots() { return dc_slots_; }
+    const std::vector<DrawCallSlot>& GetDrawCallSlots() const { return dc_slots_; }
 
     struct
     {

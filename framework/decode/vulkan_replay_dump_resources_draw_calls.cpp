@@ -73,8 +73,11 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
         const size_t n_cmd_buffs = options_.dump_resources_before ? 2 * draw_indices->size() : draw_indices->size();
         command_buffers_.resize(n_cmd_buffs, VK_NULL_HANDLE);
 
-        dc_indices_ = *draw_indices;
-        dc_execute_indices_.assign(dc_indices_.size(), UNDEFINED_INDEX);
+        dc_slots_.reserve(draw_indices->size());
+        for (const Index dc_index : *draw_indices)
+        {
+            dc_slots_.push_back({ dc_index, UNDEFINED_INDEX });
+        }
     }
 
     if (renderpass_indices != nullptr)
@@ -161,8 +164,7 @@ void DrawCallsDumpingContext::Release()
     }
 
     draw_call_params_.clear();
-    dc_indices_.clear();
-    dc_execute_indices_.clear();
+    dc_slots_.clear();
     RP_indices_.clear();
     render_pass_dumped_descriptors_.clear();
 
@@ -1103,17 +1105,12 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
 {
-    // dc_indices_ is in finalization order (not necessarily sorted by value once secondary draws are
+    // dc_slots_ is in finalization order (not necessarily sorted by value once secondary draws are
     // merged in), so draws not yet finalized are all at positions >= current_cb_index_.
-    if (std::find(dc_indices_.begin(), dc_indices_.end(), index) == dc_indices_.end())
-    {
-        return false;
-    }
-
-    for (size_t i = options_.dump_resources_before ? current_cb_index_ / 2 : current_cb_index_; i < dc_indices_.size();
+    for (size_t i = options_.dump_resources_before ? current_cb_index_ / 2 : current_cb_index_; i < dc_slots_.size();
          ++i)
     {
-        if (index == dc_indices_[i])
+        if (index == dc_slots_[i].dc_index)
         {
             return true;
         }
@@ -1191,10 +1188,10 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
 
         // If options_.dump_resources_before is true, it means that we have two command buffer clones for each draw
         // call. In this case CmdBufToDCVectorIndex will return the command buffer index divided by 2 so it can be used
-        // to index inside dc_indices_
+        // to index inside dc_slots_
         const size_t cb_absolute = CmdBufToDCVectorIndex(cb);
 
-        const Index dc_index = dc_indices_[cb_absolute];
+        const Index dc_index = dc_slots_[cb_absolute].dc_index;
 
         auto dc_params_entry = draw_call_params_.find(dc_index);
         GFXRECON_ASSERT(dc_params_entry != draw_call_params_.end());
@@ -1234,18 +1231,18 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         }
 
         SecondaryIdentifiers secondary_indices;
-        if (dc_params.command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
-        {
-            // This map is updated in UpdateSecondaries accordingly
-            const auto entry = dc_params.secondary_identifiers.find(cb_absolute);
-            GFXRECON_ASSERT(entry != dc_params.secondary_identifiers.end());
-            if (entry != dc_params.secondary_identifiers.end())
-            {
-                secondary_indices = entry->second;
-                GFXRECON_ASSERT(secondary_indices.execute_cmds_index != UNDEFINED_INDEX);
-                GFXRECON_ASSERT(secondary_indices.execute_cmds_cmd_buf_index != UNDEFINED_INDEX);
-            }
-        }
+        // if (dc_params.command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
+        // {
+        //     // This map is updated in UpdateSecondaries accordingly
+        //     const auto entry = dc_params.secondary_identifiers.find(cb_absolute);
+        //     GFXRECON_ASSERT(entry != dc_params.secondary_identifiers.end());
+        //     if (entry != dc_params.secondary_identifiers.end())
+        //     {
+        //         secondary_indices = entry->second;
+        //         GFXRECON_ASSERT(secondary_indices.execute_cmds_index != UNDEFINED_INDEX);
+        //         GFXRECON_ASSERT(secondary_indices.execute_cmds_cmd_buf_index != UNDEFINED_INDEX);
+        //     }
+        // }
 
         const DumpedResourceBase dumped_resource_base(DumpResourcesPipelineStage::kGraphics,
                                                       bcb_index_,
@@ -1535,7 +1532,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
 {
     assert(device_table_ != nullptr);
 
-    const Index dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_index)];
+    const Index dc_index = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_index)].dc_index;
     GFXRECON_ASSERT(dc_params.draw_call_index == dc_index);
 
     if (dc_params.render_pass_context == nullptr)
@@ -3207,11 +3204,23 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
     const std::vector<uint64_t>* block_range = nullptr;
     for (const auto& range : RP_indices_)
     {
-        if (!range.empty() && block_index >= range[0] && block_index <= range[range.size() - 1])
+        if (IsInsideRange(range, block_index))
         {
             block_range = &range;
             break;
         }
+    }
+
+    // A well-formed dump-args range for this render pass has one entry per subpass boundary plus
+    // begin/end, so it can never describe more subpass intervals than the render pass has subpasses.
+    // More intervals means the range does not match this render pass (stale or hand-edited json).
+    if (block_range != nullptr && block_range->size() - 1 > new_render_pass_context->render_pass_clones.size())
+    {
+        GFXRECON_LOG_WARNING("Dump resources: render pass block range with %zu entries does not match a render "
+                             "pass with %zu subpass(es); draw calls in out-of-range subpasses will replay with "
+                             "the original render pass and their attachments may not be dumpable.",
+                             block_range->size(),
+                             new_render_pass_context->render_pass_clones.size());
     }
 
     // Add vkCmdBeginRenderPass into the cloned command buffers using the modified render pass
@@ -3225,7 +3234,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
         const size_t   dc_vec_idx = CmdBufToDCVectorIndex(cmd_buf_idx);
-        const uint64_t dc_index   = dc_indices_[dc_vec_idx];
+        const uint64_t dc_index   = dc_slots_[dc_vec_idx].dc_index;
 
         // Draw calls inside this render pass get the newly created / modified render pass. Draws merged from a
         // secondary command buffer are correlated through the vkCmdExecuteCommands block that executed them,
@@ -3235,14 +3244,14 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
         bool     use_clone = false;
         if (block_range != nullptr)
         {
-            const Index execute_index = dc_execute_indices_[dc_vec_idx];
+            const Index execute_index = dc_slots_[dc_vec_idx].execute_index;
             use_clone = (execute_index != UNDEFINED_INDEX) ? FindSubpassInRange(*block_range, execute_index, sp)
                                                            : FindSubpassInRange(*block_range, dc_index, sp);
         }
 
-        if (use_clone)
+        GFXRECON_ASSERT(!use_clone || sp < new_render_pass_context->render_pass_clones.size());
+        if (use_clone && sp < new_render_pass_context->render_pass_clones.size())
         {
-            GFXRECON_ASSERT(new_render_pass_context->render_pass_clones.size() > sp);
             modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
         }
         else
@@ -3651,13 +3660,13 @@ size_t DrawCallsDumpingContext::CmdBufToDCVectorIndex(size_t cmd_buf_index) cons
 
     if (options_.dump_resources_before)
     {
-        assert(cmd_buf_index / 2 < dc_indices_.size());
+        assert(cmd_buf_index / 2 < dc_slots_.size());
 
         return cmd_buf_index / 2;
     }
     else
     {
-        assert(cmd_buf_index < dc_indices_.size());
+        assert(cmd_buf_index < dc_slots_.size());
 
         return cmd_buf_index;
     }
@@ -3707,25 +3716,28 @@ DrawCallsDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) c
     return std::vector<std::shared_ptr<DrawCallsDumpingContext>>();
 }
 
-// Rewrite this vkCmdExecuteCommands block's segment of dc_indices_ so that the labels follow the
+// Rewrite this vkCmdExecuteCommands block's segment of dc_slots_ so that the labels follow the
 // given execution order. RecalculateCommandBuffers merges secondaries in dump-args order at setup,
 // but slots are consumed in pCommandBuffers order, which is only known when the execute replays.
 void DrawCallsDumpingContext::ReorderSecondaries(
     Index execute_commands_index, const std::vector<std::shared_ptr<DrawCallsDumpingContext>>& execution_order)
 {
-    const auto seg_entry = std::find(dc_execute_indices_.begin(), dc_execute_indices_.end(), execute_commands_index);
-    if (seg_entry == dc_execute_indices_.end())
+    const auto seg_entry =
+        std::find_if(dc_slots_.begin(), dc_slots_.end(), [execute_commands_index](const DrawCallSlot& slot) {
+            return slot.execute_index == execute_commands_index;
+        });
+    if (seg_entry == dc_slots_.end())
     {
         return;
     }
 
-    size_t pos = std::distance(dc_execute_indices_.begin(), seg_entry);
+    size_t pos = std::distance(dc_slots_.begin(), seg_entry);
     for (const auto& secondary_context : execution_order)
     {
-        for (const Index dc_index : secondary_context->GetDrawCallIndices())
+        for (const DrawCallSlot& secondary_slot : secondary_context->GetDrawCallSlots())
         {
-            GFXRECON_ASSERT(pos < dc_indices_.size() && dc_execute_indices_[pos] == execute_commands_index);
-            dc_indices_[pos++] = dc_index;
+            GFXRECON_ASSERT(pos < dc_slots_.size() && dc_slots_[pos].execute_index == execute_commands_index);
+            dc_slots_[pos++].dc_index = secondary_slot.dc_index;
         }
     }
 }
@@ -3744,19 +3756,17 @@ uint32_t DrawCallsDumpingContext::RecalculateCommandBuffers()
     // execute finalizes its secondaries' draws at its own position in the primary's command stream.
     // Each merged draw is tagged with the block index of the vkCmdExecuteCommands that ran it, so
     // that render pass correlation can tell apart multiple executions of the same secondary.
-    CommandIndices merged_dc_indices;
-    CommandIndices merged_execute_indices;
+    std::vector<DrawCallSlot> merged_slots;
 
-    auto       primary_it  = dc_indices_.begin();
-    const auto primary_end = dc_indices_.end();
+    auto       primary_it  = dc_slots_.begin();
+    const auto primary_end = dc_slots_.end();
 
     for (const auto& execute_commands : secondaries_)
     {
         // The primary's own draws recorded before this vkCmdExecuteCommands finalize first
-        for (; primary_it != primary_end && *primary_it < execute_commands.first; ++primary_it)
+        for (; primary_it != primary_end && primary_it->dc_index < execute_commands.first; ++primary_it)
         {
-            merged_dc_indices.push_back(*primary_it);
-            merged_execute_indices.push_back(UNDEFINED_INDEX);
+            merged_slots.push_back(*primary_it);
         }
 
         for (const auto& secondary_context : execute_commands.second)
@@ -3770,21 +3780,17 @@ uint32_t DrawCallsDumpingContext::RecalculateCommandBuffers()
 
             n_command_buffers += secondary_n_command_buffers;
 
-            const std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
-            merged_dc_indices.insert(merged_dc_indices.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
-            merged_execute_indices.resize(merged_dc_indices.size(), execute_commands.first);
+            for (const DrawCallSlot& secondary_slot : secondary_context->GetDrawCallSlots())
+            {
+                merged_slots.push_back({ secondary_slot.dc_index, execute_commands.first });
+            }
         }
     }
 
     // The primary's own draws recorded after the last vkCmdExecuteCommands
-    for (; primary_it != primary_end; ++primary_it)
-    {
-        merged_dc_indices.push_back(*primary_it);
-        merged_execute_indices.push_back(UNDEFINED_INDEX);
-    }
+    merged_slots.insert(merged_slots.end(), primary_it, primary_end);
 
-    dc_indices_         = std::move(merged_dc_indices);
-    dc_execute_indices_ = std::move(merged_execute_indices);
+    dc_slots_ = std::move(merged_slots);
 
     GFXRECON_ASSERT(n_command_buffers >= command_buffers_.size())
     command_buffers_.resize(n_command_buffers);

@@ -105,15 +105,17 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         const bool          has_draw  = i < options.Draw_Indices.size() && options.Draw_Indices[i].size();
         const bool has_dispatch       = (i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ||
                                   (i < options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size());
-        const bool has_transfer = options.Transfer_Indices.size() && options.Transfer_Indices[i].size();
+        const bool has_transfer = i < options.Transfer_Indices.size() && options.Transfer_Indices[i].size();
 
         if (has_draw)
         {
+            const auto* renderpass_indices =
+                i < options.RenderPass_Indices.size() ? &options.RenderPass_Indices[i] : nullptr;
             draw_call_contexts_.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(bcb_index, qs_index),
                 std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(&options.Draw_Indices[i],
-                                                                                &options.RenderPass_Indices[i],
+                                                                                renderpass_indices,
                                                                                 bcb_index,
                                                                                 qs_index,
                                                                                 options.DrawSubresources,
@@ -216,21 +218,21 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                     // that primary will not have a context created. Create one now.
                     if (primary_dc_context == nullptr)
                     {
-                        auto [new_primary_it, success] =
-                            draw_call_contexts_.emplace(std::piecewise_construct,
-                                                        std::forward_as_tuple(bcb_index, qs_index),
-                                                        std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(
-                                                            nullptr,
-                                                            &options.RenderPass_Indices[i],
-                                                            bcb_index,
-                                                            qs_index,
-                                                            options.DrawSubresources,
-                                                            *object_info_table,
-                                                            options,
-                                                            *active_delegate_,
-                                                            compressor_.get(),
-                                                            acceleration_structures_context_,
-                                                            address_trackers)));
+                        auto [new_primary_it, success] = draw_call_contexts_.emplace(
+                            std::piecewise_construct,
+                            std::forward_as_tuple(bcb_index, qs_index),
+                            std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(
+                                nullptr,
+                                i < options.RenderPass_Indices.size() ? &options.RenderPass_Indices[i] : nullptr,
+                                bcb_index,
+                                qs_index,
+                                options.DrawSubresources,
+                                *object_info_table,
+                                options,
+                                *active_delegate_,
+                                compressor_.get(),
+                                acceleration_structures_context_,
+                                address_trackers)));
                         GFXRECON_ASSERT(success);
                         primary_dc_context = new_primary_it->second;
                     }
@@ -356,22 +358,13 @@ std::shared_ptr<DrawCallsDumpingContext>
 VulkanReplayDumpResourcesBase::FindDrawCallDumpingContext(VkCommandBuffer original_command_buffer,
                                                           decode::Index   qs_index)
 {
-    auto begin_entry = cb_bcb_map_.find(original_command_buffer);
+    const auto begin_entry = cb_bcb_map_.find(original_command_buffer);
     if (begin_entry == cb_bcb_map_.end())
     {
         return nullptr;
     }
 
-    const decode::Index bcb_index = begin_entry->second;
-    for (auto it = draw_call_contexts_.begin(); it != draw_call_contexts_.end(); ++it)
-    {
-        if (it->first.first == bcb_index && it->first.second == qs_index)
-        {
-            return it->second;
-        }
-    }
-
-    return nullptr;
+    return FindContext(draw_call_contexts_, begin_entry->second, qs_index);
 }
 
 std::vector<std::shared_ptr<DrawCallsDumpingContext>>
@@ -433,22 +426,13 @@ std::shared_ptr<DispatchTraceRaysDumpingContext>
 VulkanReplayDumpResourcesBase::FindDispatchTraceRaysContext(VkCommandBuffer original_command_buffer,
                                                             decode::Index   qs_index)
 {
-    auto bcb_entry = cb_bcb_map_.find(original_command_buffer);
+    const auto bcb_entry = cb_bcb_map_.find(original_command_buffer);
     if (bcb_entry == cb_bcb_map_.end())
     {
         return nullptr;
     }
 
-    const decode::Index bcb_index = bcb_entry->second;
-    for (auto it = dispatch_ray_contexts_.begin(); it != dispatch_ray_contexts_.end(); ++it)
-    {
-        if (it->first.first == bcb_index && it->first.second == qs_index)
-        {
-            return it->second;
-        }
-    }
-
-    return nullptr;
+    return FindContext(dispatch_ray_contexts_, bcb_entry->second, qs_index);
 }
 
 std::vector<std::shared_ptr<TransferDumpingContext>>
@@ -2322,8 +2306,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
             dc_primary_context->SecondariesToExecute(call_info.index);
         if (!secondaries_to_execute.empty())
         {
-            // Relabel this execute block's draw call indices to follow the pCommandBuffers order in
-            // which the slots will actually be finalized (the merge at setup followed dump-args order).
+            // Reorder this primary's draw call indices to follow the pCommandBuffers order in
+            // which the slots will actually be finalized.
             {
                 std::vector<std::shared_ptr<DrawCallsDumpingContext>> execution_order;
                 auto                                                  unmatched = secondaries_to_execute;
@@ -2339,7 +2323,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                         }
                     }
                 }
+
+                GFXRECON_ASSERT(secondaries_to_execute.size() == execution_order.size());
                 dc_primary_context->ReorderSecondaries(call_info.index, execution_order);
+
+                // Use the ordered list of secondaries.
+                secondaries_to_execute = execution_order;
             }
 
             uint32_t                     finalized_primaries = 0;
