@@ -1103,7 +1103,8 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
 {
-    // Indices should be sorted
+    // dc_indices_ is in finalization order (not necessarily sorted by value once secondary draws are
+    // merged in), so draws not yet finalized are all at positions >= current_cb_index_.
     if (std::find(dc_indices_.begin(), dc_indices_.end(), index) == dc_indices_.end())
     {
         return false;
@@ -3708,34 +3709,59 @@ DrawCallsDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) c
 
 uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
 {
-    auto n_command_buffers = GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
-
     if (secondaries_.empty())
     {
-        return n_command_buffers;
+        return GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
     }
+
+    auto n_command_buffers = GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
+
+    // Merge secondary draw call indices into the primary in finalization order: the primary's own
+    // draws and the vkCmdExecuteCommands blocks replay in ascending block index order, and each
+    // execute finalizes its secondaries' draws at its own position in the primary's command stream.
+    // Each merged draw is tagged with the block index of the vkCmdExecuteCommands that ran it, so
+    // that render pass correlation can tell apart multiple executions of the same secondary.
+    CommandIndices merged_dc_indices;
+    CommandIndices merged_execute_indices;
+
+    auto       primary_it  = dc_indices_.begin();
+    const auto primary_end = dc_indices_.end();
 
     for (const auto& execute_commands : secondaries_)
     {
+        // The primary's own draws recorded before this vkCmdExecuteCommands finalize first
+        for (; primary_it != primary_end && *primary_it < execute_commands.first; ++primary_it)
+        {
+            merged_dc_indices.push_back(*primary_it);
+            merged_execute_indices.push_back(UNDEFINED_INDEX);
+        }
+
         for (const auto& secondary_context : execute_commands.second)
         {
             const size_t secondary_n_command_buffers = secondary_context->RecaclulateCommandBuffers();
             if (!secondary_n_command_buffers)
             {
-                return n_command_buffers;
+                // Abort the merge, leaving the primary in its original, consistent state
+                return GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
             }
 
             n_command_buffers += secondary_n_command_buffers;
 
-            // Merge draw call indices into primary. Each merged draw is tagged with the block index of the
-            // vkCmdExecuteCommands that ran it, so that render pass correlation can tell apart multiple
-            // executions of the same secondary.
             const std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
-            dc_indices_.reserve(n_command_buffers);
-            dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
-            dc_execute_indices_.resize(dc_indices_.size(), execute_commands.first);
+            merged_dc_indices.insert(merged_dc_indices.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
+            merged_execute_indices.resize(merged_dc_indices.size(), execute_commands.first);
         }
     }
+
+    // The primary's own draws recorded after the last vkCmdExecuteCommands
+    for (; primary_it != primary_end; ++primary_it)
+    {
+        merged_dc_indices.push_back(*primary_it);
+        merged_execute_indices.push_back(UNDEFINED_INDEX);
+    }
+
+    dc_indices_         = std::move(merged_dc_indices);
+    dc_execute_indices_ = std::move(merged_execute_indices);
 
     GFXRECON_ASSERT(n_command_buffers >= command_buffers_.size())
     command_buffers_.resize(n_command_buffers);
