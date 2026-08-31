@@ -157,6 +157,25 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateAccelerationStructure
     }
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCreateTensorARM(const ApiCallInfo&     call_info,
+                                                                     args::CreateTensorARM& args)
+{
+    if (!args.pTensor.IsNull() && args.pTensor.HasData())
+    {
+        table_.AddResource(*args.pTensor.GetPointer());
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateTensorViewARM(const ApiCallInfo&         call_info,
+                                                                         args::CreateTensorViewARM& args)
+{
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pView.IsNull() && args.pView.HasData())
+    {
+        const auto create_info = args.pCreateInfo.GetMetaStructPointer();
+        table_.AddResource(create_info->tensor, *args.pView.GetPointer());
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId device_id,
                                                                           format::HandleId object_id,
                                                                           uint64_t         address)
@@ -355,6 +374,24 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(const 
                                                     writes[i].dstArrayElement,
                                                     writes[i].descriptorCount,
                                                     accel_structs.GetPointer());
+                        }
+                    }
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                {
+                    const auto* tensor_writes =
+                        GetPNextMetaStruct<Decoded_VkWriteDescriptorSetTensorARM>(meta_writes[i].pNext);
+                    if (tensor_writes != nullptr)
+                    {
+                        const auto& tensor_views = tensor_writes->pTensorViews;
+                        if (!tensor_views.IsNull() && tensor_views.HasData())
+                        {
+                            AddResourcesToContainer(meta_writes[i].dstSet,
+                                                    writes[i].dstBinding,
+                                                    writes[i].dstArrayElement,
+                                                    writes[i].descriptorCount,
+                                                    tensor_views.GetPointer());
                         }
                     }
                     break;

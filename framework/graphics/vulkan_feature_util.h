@@ -71,6 +71,15 @@ void CheckUnsupportedFeatures(VkPhysicalDevice                 physicalDevice,
                               const VkPhysicalDeviceFeatures*  pEnabledFeatures,
                               bool                             remove_unsupported);
 
+/**
+ * @brief   Removes feature structures from the pNext chain of VkDeviceCreateInfo
+ *          if their corresponding Vulkan extension is not enabled.
+ *
+ * @param   createInfo          Pointer to the VkDeviceCreateInfo structure to modify.
+ * @param   enabled_extensions  List of enabled extensions to check against.
+ */
+void FilterPNextFeatures(VkDeviceCreateInfo* createInfo, const std::vector<const char*>& enabled_extensions);
+
 GFXRECON_END_NAMESPACE(feature_util)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

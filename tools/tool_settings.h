@@ -23,26 +23,10 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 
-#if defined(D3D12_SUPPORT)
-#include "decode/dx_replay_options.h"
-#include <initguid.h>
-#include "generated/generated_dx12_decoder.h"
-#endif
 #include "decode/file_processor.h"
 
-#include "decode/vulkan_default_allocator.h"
-#include "decode/vulkan_realign_allocator.h"
-#include "decode/vulkan_rebind_allocator.h"
-#include "decode/vulkan_remap_allocator.h"
-#include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_resource_tracking_consumer.h"
-#include "decode/vulkan_tracked_object_info_table.h"
-#include "generated/generated_vulkan_decoder.h"
+#include "decode/replay_options.h"
 #include "format/format.h"
-
-#if ENABLE_OPENXR_SUPPORT
-#include "generated/generated_openxr_decoder.h"
-#endif
 
 #include "util/argument_parser.h"
 #include "util/logging.h"
@@ -50,10 +34,8 @@
 #include "util/options.h"
 #include "util/strings.h"
 
-#if ENABLE_OPENXR_SUPPORT
-#include "openxr/openxr.h"
-#endif
-
+// The window-system helpers below name the Vulkan surface extensions, because the WSI contexts
+// of application::Application use those names as their keys for every API that it replays.
 #include "vulkan/vulkan_core.h"
 
 #include <cstdlib>
@@ -66,33 +48,19 @@
 #define GFXRECON_PLATFORM_SETTINGS_H
 
 const char kApplicationName[] = "GFXReconstruct Replay";
-const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
 const char kLogLevelArgument[]                   = "--log-level";
 const char kLogTimestampsOption[]                = "--log-timestamps";
-const char kDebugMessageSeverityArgument[]       = "--debug-messenger-level";
 const char kLogFileArgument[]                    = "--log-file";
 const char kLogDebugView[]                       = "--log-debugview";
 const char kNoDebugPopup[]                       = "--no-debug-popup";
 const char kCpuMaskArgument[]                    = "--cpu-mask";
 const char kOverrideGpuArgument[]                = "--gpu";
-const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
 const char kLoopFrameArgument[]                  = "--loop-frame";
 const char kLoopCountArgument[]                  = "--loop-count";
-const char kCaptureOption[]                      = "--capture";
-const char kSkipFailedAllocationShortOption[]    = "--sfa";
-const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
-const char kDiscardCachedPsosShortOption[]       = "--dcp";
-const char kDiscardCachedPsosLongOption[]        = "--discard-cached-psos";
-const char kUseCachedPsosOption[]                = "--use-cached-psos";
-const char kOmitPipelineCacheDataShortOption[]   = "--opcd";
-const char kOmitPipelineCacheDataLongOption[]    = "--omit-pipeline-cache-data";
 const char kWsiArgument[]                        = "--wsi";
-const char kSurfaceIndexArgument[]               = "--surface-index";
-const char kMemoryPortabilityShortOption[]       = "-m";
-const char kMemoryPortabilityLongOption[]        = "--memory-translation";
 const char kSyncOption[]                         = "--sync";
 const char kRemoveUnsupportedOption[]            = "--remove-unsupported";
 const char kValidateOption[]                     = "--validate";
@@ -100,9 +68,6 @@ const char kDebugDeviceLostOption[]              = "--debug-device-lost";
 const char kCreateDummyAllocationsOption[]       = "--create-dummy-allocations";
 const char kOmitNullHardwareBuffersLongOption[]  = "--omit-null-hardware-buffers";
 const char kOmitNullHardwareBuffersShortOption[] = "--onhb";
-const char kDeniedMessages[]                     = "--denied-messages";
-const char kAllowedMessages[]                    = "--allowed-messages";
-const char kShaderReplaceArgument[]              = "--replace-shaders";
 const char kScreenshotAllOption[]                = "--screenshot-all";
 const char kScreenshotRangeArgument[]            = "--screenshots";
 const char kScreenshotIntervalArgument[]         = "--screenshot-interval";
@@ -122,58 +87,23 @@ const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-ran
 const char kQuitAfterFrameArgument[]             = "--quit-after-frame";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
-const char kSwapchainOption[]                    = "--swapchain";
-const char kPresentModeOption[]                  = "--present-mode";
-const char kPresentOverrideImageArgument[]       = "--present-override";
-const char kEnableUseCapturedSwapchainIndices[] =
-    "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
-const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
-const char kVirtualSwapchainSkipBlitLongOption[]  = "--virtual-swapchain-skip-blit";
-const char kColorspaceFallback[]                  = "--use-colorspace-fallback";
-const char kOffscreenSwapchainFrameBoundary[]     = "--offscreen-swapchain-frame-boundary";
-const char kFormatArgument[]                      = "--format";
-const char kIncludeBinariesOption[]               = "--include-binaries";
-const char kExpandFlagsOption[]                   = "--expand-flags";
-const char kFilePerFrameOption[]                  = "--file-per-frame";
-const char kFrameRange[]                          = "--frame-range";
-const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
-const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
-const char kWaitBeforePresent[]                   = "--wait-before-present";
-const char kPrintBlockInfoAllOption[]             = "--pbi-all";
-const char kPrintBlockInfosArgument[]             = "--pbis";
-const char kNumPipelineCreationJobs[]             = "--pipeline-creation-jobs";
-const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range";
-const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
-const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
-const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
-const char kDeduplicateDevice[]                   = "--deduplicate-device";
-const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
-const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
-const char kSerializeRenderPasses[]               = "--serialize-render-passes";
-const char kWaitBeforeFrame[]                     = "--wait-before-frame";
-const char kAsyncProcessingOption[]               = "--async-processing";
-
-const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
-const char kScreenshotApplyPrerotationArgument[]    = "--screenshot-apply-prerotation";
-
-#if defined(_WIN32)
-const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
-const char kDxOverrideObjectNames[]            = "--dx12-override-object-names";
-const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
-const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
-const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
-const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
-#endif
-
-const char kDumpResourcesArgument[]       = "--dump-resources";
-const char kDumpResourcesDirArgument[]    = "--dump-resources-dir";
-const char kFrameWarmUpSpirv[]            = "--frame-warm-up-spirv";
-const char kFrameWarmUpLoad[]             = "--frame-warm-up-load";
-const char kSerializeQueueSubmissions[]   = "--serialize-queue-submissions";
-const char kReplayEventPluginPath[]       = "--replay-event-plugin-path";
-const char kReplayEventPluginParams[]     = "--replay-event-plugin-params";
-const char kIsolateRenderPasses[]         = "--isolate-render-passes";
-const char kSerializeComputeAndTransfer[] = "--serialize-compute-and-transfer";
+const char kFormatArgument[]                     = "--format";
+const char kIncludeBinariesOption[]              = "--include-binaries";
+const char kExpandFlagsOption[]                  = "--expand-flags";
+const char kFilePerFrameOption[]                 = "--file-per-frame";
+const char kFrameRange[]                         = "--frame-range";
+const char kPrintBlockInfoAllOption[]            = "--pbi-all";
+const char kPrintBlockInfosArgument[]            = "--pbis";
+const char kNumPipelineCreationJobs[]            = "--pipeline-creation-jobs";
+const char kPreloadMeasurementRangeOption[]      = "--preload-measurement-range";
+const char kWaitBeforeFirstSubmit[]              = "--wait-before-first-submit";
+const char kWaitBeforeFrame[]                    = "--wait-before-frame";
+const char kAsyncProcessingOption[]              = "--async-processing";
+const char kDumpResourcesArgument[]              = "--dump-resources";
+const char kDumpResourcesDirArgument[]           = "--dump-resources-dir";
+const char kDumpResourcesImageFormatArgument[]   = "--dump-resources-image-format";
+const char kFrameWarmUpSpirv[]                   = "--frame-warm-up-spirv";
+const char kFrameWarmUpLoad[]                    = "--frame-warm-up-load";
 
 enum class WsiPlatform
 {
@@ -196,21 +126,6 @@ const char kWsiPlatformMetal[]    = "metal";
 const char kWsiPlatformDisplay[]  = "display";
 const char kWsiPlatformHeadless[] = "headless";
 
-const char kMemoryTranslationNone[]    = "none";
-const char kMemoryTranslationRemap[]   = "remap";
-const char kMemoryTranslationRealign[] = "realign";
-const char kMemoryTranslationRebind[]  = "rebind";
-
-const char kSwapchainVirtual[]   = "virtual";
-const char kSwapchainCaptured[]  = "captured";
-const char kSwapchainOffscreen[] = "offscreen";
-
-const char kPresentModeCapture[]     = "capture";
-const char kPresentModeImmediate[]   = "immediate";
-const char kPresentModeMailbox[]     = "mailbox";
-const char kPresentModeFifo[]        = "fifo";
-const char kPresentModeFifoRelaxed[] = "fifo_relaxed";
-
 #if defined(__ANDROID__)
 const char kDefaultScreenshotDir[]    = "/sdcard";
 const char kDefaultDumpResourcesDir[] = "/sdcard";
@@ -228,97 +143,6 @@ static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_p
         _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
     }
 #endif
-}
-
-static void CheckActiveLayers(const std::string& list)
-{
-    if (!list.empty())
-    {
-        // Check for the presence of the layer name in the list of active layers.
-        size_t start = list.find(kCaptureLayer);
-
-        if (start != std::string::npos)
-        {
-            size_t end         = start + gfxrecon::util::platform::StringLength(kCaptureLayer);
-            bool   match_start = false;
-            bool   match_end   = false;
-
-            // For an exact match, the start of the layer name is either at the start of the list or comes after a path
-            // separator.
-            if ((start == 0) || ((list[start - 1] == ';') || (list[start - 1] == ':')))
-            {
-                match_start = true;
-            }
-
-            // For an exact match, the end of the layer name is either at the end of the list or comes before a path
-            // separator.
-            if ((list.length() == end) || ((list[end] == ';') || (list[end] == ':')))
-            {
-                match_end = true;
-            }
-
-            if (match_start && match_end)
-            {
-                GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
-            }
-        }
-    }
-}
-
-static gfxrecon::decode::VulkanResourceAllocator* CreateDefaultAllocator()
-{
-    return new gfxrecon::decode::VulkanDefaultAllocator(
-        "Try replay with the '-m remap' or '-m rebind' options to enable memory translation.");
-}
-
-static gfxrecon::decode::VulkanResourceAllocator* CreateRemapAllocator()
-{
-    return new gfxrecon::decode::VulkanRemapAllocator(
-        "Try replay with the '-m rebind' option to enable advanced memory translation.");
-}
-
-static gfxrecon::decode::VulkanResourceAllocator* CreateRebindAllocator()
-{
-    return new gfxrecon::decode::VulkanRebindAllocator();
-}
-
-static gfxrecon::decode::CreateResourceAllocator
-InitRealignAllocatorCreateFunc(const std::string&                              filename,
-                               const gfxrecon::decode::VulkanReplayOptions&    replay_options,
-                               gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
-{
-    // Enable first pass of replay to generate resource tracking information.
-    GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking for realign memory portability mode. This may take "
-                           "some time. Please wait...");
-
-    gfxrecon::decode::FileProcessor file_processor_resource_tracking;
-    gfxrecon::decode::VulkanDecoder decoder;
-
-    auto resource_tracking_consumer =
-        new gfxrecon::decode::VulkanResourceTrackingConsumer(replay_options, tracked_object_info_table);
-
-    if (file_processor_resource_tracking.Initialize(filename))
-    {
-        decoder.AddConsumer(resource_tracking_consumer);
-        file_processor_resource_tracking.AddDecoder(&decoder);
-        file_processor_resource_tracking.InitializeFrameProcessing();
-        file_processor_resource_tracking.ProcessAllFrames();
-        file_processor_resource_tracking.RemoveDecoder(&decoder);
-        decoder.RemoveConsumer(resource_tracking_consumer);
-    }
-
-    // Sort the bound resources according to the binding offsets.
-    resource_tracking_consumer->SortMemoriesBoundResourcesByOffset();
-
-    // calculate the replay binding offset of the bound resources and replay memory allocation size
-    resource_tracking_consumer->CalculateReplayBindingOffsetAndMemoryAllocationSize();
-
-    GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking done.");
-
-    return [tracked_object_info_table]() -> gfxrecon::decode::VulkanResourceAllocator* {
-        return new gfxrecon::decode::VulkanRealignAllocator(
-            tracked_object_info_table, "Try replay with the '-m rebind' option to enable advanced memory translation.");
-    };
 }
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -844,37 +668,6 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
 
     return true;
 }
-static gfxrecon::decode::CreateResourceAllocator
-GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
-                               const std::string&                              filename,
-                               const gfxrecon::decode::VulkanReplayOptions&    replay_options,
-                               gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
-{
-    gfxrecon::decode::CreateResourceAllocator func  = CreateDefaultAllocator;
-    const auto&                               value = arg_parser.GetArgumentValue(kMemoryPortabilityShortOption);
-
-    if (!value.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationRebind, value.c_str()) == 0)
-        {
-            func = CreateRebindAllocator;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationRemap, value.c_str()) == 0)
-        {
-            func = CreateRemapAllocator;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationRealign, value.c_str()) == 0)
-        {
-            func = InitRealignAllocatorCreateFunc(filename, replay_options, tracked_object_info_table);
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationNone, value.c_str()) != 0)
-        {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized memory translation option \"%s\"", value.c_str());
-        }
-    }
-
-    return func;
-}
 
 static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
 {
@@ -920,35 +713,6 @@ static void SetWindowOrigin(gfxrecon::decode::ReplayOptions& options, const gfxr
         std::getline(value_input, val, ',');
         options.window_topleft_y = std::stoi(val);
     }
-}
-
-static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
-                                            const char*                           filter_messages)
-{
-    const auto&          value = arg_parser.GetArgumentValue(filter_messages);
-    std::vector<int32_t> msgs;
-    if (!value.empty())
-    {
-        std::vector<std::string> values;
-        std::istringstream       value_input;
-        value_input.str(value);
-
-        for (std::string val; std::getline(value_input, val, ',');)
-        {
-            size_t count = std::count_if(val.begin(), val.end(), ::isdigit);
-            if (count == val.length())
-            {
-                msgs.push_back(std::stoi(val));
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Ignoring invalid filter messages\"%s\", which contains non-numeric values",
-                                     val.c_str());
-                break;
-            }
-        }
-    }
-    return msgs;
 }
 
 static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_parser,
@@ -1148,333 +912,5 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     options.screenshot_dir         = GetScreenshotDir(arg_parser);
     options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
 }
-
-static gfxrecon::decode::VulkanReplayOptions
-GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
-                       const std::string&                              filename,
-                       gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
-{
-    gfxrecon::decode::VulkanReplayOptions replay_options;
-    GetReplayOptions(replay_options, arg_parser, filename);
-
-    if (arg_parser.IsOptionSet(kCaptureOption))
-    {
-        replay_options.capture = true;
-    }
-
-    const auto& override_gpu_group = arg_parser.GetArgumentValue(kOverrideGpuGroupArgument);
-    if (!override_gpu_group.empty())
-    {
-        replay_options.override_gpu_group_index = std::stoi(override_gpu_group);
-    }
-
-    if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
-        arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
-    {
-        replay_options.skip_failed_allocations = true;
-    }
-
-    if (arg_parser.IsOptionSet(kOmitPipelineCacheDataLongOption) ||
-        arg_parser.IsOptionSet(kOmitPipelineCacheDataShortOption))
-    {
-        replay_options.omit_pipeline_cache_data = true;
-    }
-
-    auto swapchain_option          = arg_parser.GetArgumentValue(kSwapchainOption);
-    auto enable_captured_swapchain = arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices);
-    if (swapchain_option.empty())
-    {
-        if (enable_captured_swapchain)
-        {
-            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
-        }
-    }
-    else
-    {
-        if (enable_captured_swapchain)
-        {
-            GFXRECON_LOG_WARNING("Ignoring option: \"%s\" because option: \"%s\" is added",
-                                 kEnableUseCapturedSwapchainIndices,
-                                 kSwapchainOption);
-        }
-
-        if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainCaptured, swapchain_option.c_str()) == 0)
-        {
-            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainOffscreen, swapchain_option.c_str()) == 0)
-        {
-            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kOffscreen;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainVirtual, swapchain_option.c_str()) != 0)
-        {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized \"--swapchain\" option: %s", swapchain_option.c_str());
-        }
-    }
-
-    auto present_mode_option = arg_parser.GetArgumentValue(kPresentModeOption);
-    if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeCapture, present_mode_option.c_str()) == 0)
-    {
-        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kCapture;
-    }
-    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeImmediate, present_mode_option.c_str()) == 0)
-    {
-        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kImmediate;
-    }
-    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeMailbox, present_mode_option.c_str()) == 0)
-    {
-        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kMailbox;
-    }
-    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeFifo, present_mode_option.c_str()) == 0)
-    {
-        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kFifo;
-    }
-    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeFifoRelaxed, present_mode_option.c_str()) == 0)
-    {
-        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kFifoRelaxed;
-    }
-    else if (!present_mode_option.empty())
-    {
-        GFXRECON_LOG_WARNING("Ignoring unrecognized \"--present-mode\" option: %s", present_mode_option.c_str());
-    }
-
-    if (arg_parser.IsOptionSet(kColorspaceFallback))
-    {
-        replay_options.use_colorspace_fallback = true;
-    }
-
-    if (arg_parser.IsOptionSet(kOffscreenSwapchainFrameBoundary))
-    {
-        replay_options.offscreen_swapchain_frame_boundary = true;
-    }
-
-    if (arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitLongOption) ||
-        arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitShortOption))
-    {
-        replay_options.virtual_swapchain_skip_blit = true;
-    }
-
-    const std::string debug_severity_string = arg_parser.GetArgumentValue(kDebugMessageSeverityArgument);
-    if (!debug_severity_string.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase("debug", debug_severity_string.c_str()))
-        {
-            replay_options.debug_message_severity =
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase("info", debug_severity_string.c_str()))
-        {
-            replay_options.debug_message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                                                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase("warning", debug_severity_string.c_str()))
-        {
-            replay_options.debug_message_severity =
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase("error", debug_severity_string.c_str()))
-        {
-            replay_options.debug_message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized debug messenger severity option value \"%s\"",
-                                 debug_severity_string.c_str());
-        }
-    }
-
-    replay_options.replace_shader_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
-    replay_options.create_resource_allocator =
-        GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
-
-    GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
-    replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
-
-    if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
-    {
-        replay_options.present_override_image_name = override_name;
-    }
-
-    if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
-    {
-        replay_options.screenshot_ignore_frameBoundaryAndroid = true;
-    }
-
-    if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
-    {
-        replay_options.quit_after_measurement_frame_range = true;
-    }
-
-    if (arg_parser.IsOptionSet(kFlushMeasurementRangeOption))
-    {
-        replay_options.flush_measurement_frame_range = true;
-    }
-
-    std::string surface_index = arg_parser.GetArgumentValue(kSurfaceIndexArgument);
-    if (!surface_index.empty())
-    {
-        replay_options.surface_index = std::stoi(surface_index);
-    }
-
-    const std::string& skip_get_fence_status = arg_parser.GetArgumentValue(kSkipGetFenceStatus);
-    if (!skip_get_fence_status.empty())
-    {
-        const int i_skip_get_fence_status = std::stoi(skip_get_fence_status);
-        if (i_skip_get_fence_status < static_cast<int>(gfxrecon::decode::SkipGetFenceStatus::COUNT))
-        {
-            replay_options.skip_get_fence_status =
-                static_cast<gfxrecon::decode::SkipGetFenceStatus>(i_skip_get_fence_status);
-        }
-        else
-        {
-            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status': '%s'", skip_get_fence_status.c_str());
-        }
-    }
-
-    const std::string& skip_get_fence_ranges = arg_parser.GetArgumentValue(kSkipGetFenceRanges);
-    if (skip_get_fence_ranges.empty())
-    {
-        gfxrecon::util::UintRange range;
-        range.first = 1;
-        range.last  = std::numeric_limits<uint32_t>::max();
-        replay_options.skip_get_fence_ranges.push_back(range);
-    }
-    else
-    {
-        replay_options.skip_get_fence_ranges =
-            gfxrecon::util::GetUintRanges(skip_get_fence_ranges.c_str(), "skip-get-fence-ranges");
-    }
-    if (arg_parser.IsOptionSet(kWaitBeforePresent))
-    {
-        replay_options.wait_before_present = true;
-    }
-    if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
-    {
-        replay_options.preload_measurement_range = true;
-    }
-
-    const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
-    if (!dump_resources.empty())
-    {
-        replay_options.enable_dump_resources = true;
-        if (dump_resources.find_first_not_of("0123456789,") == std::string::npos)
-        {
-            std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
-            if (values.size() == 3)
-            {
-                replay_options.dump_resources_target.submit_index    = std::stoi(values[0]);
-                replay_options.dump_resources_target.command_index   = std::stoi(values[1]);
-                replay_options.dump_resources_target.draw_call_index = std::stoi(values[2]);
-                replay_options.using_dump_resources_target           = true;
-            }
-        }
-        else
-        {
-            replay_options.dump_resources_block_indices = dump_resources;
-        }
-    }
-
-    replay_options.dump_resources_output_dir = GetDumpResourcesDir(arg_parser);
-
-    replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
-    replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
-    replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
-    replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
-
-    GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
-    replay_options.idle_before_submit          = arg_parser.IsOptionSet(kIdleBeforeSubmit);
-    replay_options.serialize_render_passes     = arg_parser.IsOptionSet(kSerializeRenderPasses);
-    replay_options.serialize_queue_submissions = arg_parser.IsOptionSet(kSerializeQueueSubmissions);
-
-    GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
-    GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);
-
-    replay_options.replay_event_plugin_path   = arg_parser.GetArgumentValue(kReplayEventPluginPath);
-    replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
-    replay_options.isolate_render_passes      = arg_parser.IsOptionSet(kIsolateRenderPasses);
-    replay_options.serialize_compute_and_transfer = arg_parser.IsOptionSet(kSerializeComputeAndTransfer);
-
-    replay_options.screenshot_apply_prerotation = arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument);
-
-    return replay_options;
-}
-
-#if defined(D3D12_SUPPORT)
-static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
-                                                            const std::string&                    filename)
-{
-    gfxrecon::decode::DxReplayOptions replay_options;
-    GetReplayOptions(replay_options, arg_parser, filename);
-
-    replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
-    replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
-
-    if (arg_parser.IsOptionSet(kDxTwoPassReplay))
-    {
-        replay_options.enable_d3d12_two_pass_replay = true;
-    }
-
-    if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
-    {
-        GFXRECON_LOG_WARNING("The parameters --dcp and --discard-cached-psos have been deprecated in favor for "
-                             "--use-cached-psos");
-    }
-
-    if (arg_parser.IsOptionSet(kUseCachedPsosOption))
-    {
-        replay_options.use_cached_psos = true;
-    }
-
-    if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
-    {
-        replay_options.override_object_names = true;
-    }
-
-    if (arg_parser.IsOptionSet(kDxAgsMarkRenderPasses))
-    {
-#ifdef GFXRECON_AGS_SUPPORT
-        replay_options.ags_inject_markers = true;
-#else
-        GFXRECON_LOG_ERROR("Unsupported option --dx12-ags-inject-markers");
-#endif
-    }
-
-    const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
-    if (!dump_resources.empty() && dump_resources.find_first_not_of("0123456789,") == std::string::npos)
-    {
-        std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
-        if (values.size() == 3)
-        {
-            replay_options.dump_resources_target.submit_index    = std::stoi(values[0]);
-            replay_options.dump_resources_target.command_index   = std::stoi(values[1]);
-            replay_options.dump_resources_target.draw_call_index = std::stoi(values[2]);
-            replay_options.enable_dump_resources                 = true;
-            replay_options.using_dump_resources_target           = true;
-        }
-    }
-
-    replay_options.dump_resources_output_dir            = GetDumpResourcesDir(arg_parser);
-    replay_options.dump_resources_before                = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
-    replay_options.dump_resources_modifiable_state_only = arg_parser.IsOptionSet(kDumpResourcesModifiableStateOnly);
-
-    const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);
-    if (!memory_usage.empty())
-    {
-        int memory_usage_int = std::stoi(memory_usage);
-        if (memory_usage_int >= 0 && memory_usage_int <= 100)
-        {
-            replay_options.memory_usage = static_cast<uint32_t>(memory_usage_int);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING(
-                "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
-        }
-    }
-    return replay_options;
-}
-#endif
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

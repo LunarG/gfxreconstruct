@@ -31,6 +31,7 @@
 
 #include <vector>
 #include <functional>
+#include <limits>
 #include <map>
 #include <optional>
 #include <vulkan/vulkan_core.h>
@@ -258,6 +259,7 @@ class VulkanResourcesUtil
     {
         VkDeviceMemory        memory                = VK_NULL_HANDLE;
         VkDeviceSize          size                  = 0;
+        uint32_t              memory_type_index     = std::numeric_limits<uint32_t>::max();
         VkMemoryPropertyFlags memory_property_flags = VkMemoryPropertyFlags(0);
         void*                 mapped_ptr            = nullptr;
     };
@@ -277,6 +279,7 @@ class VulkanResourcesUtil
 
     VkResult CreateStagingTensor(const VkTensorDescriptionARM* desc);
     void     DestroyStagingTensor();
+    void     DestroyStagingTensorMemory();
 
     void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
                                           VkImage            image,
@@ -411,6 +414,20 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
                          VkMemoryPropertyFlags                   desired_flags,
                          uint32_t*                               found_index,
                          VkMemoryPropertyFlags*                  found_flags);
+
+bool FindTensorStagingMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                      uint32_t                                memory_type_bits,
+                                      uint32_t*                               found_index,
+                                      VkMemoryPropertyFlags*                  found_flags);
+
+bool TensorFormatHasFeatures(const VkTensorFormatPropertiesARM& tensor_properties,
+                             VkTensorTilingARM                  tiling,
+                             VkFormatFeatureFlags2              required_features);
+
+bool TensorFormatSupportsFeatures(const VulkanInstanceTable*    instance_table,
+                                  VkPhysicalDevice              physical_device,
+                                  const VkTensorDescriptionARM* description,
+                                  VkFormatFeatureFlags2         required_features);
 
 struct VkOffset3DComparator
 {

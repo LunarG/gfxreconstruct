@@ -240,6 +240,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const graphics::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
     const graphics::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
+
+    // Handle for the replay-injected device calls of `handle`'s device, built
+    // from the registered device table, which must exist.
+    graphics::VulkanInjectedDeviceCalls GetInjectedDeviceCalls(const void* handle) const;
+
     void AddImageHandle(format::HandleId parent_id, format::HandleId id, VkImage handle, VulkanImageInfo&& initial_info)
     {
         AddHandle<VulkanImageInfo>(
@@ -1128,6 +1133,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      VkResult                                              original_result,
                                      const VulkanQueueInfo*                                queue_info,
                                      const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
+
+    VkResult OverrideCreateSemaphore(PFN_vkCreateSemaphore                                      func,
+                                     VkResult                                                   original_result,
+                                     const VulkanDeviceInfo*                                    device_info,
+                                     const StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>* pCreateInfo,
+                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                     HandlePointerDecoder<VkSemaphore>*                         pSemaphore);
 
     VkResult OverrideImportSemaphoreFdKHR(
         PFN_vkImportSemaphoreFdKHR                                      func,

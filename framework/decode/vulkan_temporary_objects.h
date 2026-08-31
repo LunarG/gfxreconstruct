@@ -26,6 +26,7 @@
 #include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_util.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -36,13 +37,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one
 struct TemporaryFence
 {
-    TemporaryFence(VkFence other, VkDevice device, const graphics::VulkanDeviceTable& dt) :
-        handle(other), parent_device(device), device_table(dt)
+    TemporaryFence(VkFence other, VkDevice device, const graphics::VulkanInjectedDeviceCalls& injected_calls) :
+        handle(other), parent_device(device), device_table(injected_calls)
     {
         if (other == VK_NULL_HANDLE)
         {
+            auto              injected = device_table.Open();
             VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-            const VkResult    res      = device_table.CreateFence(parent_device, &fence_ci, nullptr, &handle);
+            const VkResult    res      = injected->CreateFence(parent_device, &fence_ci, nullptr, &handle);
             needs_cleanup              = (res == VK_SUCCESS);
             if (res != VK_SUCCESS)
             {
@@ -56,6 +58,14 @@ struct TemporaryFence
         }
     }
 
+    TemporaryFence(VkFence other, VkDevice device, const graphics::VulkanDeviceTable& dt) :
+        TemporaryFence(other, device, graphics::VulkanInjectedDeviceCalls(&dt))
+    {}
+
+    TemporaryFence(VkDevice device, const graphics::VulkanInjectedDeviceCalls& injected_calls) :
+        TemporaryFence(VK_NULL_HANDLE, device, injected_calls)
+    {}
+
     TemporaryFence(VkDevice device, const graphics::VulkanDeviceTable& dt) : TemporaryFence(VK_NULL_HANDLE, device, dt)
     {}
 
@@ -65,7 +75,8 @@ struct TemporaryFence
         GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
 
         // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
-        VkResult res = device_table.WaitForFences(parent_device, 1, &handle, VK_TRUE, 10000000000);
+        auto     injected = device_table.Open();
+        VkResult res      = injected->WaitForFences(parent_device, 1, &handle, VK_TRUE, 10000000000);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString(res).c_str());
@@ -79,7 +90,8 @@ struct TemporaryFence
         GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
         GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
 
-        VkResult res = device_table.ResetFences(parent_device, 1, &handle);
+        auto     injected = device_table.Open();
+        VkResult res      = injected->ResetFences(parent_device, 1, &handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("ResetFences failed with %s", util::ToString(res).c_str());
@@ -95,27 +107,35 @@ struct TemporaryFence
             GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
             GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
 
-            device_table.DestroyFence(parent_device, handle, nullptr);
+            auto injected = device_table.Open();
+            injected->DestroyFence(parent_device, handle, nullptr);
         }
     }
 
-    VkFence                            handle;
-    VkDevice                           parent_device;
-    const graphics::VulkanDeviceTable& device_table;
-    bool                               needs_cleanup;
+    VkFence                             handle;
+    VkDevice                            parent_device;
+    graphics::VulkanInjectedDeviceCalls device_table;
+    bool                                needs_cleanup;
 };
 
 struct TemporaryCommandBuffer
 {
+    TemporaryCommandBuffer(const VulkanDeviceInfo&                    dev_info,
+                           const graphics::VulkanInjectedDeviceCalls& injected_calls) :
+        device_info(dev_info),
+        device_table(injected_calls)
+    {}
+
     TemporaryCommandBuffer(const VulkanDeviceInfo& dev_info, const graphics::VulkanDeviceTable& dev_table) :
-        device_info(dev_info), device_table(dev_table)
+        TemporaryCommandBuffer(dev_info, graphics::VulkanInjectedDeviceCalls(&dev_table))
     {}
 
     ~TemporaryCommandBuffer()
     {
         if (command_pool != VK_NULL_HANDLE)
         {
-            device_table.DestroyCommandPool(device_info.handle, command_pool, nullptr);
+            auto injected = device_table.Open();
+            injected->DestroyCommandPool(device_info.handle, command_pool, nullptr);
         }
     };
 
@@ -125,11 +145,11 @@ struct TemporaryCommandBuffer
 
     VkResult SubmitAndDestroy();
 
-    const VulkanDeviceInfo&            device_info{ nullptr };
-    const graphics::VulkanDeviceTable& device_table{ nullptr };
-    VkCommandPool                      command_pool{ VK_NULL_HANDLE };
-    VkCommandBuffer                    command_buffer{ VK_NULL_HANDLE };
-    VkQueue                            queue{ VK_NULL_HANDLE };
+    VkCommandPool                       command_pool{ VK_NULL_HANDLE };
+    VkCommandBuffer                     command_buffer{ VK_NULL_HANDLE };
+    VkQueue                             queue{ VK_NULL_HANDLE };
+    const VulkanDeviceInfo&             device_info;
+    graphics::VulkanInjectedDeviceCalls device_table;
 };
 
 GFXRECON_END_NAMESPACE(decode)

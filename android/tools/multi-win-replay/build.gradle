@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion GFXR_COMPILE_SDK_VERSION.toInteger()
     namespace = 'com.lunarg.gfxreconstruct.replay'
-    ndkVersion = '26.3.11579264'
+    ndkVersion = GFXR_NDK_VERSION
     defaultConfig {
         applicationId "com.lunarg.gfxreconstruct.replay"
-        minSdkVersion 26
-        targetSdkVersion 33
+        minSdkVersion GFXR_MIN_SDK_VERSION.toInteger()
+        targetSdkVersion GFXR_TARGET_SDK_VERSION.toInteger()
         versionCode 1
         versionName "1.0"
         ndk {

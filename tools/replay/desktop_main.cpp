@@ -24,6 +24,7 @@
 
 #include "replay_settings.h"
 #include "replay_main_common.h"
+#include "tool_feature_options.h"
 
 #include "application/application.h"
 #include "decode/file_processor.h"
@@ -71,8 +72,6 @@ void WaitForExit()
 void WaitForExit() {}
 #endif
 
-const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
-
 int main(int argc, const char** argv)
 {
     int return_code = 0;
@@ -84,10 +83,22 @@ int main(int argc, const char** argv)
     std::vector<std::unique_ptr<gfxrecon::replay::ReplayFeatureBase>> features;
     gfxrecon::replay::LoadFeatures(features);
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
+    // Each Feature adds its own command-line entries to the shared name lists, so an entry
+    // exists only when the build contains the Feature that reads it. The ArgumentParser keeps
+    // its own copy of the names, so the two lists go out of scope as soon as it is built.
+    gfxrecon::util::ArgumentParser arg_parser = [&features, argc, argv]() {
+        std::string options   = kOptions;
+        std::string arguments = kArguments;
+        AppendFeatureOptions(features, options, arguments);
+        return gfxrecon::util::ArgumentParser(argc, argv, options, arguments);
+    }();
 
-    if (CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(argv[0], arg_parser) ||
-        CheckOptionPrintUsage(argv[0], arg_parser))
+    if (CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(argv[0], arg_parser))
+    {
+        gfxrecon::util::Log::Release();
+        exit(0);
+    }
+    else if (CheckOptionPrintUsage(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();
         exit(0);
@@ -107,6 +118,11 @@ int main(int argc, const char** argv)
     GetLogSettings(arg_parser, log_settings);
     gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
+    // An entry that received a value outside its accepted set gets a warning. The Feature that
+    // owns the entry then uses its default value. The log settings apply before this call, so
+    // --log-level controls the warning.
+    CheckFeatureOptionValues(features, arg_parser);
+
     try
     {
         const std::string filename = arg_parser.GetPositionalArguments()[0];
@@ -118,12 +134,7 @@ int main(int argc, const char** argv)
             return std::make_shared<gfxrecon::application::Application>(kApplicationName, fp, wsi_extension, nullptr);
         };
 
-        if (!gfxrecon::replay::RunReplay(file_processor,
-                                         features,
-                                         arg_parser,
-                                         filename,
-                                         gfxrecon::util::platform::GetEnv(kLayerEnvVar),
-                                         make_application))
+        if (!gfxrecon::replay::RunReplay(file_processor, features, arg_parser, filename, make_application))
         {
             return_code = -1;
         }

@@ -124,6 +124,24 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     return kNeedsPassthrough;
 }
 
+decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode::InitTensorArgs& args)
+{
+    GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitTensorCommand);
+
+    // If the tensor is in the unused list, omit its initialization data from the file.
+    if (unreferenced_ids_.find(args.tensor_id) != unreferenced_ids_.end())
+    {
+        // In its place insert a dummy annotation meta command. This should keep the block index when
+        // replaying an optimized trimmed capture in in alignment with the block index calculated
+        // at capture time
+        return WriteAnnotation(format::kAnnotationLabelRemovedResource,
+                               "Removed subresource from tensor " + std::to_string(args.tensor_id))
+                   ? kSuccess
+                   : kError;
+    }
+    return kNeedsPassthrough;
+}
+
 // Returns whether to filter this MethodCall block or not
 bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args) const
 {

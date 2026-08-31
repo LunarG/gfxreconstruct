@@ -473,19 +473,19 @@ void VulkanReplayConsumer::Process_vkCreateSemaphore(
     const ApiCallInfo&                          call_info,
     args::CreateSemaphore&                      args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSemaphoreCreateInfo* in_pCreateInfo = args.pCreateInfo.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
     if (!args.pSemaphore.IsNull()) { args.pSemaphore.SetHandleLength(1); }
-    VkSemaphore* out_pSemaphore = args.pSemaphore.GetHandlePointer();
+    VulkanSemaphoreInfo handle_info;
+    args.pSemaphore.SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(args.pSemaphore.GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSemaphore(in_device, in_pCreateInfo, in_pAllocator, out_pSemaphore);
+    VkResult replay_result = OverrideCreateSemaphore(GetDeviceTable(in_device->handle)->CreateSemaphore, args.result, in_device, &args.pCreateInfo, &args.pAllocator, &args.pSemaphore);
     CheckResult("vkCreateSemaphore", args.result, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanSemaphoreInfo>(args.device, args.pSemaphore.GetPointer(), out_pSemaphore, &CommonObjectInfoTable::AddVkSemaphoreInfo);
+    AddHandle<VulkanSemaphoreInfo>(args.device, args.pSemaphore.GetPointer(), args.pSemaphore.GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkSemaphoreInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySemaphore(

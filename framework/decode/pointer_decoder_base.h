@@ -71,6 +71,13 @@ class PointerDecoderBase
 
     size_t GetLength() const { return len_; }
 
+    // Overrides the decoded array length reported by GetLength().  This does not resize or
+    // otherwise touch the underlying data/output buffers; it is intended for callers (such as
+    // the replay frame loop consumer) that need to temporarily restrict a decoded array to a
+    // sub-range (e.g. a single element) for one call, and are responsible for restoring the
+    // original value afterward if the array's backing storage is reused.
+    void SetLength(size_t len) { len_ = len; }
+
     static bool PeekAttributesAndType(const uint8_t* buffer,
                                       size_t         buffer_size,
                                       bool&          is_null,
