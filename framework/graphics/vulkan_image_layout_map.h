@@ -40,13 +40,6 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class ImageLayoutMap
 {
   public:
-    // A subresource range and the layout its subresources are in.
-    struct RangeLayout
-    {
-        VkImageSubresourceRange range;
-        VkImageLayout           layout;
-    };
-
     ImageLayoutMap() = default;
 
     void Initialize(uint32_t mip_levels, uint32_t array_layers, VkImageAspectFlags aspects);
@@ -67,8 +60,6 @@ class ImageLayoutMap
 
     // Layout of a single subresource, or VK_IMAGE_LAYOUT_UNDEFINED if the image has no such aspect.
     [[nodiscard]] VkImageLayout GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const;
-
-    [[nodiscard]] std::vector<RangeLayout> GetSubresourceLayouts() const;
 
   private:
     // Highest slot supported for aspect.

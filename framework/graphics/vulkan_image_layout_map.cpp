@@ -201,50 +201,6 @@ VkImageLayout ImageLayoutMap::GetLayout(VkImageAspectFlagBits aspect, uint32_t m
     return VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
-std::vector<ImageLayoutMap::RangeLayout> ImageLayoutMap::GetSubresourceLayouts() const
-{
-    std::vector<RangeLayout> result;
-
-    if (!IsInitialized())
-    {
-        return result;
-    }
-
-    if (is_uniform_)
-    {
-        result.push_back({ { aspects_, 0, mip_levels_, 0, array_layers_ }, uniform_layout_ });
-        return result;
-    }
-
-    result.reserve(subresource_layouts_.size());
-
-    for (uint32_t aspect_index = 0; aspect_index < kAspectSlotCount; ++aspect_index)
-    {
-        const VkImageAspectFlags aspect = GetAspectFromIndex(aspect_index);
-        if ((aspects_ & aspect) == 0)
-        {
-            continue;
-        }
-
-        for (uint32_t mip = 0; mip < mip_levels_; ++mip)
-        {
-            for (uint32_t layer = 0; layer < array_layers_; ++layer)
-            {
-                VkImageSubresourceRange range = {};
-                range.aspectMask              = aspect;
-                range.baseMipLevel            = mip;
-                range.levelCount              = 1;
-                range.baseArrayLayer          = layer;
-                range.layerCount              = 1;
-
-                result.push_back({ range, subresource_layouts_[GetSubresourceIndex(aspect_index, mip, layer)] });
-            }
-        }
-    }
-
-    return result;
-}
-
 VkImageAspectFlags GetLayoutAspects(VkImageLayout layout)
 {
     switch (layout)
