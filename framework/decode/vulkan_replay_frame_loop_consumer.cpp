@@ -473,6 +473,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             GFXRECON_LOG_DEBUG(
                 "Resetting pool 0x%" PRIx64 " (replay time handle == 0x%" PRIx64 ")", info->handle, info->capture_id);
             device_table->CmdResetQueryPool(cb_info->handle, pool_handle, 0, pool_size);
+
+            // keep tracked query availability in sync with the injected reset
+            cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
     }
 }
@@ -716,6 +719,9 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceEvents(format::HandleId device)
         {
             CHECK_VK_RESULT(device_table->ResetEvent(vk_device, vk_event), "vkResetEvent");
         }
+
+        // keep tracked event terminal-state in sync with the fixup
+        event_info->latched_state = was_initially_set ? VK_EVENT_SET : VK_EVENT_RESET;
     }
 }
 
