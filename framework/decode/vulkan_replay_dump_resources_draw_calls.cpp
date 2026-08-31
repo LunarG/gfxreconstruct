@@ -74,6 +74,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
         command_buffers_.resize(n_cmd_buffs, VK_NULL_HANDLE);
 
         dc_indices_ = *draw_indices;
+        dc_execute_indices_.assign(dc_indices_.size(), UNDEFINED_INDEX);
     }
 
     if (renderpass_indices != nullptr)
@@ -161,6 +162,7 @@ void DrawCallsDumpingContext::Release()
 
     draw_call_params_.clear();
     dc_indices_.clear();
+    dc_execute_indices_.clear();
     RP_indices_.clear();
     render_pass_dumped_descriptors_.clear();
 
@@ -3221,46 +3223,20 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
-        const uint64_t dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
+        const size_t   dc_vec_idx = CmdBufToDCVectorIndex(cmd_buf_idx);
+        const uint64_t dc_index   = dc_indices_[dc_vec_idx];
 
-        // Draw calls inside this render pass get the newly created / modified render pass. This includes draw
-        // calls recorded in secondary command buffers whose vkCmdExecuteCommands lies inside this render pass.
-        // All other draw calls (earlier or later render passes, or draws that cannot be correlated) get the
-        // original render pass.
+        // Draw calls inside this render pass get the newly created / modified render pass. Draws merged from a
+        // secondary command buffer are correlated through the vkCmdExecuteCommands block that executed them,
+        // so each execution of the same secondary resolves to its own subpass. All other draw calls (earlier
+        // or later render passes, or draws that cannot be correlated) get the original render pass.
         uint64_t sp        = 0;
         bool     use_clone = false;
         if (block_range != nullptr)
         {
-            use_clone = FindSubpassInRange(*block_range, dc_index, sp);
-
-            if (!use_clone)
-            {
-                for (const auto& [execute_index, executed_secondaries] : secondaries_)
-                {
-                    uint64_t execute_sp = 0;
-                    if (!FindSubpassInRange(*block_range, execute_index, execute_sp))
-                    {
-                        continue;
-                    }
-
-                    for (const auto& secondary_context : executed_secondaries)
-                    {
-                        const auto& secondary_dc_indices = secondary_context->GetDrawCallIndices();
-                        if (std::find(secondary_dc_indices.begin(), secondary_dc_indices.end(), dc_index) !=
-                            secondary_dc_indices.end())
-                        {
-                            sp        = execute_sp;
-                            use_clone = true;
-                            break;
-                        }
-                    }
-
-                    if (use_clone)
-                    {
-                        break;
-                    }
-                }
-            }
+            const Index execute_index = dc_execute_indices_[dc_vec_idx];
+            use_clone = (execute_index != UNDEFINED_INDEX) ? FindSubpassInRange(*block_range, execute_index, sp)
+                                                           : FindSubpassInRange(*block_range, dc_index, sp);
         }
 
         if (use_clone)
@@ -3751,10 +3727,13 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
 
             n_command_buffers += secondary_n_command_buffers;
 
-            // Merge draw call indices into primary
+            // Merge draw call indices into primary. Each merged draw is tagged with the block index of the
+            // vkCmdExecuteCommands that ran it, so that render pass correlation can tell apart multiple
+            // executions of the same secondary.
             const std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
             dc_indices_.reserve(n_command_buffers);
             dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
+            dc_execute_indices_.resize(dc_indices_.size(), execute_commands.first);
         }
     }
 

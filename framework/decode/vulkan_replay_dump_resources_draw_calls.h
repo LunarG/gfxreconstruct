@@ -303,6 +303,11 @@ class DrawCallsDumpingContext
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
     CommandIndices               dc_indices_;
+
+    // Parallel to dc_indices_: for draws merged from a secondary, the block index of the
+    // vkCmdExecuteCommands that executed them; UNDEFINED_INDEX for the primary's own draws.
+    CommandIndices dc_execute_indices_;
+
     RenderPassIndices            RP_indices_;
     CommandImageSubresource      dc_subresources_;
     const VulkanPipelineInfo*    bound_gr_pipeline_;
