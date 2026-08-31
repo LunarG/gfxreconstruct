@@ -321,21 +321,39 @@ void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
         per_device_fence_tracking_.clear();
         per_device_event_tracking_.clear();
         per_device_semaphore_tracking_.clear();
-        for (auto& [device_id, buffer_tracking] : per_device_buffer_tracking_)
-        {
-            buffer_tracking.DestroyShadowBuffers();
-        }
-        per_device_buffer_tracking_.clear();
+        ResetBufferTracking();
         StartLooping();
     }
 }
 
 VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
 {
+    ResetBufferTracking();
+}
+
+void VulkanReplayFrameLoopConsumer::ResetBufferTracking()
+{
     for (auto& [device_id, buffer_tracking] : per_device_buffer_tracking_)
     {
         buffer_tracking.DestroyShadowBuffers();
     }
+    per_device_buffer_tracking_.clear();
+}
+
+void VulkanReplayFrameLoopConsumer::ResetBufferTracking(format::HandleId device)
+{
+    auto it = per_device_buffer_tracking_.find(device);
+    if (it != per_device_buffer_tracking_.end())
+    {
+        it->second.DestroyShadowBuffers();
+        per_device_buffer_tracking_.erase(it);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkDestroyDevice(const ApiCallInfo& call_info, args::DestroyDevice& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(call_info, args);
+    ResetBufferTracking(args.device);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)

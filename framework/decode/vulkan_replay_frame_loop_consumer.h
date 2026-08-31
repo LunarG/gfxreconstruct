@@ -89,6 +89,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, args::ReleaseProfilingLockKHR& args) override;
 
+    void Process_vkDestroyDevice(const ApiCallInfo& call_info, args::DestroyDevice& args) override;
+
     virtual void StartLooping() override;
 
     // Private declarations
@@ -201,6 +203,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     BufferTracking& GetBufferTracking(format::HandleId device);
     void            RecordBufferStates();
     void            FixupDeviceBuffers(format::HandleId device, format::HandleId queue);
+    void            ResetBufferTracking();
+    void            ResetBufferTracking(format::HandleId device);
 
     // Private data
   private:
