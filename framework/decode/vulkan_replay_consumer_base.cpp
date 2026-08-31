@@ -5959,9 +5959,17 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
         if (RequiresImageLayoutTracking())
         {
             // Update the image's layout based on the recorded layout transitions in the secondary command buffer.
-            for (const auto& [image_id, layout] : secondary_cmd_buffer_info->image_layout_barriers)
+            for (const auto& [image_id, secondary_layouts] : secondary_cmd_buffer_info->image_layout_barriers)
             {
-                in_commandBuffer->image_layout_barriers[image_id] = layout;
+                auto& primary_layouts = in_commandBuffer->image_layout_barriers[image_id];
+                if (primary_layouts.IsInitialized())
+                {
+                    primary_layouts.MergeFrom(secondary_layouts);
+                }
+                else
+                {
+                    primary_layouts = secondary_layouts;
+                }
             }
         }
     }
