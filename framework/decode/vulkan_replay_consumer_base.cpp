@@ -6095,7 +6095,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             import_fd_info = nullptr;
         }
 
-        if (import_fd_info != nullptr)
+        // Skip the synthesized export if using memory replacement
+        if (import_fd_info != nullptr && !UseAddressReplacement(device_info))
         {
             auto device_table = GetInjectedDeviceCalls(device_info->handle);
             auto injected     = device_table.Open();
@@ -12490,8 +12491,7 @@ bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* dev
 
 bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const
 {
-    // -m rebind manages memory via VMA and does not preserve external memory
-    if (device_info == nullptr || UseAddressReplacement(device_info))
+    if (device_info == nullptr)
     {
         return false;
     }
@@ -14259,7 +14259,7 @@ VulkanReplayConsumerBase::OverrideGetMemoryFdKHR(PFN_vkGetMemoryFdKHR           
         allocator_data = memory_info->allocator_data;
     }
 
-    return allocator->GetMemoryFd(get_fd_info, fd, memory_info->allocator_data);
+    return allocator->GetMemoryFd(get_fd_info, fd, allocator_data);
 }
 
 void VulkanReplayConsumerBase::OverrideGetDeviceMemoryOpaqueCaptureAddress(
