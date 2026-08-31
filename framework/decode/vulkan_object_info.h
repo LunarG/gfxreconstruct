@@ -451,7 +451,7 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkDeviceAddress                       capture_address{ 0 };
     VkDeviceAddress                       replay_address{ 0 };
 
-    // This is only used when loading the initial state for trimmed files.
+    // Non-zero implies a sucessful vkBindBufferMemory
     VkMemoryPropertyFlags memory_property_flags{ 0 };
 
     std::vector<VkMemoryPropertyFlags> sparse_memory_property_flags;
