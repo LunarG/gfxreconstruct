@@ -86,6 +86,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void Process_vkCreateAccelerationStructureKHR(const ApiCallInfo&                    call_info,
                                                   args::CreateAccelerationStructureKHR& args) override;
 
+    void Process_vkCreateTensorARM(const ApiCallInfo& call_info, args::CreateTensorARM& args) override;
+
+    void Process_vkCreateTensorViewARM(const ApiCallInfo& call_info, args::CreateTensorViewARM& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -272,6 +276,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
             table_.AddResource(pipeline_id);
 
             const auto* meta_create_info = pCreateInfos->GetMetaStructPointer() + i;
+
+            // Track the base pipeline of a derivative pipeline as a child, so that creation of the base pipeline is
+            // preserved whenever the derivative pipeline is referenced (its create info names the base handle).
+            table_.AddResource(pipeline_id, meta_create_info->basePipelineHandle);
 
             if (auto* meta_pipeline_info =
                     GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(meta_create_info->pNext))

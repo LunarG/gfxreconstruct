@@ -32,98 +32,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-struct LayoutInfo
-{
-    uint32_t alignment = 0;
-    uint32_t size      = 0;
-};
-
-// NOTE: compute_type_layout does not handle different block-layouts (std140, std430, scalar), basically assuming std430
-// TODO: if possible avoid offset-calculation entirely, use SpvReflectBlockVariable instead
-LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description)
-{
-    uint32_t alignment = 0;
-    uint32_t num_bytes = type_description->traits.numeric.scalar.width / 8;
-
-    switch (type_description->op)
-    {
-        case SpvOpTypeInt:
-
-            // 64-bit integers: align to 8-byte
-            if (type_description->traits.numeric.scalar.width == 64)
-            {
-                num_bytes = sizeof(uint64_t);
-                alignment = sizeof(uint64_t);
-            }
-            break;
-
-        case SpvOpTypeVector:
-        {
-            if (type_description->traits.numeric.vector.component_count == 2)
-            {
-                num_bytes *= 2;
-                alignment = num_bytes;
-            }
-            else
-            {
-                alignment = num_bytes * 4;
-                num_bytes *= type_description->traits.numeric.vector.component_count;
-            }
-            break;
-        }
-
-        case SpvOpTypeMatrix:
-        {
-            bool is_col_major = type_description->decoration_flags & SPV_REFLECT_DECORATION_COLUMN_MAJOR ||
-                                !(type_description->decoration_flags & SPV_REFLECT_DECORATION_ROW_MAJOR);
-
-            num_bytes = (is_col_major ? type_description->traits.numeric.matrix.column_count
-                                      : type_description->traits.numeric.matrix.row_count) *
-                        type_description->traits.numeric.matrix.stride;
-        }
-
-        break;
-
-        case SpvOpTypeArray:
-        case SpvOpTypeRuntimeArray:
-            num_bytes = std::max(num_bytes, type_description->traits.array.stride);
-            for (uint32_t d = 0; d < type_description->traits.array.dims_count; ++d)
-            {
-                num_bytes *= type_description->traits.array.dims[d] == SPV_REFLECT_ARRAY_DIM_RUNTIME
-                                 ? 1
-                                 : type_description->traits.array.dims[d];
-            }
-            break;
-
-        case SpvOpTypeStruct:
-        {
-            uint32_t offset    = 0;
-            uint32_t max_align = 0;
-
-            for (uint32_t i = 0; i < type_description->member_count; ++i)
-            {
-                LayoutInfo layout_info = compute_type_layout(&type_description->members[i]);
-                GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, layout_info.alignment));
-                offset += layout_info.size;
-                max_align = std::max(max_align, layout_info.alignment);
-            }
-
-            GFXRECON_NARROWING_ASSIGN(num_bytes, util::aligned_value(offset, max_align));
-        }
-        break;
-
-        case SpvOpTypePointer:
-        case SpvOpTypeForwardPointer:
-            num_bytes = sizeof(uint64_t);
-            alignment = sizeof(uint64_t);
-            break;
-
-        default:
-            break;
-    }
-    return { alignment, num_bytes };
-}
-
 static bool check_type_potential_ref(const SpvReflectTypeDescription* td, bool allow_uvec2)
 {
     if (td->storage_class == spv::StorageClassPhysicalStorageBuffer ||
@@ -275,6 +183,52 @@ bool SpirVParsingUtil::GetVariableDecorations(const Instruction*   variable_insn
     return true;
 }
 
+uint32_t SpirVParsingUtil::ResolveStructTypeId(uint32_t type_id)
+{
+    // bounded, a member-type is at most a handful of pointer/array indirections away from its struct
+    constexpr uint32_t max_indirections = 8;
+
+    for (uint32_t i = 0; i < max_indirections; ++i)
+    {
+        const Instruction* type_insn = FindDef(type_id);
+
+        if (type_insn == nullptr)
+        {
+            break;
+        }
+
+        switch (type_insn->opcode())
+        {
+            case spv::OpTypeStruct:
+                return type_id;
+            case spv::OpTypePointer:
+                // OpTypePointer <result-id> <storage-class> <pointee-type>
+                type_id = type_insn->operand(1);
+                break;
+            case spv::OpTypeArray:
+            case spv::OpTypeRuntimeArray:
+                // OpTypeArray <result-id> <element-type> [<length>]
+                type_id = type_insn->operand(0);
+                break;
+            default:
+                return 0;
+        }
+    }
+    return 0;
+}
+
+std::optional<uint32_t> SpirVParsingUtil::GetMemberOffset(uint32_t struct_type_id, uint32_t member_index) const
+{
+    if (const auto struct_it = member_offsets_.find(struct_type_id); struct_it != member_offsets_.end())
+    {
+        if (const auto member_it = struct_it->second.find(member_index); member_it != struct_it->second.end())
+        {
+            return member_it->second;
+        }
+    }
+    return std::nullopt;
+}
+
 bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, size_t spirv_num_bytes)
 {
     if (spirv_code == nullptr)
@@ -283,6 +237,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     }
 
     definitions_.clear();
+    member_offsets_.clear();
     store_instructions_.clear();
     decorations_instructions_.clear();
     buffer_reference_map_.clear();
@@ -338,6 +293,14 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         if (insn.resultId() != 0)
         {
             definitions_[insn.resultId()] = &insn;
+        }
+
+        // collect member-offsets, the only authoritative source for a struct's layout
+        // OpMemberDecorate <struct-type> <member-index> Offset <byte-offset>
+        if (insn.opcode() == spv::OpMemberDecorate && insn.num_operands() >= 4 &&
+            insn.operand(2) == spv::DecorationOffset)
+        {
+            member_offsets_[insn.operand(0)][insn.operand(1)] = insn.operand(3);
         }
     }
 
@@ -415,10 +378,6 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
                 if (auto& [td, offset, stride, member_names] = queue_item; td)
                 {
-                    // align offset
-                    auto layout_info = compute_type_layout(td);
-                    offset           = util::aligned_value(offset, layout_info.alignment);
-
                     member_names.emplace_back(td->struct_member_name ? td->struct_member_name : "unknown");
 
                     // we pick up potential buffer-references here and confirm later.
@@ -443,15 +402,21 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         buffer_reference_map_[ref_info] = member_names;
                     }
 
+                    // members are located via the module's Offset-decorations, which are correct for
+                    // any block-layout (std140, std430, scalar)
+                    const uint32_t struct_type_id = ResolveStructTypeId(td->id);
+
                     for (uint32_t j = 0; j < td->member_count; ++j)
                     {
-                        auto* member = td->members + j;
-                        queue.push_back({ member, offset, stride, member_names });
+                        auto member_offset = GetMemberOffset(struct_type_id, j);
 
-                        // align offset, add size
-                        auto child_layout_info = compute_type_layout(member);
-                        GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, child_layout_info.alignment));
-                        offset += child_layout_info.size;
+                        if (!member_offset.has_value())
+                        {
+                            GFXRECON_LOG_DEBUG(
+                                "No Offset-decoration for member %u of type-id %u, skipping", j, struct_type_id);
+                            continue;
+                        }
+                        queue.push_back({ td->members + j, offset + *member_offset, stride, member_names });
                     }
                 }
             }
@@ -612,26 +577,21 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                         continue;
                                     }
 
-                                    // offset calculation
-                                    for (uint32_t m = 0; m < idx; ++m)
+                                    // member-offset from the module's Offset-decoration
+                                    auto member_offset = GetMemberOffset(ResolveStructTypeId(td->id), idx);
+
+                                    if (!member_offset.has_value())
                                     {
-                                        auto layout_info = compute_type_layout(&td->members[m]);
-
-                                        // align offset, add size
-                                        GFXRECON_NARROWING_ASSIGN(
-                                            buffer_reference_info.buffer_offset,
-                                            util::aligned_value(buffer_reference_info.buffer_offset,
-                                                                layout_info.alignment));
-                                        buffer_reference_info.buffer_offset += layout_info.size;
+                                        GFXRECON_LOG_WARNING(
+                                            "No Offset-decoration for member %u of type-id %u (op: %s), "
+                                            "cannot determine a buffer-offset",
+                                            idx,
+                                            td->id,
+                                            string_SpvOpcode(td->op));
+                                        return;
                                     }
-
+                                    buffer_reference_info.buffer_offset += *member_offset;
                                     td = td->members + idx;
-
-                                    // align member itself
-                                    auto target_layout_info = compute_type_layout(td);
-                                    GFXRECON_NARROWING_ASSIGN(buffer_reference_info.buffer_offset,
-                                                              util::aligned_value(buffer_reference_info.buffer_offset,
-                                                                                  target_layout_info.alignment));
 
                                     access_chain_names.emplace_back(td->struct_member_name ? td->struct_member_name
                                                                                            : "unknown");

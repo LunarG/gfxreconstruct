@@ -23,6 +23,7 @@
 #ifndef GFXRECONSTRUCT_UTIL_SPIRV_PARSING_UTIL_H
 #define GFXRECONSTRUCT_UTIL_SPIRV_PARSING_UTIL_H
 
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <map>
@@ -71,8 +72,17 @@ class SpirVParsingUtil
     const Instruction* FindVariableStoring(uint32_t variable_id);
     bool GetVariableDecorations(const Instruction* variable_insn, BufferReferenceInfo& buffer_reference_info);
 
+    //! peel pointer- and array-types to reach the struct-type they lead to, 0 if there is none
+    uint32_t ResolveStructTypeId(uint32_t type_id);
+
+    //! byte-offset of a struct-member, taken from the module's OpMemberDecorate/Offset
+    std::optional<uint32_t> GetMemberOffset(uint32_t struct_type_id, uint32_t member_index) const;
+
     // LUT for hopping around instructions from a result ID
     std::unordered_map<uint32_t, const Instruction*> definitions_{};
+
+    // struct-type-id -> member-index -> byte-offset, from OpMemberDecorate/Offset
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, uint32_t>> member_offsets_{};
 
     std::vector<const Instruction*>                         store_instructions_{};
     std::vector<const Instruction*>                         decorations_instructions_{};

@@ -807,6 +807,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--replay-event-plugin-params PARAMS]
                           [--isolate-render-passes]
                           [--serialize-compute-and-transfer]
+                          [--annotate-injected-commands]
                           [file]
 
 Launch the replay tool.
@@ -821,16 +822,16 @@ options:
                         by <file>
   --version             Print version information and exit (forwarded to
                         replay tool)
-  --log-level LEVEL     Specify highest level message to log. Options are:
-                        debug, info, warning, error, and fatal. Default is
+  --log-level LEVEL     Specify lowest level message to log. Options are:
+                        fatal, error, warning, info, and debug. Default is
                         info. (forwarded to replay tool)
   --log-timestamps      Output a timestamp in front of each log message.
   --log-file DEVICE_FILE
                         Write log messages to a file at the specified path
                         instead of logcat (forwarded to replay tool)
   --debug-messenger-level LEVEL
-                        Specify highest debug messenger severity level.
-                        Options are: debug, info, warning, and error. Default
+                        Specify lowest debug messenger severity level.
+                        Options are: error, warning, info, and debug. Default
                         is warning. (forwarded to replay tool)
   --pause-frame N       Pause after replaying frame number N (forwarded to
                         replay tool)
@@ -1055,6 +1056,10 @@ options:
   --serialize-compute-and-transfer
                         Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before
                         and after each dispatch. (forwarded to replay tool)
+  --annotate-injected-commands
+                        Wrap commands injected by replay (not present in the capture,
+                        e.g. virtual-swapchain copies and ray-tracing SBT fixups) in
+                        VK_EXT_debug_utils labels named "GFXR Replay: <category>"
 ```
 
 The command will force-stop an active replay process before starting the replay

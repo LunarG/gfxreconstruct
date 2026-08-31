@@ -67,7 +67,8 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
     # All resource and resource associated handle types to be processed.
     RESOURCE_HANDLE_TYPES = [
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
-        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline'
+        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline',
+        'VkTensorARM', 'VkTensorViewARM'
     ]
 
     def __init__(

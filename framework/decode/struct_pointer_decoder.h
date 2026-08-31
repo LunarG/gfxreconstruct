@@ -91,7 +91,7 @@ class StructPointerDecoder : public PointerDecoderBase
 
     const std::span<typename T::struct_type> GetSpan() const { return std::span(GetPointer(), GetLength()); }
 
-    const std::span<T> GetMetaStructSpan() const { return std::span(GetMetaStructPointer(), GetLength()); }
+    std::span<const T> GetMetaStructSpan() const { return std::span(GetMetaStructPointer(), GetLength()); }
 
     size_t GetOutputLength() const { return output_len_; }
 

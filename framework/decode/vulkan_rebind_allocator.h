@@ -734,6 +734,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                      MemoryAllocInfo&                        memory_alloc_info,
                                      VmaMemoryInfo**                         vma_mem_info);
 
+    VkResult InitializeDataGraphPipelineSessionMemory(VkDataGraphPipelineSessionARM session,
+                                                      ResourceAllocInfo*            resource_alloc_info);
+
     // Aliasing detection: if the resource's captured range [memory_offset, memory_offset+footprint)
     // overlaps a resource already bound to this memory, the two alias. Returns that existing resource's
     // VmaMemoryInfo so the newcomer binds into the same allocation at its captured relative offset;

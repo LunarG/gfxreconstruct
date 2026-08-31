@@ -643,6 +643,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
                         [--isolate-render-passes]
                         [--serialize-compute-and-transfer]
+                        [--annotate-injected-commands]
 
 
 Required arguments:
@@ -651,15 +652,15 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
-  --log-level <level>   Specify highest level message to log. Options are:
-                        debug, info, warning, error, and fatal. Default is info.
+  --log-level <level>   Specify lowest level message to log. Options are:
+                        fatal, error, warning, info, and debug. Default is info.
   --log-timestamps      Output a timestamp in front of each log message.
   --log-file <file>     Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled).
   --log-debugview       Log messages with OutputDebugStringA. Windows only.
   --debug-messenger-level <level>
-                        Specify highest debug messenger severity level. Options
-                        are: debug, info, warning, and error. Default is
+                        Specify lowest debug messenger severity level. Options
+                        are: error, warning, info, and debug. Default is
                         warning.
   --cpu-mask <binary-mask>
                         Set of CPU cores used by the replayer.
@@ -922,6 +923,10 @@ Optional arguments:
   --serialize-compute-and-transfer
               Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before and after
               each dispatch.
+  --annotate-injected-commands
+              Wrap commands injected by replay (not present in the capture,
+              e.g. virtual-swapchain copies and ray-tracing SBT fixups) in
+              VK_EXT_debug_utils labels named "GFXR Replay: <category>"
 ```
 
 ### Frame Warm-Up

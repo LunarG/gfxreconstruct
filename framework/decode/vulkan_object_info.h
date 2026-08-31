@@ -352,6 +352,10 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 
     // keep track of queried surface-formats
     std::optional<std::vector<VkSurfaceFormatKHR>> surface_formats;
+
+    // capture-time queue-family properties, used to find a replay queue-family with matching capabilities.
+    // available whenever the application queried them, which trimmed captures replay from their state-block.
+    std::vector<VkQueueFamilyProperties> capture_queue_family_properties;
 };
 
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
@@ -406,14 +410,21 @@ struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
 
 struct VulkanSemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
 {
+    /// Whether this is a timeline semaphore.
+    bool     is_timeline{ false };
+    uint64_t initial_value{ 0 };
+
+    /// Whether this is an external semaphore.
     bool is_external{ false };
 
     // If a null-swapchain/surface interacts with a semaphore, replay needs to shadow signal it until a future call
     // waits on it.
     bool shadow_signaled{ false };
+
     // Fences can be reset, semaphores can't, so replay needs to know when a semaphore will not be submitted for a wait
     // operation to prevent validation errors around queue forward progress.
     bool forward_progress{ true };
+
     // If a semaphore is signaled with vkAcquireNextImage and also VkSubmitInfo, then the semaphore needs to be shadow
     // signaled with vkAcquireNextImage and regularly signaled with VkSubmitInfo
     bool signaled{ false };
@@ -465,7 +476,7 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 
-    bool is_swapchain_image{ false };
+    format::HandleId swapchain_id{ format::kNullHandleId };
 
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
@@ -635,6 +646,7 @@ struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t             width{ 0 };
     uint32_t             height{ 0 };
     VkFormat             format{ VK_FORMAT_UNDEFINED };
+    std::vector<VkFormat> supported_view_formats; // Based on VkImageFormatListCreateInfo
     std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 

@@ -133,13 +133,13 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
     const ApiCallInfo&                          call_info,
     args::GetPhysicalDeviceQueueFamilyProperties& args)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
-    uint32_t* out_pQueueFamilyPropertyCount = args.pQueueFamilyPropertyCount.IsNull() ? nullptr : args.pQueueFamilyPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyProperties", VK_SUCCESS, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
-    VkQueueFamilyProperties* out_pQueueFamilyProperties = args.pQueueFamilyProperties.IsNull() ? nullptr : args.pQueueFamilyProperties.AllocateOutputData(*out_pQueueFamilyPropertyCount);
+    auto in_physicalDevice = GetObjectInfoTable().GetVkPhysicalDeviceInfo(args.physicalDevice);
+    args.pQueueFamilyPropertyCount.IsNull() ? nullptr : args.pQueueFamilyPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyProperties", VK_SUCCESS, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
+    if (!args.pQueueFamilyProperties.IsNull()) { args.pQueueFamilyProperties.AllocateOutputData(*args.pQueueFamilyPropertyCount.GetOutputPointer()); }
 
-    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyProperties(in_physicalDevice, out_pQueueFamilyPropertyCount, out_pQueueFamilyProperties);
+    OverrideGetPhysicalDeviceQueueFamilyProperties(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceQueueFamilyProperties, in_physicalDevice, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties);
 
-    if (args.pQueueFamilyProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties, *out_pQueueFamilyPropertyCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
+    if (args.pQueueFamilyProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties, *args.pQueueFamilyPropertyCount.GetOutputPointer(), &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
@@ -473,19 +473,19 @@ void VulkanReplayConsumer::Process_vkCreateSemaphore(
     const ApiCallInfo&                          call_info,
     args::CreateSemaphore&                      args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSemaphoreCreateInfo* in_pCreateInfo = args.pCreateInfo.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
     if (!args.pSemaphore.IsNull()) { args.pSemaphore.SetHandleLength(1); }
-    VkSemaphore* out_pSemaphore = args.pSemaphore.GetHandlePointer();
+    VulkanSemaphoreInfo handle_info;
+    args.pSemaphore.SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(args.pSemaphore.GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSemaphore(in_device, in_pCreateInfo, in_pAllocator, out_pSemaphore);
+    VkResult replay_result = OverrideCreateSemaphore(GetDeviceTable(in_device->handle)->CreateSemaphore, args.result, in_device, &args.pCreateInfo, &args.pAllocator, &args.pSemaphore);
     CheckResult("vkCreateSemaphore", args.result, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanSemaphoreInfo>(args.device, args.pSemaphore.GetPointer(), out_pSemaphore, &CommonObjectInfoTable::AddVkSemaphoreInfo);
+    AddHandle<VulkanSemaphoreInfo>(args.device, args.pSemaphore.GetPointer(), args.pSemaphore.GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkSemaphoreInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySemaphore(
@@ -2123,13 +2123,13 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
     const ApiCallInfo&                          call_info,
     args::GetPhysicalDeviceQueueFamilyProperties2& args)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
-    uint32_t* out_pQueueFamilyPropertyCount = args.pQueueFamilyPropertyCount.IsNull() ? nullptr : args.pQueueFamilyPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyProperties2", VK_SUCCESS, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
-    VkQueueFamilyProperties2* out_pQueueFamilyProperties = args.pQueueFamilyProperties.IsNull() ? nullptr : args.pQueueFamilyProperties.AllocateOutputData(*out_pQueueFamilyPropertyCount, VkQueueFamilyProperties2{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2, nullptr });
+    auto in_physicalDevice = GetObjectInfoTable().GetVkPhysicalDeviceInfo(args.physicalDevice);
+    args.pQueueFamilyPropertyCount.IsNull() ? nullptr : args.pQueueFamilyPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyProperties2", VK_SUCCESS, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
+    if (!args.pQueueFamilyProperties.IsNull()) { args.pQueueFamilyProperties.AllocateOutputData(*args.pQueueFamilyPropertyCount.GetOutputPointer(), VkQueueFamilyProperties2{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2, nullptr }); }
 
-    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyProperties2(in_physicalDevice, out_pQueueFamilyPropertyCount, out_pQueueFamilyProperties);
+    OverrideGetPhysicalDeviceQueueFamilyProperties2(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceQueueFamilyProperties2, in_physicalDevice, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties);
 
-    if (args.pQueueFamilyProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2, *out_pQueueFamilyPropertyCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
+    if (args.pQueueFamilyProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2, *args.pQueueFamilyPropertyCount.GetOutputPointer(), &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
@@ -4091,13 +4091,13 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
     const ApiCallInfo&                          call_info,
     args::GetPhysicalDeviceQueueFamilyProperties2KHR& args)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
-    uint32_t* out_pQueueFamilyPropertyCount = args.pQueueFamilyPropertyCount.IsNull() ? nullptr : args.pQueueFamilyPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyProperties2KHR", VK_SUCCESS, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
-    VkQueueFamilyProperties2* out_pQueueFamilyProperties = args.pQueueFamilyProperties.IsNull() ? nullptr : args.pQueueFamilyProperties.AllocateOutputData(*out_pQueueFamilyPropertyCount, VkQueueFamilyProperties2{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2, nullptr });
+    auto in_physicalDevice = GetObjectInfoTable().GetVkPhysicalDeviceInfo(args.physicalDevice);
+    args.pQueueFamilyPropertyCount.IsNull() ? nullptr : args.pQueueFamilyPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceQueueFamilyProperties2KHR", VK_SUCCESS, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
+    if (!args.pQueueFamilyProperties.IsNull()) { args.pQueueFamilyProperties.AllocateOutputData(*args.pQueueFamilyPropertyCount.GetOutputPointer(), VkQueueFamilyProperties2{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2, nullptr }); }
 
-    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyProperties2KHR(in_physicalDevice, out_pQueueFamilyPropertyCount, out_pQueueFamilyProperties);
+    OverrideGetPhysicalDeviceQueueFamilyProperties2(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceQueueFamilyProperties2KHR, in_physicalDevice, &args.pQueueFamilyPropertyCount, &args.pQueueFamilyProperties);
 
-    if (args.pQueueFamilyProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR, *out_pQueueFamilyPropertyCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
+    if (args.pQueueFamilyProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR, *args.pQueueFamilyPropertyCount.GetOutputPointer(), &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(

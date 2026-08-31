@@ -86,7 +86,8 @@ XrResult SwapchainData::ImportReplaySwapchain(StructPointerDecoder<Decoded_XrSwa
     return result;
 }
 
-XrResult SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*                                 imageCountOutput,
+XrResult SwapchainData::InitVirtualSwapchain(format::HandleId                                          swapchain_id,
+                                             PointerDecoder<uint32_t>*                                 imageCountOutput,
                                              StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* capture_images)
 {
     // This call is invalid without a Session with a graphics binding specified
@@ -98,7 +99,7 @@ XrResult SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*          
     {
         auto* vk_capture_images =
             reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>*>(capture_images);
-        result = InitVirtualSwapchain(imageCountOutput, vk_capture_images);
+        result = InitVirtualSwapchain(swapchain_id, imageCountOutput, vk_capture_images);
     }
     else
     {
@@ -110,7 +111,8 @@ XrResult SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*          
     return result;
 }
 
-XrResult SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*                                imageCountOutput,
+XrResult SwapchainData::InitVirtualSwapchain(format::HandleId                                         swapchain_id,
+                                             PointerDecoder<uint32_t>*                                imageCountOutput,
                                              StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>* capture_images)
 {
 
@@ -235,9 +237,9 @@ XrResult SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*          
 
         // Now tell the Vulkan Consumer to map the proxy image to the matching captured image id
         VulkanImageInfo handle_info;
-        handle_info.handle             = proxy.image;
-        handle_info.memory             = proxy.memory;
-        handle_info.is_swapchain_image = true;
+        handle_info.handle       = proxy.image;
+        handle_info.memory       = proxy.memory;
+        handle_info.swapchain_id = swapchain_id;
         vk_binding.vulkan_consumer->AddImageHandle(device_id, image_id, proxy.image, std::move(handle_info));
 
         vk_swap.proxy_images.emplace_back(proxy);
