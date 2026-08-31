@@ -26,9 +26,38 @@
 #include "util/defines.h"
 
 #include <string>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+// One command-line entry that a Feature adds to the tool that contains it. A Feature returns
+// these entries from FeatureBase::GetOptionDescs(). The tool collects them before it builds its
+// ArgumentParser, so an entry is accepted only when its Feature is built into the tool.
+//
+// See tools/tool_feature_options.h for the functions that collect, validate, and print these
+// entries.
+struct FeatureOptionDesc
+{
+    // The name of the value that the entry takes, for the usage text. Example: "<backend>".
+    std::string name;
+
+    // The usage text for the entry. Each string is one line.
+    std::vector<std::string> description;
+
+    // True when the entry takes a value.
+    bool has_argument{ true };
+
+    // The names that trigger the entry, in ArgumentParser syntax. Put a pipe character between
+    // alternative names, as in "-o|--option-to-do-something". Do not use a comma.
+    std::string trigger_names;
+
+    // The full set of accepted values, when that set is closed. The tool adds the set to the
+    // usage text of the entry. A value that is not in the set gets a warning, and this Feature
+    // then uses the default value for the entry. The comparison ignores case. An empty vector
+    // accepts any value, and the Feature checks the value itself.
+    std::vector<std::string> accepted_values;
+};
 
 // Common interface required of every per-tool Feature base class (e.g. ReplayFeatureBase,
 // ConvertFeatureBase, ExtractFeatureBase, OptimizeFeature, InfoFeature) so that a Feature
@@ -47,6 +76,11 @@ class FeatureBase
     // suitable for printing as part of a tool's "--version" output. Returns an empty string
     // if this feature has no meaningful compiled-header version to report.
     virtual std::string CompiledHeaderVersionString() const = 0;
+
+    // The command-line entries that this Feature adds to its tool. The tool calls this function
+    // on each loaded Feature before it builds the ArgumentParser. The default is an empty list.
+    // A Feature that has no command-line entries of its own does not override this function.
+    virtual std::vector<FeatureOptionDesc> GetOptionDescs() const { return {}; }
 };
 
 GFXRECON_END_NAMESPACE(util)

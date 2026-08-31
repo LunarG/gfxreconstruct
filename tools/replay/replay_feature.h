@@ -52,6 +52,11 @@ class ReplayFeatureBase : public util::FeatureBase
     // Options queries
     virtual void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) {}
 
+    // Examines the environment of the process for conditions that make replay of this API
+    // unreliable, and writes a warning for each one. The replay tool calls this function for
+    // every Feature before it starts the replay. The default does nothing.
+    virtual void CheckEnvironment() {}
+
     // Composition methods (for an API like OpenXR which uses other graphics APIs to
     // compose final images). Called after CreateConsumer for all features so that
     // compositing features can obtain consumer pointers from graphics features.
@@ -109,7 +114,7 @@ class ReplayFeature : public ReplayFeatureBase
   public:
     void*     GetConsumer() override { return replay_consumer_.get(); }
     DecoderT* GetDecoder() { return decoder_.get(); }
-    void  Destroy() override
+    void      Destroy() override
     {
         if (replay_consumer_)
         {
