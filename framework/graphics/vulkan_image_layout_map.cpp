@@ -164,8 +164,11 @@ void ImageLayoutMap::MergeFrom(const ImageLayoutMap& src)
         ExpandUniform();
     }
 
-    GFXRECON_ASSERT((mip_levels_ == src.mip_levels_) && (array_layers_ == src.array_layers_) &&
-                    (aspects_ == src.aspects_));
+    if ((mip_levels_ != src.mip_levels_) || (array_layers_ != src.array_layers_) || (aspects_ != src.aspects_))
+    {
+        GFXRECON_LOG_ERROR("ImageLayoutMap::MergeFrom: mismatched layout-map dimensions, skipping merge");
+        return;
+    }
 
     for (size_t i = 0; i < subresource_layouts_.size(); ++i)
     {
