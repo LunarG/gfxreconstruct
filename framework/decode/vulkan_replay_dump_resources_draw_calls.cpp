@@ -3707,7 +3707,30 @@ DrawCallsDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) c
     return std::vector<std::shared_ptr<DrawCallsDumpingContext>>();
 }
 
-uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
+// Rewrite this vkCmdExecuteCommands block's segment of dc_indices_ so that the labels follow the
+// given execution order. RecalculateCommandBuffers merges secondaries in dump-args order at setup,
+// but slots are consumed in pCommandBuffers order, which is only known when the execute replays.
+void DrawCallsDumpingContext::ReorderSecondaries(
+    Index execute_commands_index, const std::vector<std::shared_ptr<DrawCallsDumpingContext>>& execution_order)
+{
+    const auto seg_entry = std::find(dc_execute_indices_.begin(), dc_execute_indices_.end(), execute_commands_index);
+    if (seg_entry == dc_execute_indices_.end())
+    {
+        return;
+    }
+
+    size_t pos = std::distance(dc_execute_indices_.begin(), seg_entry);
+    for (const auto& secondary_context : execution_order)
+    {
+        for (const Index dc_index : secondary_context->GetDrawCallIndices())
+        {
+            GFXRECON_ASSERT(pos < dc_indices_.size() && dc_execute_indices_[pos] == execute_commands_index);
+            dc_indices_[pos++] = dc_index;
+        }
+    }
+}
+
+uint32_t DrawCallsDumpingContext::RecalculateCommandBuffers()
 {
     if (secondaries_.empty())
     {
@@ -3738,7 +3761,7 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
 
         for (const auto& secondary_context : execute_commands.second)
         {
-            const size_t secondary_n_command_buffers = secondary_context->RecaclulateCommandBuffers();
+            const size_t secondary_n_command_buffers = secondary_context->RecalculateCommandBuffers();
             if (!secondary_n_command_buffers)
             {
                 // Abort the merge, leaving the primary in its original, consistent state

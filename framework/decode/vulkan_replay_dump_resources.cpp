@@ -301,7 +301,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 FindContext(draw_call_contexts_, bcb_index, qs_index);
             if (primary_dc_context != nullptr)
             {
-                primary_dc_context->RecaclulateCommandBuffers();
+                primary_dc_context->RecalculateCommandBuffers();
             }
         }
     }
@@ -2322,6 +2322,26 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
             dc_primary_context->SecondariesToExecute(call_info.index);
         if (!secondaries_to_execute.empty())
         {
+            // Relabel this execute block's draw call indices to follow the pCommandBuffers order in
+            // which the slots will actually be finalized (the merge at setup followed dump-args order).
+            {
+                std::vector<std::shared_ptr<DrawCallsDumpingContext>> execution_order;
+                auto                                                  unmatched = secondaries_to_execute;
+                for (uint32_t i = 0; i < commandBufferCount; ++i)
+                {
+                    for (auto it = unmatched.begin(); it != unmatched.end(); ++it)
+                    {
+                        if (pCommandBuffers[i] == it->get()->GetOriginalCommandBuffer())
+                        {
+                            execution_order.push_back(*it);
+                            unmatched.erase(it);
+                            break;
+                        }
+                    }
+                }
+                dc_primary_context->ReorderSecondaries(call_info.index, execution_order);
+            }
+
             uint32_t                     finalized_primaries = 0;
             std::vector<VkCommandBuffer> accumulated_secondaries_command_buffers;
             for (uint32_t i = 0; (i < commandBufferCount); ++i)

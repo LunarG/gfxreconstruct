@@ -232,7 +232,10 @@ class DrawCallsDumpingContext
 
     std::vector<std::shared_ptr<DrawCallsDumpingContext>> SecondariesToExecute(uint64_t execute_commands_index) const;
 
-    uint32_t RecaclulateCommandBuffers();
+    void ReorderSecondaries(Index                                                        execute_commands_index,
+                            const std::vector<std::shared_ptr<DrawCallsDumpingContext>>& execution_order);
+
+    uint32_t RecalculateCommandBuffers();
 
     void UpdateSecondaries(DrawCallsDumpingContext& secondary_context,
                            Index                    execute_cmd_index,
@@ -316,7 +319,7 @@ class DrawCallsDumpingContext
     const util::Compressor*      compressor_;
 
     // Execute commands block index : DrawCallContexts
-    // This must be an ordered map: RecaclulateCommandBuffers merges secondary draw call indices in iteration
+    // This must be an ordered map: RecalculateCommandBuffers merges secondary draw call indices in iteration
     // order, which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
     std::map<Index, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
 
