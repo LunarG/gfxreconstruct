@@ -1510,7 +1510,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.eventCount, in_pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, in_pMemoryBarriers, args.bufferMemoryBarrierCount, in_pBufferMemoryBarriers, args.imageMemoryBarrierCount, in_pImageMemoryBarriers);
+        resource_dumper_->Process_vkCmdWaitEvents(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, args.pMemoryBarriers.GetPointer(), args.bufferMemoryBarrierCount, args.pBufferMemoryBarriers.GetPointer(), args.imageMemoryBarrierCount, args.pImageMemoryBarriers.GetPointer());
     }
 }
 
@@ -2778,7 +2778,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents2(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper_->Process_vkCmdWaitEvents2(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.pDependencyInfos.GetPointer());
     }
 }
 
@@ -5201,7 +5201,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2KHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper_->Process_vkCmdWaitEvents2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.pDependencyInfos.GetPointer());
     }
 }
 
