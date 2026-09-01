@@ -157,27 +157,6 @@ inline std::string HandleIdToString(format::HandleId handleId)
 }
 
 #if defined(_WIN32)
-inline std::string Char16ArrayToString(const char16_t* pStr)
-{
-    // wchar_t and char16_t are both 2-byte UTF-16 on Windows.
-    const wchar_t* wPtr          = reinterpret_cast<const wchar_t*>(pStr);
-    int            required_size = 0;
-    if (wPtr != nullptr)
-    {
-        required_size = WideCharToMultiByte(CP_UTF8, 0, wPtr, -1, nullptr, 0, nullptr, nullptr);
-        --required_size;
-    }
-    if (required_size > 0)
-    {
-        std::string result_str;
-        result_str.resize(required_size);
-        WideCharToMultiByte(
-            CP_UTF8, 0, wPtr, -1, result_str.data(), static_cast<int>(result_str.size()), nullptr, nullptr);
-        return result_str;
-    }
-    return "";
-}
-
 inline std::string WCharArrayToString(const wchar_t* pStr)
 {
     int required_size = 0;
@@ -201,6 +180,13 @@ inline std::string WCharArrayToString(const wchar_t* pStr)
     {
         return "";
     }
+}
+
+inline std::string Char16ArrayToString(const char16_t* pStr)
+{
+    static_assert(sizeof(wchar_t) == sizeof(char16_t),
+                  "Char16ArrayToString requires wchar_t and char16_t to be the same size");
+    return WCharArrayToString(reinterpret_cast<const wchar_t*>(pStr));
 }
 #endif
 
