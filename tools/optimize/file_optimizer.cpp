@@ -98,10 +98,14 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     // If the buffer is in the unused list, omit its initialization data from the file.
     if (unreferenced_ids_.contains(args.buffer_id))
     {
-        return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               std::string("Removed buffer ") + std::to_string(args.buffer_id))
-                   ? kSuccess
-                   : kError;
+        // In its place insert a dummy annotation meta command. This should keep the block index when
+        // replaying an optimized trimmed capture in in alignment with the block index calculated
+        // at capture time
+        const std::string annotation_string = std::string("Removed kInitBufferCommand for buffer ") +
+                                              std::to_string(args.buffer_id) + std::string(" (") +
+                                              std::to_string(args.data_size) + std::string(" bytes)");
+
+        return WriteAnnotation(format::kAnnotationLabelRemovedResource, annotation_string) ? kSuccess : kError;
     }
     return kNeedsPassthrough;
 }
@@ -116,10 +120,11 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
-        return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               std::string("Removed subresource from image ") + std::to_string(args.image_id))
-                   ? kSuccess
-                   : kError;
+        const std::string annotation_string = std::string("Removed kInitImageCommand for image ") +
+                                              std::to_string(args.image_id) + std::string(" (") +
+                                              std::to_string(args.data_size) + std::string(" bytes)");
+
+        return WriteAnnotation(format::kAnnotationLabelRemovedResource, annotation_string) ? kSuccess : kError;
     }
     return kNeedsPassthrough;
 }
@@ -134,10 +139,11 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
-        return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               "Removed subresource from tensor " + std::to_string(args.tensor_id))
-                   ? kSuccess
-                   : kError;
+        const std::string annotation_string = std::string("Removed kInitTensorCommand for tensor ") +
+                                              std::to_string(args.tensor_id) + std::string(" (") +
+                                              std::to_string(args.data_size) + std::string(" bytes)");
+
+        return WriteAnnotation(format::kAnnotationLabelRemovedResource, annotation_string) ? kSuccess : kError;
     }
     return kNeedsPassthrough;
 }
