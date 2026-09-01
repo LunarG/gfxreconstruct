@@ -90,8 +90,17 @@ void ImageLayoutMap::SetLayout(const VkImageSubresourceRange& range, VkImageLayo
         return;
     }
 
+    // The spec states for VkImageMemoryBarrier2 "If image has a multi-planar format and the image is disjoint, then
+    // including VK_IMAGE_ASPECT_COLOR_BIT in the aspectMask member of subresourceRange is equivalent to including
+    // VK_IMAGE_ASPECT_PLANE_0_BIT, VK_IMAGE_ASPECT_PLANE_1_BIT, and (for three-plane formats only)
+    // VK_IMAGE_ASPECT_PLANE_2_BIT."
+    constexpr VkImageAspectFlags kPlaneAspects =
+        VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
+    const bool is_whole_multiplanar_range =
+        ((range.aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) != 0) && ((aspects_ & kPlaneAspects) != 0);
+
     // A range naming no aspect this image has tells us nothing about which subresources moved, so record nothing.
-    const VkImageAspectFlags aspect_mask = range.aspectMask & aspects_;
+    const VkImageAspectFlags aspect_mask = is_whole_multiplanar_range ? aspects_ : (range.aspectMask & aspects_);
     if (aspect_mask == 0)
     {
         return;
