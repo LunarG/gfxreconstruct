@@ -4594,13 +4594,14 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
     // wait only when VK_EVENT_SET is the event's terminal state -> avoid looping forever.
     if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && event_info->latched_state == VK_EVENT_SET)
     {
-        util::BeginInjectedCommands();
+        auto device_table = GetInjectedDeviceCalls(device);
+        auto injected     = device_table.Open();
+
         while (result == VK_EVENT_RESET)
         {
             std::this_thread::sleep_for(kGetEventStatusPollInterval);
-            result = func(device, event);
+            result = injected->GetEventStatus(device, event);
         }
-        util::EndInjectedCommands();
     }
     return result;
 }
