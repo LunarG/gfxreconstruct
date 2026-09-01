@@ -137,12 +137,8 @@ bool FileTransformer::Process()
         data += "}";
         const size_t data_length = data.size();
 
-        format::AnnotationHeader annotation;
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = format::kJson;
-        GFXRECON_NARROWING_ASSIGN(annotation.label_length, label_length);
-        annotation.data_length       = data_length;
+        const format::AnnotationHeader annotation =
+            format::MakeAnnotationHeader(format::kJson, label_length, data_length);
         if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
             !WriteBytes(data.c_str(), data_length))
         {
