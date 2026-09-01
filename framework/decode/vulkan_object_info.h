@@ -377,6 +377,9 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
+    // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
+    graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
+
     graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;
@@ -394,6 +397,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
         extensions                 = source_info->extensions;
         resource_initializer       = source_info->resource_initializer;
         property_feature_info      = source_info->property_feature_info;
+        version_extension_info     = source_info->version_extension_info;
         enabled_queue_family_flags = source_info->enabled_queue_family_flags;
         replay_device_group        = source_info->replay_device_group;
         duplicate_source_id        = source_info->capture_id;
@@ -410,14 +414,21 @@ struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
 
 struct VulkanSemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
 {
+    /// Whether this is a timeline semaphore.
+    bool     is_timeline{ false };
+    uint64_t initial_value{ 0 };
+
+    /// Whether this is an external semaphore.
     bool is_external{ false };
 
     // If a null-swapchain/surface interacts with a semaphore, replay needs to shadow signal it until a future call
     // waits on it.
     bool shadow_signaled{ false };
+
     // Fences can be reset, semaphores can't, so replay needs to know when a semaphore will not be submitted for a wait
     // operation to prevent validation errors around queue forward progress.
     bool forward_progress{ true };
+
     // If a semaphore is signaled with vkAcquireNextImage and also VkSubmitInfo, then the semaphore needs to be shadow
     // signaled with vkAcquireNextImage and regularly signaled with VkSubmitInfo
     bool signaled{ false };

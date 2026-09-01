@@ -45,13 +45,15 @@
     }
 #endif
 
+#include "generated/generated_vulkan_dispatch_table.h"
+
 // This file needs to be included first to ensure it is processed with the VMA_IMPLEMENTATION directive, in case it is
 // indirectly included by other include files.
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_rebind_allocator.h"
-
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "format/format.h"
@@ -88,8 +90,8 @@ extern VKAPI_ATTR void VKAPI_CALL OnVmaFreeDeviceMemory(
 }
 
 VulkanRebindAllocator::VulkanRebindAllocator() :
-    device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), vma_functions_{},
-    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
+    VulkanResourceAllocator(), allocator_(VK_NULL_HANDLE), vma_functions_{},
+    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}
 {}
 
 std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_memory)
@@ -104,31 +106,33 @@ std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_m
     return *mutex_ptr;
 }
 
-VkResult VulkanRebindAllocator::Initialize(uint32_t                                api_version,
-                                           VkInstance                              instance,
-                                           VkPhysicalDevice                        physical_device,
-                                           VkDevice                                device,
-                                           const VkDeviceCreateInfo&               device_create_info,
-                                           const std::vector<std::string>&         enabled_device_extensions,
-                                           VkPhysicalDeviceType                    capture_device_type,
-                                           const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                           const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                           const Functions&                        functions)
+VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                           VkDevice                             device,
+                                           const VkDeviceCreateInfo&            device_create_info,
+                                           const std::vector<std::string>&      enabled_device_extensions,
+                                           const graphics::VulkanInstanceTable& instance_table,
+                                           const graphics::VulkanDeviceTable*   device_table)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result = VulkanResourceAllocator::Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, instance_table, device_table);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
 
-    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
+    result = VK_ERROR_INITIALIZATION_FAILED;
+
+    const VkPhysicalDeviceMemoryProperties& capture_memory_properties = physical_device_info->capture_memory_properties;
+
+    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties_.memoryTypeCount == 0))
     {
         GFXRECON_LOG_FATAL("Capture file does not contain physical device memory properties and cannot be used with "
                            "memory translation.");
     }
     else if (allocator_ == VK_NULL_HANDLE)
     {
-        device_                    = device;
-        functions_                 = functions;
-        capture_device_type_       = capture_device_type;
+        capture_device_type_       = physical_device_info->capture_device_type;
         capture_memory_properties_ = capture_memory_properties;
-        replay_memory_properties_  = replay_memory_properties;
 
         vma_functions_.vkGetPhysicalDeviceProperties           = functions_.get_physical_device_properties;
         vma_functions_.vkGetPhysicalDeviceMemoryProperties     = functions_.get_physical_device_memory_properties;
@@ -157,10 +161,15 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
         VmaAllocatorCreateInfo create_info = {};
 
+        GFXRECON_ASSERT(physical_device_info->replay_device_info->properties.has_value());
+        const VkPhysicalDevice physical_device = physical_device_info->handle;
+        const uint32_t         api_version     = std::min(physical_device_info->parent_info.api_version,
+                                              physical_device_info->replay_device_info->properties->apiVersion);
+
         create_info.physicalDevice   = physical_device;
         create_info.device           = device;
         create_info.pVulkanFunctions = &vma_functions_;
-        create_info.instance         = instance;
+        create_info.instance         = physical_device_info->parent;
         create_info.vulkanApiVersion = api_version;
 
         // register our custom handler, invoked when blocks are freed
@@ -197,10 +206,14 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         cmd_pool_info.queueFamilyIndex        = staging_queue_family_;
 
-        result = functions_.create_command_pool(device_, &cmd_pool_info, NULL, &cmd_pool_);
-        assert(result == VK_SUCCESS);
+        {
+            auto injected = device_table_.Open();
 
-        functions_.get_device_queue(device_, staging_queue_family_, 0, &staging_queue_);
+            result = injected->CreateCommandPool(device_, &cmd_pool_info, NULL, &cmd_pool_);
+            assert(result == VK_SUCCESS);
+
+            injected->GetDeviceQueue(device_, staging_queue_family_, 0, &staging_queue_);
+        }
 
         // Select creation flags from enabled extensions.
         bool have_memory_reqs2         = false;
@@ -247,6 +260,8 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
             create_info.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
         }
 
+        // Mark vma's api calls as synthesized
+        util::MarkInjectedCommandsHelper injected;
         result = vmaCreateAllocator(&create_info, &allocator_);
     }
 
@@ -255,8 +270,11 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
 void VulkanRebindAllocator::Destroy()
 {
+    auto injected = device_table_.Open();
     ClearStagingResources();
-    functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
+    {
+        injected->DestroyCommandPool(device_, cmd_pool_, nullptr);
+    }
 
     if (allocator_ != VK_NULL_HANDLE)
     {
@@ -860,7 +878,9 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -982,6 +1002,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
 
             auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+            // Mark vma's api calls as synthesized
+            util::MarkInjectedCommandsHelper injected;
             result = vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, nullptr);
 
             if (result >= 0)
@@ -1045,6 +1067,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                     auto bind_info = &bind_infos[i];
                     auto offset    = GetRebindOffsetFromVMA(bind_info->memoryOffset, *vma_mem_info);
 
+                    // Mark vma's api calls as synthesized
+                    util::MarkInjectedCommandsHelper injected;
                     result =
                         vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, bind_info->pNext);
 
@@ -1091,8 +1115,11 @@ VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_
     VkAndroidHardwareBufferPropertiesANDROID androidHardwareBufferProperties;
     androidHardwareBufferProperties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
     androidHardwareBufferProperties.pNext = nullptr;
-    functions_.get_android_hardware_buffer_properties(
-        device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
+    {
+        auto injected = device_table_.Open();
+        injected->GetAndroidHardwareBufferPropertiesANDROID(
+            device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
+    }
 
     VkMemoryAllocateInfo allocate_info{};
     allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -1185,7 +1212,9 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -1254,6 +1283,8 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
 
                 auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+                // Mark vma's api calls as synthesized
+                util::MarkInjectedCommandsHelper injected;
                 result = vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, nullptr);
 
                 if (result >= 0)
@@ -1338,6 +1369,8 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
 
                         auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+                        // Mark vma's api calls as synthesized
+                        util::MarkInjectedCommandsHelper injected;
                         result =
                             vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, bind_info->pNext);
 
@@ -1997,7 +2030,10 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
     cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     cmd_buff_alloc_info.commandBufferCount          = 1;
 
-    VkResult result = functions_.allocate_command_buffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
+    // Everything below is replay-synthesized staging work; one injected-commands window covers it all.
+    auto injected = device_table_.Open();
+
+    VkResult result = injected->AllocateCommandBuffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
 
     if (result == VK_SUCCESS)
     {
@@ -2037,7 +2073,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         VkCommandBufferBeginInfo cmd_buf_begin_info = {};
         cmd_buf_begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        result = functions_.begin_command_buffer(staging_resources.cmd_buffer, &cmd_buf_begin_info);
+        result = injected.BeginCommandBuffer(staging_resources.cmd_buffer, &cmd_buf_begin_info, __func__);
     }
 
     if (result == VK_SUCCESS)
@@ -2076,12 +2112,12 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                     region.imageSubresource  = { aspect_flags, 0, 0, 1 };
                     region.imageOffset       = { 0, 0, 0 };
                     region.imageExtent       = { 1, 1, 1 };
-                    functions_.cmd_copy_buffer_to_image(staging_resources.cmd_buffer,
-                                                        staging_resources.staging_buf,
-                                                        original_image,
-                                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                        1,
-                                                        &region);
+                    injected->CmdCopyBufferToImage(staging_resources.cmd_buffer,
+                                                   staging_resources.staging_buf,
+                                                   original_image,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                   1,
+                                                   &region);
                 }
             }
         }
@@ -2104,7 +2140,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                 copy_region.dstOffset = dst_offset;
                 copy_region.size      = data_size;
 
-                functions_.cmd_copy_buffer(
+                injected->CmdCopyBuffer(
                     staging_resources.cmd_buffer, staging_resources.staging_buf, original_buffer, 1, &copy_region);
             }
         }
@@ -2112,7 +2148,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
 
     if (result == VK_SUCCESS)
     {
-        result = functions_.end_command_buffer(staging_resources.cmd_buffer);
+        result = injected->EndCommandBuffer(staging_resources.cmd_buffer);
     }
 
     if (result == VK_SUCCESS)
@@ -2121,7 +2157,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
         result =
-            functions_.create_semaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
+            injected->CreateSemaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
     }
 
     if (result == VK_SUCCESS)
@@ -2129,7 +2165,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         VkFenceCreateInfo fence_create_info{};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-        result = functions_.create_fence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
+        result = injected->CreateFence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -2144,7 +2180,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         compute_submit_info.signalSemaphoreCount = 1;
         compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
 
-        result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
+        result = injected->QueueSubmit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -2179,6 +2215,8 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
         if (bound_memory_info->mapped_pointer == nullptr)
         {
             // After first map, the allocation will stay mapped until it is destroyed.
+            // Mark vma's api calls as synthesized
+            util::MarkInjectedCommandsHelper injected;
             result = vmaMapMemory(allocator_, bound_memory_info->allocation, &bound_memory_info->mapped_pointer);
         }
 
@@ -2316,6 +2354,9 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
     VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult result = VK_SUCCESS;
+
+    // Mark vma's api calls as synthesized
+    auto injected = device_table_.Open();
 
     if ((memory_ranges != nullptr) && (allocator_datas != nullptr))
     {
@@ -2593,10 +2634,10 @@ void VulkanRebindAllocator::ReportBindIncompatibility(const ResourceData* alloca
     }
 }
 
-VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
-                                                        VkMemoryMapFlags flags,
-                                                        void**           data,
-                                                        ResourceData     allocator_data)
+VkResult VulkanRebindAllocator::MapResourceMemoryDirectImpl(VkDeviceSize     size,
+                                                            VkMemoryMapFlags flags,
+                                                            void**           data,
+                                                            ResourceData     allocator_data)
 {
     VkResult result = VK_ERROR_MEMORY_MAP_FAILED;
 
@@ -2610,6 +2651,7 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
 
             if (mem_info->mapped_pointer == nullptr)
             {
+                // vma's api calls are marked as synthesized by the scope MapResourceMemoryDirect opened.
                 result = vmaMapMemory(allocator_, mem_info->allocation, &mem_info->mapped_pointer);
             }
             else
@@ -2661,6 +2703,8 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
     VkDebugUtilsObjectTagInfoEXT tag_info;
     tag_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT;
     tag_info.pNext = nullptr;
+
+    auto injected = device_table_.Open();
 
     if (!memory_alloc_info->debug_utils_name.empty())
     {
@@ -3032,6 +3076,8 @@ bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               mem
 
 void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_alloc_info, uint64_t object_hanlde)
 {
+    auto injected = device_table_.Open();
+
     // It could bind sparse memories. It could have plural memories.
     for (auto& mem_info : resource_alloc_info.bound_memory_infos)
     {
@@ -3517,20 +3563,23 @@ void VulkanRebindAllocator::ClearStagingResources()
     {
         fences[i] = staging_resources_[i].staging_fence;
     }
-    functions_.wait_for_fences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
+    // Tearing down replay-synthesized staging resources; one injected-commands window covers it all.
+    auto injected = device_table_.Open();
+
+    injected->WaitForFences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
     std::vector<VkCommandBuffer> cmd_buffers_to_delete;
 
     for (auto& staging_resource : staging_resources_)
     {
         cmd_buffers_to_delete.push_back(staging_resource.cmd_buffer);
-        functions_.destroy_fence(device_, staging_resource.staging_fence, nullptr);
-        functions_.destroy_semaphore(device_, staging_resource.staging_semaphore, nullptr);
+        injected->DestroyFence(device_, staging_resource.staging_fence, nullptr);
+        injected->DestroySemaphore(device_, staging_resource.staging_semaphore, nullptr);
         vmaDestroyBuffer(allocator_, staging_resource.staging_buf, staging_resource.staging_alloc);
     }
-    functions_.free_command_buffers(device_,
-                                    cmd_pool_,
-                                    GFXRECON_NARROWING_CAST(uint32_t, cmd_buffers_to_delete.size()),
-                                    cmd_buffers_to_delete.data());
+    injected->FreeCommandBuffers(device_,
+                                 cmd_pool_,
+                                 GFXRECON_NARROWING_CAST(uint32_t, cmd_buffers_to_delete.size()),
+                                 cmd_buffers_to_delete.data());
     staging_resources_.clear();
 }
 
@@ -3776,7 +3825,9 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemory(allocator_, &replay_req, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -3871,6 +3922,8 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
 
     std::vector<VkBindDataGraphPipelineSessionMemoryInfoARM> replay_bind_infos;
     std::vector<std::unique_ptr<PendingBinding>>             pending_bindings;
+
+    auto injected = device_table_.Open();
 
     for (const auto& requirement : requirements)
     {
@@ -4064,6 +4117,8 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                         RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(tensor));
                         if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
                         {
+                            // Mark vma's api calls as synthesized
+                            util::MarkInjectedCommandsHelper injected;
                             vmaFreeMemory(allocator_, vma_mem_info->allocation);
                             memory_alloc_info->vma_mem_infos.pop_back();
                         }

@@ -1134,6 +1134,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const VulkanQueueInfo*                                queue_info,
                                      const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
 
+    VkResult OverrideCreateSemaphore(PFN_vkCreateSemaphore                                      func,
+                                     VkResult                                                   original_result,
+                                     const VulkanDeviceInfo*                                    device_info,
+                                     const StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>* pCreateInfo,
+                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                     HandlePointerDecoder<VkSemaphore>*                         pSemaphore);
+
     VkResult OverrideImportSemaphoreFdKHR(
         PFN_vkImportSemaphoreFdKHR                                      func,
         VkResult                                                        original_result,

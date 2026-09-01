@@ -822,16 +822,16 @@ options:
                         by <file>
   --version             Print version information and exit (forwarded to
                         replay tool)
-  --log-level LEVEL     Specify highest level message to log. Options are:
-                        debug, info, warning, error, and fatal. Default is
+  --log-level LEVEL     Specify lowest level message to log. Options are:
+                        fatal, error, warning, info, and debug. Default is
                         info. (forwarded to replay tool)
   --log-timestamps      Output a timestamp in front of each log message.
   --log-file DEVICE_FILE
                         Write log messages to a file at the specified path
                         instead of logcat (forwarded to replay tool)
   --debug-messenger-level LEVEL
-                        Specify highest debug messenger severity level.
-                        Options are: debug, info, warning, and error. Default
+                        Specify lowest debug messenger severity level.
+                        Options are: error, warning, info, and debug. Default
                         is warning. (forwarded to replay tool)
   --pause-frame N       Pause after replaying frame number N (forwarded to
                         replay tool)
