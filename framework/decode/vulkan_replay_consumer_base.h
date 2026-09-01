@@ -1973,12 +1973,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
-    // Returns true if any replay-injected operation needs to know the layout images are currently in.
-    bool RequiresImageLayoutTracking() const
-    {
-        return (screenshot_handler_ != nullptr) || options_.dumping_resources || requires_image_layout_tracking_;
-    }
-
     /**
      * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
      *
@@ -2202,8 +2196,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
 
   protected:
-    bool requires_image_layout_tracking_{ false };
-
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:
     //
     //    1. Replay with command line option --opcd or --omit-pipeline-cache-data and some

@@ -4913,7 +4913,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     }
 
     // Update layout on the image infos.
-    if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
+    if ((result == VK_SUCCESS) && (submit_info_data != nullptr))
     {
         for (const auto& submit : pSubmits->GetMetaStructSpan())
         {
@@ -5183,7 +5183,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     // Update layout on the image infos.
-    if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
+    if ((result == VK_SUCCESS) && (submit_info_data != nullptr))
     {
         for (const auto& submit : pSubmits->GetMetaStructSpan())
         {
@@ -5941,13 +5941,10 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
 
-        if (RequiresImageLayoutTracking())
+        // Update the image's layout based on the recorded layout transitions in the secondary command buffer.
+        for (const auto& [image_id, layout] : secondary_cmd_buffer_info->image_layout_barriers)
         {
-            // Update the image's layout based on the recorded layout transitions in the secondary command buffer.
-            for (const auto& [image_id, layout] : secondary_cmd_buffer_info->image_layout_barriers)
-            {
-                in_commandBuffer->image_layout_barriers[image_id] = layout;
-            }
+            in_commandBuffer->image_layout_barriers[image_id] = layout;
         }
     }
     func(command_buffer, commandBufferCount, command_buffers);
