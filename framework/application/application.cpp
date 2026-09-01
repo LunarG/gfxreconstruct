@@ -180,6 +180,11 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
     }
 }
 
+const graphics::FrameLoopInfo* Application::GetFrameLoopInfo()
+{
+    return frame_loop_info_;
+}
+
 void Application::SetFrameLoopInfo(graphics::FrameLoopInfo* frame_loop_info)
 {
     GFXRECON_ASSERT(!IsFrameProcessingInitialized());
