@@ -116,67 +116,70 @@ file_processor::ProcessBlocksResult BlockProcessor::MakeResult(file_processor::P
 }
 
 template <typename Policy>
+file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, BlockBuffer& block_buffer)
+{
+    PrintBlockInfo();
+
+    if (!policy.ContinueBlockProcessing(block_index_))
+    {
+        return file_processor::ProcessBlockState::kEndProcessing;
+    }
+
+    BlockParser& block_parser = *block_parser_.get();
+
+    if (!ReadBlockBuffer(block_parser, block_buffer))
+    {
+        return HandleBlockEof("read", true);
+    }
+
+    file_processor::ProcessBlockState process_state = file_processor::ProcessBlockState::kContinue;
+    file_processor::ProcessVisitor    process_visitor(*this);
+
+    const bool skip_block = block_skip_ && (*block_skip_)(block_index_);
+    if (!skip_block)
+    {
+        block_parser.SetBlockIndex(block_index_);
+        block_parser.SetFrameNumber(frame_number_);
+        ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
+
+        if (parsed_block.IsVisitable())
+        {
+            std::visit(process_visitor, parsed_block.GetArgs());
+            if (process_visitor.IsSuccess())
+            {
+                process_state = policy.Dispatch(block_index_, parsed_block);
+                if ((file_processor::ProcessBlockState::kContinue == process_state) &&
+                    process_visitor.IsFrameDelimiter())
+                {
+                    process_state = file_processor::ProcessBlockState::kFrameBoundary;
+                }
+            }
+            else
+            {
+                process_state = file_processor::ProcessBlockState::kError;
+            }
+        }
+        else if (!parsed_block.IsValid())
+        {
+            process_state = file_processor::ProcessBlockState::kError;
+        }
+    }
+
+    ++block_index_;
+    DecrementRemainingCommands();
+
+    return process_state;
+}
+
+template <typename Policy>
 file_processor::ProcessBlockState BlockProcessor::ProcessBlocks(Policy& policy)
 {
     BlockBuffer                       block_buffer;
     file_processor::ProcessBlockState process_state = file_processor::ProcessBlockState::kContinue;
-    BlockParser&                      block_parser  = *block_parser_.get();
-    file_processor::ProcessVisitor    process_visitor(*this);
 
     while (process_state == file_processor::ProcessBlockState::kContinue)
     {
-        PrintBlockInfo();
-
-        bool success = policy.ContinueBlockProcessing(block_index_);
-
-        if (success)
-        {
-            success = ReadBlockBuffer(block_parser, block_buffer);
-
-            if (success)
-            {
-                const bool skip_block = block_skip_ && (*block_skip_)(block_index_);
-                if (!skip_block)
-                {
-                    block_parser.SetBlockIndex(block_index_);
-                    block_parser.SetFrameNumber(frame_number_);
-                    ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
-
-                    if (parsed_block.IsVisitable())
-                    {
-                        std::visit(process_visitor, parsed_block.GetArgs());
-                        success = process_visitor.IsSuccess();
-                        if (success)
-                        {
-                            process_state = policy.Dispatch(block_index_, parsed_block);
-                            if ((file_processor::ProcessBlockState::kContinue == process_state) &&
-                                process_visitor.IsFrameDelimiter())
-                            {
-                                process_state = file_processor::ProcessBlockState::kFrameBoundary;
-                            }
-                        }
-                        else
-                        {
-                            process_state = file_processor::ProcessBlockState::kError;
-                        }
-                    }
-                    else if (!parsed_block.IsValid())
-                    {
-                        process_state = file_processor::ProcessBlockState::kError;
-                    }
-                }
-                ++block_index_;
-                DecrementRemainingCommands();
-            }
-            else
-            {
-                process_state = HandleBlockEof("read", true);
-            }
-        }
-        else
-        {
-            process_state = file_processor::ProcessBlockState::kEndProcessing;
-        }
+        process_state = ProcessBlock(policy, block_buffer);
     }
 
     if (process_state == file_processor::ProcessBlockState::kFrameBoundary)
