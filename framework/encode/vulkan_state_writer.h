@@ -460,6 +460,7 @@ class VulkanStateWriter
     void WriteDebugUtilsState(const VulkanStateTable& state_table);
     void WriteDataGraphPipelineSessionMemoryState(const VulkanStateTable& state_table);
     void WriteTensorMemoryState(const VulkanStateTable& state_table);
+    void WriteAnnotation(const std::string& label, const std::string& message);
 
   private:
     util::FileOutputStream*  output_stream_;

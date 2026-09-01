@@ -539,6 +539,12 @@ void VulkanStateWriter::WriteBufferViewState(const VulkanStateTable& state_table
             // Write buffer view creation call.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         }
+        else
+        {
+            const std::string annotation_string = std::string("Removed vkCreateBufferView for orphaned buffer view ") +
+                                                  std::to_string(wrapper->handle_id);
+            WriteAnnotation(format::kAnnotationLabelRemovedResource, annotation_string);
+        }
     });
 }
 
@@ -560,6 +566,12 @@ void VulkanStateWriter::WriteImageViewState(const VulkanStateTable& state_table)
 
             // Write image view creation call.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
+        else
+        {
+            const std::string annotation_string =
+                std::string("Removed vkCreateImageView for orphaned image view ") + std::to_string(wrapper->handle_id);
+            WriteAnnotation(format::kAnnotationLabelRemovedResource, annotation_string);
         }
     });
 }
@@ -608,6 +620,13 @@ void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_tabl
 
             // Write framebuffer creation call.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
+        else
+        {
+            const std::string annotation_string =
+                std::string("Removed vkCreateFrameBuffer for orphaned frame buffer ") +
+                std::to_string(wrapper->handle_id);
+            WriteAnnotation(format::kAnnotationLabelRemovedResource, annotation_string);
         }
     });
 
@@ -5034,6 +5053,20 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
     output_stream_->Write(relative_file.c_str(), filename_length);
 
     blocks_written_ += n_blocks + 1;
+}
+
+void VulkanStateWriter::WriteAnnotation(const std::string& label, const std::string& message)
+{
+    const size_t label_length = label.length();
+    const size_t data_length  = message.length();
+
+    const format::AnnotationHeader annotation = format::MakeAnnotationHeader(format::kText, label_length, data_length);
+
+    output_stream_->Write(&annotation, sizeof(annotation));
+    output_stream_->Write(label.data(), label_length);
+    output_stream_->Write(message.data(), data_length);
+
+    ++blocks_written_;
 }
 
 void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanStateTable& state_table)
