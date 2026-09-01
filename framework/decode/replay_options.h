@@ -26,10 +26,14 @@
 #define GFXRECON_DECODE_REPLAY_OPTIONS_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 #include "util/options.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// Default log level to use prior to loading settings.
+const util::LoggingSeverity kDefaultLogLevel = util::LoggingSeverity::kInfo;
 
 static constexpr char kDefaultScreenshotFilePrefix[] = "screenshot";
 

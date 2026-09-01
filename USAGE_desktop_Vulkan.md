@@ -652,15 +652,15 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
-  --log-level <level>   Specify highest level message to log. Options are:
-                        debug, info, warning, error, and fatal. Default is info.
+  --log-level <level>   Specify lowest level message to log. Options are:
+                        fatal, error, warning, info, and debug. Default is info.
   --log-timestamps      Output a timestamp in front of each log message.
   --log-file <file>     Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled).
   --log-debugview       Log messages with OutputDebugStringA. Windows only.
   --debug-messenger-level <level>
-                        Specify highest debug messenger severity level. Options
-                        are: debug, info, warning, and error. Default is
+                        Specify lowest debug messenger severity level. Options
+                        are: error, warning, info, and debug. Default is
                         warning.
   --cpu-mask <binary-mask>
                         Set of CPU cores used by the replayer.

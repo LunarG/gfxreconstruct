@@ -821,6 +821,15 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         // Track state of physical device properties and features at device creation
         wrapper->property_feature_info = property_feature_info;
 
+        // Track the effective device version and enabled extensions for selecting core vs extension entry point
+        // flavors.
+        VkPhysicalDeviceProperties physical_device_properties{};
+        instance_table->GetPhysicalDeviceProperties(physicalDevice, &physical_device_properties);
+        wrapper->version_extension_info.api_version =
+            std::min(physical_device_wrapper->parent_info.api_version, physical_device_properties.apiVersion);
+        wrapper->version_extension_info.enabled_extensions.assign(modified_extensions.begin(),
+                                                                  modified_extensions.end());
+
         if (!IsCaptureModeTrack())
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
@@ -2279,6 +2288,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
+                                                device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
@@ -2313,6 +2323,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
+                                                device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     std::vector<VkImageAspectFlagBits> aspects;

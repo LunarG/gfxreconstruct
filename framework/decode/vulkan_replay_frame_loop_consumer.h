@@ -47,6 +47,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
+    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -61,13 +63,22 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args) override;
 
-    void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
-
     void Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args) override;
 
     void Process_vkDestroyEvent(const ApiCallInfo& call_info, args::DestroyEvent& args) override;
 
+    void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
+    void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override;
+
+    void Process_vkCreateQueryPool(const ApiCallInfo& call_info, args::CreateQueryPool& args) override;
+
     void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
+
+    void Process_vkCreateSemaphore(const ApiCallInfo& call_info, args::CreateSemaphore& args) override;
+    void Process_vkDestroySemaphore(const ApiCallInfo& call_info, args::DestroySemaphore& args) override;
+
+    void Process_vkAcquireNextImageKHR(const ApiCallInfo& call_info, args::AcquireNextImageKHR& args) override;
+    void Process_vkAcquireNextImage2KHR(const ApiCallInfo& call_info, args::AcquireNextImage2KHR& args) override;
 
     void Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args) override;
 
@@ -103,6 +114,56 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void FixupDeviceEvents(format::HandleId device);
     void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
 
+    struct SemaphoreTracking
+    {
+        SemaphoreTracking(VkDevice                           device,
+                          const graphics::VulkanDeviceTable& device_table,
+                          CommonObjectInfoTable&             object_table) :
+            device_(device),
+            device_table_(device_table), object_table_(object_table)
+        {}
+
+        /// Semaphores waited on by any submit inside the loop range that are expected
+        /// to be signaled by a submission enqueued before start looping.
+        /// These semaphores will be synthetically signaled before repeating the loop range.
+        std::unordered_set<format::HandleId> before_loop_signaled_semaphores_;
+
+        /// Semaphores signaled by any submit inside the loop range that are expected
+        /// to be waited by a submission enqueued after looping.
+        /// These semaphores will be synthetically waited on before repeating the loop range.
+        std::unordered_set<format::HandleId> in_loop_signaled_semaphores_;
+
+        /// Timeline semaphore values at the start of the loop range.
+        std::unordered_map<format::HandleId, uint64_t> initial_timeline_values_;
+
+        bool IsBinary(format::HandleId semaphore) const;
+
+        void ClassifySignal(format::HandleId semaphore);
+        void ClassifyWait(format::HandleId semaphore);
+
+        void TrackSemaphores(const args::QueueSubmit& submit_info);
+        void TrackSemaphores(const args::QueueSubmit2KHR& submit_info);
+        void TrackSemaphores(const args::QueueSubmit2& submit_info);
+        void TrackSemaphores(const args::QueuePresentKHR& present_info);
+        void TrackSemaphores(const args::AcquireNextImageKHR& acquire_info);
+        void TrackSemaphores(const args::AcquireNextImage2KHR& acquire_info);
+
+        void TrackTimelineValue(format::HandleId semaphore);
+
+        void FixupSemaphores(format::HandleId queue);
+        void FixupBinarySemaphores(format::HandleId queue);
+        void FixupTimelineSemaphores(format::HandleId queue);
+
+        bool IsFixable(const VulkanSemaphoreInfo* semaphore_info) const;
+
+        VkDevice                           device_;
+        const graphics::VulkanDeviceTable& device_table_;
+        CommonObjectInfoTable&             object_table_;
+    };
+
+    SemaphoreTracking& GetSemaphoreTracking(format::HandleId device);
+    void               TrackSemaphoreStates();
+
     // Private data
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
@@ -114,6 +175,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     /// - or created before the loop range but destroyed during it
     std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
+
+    std::unordered_map<format::HandleId, SemaphoreTracking> per_device_semaphore_tracking_;
+
+    std::unordered_map<format::HandleId, uint32_t> query_pool_sizes_;
 
     std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
 
