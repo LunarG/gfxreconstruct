@@ -71,6 +71,11 @@ class DispatchTraceRaysDumpingContext
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
 
+    VkCommandBuffer GetOriginalCommandBuffer() const
+    {
+        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
+    }
+
     void CmdDispatch(const ApiCallInfo& call_info,
                      PFN_vkCmdDispatch  func,
                      VkCommandBuffer    original_command_buffer,
@@ -148,7 +153,8 @@ class DispatchTraceRaysDumpingContext
     void AssignSecondary(uint64_t                                         execute_commands_index,
                          std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context);
 
-    bool ShouldHandleExecuteCommands(uint64_t index) const;
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
+    SecondariesToExecute(uint64_t execute_commands_index) const;
 
   private:
     void InsertNewDispatchParameters(uint64_t index, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
@@ -652,7 +658,9 @@ class DispatchTraceRaysDumpingContext
     TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }
 
     // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>> secondaries_;
+    // This must be an ordered map: secondary dispatch/trace rays indices are merged in iteration order,
+    // which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
+    std::map<Index, std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>> secondaries_;
 
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
