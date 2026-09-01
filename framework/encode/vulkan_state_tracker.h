@@ -48,6 +48,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+void AssignDebugToObject(VkObjectType                        object_type,
+                         uint64_t                            object_handle,
+                         vulkan_state_info::CreateParameters object_name_parameter_buffer,
+                         vulkan_state_info::CreateParameters object_tag_parameter_buffer);
+
 class VulkanStateTracker
 {
   public:
@@ -886,6 +891,7 @@ class VulkanStateTracker
     std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker> device_address_trackers_;
 
     std::map<VkDevice, graphics::VulkanResourcesUtil> resource_utils_;
+    std::mutex                                        resource_utils_mutex_;
 
     VulkanStateWriter::AssetFileOffsetsInfo asset_file_offsets_;
 };

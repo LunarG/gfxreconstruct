@@ -24,6 +24,7 @@
 #ifndef GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 #define GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 
+#include "format/api_call_log.h"
 #include "format/format.h"
 #include "graphics/dx12_util.h"
 #include "util/defines.h"
@@ -35,9 +36,11 @@
 #include <dxgi1_5.h>
 
 #include <array>
-#include <unordered_set>
+#include <cstdint>
 #include <map>
 #include <memory>
+#include <unordered_set>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -253,7 +256,7 @@ struct IDXGISwapChainInfo : public DxgiWrapperInfo
     DXGI_COLOR_SPACE_TYPE  color_space_type{};
     DXGI_HDR_METADATA_TYPE hdr_metadata_type{};
     UINT                   hdr_metadata_size{ 0 };
-    void*                  hdr_metadata{ nullptr };
+    std::vector<uint8_t>   hdr_metadata;
 };
 
 struct IDXGIDeviceInfo : public DxgiWrapperInfo
@@ -490,7 +493,7 @@ struct ID3D12CommandListInfo : public DxWrapperInfo
 {
     bool                             was_reset{ false };
     bool                             is_closed{ false };
-    util::MemoryOutputStream         command_data;
+    format::ApiCallLog<>             command_data;
     std::vector<DxTransitionBarrier> transition_barriers;
     D3D12_COMMAND_LIST_TYPE          command_list_type{};
 

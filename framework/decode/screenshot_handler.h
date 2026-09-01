@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -58,7 +59,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
 
     void WriteImage(const std::string&                         filename_prefix,
                     const VulkanDeviceInfo*                    device_info,
-                    const graphics::VulkanDeviceTable*         device_table,
+                    const graphics::VulkanInjectedDeviceCalls& injected_calls,
                     const VkPhysicalDeviceMemoryProperties&    memory_properties,
                     VulkanResourceAllocator*                   allocator,
                     VkImage                                    image,
@@ -67,9 +68,10 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                     uint32_t                                   height,
                     uint32_t                                   layer,
                     const std::optional<std::array<float, 2>>& copy_scale,
-                    VkImageLayout                              image_layout);
+                    VkImageLayout                              image_layout,
+                    VkSurfaceTransformFlagBitsKHR              pre_transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
 
-    void DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table);
+    void DestroyDeviceResources(VkDevice device, const graphics::VulkanInjectedDeviceCalls& injected_calls);
 
   private:
     struct CopyResource
@@ -88,33 +90,39 @@ class ScreenshotHandler : public ScreenshotHandlerBase
         VkFormat                              format{ VK_FORMAT_UNDEFINED };
         uint32_t                              width{ 0 };
         uint32_t                              height{ 0 };
+        bool                                  flip_x{ false };
+        bool                                  flip_y{ false };
         VkMemoryPropertyFlags                 memory_property_flags{ 0 };
     };
 
     typedef std::unordered_map<VkDevice, CopyResource> CommandPools;
+
+    std::vector<uint32_t> rotated_pixels_buffer_;
 
   private:
     bool IsSrgbFormat(VkFormat image_format) const;
 
     VkFormat GetConversionFormat(VkFormat image_format) const;
 
-    VkDeviceSize GetCopyBufferSize(VkDevice                           device,
-                                   const graphics::VulkanDeviceTable* device_table,
-                                   VkFormat                           format,
-                                   uint32_t                           width,
-                                   uint32_t                           height) const;
+    VkDeviceSize GetCopyBufferSize(VkDevice                                          device,
+                                   const graphics::VulkanInjectedDeviceCalls::Scope& injected,
+                                   VkFormat                                          format,
+                                   uint32_t                                          width,
+                                   uint32_t                                          height) const;
 
-    VkResult CreateCopyResource(VkDevice                                device,
-                                const graphics::VulkanDeviceTable*      device_table,
-                                const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                VkDeviceSize                            buffer_size,
-                                VkFormat                                image_format,
-                                VkFormat                                screenshot_format,
-                                uint32_t                                width,
-                                uint32_t                                height,
-                                uint32_t                                copy_width,
-                                uint32_t                                copy_height,
-                                CopyResource*                           copy_resource) const;
+    VkResult CreateCopyResource(VkDevice                                          device,
+                                const graphics::VulkanInjectedDeviceCalls::Scope& injected,
+                                const VkPhysicalDeviceMemoryProperties&           memory_properties,
+                                VkDeviceSize                                      buffer_size,
+                                VkFormat                                          image_format,
+                                VkFormat                                          screenshot_format,
+                                uint32_t                                          width,
+                                uint32_t                                          height,
+                                uint32_t                                          copy_width,
+                                uint32_t                                          copy_height,
+                                bool                                              flip_x,
+                                bool                                              flip_y,
+                                CopyResource*                                     copy_resource) const;
 
     void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;
 

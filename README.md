@@ -124,7 +124,7 @@ result in small, known .gfxr outputs.
 ## License
 
 This work is licensed under the terms of the MIT License; see
-[LICENSE](LICENSE.txt) for more information.
+[LICENSE.md](LICENSE.md) for more information.
 
 ## Appropriate Use
 

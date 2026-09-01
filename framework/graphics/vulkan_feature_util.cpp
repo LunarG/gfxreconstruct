@@ -45,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(feature_util)
 std::set<std::string> kIgnorableExtensions = {
     VK_EXT_TOOLING_INFO_EXTENSION_NAME,   VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
     "VK_ANDROID_frame_boundary",          "VK_EXT_frame_boundary",
-    VK_EXT_LAYER_SETTINGS_EXTENSION_NAME,
+    VK_EXT_LAYER_SETTINGS_EXTENSION_NAME, VK_EXT_DEVICE_MEMORY_REPORT_EXTENSION_NAME,
 };
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
@@ -165,6 +165,21 @@ bool IsSupportedExtension(const std::vector<const char*>& extensions_names, cons
     for (const auto name : extensions_names)
     {
         if (util::platform::StringCompare(name, extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool IsSupportedExtension(const std::vector<std::string>& extensions_names, const char* extension)
+{
+    assert(extension != nullptr);
+
+    for (const auto name : extensions_names)
+    {
+        if (util::platform::StringCompare(name.c_str(), extension) == 0)
         {
             return true;
         }

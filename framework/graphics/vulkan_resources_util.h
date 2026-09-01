@@ -28,9 +28,11 @@
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_injected_calls.h"
 
 #include <vector>
 #include <functional>
+#include <limits>
 #include <map>
 #include <optional>
 #include <vulkan/vulkan_core.h>
@@ -48,6 +50,15 @@ class VulkanResourcesUtil
                         const VulkanDeviceTable&                               device_table,
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
+
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanInjectedDeviceCalls&                       injected_device_calls,
+                        const VulkanInstanceTable&                             instance_table,
+                        const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
@@ -258,6 +269,7 @@ class VulkanResourcesUtil
     {
         VkDeviceMemory        memory                = VK_NULL_HANDLE;
         VkDeviceSize          size                  = 0;
+        uint32_t              memory_type_index     = std::numeric_limits<uint32_t>::max();
         VkMemoryPropertyFlags memory_property_flags = VkMemoryPropertyFlags(0);
         void*                 mapped_ptr            = nullptr;
     };
@@ -277,6 +289,7 @@ class VulkanResourcesUtil
 
     VkResult CreateStagingTensor(const VkTensorDescriptionARM* desc);
     void     DestroyStagingTensor();
+    void     DestroyStagingTensorMemory();
 
     void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
                                           VkImage            image,
@@ -371,16 +384,19 @@ class VulkanResourcesUtil
         StagingMemoryContext mem;
     };
 
-    VkDevice                   device_;
-    const VulkanDeviceTable&   device_table_;
-    VkPhysicalDevice           physical_device_;
-    const VulkanInstanceTable& instance_table_;
+    VkDevice                        device_;
+    const VulkanInjectedDeviceCalls device_table_;
+    VkPhysicalDevice                physical_device_;
+    const VulkanInstanceTable&      instance_table_;
 
     // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
 
     // Required to check available physical device features
     const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info_;
+
+    // Effective device version and enabled device extensions, for selecting core vs extension entry point flavors.
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info_;
 
     struct command_assets_t
     {
@@ -411,6 +427,20 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
                          VkMemoryPropertyFlags                   desired_flags,
                          uint32_t*                               found_index,
                          VkMemoryPropertyFlags*                  found_flags);
+
+bool FindTensorStagingMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                      uint32_t                                memory_type_bits,
+                                      uint32_t*                               found_index,
+                                      VkMemoryPropertyFlags*                  found_flags);
+
+bool TensorFormatHasFeatures(const VkTensorFormatPropertiesARM& tensor_properties,
+                             VkTensorTilingARM                  tiling,
+                             VkFormatFeatureFlags2              required_features);
+
+bool TensorFormatSupportsFeatures(const VulkanInstanceTable*    instance_table,
+                                  VkPhysicalDevice              physical_device,
+                                  const VkTensorDescriptionARM* description,
+                                  VkFormatFeatureFlags2         required_features);
 
 struct VkOffset3DComparator
 {

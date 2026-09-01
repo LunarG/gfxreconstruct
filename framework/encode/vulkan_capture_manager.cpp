@@ -821,6 +821,15 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         // Track state of physical device properties and features at device creation
         wrapper->property_feature_info = property_feature_info;
 
+        // Track the effective device version and enabled extensions for selecting core vs extension entry point
+        // flavors.
+        VkPhysicalDeviceProperties physical_device_properties{};
+        instance_table->GetPhysicalDeviceProperties(physicalDevice, &physical_device_properties);
+        wrapper->version_extension_info.api_version =
+            std::min(physical_device_wrapper->parent_info.api_version, physical_device_properties.apiVersion);
+        wrapper->version_extension_info.enabled_extensions.assign(modified_extensions.begin(),
+                                                                  modified_extensions.end());
+
         if (!IsCaptureModeTrack())
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
@@ -984,6 +993,7 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
                                                        const VkAllocationCallbacks* pAllocator,
                                                        VkTensorARM*                 pTensor)
 {
+    auto* device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     auto* device_table         = vulkan_wrappers::GetDeviceTable(device);
     auto  handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
 
@@ -993,7 +1003,13 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
     VkTensorCreateInfoARM modified_create_info = *pCreateInfo_unwrapped;
 
     VkTensorDescriptionARM modified_desc;
-    if (IsTrimEnabled() && pCreateInfo_unwrapped->pDescription != nullptr)
+    if (IsTrimEnabled() && (device_wrapper != nullptr) && (device_wrapper->physical_device != nullptr) &&
+        (pCreateInfo_unwrapped->pDescription != nullptr) &&
+        graphics::TensorFormatSupportsFeatures(device_wrapper->physical_device->layer_table_ref,
+                                               device_wrapper->physical_device->handle,
+                                               pCreateInfo_unwrapped->pDescription,
+                                               VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT |
+                                                   VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT))
     {
         modified_desc = *pCreateInfo_unwrapped->pDescription;
         modified_desc.usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
@@ -1002,7 +1018,7 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
 
     VkResult result = device_table->CreateTensorARM(device, &modified_create_info, pAllocator, pTensor);
 
-    if (result >= 0 && pTensor != nullptr)
+    if ((result >= 0) && (pTensor != nullptr))
     {
         vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
                                              vulkan_wrappers::NoParentWrapper,
@@ -2272,6 +2288,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
+                                                device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
@@ -2306,6 +2323,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
+                                                device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     std::vector<VkImageAspectFlagBits> aspects;

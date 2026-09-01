@@ -26,10 +26,14 @@
 #define GFXRECON_DECODE_REPLAY_OPTIONS_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 #include "util/options.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// Default log level to use prior to loading settings.
+const util::LoggingSeverity kDefaultLogLevel = util::LoggingSeverity::kInfo;
 
 static constexpr char kDefaultScreenshotFilePrefix[] = "screenshot";
 
@@ -77,6 +81,7 @@ struct ReplayOptions
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
     bool                         screenshot_ignore_frameBoundaryAndroid{ false };
+    bool                         screenshot_apply_prerotation{ false };
     int32_t                      num_pipeline_creation_jobs{ 0 };
     std::string                  asset_file_path;
     bool                         enable_dump_resources{ false };

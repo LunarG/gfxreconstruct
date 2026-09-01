@@ -370,6 +370,12 @@ HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence* fence, uint64_t fen
         }
         if (SUCCEEDED(result))
         {
+            // fence_value must be strictly greater than the fence's current completed value.
+            // SetEventOnCompletion fires immediately if the fence has already reached fence_value,
+            // which would cause WaitForSingleObject to return before the GPU work completes.
+            // All callers must ensure this by passing a strictly-incrementing value (e.g. ++fence_value_).
+            GFXRECON_ASSERT(fence_value > fence->GetCompletedValue());
+
             HANDLE idle_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
             if (idle_event != nullptr)
             {

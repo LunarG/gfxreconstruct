@@ -38,6 +38,12 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
             size_t     command_buffer_count = submits[i].pCommandBuffers.GetLength();
             const auto command_buffer_ids   = submits[i].pCommandBuffers.GetPointer();
 
+            // Synthetic submissions from state restoration are not evidence of application work.
+            if ((command_buffer_count > 0) && !IsStateLoading())
+            {
+                command_buffer_submission_seen_ = true;
+            }
+
             for (size_t j = 0; j < command_buffer_count; ++j)
             {
                 table_.ProcessUserSubmission(command_buffer_ids[j]);
@@ -49,22 +55,13 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallInfo&  call_info,
                                                                   args::QueueSubmit2& args)
 {
-    if (!args.pSubmits.IsNull() && args.pSubmits.HasData())
-    {
-        size_t     submit_count = args.pSubmits.GetLength();
-        const auto submits      = args.pSubmits.GetMetaStructPointer();
+    Process_vkQueueSubmit2(&args.pSubmits);
+}
 
-        for (size_t i = 0; i < submit_count; ++i)
-        {
-            size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
-            const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
-
-            for (size_t j = 0; j < command_buffer_count; ++j)
-            {
-                table_.ProcessUserSubmission(command_buffers[j].commandBuffer);
-            }
-        }
-    }
+void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2KHR(const ApiCallInfo&     call_info,
+                                                                     args::QueueSubmit2KHR& args)
+{
+    Process_vkQueueSubmit2(&args.pSubmits);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(const ApiCallInfo&  call_info,
@@ -157,6 +154,25 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateAccelerationStructure
 
         table_.AddResource(*args.pAccelerationStructure.GetPointer());
         table_.AddResource(*args.pAccelerationStructure.GetPointer(), meta_create_info->buffer, true);
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateTensorARM(const ApiCallInfo&     call_info,
+                                                                     args::CreateTensorARM& args)
+{
+    if (!args.pTensor.IsNull() && args.pTensor.HasData())
+    {
+        table_.AddResource(*args.pTensor.GetPointer());
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateTensorViewARM(const ApiCallInfo&         call_info,
+                                                                         args::CreateTensorViewARM& args)
+{
+    if (!args.pCreateInfo.IsNull() && args.pCreateInfo.HasData() && !args.pView.IsNull() && args.pView.HasData())
+    {
+        const auto create_info = args.pCreateInfo.GetMetaStructPointer();
+        table_.AddResource(create_info->tensor, *args.pView.GetPointer());
     }
 }
 
@@ -358,6 +374,24 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(const 
                                                     writes[i].dstArrayElement,
                                                     writes[i].descriptorCount,
                                                     accel_structs.GetPointer());
+                        }
+                    }
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                {
+                    const auto* tensor_writes =
+                        GetPNextMetaStruct<Decoded_VkWriteDescriptorSetTensorARM>(meta_writes[i].pNext);
+                    if (tensor_writes != nullptr)
+                    {
+                        const auto& tensor_views = tensor_writes->pTensorViews;
+                        if (!tensor_views.IsNull() && tensor_views.HasData())
+                        {
+                            AddResourcesToContainer(meta_writes[i].dstSet,
+                                                    writes[i].dstBinding,
+                                                    writes[i].dstArrayElement,
+                                                    writes[i].descriptorCount,
+                                                    tensor_views.GetPointer());
                         }
                     }
                     break;

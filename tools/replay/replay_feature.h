@@ -36,6 +36,7 @@ struct android_app;
 #include "graphics/frame_loop_info.h"
 #include "util/argument_parser.h"
 #include "util/feature_base.h"
+#include "util/logging.h"
 
 #include <memory>
 #include <stdexcept>
@@ -47,10 +48,15 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 class ReplayFeatureBase : public util::FeatureBase
 {
   public:
-    virtual ~ReplayFeatureBase() { Destroy(); }
+    virtual ~ReplayFeatureBase() = default;
 
     // Options queries
     virtual void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) {}
+
+    // Examines the environment of the process for conditions that make replay of this API
+    // unreliable, and writes a warning for each one. The replay tool calls this function for
+    // every Feature before it starts the replay. The default does nothing.
+    virtual void CheckEnvironment() {}
 
     // Composition methods (for an API like OpenXR which uses other graphics APIs to
     // compose final images). Called after CreateConsumer for all features so that
@@ -107,8 +113,9 @@ template <typename ConsumerT, typename DecoderT, typename OptionsT>
 class ReplayFeature : public ReplayFeatureBase
 {
   public:
-    void* GetConsumer() override { return reinterpret_cast<void*>(replay_consumer_.get()); }
-    void  Destroy() override
+    void*     GetConsumer() override { return replay_consumer_.get(); }
+    DecoderT* GetDecoder() { return decoder_.get(); }
+    void      Destroy() override
     {
         if (replay_consumer_)
         {
@@ -119,21 +126,38 @@ class ReplayFeature : public ReplayFeatureBase
   protected:
     OptionsT                   replay_options_;
     std::unique_ptr<ConsumerT> replay_consumer_;
-    DecoderT                   decoder_;
+    std::unique_ptr<DecoderT>  decoder_;
 
     void InitConsumer(decode::FileProcessor* file_processor, std::shared_ptr<application::Application> application)
     {
         file_processor_ = file_processor;
         application_    = application;
+
+        // Make the decoder here, and not in RegisterConsumerAndDecoder(). A feature can use the
+        // decoder between these two calls. The D3D12 two-pass tracking pass is one example. A
+        // decoder that is made late is a null pointer for all such code.
+        decoder_ = std::make_unique<DecoderT>();
     }
 
     void FinalizeConsumer() {}
 
-    void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info)
+    // Adds the consumer to the decoder, then adds the decoder to the file processor.
+    // InitConsumer() already made a decoder of the default type. Supply decoder only to
+    // replace that decoder with a different type, as the Vulkan feature does for the
+    // isolate_render_passes option.
+    void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info, std::unique_ptr<DecoderT> decoder = nullptr)
     {
+        if (decoder != nullptr)
+        {
+            decoder_ = std::move(decoder);
+        }
+
+        // InitConsumer() must run first. A feature that does not call it has no decoder.
+        GFXRECON_ASSERT(decoder_ != nullptr);
+
         replay_consumer_->SetFpsInfo(fps_info);
-        decoder_.AddConsumer(replay_consumer_.get());
-        file_processor_->AddDecoder(&decoder_);
+        decoder_->AddConsumer(replay_consumer_.get());
+        file_processor_->AddDecoder(decoder_.get());
     }
 };
 

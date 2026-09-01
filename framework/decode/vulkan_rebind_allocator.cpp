@@ -45,13 +45,15 @@
     }
 #endif
 
+#include "generated/generated_vulkan_dispatch_table.h"
+
 // This file needs to be included first to ensure it is processed with the VMA_IMPLEMENTATION directive, in case it is
 // indirectly included by other include files.
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_rebind_allocator.h"
-
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "format/format.h"
@@ -88,8 +90,8 @@ extern VKAPI_ATTR void VKAPI_CALL OnVmaFreeDeviceMemory(
 }
 
 VulkanRebindAllocator::VulkanRebindAllocator() :
-    device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), vma_functions_{},
-    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
+    VulkanResourceAllocator(), allocator_(VK_NULL_HANDLE), vma_functions_{},
+    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}
 {}
 
 std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_memory)
@@ -104,31 +106,33 @@ std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_m
     return *mutex_ptr;
 }
 
-VkResult VulkanRebindAllocator::Initialize(uint32_t                                api_version,
-                                           VkInstance                              instance,
-                                           VkPhysicalDevice                        physical_device,
-                                           VkDevice                                device,
-                                           const VkDeviceCreateInfo&               device_create_info,
-                                           const std::vector<std::string>&         enabled_device_extensions,
-                                           VkPhysicalDeviceType                    capture_device_type,
-                                           const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                           const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                           const Functions&                        functions)
+VkResult VulkanRebindAllocator::Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                           VkDevice                             device,
+                                           const VkDeviceCreateInfo&            device_create_info,
+                                           const std::vector<std::string>&      enabled_device_extensions,
+                                           const graphics::VulkanInstanceTable& instance_table,
+                                           const graphics::VulkanDeviceTable*   device_table)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result = VulkanResourceAllocator::Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, instance_table, device_table);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
 
-    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
+    result = VK_ERROR_INITIALIZATION_FAILED;
+
+    const VkPhysicalDeviceMemoryProperties& capture_memory_properties = physical_device_info->capture_memory_properties;
+
+    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties_.memoryTypeCount == 0))
     {
         GFXRECON_LOG_FATAL("Capture file does not contain physical device memory properties and cannot be used with "
                            "memory translation.");
     }
     else if (allocator_ == VK_NULL_HANDLE)
     {
-        device_                    = device;
-        functions_                 = functions;
-        capture_device_type_       = capture_device_type;
+        capture_device_type_       = physical_device_info->capture_device_type;
         capture_memory_properties_ = capture_memory_properties;
-        replay_memory_properties_  = replay_memory_properties;
 
         vma_functions_.vkGetPhysicalDeviceProperties           = functions_.get_physical_device_properties;
         vma_functions_.vkGetPhysicalDeviceMemoryProperties     = functions_.get_physical_device_memory_properties;
@@ -157,10 +161,15 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
         VmaAllocatorCreateInfo create_info = {};
 
+        GFXRECON_ASSERT(physical_device_info->replay_device_info->properties.has_value());
+        const VkPhysicalDevice physical_device = physical_device_info->handle;
+        const uint32_t         api_version     = std::min(physical_device_info->parent_info.api_version,
+                                              physical_device_info->replay_device_info->properties->apiVersion);
+
         create_info.physicalDevice   = physical_device;
         create_info.device           = device;
         create_info.pVulkanFunctions = &vma_functions_;
-        create_info.instance         = instance;
+        create_info.instance         = physical_device_info->parent;
         create_info.vulkanApiVersion = api_version;
 
         // register our custom handler, invoked when blocks are freed
@@ -197,10 +206,14 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         cmd_pool_info.queueFamilyIndex        = staging_queue_family_;
 
-        result = functions_.create_command_pool(device_, &cmd_pool_info, NULL, &cmd_pool_);
-        assert(result == VK_SUCCESS);
+        {
+            auto injected = device_table_.Open();
 
-        functions_.get_device_queue(device_, staging_queue_family_, 0, &staging_queue_);
+            result = injected->CreateCommandPool(device_, &cmd_pool_info, NULL, &cmd_pool_);
+            assert(result == VK_SUCCESS);
+
+            injected->GetDeviceQueue(device_, staging_queue_family_, 0, &staging_queue_);
+        }
 
         // Select creation flags from enabled extensions.
         bool have_memory_reqs2         = false;
@@ -247,6 +260,8 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
             create_info.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
         }
 
+        // Mark vma's api calls as synthesized
+        util::MarkInjectedCommandsHelper injected;
         result = vmaCreateAllocator(&create_info, &allocator_);
     }
 
@@ -255,8 +270,11 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
 void VulkanRebindAllocator::Destroy()
 {
+    auto injected = device_table_.Open();
     ClearStagingResources();
-    functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
+    {
+        injected->DestroyCommandPool(device_, cmd_pool_, nullptr);
+    }
 
     if (allocator_ != VK_NULL_HANDLE)
     {
@@ -622,11 +640,12 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
 }
 
 VulkanRebindAllocator::VmaMemoryInfo*
-VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_alloc_info,
+VulkanRebindAllocator::FindAliasedMemoryInfo(const MemoryAllocInfo&      memory_alloc_info,
                                              VkDeviceSize                memory_offset,
                                              VkDeviceSize                footprint,
                                              const VkMemoryRequirements& replay_req,
-                                             bool                        requires_dedicated_allocation)
+                                             bool                        requires_dedicated_allocation,
+                                             bool                        prefers_dedicated_allocation)
 {
     // Without a captured byte-extent we cannot test overlap (e.g. a size-0 image with no
     // create_size proxy); fall back to the per-resource path.
@@ -654,26 +673,32 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_
         VmaMemoryInfo*     existing = range.vma_mem_info;
         const VkDeviceSize base     = existing->offset_from_original_device_memory;
 
-        // A dedicated allocation backs a single resource over the whole memory object, so an existing
-        // dedicated allocation being overlapped cannot happen in a valid capture: the capture is inconsistent.
-        if (existing->requires_dedicated_allocation)
+        // VMA 'can' create dedicated blocks with neither 'prefers/requires dedicated' flag set.
+        // -> query the VMA-allocation
+        VmaAllocationInfo2 existing_info{};
+        if (existing->allocation != VK_NULL_HANDLE)
         {
-            GFXRECON_LOG_FATAL("Rebind aliasing: captured range overlaps an existing dedicated allocation; "
-                               "the capture is inconsistent.");
+            vmaGetAllocationInfo2(allocator_, existing->allocation, &existing_info);
+        }
+        if (existing_info.dedicatedMemory == VK_TRUE)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: the aliased resource holds a dedicated allocation at replay. "
+                                 "cannot reproduce the share.");
+            return nullptr;
         }
 
-        // The newcomer needs a dedicated allocation at replay and therefore cannot share the existing memory.
-        if (requires_dedicated_allocation)
+        // The newcomer gets its own dedicated allocation at replay and therefore cannot share the existing memory.
+        if (requires_dedicated_allocation || prefers_dedicated_allocation)
         {
             GFXRECON_LOG_WARNING(
-                "Rebind aliasing: a dedicated allocation is required at replay; cannot reproduce the share.");
+                "Rebind aliasing: a dedicated allocation is required at replay. cannot reproduce the share.");
             return nullptr;
         }
 
         // The existing allocation's memory type must be allowed for the newcomer at replay.
         if ((replay_req.memoryTypeBits & (1u << existing->allocation_info.memoryType)) == 0)
         {
-            GFXRECON_LOG_WARNING("Rebind aliasing: memory type %u is not supported by the resource at replay; cannot "
+            GFXRECON_LOG_WARNING("Rebind aliasing: memory type %u is not supported by the resource at replay. cannot "
                                  "reproduce the share.",
                                  existing->allocation_info.memoryType);
             return nullptr;
@@ -685,7 +710,7 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_
         if (memory_offset < base)
         {
             GFXRECON_LOG_WARNING("Rebind aliasing: resource at captured offset %" PRIu64
-                                 " precedes the aliased resource at offset %" PRIu64 "; cannot reproduce the share.",
+                                 " precedes the aliased resource at offset %" PRIu64 ". cannot reproduce the share.",
                                  memory_offset,
                                  base);
             return nullptr;
@@ -698,7 +723,7 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_
         if (local + replay_req.size > existing->replay_mem_req.size)
         {
             GFXRECON_LOG_WARNING("Rebind aliasing: resource at relative offset %" PRIu64 " (size %" PRIu64
-                                 ") exceeds the aliased allocation size %" PRIu64 "; cannot reproduce the share.",
+                                 ") exceeds the aliased allocation size %" PRIu64 ". cannot reproduce the share.",
                                  local,
                                  replay_req.size,
                                  existing->replay_mem_req.size);
@@ -710,14 +735,64 @@ VulkanRebindAllocator::FindAliasedMemoryInfo(MemoryAllocInfo&            memory_
         if (replay_req.alignment != 0 && device_offset % replay_req.alignment != 0)
         {
             GFXRECON_LOG_WARNING("Rebind aliasing: device offset %" PRIu64 " does not satisfy replay alignment %" PRIu64
-                                 "; cannot reproduce the share.",
+                                 ". cannot reproduce the share.",
                                  device_offset,
                                  replay_req.alignment);
             return nullptr;
         }
+
+        // avoid unintended aliasing
+        if (OverlapsUnaliasedResource(memory_alloc_info, existing, memory_offset, footprint, local, replay_req.size))
+        {
+            return nullptr;
+        }
+
         return existing;
     }
     return nullptr;
+}
+
+// True if placing a resource at [local, local + replay_size) inside `allocation` would overlap a
+// resource already bound there whose *captured* range is disjoint from [memory_offset, +footprint).
+bool VulkanRebindAllocator::OverlapsUnaliasedResource(const MemoryAllocInfo& memory_alloc_info,
+                                                      const VmaMemoryInfo*   allocation,
+                                                      VkDeviceSize           memory_offset,
+                                                      VkDeviceSize           footprint,
+                                                      VkDeviceSize           local,
+                                                      VkDeviceSize           replay_size) const
+{
+    const VkDeviceSize base = allocation->offset_from_original_device_memory;
+
+    for (const auto& other : memory_alloc_info.bound_ranges)
+    {
+        // Only resources sharing this allocation can collide, and only if their extents are known.
+        if (other.vma_mem_info != allocation || other.replay_size == 0 || other.offset < base)
+        {
+            continue;
+        }
+
+        const VkDeviceSize other_local = other.offset - base;
+        if (local >= other_local + other.replay_size || other_local >= local + replay_size)
+        {
+            continue; // disjoint at replay
+        }
+
+        if (memory_offset < other.offset + other.footprint && other.offset < memory_offset + footprint)
+        {
+            continue; // they aliased in the capture too: this is the share being reproduced
+        }
+
+        GFXRECON_LOG_WARNING("Rebind aliasing: replay extent [%" PRIu64 ", %" PRIu64 ") would overlap resource %" PRIu64
+                             " at [%" PRIu64 ", %" PRIu64 "), which it does not alias in the capture. cannot "
+                             "reproduce the share.",
+                             local,
+                             local + replay_size,
+                             other.object_handle,
+                             other_local,
+                             other_local + other.replay_size);
+        return true;
+    }
+    return false;
 }
 
 void VulkanRebindAllocator::RemoveBoundRange(MemoryAllocInfo& memory_alloc_info, uint64_t object_handle)
@@ -760,14 +835,22 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    // The captured byte-extent: the memory-requirement size when recorded, else the buffer's create
-    // size (always present). Used to detect aliasing against resources already bound to this memory.
-    const VkDeviceSize footprint = capture_req.size > 0 ? capture_req.size : resource_alloc_info.create_size;
+    // The captured byte-extent, used to detect aliasing. Prefer the smaller of requirement- and
+    // create-size: page-guard tracking rewrites the recorded requirement to a page multiple (a
+    // 168-byte buffer can read as 65536), which would overlap every neighbour within that page.
+    const VkDeviceSize footprint = (capture_req.size > 0 && resource_alloc_info.create_size > 0)
+                                       ? std::min(capture_req.size, resource_alloc_info.create_size)
+                                       : std::max(capture_req.size, resource_alloc_info.create_size);
 
-    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(
-            memory_alloc_info, memory_offset, footprint, replay_req, requires_dedicated_allocation))
+    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
+                                                       memory_offset,
+                                                       footprint,
+                                                       replay_req,
+                                                       requires_dedicated_allocation,
+                                                       prefers_dedicated_allocation))
     {
-        memory_alloc_info.bound_ranges.push_back({ VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, aliased });
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, aliased, replay_req.size });
         *vma_mem_info = aliased;
         return VK_SUCCESS;
     }
@@ -782,7 +865,7 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
                           vma_mem_info))
     {
         memory_alloc_info.bound_ranges.push_back(
-            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info });
+            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info, replay_req.size });
         return VK_SUCCESS;
     }
 
@@ -795,7 +878,9 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -803,7 +888,7 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
         memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
         memory_alloc_info.bound_ranges.push_back(
-            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info });
+            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info, replay_req.size });
     }
     return result;
 }
@@ -917,6 +1002,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
 
             auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+            // Mark vma's api calls as synthesized
+            util::MarkInjectedCommandsHelper injected;
             result = vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, nullptr);
 
             if (result >= 0)
@@ -980,6 +1067,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                     auto bind_info = &bind_infos[i];
                     auto offset    = GetRebindOffsetFromVMA(bind_info->memoryOffset, *vma_mem_info);
 
+                    // Mark vma's api calls as synthesized
+                    util::MarkInjectedCommandsHelper injected;
                     result =
                         vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, bind_info->pNext);
 
@@ -1026,8 +1115,11 @@ VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_
     VkAndroidHardwareBufferPropertiesANDROID androidHardwareBufferProperties;
     androidHardwareBufferProperties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
     androidHardwareBufferProperties.pNext = nullptr;
-    functions_.get_android_hardware_buffer_properties(
-        device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
+    {
+        auto injected = device_table_.Open();
+        injected->GetAndroidHardwareBufferPropertiesANDROID(
+            device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
+    }
 
     VkMemoryAllocateInfo allocate_info{};
     allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -1084,10 +1176,15 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     // requirement size was recorded; otherwise overlap is untestable and we use the per-resource path.
     const VkDeviceSize footprint = capture_req.size;
 
-    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(
-            memory_alloc_info, memory_offset, footprint, replay_req, requires_dedicated_allocation))
+    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
+                                                       memory_offset,
+                                                       footprint,
+                                                       replay_req,
+                                                       requires_dedicated_allocation,
+                                                       prefers_dedicated_allocation))
     {
-        memory_alloc_info.bound_ranges.push_back({ VK_HANDLE_TO_UINT64(image), memory_offset, footprint, aliased });
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, aliased, replay_req.size });
         *vma_mem_info = aliased;
         return VK_SUCCESS;
     }
@@ -1102,7 +1199,7 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
                           vma_mem_info))
     {
         memory_alloc_info.bound_ranges.push_back(
-            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info });
+            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info, replay_req.size });
         return VK_SUCCESS;
     }
 
@@ -1115,7 +1212,9 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -1123,7 +1222,7 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
         memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
         memory_alloc_info.bound_ranges.push_back(
-            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info });
+            { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info, replay_req.size });
     }
     return result;
 }
@@ -1184,6 +1283,8 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
 
                 auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+                // Mark vma's api calls as synthesized
+                util::MarkInjectedCommandsHelper injected;
                 result = vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, nullptr);
 
                 if (result >= 0)
@@ -1268,6 +1369,8 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
 
                         auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
 
+                        // Mark vma's api calls as synthesized
+                        util::MarkInjectedCommandsHelper injected;
                         result =
                             vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, bind_info->pNext);
 
@@ -1927,7 +2030,10 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
     cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     cmd_buff_alloc_info.commandBufferCount          = 1;
 
-    VkResult result = functions_.allocate_command_buffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
+    // Everything below is replay-synthesized staging work; one injected-commands window covers it all.
+    auto injected = device_table_.Open();
+
+    VkResult result = injected->AllocateCommandBuffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
 
     if (result == VK_SUCCESS)
     {
@@ -1967,7 +2073,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         VkCommandBufferBeginInfo cmd_buf_begin_info = {};
         cmd_buf_begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        result = functions_.begin_command_buffer(staging_resources.cmd_buffer, &cmd_buf_begin_info);
+        result = injected.BeginCommandBuffer(staging_resources.cmd_buffer, &cmd_buf_begin_info, __func__);
     }
 
     if (result == VK_SUCCESS)
@@ -2006,12 +2112,12 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                     region.imageSubresource  = { aspect_flags, 0, 0, 1 };
                     region.imageOffset       = { 0, 0, 0 };
                     region.imageExtent       = { 1, 1, 1 };
-                    functions_.cmd_copy_buffer_to_image(staging_resources.cmd_buffer,
-                                                        staging_resources.staging_buf,
-                                                        original_image,
-                                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                        1,
-                                                        &region);
+                    injected->CmdCopyBufferToImage(staging_resources.cmd_buffer,
+                                                   staging_resources.staging_buf,
+                                                   original_image,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                   1,
+                                                   &region);
                 }
             }
         }
@@ -2034,7 +2140,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                 copy_region.dstOffset = dst_offset;
                 copy_region.size      = data_size;
 
-                functions_.cmd_copy_buffer(
+                injected->CmdCopyBuffer(
                     staging_resources.cmd_buffer, staging_resources.staging_buf, original_buffer, 1, &copy_region);
             }
         }
@@ -2042,7 +2148,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
 
     if (result == VK_SUCCESS)
     {
-        result = functions_.end_command_buffer(staging_resources.cmd_buffer);
+        result = injected->EndCommandBuffer(staging_resources.cmd_buffer);
     }
 
     if (result == VK_SUCCESS)
@@ -2051,7 +2157,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
         result =
-            functions_.create_semaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
+            injected->CreateSemaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
     }
 
     if (result == VK_SUCCESS)
@@ -2059,7 +2165,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         VkFenceCreateInfo fence_create_info{};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-        result = functions_.create_fence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
+        result = injected->CreateFence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -2074,7 +2180,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         compute_submit_info.signalSemaphoreCount = 1;
         compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
 
-        result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
+        result = injected->QueueSubmit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -2109,6 +2215,8 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
         if (bound_memory_info->mapped_pointer == nullptr)
         {
             // After first map, the allocation will stay mapped until it is destroyed.
+            // Mark vma's api calls as synthesized
+            util::MarkInjectedCommandsHelper injected;
             result = vmaMapMemory(allocator_, bound_memory_info->allocation, &bound_memory_info->mapped_pointer);
         }
 
@@ -2246,6 +2354,9 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
     VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult result = VK_SUCCESS;
+
+    // Mark vma's api calls as synthesized
+    auto injected = device_table_.Open();
 
     if ((memory_ranges != nullptr) && (allocator_datas != nullptr))
     {
@@ -2523,10 +2634,10 @@ void VulkanRebindAllocator::ReportBindIncompatibility(const ResourceData* alloca
     }
 }
 
-VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
-                                                        VkMemoryMapFlags flags,
-                                                        void**           data,
-                                                        ResourceData     allocator_data)
+VkResult VulkanRebindAllocator::MapResourceMemoryDirectImpl(VkDeviceSize     size,
+                                                            VkMemoryMapFlags flags,
+                                                            void**           data,
+                                                            ResourceData     allocator_data)
 {
     VkResult result = VK_ERROR_MEMORY_MAP_FAILED;
 
@@ -2540,6 +2651,7 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
 
             if (mem_info->mapped_pointer == nullptr)
             {
+                // vma's api calls are marked as synthesized by the scope MapResourceMemoryDirect opened.
                 result = vmaMapMemory(allocator_, mem_info->allocation, &mem_info->mapped_pointer);
             }
             else
@@ -2591,6 +2703,8 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
     VkDebugUtilsObjectTagInfoEXT tag_info;
     tag_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT;
     tag_info.pNext = nullptr;
+
+    auto injected = device_table_.Open();
 
     if (!memory_alloc_info->debug_utils_name.empty())
     {
@@ -2962,6 +3076,8 @@ bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               mem
 
 void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_alloc_info, uint64_t object_hanlde)
 {
+    auto injected = device_table_.Open();
+
     // It could bind sparse memories. It could have plural memories.
     for (auto& mem_info : resource_alloc_info.bound_memory_infos)
     {
@@ -3447,20 +3563,23 @@ void VulkanRebindAllocator::ClearStagingResources()
     {
         fences[i] = staging_resources_[i].staging_fence;
     }
-    functions_.wait_for_fences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
+    // Tearing down replay-synthesized staging resources; one injected-commands window covers it all.
+    auto injected = device_table_.Open();
+
+    injected->WaitForFences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
     std::vector<VkCommandBuffer> cmd_buffers_to_delete;
 
     for (auto& staging_resource : staging_resources_)
     {
         cmd_buffers_to_delete.push_back(staging_resource.cmd_buffer);
-        functions_.destroy_fence(device_, staging_resource.staging_fence, nullptr);
-        functions_.destroy_semaphore(device_, staging_resource.staging_semaphore, nullptr);
+        injected->DestroyFence(device_, staging_resource.staging_fence, nullptr);
+        injected->DestroySemaphore(device_, staging_resource.staging_semaphore, nullptr);
         vmaDestroyBuffer(allocator_, staging_resource.staging_buf, staging_resource.staging_alloc);
     }
-    functions_.free_command_buffers(device_,
-                                    cmd_pool_,
-                                    GFXRECON_NARROWING_CAST(uint32_t, cmd_buffers_to_delete.size()),
-                                    cmd_buffers_to_delete.data());
+    injected->FreeCommandBuffers(device_,
+                                 cmd_pool_,
+                                 GFXRECON_NARROWING_CAST(uint32_t, cmd_buffers_to_delete.size()),
+                                 cmd_buffers_to_delete.data());
     staging_resources_.clear();
 }
 
@@ -3576,9 +3695,23 @@ VulkanRebindAllocator::CreateDataGraphPipelineSession(const VkDataGraphPipelineS
     ResourceAllocInfo* resource_alloc_info = new ResourceAllocInfo();
     resource_alloc_info->object_type       = VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM;
     resource_alloc_info->uses_extensions   = (create_info->pNext != nullptr);
-    resource_alloc_info->usage             = 0;
+    resource_alloc_info->usage             = create_info->flags;
 
-    *allocator_data = static_cast<ResourceData>(reinterpret_cast<uintptr_t>(resource_alloc_info));
+    ResourceData session_allocator_data = reinterpret_cast<ResourceData>(resource_alloc_info);
+
+    // Replay may require session memory even when capture required none and therefore emitted no bind command.
+    // Initialize directly from replay requirements as part of creating the replay session.
+    result = InitializeDataGraphPipelineSessionMemory(*data_graph_pipeline_session, resource_alloc_info);
+    if (result != VK_SUCCESS)
+    {
+        functions_.destroy_data_graph_pipeline_session(
+            device_, *data_graph_pipeline_session, allocator_->GetAllocationCallbacks());
+        delete resource_alloc_info;
+        *data_graph_pipeline_session = VK_NULL_HANDLE;
+        return result;
+    }
+
+    *allocator_data = session_allocator_data;
     return VK_SUCCESS;
 }
 
@@ -3656,10 +3789,15 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
 
     const VkDeviceSize footprint = capture_req.size;
 
-    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(
-            memory_alloc_info, memory_offset, footprint, replay_req, requires_dedicated_allocation))
+    if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
+                                                       memory_offset,
+                                                       footprint,
+                                                       replay_req,
+                                                       requires_dedicated_allocation,
+                                                       prefers_dedicated_allocation))
     {
-        memory_alloc_info.bound_ranges.push_back({ VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, aliased });
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, aliased, replay_req.size });
         *vma_mem_info = aliased;
         return VK_SUCCESS;
     }
@@ -3674,7 +3812,7 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
                           vma_mem_info))
     {
         memory_alloc_info.bound_ranges.push_back(
-            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info });
+            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info, replay_req.size });
         return VK_SUCCESS;
     }
 
@@ -3687,7 +3825,9 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    auto result =
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result =
         vmaAllocateMemory(allocator_, &replay_req, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
@@ -3695,7 +3835,7 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
         memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
         memory_alloc_info.bound_ranges.push_back(
-            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info });
+            { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info, replay_req.size });
     }
     return result;
 }
@@ -3707,263 +3847,210 @@ VulkanRebindAllocator::BindDataGraphPipelineSessionMemory(uint32_t bind_info_cou
                                                           const MemoryData*      allocator_memory_datas,
                                                           VkMemoryPropertyFlags* bind_memory_properties)
 {
-    struct DataGraphBindPointRequirementInfo
+    // Data graph session memory is created entirely from replay-device requirements when the replay session is
+    // created. Captured bind commands describe capture-device requirements, so consuming them must have no effect.
+    GFXRECON_UNREFERENCED_PARAMETER(bind_info_count);
+    GFXRECON_UNREFERENCED_PARAMETER(bind_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_session_datas);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_datas);
+    GFXRECON_UNREFERENCED_PARAMETER(bind_memory_properties);
+    return VK_SUCCESS;
+}
+
+VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataGraphPipelineSessionARM session,
+                                                                         ResourceAllocInfo* resource_alloc_info)
+{
+    struct PendingBinding
     {
-        VkDataGraphPipelineSessionBindPointTypeARM bind_point_type = {};
-        uint32_t                                   num_objects     = 0;
+        VmaAllocator                     allocator = VK_NULL_HANDLE;
+        std::unique_ptr<MemoryAllocInfo> memory_alloc_info;
+        VmaMemoryInfo                    memory_info{};
+
+        ~PendingBinding()
+        {
+            if ((allocator != VK_NULL_HANDLE) && (memory_info.allocation != VK_NULL_HANDLE))
+            {
+                vmaFreeMemory(allocator, memory_info.allocation);
+            }
+        }
     };
 
-    struct DataGraphSessionBindRequirements
-    {
-        uint32_t                                                        bind_point_requirement_count = 0;
-        std::unordered_map<uint32_t, DataGraphBindPointRequirementInfo> requirements;
-    };
-
-    if (!bind_infos || !allocator_session_datas || !allocator_memory_datas || !bind_memory_properties)
+    if ((session == VK_NULL_HANDLE) || (resource_alloc_info == nullptr) ||
+        (resource_alloc_info->object_type != VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM))
     {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    if (bind_info_count == 0)
+    VkDataGraphPipelineSessionBindPointRequirementsInfoARM requirements_info{
+        VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM
+    };
+    requirements_info.session = session;
+
+    uint32_t requirement_count = 0;
+    VkResult result            = functions_.get_data_graph_pipeline_session_bind_point_requirements(
+        device_, &requirements_info, &requirement_count, nullptr);
+    if (result != VK_SUCCESS)
     {
-        GFXRECON_LOG_DEBUG("BindDataGraphPipelineSessionMemory: bind_info_count==0 (no-op).");
-        return VK_SUCCESS;
+        GFXRECON_LOG_ERROR("vkGetDataGraphPipelineSessionBindPointRequirementsARM failed for session 0x%llx: %d",
+                           static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(session)),
+                           result);
+        return result;
     }
 
-    std::unordered_map<uint64_t, DataGraphSessionBindRequirements> session_bind_requirements_cache;
-    for (uint32_t i = 0; i < bind_info_count; ++i)
+    std::vector<VkDataGraphPipelineSessionBindPointRequirementARM> requirements(
+        requirement_count,
+        VkDataGraphPipelineSessionBindPointRequirementARM{
+            VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM, nullptr });
+
+    if (requirement_count != 0)
     {
-        const auto&                         in            = bind_infos[i];
-        const VkDataGraphPipelineSessionARM session       = in.session;
-        const auto                          bind_point    = in.bindPoint;
-        const uint32_t                      object_idx    = in.objectIndex;
-        const VkDeviceSize                  memory_offset = in.memoryOffset;
-        if (session == VK_NULL_HANDLE)
+        result = functions_.get_data_graph_pipeline_session_bind_point_requirements(
+            device_, &requirements_info, &requirement_count, requirements.data());
+        if (result != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("BindDataGraphPipelineSessionMemory[%u]: session handle is VK_NULL_HANDLE.", i);
-            return VK_ERROR_INITIALIZATION_FAILED;
+            GFXRECON_LOG_ERROR("vkGetDataGraphPipelineSessionBindPointRequirementsARM failed while enumerating session "
+                               "0x%llx: %d",
+                               static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(session)),
+                               result);
+            return result;
+        }
+        requirements.resize(requirement_count);
+    }
+
+    const bool protected_session =
+        (resource_alloc_info->usage & VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM) != 0;
+
+    std::vector<VkBindDataGraphPipelineSessionMemoryInfoARM> replay_bind_infos;
+    std::vector<std::unique_ptr<PendingBinding>>             pending_bindings;
+
+    auto injected = device_table_.Open();
+
+    for (const auto& requirement : requirements)
+    {
+        if (requirement.bindPointType != VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM)
+        {
+            continue;
         }
 
-        const uint64_t session_id = VK_HANDLE_TO_UINT64(session);
-        auto           session_it = session_bind_requirements_cache.find(session_id);
-        if (session_it == session_bind_requirements_cache.end())
+        for (uint32_t object_index = 0; object_index < requirement.numObjects; ++object_index)
         {
-            DataGraphSessionBindRequirements                       session_requirements = {};
-            VkDataGraphPipelineSessionBindPointRequirementsInfoARM bind_info_req{};
-            bind_info_req.sType   = VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM;
-            bind_info_req.session = session;
+            VkDataGraphPipelineSessionMemoryRequirementsInfoARM memory_requirements_info{
+                VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM
+            };
+            memory_requirements_info.session     = session;
+            memory_requirements_info.bindPoint   = requirement.bindPoint;
+            memory_requirements_info.objectIndex = object_index;
 
-            functions_.get_data_graph_pipeline_session_bind_point_requirements(
-                device_, &bind_info_req, &session_requirements.bind_point_requirement_count, nullptr);
+            VkMemoryRequirements2 memory_requirements{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
+            functions_.get_data_graph_pipeline_session_memory_requirements(
+                device_, &memory_requirements_info, &memory_requirements);
 
-            if (session_requirements.bind_point_requirement_count > 0)
+            uint32_t compatible_memory_type_bits = memory_requirements.memoryRequirements.memoryTypeBits;
+            for (uint32_t memory_type_index = 0; memory_type_index < replay_memory_properties_.memoryTypeCount;
+                 ++memory_type_index)
             {
-                std::vector<VkDataGraphPipelineSessionBindPointRequirementARM> bind_point_requirements(
-                    session_requirements.bind_point_requirement_count,
-                    VkDataGraphPipelineSessionBindPointRequirementARM{
-                        VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM, nullptr });
-
-                functions_.get_data_graph_pipeline_session_bind_point_requirements(
-                    device_,
-                    &bind_info_req,
-                    &session_requirements.bind_point_requirement_count,
-                    bind_point_requirements.data());
-
-                for (const auto& requirement : bind_point_requirements)
+                const bool protected_memory = (replay_memory_properties_.memoryTypes[memory_type_index].propertyFlags &
+                                               VK_MEMORY_PROPERTY_PROTECTED_BIT) != 0;
+                if (protected_memory != protected_session)
                 {
-                    session_requirements.requirements[static_cast<uint32_t>(requirement.bindPoint)] = {
-                        requirement.bindPointType, requirement.numObjects
-                    };
+                    compatible_memory_type_bits &= ~(1u << memory_type_index);
                 }
             }
 
-            session_it = session_bind_requirements_cache.emplace(session_id, std::move(session_requirements)).first;
-        }
-
-        const auto requirement_it = session_it->second.requirements.find(static_cast<uint32_t>(bind_point));
-        if (requirement_it == session_it->second.requirements.end())
-        {
-            GFXRECON_LOG_ERROR("BindDataGraphPipelineSessionMemory[%u]: session=0x%llx bindPoint=%u was captured "
-                               "with memory binding, but replay reports no matching bind point requirement "
-                               "(requirementCount=%u).",
-                               i,
-                               static_cast<unsigned long long>(session_id),
-                               static_cast<unsigned>(bind_point),
-                               session_it->second.bind_point_requirement_count);
-            return VK_ERROR_INITIALIZATION_FAILED;
-        }
-
-        const auto& bind_point_requirement = requirement_it->second;
-        if (bind_point_requirement.bind_point_type != VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM)
-        {
-            GFXRECON_LOG_ERROR("BindDataGraphPipelineSessionMemory[%u]: session=0x%llx bindPoint=%u has replay "
-                               "bind point type %u instead of MEMORY_ARM.",
-                               i,
-                               static_cast<unsigned long long>(session_id),
-                               static_cast<unsigned>(bind_point),
-                               static_cast<unsigned>(bind_point_requirement.bind_point_type));
-            return VK_ERROR_INITIALIZATION_FAILED;
-        }
-
-        if (object_idx >= bind_point_requirement.num_objects)
-        {
-            GFXRECON_LOG_ERROR("BindDataGraphPipelineSessionMemory[%u]: session=0x%llx bindPoint=%u objectIndex=%u "
-                               "is outside replay range [0, %u).",
-                               i,
-                               static_cast<unsigned long long>(session_id),
-                               static_cast<unsigned>(bind_point),
-                               object_idx,
-                               bind_point_requirement.num_objects);
-            return VK_ERROR_INITIALIZATION_FAILED;
-        }
-
-        GFXRECON_LOG_INFO(
-            "BindDataGraphPipelineSessionMemory[%u]: session=0x%llx bindPoint=%u obj=%u memOffset=%" PRIu64
-            " numObjects=%u",
-            i,
-            static_cast<unsigned long long>(session_id),
-            static_cast<unsigned>(bind_point),
-            object_idx,
-            static_cast<unsigned long long>(memory_offset),
-            bind_point_requirement.num_objects);
-
-        const uintptr_t session_ud = allocator_session_datas[i];
-        const uintptr_t memory_ud  = allocator_memory_datas[i];
-
-        auto* resource_alloc_info = (session_ud != 0) ? reinterpret_cast<ResourceAllocInfo*>(session_ud) : nullptr;
-        auto* memory_alloc_info   = (memory_ud != 0) ? reinterpret_cast<MemoryAllocInfo*>(memory_ud) : nullptr;
-
-        const VkMemoryPropertyFlags want_props = bind_memory_properties[i];
-
-        VkDataGraphPipelineSessionMemoryRequirementsInfoARM mem_req_info{
-            VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM
-        };
-        mem_req_info.session     = session;
-        mem_req_info.bindPoint   = bind_point;
-        mem_req_info.objectIndex = object_idx;
-
-        VkMemoryRequirements2 replay_mem_req_2{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
-        replay_mem_req_2.pNext = nullptr;
-
-        functions_.get_data_graph_pipeline_session_memory_requirements(device_, &mem_req_info, &replay_mem_req_2);
-
-        const VkMemoryRequirements& replay_mem_req = replay_mem_req_2.memoryRequirements;
-
-        GFXRECON_LOG_DEBUG("BindDataGraphPipelineSessionMemory[%u]: session=0x%llx bindPoint=%u obj=%u size=%" PRIu64
-                           " align=%" PRIu64 " typeBits=0x%08X wantProps=0x%08X",
-                           i,
-                           static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(session)),
-                           static_cast<unsigned>(bind_point),
-                           object_idx,
-                           static_cast<unsigned long long>(replay_mem_req.size),
-                           static_cast<unsigned long long>(replay_mem_req.alignment),
-                           replay_mem_req.memoryTypeBits,
-                           want_props);
-
-        VmaAllocation     allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo alloc_info{};
-        VkResult          result = VK_ERROR_UNKNOWN;
-
-        VmaAllocationCreateInfo aci{};
-        aci.flags          = 0;
-        aci.memoryTypeBits = replay_mem_req.memoryTypeBits;
-        aci.requiredFlags  = want_props;
-        aci.preferredFlags = 0;
-
-        if (resource_alloc_info && memory_alloc_info)
-        {
-            aci.usage = GetTensorMemoryUsage(
-                resource_alloc_info->usage,
-                capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
-                replay_mem_req);
-        }
-        else
-        {
-            aci.usage = VMA_MEMORY_USAGE_UNKNOWN;
-        }
-
-        VkMemoryRequirements capture_mem_req = {};
-        if (resource_alloc_info && resource_alloc_info->capture_mem_reqs.size() > 0)
-        {
-            capture_mem_req = resource_alloc_info->capture_mem_reqs[0];
-        }
-
-        VmaMemoryInfo mem_info                      = {};
-        mem_info.memory_info                        = memory_alloc_info;
-        mem_info.capture_mem_req                    = capture_mem_req;
-        mem_info.replay_mem_req                     = replay_mem_req;
-        mem_info.requires_dedicated_allocation      = false;
-        mem_info.prefers_dedicated_allocation       = false;
-        mem_info.alc_create_info                    = aci;
-        mem_info.offset_from_original_device_memory = memory_offset;
-
-        result = vmaAllocateMemory(allocator_, &replay_mem_req, &aci, &allocation, &alloc_info);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("BindDataGraphPipelineSessionMemory[%u]: vmaAllocateMemory failed: %d "
-                               "(size=%" PRIu64 ", align=%" PRIu64 ", typeBits=0x%08X)",
-                               i,
-                               result,
-                               static_cast<unsigned long long>(replay_mem_req.size),
-                               static_cast<unsigned long long>(replay_mem_req.alignment),
-                               replay_mem_req.memoryTypeBits);
-            return result;
-        }
-
-        VkBindDataGraphPipelineSessionMemoryInfoARM bind_session_memory_info{
-            VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM
-        };
-        bind_session_memory_info.session      = session;
-        bind_session_memory_info.bindPoint    = bind_point;
-        bind_session_memory_info.objectIndex  = object_idx;
-        bind_session_memory_info.memory       = alloc_info.deviceMemory;
-        bind_session_memory_info.memoryOffset = alloc_info.offset;
-
-        result = functions_.bind_data_graph_pipeline_session_memory(device_, 1, &bind_session_memory_info);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("BindDataGraphPipelineSessionMemory[%u]: vkBindDataGraphPipelineSessionMemoryARM "
-                               "failed: %d (mem=0x%llx, offset=%" PRIu64 ")",
-                               i,
-                               result,
-                               static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(alloc_info.deviceMemory)),
-                               static_cast<unsigned long long>(alloc_info.offset));
-
-            if (allocation != VK_NULL_HANDLE)
+            if (compatible_memory_type_bits == 0)
             {
-                vmaFreeMemory(allocator_, allocation);
+                GFXRECON_LOG_ERROR(
+                    "No compatible %s memory type for data graph session 0x%llx bindPoint=%u objectIndex=%u.",
+                    protected_session ? "protected" : "unprotected",
+                    static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(session)),
+                    static_cast<unsigned>(requirement.bindPoint),
+                    object_index);
+                return VK_ERROR_FEATURE_NOT_PRESENT;
             }
+
+            VmaAllocationCreateInfo allocation_create_info{};
+            // Session memory is device-side working memory that is never mapped. Without a preference VMA
+            // takes the lowest compatible memory type index, which is not device-local everywhere.
+            allocation_create_info.usage          = VMA_MEMORY_USAGE_GPU_ONLY;
+            allocation_create_info.memoryTypeBits = compatible_memory_type_bits;
+            allocation_create_info.requiredFlags  = protected_session ? VK_MEMORY_PROPERTY_PROTECTED_BIT : 0;
+
+            auto pending_binding                                = std::make_unique<PendingBinding>();
+            pending_binding->allocator                          = allocator_;
+            pending_binding->memory_alloc_info                  = std::make_unique<MemoryAllocInfo>();
+            pending_binding->memory_alloc_info->allocation_size = memory_requirements.memoryRequirements.size;
+            pending_binding->memory_alloc_info->is_free         = true;
+
+            auto& memory_info                              = pending_binding->memory_info;
+            memory_info.memory_info                        = pending_binding->memory_alloc_info.get();
+            memory_info.replay_mem_req                     = memory_requirements.memoryRequirements;
+            memory_info.alc_create_info                    = allocation_create_info;
+            memory_info.offset_from_original_device_memory = 0;
+
+            result = vmaAllocateMemory(allocator_,
+                                       &memory_requirements.memoryRequirements,
+                                       &allocation_create_info,
+                                       &memory_info.allocation,
+                                       &memory_info.allocation_info);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR(
+                    "vmaAllocateMemory failed for data graph session 0x%llx bindPoint=%u objectIndex=%u: %d",
+                    static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(session)),
+                    static_cast<unsigned>(requirement.bindPoint),
+                    object_index,
+                    result);
+                return result;
+            }
+
+            VkBindDataGraphPipelineSessionMemoryInfoARM replay_bind_info{
+                VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM
+            };
+            replay_bind_info.session      = session;
+            replay_bind_info.bindPoint    = requirement.bindPoint;
+            replay_bind_info.objectIndex  = object_index;
+            replay_bind_info.memory       = memory_info.allocation_info.deviceMemory;
+            replay_bind_info.memoryOffset = memory_info.allocation_info.offset;
+
+            replay_bind_infos.push_back(replay_bind_info);
+            pending_bindings.emplace_back(std::move(pending_binding));
+        }
+    }
+
+    if (!replay_bind_infos.empty())
+    {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, replay_bind_infos.size());
+        result = functions_.bind_data_graph_pipeline_session_memory(
+            device_, static_cast<uint32_t>(replay_bind_infos.size()), replay_bind_infos.data());
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "vkBindDataGraphPipelineSessionMemoryARM failed for replay-generated batch of %zu bindings: %d",
+                replay_bind_infos.size(),
+                result);
             return result;
         }
+    }
 
-        if (resource_alloc_info != nullptr && memory_alloc_info != nullptr)
-        {
-            mem_info.allocation      = allocation;
-            mem_info.allocation_info = alloc_info;
-            memory_alloc_info->vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
+    for (auto& pending_binding_ptr : pending_bindings)
+    {
+        auto& pending_binding       = *pending_binding_ptr;
+        auto  memory_alloc_info     = std::move(pending_binding.memory_alloc_info);
+        auto* memory_alloc_info_ptr = memory_alloc_info.get();
+        memory_alloc_info_ptr->vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(pending_binding.memory_info));
 
-            UpdateAllocInfo(*resource_alloc_info,
-                            VK_HANDLE_TO_UINT64(session),
-                            MemoryInfoType::kDataGraphSession,
-                            *memory_alloc_info,
-                            *memory_alloc_info->vma_mem_infos.back(),
-                            bind_memory_properties[i]);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("BindDataGraphPipelineSessionMemory[%u]: allocator data missing for session "
-                                 "or memory — VMA allocation cannot be tracked and will be freed.",
-                                 i);
-            vmaFreeMemory(allocator_, allocation);
-        }
+        auto* committed_memory_info            = memory_alloc_info_ptr->vma_mem_infos.back().get();
+        pending_binding.memory_info.allocation = VK_NULL_HANDLE;
 
-        GFXRECON_LOG_DEBUG("BindDataGraphPipelineSessionMemory[%u]: SUCCESS session=0x%llx mem=0x%llx offset=%" PRIu64
-                           " size=%" PRIu64,
-                           i,
-                           static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(session)),
-                           static_cast<unsigned long long>(VK_HANDLE_TO_UINT64(alloc_info.deviceMemory)),
-                           static_cast<unsigned long long>(alloc_info.offset),
-                           static_cast<unsigned long long>(replay_mem_req.size));
+        VkMemoryPropertyFlags unused_memory_properties = 0;
+        UpdateAllocInfo(*resource_alloc_info,
+                        VK_HANDLE_TO_UINT64(session),
+                        MemoryInfoType::kDataGraphSession,
+                        *memory_alloc_info_ptr,
+                        *committed_memory_info,
+                        unused_memory_properties);
+
+        memory_alloc_info.release();
     }
 
     return VK_SUCCESS;
@@ -4030,6 +4117,8 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                         RemoveBoundRange(*memory_alloc_info, VK_HANDLE_TO_UINT64(tensor));
                         if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
                         {
+                            // Mark vma's api calls as synthesized
+                            util::MarkInjectedCommandsHelper injected;
                             vmaFreeMemory(allocator_, vma_mem_info->allocation);
                             memory_alloc_info->vma_mem_infos.pop_back();
                         }

@@ -43,6 +43,24 @@ jobs:
           exit 1
         fi
 
+  clang-tidy:
+    name: "Check code quality with clang-tidy"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy-18 libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - name: Configure
+      run: cmake -S . -B tidy-build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - name: Run clang-tidy
+      run: |
+        run-clang-tidy-18 -p tidy-build -quiet \
+          -warnings-as-errors='*' \
+          '(framework/(?!generated/)|tools/|layer/)'
 
   linux:
     name: ${{ matrix.config.name }}
@@ -115,8 +133,8 @@ jobs:
         path: ${{matrix.config.build_dir}}/linux/x64/output/test
     - name: Prepare artifacts
       run: |
-        cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
-        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
+        cp LICENSES/LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
+        cp LICENSES/LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
         cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/linux/x64/output/bin/
         cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
         mv ${{ matrix.config.build_dir }}/linux/x64/output/bin gfxreconstruct-dev
@@ -197,8 +215,8 @@ jobs:
         path: ${{matrix.config.build_dir}}\windows\x64\output\test
     - name: Prepare artifacts
       run: |
-        copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
-        copy LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
+        copy LICENSES\LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
+        copy LICENSES\LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
         copy USAGE_desktop_D3D12.md ${{ matrix.config.build_dir }}\windows\x64\output\bin\
         copy USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}\windows\x64\output\bin\
         copy layer\vk_layer_settings.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
@@ -279,8 +297,8 @@ jobs:
           !${{matrix.config.build_dir}}/darwin/universal/output/test/VulkanSDK
     - name: Prepare artifacts
       run: |
-        cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+        cp LICENSES/LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+        cp LICENSES/LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
         cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
         cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
         mv ${{ matrix.config.build_dir }}/darwin/universal/output/bin gfxreconstruct-dev
@@ -347,8 +365,8 @@ jobs:
           mkdir gfxreconstruct-dev
           mkdir gfxreconstruct-dev/layer
           mkdir gfxreconstruct-dev/tools
-          cp LICENSE.txt gfxreconstruct-dev/
-          cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
+          cp LICENSES/LICENSE.txt gfxreconstruct-dev/
+          cp LICENSES/LICENSE_ThirdParty.txt gfxreconstruct-dev/
           cp USAGE_android.md gfxreconstruct-dev/
           cp layer/vk_layer_settings.txt gfxreconstruct-dev/
           if [ "${{ matrix.config.type }}" == "release" ]

@@ -48,6 +48,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         table_.GetReferencedHandleIds(referenced_ids, unreferenced_ids);
     }
 
+    bool WasCommandBufferSubmissionSeen() const { return command_buffer_submission_seen_; }
+
     void ProcessStateBeginMarker(uint64_t) override { loading_state_ = true; }
 
     void ProcessStateEndMarker(uint64_t) override
@@ -59,6 +61,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
 
     void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
+
+    void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override;
 
     void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
 
@@ -81,6 +85,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
     void Process_vkCreateAccelerationStructureKHR(const ApiCallInfo&                    call_info,
                                                   args::CreateAccelerationStructureKHR& args) override;
+
+    void Process_vkCreateTensorARM(const ApiCallInfo& call_info, args::CreateTensorARM& args) override;
+
+    void Process_vkCreateTensorViewARM(const ApiCallInfo& call_info, args::CreateTensorViewARM& args) override;
 
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
@@ -226,6 +234,34 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                           StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo);
 
     template <typename T>
+    void Process_vkQueueSubmit2(StructPointerDecoder<T>* pSubmits)
+    {
+        static_assert(std::is_same_v<T, Decoded_VkSubmitInfo2>);
+
+        if (!pSubmits->IsNull() && pSubmits->HasData())
+        {
+            size_t     submit_count = pSubmits->GetLength();
+            const auto submits      = pSubmits->GetMetaStructPointer();
+
+            for (size_t i = 0; i < submit_count; ++i)
+            {
+                size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
+                const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
+
+                if ((command_buffer_count > 0) && !IsStateLoading())
+                {
+                    command_buffer_submission_seen_ = true;
+                }
+
+                for (size_t j = 0; j < command_buffer_count; ++j)
+                {
+                    table_.ProcessUserSubmission(command_buffers[j].commandBuffer);
+                }
+            }
+        }
+    }
+
+    template <typename T>
     void Process_vkCreatePipelines(uint32_t                                createInfoCount,
                                    StructPointerDecoder<T>*                pCreateInfos,
                                    const HandlePointerDecoder<VkPipeline>* pPipelines)
@@ -241,6 +277,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
             const auto* meta_create_info = pCreateInfos->GetMetaStructPointer() + i;
 
+            // Track the base pipeline of a derivative pipeline as a child, so that creation of the base pipeline is
+            // preserved whenever the derivative pipeline is referenced (its create info names the base handle).
+            table_.AddResource(pipeline_id, meta_create_info->basePipelineHandle);
+
             if (auto* meta_pipeline_info =
                     GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(meta_create_info->pNext))
             {
@@ -253,8 +293,9 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         }
     }
 
-    bool                    loading_state_ = false;
-    bool                    loaded_state_  = false;
+    bool                    loading_state_                  = false;
+    bool                    loaded_state_                   = false;
+    bool                    command_buffer_submission_seen_ = false;
     ReferencedResourceTable table_;
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;

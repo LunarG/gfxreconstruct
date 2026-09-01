@@ -29,13 +29,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                              original_result,
-                                                     PFN_vkCreateSwapchainKHR              func,
-                                                     const VulkanDeviceInfo*               device_info,
-                                                     const VkSwapchainCreateInfoKHR*       create_info,
-                                                     const VkAllocationCallbacks*          allocator,
-                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                     const graphics::VulkanDeviceTable*    device_table)
+VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                                   original_result,
+                                                     PFN_vkCreateSwapchainKHR                   func,
+                                                     const VulkanDeviceInfo*                    device_info,
+                                                     const VkSwapchainCreateInfoKHR*            create_info,
+                                                     const VkAllocationCallbacks*               allocator,
+                                                     HandlePointerDecoder<VkSwapchainKHR>*      swapchain,
+                                                     const graphics::VulkanInjectedDeviceCalls& injected_calls)
 {
     VkDevice device = VK_NULL_HANDLE;
 
@@ -43,7 +43,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                   
     {
         device = device_info->handle;
     }
-    device_table_         = device_table;
+    injected_calls_       = injected_calls;
     auto replay_swapchain = swapchain->GetHandlePointer();
     return func(device, create_info, allocator, replay_swapchain);
 }
@@ -266,12 +266,12 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func
     func(command_buffer, pDependencyInfo);
 }
 
-void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+bool VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                                 const VulkanSemaphoreInfo*                 semaphore_info,
                                                 const VulkanImageInfo*                     image_info,
                                                 VulkanInstanceInfo*                        instance_info,
                                                 const graphics::VulkanInstanceTable*       instance_table,
-                                                const graphics::VulkanDeviceTable*         device_table,
+                                                const graphics::VulkanInjectedDeviceCalls& injected_calls,
                                                 application::Application*                  application,
                                                 const std::optional<std::array<float, 2>>& scale)
 {
@@ -280,11 +280,12 @@ void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*         
     GFXRECON_UNREFERENCED_PARAMETER(image_info);
     GFXRECON_UNREFERENCED_PARAMETER(instance_info);
     GFXRECON_UNREFERENCED_PARAMETER(instance_table);
-    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(injected_calls);
     GFXRECON_UNREFERENCED_PARAMETER(application);
     GFXRECON_UNREFERENCED_PARAMETER(scale);
 
     GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
+    return false;
 }
 
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
@@ -308,7 +309,10 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     }
 
     VkSurfaceKHR surface = swapchain_info->surface;
-    assert((surface_info != nullptr) && (instance_table_ != nullptr) && (device_table_ != nullptr));
+    assert((surface_info != nullptr) && (instance_table_ != nullptr) && injected_calls_.has_value());
+
+    // Trim-state setup: none of the calls below have a corresponding block in the capture file.
+    auto injected = injected_calls_->Open();
 
     VkSurfaceCapabilitiesKHR surface_caps;
     uint32_t                 image_count = 0;
@@ -328,7 +332,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     {
         uint32_t capture_image_count = static_cast<uint32_t>(image_info.size());
         result                       = GetSwapchainImagesKHR(VK_SUCCESS,
-                                       device_table_->GetSwapchainImagesKHR,
+                                       injected->GetSwapchainImagesKHR,
                                        device_info,
                                        swapchain_info,
                                        capture_image_count,
@@ -371,7 +375,10 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
     SwapchainImageTracker&                              swapchain_image_tracker)
 {
     VkDevice device = device_info->handle;
-    assert(device_table_ != nullptr);
+    assert(injected_calls_.has_value());
+
+    // Trim-state setup: none of the calls below have a corresponding block in the capture file.
+    auto injected = injected_calls_->Open();
 
     VkResult        result             = VK_SUCCESS;
     VkQueue         transition_queue   = VK_NULL_HANDLE;
@@ -381,14 +388,14 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
     uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
 
     // TODO: Improved queue selection?
-    transition_queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
+    transition_queue = GetDeviceQueue(injected.GetTable(), device_info, queue_family_index, 0);
 
     VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     pool_create_info.pNext                   = nullptr;
     pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     pool_create_info.queueFamilyIndex        = queue_family_index;
 
-    result = device_table_->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
+    result = injected->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
 
     if (result == VK_SUCCESS)
     {
@@ -398,7 +405,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
         command_allocate_info.commandPool                 = transition_pool;
         command_allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-        device_table_->AllocateCommandBuffers(device, &command_allocate_info, &transition_command);
+        injected->AllocateCommandBuffers(device, &command_allocate_info, &transition_command);
     }
 
     if (result == VK_SUCCESS)
@@ -448,18 +455,17 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                 semaphore_create_info.pNext                 = nullptr;
                 semaphore_create_info.flags                 = 0;
 
-                result = device_table_->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
+                result = injected->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
 
                 if (result == VK_SUCCESS)
                 {
-                    result =
-                        device_table_->CreateSemaphore(device, &semaphore_create_info, nullptr, &acquire_semaphore);
+                    result = injected->CreateSemaphore(device, &semaphore_create_info, nullptr, &acquire_semaphore);
                 }
 
                 if (result == VK_SUCCESS)
                 {
                     result = AcquireNextImageKHR(VK_SUCCESS,
-                                                 device_table_->AcquireNextImageKHR,
+                                                 injected->AcquireNextImageKHR,
                                                  device_info,
                                                  swapchain_info,
                                                  std::numeric_limits<uint64_t>::max(),
@@ -470,43 +476,43 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
 
                     if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                     {
-                        result = device_table_->WaitForFences(
+                        result = injected->WaitForFences(
                             device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
 
                         VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
                         if ((result == VK_SUCCESS) && (image_layout != VK_IMAGE_LAYOUT_UNDEFINED))
                         {
-                            image_barrier.newLayout = image_layout;
-                            image_barrier.image     = image;
+                            image_barrier.newLayout                   = image_layout;
+                            image_barrier.image                       = image;
                             image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
 
-                            result = device_table_->BeginCommandBuffer(transition_command, &begin_info);
+                            result = injected.BeginCommandBuffer(transition_command, &begin_info, __func__);
 
                             if (result == VK_SUCCESS)
                             {
-                                device_table_->CmdPipelineBarrier(transition_command,
-                                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                                  0,
-                                                                  0,
-                                                                  nullptr,
-                                                                  0,
-                                                                  nullptr,
-                                                                  1,
-                                                                  &image_barrier);
-                                device_table_->EndCommandBuffer(transition_command);
+                                injected->CmdPipelineBarrier(transition_command,
+                                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                             0,
+                                                             0,
+                                                             nullptr,
+                                                             0,
+                                                             nullptr,
+                                                             1,
+                                                             &image_barrier);
+                                injected->EndCommandBuffer(transition_command);
 
-                                result = device_table_->ResetFences(device, 1, &acquire_fence);
+                                result = injected->ResetFences(device, 1, &acquire_fence);
                             }
 
                             if (result == VK_SUCCESS)
                             {
-                                result = device_table_->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
+                                result = injected->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
                             }
 
                             if (result == VK_SUCCESS)
                             {
-                                result = device_table_->WaitForFences(
+                                result = injected->WaitForFences(
                                     device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
                             }
                         }
@@ -521,8 +527,8 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                                 // used to acquire the image were already set to the appropriate signaled state when
                                 // created, so the temporary objects used to acquire the image here can be
                                 // destroyed.
-                                device_table_->DestroyFence(device, acquire_fence, nullptr);
-                                device_table_->DestroySemaphore(device, acquire_semaphore, nullptr);
+                                injected->DestroyFence(device, acquire_fence, nullptr);
+                                injected->DestroySemaphore(device, acquire_semaphore, nullptr);
                             }
                             else
                             {
@@ -558,7 +564,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
 
     if (transition_pool != VK_NULL_HANDLE)
     {
-        device_table_->DestroyCommandPool(device, transition_pool, nullptr);
+        injected->DestroyCommandPool(device, transition_pool, nullptr);
     }
 }
 
@@ -570,7 +576,10 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     const CommonObjectInfoTable&                        object_info_table)
 {
     auto device = device_info->handle;
-    assert(device_table_ != nullptr);
+    assert(injected_calls_.has_value());
+
+    // Trim-state setup: none of the calls below have a corresponding block in the capture file.
+    auto injected = injected_calls_->Open();
 
     VkResult        result             = VK_SUCCESS;
     VkQueue         queue              = VK_NULL_HANDLE;
@@ -585,9 +594,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     pool_create_info.queueFamilyIndex        = queue_family_index;
 
-    queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
+    queue = GetDeviceQueue(injected.GetTable(), device_info, queue_family_index, 0);
 
-    result = device_table_->CreateCommandPool(device, &pool_create_info, nullptr, &pool);
+    result = injected->CreateCommandPool(device, &pool_create_info, nullptr, &pool);
 
     if (result == VK_SUCCESS)
     {
@@ -597,7 +606,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
         command_allocate_info.commandPool                 = pool;
         command_allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-        result = device_table_->AllocateCommandBuffers(device, &command_allocate_info, &command);
+        result = injected->AllocateCommandBuffers(device, &command_allocate_info, &command);
     }
 
     if (result == VK_SUCCESS)
@@ -606,7 +615,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
         fence_create_info.pNext             = nullptr;
         fence_create_info.flags             = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        result = device_table_->CreateFence(device, &fence_create_info, nullptr, &wait_fence);
+        result = injected->CreateFence(device, &fence_create_info, nullptr, &wait_fence);
     }
 
     if (result == VK_SUCCESS)
@@ -654,12 +663,12 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 VkImage  image       = image_entry->handle;
                 uint32_t image_index = 0;
 
-                result = device_table_->ResetFences(device, 1, &wait_fence);
+                result = injected->ResetFences(device, 1, &wait_fence);
 
                 if (result == VK_SUCCESS)
                 {
                     result = AcquireNextImageKHR(VK_SUCCESS,
-                                                 device_table_->AcquireNextImageKHR,
+                                                 injected->AcquireNextImageKHR,
                                                  device_info,
                                                  swapchain_info,
                                                  std::numeric_limits<uint64_t>::max(),
@@ -671,8 +680,8 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
-                    result = device_table_->WaitForFences(
-                        device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                    result =
+                        injected->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
 
                     if (result == VK_SUCCESS)
                     {
@@ -680,45 +689,45 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                         image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
                         present_info.pImageIndices                = &image_index;
 
-                        result = device_table_->BeginCommandBuffer(command, &begin_info);
+                        result = injected.BeginCommandBuffer(command, &begin_info, __func__);
                     }
 
                     if (result == VK_SUCCESS)
                     {
-                        device_table_->CmdPipelineBarrier(command,
-                                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                          0,
-                                                          0,
-                                                          nullptr,
-                                                          0,
-                                                          nullptr,
-                                                          1,
-                                                          &image_barrier);
-                        device_table_->EndCommandBuffer(command);
+                        injected->CmdPipelineBarrier(command,
+                                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                     0,
+                                                     0,
+                                                     nullptr,
+                                                     0,
+                                                     nullptr,
+                                                     1,
+                                                     &image_barrier);
+                        injected->EndCommandBuffer(command);
 
-                        result = device_table_->ResetFences(device, 1, &wait_fence);
+                        result = injected->ResetFences(device, 1, &wait_fence);
                     }
 
                     if (result == VK_SUCCESS)
                     {
-                        result = device_table_->QueueSubmit(queue, 1, &submit_info, wait_fence);
+                        result = injected->QueueSubmit(queue, 1, &submit_info, wait_fence);
                     }
 
                     if (result == VK_SUCCESS)
                     {
-                        result = device_table_->WaitForFences(
-                            device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                        result =
+                            injected->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
                     }
 
                     if (result == VK_SUCCESS)
                     {
-                        result = device_table_->QueuePresentKHR(queue, &present_info);
+                        result = injected->QueuePresentKHR(queue, &present_info);
                     }
 
                     if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                     {
-                        result = device_table_->QueueWaitIdle(queue);
+                        result = injected->QueueWaitIdle(queue);
                     }
                 }
 
@@ -750,12 +759,12 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 VkImage  image       = image_entry->handle;
                 uint32_t image_index = 0;
 
-                result = device_table_->ResetFences(device, 1, &wait_fence);
+                result = injected->ResetFences(device, 1, &wait_fence);
 
                 if (result == VK_SUCCESS)
                 {
                     result = AcquireNextImageKHR(VK_SUCCESS,
-                                                 device_table_->AcquireNextImageKHR,
+                                                 injected->AcquireNextImageKHR,
                                                  device_info,
                                                  swapchain_info,
                                                  std::numeric_limits<uint64_t>::max(),
@@ -767,8 +776,8 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
-                    result = device_table_->WaitForFences(
-                        device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                    result =
+                        injected->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
 
                     if (result == VK_SUCCESS)
                     {
@@ -785,33 +794,33 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                                 image_barrier.newLayout = image_layout;
                                 image_barrier.image     = image;
 
-                                result = device_table_->BeginCommandBuffer(command, &begin_info);
+                                result = injected.BeginCommandBuffer(command, &begin_info, __func__);
 
                                 if (result == VK_SUCCESS)
                                 {
-                                    device_table_->CmdPipelineBarrier(command,
-                                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                                      0,
-                                                                      0,
-                                                                      nullptr,
-                                                                      0,
-                                                                      nullptr,
-                                                                      1,
-                                                                      &image_barrier);
-                                    device_table_->EndCommandBuffer(command);
+                                    injected->CmdPipelineBarrier(command,
+                                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                                 0,
+                                                                 0,
+                                                                 nullptr,
+                                                                 0,
+                                                                 nullptr,
+                                                                 1,
+                                                                 &image_barrier);
+                                    injected->EndCommandBuffer(command);
 
-                                    result = device_table_->ResetFences(device, 1, &wait_fence);
+                                    result = injected->ResetFences(device, 1, &wait_fence);
                                 }
 
                                 if (result == VK_SUCCESS)
                                 {
-                                    result = device_table_->QueueSubmit(queue, 1, &submit_info, wait_fence);
+                                    result = injected->QueueSubmit(queue, 1, &submit_info, wait_fence);
                                 }
 
                                 if (result == VK_SUCCESS)
                                 {
-                                    result = device_table_->WaitForFences(
+                                    result = injected->WaitForFences(
                                         device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
                                 }
                             }
@@ -821,11 +830,11 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                             // Image is not expected to be in the acquired state, so present it.
                             present_info.pImageIndices = &image_index;
 
-                            result = device_table_->QueuePresentKHR(queue, &present_info);
+                            result = injected->QueuePresentKHR(queue, &present_info);
 
                             if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                             {
-                                result = device_table_->QueueWaitIdle(queue);
+                                result = injected->QueueWaitIdle(queue);
                             }
                         }
                     }
@@ -854,12 +863,12 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
     if (pool != VK_NULL_HANDLE)
     {
-        device_table_->DestroyCommandPool(device, pool, nullptr);
+        injected->DestroyCommandPool(device, pool, nullptr);
     }
 
     if (wait_fence != VK_NULL_HANDLE)
     {
-        device_table_->DestroyFence(device, wait_fence, nullptr);
+        injected->DestroyFence(device, wait_fence, nullptr);
     }
 }
 

@@ -172,10 +172,7 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      lis
     }
 
     // Append the command data.
-    size_t size = parameter_buffer->GetDataSize();
-    list_info->command_data.Write(&size, sizeof(size));
-    list_info->command_data.Write(&call_id, sizeof(call_id));
-    list_info->command_data.Write(parameter_buffer->GetData(), size);
+    list_info->command_data.Append(call_id, parameter_buffer->GetData(), parameter_buffer->GetDataSize());
 }
 
 void Dx12StateTracker::TrackCommand(ID3D12CommandList_Wrapper*      list_wrapper,
@@ -1251,10 +1248,14 @@ void Dx12StateTracker::TrackSetHDRMetaData(
     wrapper_info->hdr_metadata_type = Type;
     wrapper_info->hdr_metadata_size = Size;
 
-    if (pMetaData != nullptr)
+    if (pMetaData != nullptr && Size > 0)
     {
-        wrapper_info->hdr_metadata = new char[Size]();
-        memcpy(wrapper_info->hdr_metadata, pMetaData, Size);
+        wrapper_info->hdr_metadata.assign(static_cast<const uint8_t*>(pMetaData),
+                                          static_cast<const uint8_t*>(pMetaData) + Size);
+    }
+    else
+    {
+        wrapper_info->hdr_metadata.clear();
     }
 }
 

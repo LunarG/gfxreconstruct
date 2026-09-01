@@ -1266,61 +1266,52 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     bool write_commands = CheckCommandListObjects(list_info.get(), state_table);
 
     // Write each of the commands that was recorded for the command buffer.
-    size_t         offset    = 0;
-    size_t         data_size = list_info->command_data.GetDataSize();
-    const uint8_t* data      = list_info->command_data.GetData();
+    bool is_first_command = true;
+    list_info->command_data.ForEach(
+        [&](format::ApiCallId call_id, const uint8_t* parameter_data, size_t parameter_size) {
+            bool write_current_command = write_commands;
 
-    while (offset < data_size)
-    {
-        const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
-        const format::ApiCallId* call_id = reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
-        const uint8_t*           parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
-
-        bool write_current_command = write_commands;
-
-        if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
-        {
-            GFXRECON_ASSERT(list_info->was_reset);
-
-            // command_data is cleared after each reset, so only the first command can be a reset.
-            GFXRECON_ASSERT(offset == 0);
-
-            // Always write the reset command.
-            write_current_command = true;
-        }
-        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
-        {
-            GFXRECON_ASSERT(list_info->is_closed);
-
-            // Always write the close command.
-            write_current_command = true;
-        }
-#ifdef GFXRECON_AGS_SUPPORT
-        else if (format::GetApiCallFamily(*call_id) == format::ApiFamilyId::ApiFamily_AGS)
-        {
-            if (write_current_command)
+            if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
             {
-                // Ags function call, targeting command list.
-                parameter_stream_.Write(parameter_data, (*parameter_size));
-                WriteFunctionCall((*call_id), &parameter_stream_);
-                parameter_stream_.Clear();
+                GFXRECON_ASSERT(list_info->was_reset);
 
-                // The output below, in this case, should be skipped.
-                write_current_command = false;
+                // command_data is cleared after each reset, so only the first command can be a reset.
+                GFXRECON_ASSERT(is_first_command);
+
+                // Always write the reset command.
+                write_current_command = true;
             }
-        }
+            else if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
+            {
+                GFXRECON_ASSERT(list_info->is_closed);
+
+                // Always write the close command.
+                write_current_command = true;
+            }
+#ifdef GFXRECON_AGS_SUPPORT
+            else if (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_AGS)
+            {
+                if (write_current_command)
+                {
+                    // Ags function call, targeting command list.
+                    parameter_stream_.Write(parameter_data, parameter_size);
+                    WriteFunctionCall(call_id, &parameter_stream_);
+                    parameter_stream_.Clear();
+
+                    // The output below, in this case, should be skipped.
+                    write_current_command = false;
+                }
+            }
 #endif // GFXRECON_AGS_SUPPORT
 
-        if (write_current_command)
-        {
-            parameter_stream_.Write(parameter_data, (*parameter_size));
-            WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
-            parameter_stream_.Clear();
-        }
-        offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
-    }
-
-    GFXRECON_ASSERT(offset == data_size);
+            if (write_current_command)
+            {
+                parameter_stream_.Write(parameter_data, parameter_size);
+                WriteMethodCall(call_id, list_wrapper->GetCaptureId(), &parameter_stream_);
+                parameter_stream_.Clear();
+            }
+            is_first_command = false;
+        });
 }
 
 void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper,
@@ -1503,6 +1494,14 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         // Write swapchain creation call.
         StandardCreateWrite(swapchain_wrapper);
 
+        // Write call to resize the swapchain buffers.
+        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
+        {
+            WriteMethodCall(swapchain_info->resize_info.call_id,
+                            swapchain_wrapper->GetCaptureId(),
+                            swapchain_info->resize_info.call_parameters.get());
+        }
+
         // Write swapchain set color space for HDR
         if (swapchain_info->set_color_space)
         {
@@ -1519,7 +1518,9 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         {
             encoder_.EncodeEnumValue(swapchain_info->hdr_metadata_type);
             encoder_.EncodeUInt32Value(swapchain_info->hdr_metadata_size);
-            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata, swapchain_info->hdr_metadata_size);
+            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata.empty() ? nullptr
+                                                                          : swapchain_info->hdr_metadata.data(),
+                                     swapchain_info->hdr_metadata_size);
             encoder_.EncodeInt32Value(S_OK);
             WriteMethodCall(format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData,
                             swapchain_wrapper->GetCaptureId(),
@@ -1527,13 +1528,6 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
             parameter_stream_.Clear();
         }
 
-        // Write call to resize the swapchain buffers.
-        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
-        {
-            WriteMethodCall(swapchain_info->resize_info.call_id,
-                            swapchain_wrapper->GetCaptureId(),
-                            swapchain_info->resize_info.call_parameters.get());
-        }
 
         // Write image state command.
         UINT                                  swapchain_buffer_index = 0;
