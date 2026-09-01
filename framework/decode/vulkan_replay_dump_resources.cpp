@@ -524,11 +524,11 @@ void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(decode::Index qs_inde
 
 VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t                 bcb_index,
                                                            VulkanCommandBufferInfo* original_command_buffer_info,
-                                                           const graphics::VulkanDeviceTable*   device_table,
-                                                           const graphics::VulkanInstanceTable* inst_table,
-                                                           const VkCommandBufferBeginInfo*      begin_info)
+                                                           const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                           const graphics::VulkanInstanceTable*       inst_table,
+                                                           const VkCommandBufferBeginInfo*            begin_info)
 {
-    assert(device_table);
+    GFXRECON_ASSERT(device_table.IsValid());
     assert(inst_table);
 
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(bcb_index);
@@ -1962,11 +1962,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderingKHR(const ApiCallInfo
     OverrideCmdEndRendering(call_info, func, original_command_buffer);
 }
 
-VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
-                                                    const graphics::VulkanDeviceTable& device_table,
-                                                    const VulkanQueueInfo*             queue,
-                                                    VkFence                            fence,
-                                                    uint64_t                           index)
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo>              submit_infos,
+                                                    const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                    const VulkanQueueInfo*                     queue,
+                                                    VkFence                                    fence,
+                                                    uint64_t                                   index)
 {
     // Losslessly widen each VkSubmitInfo into a VkSubmitInfo2 and forward to the canonical QueueSubmit2 implementation.
     // The translator owns the storage referenced by the produced VkSubmitInfo2 array and must outlive the submit call.
@@ -1975,11 +1975,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
     return QueueSubmit2(translated.GetSubmitInfos2(), device_table, queue, fence, index);
 }
 
-VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInfo2>     submit_infos,
-                                                     const graphics::VulkanDeviceTable& device_table,
-                                                     const VulkanQueueInfo*             queue_info,
-                                                     VkFence                            fence,
-                                                     uint64_t                           qs_index)
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInfo2>             submit_infos,
+                                                     const graphics::VulkanInjectedDeviceCalls& device_table,
+                                                     const VulkanQueueInfo*                     queue_info,
+                                                     VkFence                                    fence,
+                                                     uint64_t                                   qs_index)
 {
 #define CHECK_VK_ERROR(_res_, _func_)                                                                               \
     if (_res_ != VK_SUCCESS)                                                                                        \
@@ -1991,6 +1991,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
 
     std::map<std::pair<Index, Index>, std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
     std::map<std::pair<Index, Index>, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
+
+    const VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(queue_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
 
     if (!output_json_per_command)
     {
@@ -2072,8 +2075,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                     {
                         modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
                         modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
-                        res                                         = SubmitInfo2OnQueue(
-                            device_table, queue_info->handle, modified_submit_info, submission_fence.handle);
+                        res                                         = SubmitInfo2OnQueue(device_table,
+                                                 device_info->version_extension_info,
+                                                 queue_info->handle,
+                                                 modified_submit_info,
+                                                 submission_fence.handle);
                         CHECK_VK_ERROR(res, "QueueSubmit")
 
                         // The fence might be reused. Wait and reset
@@ -2123,7 +2129,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
         {
             modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
             modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
-            res = SubmitInfo2OnQueue(device_table, queue_info->handle, modified_submit_info, submission_fence.handle);
+            res                                         = SubmitInfo2OnQueue(device_table,
+                                     device_info->version_extension_info,
+                                     queue_info->handle,
+                                     modified_submit_info,
+                                     submission_fence.handle);
             CHECK_VK_ERROR(res, "QueueSubmit")
 
             res = submission_fence.Wait();
@@ -2437,10 +2447,9 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
     }
 }
 
-
 void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
     const VulkanCommandBufferInfo*                                             original_command_buffer,
-    const graphics::VulkanDeviceTable&                                         device_table,
+    const graphics::VulkanInjectedDeviceCalls&                                 device_table,
     uint32_t                                                                   infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
@@ -2481,10 +2490,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
 }
 
 void VulkanReplayDumpResourcesBase::HandleCmdCopyAccelerationStructureKHR(
-    const graphics::VulkanDeviceTable&        device_table,
-    const VulkanCommandBufferInfo*            original_command_buffer,
-    const VulkanAccelerationStructureKHRInfo* src,
-    const VulkanAccelerationStructureKHRInfo* dst)
+    const graphics::VulkanInjectedDeviceCalls& device_table,
+    const VulkanCommandBufferInfo*             original_command_buffer,
+    const VulkanAccelerationStructureKHRInfo*  src,
+    const VulkanAccelerationStructureKHRInfo*  dst)
 {
     GFXRECON_ASSERT(src != nullptr);
     GFXRECON_ASSERT(dst != nullptr);

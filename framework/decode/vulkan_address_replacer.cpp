@@ -69,7 +69,7 @@ struct QueueSubmitHelper
         command_buffer_begin_info.pNext            = nullptr;
         command_buffer_begin_info.flags            = 0;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
-        injected.BeginCommandBuffer(command_buffer, &command_buffer_begin_info);
+        injected.BeginCommandBuffer(command_buffer, &command_buffer_begin_info, __func__);
     }
 
     ~QueueSubmitHelper()
@@ -402,7 +402,7 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
             command_buffer_begin_info.pNext            = nullptr;
             command_buffer_begin_info.flags            = 0;
             command_buffer_begin_info.pInheritanceInfo = nullptr;
-            injected.BeginCommandBuffer(submit_asset.command_buffer, &command_buffer_begin_info);
+            injected.BeginCommandBuffer(submit_asset.command_buffer, &command_buffer_begin_info, __func__);
 
             VulkanCommandBufferInfo fake_info = {};
             fake_info.handle                  = submit_asset.command_buffer;
