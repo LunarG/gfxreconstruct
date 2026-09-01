@@ -498,6 +498,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES = {}
         self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED = {}
         self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = {}
+        self.REPLAY_FRAME_LOOP_COMMAND_BUFFER_STATE_OVERRIDES = {}
         self.DUMP_RESOURCES_OVERRIDES = {}
         self.DUMP_RESOURCES_TRANSFER_API_CALLS = {}
         self.REPLAY_ASYNC_OVERRIDES = {}
@@ -731,6 +732,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 'resourceAllocateNotFullyImplemented']
             self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = frame_loop_overrides[
                 'resourceFreeNotFullyImplemented']
+            self.REPLAY_FRAME_LOOP_COMMAND_BUFFER_STATE_OVERRIDES = frame_loop_overrides[
+                'commandBufferState']
         if dump_resources_overrides_filename is not None:
             dump_resources_overrides = json.loads(
                 open(dump_resources_overrides_filename, 'r').read()

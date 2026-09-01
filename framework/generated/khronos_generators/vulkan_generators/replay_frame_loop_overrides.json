@@ -135,7 +135,6 @@
   "comment" : "executing the first looping iteration.",
   "resourceAllocateNotFullyImplemented":
   [
-    "vkAllocateCommandBuffers",
     "vkBindAccelerationStructureMemoryKHR",
     "vkBindAccelerationStructureMemoryNV",
     "vkBindBufferMemory",
@@ -172,12 +171,20 @@
     "vkDestroyAccelerationStructureNV",
     "vkUnmapMemory2",
     "vkUnmapMemory2KHR",
-    "vkFreeCommandBuffers",
     "vkReleaseCapturedPipelineDataKHR",
     "vkReleaseDisplayEXT",
     "vkReleaseFullScreenExclusiveModeEXT",
     "vkReleasePerformanceConfigurationINTEL",
     "vkReleaseSwapchainImagesEXT",
     "vkReleaseSwapchainImagesKHR"
-  ]
+  ],
+    
+  "comment" : "These are entry points for command buffer state commands",
+  "comment" : "that don't start with vkCmd",
+    "commandBufferState": [
+        "vkAllocateCommandBuffers",
+        "vkFreeCommandBuffers",
+        "vkEndCommandBuffer",
+        "vkTrimCommandPool"
+    ]
 }
