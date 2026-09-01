@@ -164,12 +164,7 @@ bool FileOptimizer::WriteAnnotation(std::string_view label, std::string_view mes
     const size_t label_length = label.length();
     const size_t data_length  = message.length();
 
-    format::AnnotationHeader annotation{};
-    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-    annotation.block_header.type = format::BlockType::kAnnotation;
-    annotation.annotation_type   = format::kText;
-    annotation.label_length      = static_cast<uint32_t>(label.length());
-    annotation.data_length       = static_cast<uint64_t>(message.length());
+    const format::AnnotationHeader annotation = format::MakeAnnotationHeader(format::kText, label_length, data_length);
 
     if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label.data(), label_length) ||
         !WriteBytes(message.data(), data_length))

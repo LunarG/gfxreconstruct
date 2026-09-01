@@ -66,6 +66,18 @@ bool ValidateFileHeader(const FileHeader& header)
     return valid;
 }
 
+AnnotationHeader MakeAnnotationHeader(AnnotationType type, size_t label_length, size_t data_length)
+{
+    AnnotationHeader annotation{};
+    annotation.block_header.size = GetAnnotationBlockBaseSize() + label_length + data_length;
+    annotation.block_header.type = BlockType::kAnnotation;
+    annotation.annotation_type   = type;
+    annotation.label_length      = GFXRECON_NARROWING_CAST(uint32_t, label_length);
+    annotation.data_length       = data_length;
+
+    return annotation;
+}
+
 util::Compressor* CreateCompressor(CompressionType type)
 {
     util::Compressor* compressor = nullptr;
