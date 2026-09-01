@@ -7293,6 +7293,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT(out,
+                                                                         casted_struct,
+                                                                         decoded_struct,
+                                                                         consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
@@ -7383,6 +7393,26 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkImageTilingControlCreateInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkImageTilingControlCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkImageTilingControlCreateInfoEXT(out,
+                                                  casted_struct,
+                                                  decoded_struct,
+                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceImageTilingControlFeaturesEXT(out,
+                                                              casted_struct,
+                                                              decoded_struct,
+                                                              consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(pnext_meta_data->GetMetaStructPointer());
@@ -7390,6 +7420,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                         casted_struct,
                                                                         decoded_struct,
                                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
 
                 break;
             }
