@@ -3156,6 +3156,8 @@ static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPas
             att_img_view_info =
                 object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_ref.attachment]);
 
+            GFXRECON_ASSERT(att_img_view_info != nullptr);  
+
             VulkanImageInfo* att_img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
             if (att_img_info != nullptr)
             {
