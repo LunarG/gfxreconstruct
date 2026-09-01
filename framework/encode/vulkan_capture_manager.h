@@ -32,6 +32,8 @@
 #include "encode/parameter_buffer.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "encode/vulkan_resource_tracking.h"
+#include "encode/vulkan_smart_memory_tracker.h"
 #include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -39,6 +41,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
+#include "util/logging.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
@@ -937,14 +940,24 @@ class VulkanCaptureManager : public ApiCaptureManager
         {
             GFXRECON_ASSERT(state_tracker_ != nullptr);
 
-            auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+            auto buffer_wrapper         = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+            buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+        }
+    }
 
-            if (buffer_wrapper->is_sparse_buffer)
+    void PostProcess_vkCreateBufferView(VkResult result,
+                                        VkDevice,
+                                        const VkBufferViewCreateInfo* pCreateInfo,
+                                        const VkAllocationCallbacks*,
+                                        VkBufferView* pView)
+    {
+        if (result == VK_SUCCESS && pView != nullptr && pCreateInfo != nullptr)
+        {
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(*pView);
+            if (wrapper != nullptr)
             {
-                // We will need to set the bind_device for handling sparse buffers. There will be no subsequent
-                // vkBindBufferMemory, vkBindBufferMemory2 or vkBindBufferMemory2KHR calls for sparse buffer, so we
-                // assign bind_device to the device that created the buffer.
-                buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+                wrapper->offset = pCreateInfo->offset;
+                wrapper->range  = pCreateInfo->range;
             }
         }
     }
@@ -973,41 +986,25 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
-                                          VkSubpassContents)
-    {
-        if (IsCaptureModeTrack())
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
-        }
-    }
+                                          VkSubpassContents);
 
     void PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer              commandBuffer,
                                            const VkRenderPassBeginInfo* pRenderPassBegin,
-                                           const VkSubpassBeginInfoKHR*)
-    {
-        if (IsCaptureModeTrack())
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
-        }
-    }
+                                           const VkSubpassBeginInfoKHR*);
 
     void PostProcess_vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackEndRenderPass(commandBuffer);
+            TrackEndRenderPass(commandBuffer);
         }
     }
 
     void PostProcess_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackEndRenderPass(commandBuffer);
+            TrackEndRenderPass(commandBuffer);
         }
     }
 
@@ -1048,6 +1045,20 @@ class VulkanCaptureManager : public ApiCaptureManager
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
         }
+
+        if (NeedsCommandBufferResourceTracking())
+        {
+            auto primary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+            if (primary_wrapper != nullptr && commandBufferCount && pCommandBuffers != nullptr)
+            {
+                for (uint32_t i = 0; i < commandBufferCount; ++i)
+                {
+                    auto secondary_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers[i]);
+                    primary_wrapper->secondaries.push_back(secondary_wrapper);
+                }
+            }
+        }
     }
 
     void PostProcess_vkTrimCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolTrimFlags)
@@ -1061,10 +1072,38 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkResetCommandPool(VkResult result, VkDevice, VkCommandPool commandPool, VkCommandPoolResetFlags)
     {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+        if (result == VK_SUCCESS)
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackResetCommandPool(commandPool);
+            if (IsCaptureModeTrack())
+            {
+                GFXRECON_ASSERT(state_tracker_ != nullptr);
+                state_tracker_->TrackResetCommandPool(commandPool);
+            }
+
+            if (NeedsCommandBufferResourceTracking())
+            {
+                auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(commandPool);
+                for (const auto& entry : wrapper->child_buffers)
+                {
+                    ClearCommandBufferAssetState(entry.second);
+                }
+            }
+        }
+    }
+
+    void PostProcess_vkResetCommandBuffer(VkResult result, VkCommandBuffer command_buffer, VkCommandBufferResetFlags)
+    {
+        if (result == VK_SUCCESS)
+        {
+            if (NeedsCommandBufferResourceTracking())
+            {
+                auto* cmd_buffer_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+                if (cmd_buffer_wrapper != nullptr)
+                {
+                    ClearCommandBufferAssetState(cmd_buffer_wrapper);
+                }
+            }
         }
     }
 
@@ -1162,11 +1201,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                             uint32_t                    descriptorCopyCount,
                                             const VkCopyDescriptorSet*  pDescriptorCopies)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackUpdateDescriptorSets(
-                descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+            TrackUpdateDescriptorSets(descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
         }
     }
 
@@ -1175,7 +1212,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                        VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                        const void*                pData)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
             TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
         }
@@ -1186,7 +1223,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                           const void*                pData)
     {
-        if (IsCaptureModeTrack())
+        if (NeedsCommandBufferResourceTracking() || IsCaptureModeTrack())
         {
             TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
         }
@@ -1572,9 +1609,27 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                  uint32_t                        rangeCount,
                                                  const VkImageSubresourceRange*  pRanges);
 
-    void PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
-                                       VkPipelineBindPoint pipelineBindPoint,
-                                       VkPipeline          pipeline);
+    void PostProcess_vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer,
+                                          VkBuffer        buffer,
+                                          VkDeviceSize    offset,
+                                          VkIndexType     indexType);
+
+    void PostProcess_vkCmdBindIndexBuffer2(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize size, VkIndexType indexType);
+
+    void PostProcess_vkCmdBindVertexBuffers(VkCommandBuffer     commandBuffer,
+                                            uint32_t            firstBinding,
+                                            uint32_t            bindingCount,
+                                            const VkBuffer*     pBuffers,
+                                            const VkDeviceSize* pOffsets);
+
+    void PostProcess_vkCmdBindVertexBuffers2(VkCommandBuffer     commandBuffer,
+                                             uint32_t            firstBinding,
+                                             uint32_t            bindingCount,
+                                             const VkBuffer*     pBuffers,
+                                             const VkDeviceSize* pOffsets,
+                                             const VkDeviceSize* pSizes,
+                                             const VkDeviceSize* pStrides);
 
     void PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
                                uint32_t        vertexCount,
@@ -1846,6 +1901,16 @@ class VulkanCaptureManager : public ApiCaptureManager
         return layer_settings_;
     }
 
+    void PreProcess_vkDestroyBuffer(VkDevice, VkBuffer buffer, const VkAllocationCallbacks*);
+
+    void PreProcess_vkDestroyImage(VkDevice, VkImage image, const VkAllocationCallbacks*);
+
+    void PostProcess_vkAllocateMemory(VkResult                     result,
+                                      VkDevice                     device,
+                                      const VkMemoryAllocateInfo*  pAllocateInfo,
+                                      const VkAllocationCallbacks* pAllocator,
+                                      VkDeviceMemory*              pMemory);
+
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
@@ -1927,8 +1992,69 @@ class VulkanCaptureManager : public ApiCaptureManager
     bool CheckPNextChainForFrameBoundary(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
                                          const VkBaseInStructure*                               current);
 
-  private:
-    void QueueSubmitWriteFillMemoryCmd();
+    void QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, const VkSubmitInfo* submits);
+
+    void QueueSubmitWriteFillMemoryCmd(uint32_t submit_count, const VkSubmitInfo2* submits);
+
+    void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image, ResourceAccessType access);
+
+    void InsertBufferAssetInCommandBuffer(VkCommandBuffer    command_buffer,
+                                          VkBuffer           buffer,
+                                          ResourceAccessType access,
+                                          uint64_t           offset = 0,
+                                          uint64_t           size   = VK_WHOLE_SIZE);
+
+    void UpdateCommandBufferDescriptors(VkCommandBuffer        commandBuffer,
+                                        VkPipelineBindPoint    pipelineBindPoint,
+                                        uint32_t               firstSet,
+                                        uint32_t               descriptorSetCount,
+                                        const VkDescriptorSet* pDescriptorSets,
+                                        uint32_t               dynamicOffsetCount,
+                                        const uint32_t*        pDynamicOffsets);
+
+    void TrackPipelineDescriptors(CommandBufferResourceTracking* command_buffer_wrapper);
+
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
+
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
+
+    void MarkReferencedAssetsAsDirty(CommandBufferResourceTracking* cmd_buf_wrapper);
+
+    void TrackAssetsInMemory(format::HandleId memory_id);
+
+    void TrackMappedAssetsWrites(format::HandleId memory_id);
+
+    void ProcessBindResourceMemory(AssetBase* resource, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+
+    void ProcessUnbindResourceMemory(AssetBase* resource);
+
+    void MarkRenderPassAttachmentsAsModified(VkCommandBuffer commandBuffer);
+
+    void ClearCommandBufferAssetState(vulkan_wrappers::CommandBufferWrapper* wrapper);
+
+    void CollectSmartTouchedMemoryRanges(const CommandBufferResourceTracking*                   command_wrapper,
+                                         std::unordered_map<format::HandleId, util::RangeList>* touched_ranges) const;
+
+    std::unordered_map<format::HandleId, util::RangeList> GetSmartTouchedMemoryRanges(uint32_t            submit_count,
+                                                                                      const VkSubmitInfo* submits);
+
+    std::unordered_map<format::HandleId, util::RangeList> GetSmartTouchedMemoryRanges(uint32_t             submit_count,
+                                                                                      const VkSubmitInfo2* submits);
+
+    bool NeedsCommandBufferResourceTracking() const;
+
+    void TrackUpdateDescriptorSets(uint32_t                    write_count,
+                                   const VkWriteDescriptorSet* writes,
+                                   uint32_t                    copy_count,
+                                   const VkCopyDescriptorSet*  copies);
+
+    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
+                                              const UpdateTemplateInfo* template_info,
+                                              const void*               data);
+
+    void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
+
+    void TrackEndRenderPass(VkCommandBuffer command_buffer);
 
     static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;
@@ -1937,6 +2063,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
     std::mutex                                      deferred_operation_mutex;
+
+    VulkanSmartMemoryTracker smart_memory_tracker_;
+    std::mutex               descriptor_mutex_;
 
     // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
     // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex

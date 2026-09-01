@@ -1532,8 +1532,8 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
 void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
-        if (wrapper->device != VK_NULL_HANDLE && wrapper->address != 0)
+        GFXRECON_ASSERT(wrapper != nullptr && wrapper->bind_device != nullptr);
+        if (wrapper->bind_device->handle != VK_NULL_HANDLE && wrapper->address != 0)
         {
             const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
                 state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
@@ -1573,11 +1573,12 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(wrapper != nullptr && wrapper->bind_device != nullptr);
 
-        if (wrapper->device != VK_NULL_HANDLE)
+        if (wrapper->bind_device->handle != VK_NULL_HANDLE)
         {
-            auto device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(wrapper->device, true);
+            auto device_id =
+                vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(wrapper->bind_device->handle, true);
 
             if (wrapper->opaque_address != 0)
             {
@@ -1957,15 +1958,16 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
     size_t                                                      max_resource_size = 0;
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* buffer_wrapper) {
-        GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->bind_device != nullptr);
 
-        if (buffer_wrapper->acceleration_structures.empty() || !device_address_trackers_.count(buffer_wrapper->device))
+        if (buffer_wrapper->acceleration_structures.empty() ||
+            !device_address_trackers_.count(buffer_wrapper->bind_device->handle))
         {
             return;
         }
         auto        get_id          = vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>;
-        const auto& address_tracker = device_address_trackers_.at(buffer_wrapper->device);
-        auto&       per_device_container = commands[buffer_wrapper->device];
+        const auto& address_tracker = device_address_trackers_.at(buffer_wrapper->bind_device->handle);
+        auto&       per_device_container = commands[buffer_wrapper->bind_device->handle];
 
         for (auto& [device_address, as_build_state] : buffer_wrapper->acceleration_structures)
         {
