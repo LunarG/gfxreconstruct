@@ -210,7 +210,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                 begin_info.flags                    = 0;
                 begin_info.pInheritanceInfo         = nullptr;
 
-                result = injected.BeginCommandBuffer(command_buffer, &begin_info);
+                result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
             }
 
             if (result == VK_SUCCESS)
