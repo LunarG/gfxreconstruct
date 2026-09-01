@@ -1698,11 +1698,6 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                 GFXRECON_LOG_WARNING("%s.", log_str);
             }
         }
-        else
-        {
-            // in case we accept a mismatching return-code, just log a debug-message
-            GFXRECON_LOG_DEBUG("%s.", log_str);
-        }
     }
 }
 
