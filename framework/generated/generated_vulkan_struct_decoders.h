@@ -12492,6 +12492,33 @@ struct Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkCooperativeMatrixProperties2EXT
+{
+    using struct_type = VkCooperativeMatrixProperties2EXT;
+
+    VkCooperativeMatrixProperties2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCooperativeMatrixInfo2EXT
+{
+    using struct_type = VkPhysicalDeviceCooperativeMatrixInfo2EXT;
+
+    VkPhysicalDeviceCooperativeMatrixInfo2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT;
+
+    VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT;
@@ -12573,11 +12600,38 @@ struct Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceImageTilingControlFeaturesEXT;
+
+    VkPhysicalDeviceImageTilingControlFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkImageTilingControlCreateInfoEXT
+{
+    using struct_type = VkImageTilingControlCreateInfoEXT;
+
+    VkImageTilingControlCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV
 {
     using struct_type = VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV;
 
     VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV
+{
+    using struct_type = VkPhysicalDevicePrivateDataBaseHandleFeaturesNV;
+
+    VkPhysicalDevicePrivateDataBaseHandleFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

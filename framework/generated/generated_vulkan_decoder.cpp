@@ -13714,6 +13714,26 @@ size_t VulkanDecoder::Decode_vkCmdSetComputeOccupancyPriorityNV(const ApiCallInf
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    args::GetPhysicalDeviceCooperativeMatrixProperties2EXT args;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
+    bytes_read += args.pCooperativeMatrixInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(call_info, args);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdSetPrimitiveRestartIndexEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -16359,6 +16379,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV:
         Decode_vkCmdSetComputeOccupancyPriorityNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT:
+        Decode_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartIndexEXT:
         Decode_vkCmdSetPrimitiveRestartIndexEXT(call_info, parameter_buffer, buffer_size);

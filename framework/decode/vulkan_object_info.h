@@ -180,6 +180,11 @@ enum GpaSessionAMDArrayIndices : uint32_t
     kGpaSessionAMDArrayGetGpaSessionResultsAMD = 0
 };
 
+enum PhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT : uint32_t
+{
+    kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT = 0
+};
+
 //
 // Structures for storing Vulkan object info.
 //

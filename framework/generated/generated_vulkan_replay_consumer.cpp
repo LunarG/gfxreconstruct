@@ -10812,6 +10812,22 @@ void VulkanReplayConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     }
 }
 
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+    const VkPhysicalDeviceCooperativeMatrixInfo2EXT* in_pCooperativeMatrixInfo = args.pCooperativeMatrixInfo.GetPointer();
+    MapStructHandles(args.pCooperativeMatrixInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    uint32_t* out_pPropertyCount = args.pPropertyCount.IsNull() ? nullptr : args.pPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceCooperativeMatrixProperties2EXT", args.result, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT, &args.pPropertyCount, &args.pProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
+    VkCooperativeMatrixProperties2EXT* out_pProperties = args.pProperties.IsNull() ? nullptr : args.pProperties.AllocateOutputData(*out_pPropertyCount, VkCooperativeMatrixProperties2EXT{ VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT, nullptr });
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceCooperativeMatrixProperties2EXT(in_physicalDevice, in_pCooperativeMatrixInfo, out_pPropertyCount, out_pProperties);
+    CheckResult("vkGetPhysicalDeviceCooperativeMatrixProperties2EXT", args.result, replay_result, call_info);
+
+    if (args.pProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT, *out_pPropertyCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetPrimitiveRestartIndexEXT&       args)
@@ -16665,6 +16681,21 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCooperativeMatrixProperties2EXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixInfo2EXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>());
@@ -16710,9 +16741,24 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceImageTilingControlFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageTilingControlCreateInfoEXT>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrivateDataBaseHandleFeaturesNV>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
