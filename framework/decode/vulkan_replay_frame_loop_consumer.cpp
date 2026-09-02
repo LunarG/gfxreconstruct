@@ -1551,16 +1551,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallIn
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
-                                                                 args::BeginCommandBuffer& args)
-{
-    VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
-    if (VulkanCommandBufferInfo* cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer))
-    {
-        cb_info->buffer_queue_family_touches.clear();
-    }
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
                                                                  args::ResetCommandBuffer& args)
 {
@@ -1624,6 +1614,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
                                                                  args::BeginCommandBuffer& args)
 {
     VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
+
+    if (VulkanCommandBufferInfo* cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer))
+    {
+        cb_info->buffer_queue_family_touches.clear();
+    }
 
     if (frame_loop_info_.IsLooping())
     {
