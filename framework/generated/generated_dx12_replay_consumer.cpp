@@ -30,6 +30,7 @@
 #include "decode/custom_dx12_struct_object_mappers.h"
 #include "decode/custom_dx12_replay_commands.h"
 #include "generated/generated_dx12_struct_object_mappers.h"
+#include "graphics/dx12_util.h"
 
 #ifdef GFXRECON_AGS_SUPPORT
 #include "decode/ags_gpu_cmd_wrapper.h"
@@ -10169,7 +10170,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device15_ResolveQueryData(
     D3D12_QUERY_TYPE                            Type,
     UINT                                        StartIndex,
     UINT                                        NumQueries,
-    uint64_t                                    pResolvedQueryData)
+    PointerDecoder<uint8_t>*                    pResolvedQueryData)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
@@ -10184,12 +10185,11 @@ void Dx12ReplayConsumer::Process_ID3D12Device15_ResolveQueryData(
             NumQueries,
             pResolvedQueryData);
         auto in_pQueryHeap = MapObject<ID3D12QueryHeap>(pQueryHeap);
-        auto in_pResolvedQueryData = PreProcessExternalObject(pResolvedQueryData, format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData, "ID3D12Device15_ResolveQueryData");
         auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->ResolveQueryData(in_pQueryHeap,
                                                                                                         Type,
                                                                                                         StartIndex,
                                                                                                         NumQueries,
-                                                                                                        in_pResolvedQueryData);
+                                                                                                        pResolvedQueryData->GetPointer());
         CheckReplayResult("ID3D12Device15_ResolveQueryData", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData>::Dispatch(
             this,

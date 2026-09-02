@@ -1951,7 +1951,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         D3D12_QUERY_TYPE Type,
         UINT StartIndex,
         UINT NumQueries,
-        uint64_t pResolvedQueryData) override;
+        PointerDecoder<uint8_t>* pResolvedQueryData) override;
 
     virtual void Process_ID3D12StateObjectDatabase_SetApplicationDesc(
         const ApiCallInfo& call_info,

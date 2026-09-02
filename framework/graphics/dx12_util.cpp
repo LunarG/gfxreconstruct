@@ -1738,6 +1738,38 @@ uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t d
 }
 #endif
 
+size_t GetResolveQueryDataSize(D3D12_QUERY_TYPE type, UINT num_queries)
+{
+    size_t element_size = 0;
+    switch (type)
+    {
+        case D3D12_QUERY_TYPE_OCCLUSION:
+        case D3D12_QUERY_TYPE_BINARY_OCCLUSION:
+        case D3D12_QUERY_TYPE_TIMESTAMP:
+        case D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS:
+            element_size = sizeof(UINT64);
+            break;
+        case D3D12_QUERY_TYPE_PIPELINE_STATISTICS:
+            element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS);
+            break;
+        case D3D12_QUERY_TYPE_PIPELINE_STATISTICS1:
+            element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS1);
+            break;
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM0:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM1:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM2:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM3:
+            element_size = sizeof(D3D12_QUERY_DATA_SO_STATISTICS);
+            break;
+        default:
+            GFXRECON_LOG_WARNING("GetResolveQueryDataSize: unknown D3D12_QUERY_TYPE %d, using sizeof(UINT64)",
+                                 static_cast<int>(type));
+            element_size = sizeof(UINT64);
+            break;
+    }
+    return element_size * static_cast<size_t>(num_queries);
+}
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

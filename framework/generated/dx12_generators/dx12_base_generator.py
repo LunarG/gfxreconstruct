@@ -249,7 +249,12 @@ class Dx12BaseGenerator():
             'pRenderTargetDescriptors',
             '(NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0)'
         ],
-        ['D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC', 'pOmmHistogram', 'NumOmmHistogramEntries']
+        ['D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC', 'pOmmHistogram', 'NumOmmHistogramEntries'],
+        [
+            'ID3D12Device15_ResolveQueryData',
+            'pResolvedQueryData',
+            'graphics::dx12::GetResolveQueryDataSize(Type, NumQueries)'
+        ]
     ]
 
     RETURN_ARRAY_SIZE_LIST = [

@@ -81,6 +81,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             "\n"
             "#include \"encode/d3d12_capture_manager.h\"\n"
             "#include \"encode/parameter_encoder.h\"\n"
+            "#include \"graphics/dx12_util.h\"\n"
             "#include \"encode/struct_pointer_encoder.h\"\n"
             "#include \"format/api_call_id.h\"\n"
             "#include \"util/defines.h\"\n"

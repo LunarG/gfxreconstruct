@@ -5079,7 +5079,7 @@ void Dx12JsonConsumer::Process_ID3D12Device15_ResolveQueryData(
         D3D12_QUERY_TYPE Type,
         UINT StartIndex,
         UINT NumQueries,
-        uint64_t pResolvedQueryData)
+        PointerDecoder<uint8_t>* pResolvedQueryData)
 {
     using namespace gfxrecon::util;
 
@@ -5091,7 +5091,7 @@ void Dx12JsonConsumer::Process_ID3D12Device15_ResolveQueryData(
         args["Type"] = Type;
         args["StartIndex"] = StartIndex;
         args["NumQueries"] = NumQueries;
-        args["pResolvedQueryData"] = pResolvedQueryData;
+        FieldToJson(args["pResolvedQueryData"], pResolvedQueryData);
     }
     writer_->WriteBlockEnd();
 }

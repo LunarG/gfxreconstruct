@@ -7425,19 +7425,19 @@ size_t Dx12Decoder::Decode_ID3D12Device15_ResolveQueryData(format::HandleId obje
     D3D12_QUERY_TYPE Type;
     UINT StartIndex;
     UINT NumQueries;
-    uint64_t pResolvedQueryData;
+    PointerDecoder<uint8_t> pResolvedQueryData;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pQueryHeap);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &StartIndex);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumQueries);
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResolvedQueryData);
+    bytes_read += pResolvedQueryData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device15_ResolveQueryData(call_info, object_id, return_value, pQueryHeap, Type, StartIndex, NumQueries, pResolvedQueryData);
+        consumer->Process_ID3D12Device15_ResolveQueryData(call_info, object_id, return_value, pQueryHeap, Type, StartIndex, NumQueries, &pResolvedQueryData);
     }
 
     return bytes_read;

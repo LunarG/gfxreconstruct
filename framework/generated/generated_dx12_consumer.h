@@ -1955,7 +1955,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         D3D12_QUERY_TYPE Type,
         UINT StartIndex,
         UINT NumQueries,
-        uint64_t pResolvedQueryData){}
+        PointerDecoder<uint8_t>* pResolvedQueryData){}
 
     virtual void Process_ID3D12StateObjectDatabase_SetApplicationDesc(
         const ApiCallInfo& call_info,

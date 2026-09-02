@@ -33,6 +33,7 @@
 
 #include "encode/d3d12_capture_manager.h"
 #include "encode/parameter_encoder.h"
+#include "graphics/dx12_util.h"
 #include "encode/struct_pointer_encoder.h"
 #include "format/api_call_id.h"
 #include "util/defines.h"
@@ -6930,7 +6931,7 @@ void Encode_ID3D12Device15_ResolveQueryData(
         encoder->EncodeEnumValue(Type);
         encoder->EncodeUInt32Value(StartIndex);
         encoder->EncodeUInt32Value(NumQueries);
-        encoder->EncodeVoidPtr(pResolvedQueryData);
+        encoder->EncodeVoidArray(pResolvedQueryData, graphics::dx12::GetResolveQueryDataSize(Type, NumQueries), omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
