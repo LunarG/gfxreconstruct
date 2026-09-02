@@ -693,11 +693,10 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
 
-    wrapper->device            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
-
-    wrapper->size = create_info->size;
 
     if ((create_info->flags & VK_BUFFER_CREATE_SPARSE_BINDING_BIT) != 0)
     {
@@ -777,7 +776,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
 
-    wrapper->device            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
