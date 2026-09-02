@@ -298,6 +298,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         FieldToJson(jdata["RaytracingAccelerationStructure"], meta_struct.RaytracingAccelerationStructure);
                         break;
                     }
+                    case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+                    {
+                        FieldToJson(jdata["BufferByteOffset"], meta_struct.BufferByteOffset);
+                        break;
+                    }
                 }
                 '''
             case "D3D12_SAMPLER_DESC2":
@@ -358,6 +363,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         case D3D12_UAV_DIMENSION_TEXTURE3D:
                         {
                             FieldToJson(jdata["Texture3D"], meta_struct.Texture3D);
+                            break;
+                        }
+                        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+                        {
+                            FieldToJson(jdata["BufferByteOffset"], meta_struct.BufferByteOffset);
                             break;
                         }
                         default:

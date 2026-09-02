@@ -829,7 +829,7 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             break;
         }
         case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
-            // Byte-offset buffer SRC - no subresource indices applicable.
+            info.subresource_indices.emplace_back(0);
             break;
         case D3D12_SRV_DIMENSION_UNKNOWN:
         default:
@@ -902,7 +902,7 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
             break;
         }
         case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
-            // Byte-offset buffer UAV - no subresource indices applicable.
+            info.subresource_indices.emplace_back(0);
             break;
         case D3D12_UAV_DIMENSION_UNKNOWN:
         default:
