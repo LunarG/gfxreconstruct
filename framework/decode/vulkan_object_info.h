@@ -472,7 +472,7 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkDeviceAddress                       capture_address{ 0 };
     VkDeviceAddress                       replay_address{ 0 };
 
-    // This is only used when loading the initial state for trimmed files.
+    // Non-zero implies a sucessful vkBindBufferMemory
     VkMemoryPropertyFlags memory_property_flags{ 0 };
 
     std::vector<VkMemoryPropertyFlags> sparse_memory_property_flags;
@@ -480,6 +480,9 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkBufferUsageFlags usage{ 0 };
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
+
+    VkSharingMode sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
+    uint32_t      current_queue_family_index{ VK_QUEUE_FAMILY_IGNORED };
 
     // map acceleration-structure capture-addresses to existing (alias) AS-handles
     std::unordered_map<VkDeviceAddress, std::unordered_set<const VulkanAccelerationStructureKHRInfo*>>
@@ -751,6 +754,8 @@ struct VulkanShaderEXTInfo : VulkanObjectInfoAsync<VkShaderEXT>
 struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 {
     VkCommandPoolCreateFlags create_flags = 0;
+
+    uint32_t queue_family_index{ VK_QUEUE_FAMILY_IGNORED };
 };
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
@@ -761,6 +766,11 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
     std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
     std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
+
+    // Pending buffer -> queue family that will own it once this command buffer is
+    // actually submitted.
+    std::unordered_map<format::HandleId, uint32_t> buffer_queue_family_touches;
+
     std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
     std::vector<uint8_t>                                      push_constant_data;
     VkShaderStageFlags                                        push_constant_stage_flags     = 0;

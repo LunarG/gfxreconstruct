@@ -41,13 +41,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         frame_loop_info_(frame_loop_info)
     {}
 
+    ~VulkanReplayFrameLoopConsumer() override;
+
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
-    void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
+    void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
 
-    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+    void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
@@ -74,6 +76,88 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
 
+    // Buffer queue-family ownership tracking (VK_SHARING_MODE_EXCLUSIVE only). See BufferTracking below.
+    void Process_vkCmdCopyBuffer(const ApiCallInfo& call_info, args::CmdCopyBuffer& args) override;
+    void Process_vkCmdCopyBuffer2(const ApiCallInfo& call_info, args::CmdCopyBuffer2& args) override;
+    void Process_vkCmdCopyBuffer2KHR(const ApiCallInfo& call_info, args::CmdCopyBuffer2KHR& args) override;
+    void Process_vkCmdFillBuffer(const ApiCallInfo& call_info, args::CmdFillBuffer& args) override;
+    void Process_vkCmdUpdateBuffer(const ApiCallInfo& call_info, args::CmdUpdateBuffer& args) override;
+    void Process_vkCmdBindVertexBuffers(const ApiCallInfo& call_info, args::CmdBindVertexBuffers& args) override;
+    void Process_vkCmdBindVertexBuffers2(const ApiCallInfo& call_info, args::CmdBindVertexBuffers2& args) override;
+    void Process_vkCmdBindVertexBuffers2EXT(const ApiCallInfo&              call_info,
+                                            args::CmdBindVertexBuffers2EXT& args) override;
+    void Process_vkCmdBindIndexBuffer(const ApiCallInfo& call_info, args::CmdBindIndexBuffer& args) override;
+    void Process_vkCmdBindIndexBuffer2(const ApiCallInfo& call_info, args::CmdBindIndexBuffer2& args) override;
+    void Process_vkCmdBindIndexBuffer2KHR(const ApiCallInfo& call_info, args::CmdBindIndexBuffer2KHR& args) override;
+    void Process_vkCmdDrawIndirect(const ApiCallInfo& call_info, args::CmdDrawIndirect& args) override;
+    void Process_vkCmdDrawIndexedIndirect(const ApiCallInfo& call_info, args::CmdDrawIndexedIndirect& args) override;
+    void Process_vkCmdDrawIndirectCount(const ApiCallInfo& call_info, args::CmdDrawIndirectCount& args) override;
+    void Process_vkCmdDrawIndirectCountKHR(const ApiCallInfo& call_info, args::CmdDrawIndirectCountKHR& args) override;
+    void Process_vkCmdDrawIndexedIndirectCount(const ApiCallInfo&                 call_info,
+                                               args::CmdDrawIndexedIndirectCount& args) override;
+    void Process_vkCmdDrawIndexedIndirectCountKHR(const ApiCallInfo&                    call_info,
+                                                  args::CmdDrawIndexedIndirectCountKHR& args) override;
+    void Process_vkCmdDispatchIndirect(const ApiCallInfo& call_info, args::CmdDispatchIndirect& args) override;
+    void Process_vkCmdCopyBufferToImage(const ApiCallInfo& call_info, args::CmdCopyBufferToImage& args) override;
+    void Process_vkCmdCopyBufferToImage2(const ApiCallInfo& call_info, args::CmdCopyBufferToImage2& args) override;
+    void Process_vkCmdCopyBufferToImage2KHR(const ApiCallInfo&              call_info,
+                                            args::CmdCopyBufferToImage2KHR& args) override;
+    void Process_vkCmdCopyImageToBuffer(const ApiCallInfo& call_info, args::CmdCopyImageToBuffer& args) override;
+    void Process_vkCmdCopyImageToBuffer2(const ApiCallInfo& call_info, args::CmdCopyImageToBuffer2& args) override;
+    void Process_vkCmdCopyImageToBuffer2KHR(const ApiCallInfo&              call_info,
+                                            args::CmdCopyImageToBuffer2KHR& args) override;
+    void Process_vkCmdCopyQueryPoolResults(const ApiCallInfo& call_info, args::CmdCopyQueryPoolResults& args) override;
+    void Process_vkCmdPipelineBarrier(const ApiCallInfo& call_info, args::CmdPipelineBarrier& args) override;
+    void Process_vkCmdPipelineBarrier2(const ApiCallInfo& call_info, args::CmdPipelineBarrier2& args) override;
+    void Process_vkCmdPipelineBarrier2KHR(const ApiCallInfo& call_info, args::CmdPipelineBarrier2KHR& args) override;
+    void Process_vkCmdWaitEvents(const ApiCallInfo& call_info, args::CmdWaitEvents& args) override;
+    void Process_vkCmdWaitEvents2(const ApiCallInfo& call_info, args::CmdWaitEvents2& args) override;
+    void Process_vkCmdWaitEvents2KHR(const ApiCallInfo& call_info, args::CmdWaitEvents2KHR& args) override;
+    void Process_vkCmdExecuteCommands(const ApiCallInfo& call_info, args::CmdExecuteCommands& args) override;
+    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+    void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
+    void Process_vkCmdSetEvent2(const ApiCallInfo& call_info, args::CmdSetEvent2& args) override;
+    void Process_vkCmdSetEvent2KHR(const ApiCallInfo& call_info, args::CmdSetEvent2KHR& args) override;
+    void Process_vkCmdBindTransformFeedbackBuffersEXT(const ApiCallInfo&                        call_info,
+                                                      args::CmdBindTransformFeedbackBuffersEXT& args) override;
+    void Process_vkCmdDrawIndirectByteCountEXT(const ApiCallInfo&                 call_info,
+                                               args::CmdDrawIndirectByteCountEXT& args) override;
+    void Process_vkCmdDrawIndirectCountAMD(const ApiCallInfo& call_info, args::CmdDrawIndirectCountAMD& args) override;
+    void Process_vkCmdDrawIndexedIndirectCountAMD(const ApiCallInfo&                    call_info,
+                                                  args::CmdDrawIndexedIndirectCountAMD& args) override;
+    void Process_vkCmdBeginConditionalRenderingEXT(const ApiCallInfo&                     call_info,
+                                                   args::CmdBeginConditionalRenderingEXT& args) override;
+    void Process_vkCmdBuildAccelerationStructureNV(const ApiCallInfo&                     call_info,
+                                                   args::CmdBuildAccelerationStructureNV& args) override;
+    void Process_vkCmdTraceRaysNV(const ApiCallInfo& call_info, args::CmdTraceRaysNV& args) override;
+    void Process_vkCmdWriteBufferMarkerAMD(const ApiCallInfo& call_info, args::CmdWriteBufferMarkerAMD& args) override;
+    void Process_vkCmdWriteBufferMarker2AMD(const ApiCallInfo&              call_info,
+                                            args::CmdWriteBufferMarker2AMD& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo&                call_info,
+                                              args::CmdDrawMeshTasksIndirectNV& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectCountNV(const ApiCallInfo&                     call_info,
+                                                   args::CmdDrawMeshTasksIndirectCountNV& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo&                 call_info,
+                                               args::CmdDrawMeshTasksIndirectEXT& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInfo&                      call_info,
+                                                    args::CmdDrawMeshTasksIndirectCountEXT& args) override;
+    void Process_vkCmdPreprocessGeneratedCommandsNV(const ApiCallInfo&                      call_info,
+                                                    args::CmdPreprocessGeneratedCommandsNV& args) override;
+    void Process_vkCmdExecuteGeneratedCommandsNV(const ApiCallInfo&                   call_info,
+                                                 args::CmdExecuteGeneratedCommandsNV& args) override;
+    void Process_vkCmdBindDescriptorBuffersEXT(const ApiCallInfo&                 call_info,
+                                               args::CmdBindDescriptorBuffersEXT& args) override;
+    void Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo&                  call_info,
+                                                args::CmdDrawClusterIndirectHUAWEI& args) override;
+
+    // Descriptor-set-bound buffer tracking (VK_SHARING_MODE_EXCLUSIVE only): buffers that a command buffer
+    // touches only indirectly, through a bound descriptor set, are otherwise invisible to the direct-usage
+    // tracking above.
+    void Process_vkUpdateDescriptorSets(const ApiCallInfo& call_info, args::UpdateDescriptorSets& args) override;
+    void Process_vkCmdBindDescriptorSets(const ApiCallInfo& call_info, args::CmdBindDescriptorSets& args) override;
+    void Process_vkCmdPushDescriptorSet(const ApiCallInfo& call_info, args::CmdPushDescriptorSet& args) override;
+    void Process_vkCmdPushDescriptorSetKHR(const ApiCallInfo& call_info, args::CmdPushDescriptorSetKHR& args) override;
+
     void Process_vkCreateSemaphore(const ApiCallInfo& call_info, args::CreateSemaphore& args) override;
     void Process_vkDestroySemaphore(const ApiCallInfo& call_info, args::DestroySemaphore& args) override;
 
@@ -89,6 +173,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void Process_vkAcquireProfilingLockKHR(const ApiCallInfo& call_info, args::AcquireProfilingLockKHR& args) override;
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, args::ReleaseProfilingLockKHR& args) override;
+
+    void Process_vkDestroyDevice(const ApiCallInfo& call_info, args::DestroyDevice& args) override;
 
     virtual void StartLooping() override;
 
@@ -164,6 +250,82 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     SemaphoreTracking& GetSemaphoreTracking(format::HandleId device);
     void               TrackSemaphoreStates();
 
+    /// Tracks a device-local copy of each buffer's contents at the start of the loop range so that GPU
+    /// writes made to the buffer during the loop can be undone before each repetition.
+    struct BufferTracking
+    {
+        BufferTracking(format::HandleId                         device_id,
+                       const graphics::VulkanDeviceTable&       device_table,
+                       CommonObjectInfoTable&                   object_table,
+                       std::shared_ptr<VulkanResourceAllocator> allocator,
+                       const VkPhysicalDeviceMemoryProperties*  memory_properties) :
+            device_id_(device_id),
+            device_table_(device_table), object_table_(object_table), allocator_(allocator),
+            memory_properties_(memory_properties)
+        {}
+
+        struct ShadowBuffer
+        {
+            VkBuffer                              buffer{ VK_NULL_HANDLE };
+            VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+            VkDeviceSize                          size{ 0 };
+            VulkanResourceAllocator::ResourceData alloc_data{ 0 };
+            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+        };
+
+        void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
+        void Restore(bool is_first_iteration);
+        void DestroyShadowBuffers();
+
+        format::HandleId                                   device_id_;
+        const graphics::VulkanDeviceTable&                 device_table_;
+        CommonObjectInfoTable&                             object_table_;
+        std::shared_ptr<VulkanResourceAllocator>           allocator_;
+        const VkPhysicalDeviceMemoryProperties*            memory_properties_;
+        std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+
+        std::unordered_map<uint32_t, std::vector<format::HandleId>> buffer_ids_by_family_;
+    };
+
+    BufferTracking& GetBufferTracking(format::HandleId device);
+    void            RecordBufferStates();
+    void            FixupDeviceBuffers(format::HandleId device);
+    void            ResetBufferTracking();
+    void            ResetBufferTracking(format::HandleId device);
+
+    // Direct/first-use tracking for a single buffer referenced by command_buffer_id
+    void TrackBufferQueueFamilyUsage(format::HandleId command_buffer_id, format::HandleId buffer_id);
+
+    // Explicit queue-family-ownership-transfer tracking from a VkBufferMemoryBarrier
+    void TrackBufferQueueFamilyTransfer(format::HandleId command_buffer_id,
+                                        format::HandleId buffer_id,
+                                        uint32_t         src_queue_family_index,
+                                        uint32_t         dst_queue_family_index);
+    void TrackBufferOwnershipTransfers(format::HandleId                command_buffer_id,
+                                       const Decoded_VkDependencyInfo* dependency_info_meta);
+
+    void TrackBufferMemoryBarrierTransfers(format::HandleId                                           command_buffer_id,
+                                           const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>& barriers);
+    void TrackBufferMemoryBarrierTransfers(format::HandleId command_buffer_id,
+                                           const StructPointerDecoder<Decoded_VkBufferMemoryBarrier2>& barriers);
+
+    // Commits command_buffer_id's pending buffer_queue_family_touches onto
+    // VulkanBufferInfo::current_queue_family_index
+    void ApplyBufferQueueFamilyOwnership(format::HandleId command_buffer_id);
+    void ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo>& submits);
+    void ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo2>& submits);
+
+    // Buffers written into a descriptor set by vkUpdateDescriptorSets, so that binding the set to a command
+    // buffer (which never names those buffers directly) still marks them as touched. Keyed by descriptor set
+    // ID, then by (binding << 32 | array_element) so a later write to the same slot replaces the old buffer.
+    std::unordered_map<format::HandleId, std::unordered_map<uint64_t, format::HandleId>> descriptor_set_buffers_;
+
+    void TrackDescriptorSetBufferWrite(format::HandleId set_id,
+                                       uint32_t         binding,
+                                       uint32_t         array_element,
+                                       format::HandleId buffer_id);
+    void TrackDescriptorSetBufferUsage(format::HandleId command_buffer_id, format::HandleId set_id);
+
     // Private data
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
@@ -184,6 +346,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     std::unordered_set<format::HandleId>                host_visible_events_;
     std::unordered_map<format::HandleId, EventTracking> per_device_event_tracking_;
+
+    std::unordered_map<format::HandleId, BufferTracking> per_device_buffer_tracking_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;
