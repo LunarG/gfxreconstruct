@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_REBIND_ALLOCATOR_H
 
 #include "decode/vulkan_resource_allocator.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include "vk_mem_alloc.h"
@@ -45,16 +46,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     ~VulkanRebindAllocator() override = default;
 
-    virtual VkResult Initialize(uint32_t                                api_version,
-                                VkInstance                              instance,
-                                VkPhysicalDevice                        physical_device,
-                                VkDevice                                device,
-                                const VkDeviceCreateInfo&               device_create_info,
-                                const std::vector<std::string>&         enabled_device_extensions,
-                                VkPhysicalDeviceType                    capture_device_type,
-                                const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                const Functions&                        functions) override;
+    virtual VkResult Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                VkDevice                             device,
+                                const VkDeviceCreateInfo&            device_create_info,
+                                const std::vector<std::string>&      enabled_device_extensions,
+                                const graphics::VulkanInstanceTable& instance_table,
+                                const graphics::VulkanDeviceTable*   device_table) override;
 
     virtual void Destroy() override;
 
@@ -256,60 +253,16 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                       const ResourceData*     allocator_img_datas,
                                                       const MemoryData*       allocator_img_mem_datas) override;
 
-    // Direct allocation methods that perform memory allocation and resource creation without performing memory
-    // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
-    // that the allocator is aware of all allocations performed at replay.
-    virtual VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
-                                        const VkAllocationCallbacks* allocation_callbacks,
-                                        VkBuffer*                    buffer,
-                                        ResourceData*                allocator_data) override
-    {
-        return CreateBuffer(create_info, allocation_callbacks, format::kNullHandleId, buffer, allocator_data);
-    }
-
-    virtual void DestroyBufferDirect(VkBuffer                     buffer,
-                                     const VkAllocationCallbacks* allocation_callbacks,
-                                     ResourceData                 allocator_data) override
-    {
-        DestroyBuffer(buffer, allocation_callbacks, allocator_data);
-    }
-
-    virtual VkResult CreateImageDirect(const VkImageCreateInfo*     create_info,
-                                       const VkAllocationCallbacks* allocation_callbacks,
-                                       VkImage*                     image,
-                                       ResourceData*                allocator_data) override
-    {
-        return CreateImage(create_info, allocation_callbacks, format::kNullHandleId, image, allocator_data);
-    }
-
-    virtual void DestroyImageDirect(VkImage                      image,
-                                    const VkAllocationCallbacks* allocation_callbacks,
-                                    ResourceData                 allocator_data) override
-    {
-        DestroyImage(image, allocation_callbacks, allocator_data);
-    }
-
-    virtual VkResult AllocateMemoryDirect(const VkMemoryAllocateInfo*  allocate_info,
-                                          const VkAllocationCallbacks* allocation_callbacks,
-                                          VkDeviceMemory*              memory,
-                                          MemoryData*                  allocator_data) override
-    {
-        return AllocateMemory(allocate_info, allocation_callbacks, format::kNullHandleId, memory, allocator_data);
-    }
-
-    virtual void FreeMemoryDirect(VkDeviceMemory               memory,
-                                  const VkAllocationCallbacks* allocation_callbacks,
-                                  MemoryData                   allocator_data) override
-    {
-        FreeMemory(memory, allocation_callbacks, allocator_data);
-    }
-
-    virtual VkResult BindBufferMemoryDirect(VkBuffer               buffer,
-                                            VkDeviceMemory         memory,
-                                            VkDeviceSize           memory_offset,
-                                            ResourceData           allocator_buffer_data,
-                                            MemoryData             allocator_memory_data,
-                                            VkMemoryPropertyFlags* bind_memory_properties) override
+    // The *Direct entry points are non-virtual dispatchers on VulkanResourceAllocator that open the injected-commands
+    // scope and delegate to the virtual methods of this class.  The bind hooks are overridden because rebind's direct
+    // binds use the replay memory properties, unlike the replayed binds, which translate from the capture properties.
+  protected:
+    virtual VkResult BindBufferMemoryDirectImpl(VkBuffer               buffer,
+                                                VkDeviceMemory         memory,
+                                                VkDeviceSize           memory_offset,
+                                                ResourceData           allocator_buffer_data,
+                                                MemoryData             allocator_memory_data,
+                                                VkMemoryPropertyFlags* bind_memory_properties) override
     {
         return BindBufferMemory(buffer,
                                 memory,
@@ -320,12 +273,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                 replay_memory_properties_);
     }
 
-    virtual VkResult BindImageMemoryDirect(VkImage                image,
-                                           VkDeviceMemory         memory,
-                                           VkDeviceSize           memory_offset,
-                                           ResourceData           allocator_image_data,
-                                           MemoryData             allocator_memory_data,
-                                           VkMemoryPropertyFlags* bind_memory_properties) override
+    virtual VkResult BindImageMemoryDirectImpl(VkImage                image,
+                                               VkDeviceMemory         memory,
+                                               VkDeviceSize           memory_offset,
+                                               ResourceData           allocator_image_data,
+                                               MemoryData             allocator_memory_data,
+                                               VkMemoryPropertyFlags* bind_memory_properties) override
     {
         return BindImageMemory(image,
                                memory,
@@ -336,27 +289,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                replay_memory_properties_);
     }
 
-    virtual VkResult MapResourceMemoryDirect(VkDeviceSize     size,
-                                             VkMemoryMapFlags flags,
-                                             void**           data,
-                                             ResourceData     allocator_data) override;
+    virtual VkResult MapResourceMemoryDirectImpl(VkDeviceSize     size,
+                                                 VkMemoryMapFlags flags,
+                                                 void**           data,
+                                                 ResourceData     allocator_data) override;
 
-    virtual void UnmapResourceMemoryDirect(ResourceData) override {}
+    virtual void UnmapResourceMemoryDirectImpl(ResourceData) override {}
 
-    virtual VkResult FlushMappedMemoryRangesDirect(uint32_t                   memory_range_count,
-                                                   const VkMappedMemoryRange* memory_ranges,
-                                                   const MemoryData*          allocator_datas) override
-    {
-        return FlushMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
-    }
-
-    virtual VkResult InvalidateMappedMemoryRangesDirect(uint32_t                   memory_range_count,
-                                                        const VkMappedMemoryRange* memory_ranges,
-                                                        const MemoryData*          allocator_datas) override
-    {
-        return InvalidateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
-    }
-
+  public:
     virtual bool SupportsOpaqueDeviceAddresses() override { return false; }
     virtual bool SupportBindVideoSessionMemory() override { return true; }
 
@@ -395,31 +335,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                       const ResourceData*              allocator_tensor_datas,
                                       const MemoryData*                allocator_memory_datas,
                                       VkMemoryPropertyFlags*           bind_memory_properties) override;
-
-    virtual VkResult CreateTensorDirect(const VkTensorCreateInfoARM* create_info,
-                                        const VkAllocationCallbacks* allocation_callbacks,
-                                        VkTensorARM*                 tensor,
-                                        ResourceData*                allocator_data) override
-    {
-        return CreateTensor(create_info, allocation_callbacks, format::kNullHandleId, tensor, allocator_data);
-    }
-
-    virtual void DestroyTensorDirect(VkTensorARM                  tensor,
-                                     const VkAllocationCallbacks* allocation_callbacks,
-                                     ResourceData                 allocator_data) override
-    {
-        DestroyTensor(tensor, allocation_callbacks, allocator_data);
-    }
-
-    virtual VkResult BindTensorMemoryDirect(uint32_t                         bind_info_count,
-                                            const VkBindTensorMemoryInfoARM* bind_infos,
-                                            const ResourceData*              allocator_tensor_datas,
-                                            const MemoryData*                allocator_memory_datas,
-                                            VkMemoryPropertyFlags*           bind_memory_properties) override
-    {
-        return BindTensorMemory(
-            bind_info_count, bind_infos, allocator_tensor_datas, allocator_memory_datas, bind_memory_properties);
-    }
 
     virtual void SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data) override;
 
@@ -816,13 +731,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // which became private in VMA 3.3.0.
     std::mutex& GetOrCreateBlockMutex(VkDeviceMemory device_memory);
 
-    VkDevice                         device_ = VK_NULL_HANDLE;
     VmaAllocator                     allocator_;
-    Functions                        functions_;
     VmaVulkanFunctions               vma_functions_;
     VkPhysicalDeviceType             capture_device_type_;
     VkPhysicalDeviceMemoryProperties capture_memory_properties_;
-    VkPhysicalDeviceMemoryProperties replay_memory_properties_;
     VkCommandPool                    cmd_pool_      = VK_NULL_HANDLE;
     VkQueue                          staging_queue_ = VK_NULL_HANDLE;
     uint32_t                         staging_queue_family_{};

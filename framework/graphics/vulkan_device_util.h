@@ -25,6 +25,7 @@
 
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
+#include "vulkan_feature_util.h"
 
 #include <unordered_set>
 
@@ -53,6 +54,31 @@ struct VulkanInstanceVersionExtensionInfo
 {
     uint32_t                 api_version{ VK_MAKE_VERSION(1, 0, 0) };
     std::vector<std::string> enabled_extensions;
+};
+
+struct VulkanDeviceVersionExtensionInfo
+{
+    // min(instance VkApplicationInfo::apiVersion, VkPhysicalDeviceProperties::apiVersion)
+    uint32_t                 api_version{ VK_MAKE_VERSION(1, 0, 0) };
+    std::vector<std::string> enabled_extensions;
+
+    // Returns the core flavor if the effective device version is at least core_version, otherwise the extension flavor
+    // if the extension was enabled at device creation, otherwise nullptr.
+    template <typename FuncP>
+    FuncP SelectApiCallFlavor(uint32_t core_version, FuncP core_func, const char* extension, FuncP ext_func) const
+    {
+        if (api_version >= core_version)
+        {
+            return core_func;
+        }
+
+        if (feature_util::IsSupportedExtension(enabled_extensions, extension))
+        {
+            return ext_func;
+        }
+
+        return nullptr;
+    }
 };
 
 struct VulkanDevicePropertyFeatureInfo

@@ -45,6 +45,12 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 // Populate features from the module registry.
 void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features);
 
+// Gives the list that the last LoadFeatures() call filled. The usage function of the tool
+// cannot receive the list as a parameter, because tool_command_line.h declares that function
+// with a fixed signature. The usage function reads the list here to build the part of the
+// synopsis that the Features contribute. The list is empty before the first LoadFeatures() call.
+const std::vector<std::unique_ptr<ReplayFeatureBase>>& GetLoadedFeatures();
+
 // Run a pre-processing pass over filename using all features that opt in.
 void RunPreProcessConsumer(const std::string& filename, std::vector<std::unique_ptr<ReplayFeatureBase>>& features);
 
@@ -57,14 +63,12 @@ void RunPreProcessConsumer(const std::string& filename, std::vector<std::unique_
 //
 // file_processor_out  Receives the constructed FileProcessor; Android keeps a
 //                     global reference so the extern "C" query callbacks work.
-// active_layers_value String forwarded verbatim to CheckActiveLayers().
 // make_application    Platform factory called with the new FileProcessor
 //                     pointer; should return a fully constructed Application.
 bool RunReplay(std::unique_ptr<decode::FileProcessor>&                                          file_processor_out,
                std::vector<std::unique_ptr<ReplayFeatureBase>>&                                 features,
                util::ArgumentParser&                                                            arg_parser,
                const std::string&                                                               filename,
-               const std::string&                                                               active_layers_value,
                std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application);
 
 GFXRECON_END_NAMESPACE(replay)

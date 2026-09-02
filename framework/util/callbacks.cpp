@@ -22,8 +22,9 @@
 */
 
 #include "callbacks.h"
-#include "encode/capture_manager.h"
 #include "util/logging.h"
+
+#include <mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -76,52 +77,47 @@ class CallbackBase
     bool                   event_a_in_progress_;
 };
 
-class MarkInjectedCommands : public CallbackBase
-{
-  public:
-    void EventA()
-    {
-        encode::CommonCaptureManager::SetForceDefaultUniqueId(true);
-        CallbackBase::EventA();
-    }
+static CallbackBase injected_commands_marker;
 
-    void EventB()
-    {
-        encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
-        CallbackBase::EventB();
-    }
-};
+// Per-thread nesting depth. Gates GetUniqueId() against the thread_local
+// unique_id_stack_, so it must not be shared across threads.
+static thread_local uint32_t thread_scope_depth = 0;
 
-thread_local uint32_t MarkInjectedCommandsHelper::semaphore = 0;
+// Counts threads with an open scope. The mutex also serializes
+// EventA/EventB so they strictly alternate process-wide.
+static std::mutex scope_transition_mutex;
+static uint32_t   global_scope_count = 0;
 
 MarkInjectedCommandsHelper::MarkInjectedCommandsHelper()
 {
-    // mark injected commands
-    if (semaphore++ == 0)
+    if (thread_scope_depth++ == 0)
     {
-        BeginInjectedCommands();
+        // mark injected commands
+        std::lock_guard<std::mutex> lock(scope_transition_mutex);
+        if (global_scope_count++ == 0)
+        {
+            injected_commands_marker.EventA();
+        }
     }
 }
 
 MarkInjectedCommandsHelper::~MarkInjectedCommandsHelper()
 {
-    // mark end of injected commands
-    if (--semaphore == 0)
+    GFXRECON_ASSERT(thread_scope_depth);
+    if (--thread_scope_depth == 0)
     {
-        EndInjectedCommands();
+        // mark end of injected commands
+        std::lock_guard<std::mutex> lock(scope_transition_mutex);
+        if (--global_scope_count == 0)
+        {
+            injected_commands_marker.EventB();
+        }
     }
 }
 
-static MarkInjectedCommands injected_commands_marker;
-
-void BeginInjectedCommands()
+bool InjectedCommandsActive()
 {
-    injected_commands_marker.EventA();
-}
-
-void EndInjectedCommands()
-{
-    injected_commands_marker.EventB();
+    return thread_scope_depth != 0;
 }
 
 extern "C" void GFXR_EXPORT SetInjectedCommandCallbacks(PFN_EventBeginCallBack begin_fp,

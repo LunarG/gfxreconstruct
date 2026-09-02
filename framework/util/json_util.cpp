@@ -156,6 +156,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data)
     jdata = util::strings::convert_wstring_to_utf8(data);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const std::u16string_view data)
+{
+    jdata = util::strings::convert_u16string_to_utf8(data);
+}
+
 #if defined(D3D12_SUPPORT)
 
 // const char * might be better to avoid two copies of each string in the process at runtime (one in the static data
@@ -265,7 +270,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const format::InitDx12Accelerati
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data)
 {
-    FieldToJson(jdata["Description"], std::wstring_view(data.Description));
+    FieldToJson(jdata["Description"], std::u16string_view(data.Description));
     jdata["VendorId"]              = data.VendorId;
     jdata["DeviceId"]              = data.DeviceId;
     jdata["SubSysId"]              = data.SubSysId;

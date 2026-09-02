@@ -181,6 +181,13 @@ inline std::string WCharArrayToString(const wchar_t* pStr)
         return "";
     }
 }
+
+inline std::string Char16ArrayToString(const char16_t* pStr)
+{
+    static_assert(sizeof(wchar_t) == sizeof(char16_t),
+                  "Char16ArrayToString requires wchar_t and char16_t to be the same size");
+    return WCharArrayToString(reinterpret_cast<const wchar_t*>(pStr));
+}
 #endif
 
 template <typename BitmaskType, typename FlagsType, typename ToString>
