@@ -927,20 +927,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                         uint32_t                     bindInfoCount,
                                         const VkBindImageMemoryInfo* pBindInfos);
 
-    void PostProcess_vkCreateBuffer(VkResult                     result,
-                                    VkDevice                     device,
-                                    const VkBufferCreateInfo*    pCreateInfo,
-                                    const VkAllocationCallbacks* pAllocator,
-                                    VkBuffer*                    pBuffer)
-    {}
-
-    void PostProcess_vkCreateImage(VkResult                     result,
-                                   VkDevice                     device,
-                                   const VkImageCreateInfo*     pCreateInfo,
-                                   const VkAllocationCallbacks* pAllocator,
-                                   VkImage*                     pImage)
-    {}
-
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
                                           VkSubpassContents)
