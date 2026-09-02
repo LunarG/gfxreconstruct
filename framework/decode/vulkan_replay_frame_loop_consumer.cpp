@@ -1201,6 +1201,321 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdWaitEvents2KHR(const ApiCallInf
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkCmdSetEvent2(const ApiCallInfo& call_info, args::CmdSetEvent2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdSetEvent2(call_info, args);
+    TrackBufferOwnershipTransfers(args.commandBuffer, args.pDependencyInfo.GetMetaStructPointer());
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdSetEvent2KHR(const ApiCallInfo& call_info, args::CmdSetEvent2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdSetEvent2KHR(call_info, args);
+    TrackBufferOwnershipTransfers(args.commandBuffer, args.pDependencyInfo.GetMetaStructPointer());
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
+    const ApiCallInfo& call_info, args::CmdBindTransformFeedbackBuffersEXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(call_info, args);
+    for (format::HandleId buffer_id : args.pBuffers.GetSpan())
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, buffer_id);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndirectByteCountEXT(const ApiCallInfo&                 call_info,
+                                                                          args::CmdDrawIndirectByteCountEXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndirectByteCountEXT(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.counterBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndirectCountAMD(const ApiCallInfo&             call_info,
+                                                                      args::CmdDrawIndirectCountAMD& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndirectCountAMD(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
+    const ApiCallInfo& call_info, args::CmdDrawIndexedIndirectCountAMD& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginConditionalRenderingEXT(
+    const ApiCallInfo& call_info, args::CmdBeginConditionalRenderingEXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBeginConditionalRenderingEXT(call_info, args);
+    const auto* info = args.pConditionalRenderingBegin.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->buffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBuildAccelerationStructureNV(
+    const ApiCallInfo& call_info, args::CmdBuildAccelerationStructureNV& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructureNV(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.instanceData);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.scratch);
+    // Note: vertex/index/transform buffers nested in args.pInfo->pGeometries are not tracked here.
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdTraceRaysNV(const ApiCallInfo& call_info, args::CmdTraceRaysNV& args)
+{
+    VulkanReplayConsumer::Process_vkCmdTraceRaysNV(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.raygenShaderBindingTableBuffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.missShaderBindingTableBuffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.hitShaderBindingTableBuffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.callableShaderBindingTableBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteBufferMarkerAMD(const ApiCallInfo&             call_info,
+                                                                      args::CmdWriteBufferMarkerAMD& args)
+{
+    VulkanReplayConsumer::Process_vkCmdWriteBufferMarkerAMD(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteBufferMarker2AMD(const ApiCallInfo&              call_info,
+                                                                       args::CmdWriteBufferMarker2AMD& args)
+{
+    VulkanReplayConsumer::Process_vkCmdWriteBufferMarker2AMD(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo&                 call_info,
+                                                                         args::CmdDrawMeshTasksIndirectNV& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectNV(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
+    const ApiCallInfo& call_info, args::CmdDrawMeshTasksIndirectCountNV& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo&                  call_info,
+                                                                          args::CmdDrawMeshTasksIndirectEXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
+    const ApiCallInfo& call_info, args::CmdDrawMeshTasksIndirectCountEXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
+    const ApiCallInfo& call_info, args::CmdPreprocessGeneratedCommandsNV& args)
+{
+    VulkanReplayConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(call_info, args);
+
+    const auto* info = args.pGeneratedCommandsInfo.GetMetaStructPointer();
+    if (info == nullptr)
+    {
+        return;
+    }
+
+    TrackBufferQueueFamilyUsage(args.commandBuffer, info->preprocessBuffer);
+
+    if (info->pStreams != nullptr && !info->pStreams->IsNull() && info->pStreams->HasData())
+    {
+        const auto* streams = info->pStreams->GetMetaStructPointer();
+        for (uint32_t i = 0; i < info->pStreams->GetLength(); ++i)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, streams[i].buffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
+    const ApiCallInfo& call_info, args::CmdExecuteGeneratedCommandsNV& args)
+{
+    VulkanReplayConsumer::Process_vkCmdExecuteGeneratedCommandsNV(call_info, args);
+
+    const auto* info = args.pGeneratedCommandsInfo.GetMetaStructPointer();
+    if (info == nullptr)
+    {
+        return;
+    }
+
+    TrackBufferQueueFamilyUsage(args.commandBuffer, info->preprocessBuffer);
+
+    if (info->pStreams != nullptr && !info->pStreams->IsNull() && info->pStreams->HasData())
+    {
+        const auto* streams = info->pStreams->GetMetaStructPointer();
+        for (uint32_t i = 0; i < info->pStreams->GetLength(); ++i)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, streams[i].buffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindDescriptorBuffersEXT(const ApiCallInfo&                 call_info,
+                                                                          args::CmdBindDescriptorBuffersEXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindDescriptorBuffersEXT(call_info, args);
+
+    const auto* binding_infos = args.pBindingInfos.GetMetaStructPointer();
+    if (binding_infos == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < args.bufferCount; ++i)
+    {
+        const auto* buffer_handle_info =
+            GetPNextMetaStruct<Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>(binding_infos[i].pNext);
+        if (buffer_handle_info != nullptr)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, buffer_handle_info->buffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo&                    call_info,
+                                                                           args::CmdDrawClusterIndirectHUAWEI& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::TrackDescriptorSetBufferWrite(format::HandleId set_id,
+                                                                  uint32_t         binding,
+                                                                  uint32_t         array_element,
+                                                                  format::HandleId buffer_id)
+{
+    if (set_id == format::kNullHandleId || buffer_id == format::kNullHandleId)
+    {
+        return;
+    }
+
+    const uint64_t slot                = (static_cast<uint64_t>(binding) << 32) | array_element;
+    descriptor_set_buffers_[set_id][slot] = buffer_id;
+}
+
+void VulkanReplayFrameLoopConsumer::TrackDescriptorSetBufferUsage(format::HandleId command_buffer_id,
+                                                                  format::HandleId set_id)
+{
+    auto it = descriptor_set_buffers_.find(set_id);
+    if (it == descriptor_set_buffers_.end())
+    {
+        return;
+    }
+
+    for (const auto& [slot, buffer_id] : it->second)
+    {
+        TrackBufferQueueFamilyUsage(command_buffer_id, buffer_id);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkUpdateDescriptorSets(const ApiCallInfo&          call_info,
+                                                                   args::UpdateDescriptorSets& args)
+{
+    VulkanReplayConsumer::Process_vkUpdateDescriptorSets(call_info, args);
+
+    const auto* writes      = args.pDescriptorWrites.GetPointer();
+    const auto* meta_writes = args.pDescriptorWrites.GetMetaStructPointer();
+    if (writes == nullptr || meta_writes == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < args.descriptorWriteCount; ++i)
+    {
+        const auto* buffer_info = meta_writes[i].pBufferInfo;
+        if (buffer_info == nullptr || buffer_info->IsNull() || !buffer_info->HasData())
+        {
+            continue;
+        }
+
+        const auto* buffer_meta = buffer_info->GetMetaStructPointer();
+        for (uint32_t element = 0; element < writes[i].descriptorCount; ++element)
+        {
+            TrackDescriptorSetBufferWrite(
+                meta_writes[i].dstSet, writes[i].dstBinding, writes[i].dstArrayElement + element, buffer_meta[element].buffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindDescriptorSets(const ApiCallInfo&           call_info,
+                                                                    args::CmdBindDescriptorSets& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(call_info, args);
+    for (format::HandleId set_id : args.pDescriptorSets.GetSpan())
+    {
+        TrackDescriptorSetBufferUsage(args.commandBuffer, set_id);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdPushDescriptorSet(const ApiCallInfo&          call_info,
+                                                                   args::CmdPushDescriptorSet& args)
+{
+    VulkanReplayConsumer::Process_vkCmdPushDescriptorSet(call_info, args);
+
+    const auto* meta_writes = args.pDescriptorWrites.GetMetaStructPointer();
+    if (meta_writes == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < args.descriptorWriteCount; ++i)
+    {
+        const auto* buffer_info = meta_writes[i].pBufferInfo;
+        if (buffer_info == nullptr || buffer_info->IsNull() || !buffer_info->HasData())
+        {
+            continue;
+        }
+
+        const auto* buffer_meta = buffer_info->GetMetaStructPointer();
+        for (uint32_t element = 0; element < buffer_info->GetLength(); ++element)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, buffer_meta[element].buffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdPushDescriptorSetKHR(const ApiCallInfo&             call_info,
+                                                                      args::CmdPushDescriptorSetKHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdPushDescriptorSetKHR(call_info, args);
+
+    const auto* meta_writes = args.pDescriptorWrites.GetMetaStructPointer();
+    if (meta_writes == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < args.descriptorWriteCount; ++i)
+    {
+        const auto* buffer_info = meta_writes[i].pBufferInfo;
+        if (buffer_info == nullptr || buffer_info->IsNull() || !buffer_info->HasData())
+        {
+            continue;
+        }
+
+        const auto* buffer_meta = buffer_info->GetMetaStructPointer();
+        for (uint32_t element = 0; element < buffer_info->GetLength(); ++element)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, buffer_meta[element].buffer);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallInfo&        call_info,
                                                                  args::CmdExecuteCommands& args)
 {

@@ -113,6 +113,47 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void Process_vkCmdExecuteCommands(const ApiCallInfo& call_info, args::CmdExecuteCommands& args) override;
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
     void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
+    void Process_vkCmdSetEvent2(const ApiCallInfo& call_info, args::CmdSetEvent2& args) override;
+    void Process_vkCmdSetEvent2KHR(const ApiCallInfo& call_info, args::CmdSetEvent2KHR& args) override;
+    void Process_vkCmdBindTransformFeedbackBuffersEXT(const ApiCallInfo&                        call_info,
+                                                       args::CmdBindTransformFeedbackBuffersEXT& args) override;
+    void Process_vkCmdDrawIndirectByteCountEXT(const ApiCallInfo&                 call_info,
+                                               args::CmdDrawIndirectByteCountEXT& args) override;
+    void Process_vkCmdDrawIndirectCountAMD(const ApiCallInfo& call_info, args::CmdDrawIndirectCountAMD& args) override;
+    void Process_vkCmdDrawIndexedIndirectCountAMD(const ApiCallInfo&                    call_info,
+                                                  args::CmdDrawIndexedIndirectCountAMD& args) override;
+    void Process_vkCmdBeginConditionalRenderingEXT(const ApiCallInfo&                      call_info,
+                                                   args::CmdBeginConditionalRenderingEXT& args) override;
+    void Process_vkCmdBuildAccelerationStructureNV(const ApiCallInfo&                      call_info,
+                                                   args::CmdBuildAccelerationStructureNV& args) override;
+    void Process_vkCmdTraceRaysNV(const ApiCallInfo& call_info, args::CmdTraceRaysNV& args) override;
+    void Process_vkCmdWriteBufferMarkerAMD(const ApiCallInfo& call_info, args::CmdWriteBufferMarkerAMD& args) override;
+    void Process_vkCmdWriteBufferMarker2AMD(const ApiCallInfo&              call_info,
+                                            args::CmdWriteBufferMarker2AMD& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo&                 call_info,
+                                              args::CmdDrawMeshTasksIndirectNV& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectCountNV(const ApiCallInfo&                      call_info,
+                                                   args::CmdDrawMeshTasksIndirectCountNV& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo&                  call_info,
+                                               args::CmdDrawMeshTasksIndirectEXT& args) override;
+    void Process_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInfo&                       call_info,
+                                                    args::CmdDrawMeshTasksIndirectCountEXT& args) override;
+    void Process_vkCmdPreprocessGeneratedCommandsNV(const ApiCallInfo&                       call_info,
+                                                    args::CmdPreprocessGeneratedCommandsNV& args) override;
+    void Process_vkCmdExecuteGeneratedCommandsNV(const ApiCallInfo&                    call_info,
+                                                 args::CmdExecuteGeneratedCommandsNV& args) override;
+    void Process_vkCmdBindDescriptorBuffersEXT(const ApiCallInfo&                 call_info,
+                                               args::CmdBindDescriptorBuffersEXT& args) override;
+    void Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo&                    call_info,
+                                                args::CmdDrawClusterIndirectHUAWEI& args) override;
+
+    // Descriptor-set-bound buffer tracking (VK_SHARING_MODE_EXCLUSIVE only): buffers that a command buffer
+    // touches only indirectly, through a bound descriptor set, are otherwise invisible to the direct-usage
+    // tracking above.
+    void Process_vkUpdateDescriptorSets(const ApiCallInfo& call_info, args::UpdateDescriptorSets& args) override;
+    void Process_vkCmdBindDescriptorSets(const ApiCallInfo& call_info, args::CmdBindDescriptorSets& args) override;
+    void Process_vkCmdPushDescriptorSet(const ApiCallInfo& call_info, args::CmdPushDescriptorSet& args) override;
+    void Process_vkCmdPushDescriptorSetKHR(const ApiCallInfo& call_info, args::CmdPushDescriptorSetKHR& args) override;
 
     void Process_vkCreateSemaphore(const ApiCallInfo& call_info, args::CreateSemaphore& args) override;
     void Process_vkDestroySemaphore(const ApiCallInfo& call_info, args::DestroySemaphore& args) override;
@@ -270,6 +311,17 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void ApplyBufferQueueFamilyOwnership(format::HandleId command_buffer_id);
     void ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo>& submits);
     void ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo2>& submits);
+
+    // Buffers written into a descriptor set by vkUpdateDescriptorSets, so that binding the set to a command
+    // buffer (which never names those buffers directly) still marks them as touched. Keyed by descriptor set
+    // ID, then by (binding << 32 | array_element) so a later write to the same slot replaces the old buffer.
+    std::unordered_map<format::HandleId, std::unordered_map<uint64_t, format::HandleId>> descriptor_set_buffers_;
+
+    void TrackDescriptorSetBufferWrite(format::HandleId set_id,
+                                       uint32_t         binding,
+                                       uint32_t         array_element,
+                                       format::HandleId buffer_id);
+    void TrackDescriptorSetBufferUsage(format::HandleId command_buffer_id, format::HandleId set_id);
 
     // Private data
   private:
