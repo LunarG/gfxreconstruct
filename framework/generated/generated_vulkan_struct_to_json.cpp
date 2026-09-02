@@ -19860,6 +19860,58 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatrixProperties2EXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkCooperativeMatrixProperties2EXT& decoded_value = *data->decoded_value;
+        const Decoded_VkCooperativeMatrixProperties2EXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["MGranularity"] = decoded_value.MGranularity;
+        jdata["NGranularity"] = decoded_value.NGranularity;
+        jdata["KGranularity"] = decoded_value.KGranularity;
+        jdata["AType"] = decoded_value.AType;
+        jdata["BType"] = decoded_value.BType;
+        jdata["CType"] = decoded_value.CType;
+        jdata["ResultType"] = decoded_value.ResultType;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixInfo2EXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceCooperativeMatrixInfo2EXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceCooperativeMatrixInfo2EXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["scope"] = decoded_value.scope;
+        jdata["invocations"] = decoded_value.invocations;
+        jdata["subgroupSize"] = decoded_value.subgroupSize;
+        jdata["flags"] = VkCooperativeMatrixFlagsEXT_t{decoded_value.flags};
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["cooperativeMatrixProperties2"] = static_cast<bool>(decoded_value.cooperativeMatrixProperties2);
+        jdata["cooperativeMatrixReductions"] = static_cast<bool>(decoded_value.cooperativeMatrixReductions);
+        jdata["cooperativeMatrixConversions"] = static_cast<bool>(decoded_value.cooperativeMatrixConversions);
+        jdata["cooperativeMatrixPerElementOperations"] = static_cast<bool>(decoded_value.cooperativeMatrixPerElementOperations);
+        jdata["cooperativeMatrixGetCoordinate"] = static_cast<bool>(decoded_value.cooperativeMatrixGetCoordinate);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* data)
 {
     if (data && data->decoded_value)
@@ -19983,6 +20035,32 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceImageTilingControlFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["imageTilingControl"] = static_cast<bool>(decoded_value.imageTilingControl);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageTilingControlCreateInfoEXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkImageTilingControlCreateInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkImageTilingControlCreateInfoEXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["tilingControl"] = decoded_value.tilingControl;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* data)
 {
     if (data && data->decoded_value)
@@ -19992,6 +20070,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
 
         jdata["sType"] = decoded_value.sType;
         jdata["cooperativeMatrixDecodeVector"] = static_cast<bool>(decoded_value.cooperativeMatrixDecodeVector);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["privateDataBaseHandle"] = static_cast<bool>(decoded_value.privateDataBaseHandle);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -21060,6 +21151,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_FLEXIBLE_DIMENSIONS_PROPERTIES_NV:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkCooperativeMatrixFlexibleDimensionsPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkCooperativeMatrixProperties2EXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -22576,6 +22674,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageTilingControlCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkImageUsageFlags2CreateInfoKHR*>(data->GetMetaStructPointer());
@@ -23514,6 +23619,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixInfo2EXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(data->GetMetaStructPointer());
@@ -24326,6 +24445,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT*>(data->GetMetaStructPointer());
@@ -25001,6 +25127,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }

@@ -1364,6 +1364,20 @@ template <> std::string ToString<VkConservativeRasterizationModeEXT>(const VkCon
     return "Unhandled VkConservativeRasterizationModeEXT";
 }
 
+template <> std::string ToString<VkCooperativeMatrixFlagBitsEXT>(const VkCooperativeMatrixFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT: return "VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkCooperativeMatrixFlagBitsEXT";
+}
+
+template <> std::string ToString<VkCooperativeMatrixFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkCooperativeMatrixFlagBitsEXT>(vkFlags);
+}
+
 template <> std::string ToString<VkCooperativeVectorMatrixLayoutNV>(const VkCooperativeVectorMatrixLayoutNV& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2115,6 +2129,7 @@ template <> std::string ToString<VkDriverId>(const VkDriverId& value, ToStringFl
     case VK_DRIVER_ID_MESA_KOSMICKRISP: return "VK_DRIVER_ID_MESA_KOSMICKRISP";
     case VK_DRIVER_ID_MESA_GFXSTREAM: return "VK_DRIVER_ID_MESA_GFXSTREAM";
     case VK_DRIVER_ID_APE_SOFT: return "VK_DRIVER_ID_APE_SOFT";
+    case VK_DRIVER_ID_RESERVED_31: return "VK_DRIVER_ID_RESERVED_31";
     default: break;
     }
     return "Unhandled VkDriverId";
@@ -3312,6 +3327,17 @@ template <> std::string ToString<VkImageTiling>(const VkImageTiling& value, ToSt
     default: break;
     }
     return "Unhandled VkImageTiling";
+}
+
+template <> std::string ToString<VkImageTilingControlEXT>(const VkImageTilingControlEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_IMAGE_TILING_CONTROL_DEFAULT_EXT: return "VK_IMAGE_TILING_CONTROL_DEFAULT_EXT";
+    case VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT: return "VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT";
+    case VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT: return "VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT";
+    default: break;
+    }
+    return "Unhandled VkImageTilingControlEXT";
 }
 
 template <> std::string ToString<VkImageType>(const VkImageType& value, ToStringFlags, uint32_t, uint32_t)
@@ -4720,6 +4746,20 @@ template <> std::string ToString<VkPrimitiveTopology>(const VkPrimitiveTopology&
     default: break;
     }
     return "Unhandled VkPrimitiveTopology";
+}
+
+template <> std::string ToString<VkPrivateDataSlotCreateFlagBits>(const VkPrivateDataSlotCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV: return "VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkPrivateDataSlotCreateFlagBits";
+}
+
+template <> std::string ToString<VkPrivateDataSlotCreateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPrivateDataSlotCreateFlagBits>(vkFlags);
 }
 
 template <> std::string ToString<VkProvokingVertexModeEXT>(const VkProvokingVertexModeEXT& value, ToStringFlags, uint32_t, uint32_t)
@@ -6667,6 +6707,9 @@ template <> std::string ToString<VkStructureType>(const VkStructureType& value, 
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR";
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR: return "VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR";
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT";
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT";
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT: return "VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT";
     case VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC: return "VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC";
     case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR: return "VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR";
@@ -6684,7 +6727,10 @@ template <> std::string ToString<VkStructureType>(const VkStructureType& value, 
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM: return "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT";
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT";
+    case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT: return "VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV";
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV";
     default: break;
     }
     return "Unhandled VkStructureType";

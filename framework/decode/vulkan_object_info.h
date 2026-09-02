@@ -180,6 +180,11 @@ enum GpaSessionAMDArrayIndices : uint32_t
     kGpaSessionAMDArrayGetGpaSessionResultsAMD = 0
 };
 
+enum PhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT : uint32_t
+{
+    kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT = 0
+};
+
 //
 // Structures for storing Vulkan object info.
 //
@@ -259,12 +264,24 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
     format::HandleId pool_id{ format::kNullHandleId }; // ID of the pool that the object was allocated from.
 };
 
+struct VulkanEventInfo : public VulkanObjectInfo<VkEvent>
+{
+    // Terminal event-state in stream order: host set/reset apply immediately, device cmd set/reset at
+    // submit-time. Bounds the vkGetEventStatus poll to only wait when 'set' is the terminal state.
+    bool latched_set{ false };
+};
+
+struct VulkanQueryPoolInfo : public VulkanObjectInfo<VkQueryPool>
+{
+    // Terminal per-query availability in stream order: host resets apply immediately, device query ops at
+    // submit-time. Bounds VK_QUERY_RESULT_WAIT_BIT injection in vkGetQueryPoolResults to available queries.
+    std::vector<bool> latched_query_available;
+};
+
 //
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
-typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>             VulkanSamplerYcbcrConversionInfo;
@@ -758,6 +775,21 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // flag indicating if the command-buffer is currently recording a VkRenderpass or VK_KHR_dynamic_rendering scope
     bool in_rendering_scope = false;
+
+    // ordered vkCmdSetEvent/vkCmdResetEvent recorded here (event capture-id, is-set);
+    // applied to VulkanEventInfo::latched_set at submit-time.
+    std::vector<std::pair<format::HandleId, bool>> recorded_event_ops;
+
+    // ordered query ops recorded here (end-of-scope/write-timestamp vs. reset);
+    // applied to VulkanQueryPoolInfo::latched_query_available at submit-time.
+    struct RecordedQueryOp
+    {
+        format::HandleId pool_id{ format::kNullHandleId };
+        uint32_t         first_query{ 0 };
+        uint32_t         query_count{ 0 };
+        bool             available{ false };
+    };
+    std::vector<RecordedQueryOp> recorded_query_ops;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>

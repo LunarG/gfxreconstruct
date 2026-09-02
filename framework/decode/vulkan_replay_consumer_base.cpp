@@ -70,8 +70,10 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <chrono>
 #include <limits>
 #include <numeric>
+#include <thread>
 #include <unordered_set>
 #include <future>
 
@@ -80,6 +82,10 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 constexpr char kUnknownDeviceLabel[]  = "<Unknown>";
 constexpr char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
+
+// vkGetEventStatus 'can' be used for synchronization, but cannot be (host-)waited on.
+// we poll until receiving VK_EVENT_SET, when the capture returned it.
+constexpr auto kGetEventStatusPollInterval = std::chrono::microseconds(100);
 
 const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,  VK_MVK_IOS_SURFACE_EXTENSION_NAME,
@@ -94,7 +100,7 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
 const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThanCapture = {
-    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT", "vkGetQueryPoolResults", "vkGetEventStatus"
+    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
 };
 
 // LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
@@ -105,7 +111,8 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeTh
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
     { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
     { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
-    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
+    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS },
+    { VK_EVENT_RESET, VK_EVENT_SET }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -4570,6 +4577,148 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus    func,
+                                                          VkResult                original_result,
+                                                          const VulkanDeviceInfo* device_info,
+                                                          const VulkanEventInfo*  event_info)
+{
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    VkDevice device = device_info->handle;
+    VkEvent  event  = event_info->handle;
+
+    VkResult result = func(device, event);
+
+    // A captured VK_EVENT_SET must be reproduced at replay to preserve synchronization.
+    // there is no host wait-primitive for events, so we have to poll, but:
+    // wait only when VK_EVENT_SET is the event's terminal state -> avoid looping forever.
+    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && event_info->latched_set)
+    {
+        auto device_table = GetInjectedDeviceCalls(device);
+        auto injected     = device_table.Open();
+
+        while (result == VK_EVENT_RESET)
+        {
+            std::this_thread::sleep_for(kGetEventStatusPollInterval);
+            result = injected->GetEventStatus(device, event);
+        }
+    }
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetEvent(PFN_vkSetEvent          func,
+                                                    VkResult                original_result,
+                                                    const VulkanDeviceInfo* device_info,
+                                                    VulkanEventInfo*        event_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    event_info->latched_set = true;
+    return func(device_info->handle, event_info->handle);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideResetEvent(PFN_vkResetEvent        func,
+                                                      VkResult                original_result,
+                                                      const VulkanDeviceInfo* device_info,
+                                                      VulkanEventInfo*        event_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    event_info->latched_set = false;
+    return func(device_info->handle, event_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdSetEvent(PFN_vkCmdSetEvent        func,
+                                                   VulkanCommandBufferInfo* command_buffer_info,
+                                                   VulkanEventInfo*         event_info,
+                                                   VkPipelineStageFlags     stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, true);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetEvent(PFN_vkCmdResetEvent      func,
+                                                     VulkanCommandBufferInfo* command_buffer_info,
+                                                     VulkanEventInfo*         event_info,
+                                                     VkPipelineStageFlags     stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, false);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdSetEvent2(PFN_vkCmdSetEvent2                              func,
+                                                    VulkanCommandBufferInfo*                        command_buffer_info,
+                                                    VulkanEventInfo*                                event_info,
+                                                    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr && pDependencyInfo != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, true);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, pDependencyInfo->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetEvent2(PFN_vkCmdResetEvent2     func,
+                                                      VulkanCommandBufferInfo* command_buffer_info,
+                                                      VulkanEventInfo*         event_info,
+                                                      VkPipelineStageFlags2    stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, false);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::ApplyRecordedEventOps(const VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    for (const auto& [event_id, is_set] : command_buffer_info->recorded_event_ops)
+    {
+        if (auto* event_info = GetObjectInfoTable().GetVkEventInfo(event_id))
+        {
+            event_info->latched_set = is_set;
+        }
+    }
+}
+
+static void SetLatchedQueryAvailability(VulkanQueryPoolInfo* query_pool_info,
+                                        uint32_t             first_query,
+                                        uint32_t             query_count,
+                                        bool                 available)
+{
+    GFXRECON_ASSERT(query_pool_info != nullptr);
+
+    auto& latched = query_pool_info->latched_query_available;
+    if (latched.size() < first_query + query_count)
+    {
+        latched.resize(first_query + query_count, false);
+    }
+    std::fill_n(latched.begin() + first_query, query_count, available);
+}
+
+void VulkanReplayConsumerBase::ApplyRecordedQueryOps(const VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    for (const auto& op : command_buffer_info->recorded_query_ops)
+    {
+        if (auto* query_pool_info = GetObjectInfoTable().GetVkQueryPoolInfo(op.pool_id))
+        {
+            SetLatchedQueryAvailability(query_pool_info, op.first_query, op.query_count, op.available);
+        }
+    }
+}
+
 VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
                                                                VkResult                   original_result,
                                                                const VulkanDeviceInfo*    device_info,
@@ -4581,12 +4730,33 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
                                                                VkDeviceSize               stride,
                                                                VkQueryResultFlags         flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT(device_info != nullptr && query_pool_info != nullptr && pData != nullptr &&
                     pData->GetOutputPointer() != nullptr);
 
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
+
+    // A captured VK_SUCCESS must be reproduced at replay to preserve synchronization, but:
+    // wait only when the replayed stream makes all requested queries available -> avoid blocking forever.
+    // e.g. trim state-setup cannot restore all query-types and resets the remainder.
+    const auto& latched = query_pool_info->latched_query_available;
+    const bool  range_available =
+        firstQuery + queryCount <= latched.size() && std::all_of(latched.begin() + firstQuery,
+                                                                 latched.begin() + firstQuery + queryCount,
+                                                                 [](bool available) { return available; });
+
+    if (range_available)
+    {
+        if (original_result == VK_SUCCESS)
+        {
+            flags |= VK_QUERY_RESULT_WAIT_BIT;
+        }
+    }
+    else if (flags & VK_QUERY_RESULT_WAIT_BIT)
+    {
+        // an app-supplied wait the stream cannot satisfy would hang -> strip it, CheckResult warns on mismatch
+        flags &= ~VK_QUERY_RESULT_WAIT_BIT;
+    }
 
     const VkResult result =
         func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
@@ -4598,6 +4768,82 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
             device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
     }
     return result;
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndQuery(PFN_vkCmdEndQuery        func,
+                                                   VulkanCommandBufferInfo* command_buffer_info,
+                                                   VulkanQueryPoolInfo*     query_pool_info,
+                                                   uint32_t                 query)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, query_pool_info->handle, query);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndQueryIndexedEXT(PFN_vkCmdEndQueryIndexedEXT func,
+                                                             VulkanCommandBufferInfo*    command_buffer_info,
+                                                             VulkanQueryPoolInfo*        query_pool_info,
+                                                             uint32_t                    query,
+                                                             uint32_t                    index)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, query_pool_info->handle, query, index);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWriteTimestamp(PFN_vkCmdWriteTimestamp  func,
+                                                         VulkanCommandBufferInfo* command_buffer_info,
+                                                         VkPipelineStageFlagBits  pipelineStage,
+                                                         VulkanQueryPoolInfo*     query_pool_info,
+                                                         uint32_t                 query)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, pipelineStage, query_pool_info->handle, query);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWriteTimestamp2(PFN_vkCmdWriteTimestamp2 func,
+                                                          VulkanCommandBufferInfo* command_buffer_info,
+                                                          VkPipelineStageFlags2    stage,
+                                                          VulkanQueryPoolInfo*     query_pool_info,
+                                                          uint32_t                 query)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, stage, query_pool_info->handle, query);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetQueryPool(PFN_vkCmdResetQueryPool  func,
+                                                         VulkanCommandBufferInfo* command_buffer_info,
+                                                         VulkanQueryPoolInfo*     query_pool_info,
+                                                         uint32_t                 firstQuery,
+                                                         uint32_t                 queryCount)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, firstQuery, queryCount, false });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, query_pool_info->handle, firstQuery, queryCount);
+}
+
+void VulkanReplayConsumerBase::OverrideResetQueryPool(PFN_vkResetQueryPool    func,
+                                                      const VulkanDeviceInfo* device_info,
+                                                      VulkanQueryPoolInfo*    query_pool_info,
+                                                      uint32_t                firstQuery,
+                                                      uint32_t                queryCount)
+{
+    GFXRECON_ASSERT(device_info != nullptr && query_pool_info != nullptr);
+
+    SetLatchedQueryAvailability(query_pool_info, firstQuery, queryCount, false);
+    func(device_info->handle, query_pool_info->handle, firstQuery, queryCount);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
@@ -4800,6 +5046,23 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     {
         result = func(
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
+
+    // update terminal event-state / query-availability for the submitted command-buffers
+    if ((track_event_state_ || track_query_state_) && submit_info_data != nullptr)
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const auto command_buffer_ids = submit_info_data[i].pCommandBuffers.GetPointer();
+            for (size_t j = 0; j < submit_info_data[i].pCommandBuffers.GetLength(); ++j)
+            {
+                if (auto* cmd_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]))
+                {
+                    ApplyRecordedEventOps(cmd_buffer_info);
+                    ApplyRecordedQueryOps(cmd_buffer_info);
+                }
+            }
+        }
     }
 
     // The result to report to the event sink might be different from the
@@ -5069,6 +5332,24 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     {
         result = func(
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
+
+    // update terminal event-state / query-availability for the submitted command-buffers
+    if ((track_event_state_ || track_query_state_) && submit_info_data != nullptr)
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const auto command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            for (size_t j = 0; j < submit_info_data[i].pCommandBufferInfos->GetLength(); ++j)
+            {
+                if (auto* cmd_buffer_info =
+                        GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer))
+                {
+                    ApplyRecordedEventOps(cmd_buffer_info);
+                    ApplyRecordedQueryOps(cmd_buffer_info);
+                }
+            }
+        }
     }
 
     // The result to report to the event sink might be different from the
@@ -5826,6 +6107,16 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
             in_commandBuffer->addresses_to_replace.insert(secondary_cmd_buffer_info->addresses_to_replace.begin(),
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
+
+        // preserve set/reset event ordering from executed secondaries for submit-time state tracking
+        in_commandBuffer->recorded_event_ops.insert(in_commandBuffer->recorded_event_ops.end(),
+                                                    secondary_cmd_buffer_info->recorded_event_ops.begin(),
+                                                    secondary_cmd_buffer_info->recorded_event_ops.end());
+
+        // same for recorded query ops
+        in_commandBuffer->recorded_query_ops.insert(in_commandBuffer->recorded_query_ops.end(),
+                                                    secondary_cmd_buffer_info->recorded_query_ops.begin(),
+                                                    secondary_cmd_buffer_info->recorded_query_ops.end());
     }
     func(command_buffer, commandBufferCount, command_buffers);
 }
@@ -10141,6 +10432,9 @@ void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesK
     VkAccelerationStructureKHR* acceleration_structs = pAccelerationStructures->GetHandlePointer();
     VkQueryPool                 query_pool           = query_pool_info->handle;
 
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, firstQuery, count, true });
+    track_query_state_ = true;
+
     {
         auto& address_replacer = GetDeviceAddressReplacer(device_info);
         address_replacer.ProcessCmdWriteAccelerationStructuresPropertiesKHR(
@@ -10722,6 +11016,8 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->addresses_to_replace.clear();
     command_buffer_info->addresses_to_resolve.clear();
     command_buffer_info->in_rendering_scope = false;
+    command_buffer_info->recorded_event_ops.clear();
+    command_buffer_info->recorded_query_ops.clear();
 
     // free potential shadow-resources associated with this command-buffer
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
