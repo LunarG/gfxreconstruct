@@ -51,11 +51,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
 
-    void Process_vkResetCommandPool(const ApiCallInfo& call_info, args::ResetCommandPool& args) override;
-
-    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
-
     void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
+
+    void Process_vkFreeCommandBuffers(const ApiCallInfo& call_info, args::FreeCommandBuffers& args) override;
 
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
