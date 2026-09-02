@@ -2701,7 +2701,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     if (override_img_info != nullptr)
                     {
                         const VkImageLayout tracked_layout =
-                            override_img_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
+                            override_img_info->subresource_layouts.GetSubresourceLayout(
+                                VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
                         layer_layout = (tracked_layout != VK_IMAGE_LAYOUT_UNDEFINED)
                                            ? tracked_layout
                                            : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
@@ -2859,18 +2860,19 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                 };
             }
 
-            screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info,
-                                            GetInjectedDeviceCalls(device_info->handle),
-                                            memory_properties,
-                                            device_info->allocator.get(),
-                                            image_info->handle,
-                                            image_info->format,
-                                            image_info->extent.width,
-                                            image_info->extent.height,
-                                            0,
-                                            screenshot_scale,
-                                            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+            screenshot_handler_->WriteImage(
+                filename_prefix,
+                device_info,
+                GetInjectedDeviceCalls(device_info->handle),
+                memory_properties,
+                device_info->allocator.get(),
+                image_info->handle,
+                image_info->format,
+                image_info->extent.width,
+                image_info->extent.height,
+                0,
+                screenshot_scale,
+                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
         }
     }
 
@@ -6155,7 +6157,7 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
                 }
             }
         }
-      
+
         // preserve set/reset event ordering from executed secondaries for submit-time state tracking
         in_commandBuffer->recorded_event_ops.insert(in_commandBuffer->recorded_event_ops.end(),
                                                     secondary_cmd_buffer_info->recorded_event_ops.begin(),
@@ -12121,18 +12123,19 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                 };
             }
 
-            screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info,
-                                            GetInjectedDeviceCalls(device_info->handle),
-                                            memory_properties,
-                                            device_info->allocator.get(),
-                                            image_info->handle,
-                                            image_info->format,
-                                            image_info->extent.width,
-                                            image_info->extent.height,
-                                            0,
-                                            screenshot_scale,
-                                            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+            screenshot_handler_->WriteImage(
+                filename_prefix,
+                device_info,
+                GetInjectedDeviceCalls(device_info->handle),
+                memory_properties,
+                device_info->allocator.get(),
+                image_info->handle,
+                image_info->format,
+                image_info->extent.width,
+                image_info->extent.height,
+                0,
+                screenshot_scale,
+                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
         }
 
         screenshot_handler_->EndFrame();

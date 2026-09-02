@@ -1780,8 +1780,9 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             }
         }
 
-        const VkImageLayout current_layout = image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
-        auto                src_layout =
+        const VkImageLayout current_layout =
+            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+        auto src_layout =
             (current_layout != VK_IMAGE_LAYOUT_UNDEFINED) ? current_layout : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         graphics::VulkanResourcesUtil::blit_image_params_t blit_params = {};

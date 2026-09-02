@@ -59,9 +59,8 @@ class ImageLayoutMap
     void MergeFrom(const ImageLayoutMap& src);
 
     // Layout of a single subresource, or VK_IMAGE_LAYOUT_UNDEFINED if the image has no such aspect.
-    [[nodiscard]] VkImageLayout GetSubresourceLayout(VkImageAspectFlagBits aspect,
-                                                      uint32_t              mip_level,
-                                                      uint32_t              array_layer) const;
+    [[nodiscard]] VkImageLayout
+    GetSubresourceLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const;
 
   private:
     // Highest slot supported for aspect.
