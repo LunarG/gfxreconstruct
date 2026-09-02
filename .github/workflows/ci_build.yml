@@ -102,7 +102,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev
     - uses: lukka/get-cmake@latest
       with:
         cmakeVersion: 3.24
@@ -145,6 +145,36 @@ jobs:
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
+
+  linux-compression-installed:
+    name: "Ubuntu GCC Release (installed compression libs)"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Require Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - run: pip install pyparsing
+    - name: Clone repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.9
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: 3.24
+    - name: Run build script
+      run: |
+        python3 scripts/build.py --config release --skip-check-code-style --parallel 0 --cmake-extra "GFXRECON_COMPRESSION_FROM_SOURCE=OFF"
+      env:
+        SCCACHE_GHA_ENABLED: on
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
   windows:
     name: ${{ matrix.config.name }}
@@ -227,6 +257,35 @@ jobs:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
 
+  windows-compression-installed:
+    name: "Windows MSVC Release (installed compression libs)"
+    runs-on: windows-latest
+    steps:
+    - name: Require Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install Ply Python Module
+      run: pip install ply
+    - name: Run with VsDevCmd
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Install SDK 26100
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      with:
+        sdk-version: 26100
+    - name: Set WindowsSDKVersion
+      run:
+        echo ("WindowsSDKVersion=10.0.26100.0\") >> $env:GITHUB_ENV
+    - name: Clone repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install compression libs via vcpkg
+      run: vcpkg install zlib lz4 zstd --triplet x64-windows
+    - name: Run build script
+      run: |
+        python scripts\build.py --skip-check-code-style --config release --parallel 0 --cmake-extra "GFXRECON_COMPRESSION_FROM_SOURCE=OFF" --cmake-extra "CMAKE_PREFIX_PATH=$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows"
+
   macOS:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
@@ -257,18 +316,9 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v3
-      with:
-        path: ~/deps
-        key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
-    - name: Build dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
+        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
       env:
         SCCACHE_GHA_ENABLED: on
         SCCACHE_CACHE_MULTIARCH: on
@@ -322,6 +372,35 @@ jobs:
       with:
         name: ${{ matrix.config.artifact }}
         path: ${{ matrix.config.artifact }}.zip
+
+  macOS-compression-installed:
+    name: "macOS Release (installed compression libs)"
+    runs-on: macos-latest
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.9
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v3
+      with:
+        path: ~/deps
+        key: macos-latest deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
+    - name: Build dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: .github/workflows/scripts/build-dependencies-macos.sh
+    - name: Run build script
+      run: |
+        python3 scripts/build.py --skip-check-code-style --config release --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --cmake-extra "GFXRECON_COMPRESSION_FROM_SOURCE=OFF" --parallel 0
+      env:
+        SCCACHE_GHA_ENABLED: on
+        SCCACHE_CACHE_MULTIARCH: on
+        SCCACHE_IDLE_TIMEOUT: 0
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
   android:
     name: ${{ matrix.config.name }}
