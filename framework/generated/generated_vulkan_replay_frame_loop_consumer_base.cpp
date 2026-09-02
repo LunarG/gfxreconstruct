@@ -586,6 +586,30 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(
+    const ApiCallInfo&                          call_info,
+    args::CreateCommandPool&                    args)
+{
+    // Check for null cases
+    if (args.pCommandPool.IsNull())
+    {
+        return;
+    }
+    format::HandleId handle = *args.pCommandPool.GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
+    {
+        VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, args);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     const ApiCallInfo&                          call_info,
     args::DestroyCommandPool&                   args)
@@ -629,18 +653,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
         return;
     }
     VulkanReplayConsumer::Process_vkAllocateCommandBuffers(call_info, args);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
-    const ApiCallInfo&                          call_info,
-    args::FreeCommandBuffers&                   args)
-{
-    // Only record command buffer commands on first iteration of looping frame.
-    if (getFrameLoopInfo().IsRepetition())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkEndCommandBuffer(
