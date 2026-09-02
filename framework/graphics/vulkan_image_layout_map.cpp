@@ -189,7 +189,9 @@ void ImageLayoutMap::MergeFrom(const ImageLayoutMap& src)
     }
 }
 
-VkImageLayout ImageLayoutMap::GetLayout(VkImageAspectFlagBits aspect, uint32_t mip_level, uint32_t array_layer) const
+VkImageLayout ImageLayoutMap::GetSubresourceLayout(VkImageAspectFlagBits aspect,
+                                                    uint32_t              mip_level,
+                                                    uint32_t              array_layer) const
 {
     if ((aspect & aspects_) == 0 || (mip_level >= mip_levels_) || (array_layer >= array_layers_))
     {

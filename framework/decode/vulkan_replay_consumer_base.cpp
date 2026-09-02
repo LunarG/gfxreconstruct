@@ -2812,7 +2812,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     if (override_img_info != nullptr)
                     {
                         const VkImageLayout tracked_layout =
-                            override_img_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
+                            override_img_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
                         layer_layout = (tracked_layout != VK_IMAGE_LAYOUT_UNDEFINED)
                                            ? tracked_layout
                                            : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
@@ -2915,7 +2915,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                         image_info->extent.height,
                         0,
                         screenshot_scale,
-                        image_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
+                        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
                         VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
@@ -2981,7 +2981,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                                             image_info->extent.height,
                                             0,
                                             screenshot_scale,
-                                            image_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+                                            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
         }
     }
 
@@ -11906,7 +11906,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                                             image_info->extent.height,
                                             0,
                                             screenshot_scale,
-                                            image_info->subresource_layouts.GetLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+                                            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
         }
 
         screenshot_handler_->EndFrame();

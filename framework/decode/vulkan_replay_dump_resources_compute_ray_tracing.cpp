@@ -600,7 +600,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     const auto img_layout_entry = original_command_buffer_info_->image_layout_barriers.find(src_image_info->capture_id);
     if (img_layout_entry != original_command_buffer_info_->image_layout_barriers.end())
     {
-        const VkImageLayout command_buffer_layout = img_layout_entry->second.GetLayout(first_aspect, 0, 0);
+        const VkImageLayout command_buffer_layout = img_layout_entry->second.GetSubresourceLayout(first_aspect, 0, 0);
         if (command_buffer_layout != VK_IMAGE_LAYOUT_UNDEFINED)
         {
             old_layout = command_buffer_layout;
