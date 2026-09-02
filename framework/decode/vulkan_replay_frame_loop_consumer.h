@@ -73,6 +73,47 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override;
     void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
 
+    // Buffer queue-family ownership tracking (VK_SHARING_MODE_EXCLUSIVE only). See BufferTracking below.
+    void Process_vkCmdCopyBuffer(const ApiCallInfo& call_info, args::CmdCopyBuffer& args) override;
+    void Process_vkCmdCopyBuffer2(const ApiCallInfo& call_info, args::CmdCopyBuffer2& args) override;
+    void Process_vkCmdCopyBuffer2KHR(const ApiCallInfo& call_info, args::CmdCopyBuffer2KHR& args) override;
+    void Process_vkCmdFillBuffer(const ApiCallInfo& call_info, args::CmdFillBuffer& args) override;
+    void Process_vkCmdUpdateBuffer(const ApiCallInfo& call_info, args::CmdUpdateBuffer& args) override;
+    void Process_vkCmdBindVertexBuffers(const ApiCallInfo& call_info, args::CmdBindVertexBuffers& args) override;
+    void Process_vkCmdBindVertexBuffers2(const ApiCallInfo& call_info, args::CmdBindVertexBuffers2& args) override;
+    void Process_vkCmdBindVertexBuffers2EXT(const ApiCallInfo&              call_info,
+                                            args::CmdBindVertexBuffers2EXT& args) override;
+    void Process_vkCmdBindIndexBuffer(const ApiCallInfo& call_info, args::CmdBindIndexBuffer& args) override;
+    void Process_vkCmdBindIndexBuffer2(const ApiCallInfo& call_info, args::CmdBindIndexBuffer2& args) override;
+    void Process_vkCmdBindIndexBuffer2KHR(const ApiCallInfo& call_info, args::CmdBindIndexBuffer2KHR& args) override;
+    void Process_vkCmdDrawIndirect(const ApiCallInfo& call_info, args::CmdDrawIndirect& args) override;
+    void Process_vkCmdDrawIndexedIndirect(const ApiCallInfo& call_info, args::CmdDrawIndexedIndirect& args) override;
+    void Process_vkCmdDrawIndirectCount(const ApiCallInfo& call_info, args::CmdDrawIndirectCount& args) override;
+    void Process_vkCmdDrawIndirectCountKHR(const ApiCallInfo& call_info, args::CmdDrawIndirectCountKHR& args) override;
+    void Process_vkCmdDrawIndexedIndirectCount(const ApiCallInfo&                 call_info,
+                                               args::CmdDrawIndexedIndirectCount& args) override;
+    void Process_vkCmdDrawIndexedIndirectCountKHR(const ApiCallInfo&                    call_info,
+                                                  args::CmdDrawIndexedIndirectCountKHR& args) override;
+    void Process_vkCmdDispatchIndirect(const ApiCallInfo& call_info, args::CmdDispatchIndirect& args) override;
+    void Process_vkCmdCopyBufferToImage(const ApiCallInfo& call_info, args::CmdCopyBufferToImage& args) override;
+    void Process_vkCmdCopyBufferToImage2(const ApiCallInfo& call_info, args::CmdCopyBufferToImage2& args) override;
+    void Process_vkCmdCopyBufferToImage2KHR(const ApiCallInfo&              call_info,
+                                            args::CmdCopyBufferToImage2KHR& args) override;
+    void Process_vkCmdCopyImageToBuffer(const ApiCallInfo& call_info, args::CmdCopyImageToBuffer& args) override;
+    void Process_vkCmdCopyImageToBuffer2(const ApiCallInfo& call_info, args::CmdCopyImageToBuffer2& args) override;
+    void Process_vkCmdCopyImageToBuffer2KHR(const ApiCallInfo&              call_info,
+                                            args::CmdCopyImageToBuffer2KHR& args) override;
+    void Process_vkCmdCopyQueryPoolResults(const ApiCallInfo& call_info, args::CmdCopyQueryPoolResults& args) override;
+    void Process_vkCmdPipelineBarrier(const ApiCallInfo& call_info, args::CmdPipelineBarrier& args) override;
+    void Process_vkCmdPipelineBarrier2(const ApiCallInfo& call_info, args::CmdPipelineBarrier2& args) override;
+    void Process_vkCmdPipelineBarrier2KHR(const ApiCallInfo& call_info, args::CmdPipelineBarrier2KHR& args) override;
+    void Process_vkCmdWaitEvents(const ApiCallInfo& call_info, args::CmdWaitEvents& args) override;
+    void Process_vkCmdWaitEvents2(const ApiCallInfo& call_info, args::CmdWaitEvents2& args) override;
+    void Process_vkCmdWaitEvents2KHR(const ApiCallInfo& call_info, args::CmdWaitEvents2KHR& args) override;
+    void Process_vkCmdExecuteCommands(const ApiCallInfo& call_info, args::CmdExecuteCommands& args) override;
+    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+    void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
+
     void Process_vkCreateSemaphore(const ApiCallInfo& call_info, args::CreateSemaphore& args) override;
     void Process_vkDestroySemaphore(const ApiCallInfo& call_info, args::DestroySemaphore& args) override;
 
@@ -189,7 +230,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
-        void Restore(uint32_t queue_family_index);
+        void Restore(bool is_first_iteration);
         void DestroyShadowBuffers();
 
         format::HandleId                                   device_id_;
@@ -198,13 +239,37 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         std::shared_ptr<VulkanResourceAllocator>           allocator_;
         const VkPhysicalDeviceMemoryProperties*            memory_properties_;
         std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+
+        std::unordered_map<uint32_t, std::vector<format::HandleId>> buffer_ids_by_family_;
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
     void            RecordBufferStates();
-    void            FixupDeviceBuffers(format::HandleId device, format::HandleId queue);
+    void            FixupDeviceBuffers(format::HandleId device);
     void            ResetBufferTracking();
     void            ResetBufferTracking(format::HandleId device);
+
+    // Direct/first-use tracking for a single buffer referenced by command_buffer_id
+    void TrackBufferQueueFamilyUsage(format::HandleId command_buffer_id, format::HandleId buffer_id);
+
+    // Explicit queue-family-ownership-transfer tracking from a VkBufferMemoryBarrier
+    void TrackBufferQueueFamilyTransfer(format::HandleId command_buffer_id,
+                                        format::HandleId buffer_id,
+                                        uint32_t         src_queue_family_index,
+                                        uint32_t         dst_queue_family_index);
+    void TrackBufferOwnershipTransfers(format::HandleId                command_buffer_id,
+                                       const Decoded_VkDependencyInfo* dependency_info_meta);
+
+    void TrackBufferMemoryBarrierTransfers(format::HandleId                                          command_buffer_id,
+                                           const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>&  barriers);
+    void TrackBufferMemoryBarrierTransfers(format::HandleId                                           command_buffer_id,
+                                           const StructPointerDecoder<Decoded_VkBufferMemoryBarrier2>& barriers);
+
+    // Commits command_buffer_id's pending buffer_queue_family_touches onto
+    // VulkanBufferInfo::current_queue_family_index
+    void ApplyBufferQueueFamilyOwnership(format::HandleId command_buffer_id);
+    void ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo>& submits);
+    void ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo2>& submits);
 
     // Private data
   private:

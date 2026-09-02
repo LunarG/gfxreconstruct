@@ -23,6 +23,7 @@
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_temporary_objects.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
 
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -364,6 +365,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     if (create_info != nullptr)
     {
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+        if (auto* usage_flags2_info =
+                graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfoKHR>(create_info))
+        {
+            usage_flags2_info->usage |= VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT_KHR | VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR;
+        }
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(call_info, args);
@@ -509,7 +516,7 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
     }
 }
 
-void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device, format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device)
 {
     auto it = per_device_buffer_tracking_.find(device);
     if (it == per_device_buffer_tracking_.end() || it->second.shadow_buffers_.empty())
@@ -517,16 +524,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device, 
         return;
     }
 
-    VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(queue);
-    if (queue_info == nullptr)
-    {
-        GFXRECON_LOG_ERROR("FixupDeviceBuffers: Could not find queue info for queue %" PRIu64
-                           "; buffer contents will not be restored.",
-                           queue);
-        return;
-    }
-
-    it->second.Restore(queue_info->family_index);
+    it->second.Restore(frame_loop_info_.IsFirstIteration());
 }
 
 void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std::vector<format::HandleId>& buffer_ids)
@@ -539,13 +537,11 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
     VulkanDeviceInfo* device_info = object_table_.GetVkDeviceInfo(device_id_);
     GFXRECON_ASSERT(device_info != nullptr);
 
-    TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
-    if (temp_cmd_buff.CreateAndBegin(graphics::FindGraphicsOrComputeQueueFamilyIndex) != VK_SUCCESS)
-    {
-        return;
-    }
+    const uint32_t fallback_queue_family_index =
+        graphics::FindGraphicsOrComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
 
-    uint32_t copy_count = 0;
+    // Group buffers by the queue family
+    std::unordered_map<uint32_t, std::vector<format::HandleId>> buffer_ids_by_family;
     for (format::HandleId buffer_id : buffer_ids)
     {
         if (shadow_buffers_.contains(buffer_id))
@@ -559,88 +555,120 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             continue;
         }
 
-        VkBufferCreateInfo create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        create_info.size               = buffer_info->size;
-        create_info.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
-
-        ShadowBuffer shadow;
-        shadow.size = buffer_info->size;
-
-        VkResult result = allocator_->CreateBufferDirect(&create_info, nullptr, &shadow.buffer, &shadow.alloc_data);
-        if (result != VK_SUCCESS)
+        uint32_t family = fallback_queue_family_index;
+        if ((buffer_info->sharing_mode == VK_SHARING_MODE_EXCLUSIVE) &&
+            (buffer_info->current_queue_family_index != VK_QUEUE_FAMILY_IGNORED))
         {
-            GFXRECON_LOG_WARNING("Failed to create shadow buffer for buffer %" PRIu64 " (size %" PRIu64
-                                 ") with %s; its contents will not be restored across loop repetitions.",
-                                 buffer_id,
-                                 buffer_info->size,
-                                 util::ToString(result).c_str());
-            continue;
+            family = buffer_info->current_queue_family_index;
         }
 
-        VkMemoryRequirements mem_reqs;
-        device_table_.GetBufferMemoryRequirements(device_info->handle, shadow.buffer, &mem_reqs);
-
-        uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
-            *memory_properties_, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        if (memory_type_index == std::numeric_limits<uint32_t>::max())
-        {
-            memory_type_index = graphics::GetMemoryTypeIndex(*memory_properties_, mem_reqs.memoryTypeBits, 0);
-        }
-        if (memory_type_index == std::numeric_limits<uint32_t>::max())
-        {
-            GFXRECON_LOG_WARNING("No suitable memory type for shadow buffer for buffer %" PRIu64
-                                 "; its contents will not be restored across loop repetitions.",
-                                 buffer_id);
-            allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
-            continue;
-        }
-
-        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        alloc_info.allocationSize       = mem_reqs.size;
-        alloc_info.memoryTypeIndex      = memory_type_index;
-
-        result = allocator_->AllocateMemoryDirect(&alloc_info, nullptr, &shadow.memory, &shadow.mem_data);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_WARNING("Failed to allocate shadow memory for buffer %" PRIu64 " (size %" PRIu64
-                                 ") with %s; its contents will not be restored across loop "
-                                 "repetitions.",
-                                 buffer_id,
-                                 mem_reqs.size,
-                                 util::ToString(result).c_str());
-            allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
-            continue;
-        }
-
-        VkMemoryPropertyFlags bind_properties = 0;
-        result                                = allocator_->BindBufferMemoryDirect(
-            shadow.buffer, shadow.memory, 0, shadow.alloc_data, shadow.mem_data, &bind_properties);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_WARNING("Failed to bind shadow memory for buffer %" PRIu64
-                                 " with %s; its contents will not be restored across loop repetitions.",
-                                 buffer_id,
-                                 util::ToString(result).c_str());
-            allocator_->FreeMemoryDirect(shadow.memory, nullptr, shadow.mem_data);
-            allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
-            continue;
-        }
-
-        VkBufferCopy region = { 0, 0, buffer_info->size };
-        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
-
-        shadow_buffers_[buffer_id] = shadow;
-        ++copy_count;
+        buffer_ids_by_family[family].push_back(buffer_id);
     }
 
-    if (copy_count > 0)
+    for (const auto& [family, family_buffer_ids] : buffer_ids_by_family)
     {
-        CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "vkQueueSubmit");
+        TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
+        if (temp_cmd_buff.CreateAndBegin(family) != VK_SUCCESS)
+        {
+            GFXRECON_LOG_WARNING("RecordInitialState: Could not create a snapshot command buffer on queue family "
+                                 "%u; %zu buffer(s) will not be restored across loop repetitions.",
+                                 family,
+                                 family_buffer_ids.size());
+            continue;
+        }
+
+        uint32_t copy_count = 0;
+        for (format::HandleId buffer_id : family_buffer_ids)
+        {
+            const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(buffer_id);
+            if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE)
+            {
+                continue;
+            }
+
+            VkBufferCreateInfo create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+            create_info.size               = buffer_info->size;
+            create_info.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+            create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+            ShadowBuffer shadow;
+            shadow.size = buffer_info->size;
+
+            VkResult result = allocator_->CreateBufferDirect(&create_info, nullptr, &shadow.buffer, &shadow.alloc_data);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Failed to create shadow buffer for buffer %" PRIu64 " (size %" PRIu64
+                                     ") with %s; its contents will not be restored across loop repetitions.",
+                                     buffer_id,
+                                     buffer_info->size,
+                                     util::ToString(result).c_str());
+                continue;
+            }
+
+            VkMemoryRequirements mem_reqs;
+            device_table_.GetBufferMemoryRequirements(device_info->handle, shadow.buffer, &mem_reqs);
+
+            uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
+                *memory_properties_, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            if (memory_type_index == std::numeric_limits<uint32_t>::max())
+            {
+                memory_type_index = graphics::GetMemoryTypeIndex(*memory_properties_, mem_reqs.memoryTypeBits, 0);
+            }
+            if (memory_type_index == std::numeric_limits<uint32_t>::max())
+            {
+                GFXRECON_LOG_WARNING("No suitable memory type for shadow buffer for buffer %" PRIu64
+                                     "; its contents will not be restored across loop repetitions.",
+                                     buffer_id);
+                allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
+                continue;
+            }
+
+            VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+            alloc_info.allocationSize       = mem_reqs.size;
+            alloc_info.memoryTypeIndex      = memory_type_index;
+
+            result = allocator_->AllocateMemoryDirect(&alloc_info, nullptr, &shadow.memory, &shadow.mem_data);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Failed to allocate shadow memory for buffer %" PRIu64 " (size %" PRIu64
+                                     ") with %s; its contents will not be restored across loop "
+                                     "repetitions.",
+                                     buffer_id,
+                                     mem_reqs.size,
+                                     util::ToString(result).c_str());
+                allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
+                continue;
+            }
+
+            VkMemoryPropertyFlags bind_properties = 0;
+            result                                = allocator_->BindBufferMemoryDirect(
+                shadow.buffer, shadow.memory, 0, shadow.alloc_data, shadow.mem_data, &bind_properties);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Failed to bind shadow memory for buffer %" PRIu64
+                                     " with %s; its contents will not be restored across loop repetitions.",
+                                     buffer_id,
+                                     util::ToString(result).c_str());
+                allocator_->FreeMemoryDirect(shadow.memory, nullptr, shadow.mem_data);
+                allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
+                continue;
+            }
+
+            VkBufferCopy region = { 0, 0, buffer_info->size };
+            device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
+
+            shadow_buffers_[buffer_id] = shadow;
+            ++copy_count;
+        }
+
+        if (copy_count > 0)
+        {
+            CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "vkQueueSubmit");
+        }
     }
 }
 
-void VulkanReplayFrameLoopConsumer::BufferTracking::Restore(uint32_t queue_family_index)
+void VulkanReplayFrameLoopConsumer::BufferTracking::Restore(bool is_first_iteration)
 {
     if (shadow_buffers_.empty())
     {
@@ -650,30 +678,64 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore(uint32_t queue_famil
     VulkanDeviceInfo* device_info = object_table_.GetVkDeviceInfo(device_id_);
     GFXRECON_ASSERT(device_info != nullptr);
 
-    TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
-    if (temp_cmd_buff.CreateAndBegin(queue_family_index) != VK_SUCCESS)
+    const uint32_t fallback_queue_family_index =
+        graphics::FindGraphicsOrComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
+
+    // Group shadow buffers by the queue family. 
+    if (is_first_iteration)
     {
-        return;
+        buffer_ids_by_family_.clear();
+        for (const auto& [buffer_id, shadow] : shadow_buffers_)
+        {
+            const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(buffer_id);
+            if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE)
+            {
+                continue;
+            }
+
+            uint32_t family = fallback_queue_family_index;
+            if ((buffer_info->sharing_mode == VK_SHARING_MODE_EXCLUSIVE) &&
+                (buffer_info->current_queue_family_index != VK_QUEUE_FAMILY_IGNORED))
+            {
+                family = buffer_info->current_queue_family_index;
+            }
+
+            buffer_ids_by_family_[family].push_back(buffer_id);
+        }
     }
 
-    uint32_t restore_count = 0;
-    for (const auto& [buffer_id, shadow] : shadow_buffers_)
+    for (const auto& [family, buffer_ids] : buffer_ids_by_family_)
     {
-        const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(buffer_id);
-        if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE)
+        TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
+        if (temp_cmd_buff.CreateAndBegin(family) != VK_SUCCESS)
         {
+            GFXRECON_LOG_WARNING("BufferTracking::Restore: Could not create a restore command buffer on queue "
+                                 "family %u; %zu buffer(s) will not be restored across loop repetitions.",
+                                 family,
+                                 buffer_ids.size());
             continue;
         }
 
-        VkBufferCopy region = { 0, 0, shadow.size };
-        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, shadow.buffer, buffer_info->handle, 1, &region);
-        ++restore_count;
-    }
+        uint32_t restore_count = 0;
+        for (format::HandleId buffer_id : buffer_ids)
+        {
+            const auto&             shadow      = shadow_buffers_.at(buffer_id);
+            const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(buffer_id);
+            if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE)
+            {
+                continue;
+            }
 
-    // No need to submit anything if there are no buffers to restore.
-    if (restore_count > 0)
-    {
-        CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "vkQueueSubmit");
+            VkBufferCopy region = { 0, 0, shadow.size };
+            device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, shadow.buffer, buffer_info->handle, 1, &region);
+            ++restore_count;
+        }
+
+        // No need to submit anything if there are no buffers to restore.
+        if (restore_count > 0)
+        {
+            CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "vkQueueSubmit");
+        }
     }
 }
 
@@ -694,6 +756,503 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::DestroyShadowBuffers()
         }
     }
     shadow_buffers_.clear();
+}
+
+void VulkanReplayFrameLoopConsumer::TrackBufferQueueFamilyUsage(format::HandleId command_buffer_id,
+                                                                format::HandleId buffer_id)
+{
+    if (buffer_id == format::kNullHandleId)
+    {
+        return;
+    }
+
+    CommonObjectInfoTable& table = GetObjectInfoTable();
+
+    VulkanBufferInfo* buffer_info = table.GetVkBufferInfo(buffer_id);
+    if (buffer_info == nullptr || buffer_info->sharing_mode != VK_SHARING_MODE_EXCLUSIVE)
+    {
+        return;
+    }
+
+    VulkanCommandBufferInfo* cb_info = table.GetVkCommandBufferInfo(command_buffer_id);
+    if (cb_info == nullptr)
+    {
+        return;
+    }
+
+    const VulkanCommandPoolInfo* pool_info = table.GetVkCommandPoolInfo(cb_info->pool_id);
+    if (pool_info == nullptr || pool_info->queue_family_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        return;
+    }
+
+    cb_info->buffer_queue_family_touches[buffer_id] = pool_info->queue_family_index;
+}
+
+void VulkanReplayFrameLoopConsumer::TrackBufferQueueFamilyTransfer(format::HandleId command_buffer_id,
+                                                                   format::HandleId buffer_id,
+                                                                   uint32_t         src_queue_family_index,
+                                                                   uint32_t         dst_queue_family_index)
+{
+    if (buffer_id == format::kNullHandleId || src_queue_family_index == dst_queue_family_index)
+    {
+        return;
+    }
+
+    auto is_sentinel = [](uint32_t family) {
+        return (family == VK_QUEUE_FAMILY_IGNORED) || (family == VK_QUEUE_FAMILY_EXTERNAL) ||
+               (family == VK_QUEUE_FAMILY_FOREIGN_EXT);
+    };
+    if (is_sentinel(src_queue_family_index) || is_sentinel(dst_queue_family_index))
+    {
+        // Not a transfer between two real queue families on this device
+        return;
+    }
+
+    CommonObjectInfoTable& table       = GetObjectInfoTable();
+    VulkanBufferInfo*      buffer_info = table.GetVkBufferInfo(buffer_id);
+    if (buffer_info == nullptr || buffer_info->sharing_mode != VK_SHARING_MODE_EXCLUSIVE)
+    {
+        return;
+    }
+
+    VulkanCommandBufferInfo* cb_info = table.GetVkCommandBufferInfo(command_buffer_id);
+    if (cb_info == nullptr)
+    {
+        return;
+    }
+
+    cb_info->buffer_queue_family_touches[buffer_id] = dst_queue_family_index;
+}
+
+void VulkanReplayFrameLoopConsumer::TrackBufferOwnershipTransfers(format::HandleId                command_buffer_id,
+                                                                  const Decoded_VkDependencyInfo* dependency_info_meta)
+{
+    if (dependency_info_meta == nullptr || dependency_info_meta->pBufferMemoryBarriers == nullptr)
+    {
+        return;
+    }
+
+    TrackBufferMemoryBarrierTransfers(command_buffer_id, *dependency_info_meta->pBufferMemoryBarriers);
+}
+
+void VulkanReplayFrameLoopConsumer::TrackBufferMemoryBarrierTransfers(
+    format::HandleId command_buffer_id, const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>& barriers)
+{
+    const auto* meta = barriers.GetMetaStructPointer();
+    const auto* raw  = barriers.GetPointer();
+    if (meta == nullptr || raw == nullptr)
+    {
+        return;
+    }
+
+    const size_t count = barriers.GetLength();
+    for (size_t i = 0; i < count; ++i)
+    {
+        TrackBufferQueueFamilyTransfer(
+            command_buffer_id, meta[i].buffer, raw[i].srcQueueFamilyIndex, raw[i].dstQueueFamilyIndex);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::TrackBufferMemoryBarrierTransfers(
+    format::HandleId command_buffer_id, const StructPointerDecoder<Decoded_VkBufferMemoryBarrier2>& barriers)
+{
+    const auto* meta = barriers.GetMetaStructPointer();
+    const auto* raw  = barriers.GetPointer();
+    if (meta == nullptr || raw == nullptr)
+    {
+        return;
+    }
+
+    const size_t count = barriers.GetLength();
+    for (size_t i = 0; i < count; ++i)
+    {
+        TrackBufferQueueFamilyTransfer(
+            command_buffer_id, meta[i].buffer, raw[i].srcQueueFamilyIndex, raw[i].dstQueueFamilyIndex);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ApplyBufferQueueFamilyOwnership(format::HandleId command_buffer_id)
+{
+    CommonObjectInfoTable&   table   = GetObjectInfoTable();
+    VulkanCommandBufferInfo* cb_info = table.GetVkCommandBufferInfo(command_buffer_id);
+    if (cb_info == nullptr || cb_info->buffer_queue_family_touches.empty())
+    {
+        return;
+    }
+
+    for (const auto& [buffer_id, family_index] : cb_info->buffer_queue_family_touches)
+    {
+        VulkanBufferInfo* buffer_info = table.GetVkBufferInfo(buffer_id);
+        if (buffer_info != nullptr)
+        {
+            buffer_info->current_queue_family_index = family_index;
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ApplyBufferQueueFamilyOwnership(StructPointerDecoder<Decoded_VkSubmitInfo>& submits)
+{
+    for (const Decoded_VkSubmitInfo& submit : submits.GetMetaStructSpan())
+    {
+        const format::HandleId* command_buffer_ids   = submit.pCommandBuffers.GetPointer();
+        size_t                  command_buffer_count = submit.pCommandBuffers.GetLength();
+        for (size_t i = 0; i < command_buffer_count; ++i)
+        {
+            ApplyBufferQueueFamilyOwnership(command_buffer_ids[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ApplyBufferQueueFamilyOwnership(
+    StructPointerDecoder<Decoded_VkSubmitInfo2>& submits)
+{
+    for (const Decoded_VkSubmitInfo2& submit : submits.GetMetaStructSpan())
+    {
+        if (submit.pCommandBufferInfos == nullptr)
+        {
+            continue;
+        }
+
+        const auto* command_buffer_infos = submit.pCommandBufferInfos->GetMetaStructPointer();
+        size_t      command_buffer_count = submit.pCommandBufferInfos->GetLength();
+        for (size_t i = 0; i < command_buffer_count; ++i)
+        {
+            ApplyBufferQueueFamilyOwnership(command_buffer_infos[i].commandBuffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyBuffer(const ApiCallInfo& call_info, args::CmdCopyBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.srcBuffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyBuffer2(const ApiCallInfo& call_info, args::CmdCopyBuffer2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer2(call_info, args);
+    const auto* info = args.pCopyBufferInfo.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->srcBuffer);
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyBuffer2KHR(const ApiCallInfo&       call_info,
+                                                                args::CmdCopyBuffer2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(call_info, args);
+    const auto* info = args.pCopyBufferInfo.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->srcBuffer);
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdFillBuffer(const ApiCallInfo& call_info, args::CmdFillBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkCmdFillBuffer(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdUpdateBuffer(const ApiCallInfo& call_info, args::CmdUpdateBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkCmdUpdateBuffer(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindVertexBuffers(const ApiCallInfo&          call_info,
+                                                                   args::CmdBindVertexBuffers& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindVertexBuffers(call_info, args);
+    const format::HandleId* buffers = args.pBuffers.GetPointer();
+    if (buffers != nullptr)
+    {
+        for (uint32_t i = 0; i < args.bindingCount; ++i)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, buffers[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindVertexBuffers2(const ApiCallInfo&           call_info,
+                                                                    args::CmdBindVertexBuffers2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindVertexBuffers2(call_info, args);
+    const format::HandleId* buffers = args.pBuffers.GetPointer();
+    if (buffers != nullptr)
+    {
+        for (uint32_t i = 0; i < args.bindingCount; ++i)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, buffers[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindVertexBuffers2EXT(const ApiCallInfo&              call_info,
+                                                                       args::CmdBindVertexBuffers2EXT& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindVertexBuffers2EXT(call_info, args);
+    const format::HandleId* buffers = args.pBuffers.GetPointer();
+    if (buffers != nullptr)
+    {
+        for (uint32_t i = 0; i < args.bindingCount; ++i)
+        {
+            TrackBufferQueueFamilyUsage(args.commandBuffer, buffers[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindIndexBuffer(const ApiCallInfo&        call_info,
+                                                                 args::CmdBindIndexBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindIndexBuffer(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindIndexBuffer2(const ApiCallInfo&         call_info,
+                                                                  args::CmdBindIndexBuffer2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindIndexBuffer2(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdBindIndexBuffer2KHR(const ApiCallInfo&            call_info,
+                                                                     args::CmdBindIndexBuffer2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindIndexBuffer2KHR(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndirect(const ApiCallInfo& call_info, args::CmdDrawIndirect& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndirect(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndexedIndirect(const ApiCallInfo&            call_info,
+                                                                     args::CmdDrawIndexedIndirect& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirect(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndirectCount(const ApiCallInfo&          call_info,
+                                                                   args::CmdDrawIndirectCount& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndirectCount(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndirectCountKHR(const ApiCallInfo&             call_info,
+                                                                      args::CmdDrawIndirectCountKHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndirectCountKHR(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndexedIndirectCount(const ApiCallInfo&                 call_info,
+                                                                          args::CmdDrawIndexedIndirectCount& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCount(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(const ApiCallInfo& call_info,
+                                                                             args::CmdDrawIndexedIndirectCountKHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDispatchIndirect(const ApiCallInfo&         call_info,
+                                                                  args::CmdDispatchIndirect& args)
+{
+    VulkanReplayConsumer::Process_vkCmdDispatchIndirect(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyBufferToImage(const ApiCallInfo&          call_info,
+                                                                   args::CmdCopyBufferToImage& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBufferToImage(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.srcBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyBufferToImage2(const ApiCallInfo&           call_info,
+                                                                    args::CmdCopyBufferToImage2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2(call_info, args);
+    const auto* info = args.pCopyBufferToImageInfo.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->srcBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyBufferToImage2KHR(const ApiCallInfo&              call_info,
+                                                                       args::CmdCopyBufferToImage2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2KHR(call_info, args);
+    const auto* info = args.pCopyBufferToImageInfo.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->srcBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyImageToBuffer(const ApiCallInfo&          call_info,
+                                                                   args::CmdCopyImageToBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyImageToBuffer2(const ApiCallInfo&           call_info,
+                                                                    args::CmdCopyImageToBuffer2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2(call_info, args);
+    const auto* info = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyImageToBuffer2KHR(const ApiCallInfo&              call_info,
+                                                                       args::CmdCopyImageToBuffer2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2KHR(call_info, args);
+    const auto* info = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+    if (info != nullptr)
+    {
+        TrackBufferQueueFamilyUsage(args.commandBuffer, info->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdCopyQueryPoolResults(const ApiCallInfo&             call_info,
+                                                                      args::CmdCopyQueryPoolResults& args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(call_info, args);
+    TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdPipelineBarrier(const ApiCallInfo&        call_info,
+                                                                 args::CmdPipelineBarrier& args)
+{
+    VulkanReplayConsumer::Process_vkCmdPipelineBarrier(call_info, args);
+    TrackBufferMemoryBarrierTransfers(args.commandBuffer, args.pBufferMemoryBarriers);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdPipelineBarrier2(const ApiCallInfo&         call_info,
+                                                                  args::CmdPipelineBarrier2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdPipelineBarrier2(call_info, args);
+    TrackBufferOwnershipTransfers(args.commandBuffer, args.pDependencyInfo.GetMetaStructPointer());
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdPipelineBarrier2KHR(const ApiCallInfo&            call_info,
+                                                                     args::CmdPipelineBarrier2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdPipelineBarrier2KHR(call_info, args);
+    TrackBufferOwnershipTransfers(args.commandBuffer, args.pDependencyInfo.GetMetaStructPointer());
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWaitEvents(const ApiCallInfo& call_info, args::CmdWaitEvents& args)
+{
+    VulkanReplayConsumer::Process_vkCmdWaitEvents(call_info, args);
+    TrackBufferMemoryBarrierTransfers(args.commandBuffer, args.pBufferMemoryBarriers);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWaitEvents2(const ApiCallInfo& call_info, args::CmdWaitEvents2& args)
+{
+    VulkanReplayConsumer::Process_vkCmdWaitEvents2(call_info, args);
+
+    const auto* dependency_infos = args.pDependencyInfos.GetMetaStructPointer();
+    if (dependency_infos != nullptr)
+    {
+        for (uint32_t i = 0; i < args.eventCount; ++i)
+        {
+            TrackBufferOwnershipTransfers(args.commandBuffer, &dependency_infos[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWaitEvents2KHR(const ApiCallInfo&       call_info,
+                                                                args::CmdWaitEvents2KHR& args)
+{
+    VulkanReplayConsumer::Process_vkCmdWaitEvents2KHR(call_info, args);
+
+    const auto* dependency_infos = args.pDependencyInfos.GetMetaStructPointer();
+    if (dependency_infos != nullptr)
+    {
+        for (uint32_t i = 0; i < args.eventCount; ++i)
+        {
+            TrackBufferOwnershipTransfers(args.commandBuffer, &dependency_infos[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallInfo&        call_info,
+                                                                 args::CmdExecuteCommands& args)
+{
+    VulkanReplayConsumer::Process_vkCmdExecuteCommands(call_info, args);
+
+    CommonObjectInfoTable&   table           = GetObjectInfoTable();
+    VulkanCommandBufferInfo* primary_cb_info = table.GetVkCommandBufferInfo(args.commandBuffer);
+    if (primary_cb_info == nullptr)
+    {
+        return;
+    }
+
+    const format::HandleId* secondary_ids = args.pCommandBuffers.GetPointer();
+    if (secondary_ids == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < args.commandBufferCount; ++i)
+    {
+        VulkanCommandBufferInfo* secondary_cb_info = table.GetVkCommandBufferInfo(secondary_ids[i]);
+        if (secondary_cb_info == nullptr)
+        {
+            continue;
+        }
+
+        // If two secondary command buffers touch the same buffer, the one that executes later should overwrite
+        for (const auto& [buffer_id, family_index] : secondary_cb_info->buffer_queue_family_touches)
+        {
+            primary_cb_info->buffer_queue_family_touches[buffer_id] = family_index;
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
+                                                                 args::BeginCommandBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
+    if (VulkanCommandBufferInfo* cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer))
+    {
+        cb_info->buffer_queue_family_touches.clear();
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
+                                                                 args::ResetCommandBuffer& args)
+{
+    VulkanReplayConsumer::Process_vkResetCommandBuffer(call_info, args);
+    if (VulkanCommandBufferInfo* cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer))
+    {
+        cb_info->buffer_queue_family_touches.clear();
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
@@ -1131,7 +1690,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
     }
     FixupDeviceEvents(device);
     FixupDeviceFences(device, queue);
-    FixupDeviceBuffers(device, queue);
+    FixupDeviceBuffers(device);
     GetSemaphoreTracking(device).FixupSemaphores(queue);
 }
 
@@ -1152,6 +1711,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 {
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
+    ApplyBufferQueueFamilyOwnership(args.pSubmits);
+
     if (frame_loop_info_.IsLooping())
     {
         if (frame_loop_info_.IsFirstIteration())
@@ -1171,6 +1732,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 {
     VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, args);
 
+    ApplyBufferQueueFamilyOwnership(args.pSubmits);
+
     if (frame_loop_info_.IsLooping())
     {
         if (frame_loop_info_.IsFirstIteration())
@@ -1189,6 +1752,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args)
 {
     VulkanReplayConsumer::Process_vkQueueSubmit2KHR(call_info, args);
+
+    ApplyBufferQueueFamilyOwnership(args.pSubmits);
 
     if (frame_loop_info_.IsLooping())
     {

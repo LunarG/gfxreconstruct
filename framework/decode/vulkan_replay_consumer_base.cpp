@@ -6866,6 +6866,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         buffer_info->allocator_data = allocator_data;
         buffer_info->usage          = replay_create_info->usage;
         buffer_info->size           = replay_create_info->size;
+        buffer_info->sharing_mode   = replay_create_info->sharingMode;
 
         if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
@@ -10931,6 +10932,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateCommandPool(
 
         modified_create_info.queueFamilyIndex =
             MapQueueFamilyIndex(device_info, modified_create_info.queueFamilyIndex, queue_create_flags);
+
+        command_pool_info->queue_family_index = modified_create_info.queueFamilyIndex;
+
         create_info = &modified_create_info;
     }
 
