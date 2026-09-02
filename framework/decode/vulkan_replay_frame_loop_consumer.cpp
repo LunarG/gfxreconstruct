@@ -721,7 +721,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceEvents(format::HandleId device)
         }
 
         // keep tracked event terminal-state in sync with the fixup
-        event_info->latched_state = was_initially_set ? VK_EVENT_SET : VK_EVENT_RESET;
+        event_info->latched_set = was_initially_set;
     }
 }
 

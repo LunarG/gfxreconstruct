@@ -4592,7 +4592,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
     // A captured VK_EVENT_SET must be reproduced at replay to preserve synchronization.
     // there is no host wait-primitive for events, so we have to poll, but:
     // wait only when VK_EVENT_SET is the event's terminal state -> avoid looping forever.
-    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && event_info->latched_state == VK_EVENT_SET)
+    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && event_info->latched_set)
     {
         auto device_table = GetInjectedDeviceCalls(device);
         auto injected     = device_table.Open();
@@ -4614,7 +4614,7 @@ VkResult VulkanReplayConsumerBase::OverrideSetEvent(PFN_vkSetEvent          func
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
 
-    event_info->latched_state = VK_EVENT_SET;
+    event_info->latched_set = true;
     return func(device_info->handle, event_info->handle);
 }
 
@@ -4626,7 +4626,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetEvent(PFN_vkResetEvent        fu
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
 
-    event_info->latched_state = VK_EVENT_RESET;
+    event_info->latched_set = false;
     return func(device_info->handle, event_info->handle);
 }
 
@@ -4686,7 +4686,7 @@ void VulkanReplayConsumerBase::ApplyRecordedEventOps(const VulkanCommandBufferIn
     {
         if (auto* event_info = GetObjectInfoTable().GetVkEventInfo(event_id))
         {
-            event_info->latched_state = is_set ? VK_EVENT_SET : VK_EVENT_RESET;
+            event_info->latched_set = is_set;
         }
     }
 }

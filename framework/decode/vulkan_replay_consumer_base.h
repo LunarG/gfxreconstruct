@@ -1422,7 +1422,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ClearCommandBufferInfo(VulkanCommandBufferInfo* command_buffer_info);
 
-    // apply a command-buffer's recorded set/reset event ops to the tracked VulkanEventInfo::latched_state
+    // apply a command-buffer's recorded set/reset event ops to the tracked VulkanEventInfo::latched_set
     void ApplyRecordedEventOps(const VulkanCommandBufferInfo* command_buffer_info);
 
     // apply a command-buffer's recorded query ops to the tracked VulkanQueryPoolInfo availability

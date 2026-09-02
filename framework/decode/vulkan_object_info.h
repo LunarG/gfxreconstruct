@@ -262,8 +262,8 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 struct VulkanEventInfo : public VulkanObjectInfo<VkEvent>
 {
     // Terminal event-state in stream order: host set/reset apply immediately, device cmd set/reset at
-    // submit-time. Bounds the vkGetEventStatus poll to only wait when VK_EVENT_SET is the terminal state.
-    VkResult latched_state{ VK_EVENT_RESET };
+    // submit-time. Bounds the vkGetEventStatus poll to only wait when 'set' is the terminal state.
+    bool latched_set{ false };
 };
 
 struct VulkanQueryPoolInfo : public VulkanObjectInfo<VkQueryPool>
@@ -772,7 +772,7 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     bool in_rendering_scope = false;
 
     // ordered vkCmdSetEvent/vkCmdResetEvent recorded here (event capture-id, is-set);
-    // applied to VulkanEventInfo::latched_state at submit-time.
+    // applied to VulkanEventInfo::latched_set at submit-time.
     std::vector<std::pair<format::HandleId, bool>> recorded_event_ops;
 
     // ordered query ops recorded here (end-of-scope/write-timestamp vs. reset);
