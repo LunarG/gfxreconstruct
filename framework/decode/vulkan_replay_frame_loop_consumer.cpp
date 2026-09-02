@@ -366,8 +366,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     {
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        if (auto* usage_flags2_info =
-                graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfoKHR>(create_info))
+        if (auto* usage_flags2_info = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfoKHR>(create_info))
         {
             usage_flags2_info->usage |= VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT_KHR | VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR;
         }
@@ -681,7 +680,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore(bool is_first_iterat
     const uint32_t fallback_queue_family_index =
         graphics::FindGraphicsOrComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
 
-    // Group shadow buffers by the queue family. 
+    // Group shadow buffers by the queue family.
     if (is_first_iteration)
     {
         buffer_ids_by_family_.clear();
@@ -1238,8 +1237,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndirectCountAMD(const ApiC
     TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
-    const ApiCallInfo& call_info, args::CmdDrawIndexedIndirectCountAMD& args)
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(const ApiCallInfo& call_info,
+                                                                             args::CmdDrawIndexedIndirectCountAMD& args)
 {
     VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(call_info, args);
     TrackBufferQueueFamilyUsage(args.commandBuffer, args.buffer);
@@ -1289,7 +1288,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteBufferMarker2AMD(const Api
     TrackBufferQueueFamilyUsage(args.commandBuffer, args.dstBuffer);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo&                 call_info,
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo&                call_info,
                                                                          args::CmdDrawMeshTasksIndirectNV& args)
 {
     VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectNV(call_info, args);
@@ -1304,7 +1303,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
     TrackBufferQueueFamilyUsage(args.commandBuffer, args.countBuffer);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo&                  call_info,
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo&                 call_info,
                                                                           args::CmdDrawMeshTasksIndirectEXT& args)
 {
     VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(call_info, args);
@@ -1342,8 +1341,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
-    const ApiCallInfo& call_info, args::CmdExecuteGeneratedCommandsNV& args)
+void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteGeneratedCommandsNV(const ApiCallInfo& call_info,
+                                                                            args::CmdExecuteGeneratedCommandsNV& args)
 {
     VulkanReplayConsumer::Process_vkCmdExecuteGeneratedCommandsNV(call_info, args);
 
@@ -1387,7 +1386,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdBindDescriptorBuffersEXT(const 
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo&                    call_info,
+void VulkanReplayFrameLoopConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo& call_info,
                                                                            args::CmdDrawClusterIndirectHUAWEI& args)
 {
     VulkanReplayConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(call_info, args);
@@ -1404,7 +1403,7 @@ void VulkanReplayFrameLoopConsumer::TrackDescriptorSetBufferWrite(format::Handle
         return;
     }
 
-    const uint64_t slot                = (static_cast<uint64_t>(binding) << 32) | array_element;
+    const uint64_t slot                   = (static_cast<uint64_t>(binding) << 32) | array_element;
     descriptor_set_buffers_[set_id][slot] = buffer_id;
 }
 
@@ -1446,8 +1445,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkUpdateDescriptorSets(const ApiCall
         const auto* buffer_meta = buffer_info->GetMetaStructPointer();
         for (uint32_t element = 0; element < writes[i].descriptorCount; ++element)
         {
-            TrackDescriptorSetBufferWrite(
-                meta_writes[i].dstSet, writes[i].dstBinding, writes[i].dstArrayElement + element, buffer_meta[element].buffer);
+            TrackDescriptorSetBufferWrite(meta_writes[i].dstSet,
+                                          writes[i].dstBinding,
+                                          writes[i].dstArrayElement + element,
+                                          buffer_meta[element].buffer);
         }
     }
 }
