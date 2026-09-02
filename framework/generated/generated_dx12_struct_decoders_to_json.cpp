@@ -1732,6 +1732,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_RESOU
                 FieldToJson(jdata["RaytracingAccelerationStructure"], meta_struct.RaytracingAccelerationStructure);
                 break;
             }
+            case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            {
+                FieldToJson(jdata["BufferByteOffset"], meta_struct.BufferByteOffset);
+                break;
+            }
         }
     }
 }
@@ -1966,6 +1971,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_UNORDERED_AC
             case D3D12_UAV_DIMENSION_TEXTURE3D:
             {
                 FieldToJson(jdata["Texture3D"], meta_struct.Texture3D);
+                break;
+            }
+            case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            {
+                FieldToJson(jdata["BufferByteOffset"], meta_struct.BufferByteOffset);
                 break;
             }
             default:
