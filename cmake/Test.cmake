@@ -27,7 +27,15 @@ cmake_minimum_required(VERSION 3.16)
 
 option(RUN_TESTS "Run unit tests" OFF)
 
+function(gfxrecon_require_googletest)
+    set(INSTALL_GTEST OFF PARENT_SCOPE)
+    set(INSTALL_GTEST OFF)
+    find_package(GoogleTest REQUIRED)
+endfunction()
+
 if (${RUN_TESTS})
+    gfxrecon_require_googletest()
+
     # Python
     if(CMAKE_HOST_WIN32)
         find_program(PYTHON python.exe DOC "Python executable")
