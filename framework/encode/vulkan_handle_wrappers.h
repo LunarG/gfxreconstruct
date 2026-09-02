@@ -203,7 +203,9 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 struct DescriptorSetWrapper;
 struct AssetWrapperBase
 {
-    DeviceWrapper*             device{ nullptr };
+    // device this object was created on
+    DeviceWrapper* device{ nullptr };
+
     const void*                bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
 
