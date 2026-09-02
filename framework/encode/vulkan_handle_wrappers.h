@@ -203,7 +203,9 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 struct DescriptorSetWrapper;
 struct AssetWrapperBase
 {
-    DeviceWrapper*             bind_device{ nullptr };
+    // device this object was created on
+    DeviceWrapper* device{ nullptr };
+
     const void*                bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
 
@@ -220,7 +222,6 @@ struct BufferViewWrapper;
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
     // State tracking info for buffers with device addresses.
-    VkDevice            device{ VK_NULL_HANDLE };
     VkDeviceAddress     address{ 0 };
     VkDeviceAddress     opaque_address{ 0 };
     VkBufferUsageFlags  usage{ 0 };
@@ -231,8 +232,6 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
     bool                                       is_sparse_buffer{ false };
     std::map<VkDeviceSize, VkSparseMemoryBind> sparse_memory_bind_map;
     VkQueue                                    sparse_bind_queue{ VK_NULL_HANDLE };
-
-    VkDeviceSize created_size{ 0 };
 
     std::unordered_map<VkDeviceAddress, AccelerationStructureBuildState> acceleration_structures;
 

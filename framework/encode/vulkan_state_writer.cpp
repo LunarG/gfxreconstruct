@@ -1532,8 +1532,8 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
 void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
-        if (wrapper->device != VK_NULL_HANDLE && wrapper->address != 0)
+        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != nullptr);
+        if (wrapper->device != nullptr && wrapper->address != 0)
         {
             const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
                 state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
@@ -1551,13 +1551,13 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
             // if the memory still exists.
             if (memory_wrapper != nullptr || wrapper->is_sparse_buffer)
             {
-                auto physical_device_wrapper = wrapper->bind_device->physical_device;
+                auto physical_device_wrapper = wrapper->device->physical_device;
                 auto call_id = physical_device_wrapper->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
                                    ? format::ApiCall_vkGetBufferDeviceAddress
                                    : format::ApiCall_vkGetBufferDeviceAddressKHR;
 
                 parameter_stream_.Clear();
-                encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
+                encoder_.EncodeHandleIdValue(wrapper->device->handle_id);
                 VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
                                                    nullptr,
                                                    wrapper->handle };
@@ -1573,11 +1573,11 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != nullptr);
 
-        if (wrapper->device != VK_NULL_HANDLE)
+        if (wrapper->device != nullptr)
         {
-            auto device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(wrapper->device, true);
+            auto device_id = wrapper->device->handle_id;
 
             if (wrapper->opaque_address != 0)
             {
@@ -1613,7 +1613,7 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
 
         if (!image_wrapper->opaque_descriptor_data.empty())
         {
-            WriteSetOpaqueCaptureDescriptorData(image_wrapper->bind_device->handle_id,
+            WriteSetOpaqueCaptureDescriptorData(image_wrapper->device->handle_id,
                                                 image_wrapper->handle_id,
                                                 image_wrapper->opaque_descriptor_data.size(),
                                                 image_wrapper->opaque_descriptor_data.data());
@@ -1957,15 +1957,16 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
     size_t                                                      max_resource_size = 0;
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* buffer_wrapper) {
-        GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->device != nullptr);
 
-        if (buffer_wrapper->acceleration_structures.empty() || !device_address_trackers_.count(buffer_wrapper->device))
+        if (buffer_wrapper->acceleration_structures.empty() ||
+            !device_address_trackers_.count(buffer_wrapper->device->handle))
         {
             return;
         }
         auto        get_id          = vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>;
-        const auto& address_tracker = device_address_trackers_.at(buffer_wrapper->device);
-        auto&       per_device_container = commands[buffer_wrapper->device];
+        const auto& address_tracker = device_address_trackers_.at(buffer_wrapper->device->handle);
+        auto&       per_device_container = commands[buffer_wrapper->device->handle];
 
         for (auto& [device_address, as_build_state] : buffer_wrapper->acceleration_structures)
         {
@@ -2950,7 +2951,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
         GFXRECON_ASSERT(wrapper != nullptr);
         if (!wrapper->is_sparse_buffer)
         {
-            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->device;
             assert(device_wrapper != nullptr);
             // Perform memory binding for non-sparse buffer.
             const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
@@ -3017,13 +3018,13 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 
                 if (snapshot_info.need_staging_copy)
                 {
-                    if (*max_staging_copy_size < wrapper->created_size)
+                    if (*max_staging_copy_size < wrapper->size)
                     {
-                        *max_staging_copy_size = wrapper->created_size;
+                        *max_staging_copy_size = wrapper->size;
                     }
 
                     // sum staging-copy sizes
-                    *total_staging_copy_size += wrapper->created_size;
+                    *total_staging_copy_size += wrapper->size;
                 }
                 snapshot_entry.buffers.emplace_back(snapshot_info);
             }
@@ -3033,7 +3034,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             // Sparse object has to vkQueueBindSparse first.
 
             // Perform memory binding for sparse buffer.
-            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->device;
             const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
             GFXRECON_ASSERT((device_wrapper != nullptr) && (device_table != nullptr));
 
@@ -3159,11 +3160,11 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
             state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-        if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
+        if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->device != nullptr) ||
             (!wrapper->is_swapchain_image && memory_wrapper != nullptr) ||
-            (!wrapper->is_swapchain_image && wrapper->is_sparse_image && wrapper->bind_device != nullptr))
+            (!wrapper->is_swapchain_image && wrapper->is_sparse_image && wrapper->device != nullptr))
         {
-            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->device;
             assert(device_wrapper != nullptr);
 
             // Write memory requirements query before bind command.
@@ -3412,7 +3413,7 @@ void VulkanStateWriter::WriteImageSubresourceLayouts(const vulkan_wrappers::Imag
 {
     assert((image_wrapper != nullptr) && (aspect_flags != 0));
 
-    const vulkan_wrappers::DeviceWrapper* device_wrapper = image_wrapper->bind_device;
+    const vulkan_wrappers::DeviceWrapper* device_wrapper = image_wrapper->device;
     const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
 
     assert((device_wrapper != nullptr) && (device_table != nullptr));
@@ -5081,7 +5082,7 @@ void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanSta
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, bind_infos.size());
             const uint32_t bind_info_count = static_cast<uint32_t>(bind_infos.size());
 
-            encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->device->handle_id);
             encoder_.EncodeUInt32Value(bind_info_count);
             EncodeStructArray(&encoder_, bind_infos.data(), bind_info_count);
             encoder_.EncodeEnumValue(VK_SUCCESS);
@@ -5107,13 +5108,8 @@ void VulkanStateWriter::WriteTensorSnapshotState(const VulkanStateTable& state_t
     state_table.VisitWrappers([&](vulkan_wrappers::TensorARMWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr);
 
-        const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
-        if (device_wrapper == nullptr)
-        {
-            GFXRECON_LOG_WARNING("Skipping tensor trim snapshot for tensor %" PRIu64 ": no bound device is tracked",
-                                 wrapper->handle_id);
-            return;
-        }
+        const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->device;
+        GFXRECON_ASSERT(device_wrapper != nullptr);
 
         const auto* memory_wrapper = state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
         if (memory_wrapper == nullptr)
