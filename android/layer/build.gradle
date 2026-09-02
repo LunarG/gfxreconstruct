@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion GFXR_COMPILE_SDK_VERSION.toInteger()
     namespace = 'com.lunarg.gfxreconstruct.layer'
-    ndkVersion = '26.3.11579264'
+    ndkVersion = GFXR_NDK_VERSION
     defaultConfig {
-        minSdkVersion 26
+        minSdkVersion GFXR_MIN_SDK_VERSION.toInteger()
         ndk {
             if (providers.gradleProperty("armeabi-v7a").present) {
                 abiFilters 'armeabi-v7a'

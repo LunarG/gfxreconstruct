@@ -1494,6 +1494,14 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         // Write swapchain creation call.
         StandardCreateWrite(swapchain_wrapper);
 
+        // Write call to resize the swapchain buffers.
+        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
+        {
+            WriteMethodCall(swapchain_info->resize_info.call_id,
+                            swapchain_wrapper->GetCaptureId(),
+                            swapchain_info->resize_info.call_parameters.get());
+        }
+
         // Write swapchain set color space for HDR
         if (swapchain_info->set_color_space)
         {
@@ -1520,13 +1528,6 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
             parameter_stream_.Clear();
         }
 
-        // Write call to resize the swapchain buffers.
-        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
-        {
-            WriteMethodCall(swapchain_info->resize_info.call_id,
-                            swapchain_wrapper->GetCaptureId(),
-                            swapchain_info->resize_info.call_parameters.get());
-        }
 
         // Write image state command.
         UINT                                  swapchain_buffer_index = 0;
