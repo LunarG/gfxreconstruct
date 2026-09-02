@@ -14,6 +14,7 @@
     "vkCreateDebugReportCallbackEXT",
     "vkCreateDebugUtilsMessengerEXT",
     "vkCreateDeferredOperationKHR",
+    "vkCreateCommandPool",
     "vkCreateDescriptorPool",
     "vkCreateDescriptorSetLayout",
     "vkCreateDescriptorUpdateTemplate",
@@ -188,7 +189,6 @@
   "comment" : "that don't start with vkCmd",
     "commandBufferState": [
         "vkAllocateCommandBuffers",
-        "vkFreeCommandBuffers",
         "vkEndCommandBuffer",
         "vkTrimCommandPool"
     ]
