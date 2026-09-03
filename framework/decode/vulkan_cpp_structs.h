@@ -170,7 +170,7 @@ std::string GenerateStruct_VkDataGraphPipelineConstantARM(std::ostream&         
                                                           Decoded_VkDataGraphPipelineConstantARM* metaInfo,
                                                           VulkanCppConsumerBase&                  consumer);
 
-GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_DECODE_VULKAN_CPP_STRUCTS_H

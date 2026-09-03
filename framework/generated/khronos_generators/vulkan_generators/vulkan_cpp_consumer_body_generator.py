@@ -937,12 +937,15 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     if arg.array_length.isnumeric() or arg.array_length.isupper():
                         body += makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=4)
                     else:
-                        body += makeGenConditions([
-                                    ['{arg.prefixed_array_length} == 1', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
-                                    ['{arg.prefixed_array_length} > 1', [
-                                        makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
-                                        makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)]],
-                                ], locals(), indent=4)
+                        # An enumeration or a flag renders as a literal, for example
+                        # "15" or "VK_FORMAT_R8_UNORM".  The address of a literal is
+                        # not valid C++, so a count of one must still declare a real
+                        # array.  An array name decays to a pointer, so one element
+                        # and many elements both work.
+                        body += makeGenCond('{arg.prefixed_array_length} > 0', [
+                                    makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
+                                    makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)],
+                                [], locals(), indent=4)
 
                     callArgs.append('{0}.c_str()'.format(strArrayVarName))
                     callTempl.append('%s')
@@ -956,10 +959,19 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                 # There should be only primitive types here
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
 
-                if arg.is_array:
+                if arg.base_type == 'char' and arg.pointer_count == 1:
+                    # A pointer to char is a string.  Write it into the generated
+                    # source as a string literal.  The address in the capture file
+                    # belongs to the application that made the capture, so it has no
+                    # meaning when the generated source runs.
+                    callArg = f'VulkanCppConsumerBase::ToEscape({arg.prefixed_name}{arg.op}GetPointer()).c_str()'
+                    callTemplate = '%s'
+                elif arg.is_array:
                     newArray, callArg, callTemplate = self.buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
                     body += newArray
                 elif arg.base_type != 'void':
+                    # TODO: A capture-time address has no meaning at replay time.
+                    # No entry point reaches this today.  See the string case above.
                     callArg = f'{arg.prefixed_name}{arg.op}GetPointer()'
                     callTemplate = "%p"
                 else:

@@ -35,9 +35,29 @@ static const char* sCommonHeaderOutputHeaders = R"(
 )";
 
 static const char* sCommonOutputHeaderFunctions = R"(
-extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice);
-extern uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements);
-extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex);
+// The device extensions that the capture file needed, and the physical device
+// slots that it used.  global_var.cpp defines both.
+extern const char* const g_required_device_extensions[];
+extern const uint32_t    g_required_device_extension_count;
+extern const uint32_t    g_captured_device_indices[];
+extern const uint32_t    g_captured_device_index_count;
+
+// Set by the --gpu option.  A negative value means choose automatically.
+extern int32_t g_gpu_override_index;
+
+// Set by the --list-gpu option.
+extern bool g_list_gpus;
+
+extern bool ParseCommandLine(int argc, char** argv);
+
+extern void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count);
+extern void FilterDeviceExtensions(VkPhysicalDevice device, VkDeviceCreateInfo* create_info);
+// capturedDeviceIndex names the row of originalMemoryTypes to compare against,
+// which is the slot that the capture used in vkEnumeratePhysicalDevices.
+extern void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, uint32_t capturedDeviceIndex);
+extern VkDeviceSize RecalculateAllocationSize(VkDeviceSize originalSize,
+                                              const VkMemoryRequirements& memoryRequirements);
+extern uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex, uint32_t allowedTypeBits);
 extern void LogVkError(const char* function, VkResult returnValue, const char* file, int line, VkResult capturedReturnValue);
 )";
 
@@ -60,21 +80,311 @@ static const char* sCommonFrameSourceFooter = R"(
 } // frame end
 )";
 
+static const char* sCommonFilterDeviceExtensions = R"(
+// Drop the device extensions that this device does not have.
+//
+// The capture asks for the extension set of the machine that made it.  Another
+// machine, or another driver, does not always have every one of them, and
+// vkCreateDevice fails with VK_ERROR_EXTENSION_NOT_PRESENT if even one is
+// absent.  Removing an extension can make a later call fail, but keeping it
+// stops the program before it draws anything.
+void FilterDeviceExtensions(VkPhysicalDevice device, VkDeviceCreateInfo* create_info)
+{
+    if (create_info == nullptr || create_info->enabledExtensionCount == 0 ||
+        create_info->ppEnabledExtensionNames == nullptr)
+    {
+        return;
+    }
+
+    uint32_t available_count = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, nullptr);
+
+    std::vector<VkExtensionProperties> available(available_count);
+    if (available_count > 0)
+    {
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, available.data());
+    }
+
+    // The array came from a local definition in the generated source, so it is
+    // safe to write to.  Keep the names that this device has, in order.
+    const char** names = const_cast<const char**>(create_info->ppEnabledExtensionNames);
+    uint32_t     kept  = 0;
+
+    for (uint32_t want = 0; want < create_info->enabledExtensionCount; ++want)
+    {
+        bool found = false;
+        for (uint32_t have = 0; have < available_count; ++have)
+        {
+            if (strcmp(available[have].extensionName, names[want]) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+        {
+            names[kept++] = names[want];
+        }
+        else
+        {
+            printf("WARNING: Removing device extension \"%s\".  This device does not have it.\n", names[want]);
+        }
+    }
+
+    create_info->enabledExtensionCount = kept;
+}
+)";
+
+static const char* sCommonParseCommandLine = R"(
+// Read the options that this program accepts.  Returns false when the program
+// should stop, for example after --help.
+bool ParseCommandLine(int argc, char** argv)
+{
+    const char* program_name = (argc > 0) ? argv[0] : "vulkan_app";
+
+    for (int index = 1; index < argc; ++index)
+    {
+        const char* argument = argv[index];
+
+        if (strcmp(argument, "--help") == 0 || strcmp(argument, "-h") == 0)
+        {
+            printf("Usage: %s [options]\n", program_name);
+            printf("  --gpu <index>  Use the physical device at <index> of the list that\n");
+            printf("                 vkEnumeratePhysicalDevices returns.  Without this option\n");
+            printf("                 the program takes the device that has the most of the\n");
+            printf("                 extensions that the capture needed, and prefers a\n");
+            printf("                 discrete GPU over an integrated one, and an integrated\n");
+            printf("                 one over a software device.\n");
+            printf("  --list-gpu     List each physical device as the program selects.\n");
+            printf("  --help         Print this text and stop.\n");
+            return false;
+        }
+        else if (strcmp(argument, "--gpu") == 0)
+        {
+            if (index + 1 >= argc)
+            {
+                printf("ERROR: --gpu needs an index.\n");
+                return false;
+            }
+            g_gpu_override_index = atoi(argv[++index]);
+        }
+        else if (strcmp(argument, "--list-gpu") == 0)
+        {
+            g_list_gpus = true;
+        }
+        else
+        {
+            printf("ERROR: Unknown option \"%s\".  Use --help for the list.\n", argument);
+            return false;
+        }
+    }
+
+    return true;
+}
+)";
+
+static const char* sCommonSelectPhysicalDevices = R"(
+int32_t g_gpu_override_index = -1;
+bool    g_list_gpus          = false;
+
+// Prefer a discrete GPU, then an integrated one, and leave a software device
+// last.
+static uint32_t DeviceTypeRank(VkPhysicalDeviceType type)
+{
+    switch (type)
+    {
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            return 4;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+            return 3;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            return 2;
+        case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+            return 1;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+        default:
+            return 0;
+    }
+}
+
+// Count the extensions that the capture file needs and this device does not have.
+static uint32_t CountMissingExtensions(VkPhysicalDevice device)
+{
+    uint32_t available_count = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, nullptr);
+
+    std::vector<VkExtensionProperties> available(available_count);
+    if (available_count > 0)
+    {
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &available_count, available.data());
+    }
+
+    uint32_t missing = 0;
+    for (uint32_t want = 0; want < g_required_device_extension_count; ++want)
+    {
+        bool found = false;
+        for (uint32_t have = 0; have < available_count; ++have)
+        {
+            if (strcmp(available[have].extensionName, g_required_device_extensions[want]) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            ++missing;
+        }
+    }
+    return missing;
+}
+
+// Put a usable device in each slot that the capture file used.
+//
+// The capture file names a device by its position in the list that
+// vkEnumeratePhysicalDevices returns.  That position means nothing on another
+// machine, which can hold a different set of devices in a different order.  So
+// choose by what a device can do: first the number of needed extensions that it
+// does not have, then the kind of device.
+void SelectPhysicalDevices(VkPhysicalDevice* devices, uint32_t device_count)
+{
+    if (devices == nullptr || device_count == 0)
+    {
+        return;
+    }
+
+    std::vector<VkPhysicalDeviceProperties> properties(device_count);
+    std::vector<uint32_t>                   missing(device_count, 0);
+    std::vector<uint8_t>                    taken(device_count, 0);
+
+    for (uint32_t index = 0; index < device_count; ++index)
+    {
+        vkGetPhysicalDeviceProperties(devices[index], &properties[index]);
+        missing[index] = CountMissingExtensions(devices[index]);
+    }
+
+    if (g_list_gpus)
+    {
+        printf("Physical devices on this machine:\n");
+        for (uint32_t index = 0; index < device_count; ++index)
+        {
+            printf("  %u: \"%s\", type rank %u, missing %u of %u needed extensions\n",
+                   index,
+                   properties[index].deviceName,
+                   DeviceTypeRank(properties[index].deviceType),
+                   missing[index],
+                   g_required_device_extension_count);
+        }
+    }
+
+    for (uint32_t slot = 0; slot < g_captured_device_index_count; ++slot)
+    {
+        uint32_t want = g_captured_device_indices[slot];
+        if (want >= device_count)
+        {
+            continue;
+        }
+
+        int32_t best = -1;
+        if (slot == 0 && g_gpu_override_index >= 0)
+        {
+            // The user named a device, so use it and do not score.
+            if (static_cast<uint32_t>(g_gpu_override_index) < device_count)
+            {
+                best = g_gpu_override_index;
+            }
+            else
+            {
+                printf("WARNING: --gpu %d is out of range.  This machine has %u devices.\n",
+                       g_gpu_override_index,
+                       device_count);
+            }
+        }
+
+        if (best < 0)
+        {
+            for (uint32_t index = 0; index < device_count; ++index)
+            {
+                if (taken[index] != 0)
+                {
+                    continue;
+                }
+                if (best < 0)
+                {
+                    best = static_cast<int32_t>(index);
+                }
+                else if (missing[index] < missing[best])
+                {
+                    best = static_cast<int32_t>(index);
+                }
+                else if (missing[index] == missing[best] &&
+                         DeviceTypeRank(properties[index].deviceType) > DeviceTypeRank(properties[best].deviceType))
+                {
+                    best = static_cast<int32_t>(index);
+                }
+            }
+        }
+
+        if (best < 0)
+        {
+            continue;
+        }
+
+        uint32_t chosen = static_cast<uint32_t>(best);
+        if (chosen != want)
+        {
+            VkPhysicalDevice           swap_device     = devices[want];
+            VkPhysicalDeviceProperties swap_properties = properties[want];
+            uint32_t                   swap_missing    = missing[want];
+            uint8_t                    swap_taken      = taken[want];
+
+            devices[want]      = devices[chosen];
+            properties[want]   = properties[chosen];
+            missing[want]      = missing[chosen];
+            taken[want]        = taken[chosen];
+            devices[chosen]    = swap_device;
+            properties[chosen] = swap_properties;
+            missing[chosen]    = swap_missing;
+            taken[chosen]      = swap_taken;
+        }
+        taken[want] = 1;
+
+        printf("Using device \"%s\" for slot %u.\n", properties[want].deviceName, want);
+        if (missing[want] > 0)
+        {
+            printf("WARNING: That device is missing %u of the %u extensions that the capture used.\n",
+                   missing[want],
+                   g_required_device_extension_count);
+        }
+    }
+}
+)";
+
 static const char* sCommonQueryPhysicalDeviceMemoryProperties = R"(
 static VkPhysicalDeviceMemoryProperties s_physicalDeviceMemoryProperties;
-void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice) {
+static uint32_t                         s_capturedDeviceIndex = 0;
+void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, uint32_t capturedDeviceIndex) {
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &s_physicalDeviceMemoryProperties);
+
+    const uint32_t recorded_rows = sizeof(originalMemoryTypes) / sizeof(originalMemoryTypes[0]);
+    if (capturedDeviceIndex < recorded_rows) {
+        s_capturedDeviceIndex = capturedDeviceIndex;
+    } else {
+        printf("WARNING: The capture file holds no memory types for device slot %u.\n", capturedDeviceIndex);
+        s_capturedDeviceIndex = 0;
+    }
 }
 )";
 
 static const char* sCommonRecalculateAllocationSize = R"(
-uint32_t RecalculateAllocationSize(VkDeviceSize originalSize,
-                                   VkMemoryRequirements memoryRequirements) {
+VkDeviceSize RecalculateAllocationSize(VkDeviceSize originalSize,
+                                       const VkMemoryRequirements& memoryRequirements) {
     if (originalSize >= memoryRequirements.size) {
         return originalSize;
     }
     printf("Warning: allocation size changed from %lu to %lu.\n",
-           originalSize, memoryRequirements.size);
+           (unsigned long)originalSize, (unsigned long)memoryRequirements.size);
     return memoryRequirements.size;
 }
 )";
@@ -85,12 +395,20 @@ static uint8_t CountBits(uint32_t val) {
   return ((val & 1) + CountBits(val >> 1));
 }
 
-uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
-    VkMemoryPropertyFlags target_property_flags = originalMemoryTypes[0][originalMemoryTypeIndex].propertyFlags;
+// allowedTypeBits comes from VkMemoryRequirements::memoryTypeBits.  A resource
+// only accepts a memory type whose bit is set there, so a type that matches the
+// property flags but not the bits would make the bind call fail.  UINT32_MAX
+// means that the caller does not know, so every type is allowed.
+uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex, uint32_t allowedTypeBits) {
+    // Use the row for the device in use.  Row 0 belongs to the first device of
+    // the capture, which is often not the device that the capture used.
+    VkMemoryPropertyFlags target_property_flags =
+        originalMemoryTypes[s_capturedDeviceIndex][originalMemoryTypeIndex].propertyFlags;
     uint32_t memory_type_index = UINT32_MAX;
 
     // Always try the same index in case we are attempting a replay on the same device as it was recorded on.
-    if ((s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & target_property_flags) ==
+    if (((allowedTypeBits & (1u << originalMemoryTypeIndex)) != 0) &&
+        (s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & target_property_flags) ==
         target_property_flags) {
         memory_type_index = originalMemoryTypeIndex;
     } else {
@@ -99,17 +417,24 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
         uint8_t  fallback_important_bits = 0;
         uint8_t  fallback_normal_bits    = 0;
         for (uint32_t i = 0; i < s_physicalDeviceMemoryProperties.memoryTypeCount; i++) {
+            if ((allowedTypeBits & (1u << i)) == 0) {
+              continue;
+            }
             if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags) == target_property_flags) {
               memory_type_index = i;
               break;
             }
             uint32_t cur_flags = (s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags);
             uint8_t normal_bits = CountBits(cur_flags);
-            uint32_t important_flags = (cur_flags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT));
+            // These three decide whether the memory still works for the use that
+            // the capture made of it, so weigh them above the others.
+            uint32_t important_flags = (cur_flags & (VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
+                                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
             uint8_t important_bits = CountBits(important_flags);
             if (important_bits > fallback_important_bits && normal_bits >= fallback_normal_bits) {
               fallback_index = i;
-              fallback_found = false;
+              fallback_found = true;
               fallback_important_bits = important_bits;
               fallback_normal_bits    = normal_bits;
             }
@@ -146,12 +471,14 @@ void LogVkError(const char* function,
                             "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                             function, returnValue, returnValue, fileName, line);
 
-        char message[size + 2];
-        snprintf(message, size + 2,
+        // A variable length array is not C++, and a compiler that treats the
+        // warning as an error rejects it.
+        std::vector<char> message(size + 2);
+        snprintf(message.data(), size + 2,
                  "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                  function, returnValue, returnValue, fileName, line);
 
-        throw std::runtime_error(message);
+        throw std::runtime_error(message.data());
     }
 }
 )";
@@ -161,7 +488,10 @@ void LogVkError(const char* function,
 static const char* sXcbOutputMainStart = R"(
 #include "global_var.h"
 
-int main() {
+int main(int argc, char** argv) {
+    if (!ParseCommandLine(argc, argv)) {
+        return 0;
+    }
 )";
 
 static const char* sXcbOutputMainEnd = R"(
@@ -183,10 +513,15 @@ struct XCBApp {
         width = w;
         height = h;
     }
+    ~XCBApp();
+
     uint32_t width { 320 };
     uint32_t height { 240 };
     xcb_connection_t *connection { nullptr };
-    xcb_window_t window;
+    xcb_window_t window { 0 };
+    // Every window that the program made.  A capture can create more than one
+    // surface, and each window has to go at the end.
+    std::vector<xcb_window_t> windows;
 };
 
 extern XCBApp appdata;
@@ -211,15 +546,43 @@ extern size_t LoadBinaryData(const char* filename,
 )";
 
 static const char* sXcbOutputOverrideMethod = R"(
+XCBApp::~XCBApp()
+{
+    if (connection == nullptr) {
+        return;
+    }
+
+    for (xcb_window_t open_window : windows) {
+        xcb_destroy_window(connection, open_window);
+    }
+    windows.clear();
+    window = 0;
+
+    xcb_flush(connection);
+    xcb_disconnect(connection);
+    connection = nullptr;
+}
+
 void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
                                        struct XCBApp& appdata) {
-    // Open the connection to the X server
-    xcb_connection_t *connection = xcb_connect(NULL, NULL);
+    // Open the connection to the X server once and keep it.  A new connection for
+    // each surface leaves the earlier windows on the screen until the X server
+    // notices that the client has gone.
+    if (appdata.connection == nullptr) {
+        appdata.connection = xcb_connect(NULL, NULL);
 
-    if (xcb_connection_has_error(connection) > 0)
-    {
-      printf("Cannot open display\n");
-      exit(1);
+        if (xcb_connection_has_error(appdata.connection) > 0)
+        {
+          printf("Cannot open display\n");
+          exit(1);
+        }
+    }
+    xcb_connection_t *connection = appdata.connection;
+
+    // Take the window that came before off the screen.  This structure holds one
+    // window, so the program draws to the newest one only.
+    if (appdata.window != 0) {
+        xcb_unmap_window(connection, appdata.window);
     }
 
     // Get the first screen
@@ -246,8 +609,8 @@ void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
     // Make sure commands are sent before we pause so that the window gets shown
     xcb_flush(connection);
 
-    appdata.connection = connection;
     appdata.window = window;
+    appdata.windows.push_back(window);
 
     createInfo->sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     createInfo->connection = connection;
@@ -267,15 +630,24 @@ void UpdateWindowSize(uint32_t width,
                          XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
                          values);
 
-    // Wait until the window size has changed
-    while (true) {
+    // Wait until the window size has changed.  A window manager can refuse the
+    // request, so give up after a limited time instead of waiting forever.
+    const uint32_t kMaxWaitIterations = 200; // 200 * 5 ms = 1 second
+    for (uint32_t wait = 0; wait < kMaxWaitIterations; ++wait) {
       xcb_get_geometry_cookie_t geometryCookie =
           xcb_get_geometry(appdata.connection, appdata.window);
       xcb_get_geometry_reply_t* geometry =
           xcb_get_geometry_reply(appdata.connection, geometryCookie, NULL);
 
-      if (geometry != NULL && geometry->width != appdata.width ||
-          geometry->height != appdata.height) {
+      if (geometry == NULL) {
+        break;
+      }
+
+      bool size_changed = (geometry->width != appdata.width) ||
+                          (geometry->height != appdata.height);
+      free(geometry);
+
+      if (size_changed) {
         break;
       }
       usleep(5000);
@@ -328,7 +700,10 @@ target_link_libraries(vulkan_app vulkan xcb)
 static const char* sWaylandOutputMainStart = R"(
 #include "global_var.h"
 
-int main() {
+int main(int argc, char** argv) {
+    if (!ParseCommandLine(argc, argv)) {
+        return 0;
+    }
 )";
 
 static const char* sWaylandOutputMainEnd = R"(
@@ -406,16 +781,17 @@ static const char* sWaylandOutputOverrideMethod = R"(
 
 WaylandApp::~WaylandApp()
 {
-  wl_buffer_destroy(appdata.wl.buffer);
-  wl_shm_pool_destroy(appdata.wl.shm_pool);
-  wl_shm_destroy(appdata.wl.shm);
-  close(appdata.wl.shm_fd);
-  xdg_wm_base_destroy(appdata.xdg.wm_base);
-  xdg_toplevel_destroy(appdata.xdg.toplevel);
-  xdg_surface_destroy(appdata.xdg.surface);
-  wl_surface_destroy(appdata.wl.surface);
-  wl_compositor_destroy(appdata.wl.compositor);
-  wl_display_disconnect(appdata.wl.display);
+  // A capture that makes no surface leaves all of these empty, so test each one.
+  if (appdata.wl.buffer != nullptr)     { wl_buffer_destroy(appdata.wl.buffer); }
+  if (appdata.wl.shm_pool != nullptr)   { wl_shm_pool_destroy(appdata.wl.shm_pool); }
+  if (appdata.wl.shm != nullptr)        { wl_shm_destroy(appdata.wl.shm); }
+  if (appdata.wl.shm_fd >= 0)           { close(appdata.wl.shm_fd); }
+  if (appdata.xdg.wm_base != nullptr)   { xdg_wm_base_destroy(appdata.xdg.wm_base); }
+  if (appdata.xdg.toplevel != nullptr)  { xdg_toplevel_destroy(appdata.xdg.toplevel); }
+  if (appdata.xdg.surface != nullptr)   { xdg_surface_destroy(appdata.xdg.surface); }
+  if (appdata.wl.surface != nullptr)    { wl_surface_destroy(appdata.wl.surface); }
+  if (appdata.wl.compositor != nullptr) { wl_compositor_destroy(appdata.wl.compositor); }
+  if (appdata.wl.display != nullptr)    { wl_display_disconnect(appdata.wl.display); }
 }
 
 static void Randname(char *buf)
@@ -886,7 +1262,11 @@ static const char* sWin32OutputMainStart = R"(
 
 #include "global_var.h"
 
-int main() {
+int main(int argc, char** argv) {
+    if (!ParseCommandLine(argc, argv)) {
+        return 0;
+    }
+
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -916,11 +1296,15 @@ struct Win32App {
         width = w;
         height = h;
     }
+    ~Win32App();
+
     uint32_t width { 320 };
     uint32_t height { 240 };
-    GLFWwindow* window;
-    HINSTANCE hInstance;
-    HWND hWnd;
+    GLFWwindow* window { nullptr };
+    HINSTANCE hInstance { nullptr };
+    HWND hWnd { nullptr };
+    // Every window that the program made.
+    std::vector<GLFWwindow*> windows;
 };
 
 extern Win32App appdata;
@@ -945,14 +1329,31 @@ extern size_t LoadBinaryData(const char* filename,
 )";
 
 static const char* sWin32OutputOverrideMethod = R"(
+Win32App::~Win32App()
+{
+    for (GLFWwindow* open_window : windows) {
+        glfwDestroyWindow(open_window);
+    }
+    windows.clear();
+    window = nullptr;
+
+    glfwTerminate();
+}
+
 void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo,
                                          struct Win32App& appdata)
 {
+    // This structure holds one window, so hide the one that came before.
+    if (appdata.window != nullptr) {
+        glfwHideWindow(appdata.window);
+    }
+
     appdata.window = glfwCreateWindow(appdata.width,
                                       appdata.height,
                                       "Vulkan",
                                       nullptr,
                                       nullptr);
+    appdata.windows.push_back(appdata.window);
     appdata.hWnd = glfwGetWin32Window(appdata.window);
     appdata.hInstance = GetModuleHandle(nullptr);
 
@@ -1746,11 +2147,26 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
     VkResult result = VK_SUCCESS;
     if (expected_result == VK_SUCCESS)
     {
-        while ((result = loaded_vkAcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, replay_index)) !=
-               VK_SUCCESS)
+        // Retry only while the runtime has no image ready.  VK_SUBOPTIMAL_KHR is a
+        // success code, so it must not cause a retry.  A retry after a success also
+        // signals the semaphore a second time, which is not valid.
+        do
         {
-            usleep(5000);
-        };
+            result = loaded_vkAcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, replay_index);
+            if (result == VK_TIMEOUT || result == VK_NOT_READY)
+            {
+                usleep(5000);
+                continue;
+            }
+            break;
+        } while (true);
+
+        if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        {
+            printf("ERROR: vkAcquireNextImageKHR returned %d for swapchain %p\n",
+                   static_cast<int>(result),
+                   static_cast<void*>(swapchain));
+        }
     }
     else
     {
@@ -1758,8 +2174,10 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
     }
 
 #if USE_VIRTUAL_SWAPCHAIN
-    // Record the capture versus replay indices
-    if (result == VK_SUCCESS && g_swapchain_info.find(swapchain) != g_swapchain_info.end())
+    // Record the capture versus replay indices.  VK_SUBOPTIMAL_KHR still gives a
+    // valid image, so it must record the index as well.
+    if ((result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) &&
+        g_swapchain_info.find(swapchain) != g_swapchain_info.end())
     {
         ToCppSwapchainInfo* swapchain_info     = g_swapchain_info[swapchain];
         uint32_t            replay_image_index = *replay_index;
