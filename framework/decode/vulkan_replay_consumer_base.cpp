@@ -7784,20 +7784,10 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
                                    imageMemoryBarrierCount,
                                    pImageMemoryBarriers->GetPointer());
 
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
-    {
-        auto                        image_id = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
-        const VkImageMemoryBarrier& barrier  = pImageMemoryBarriers->GetPointer()[i];
-
-        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
-        if (img_info != nullptr)
-        {
-            InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
-            command_buffer_info->image_layout_barriers[image_id].SetLayout(barrier.subresourceRange, barrier.newLayout);
-
-            img_info->intermediate_layout = barrier.newLayout;
-        }
-    }
+    UpdateTrackedImageLayoutBarriers(command_buffer_info,
+                                     imageMemoryBarrierCount,
+                                     pImageMemoryBarriers->GetMetaStructPointer(),
+                                     pImageMemoryBarriers->GetPointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
@@ -7812,22 +7802,11 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
         const auto* dependency_info_meta = pDependencyInfo->GetMetaStructPointer();
         if (dependency_info_meta->pImageMemoryBarriers != nullptr)
         {
-            const auto* img_barriers_meta = dependency_info_meta->pImageMemoryBarriers->GetMetaStructPointer();
-            for (uint32_t i = 0; i < dependency_info_meta->pImageMemoryBarriers->GetLength(); ++i)
-            {
-                format::HandleId             image_id = img_barriers_meta[i].image;
-                const VkImageMemoryBarrier2& barrier  = dependency_info_meta->pImageMemoryBarriers->GetPointer()[i];
-
-                VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
-                if (img_info != nullptr)
-                {
-                    InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
-                    command_buffer_info->image_layout_barriers[image_id].SetLayout(barrier.subresourceRange,
-                                                                                   barrier.newLayout);
-
-                    img_info->intermediate_layout = barrier.newLayout;
-                }
-            }
+            UpdateTrackedImageLayoutBarriers(
+                command_buffer_info,
+                static_cast<uint32_t>(dependency_info_meta->pImageMemoryBarriers->GetLength()),
+                dependency_info_meta->pImageMemoryBarriers->GetMetaStructPointer(),
+                dependency_info_meta->pImageMemoryBarriers->GetPointer());
         }
     }
 }
@@ -7866,20 +7845,10 @@ void VulkanReplayConsumerBase::OverrideCmdWaitEvents(
          imageMemoryBarrierCount,
          pImageMemoryBarriers->GetPointer());
 
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
-    {
-        auto                        image_id = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
-        const VkImageMemoryBarrier& barrier  = pImageMemoryBarriers->GetPointer()[i];
-
-        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
-        if (img_info != nullptr)
-        {
-            InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
-            command_buffer_info->image_layout_barriers[image_id].SetLayout(barrier.subresourceRange, barrier.newLayout);
-
-            img_info->intermediate_layout = barrier.newLayout;
-        }
-    }
+    UpdateTrackedImageLayoutBarriers(command_buffer_info,
+                                     imageMemoryBarrierCount,
+                                     pImageMemoryBarriers->GetMetaStructPointer(),
+                                     pImageMemoryBarriers->GetPointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
@@ -7909,21 +7878,8 @@ void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
                 continue;
             }
 
-            for (uint32_t j = 0; j < dependency_info[i].imageMemoryBarrierCount; ++j)
-            {
-                format::HandleId              image_id = img_barriers_meta[j].image;
-                const VkImageMemoryBarrier2&  barrier  = img_barriers[j];
-
-                VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
-                if (img_info != nullptr)
-                {
-                    InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
-                    command_buffer_info->image_layout_barriers[image_id].SetLayout(barrier.subresourceRange,
-                                                                                   barrier.newLayout);
-
-                    img_info->intermediate_layout = barrier.newLayout;
-                }
-            }
+            UpdateTrackedImageLayoutBarriers(
+                command_buffer_info, dependency_info[i].imageMemoryBarrierCount, img_barriers_meta, img_barriers);
         }
     }
 }
@@ -11649,54 +11605,14 @@ void VulkanReplayConsumerBase::UpdateTrackedRenderPassFinalLayouts(VulkanCommand
 
     for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
     {
-        auto image_view_id   = attachment_image_view_ids[i];
-        auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-        if (image_view_info == nullptr)
-        {
-            continue;
-        }
+        format::HandleId image_view_id = attachment_image_view_ids[i];
 
-        const VkImageLayout final_layout = render_pass_info->attachment_description_final_layouts[i];
-        const VkImageLayout stencil_final_layout =
-            (i < render_pass_info->attachment_description_stencil_final_layouts.size())
-                ? render_pass_info->attachment_description_stencil_final_layouts[i]
-                : VK_IMAGE_LAYOUT_UNDEFINED;
+        UpdateTrackedImageViewLayout(
+            command_buffer_info, image_view_id, render_pass_info->attachment_description_final_layouts[i]);
 
-        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_view_info->image_id);
-        if (img_info == nullptr)
-        {
-            continue;
-        }
-
-        InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
-
-        const VkImageAspectFlags  view_aspects = image_view_info->subresource_range.aspectMask;
-        graphics::ImageLayoutMap& command_buffer_layouts =
-            command_buffer_info->image_layout_barriers[image_view_info->image_id];
-
-        VkImageSubresourceRange range = image_view_info->subresource_range;
-        range.aspectMask              = view_aspects & graphics::GetLayoutAspects(final_layout);
-
-        if (stencil_final_layout != VK_IMAGE_LAYOUT_UNDEFINED)
-        {
-            // finalLayout describes the depth aspect only, stencilFinalLayout describes the stencil aspect.
-            range.aspectMask &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
-        }
-
-        if (range.aspectMask != 0)
-        {
-            command_buffer_layouts.SetLayout(range, final_layout);
-        }
-
-        // Track transition of the stencil aspect.
-        if ((stencil_final_layout != VK_IMAGE_LAYOUT_UNDEFINED) && ((view_aspects & VK_IMAGE_ASPECT_STENCIL_BIT) != 0))
-        {
-            VkImageSubresourceRange stencil_range = image_view_info->subresource_range;
-            stencil_range.aspectMask              = VK_IMAGE_ASPECT_STENCIL_BIT;
-            command_buffer_layouts.SetLayout(stencil_range, stencil_final_layout);
-        }
-
-        img_info->intermediate_layout = final_layout;
+        // The stencil aspect can have its own final layout
+        UpdateTrackedImageViewLayout(
+            command_buffer_info, image_view_id, render_pass_info->attachment_description_stencil_final_layouts[i]);
     }
 }
 
@@ -11732,6 +11648,50 @@ void VulkanReplayConsumerBase::UpdateTrackedImageViewLayout(VulkanCommandBufferI
     }
 
     image_info->intermediate_layout = layout;
+}
+
+void VulkanReplayConsumerBase::UpdateTrackedImageLayoutBarriers(
+    VulkanCommandBufferInfo*            command_buffer_info,
+    uint32_t                            imageMemoryBarrierCount,
+    const Decoded_VkImageMemoryBarrier* image_memory_barriers_meta,
+    const VkImageMemoryBarrier*         image_memory_barriers)
+{
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+    {
+        format::HandleId image_id = image_memory_barriers_meta[i].image;
+
+        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
+        if (img_info != nullptr)
+        {
+            InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
+            command_buffer_info->image_layout_barriers[image_id].SetLayout(image_memory_barriers[i].subresourceRange,
+                                                                           image_memory_barriers[i].newLayout);
+
+            img_info->intermediate_layout = image_memory_barriers[i].newLayout;
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::UpdateTrackedImageLayoutBarriers(
+    VulkanCommandBufferInfo*             command_buffer_info,
+    uint32_t                             imageMemoryBarrierCount,
+    const Decoded_VkImageMemoryBarrier2* image_memory_barriers_meta,
+    const VkImageMemoryBarrier2*         image_memory_barriers)
+{
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+    {
+        format::HandleId image_id = image_memory_barriers_meta[i].image;
+
+        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
+        if (img_info != nullptr)
+        {
+            InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
+            command_buffer_info->image_layout_barriers[image_id].SetLayout(image_memory_barriers[i].subresourceRange,
+                                                                           image_memory_barriers[i].newLayout);
+
+            img_info->intermediate_layout = image_memory_barriers[i].newLayout;
+        }
+    }
 }
 
 void VulkanReplayConsumerBase::UpdateTrackedAttachmentLayout(VulkanCommandBufferInfo*         command_buffer_info,

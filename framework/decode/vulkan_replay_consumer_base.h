@@ -1535,6 +1535,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                       format::HandleId         image_view_id,
                                       VkImageLayout            layout);
 
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*            command_buffer_info,
+                                          uint32_t                            imageMemoryBarrierCount,
+                                          const Decoded_VkImageMemoryBarrier* image_memory_barriers_meta,
+                                          const VkImageMemoryBarrier*         image_memory_barriers);
+
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*             command_buffer_info,
+                                          uint32_t                             imageMemoryBarrierCount,
+                                          const Decoded_VkImageMemoryBarrier2* image_memory_barriers_meta,
+                                          const VkImageMemoryBarrier2*         image_memory_barriers);
+
     void UpdateTrackedAttachmentLayout(VulkanCommandBufferInfo*                 command_buffer_info,
                                        const VkRenderingAttachmentInfo*         attachment,
                                        const Decoded_VkRenderingAttachmentInfo* attachment_meta);
