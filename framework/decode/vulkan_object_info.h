@@ -30,6 +30,7 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_image_layout_map.h"
 #include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "graphics/vulkan_util.h"
@@ -523,7 +524,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              level_count{ 0 };
     uint32_t              queue_family_index{ 0 };
 
-    VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    graphics::ImageLayoutMap subresource_layouts;
+
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
@@ -661,14 +663,14 @@ struct VulkanSurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 
 struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
-    VkSurfaceKHR         surface{ VK_NULL_HANDLE };
-    format::HandleId     surface_id{ format::kNullHandleId };
-    VulkanDeviceInfo*    device_info{ nullptr };
-    uint32_t             width{ 0 };
-    uint32_t             height{ 0 };
-    VkFormat             format{ VK_FORMAT_UNDEFINED };
+    VkSurfaceKHR          surface{ VK_NULL_HANDLE };
+    format::HandleId      surface_id{ format::kNullHandleId };
+    VulkanDeviceInfo*     device_info{ nullptr };
+    uint32_t              width{ 0 };
+    uint32_t              height{ 0 };
+    VkFormat              format{ VK_FORMAT_UNDEFINED };
     std::vector<VkFormat> supported_view_formats; // Based on VkImageFormatListCreateInfo
-    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
+    std::vector<VkImage>  images; // This image could be virtual or real according to if it uses VirtualSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The acquired_indices value and the remapping performed with it.
@@ -706,7 +708,8 @@ struct VulkanValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheE
 
 struct VulkanImageViewInfo : public VulkanObjectInfo<VkImageView>
 {
-    format::HandleId image_id{ format::kNullHandleId };
+    format::HandleId        image_id{ format::kNullHandleId };
+    VkImageSubresourceRange subresource_range{};
 };
 
 struct VulkanFramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
@@ -755,12 +758,14 @@ struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                                                      is_frame_boundary{ false };
-    std::vector<format::HandleId>                             frame_buffer_ids;
-    format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
-    format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
-    std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
-    std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
+    bool                          is_frame_boundary{ false };
+    std::vector<format::HandleId> frame_buffer_ids;
+    format::HandleId              active_render_pass_id{ format::kNullHandleId };
+    format::HandleId              active_framebuffer_id{ format::kNullHandleId };
+    std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+
+    std::unordered_map<format::HandleId, graphics::ImageLayoutMap> image_layout_barriers;
+
     std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
     std::vector<uint8_t>                                      push_constant_data;
     VkShaderStageFlags                                        push_constant_stage_flags     = 0;
@@ -794,7 +799,10 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
 {
-    std::vector<VkImageLayout>           attachment_description_final_layouts;
+    std::vector<VkImageLayout> attachment_description_final_layouts;
+
+    std::vector<VkImageLayout> attachment_description_stencil_final_layouts;
+
     std::vector<VkAttachmentDescription> attachment_descs;
 
     std::vector<uint8_t> create_info;
