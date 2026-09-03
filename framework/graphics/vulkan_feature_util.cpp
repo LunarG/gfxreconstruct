@@ -173,6 +173,21 @@ bool IsSupportedExtension(const std::vector<const char*>& extensions_names, cons
     return false;
 }
 
+bool IsSupportedExtension(const std::vector<std::string>& extensions_names, const char* extension)
+{
+    assert(extension != nullptr);
+
+    for (const auto name : extensions_names)
+    {
+        if (util::platform::StringCompare(name.c_str(), extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool EnableExtensionIfSupported(const std::vector<VkExtensionProperties>& properties,
                                 std::vector<const char*>*                 extensions,
                                 const char*                               extension)

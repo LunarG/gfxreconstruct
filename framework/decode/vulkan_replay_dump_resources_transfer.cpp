@@ -60,8 +60,7 @@ TransferDumpingContext::TransferDumpingContext(
     object_info_table_(object_info_table),
     bcb_index_(bcb_index), qs_index_(qs_index), instance_tables_(instance_tables), device_tables_(device_tables),
     options_(options), delegate_(delegate), address_trackers_(address_trackers),
-    acceleration_structures_context_(acceleration_structures_context), compressor_(compressor), device_table_(nullptr),
-    device_info_(nullptr)
+    acceleration_structures_context_(acceleration_structures_context), compressor_(compressor), device_info_(nullptr)
 {
     if (transfer_indices != nullptr)
     {
@@ -81,7 +80,7 @@ void TransferDumpingContext::GetDispatchTables(format::HandleId device_id)
 
     auto dev_table = device_tables_.find(graphics::GetVulkanDispatchKey(device_info_->handle));
     GFXRECON_ASSERT(dev_table != device_tables_.end());
-    device_table_ = &dev_table->second;
+    device_table_ = graphics::VulkanInjectedDeviceCalls(&dev_table->second);
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
     GFXRECON_ASSERT(phys_dev_info);
@@ -102,11 +101,13 @@ VkResult TransferDumpingContext::HandleInitBufferCommand(
 
     if (MustDumpTransfer(cmd_index))
     {
+        GetDispatchTables(device_id);
+
         auto [new_entry, success] = transfer_params_.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(cmd_index),
             std::forward_as_tuple(
-                buffer_id, data, data_size, *device_table_, device_info_, TransferCommandTypes::kCmdInitBuffer));
+                buffer_id, data, data_size, device_table_, device_info_, TransferCommandTypes::kCmdInitBuffer));
         GFXRECON_ASSERT(success);
     }
 
@@ -120,6 +121,8 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
                                                      TransferParams::CopiedImage& dst_image)
 {
     GFXRECON_ASSERT(src_image != nullptr);
+
+    auto injected = device_table_.Open();
 
     if (dst_image.image == VK_NULL_HANDLE)
     {
@@ -142,7 +145,9 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
         dst_image.image_info.handle              = dst_image.image;
         dst_image.image_info.capture_id          = format::kNullHandleId;
         dst_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        dst_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dst_image.image_info.subresource_layouts.Initialize(
+            dst_image.image_info.level_count, dst_image.image_info.layer_count, aspects);
+        dst_image.image_info.subresource_layouts.SetUniformLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
         // Transition new image/aspect into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
         const VkImageMemoryBarrier new_img_barrier = {
@@ -157,16 +162,16 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
             dst_image.image,
             { aspects, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS }
         };
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &new_img_barrier);
+        injected->CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VkDependencyFlags(0),
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &new_img_barrier);
     }
 
     // Flush any pending writes to image and transition into VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
@@ -183,16 +188,16 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
         { static_cast<VkImageAspectFlags>(aspects), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS }
     };
 
-    device_table_->CmdPipelineBarrier(command_buffer,
-                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &img_barrier);
+    injected->CmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &img_barrier);
 
     // Copy whole image
     std::vector<VkImageCopy> copy_regions(src_image->level_count);
@@ -205,13 +210,13 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
         copy_regions[m].extent         = graphics::ScaleToMipLevel(src_image->extent, m);
     }
 
-    device_table_->CmdCopyImage(command_buffer,
-                                src_image->handle,
-                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                dst_image.image,
-                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                src_image->level_count,
-                                copy_regions.data());
+    injected->CmdCopyImage(command_buffer,
+                           src_image->handle,
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           dst_image.image,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           src_image->level_count,
+                           copy_regions.data());
 
     // Flush copy and transition image into TRANSFER_SRC_OPTIMAL
     img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -220,16 +225,16 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
     img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.image         = dst_image.image;
 
-    device_table_->CmdPipelineBarrier(command_buffer,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VkDependencyFlags(0),
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &img_barrier);
+    injected->CmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &img_barrier);
 
     // Transition source image back into previous layout
     if (src_image_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
@@ -240,16 +245,16 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
         img_barrier.newLayout     = src_image_layout;
         img_barrier.image         = src_image->handle;
 
-        device_table_->CmdPipelineBarrier(command_buffer,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
+        injected->CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     VkDependencyFlags(0),
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
     }
 
     return VK_SUCCESS;
@@ -289,7 +294,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         const auto* img_info = object_info_table_.GetVkImageInfo(image_id);
         const auto* dev_info = object_info_table_.GetVkDeviceInfo(device_id);
 
-        TemporaryCommandBuffer temp_command_buffer(*dev_info, *device_table_);
+        TemporaryCommandBuffer temp_command_buffer(*dev_info, device_table_);
         VkCommandBuffer        cmd_buf;
         if (command_buffer == VK_NULL_HANDLE)
         {
@@ -312,7 +317,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
                 std::piecewise_construct,
                 std::forward_as_tuple(cmd_index),
                 std::forward_as_tuple(
-                    *img_info, aspect, layout, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
+                    *img_info, aspect, layout, device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
             GFXRECON_ASSERT(success);
 
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(new_entry->second.params.get());
@@ -364,7 +369,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
                                          std::forward_as_tuple(call_info.index),
                                          std::forward_as_tuple(srcBuffer->capture_id,
                                                                dstBuffer->capture_id,
-                                                               *device_table_,
+                                                               device_table_,
                                                                device_info_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyBuffer));
@@ -382,13 +387,14 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
         }
         GFXRECON_ASSERT(copy_buffer_params != nullptr);
 
+        auto injected = device_table_.Open();
         for (uint32_t i = 0; i < regionCount; ++i)
         {
             auto& new_region = copy_buffer_params->regions.emplace_back(pRegions[i]);
 
             // Create a new vulkan buffer for each region
             VkResult res = CreateVkBuffer(pRegions[i].size,
-                                          *device_table_,
+                                          device_table_,
                                           device_info_->handle,
                                           nullptr,
                                           nullptr,
@@ -417,21 +423,20 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
                                                   dstBuffer->handle,
                                                   pRegions[i].dstOffset,
                                                   pRegions[i].size };
-            device_table_->CmdPipelineBarrier(commandBuffer,
-                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buf_barrier,
-                                              0,
-                                              nullptr);
+            injected->CmdPipelineBarrier(commandBuffer,
+                                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &buf_barrier,
+                                         0,
+                                         nullptr);
 
             // Inject copy command
             const std::vector<VkBufferCopy> region{ VkBufferCopy{ pRegions[i].dstOffset, 0, pRegions[i].size } };
-            CopyBufferAndBarrier(
-                commandBuffer, *device_table_, dstBuffer->handle, new_region.vk_objects.buffer, region);
+            CopyBufferAndBarrier(commandBuffer, device_table_, dstBuffer->handle, new_region.vk_objects.buffer, region);
         }
     }
 
@@ -493,7 +498,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
                                          std::forward_as_tuple(srcBuffer->capture_id,
                                                                *dstImage,
                                                                dstImageLayout,
-                                                               *device_table_,
+                                                               device_table_,
                                                                device_info_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyBufferToImage));
@@ -592,7 +597,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
                                                                srcImageLayout,
                                                                *dstImage,
                                                                dstImageLayout,
-                                                               *device_table_,
+                                                               device_table_,
                                                                device_info_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyImage));
@@ -685,7 +690,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
                                          std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
                                                                dstBuffer->capture_id,
-                                                               *device_table_,
+                                                               device_table_,
                                                                device_info_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyImageToBuffer));
@@ -704,6 +709,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
         }
         GFXRECON_ASSERT(copy_image_to_buffer_params != nullptr);
 
+        auto injected = device_table_.Open();
         for (uint32_t i = 0; i < regionCount; ++i)
         {
             auto& new_region = copy_image_to_buffer_params->regions.emplace_back(pRegions[i]);
@@ -729,7 +735,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
 
             // Create a new vulkan buffer for each region
             VkResult res = CreateVkBuffer(region_buffer_size,
-                                          *device_table_,
+                                          device_table_,
                                           device_info_->handle,
                                           nullptr,
                                           nullptr,
@@ -756,21 +762,20 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
                                                    dstBuffer->handle,
                                                    pRegions[i].bufferOffset,
                                                    region_buffer_size };
-            device_table_->CmdPipelineBarrier(commandBuffer,
-                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VkDependencyFlags(0),
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buff_barrier,
-                                              0,
-                                              nullptr);
+            injected->CmdPipelineBarrier(commandBuffer,
+                                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VkDependencyFlags(0),
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &buff_barrier,
+                                         0,
+                                         nullptr);
 
             // Copy regions with CmdCopyBuffer
             const std::vector<VkBufferCopy> region{ VkBufferCopy{ pRegions[i].bufferOffset, 0, region_buffer_size } };
-            CopyBufferAndBarrier(
-                commandBuffer, *device_table_, dstBuffer->handle, new_region.vk_objects.buffer, region);
+            CopyBufferAndBarrier(commandBuffer, device_table_, dstBuffer->handle, new_region.vk_objects.buffer, region);
         }
     }
 
@@ -842,7 +847,7 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
                                                                *dstImage,
                                                                dstImageLayout,
                                                                filter,
-                                                               *device_table_,
+                                                               device_table_,
                                                                device_info_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdBlitImage));
@@ -937,7 +942,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(*device_table_,
+                                         std::forward_as_tuple(device_table_,
                                                                device_info_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdBuildAccelerationStructures));
@@ -957,6 +962,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
         build_params->build_infos.reserve(infoCount);
 
+        auto injected = device_table_.Open();
         for (uint32_t i = 0; i < infoCount; ++i)
         {
             const auto* dst_as =
@@ -965,7 +971,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 object_info_table_.GetVkAccelerationStructureKHRInfo(p_infos_meta[i].srcAccelerationStructure);
 
             VkResult               res;
-            TemporaryCommandBuffer temp_command_buffer(*device_info_, *device_table_);
+            TemporaryCommandBuffer temp_command_buffer(*device_info_, device_table_);
 
             // NULL command buffer means that this is coming from the state setup section
             if (commandBuffer == VK_NULL_HANDLE)
@@ -980,9 +986,9 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
             const VkCommandBuffer command_buffer =
                 commandBuffer != VK_NULL_HANDLE ? commandBuffer : temp_command_buffer.command_buffer;
 
-            GFXRECON_ASSERT(device_table_ != nullptr);
+            GFXRECON_ASSERT(device_table_.IsValid());
             auto& new_build_info = build_params->build_infos.emplace_back(
-                src_as, dst_as, p_infos[i].mode, *device_table_, object_info_table_, address_trackers_);
+                src_as, dst_as, p_infos[i].mode, device_table_, object_info_table_, address_trackers_);
 
             if (!before_command)
             {
@@ -1016,7 +1022,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
             // Clone the dst acceleration structure
             res = CreateVkBuffer(dst_as->size,
-                                 *device_table_,
+                                 device_table_,
                                  device_info_->handle,
                                  nullptr,
                                  nullptr,
@@ -1044,7 +1050,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 dst_as->type,
                 0
             };
-            res = device_table_->CreateAccelerationStructureKHR(
+            res = injected->CreateAccelerationStructureKHR(
                 device_info_->handle, &as_ci, nullptr, &new_build_info.vk_objects.as_info->handle);
             if (res != VK_SUCCESS)
             {
@@ -1066,23 +1072,23 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                                           dst_as->buffer,
                                                           0,
                                                           VK_WHOLE_SIZE };
-            device_table_->CmdPipelineBarrier(command_buffer,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
-                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &dst_buf_mem_barrier,
-                                              0,
-                                              nullptr);
+            injected->CmdPipelineBarrier(command_buffer,
+                                         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &dst_buf_mem_barrier,
+                                         0,
+                                         nullptr);
 
             // Inject vkCmdCopyBuffer to Copy destination's backing buffer
             const std::vector<VkBufferCopy> region{ VkBufferCopy{ 0, 0, dst_as->size } };
             CopyBufferAndBarrier(
                 command_buffer,
-                *device_table_,
+                device_table_,
                 dst_as->buffer,
                 new_build_info.vk_objects.as_info->buffer,
                 region,
@@ -1132,7 +1138,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                          std::forward_as_tuple(src_as->capture_id,
                                                                dst_as,
                                                                p_info_meta->decoded_value->mode,
-                                                               *device_table_,
+                                                               device_table_,
                                                                device_info_,
                                                                object_info_table_,
                                                                address_trackers_,
@@ -1167,7 +1173,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
         // Clone destination acceleration structure
         // Clone the dst acceleration structure
         VkResult res = CreateVkBuffer(dst_as->size,
-                                      *device_table_,
+                                      device_table_,
                                       device_info_->handle,
                                       nullptr,
                                       nullptr,
@@ -1192,7 +1198,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                                              dst_as->type,
                                                              0 };
         // Create the cloned AS
-        res = device_table_->CreateAccelerationStructureKHR(
+        auto injected = device_table_.Open();
+        res           = injected->CreateAccelerationStructureKHR(
             device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as_info->handle);
         if (res != VK_SUCCESS)
         {
@@ -1213,22 +1220,22 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
             0,
             VK_WHOLE_SIZE
         };
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                                          VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          0,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &dst_buf_mem_barrier,
-                                          0,
-                                          nullptr);
+        injected->CmdPipelineBarrier(commandBuffer,
+                                     VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                     VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &dst_buf_mem_barrier,
+                                     0,
+                                     nullptr);
 
         // Inject vkCmdCopyBuffer to Copy destination's backing buffer
         const std::vector<VkBufferCopy> region{ VkBufferCopy{ 0, 0, dst_as->size } };
         CopyBufferAndBarrier(commandBuffer,
-                             *device_table_,
+                             device_table_,
                              dst_as->buffer,
                              copy_as_params->vk_objects.as_info->buffer,
                              region,
@@ -1805,7 +1812,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                              &build_info.vk_objects.as_context,
                                                              acceleration_structures_context_,
                                                              device_info_,
-                                                             *device_table_,
+                                                             device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
                                                              address_trackers_);
@@ -1845,7 +1852,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                                  &build_info.vk_objects.as_context,
                                                                  acceleration_structures_context_,
                                                                  device_info_,
-                                                                 *device_table_,
+                                                                 device_table_,
                                                                  object_info_table_,
                                                                  *instance_table_,
                                                                  address_trackers_);
@@ -1889,7 +1896,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                          &copy_as->vk_objects.as_context,
                                                          acceleration_structures_context_,
                                                          device_info_,
-                                                         *device_table_,
+                                                         device_table_,
                                                          object_info_table_,
                                                          *instance_table_,
                                                          address_trackers_,
@@ -1916,7 +1923,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                              &copy_as_before->vk_objects.as_context,
                                                              acceleration_structures_context_,
                                                              device_info_,
-                                                             *device_table_,
+                                                             device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
                                                              address_trackers_,

@@ -641,8 +641,7 @@ InitializeState<VkDevice, vulkan_wrappers::DataGraphPipelineSessionARMWrapper, V
     GFXRECON_ASSERT(wrapper != nullptr);
     GFXRECON_ASSERT(create_parameters != nullptr);
 
-    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
-
+    wrapper->device            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
@@ -699,8 +698,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->created_size = create_info->size;
-
     if ((create_info->flags & VK_BUFFER_CREATE_SPARSE_BINDING_BIT) != 0)
     {
         wrapper->is_sparse_buffer = true;
@@ -725,6 +722,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::TensorARMWrapper, VkTenso
     GFXRECON_ASSERT(create_info != nullptr);
     GFXRECON_ASSERT(create_parameters != nullptr);
 
+    wrapper->device            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
@@ -778,8 +776,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
 
-    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
-
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
@@ -819,7 +815,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     else
     {
         const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
-        VkMemoryRequirements     image_mem_reqs;
+        VkMemoryRequirements               image_mem_reqs;
         assert(wrapper->handle != VK_NULL_HANDLE);
         device_table->GetImageMemoryRequirements(parent_handle, wrapper->handle, &image_mem_reqs);
         wrapper->size = image_mem_reqs.size;

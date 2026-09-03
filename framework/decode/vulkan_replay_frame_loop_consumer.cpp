@@ -475,6 +475,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             GFXRECON_LOG_DEBUG(
                 "Resetting pool 0x%" PRIx64 " (replay time handle == 0x%" PRIx64 ")", info->handle, info->capture_id);
             device_table->CmdResetQueryPool(cb_info->handle, pool_handle, 0, pool_size);
+
+            // keep tracked query availability in sync with the injected reset
+            cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
     }
 }
@@ -718,6 +721,9 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceEvents(format::HandleId device)
         {
             CHECK_VK_RESULT(device_table->ResetEvent(vk_device, vk_event), "vkResetEvent");
         }
+
+        // keep tracked event terminal-state in sync with the fixup
+        event_info->latched_set = was_initially_set;
     }
 }
 
@@ -871,13 +877,100 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
     }
 }
 
+// The aspect bits ImageLayoutMap tracks, in the order it slots them.
+static constexpr VkImageAspectFlagBits kTrackedAspects[] = { VK_IMAGE_ASPECT_COLOR_BIT,   VK_IMAGE_ASPECT_DEPTH_BIT,
+                                                             VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_ASPECT_PLANE_0_BIT,
+                                                             VK_IMAGE_ASPECT_PLANE_1_BIT, VK_IMAGE_ASPECT_PLANE_2_BIT };
+
+static bool IsRestorableLayout(VkImageLayout layout)
+{
+    return (layout != VK_IMAGE_LAYOUT_UNDEFINED) && (layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
+}
+
+static VkImageMemoryBarrier MakeLayoutRestoreBarrier(VkImage                        image,
+                                                     VkImageLayout                  old_layout,
+                                                     VkImageLayout                  new_layout,
+                                                     const VkImageSubresourceRange& subresource_range)
+{
+    VkImageMemoryBarrier barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+    barrier.srcAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.dstAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.oldLayout            = old_layout;
+    barrier.newLayout            = new_layout;
+    barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image                = image;
+    barrier.subresourceRange     = subresource_range;
+    return barrier;
+}
+
+static void AppendImageLayoutRestoreBarriers(const VulkanImageInfo*             image_info,
+                                             const graphics::ImageLayoutMap&    initial_layouts,
+                                             std::vector<VkImageMemoryBarrier>& barriers)
+{
+    const graphics::ImageLayoutMap& current_layouts = image_info->subresource_layouts;
+
+    if (!initial_layouts.IsInitialized() || !current_layouts.IsInitialized())
+    {
+        return;
+    }
+
+    const VkImageAspectFlags aspects      = initial_layouts.GetAspects();
+    const uint32_t           mip_levels   = initial_layouts.GetMipLevels();
+    const uint32_t           array_layers = initial_layouts.GetArrayLayers();
+
+    // Uniform fast path.
+    if (initial_layouts.IsUniform() && current_layouts.IsUniform())
+    {
+        const VkImageAspectFlagBits first_aspect = static_cast<VkImageAspectFlagBits>(aspects & ~(aspects - 1));
+        const VkImageLayout         initial      = initial_layouts.GetSubresourceLayout(first_aspect, 0, 0);
+        const VkImageLayout         current      = current_layouts.GetSubresourceLayout(first_aspect, 0, 0);
+
+        if ((initial != current) && IsRestorableLayout(initial))
+        {
+            barriers.push_back(MakeLayoutRestoreBarrier(
+                image_info->handle, current, initial, { aspects, 0, mip_levels, 0, array_layers }));
+        }
+        return;
+    }
+
+    // Otherwise restore each subresource individually.
+    for (VkImageAspectFlagBits aspect : kTrackedAspects)
+    {
+        if ((aspects & aspect) == 0)
+        {
+            continue;
+        }
+
+        for (uint32_t mip_level = 0; mip_level < mip_levels; ++mip_level)
+        {
+            for (uint32_t array_layer = 0; array_layer < array_layers; ++array_layer)
+            {
+                const VkImageLayout initial = initial_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
+                const VkImageLayout current = current_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
+
+                if ((initial == current) || !IsRestorableLayout(initial))
+                {
+                    continue;
+                }
+
+                barriers.push_back(MakeLayoutRestoreBarrier(
+                    image_info->handle,
+                    current,
+                    initial,
+                    { static_cast<VkImageAspectFlags>(aspect), mip_level, 1, array_layer, 1 }));
+            }
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::TrackImageLayouts()
 {
     initial_image_layouts_.clear();
     GetObjectInfoTable().VisitVkImageInfo([this](const VulkanImageInfo* image_info) {
         if (image_info->handle != VK_NULL_HANDLE)
         {
-            initial_image_layouts_[image_info->capture_id] = image_info->current_layout;
+            initial_image_layouts_[image_info->capture_id] = image_info->subresource_layouts;
         }
     });
 }
@@ -921,7 +1014,7 @@ void VulkanReplayFrameLoopConsumer::FixupImageLayouts(format::HandleId device, f
     VulkanDeviceInfo*      device_info = table.GetVkDeviceInfo(device);
     GFXRECON_ASSERT(queue_info != nullptr && device_info != nullptr);
 
-    // Transition every image that has changed from it's original layout.
+    // Transition every image subresource that has changed from its original layout.
     std::vector<VkImageMemoryBarrier> barriers;
     table.VisitVkImageInfo([this, device, &table, &barriers](const VulkanImageInfo* image_info) {
         if (image_info->handle == VK_NULL_HANDLE || image_info->parent_id != device)
@@ -930,32 +1023,24 @@ void VulkanReplayFrameLoopConsumer::FixupImageLayouts(format::HandleId device, f
         }
 
         // Images created inside the loop range have no starting layout to return to.
-        auto initial_layout = initial_image_layouts_.find(image_info->capture_id);
-        if (initial_layout == initial_image_layouts_.end() || initial_layout->second == image_info->current_layout ||
-            initial_layout->second == VK_IMAGE_LAYOUT_UNDEFINED ||
-            initial_layout->second == VK_IMAGE_LAYOUT_PREINITIALIZED)
+        auto initial_layouts = initial_image_layouts_.find(image_info->capture_id);
+        if (initial_layouts == initial_image_layouts_.end())
         {
             return;
         }
 
-        VkImageMemoryBarrier barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-        barrier.srcAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-        barrier.dstAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-        barrier.oldLayout            = image_info->current_layout;
-        barrier.newLayout            = initial_layout->second;
-        barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-        barrier.image                = image_info->handle;
-        barrier.subresourceRange     = {
-                graphics::GetFormatAspects(image_info->format), 0, image_info->level_count, 0, image_info->layer_count
-        };
-
-        barriers.push_back(barrier);
+        const size_t barrier_count = barriers.size();
+        AppendImageLayoutRestoreBarriers(image_info, initial_layouts->second, barriers);
+        if (barriers.size() == barrier_count)
+        {
+            return;
+        }
 
         VulkanImageInfo* mutable_image_info = table.GetVkImageInfo(image_info->capture_id);
         GFXRECON_ASSERT(mutable_image_info != nullptr);
-        mutable_image_info->current_layout      = initial_layout->second;
-        mutable_image_info->intermediate_layout = mutable_image_info->current_layout;
+        mutable_image_info->subresource_layouts = initial_layouts->second;
+
+        mutable_image_info->intermediate_layout = barriers.back().newLayout;
     });
 
     if (barriers.empty())

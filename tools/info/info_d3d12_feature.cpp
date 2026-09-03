@@ -164,7 +164,7 @@ std::string InfoD3d12Feature::GetAdapterInfoText()
             std::string adapter_type = AdapterTypeToString(graphics::dx12::ExtractAdapterType(adapter.extra_info));
 
             return_val +=
-                "\tDescription: " + util::WCharArrayToString(adapter.Description) + " " + adapter_workload_pct + "\n";
+                "\tDescription: " + util::Char16ArrayToString(adapter.Description) + " " + adapter_workload_pct + "\n";
             return_val += "\tVendor ID: " + util::to_hex_fixed_width<uint32_t>(adapter.VendorId) + "\n";
             return_val += "\tDevice ID: " + util::to_hex_fixed_width<uint32_t>(adapter.DeviceId) + "\n";
             return_val += "\tSubsys ID: " + util::to_hex_fixed_width<uint32_t>(adapter.SubSysId) + "\n";
@@ -215,7 +215,7 @@ nlohmann::json InfoD3d12Feature::GetAdapterInfoJson()
             std::string adapter_type = AdapterTypeToString(graphics::dx12::ExtractAdapterType(adapter.extra_info));
 
             nlohmann::json json_adapter;
-            json_adapter["description"]["details"]          = util::WCharArrayToString(adapter.Description);
+            json_adapter["description"]["details"]          = util::Char16ArrayToString(adapter.Description);
             json_adapter["description"]["workload-percent"] = adapter_workload_pct;
             json_adapter["vendor-id"]                       = adapter.VendorId;
             json_adapter["device-id"]                       = adapter.DeviceId;

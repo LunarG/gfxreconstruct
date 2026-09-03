@@ -30,6 +30,7 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_image_layout_map.h"
 #include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "graphics/vulkan_util.h"
@@ -180,6 +181,11 @@ enum GpaSessionAMDArrayIndices : uint32_t
     kGpaSessionAMDArrayGetGpaSessionResultsAMD = 0
 };
 
+enum PhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT : uint32_t
+{
+    kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT = 0
+};
+
 //
 // Structures for storing Vulkan object info.
 //
@@ -259,12 +265,24 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
     format::HandleId pool_id{ format::kNullHandleId }; // ID of the pool that the object was allocated from.
 };
 
+struct VulkanEventInfo : public VulkanObjectInfo<VkEvent>
+{
+    // Terminal event-state in stream order: host set/reset apply immediately, device cmd set/reset at
+    // submit-time. Bounds the vkGetEventStatus poll to only wait when 'set' is the terminal state.
+    bool latched_set{ false };
+};
+
+struct VulkanQueryPoolInfo : public VulkanObjectInfo<VkQueryPool>
+{
+    // Terminal per-query availability in stream order: host resets apply immediately, device query ops at
+    // submit-time. Bounds VK_QUERY_RESULT_WAIT_BIT injection in vkGetQueryPoolResults to available queries.
+    std::vector<bool> latched_query_available;
+};
+
 //
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
-typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>             VulkanSamplerYcbcrConversionInfo;
@@ -377,6 +395,9 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
+    // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
+    graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
+
     graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;
@@ -394,6 +415,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
         extensions                 = source_info->extensions;
         resource_initializer       = source_info->resource_initializer;
         property_feature_info      = source_info->property_feature_info;
+        version_extension_info     = source_info->version_extension_info;
         enabled_queue_family_flags = source_info->enabled_queue_family_flags;
         replay_device_group        = source_info->replay_device_group;
         duplicate_source_id        = source_info->capture_id;
@@ -502,7 +524,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              level_count{ 0 };
     uint32_t              queue_family_index{ 0 };
 
-    VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    graphics::ImageLayoutMap subresource_layouts;
+
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
@@ -640,14 +663,14 @@ struct VulkanSurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 
 struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
-    VkSurfaceKHR         surface{ VK_NULL_HANDLE };
-    format::HandleId     surface_id{ format::kNullHandleId };
-    VulkanDeviceInfo*    device_info{ nullptr };
-    uint32_t             width{ 0 };
-    uint32_t             height{ 0 };
-    VkFormat             format{ VK_FORMAT_UNDEFINED };
+    VkSurfaceKHR          surface{ VK_NULL_HANDLE };
+    format::HandleId      surface_id{ format::kNullHandleId };
+    VulkanDeviceInfo*     device_info{ nullptr };
+    uint32_t              width{ 0 };
+    uint32_t              height{ 0 };
+    VkFormat              format{ VK_FORMAT_UNDEFINED };
     std::vector<VkFormat> supported_view_formats; // Based on VkImageFormatListCreateInfo
-    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
+    std::vector<VkImage>  images; // This image could be virtual or real according to if it uses VirtualSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The acquired_indices value and the remapping performed with it.
@@ -685,7 +708,8 @@ struct VulkanValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheE
 
 struct VulkanImageViewInfo : public VulkanObjectInfo<VkImageView>
 {
-    format::HandleId image_id{ format::kNullHandleId };
+    format::HandleId        image_id{ format::kNullHandleId };
+    VkImageSubresourceRange subresource_range{};
 };
 
 struct VulkanFramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
@@ -734,12 +758,14 @@ struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                                                      is_frame_boundary{ false };
-    std::vector<format::HandleId>                             frame_buffer_ids;
-    format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
-    format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
-    std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
-    std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
+    bool                          is_frame_boundary{ false };
+    std::vector<format::HandleId> frame_buffer_ids;
+    format::HandleId              active_render_pass_id{ format::kNullHandleId };
+    format::HandleId              active_framebuffer_id{ format::kNullHandleId };
+    std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+
+    std::unordered_map<format::HandleId, graphics::ImageLayoutMap> image_layout_barriers;
+
     std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
     std::vector<uint8_t>                                      push_constant_data;
     VkShaderStageFlags                                        push_constant_stage_flags     = 0;
@@ -754,11 +780,29 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // flag indicating if the command-buffer is currently recording a VkRenderpass or VK_KHR_dynamic_rendering scope
     bool in_rendering_scope = false;
+
+    // ordered vkCmdSetEvent/vkCmdResetEvent recorded here (event capture-id, is-set);
+    // applied to VulkanEventInfo::latched_set at submit-time.
+    std::vector<std::pair<format::HandleId, bool>> recorded_event_ops;
+
+    // ordered query ops recorded here (end-of-scope/write-timestamp vs. reset);
+    // applied to VulkanQueryPoolInfo::latched_query_available at submit-time.
+    struct RecordedQueryOp
+    {
+        format::HandleId pool_id{ format::kNullHandleId };
+        uint32_t         first_query{ 0 };
+        uint32_t         query_count{ 0 };
+        bool             available{ false };
+    };
+    std::vector<RecordedQueryOp> recorded_query_ops;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
 {
-    std::vector<VkImageLayout>           attachment_description_final_layouts;
+    std::vector<VkImageLayout> attachment_description_final_layouts;
+
+    std::vector<VkImageLayout> attachment_description_stencil_final_layouts;
+
     std::vector<VkAttachmentDescription> attachment_descs;
 
     std::vector<uint8_t> create_info;

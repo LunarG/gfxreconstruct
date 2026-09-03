@@ -145,10 +145,31 @@ struct TemporaryCommandBuffer
 
     VkResult SubmitAndDestroy();
 
+    VkResult SubmitAndReset();
+
+    VkResult Submit();
+
     VkCommandPool                       command_pool{ VK_NULL_HANDLE };
     VkCommandBuffer                     command_buffer{ VK_NULL_HANDLE };
     VkQueue                             queue{ VK_NULL_HANDLE };
     const VulkanDeviceInfo&             device_info;
+    graphics::VulkanInjectedDeviceCalls device_table;
+};
+
+struct TemporaryQueryPool
+{
+    TemporaryQueryPool() = delete;
+
+    TemporaryQueryPool(VkDevice dev, const graphics::VulkanInjectedDeviceCalls& dev_table) :
+        query_pool(VK_NULL_HANDLE), device(dev), device_table(dev_table)
+    {}
+
+    ~TemporaryQueryPool();
+
+    VkResult Create(uint32_t query_count);
+
+    VkQueryPool                         query_pool;
+    VkDevice                            device;
     graphics::VulkanInjectedDeviceCalls device_table;
 };
 

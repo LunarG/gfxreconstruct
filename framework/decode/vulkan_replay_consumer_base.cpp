@@ -70,8 +70,10 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <chrono>
 #include <limits>
 #include <numeric>
+#include <thread>
 #include <unordered_set>
 #include <future>
 
@@ -80,6 +82,10 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 constexpr char kUnknownDeviceLabel[]  = "<Unknown>";
 constexpr char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
+
+// vkGetEventStatus 'can' be used for synchronization, but cannot be (host-)waited on.
+// we poll until receiving VK_EVENT_SET, when the capture returned it.
+constexpr auto kGetEventStatusPollInterval = std::chrono::microseconds(100);
 
 const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,  VK_MVK_IOS_SURFACE_EXTENSION_NAME,
@@ -94,7 +100,7 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
 const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThanCapture = {
-    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT", "vkGetQueryPoolResults", "vkGetEventStatus"
+    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
 };
 
 // LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
@@ -105,7 +111,8 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeTh
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
     { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
     { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
-    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
+    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS },
+    { VK_EVENT_RESET, VK_EVENT_SET }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -1007,11 +1014,15 @@ void VulkanReplayConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand(for
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
     if (device_info != nullptr)
     {
-        // There should only be one dataset per pipeline.
-        assert(device_info->shader_group_handles.find(pipeline_id) == device_info->shader_group_handles.end());
-
-        // Store the ray tracing shader group handle data to use at ray tracing pipeline creation.
-        device_info->shader_group_handles.emplace(pipeline_id, std::vector<uint8_t>(data, data + data_size));
+        // There should only be one dataset per pipeline. But if we are doing frame looping,
+        // pipeline_id may already have a dataset associated with it from a prior frame
+        // iteration. We check to see if pipeline_id has a dataset and skip adding the
+        // dataset if that is the case.
+        if (device_info->shader_group_handles.find(pipeline_id) == device_info->shader_group_handles.end())
+        {
+            // Store the ray tracing shader group handle data to use at ray tracing pipeline creation.
+            device_info->shader_group_handles.emplace(pipeline_id, std::vector<uint8_t>(data, data + data_size));
+        }
     }
 }
 
@@ -1387,7 +1398,12 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
             }
 
             image_info->intermediate_layout = static_cast<VkImageLayout>(layout);
-            image_info->current_layout      = static_cast<VkImageLayout>(layout);
+
+            // This runs per aspect.
+            const VkImageSubresourceRange aspect_range = {
+                static_cast<VkImageAspectFlags>(aspect), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+            };
+            image_info->subresource_layouts.SetLayout(aspect_range, static_cast<VkImageLayout>(layout));
 
             if (result != VK_SUCCESS)
             {
@@ -1450,7 +1466,6 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
     gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
 
     gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
-    gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
 #endif // GFXRECON_ENABLE_VULKAN
 }
 
@@ -1558,7 +1573,13 @@ const graphics::VulkanDeviceTable* VulkanReplayConsumerBase::GetDeviceTable(cons
 
 graphics::VulkanInjectedDeviceCalls VulkanReplayConsumerBase::GetInjectedDeviceCalls(const void* handle) const
 {
-    return graphics::VulkanInjectedDeviceCalls(GetDeviceTable(handle));
+    const graphics::VulkanDeviceTable* raw_table = GetDeviceTable(handle);
+    if (raw_table == nullptr)
+    {
+        GFXRECON_LOG_FATAL("Could not find device table for object %p", handle);
+    }
+
+    return graphics::VulkanInjectedDeviceCalls(raw_table);
 }
 
 void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
@@ -2406,135 +2427,8 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     auto device_table   = GetDeviceTable(device);
     assert((instance_table != nullptr) && (device_table != nullptr));
 
-    VulkanResourceAllocator::Functions functions;
-    functions.get_physical_device_properties        = instance_table->GetPhysicalDeviceProperties;
-    functions.get_physical_device_memory_properties = instance_table->GetPhysicalDeviceMemoryProperties;
-    functions.get_instance_proc_addr                = instance_table->GetInstanceProcAddr;
-
-    functions.allocate_memory                       = device_table->AllocateMemory;
-    functions.free_memory                           = device_table->FreeMemory;
-    functions.get_device_memory_commitment          = device_table->GetDeviceMemoryCommitment;
-    functions.map_memory                            = device_table->MapMemory;
-    functions.unmap_memory                          = device_table->UnmapMemory;
-    functions.flush_memory_ranges                   = device_table->FlushMappedMemoryRanges;
-    functions.invalidate_memory_ranges              = device_table->InvalidateMappedMemoryRanges;
-    functions.create_buffer                         = device_table->CreateBuffer;
-    functions.destroy_buffer                        = device_table->DestroyBuffer;
-    functions.get_buffer_memory_requirements        = device_table->GetBufferMemoryRequirements;
-    functions.bind_buffer_memory                    = device_table->BindBufferMemory;
-    functions.create_image                          = device_table->CreateImage;
-    functions.destroy_image                         = device_table->DestroyImage;
-    functions.get_image_memory_requirements         = device_table->GetImageMemoryRequirements;
-    functions.get_image_subresource_layout          = device_table->GetImageSubresourceLayout;
-    functions.bind_image_memory                     = device_table->BindImageMemory;
-    functions.get_device_proc_addr                  = device_table->GetDeviceProcAddr;
-    functions.get_device_queue                      = device_table->GetDeviceQueue;
-    functions.create_command_pool                   = device_table->CreateCommandPool;
-    functions.allocate_command_buffers              = device_table->AllocateCommandBuffers;
-    functions.begin_command_buffer                  = device_table->BeginCommandBuffer;
-    functions.cmd_copy_buffer                       = device_table->CmdCopyBuffer;
-    functions.cmd_copy_buffer_to_image              = device_table->CmdCopyBufferToImage;
-    functions.end_command_buffer                    = device_table->EndCommandBuffer;
-    functions.queue_submit                          = device_table->QueueSubmit;
-    functions.queue_wait_idle                       = device_table->QueueWaitIdle;
-    functions.reset_command_buffer                  = device_table->ResetCommandBuffer;
-    functions.free_command_buffers                  = device_table->FreeCommandBuffers;
-    functions.destroy_command_pool                  = device_table->DestroyCommandPool;
-    functions.create_video_session                  = device_table->CreateVideoSessionKHR;
-    functions.destroy_video_session                 = device_table->DestroyVideoSessionKHR;
-    functions.bind_video_session_memory             = device_table->BindVideoSessionMemoryKHR;
-    functions.get_video_session_memory_requirements = device_table->GetVideoSessionMemoryRequirementsKHR;
-    if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 4, 0))
-    {
-        functions.map_memory2   = device_table->MapMemory2;
-        functions.unmap_memory2 = device_table->UnmapMemory2;
-    }
-    else
-    {
-        functions.map_memory2   = device_table->MapMemory2KHR;
-        functions.unmap_memory2 = device_table->UnmapMemory2KHR;
-    }
-    functions.set_device_memory_priority            = device_table->SetDeviceMemoryPriorityEXT;
-    functions.get_memory_remote_address_nv          = device_table->GetMemoryRemoteAddressNV;
-    functions.create_acceleration_structure_nv      = device_table->CreateAccelerationStructureNV;
-    functions.destroy_acceleration_structure_nv     = device_table->DestroyAccelerationStructureNV;
-    functions.bind_acceleration_structure_memory_nv = device_table->BindAccelerationStructureMemoryNV;
-    functions.get_acceleration_structure_memory_requirements_nv =
-        device_table->GetAccelerationStructureMemoryRequirementsNV;
-    functions.queue_bind_sparse                           = device_table->QueueBindSparse;
-    functions.create_semaphore                            = device_table->CreateSemaphore;
-    functions.destroy_semaphore                           = device_table->DestroySemaphore;
-    functions.get_memory_fd                               = device_table->GetMemoryFdKHR;
-    functions.get_device_memory_opaque_capture_address    = device_table->GetDeviceMemoryOpaqueCaptureAddressKHR;
-    functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
-    functions.set_debug_utils_object_name                 = instance_table->SetDebugUtilsObjectNameEXT;
-    functions.set_debug_utils_object_tag                  = instance_table->SetDebugUtilsObjectTagEXT;
-    functions.get_android_hardware_buffer_properties      = device_table->GetAndroidHardwareBufferPropertiesANDROID;
-    functions.create_fence                                = device_table->CreateFence;
-    functions.wait_for_fences                             = device_table->WaitForFences;
-    functions.destroy_fence                               = device_table->DestroyFence;
-    functions.create_tensor                               = device_table->CreateTensorARM;
-    functions.destroy_tensor                              = device_table->DestroyTensorARM;
-    functions.get_tensor_memory_requirements              = device_table->GetTensorMemoryRequirementsARM;
-    functions.bind_tensor_memory                          = device_table->BindTensorMemoryARM;
-    functions.create_data_graph_pipeline_session          = device_table->CreateDataGraphPipelineSessionARM;
-    functions.get_data_graph_pipeline_session_memory_requirements =
-        device_table->GetDataGraphPipelineSessionMemoryRequirementsARM;
-    functions.bind_data_graph_pipeline_session_memory = device_table->BindDataGraphPipelineSessionMemoryARM;
-    functions.destroy_data_graph_pipeline_session     = device_table->DestroyDataGraphPipelineSessionARM;
-    functions.get_data_graph_pipeline_session_bind_point_requirements =
-        device_table->GetDataGraphPipelineSessionBindPointRequirementsARM;
-
-    if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
-    {
-        functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
-        functions.get_buffer_memory_requirements2        = device_table->GetBufferMemoryRequirements2;
-        functions.get_image_memory_requirements2         = device_table->GetImageMemoryRequirements2;
-        functions.bind_buffer_memory2                    = device_table->BindBufferMemory2;
-        functions.bind_image_memory2                     = device_table->BindImageMemory2;
-    }
-    else
-    {
-        const auto& instance_extensions = physical_device_info->parent_info.enabled_extensions;
-
-        if (std::find(instance_extensions.begin(),
-                      instance_extensions.end(),
-                      VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) != instance_extensions.end())
-        {
-            functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2KHR;
-        }
-
-        if (std::find(enabled_device_extensions.begin(),
-                      enabled_device_extensions.end(),
-                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME) != enabled_device_extensions.end())
-        {
-            functions.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2KHR;
-            functions.get_image_memory_requirements2  = device_table->GetImageMemoryRequirements2KHR;
-        }
-
-        if (std::find(enabled_device_extensions.begin(),
-                      enabled_device_extensions.end(),
-                      VK_KHR_BIND_MEMORY_2_EXTENSION_NAME) != enabled_device_extensions.end())
-        {
-            functions.bind_buffer_memory2 = device_table->BindBufferMemory2KHR;
-            functions.bind_image_memory2  = device_table->BindImageMemory2KHR;
-        }
-    }
-
-    auto replay_device_info = physical_device_info->replay_device_info;
-    assert(replay_device_info->memory_properties);
-
-    VkResult result = allocator->Initialize(std::min(physical_device_info->parent_info.api_version,
-                                                     physical_device_info->replay_device_info->properties->apiVersion),
-                                            physical_device_info->parent,
-                                            physical_device_info->handle,
-                                            device,
-                                            device_create_info,
-                                            enabled_device_extensions,
-                                            physical_device_info->capture_device_type,
-                                            physical_device_info->capture_memory_properties,
-                                            *replay_device_info->memory_properties,
-                                            functions);
+    VkResult result = allocator->Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, *instance_table, device_table);
 
     if (result < 0)
     {
@@ -2774,9 +2668,10 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 uint32_t      num_layers   = 1;
 
                 // apply swapchain-image override, if any
+                const VulkanImageInfo* override_img_info = nullptr;
                 if (present_override_image_id_ != format::kNullHandleId)
                 {
-                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_);
+                    override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
                     if (override_img_info != nullptr)
@@ -2786,9 +2681,6 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image_width  = override_img_info->extent.width;
                         image_height = override_img_info->extent.height;
                         num_layers   = override_img_info->layer_count;
-                        image_layout = override_img_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
-                                           ? override_img_info->current_layout
-                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
                     }
                 }
 
@@ -2804,6 +2696,18 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
                 for (uint32_t layer = 0; layer < num_layers; ++layer)
                 {
+                    // WriteImage barriers only the layer it copies, so it has to transition from that layer's layout.
+                    VkImageLayout layer_layout = image_layout;
+                    if (override_img_info != nullptr)
+                    {
+                        const VkImageLayout tracked_layout =
+                            override_img_info->subresource_layouts.GetSubresourceLayout(
+                                VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
+                        layer_layout = (tracked_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                                           ? tracked_layout
+                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+                    }
+
                     screenshot_handler_->WriteImage(
                         num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
                         device_info,
@@ -2816,7 +2720,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image_height,
                         layer,
                         screenshot_scale,
-                        image_layout,
+                        layer_layout,
                         options_.screenshot_apply_prerotation ? swapchain_info->pre_transform
                                                               : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
@@ -2889,19 +2793,20 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                                                  static_cast<float>(image_info->extent.height) };
                     }
 
-                    screenshot_handler_->WriteImage(filename_prefix,
-                                                    device_info,
-                                                    GetInjectedDeviceCalls(device_info->handle),
-                                                    memory_properties,
-                                                    device_info->allocator.get(),
-                                                    image_info->handle,
-                                                    image_info->format,
-                                                    image_info->extent.width,
-                                                    image_info->extent.height,
-                                                    0,
-                                                    screenshot_scale,
-                                                    image_info->current_layout,
-                                                    VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+                    screenshot_handler_->WriteImage(
+                        filename_prefix,
+                        device_info,
+                        GetInjectedDeviceCalls(device_info->handle),
+                        memory_properties,
+                        device_info->allocator.get(),
+                        image_info->handle,
+                        image_info->format,
+                        image_info->extent.width,
+                        image_info->extent.height,
+                        0,
+                        screenshot_scale,
+                        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
+                        VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
             }
         }
@@ -2955,18 +2860,19 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                 };
             }
 
-            screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info,
-                                            GetInjectedDeviceCalls(device_info->handle),
-                                            memory_properties,
-                                            device_info->allocator.get(),
-                                            image_info->handle,
-                                            image_info->format,
-                                            image_info->extent.width,
-                                            image_info->extent.height,
-                                            0,
-                                            screenshot_scale,
-                                            image_info->current_layout);
+            screenshot_handler_->WriteImage(
+                filename_prefix,
+                device_info,
+                GetInjectedDeviceCalls(device_info->handle),
+                memory_properties,
+                device_info->allocator.get(),
+                image_info->handle,
+                image_info->format,
+                image_info->extent.width,
+                image_info->extent.height,
+                0,
+                screenshot_scale,
+                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
         }
     }
 
@@ -3369,13 +3275,12 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         // emitted during calls that _aren't_ vkCreateInstance()/vkDestroyInstance()
         if (create_state.messenger_create_info.pfnUserCallback != nullptr)
         {
-            util::BeginInjectedCommands();
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
             GetInstanceTable(*replay_instance)
                 ->CreateDebugUtilsMessengerEXT(*replay_instance,
                                                &create_state.messenger_create_info,
                                                GetAllocationCallbacks(pAllocator),
                                                &instance_info->debug_messenger);
-            util::EndInjectedCommands();
         }
     }
 
@@ -3387,9 +3292,10 @@ void VulkanReplayConsumerBase::OverrideDestroyInstance(
     const VulkanInstanceInfo*                                  instance_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    util::BeginInjectedCommands();
-    DestroyInternalInstanceResources(instance_info);
-    util::EndInjectedCommands();
+    {
+        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        DestroyInternalInstanceResources(instance_info);
+    }
 
     VkInstance instance = instance_info->handle;
     func(instance, GetAllocationCallbacks(pAllocator));
@@ -3464,13 +3370,15 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         std::vector<VkQueueFamilyProperties> replay_queue_family_properties;
 
         // queries the capture did not make
-        util::BeginInjectedCommands();
-        instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &replay_queue_family_count, nullptr);
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(
+                physical_device, &replay_queue_family_count, nullptr);
 
-        replay_queue_family_properties.resize(replay_queue_family_count);
-        instance_table->GetPhysicalDeviceQueueFamilyProperties(
-            physical_device, &replay_queue_family_count, replay_queue_family_properties.data());
-        util::EndInjectedCommands();
+            replay_queue_family_properties.resize(replay_queue_family_count);
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(
+                physical_device, &replay_queue_family_count, replay_queue_family_properties.data());
+        }
 
         std::vector<VkDeviceQueueCreateInfo>& modified_queue_create_infos = create_state.modified_queue_create_infos;
         modified_queue_create_infos.reserve(modified_create_info.queueCreateInfoCount);
@@ -3808,11 +3716,24 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
         table->GetPhysicalDeviceMemoryProperties(physical_device, &replay_device_info->memory_properties.value());
     }
 
+    if (replay_device_info->properties == std::nullopt)
+    {
+        // Properties weren't queried before device creation, so retrieve them now.
+        replay_device_info->properties = VkPhysicalDeviceProperties();
+        table->GetPhysicalDeviceProperties(physical_device, &replay_device_info->properties.value());
+    }
+
     auto allocator = options_.create_resource_allocator();
 
     std::vector<std::string> enabled_extensions(create_state.modified_create_info.ppEnabledExtensionNames,
                                                 create_state.modified_create_info.ppEnabledExtensionNames +
                                                     create_state.modified_create_info.enabledExtensionCount);
+
+    // Track the effective device version and enabled extensions for selecting core vs extension entry point flavors.
+    device_info->version_extension_info.api_version =
+        std::min(physical_device_info->parent_info.api_version, replay_device_info->properties->apiVersion);
+    device_info->version_extension_info.enabled_extensions = enabled_extensions;
+
     InitializeResourceAllocator(
         physical_device_info, replay_device, create_state.modified_create_info, enabled_extensions, allocator);
 
@@ -4673,6 +4594,148 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus    func,
+                                                          VkResult                original_result,
+                                                          const VulkanDeviceInfo* device_info,
+                                                          const VulkanEventInfo*  event_info)
+{
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    VkDevice device = device_info->handle;
+    VkEvent  event  = event_info->handle;
+
+    VkResult result = func(device, event);
+
+    // A captured VK_EVENT_SET must be reproduced at replay to preserve synchronization.
+    // there is no host wait-primitive for events, so we have to poll, but:
+    // wait only when VK_EVENT_SET is the event's terminal state -> avoid looping forever.
+    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && event_info->latched_set)
+    {
+        auto device_table = GetInjectedDeviceCalls(device);
+        auto injected     = device_table.Open();
+
+        while (result == VK_EVENT_RESET)
+        {
+            std::this_thread::sleep_for(kGetEventStatusPollInterval);
+            result = injected->GetEventStatus(device, event);
+        }
+    }
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetEvent(PFN_vkSetEvent          func,
+                                                    VkResult                original_result,
+                                                    const VulkanDeviceInfo* device_info,
+                                                    VulkanEventInfo*        event_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    event_info->latched_set = true;
+    return func(device_info->handle, event_info->handle);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideResetEvent(PFN_vkResetEvent        func,
+                                                      VkResult                original_result,
+                                                      const VulkanDeviceInfo* device_info,
+                                                      VulkanEventInfo*        event_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    event_info->latched_set = false;
+    return func(device_info->handle, event_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdSetEvent(PFN_vkCmdSetEvent        func,
+                                                   VulkanCommandBufferInfo* command_buffer_info,
+                                                   VulkanEventInfo*         event_info,
+                                                   VkPipelineStageFlags     stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, true);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetEvent(PFN_vkCmdResetEvent      func,
+                                                     VulkanCommandBufferInfo* command_buffer_info,
+                                                     VulkanEventInfo*         event_info,
+                                                     VkPipelineStageFlags     stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, false);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdSetEvent2(PFN_vkCmdSetEvent2                              func,
+                                                    VulkanCommandBufferInfo*                        command_buffer_info,
+                                                    VulkanEventInfo*                                event_info,
+                                                    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr && pDependencyInfo != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, true);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, pDependencyInfo->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetEvent2(PFN_vkCmdResetEvent2     func,
+                                                      VulkanCommandBufferInfo* command_buffer_info,
+                                                      VulkanEventInfo*         event_info,
+                                                      VkPipelineStageFlags2    stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, false);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::ApplyRecordedEventOps(const VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    for (const auto& [event_id, is_set] : command_buffer_info->recorded_event_ops)
+    {
+        if (auto* event_info = GetObjectInfoTable().GetVkEventInfo(event_id))
+        {
+            event_info->latched_set = is_set;
+        }
+    }
+}
+
+static void SetLatchedQueryAvailability(VulkanQueryPoolInfo* query_pool_info,
+                                        uint32_t             first_query,
+                                        uint32_t             query_count,
+                                        bool                 available)
+{
+    GFXRECON_ASSERT(query_pool_info != nullptr);
+
+    auto& latched = query_pool_info->latched_query_available;
+    if (latched.size() < first_query + query_count)
+    {
+        latched.resize(first_query + query_count, false);
+    }
+    std::fill_n(latched.begin() + first_query, query_count, available);
+}
+
+void VulkanReplayConsumerBase::ApplyRecordedQueryOps(const VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    for (const auto& op : command_buffer_info->recorded_query_ops)
+    {
+        if (auto* query_pool_info = GetObjectInfoTable().GetVkQueryPoolInfo(op.pool_id))
+        {
+            SetLatchedQueryAvailability(query_pool_info, op.first_query, op.query_count, op.available);
+        }
+    }
+}
+
 VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
                                                                VkResult                   original_result,
                                                                const VulkanDeviceInfo*    device_info,
@@ -4684,12 +4747,33 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
                                                                VkDeviceSize               stride,
                                                                VkQueryResultFlags         flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT(device_info != nullptr && query_pool_info != nullptr && pData != nullptr &&
                     pData->GetOutputPointer() != nullptr);
 
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
+
+    // A captured VK_SUCCESS must be reproduced at replay to preserve synchronization, but:
+    // wait only when the replayed stream makes all requested queries available -> avoid blocking forever.
+    // e.g. trim state-setup cannot restore all query-types and resets the remainder.
+    const auto& latched = query_pool_info->latched_query_available;
+    const bool  range_available =
+        firstQuery + queryCount <= latched.size() && std::all_of(latched.begin() + firstQuery,
+                                                                 latched.begin() + firstQuery + queryCount,
+                                                                 [](bool available) { return available; });
+
+    if (range_available)
+    {
+        if (original_result == VK_SUCCESS)
+        {
+            flags |= VK_QUERY_RESULT_WAIT_BIT;
+        }
+    }
+    else if (flags & VK_QUERY_RESULT_WAIT_BIT)
+    {
+        // an app-supplied wait the stream cannot satisfy would hang -> strip it, CheckResult warns on mismatch
+        flags &= ~VK_QUERY_RESULT_WAIT_BIT;
+    }
 
     const VkResult result =
         func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
@@ -4701,6 +4785,82 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
             device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
     }
     return result;
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndQuery(PFN_vkCmdEndQuery        func,
+                                                   VulkanCommandBufferInfo* command_buffer_info,
+                                                   VulkanQueryPoolInfo*     query_pool_info,
+                                                   uint32_t                 query)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, query_pool_info->handle, query);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndQueryIndexedEXT(PFN_vkCmdEndQueryIndexedEXT func,
+                                                             VulkanCommandBufferInfo*    command_buffer_info,
+                                                             VulkanQueryPoolInfo*        query_pool_info,
+                                                             uint32_t                    query,
+                                                             uint32_t                    index)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, query_pool_info->handle, query, index);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWriteTimestamp(PFN_vkCmdWriteTimestamp  func,
+                                                         VulkanCommandBufferInfo* command_buffer_info,
+                                                         VkPipelineStageFlagBits  pipelineStage,
+                                                         VulkanQueryPoolInfo*     query_pool_info,
+                                                         uint32_t                 query)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, pipelineStage, query_pool_info->handle, query);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWriteTimestamp2(PFN_vkCmdWriteTimestamp2 func,
+                                                          VulkanCommandBufferInfo* command_buffer_info,
+                                                          VkPipelineStageFlags2    stage,
+                                                          VulkanQueryPoolInfo*     query_pool_info,
+                                                          uint32_t                 query)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, query, 1, true });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, stage, query_pool_info->handle, query);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetQueryPool(PFN_vkCmdResetQueryPool  func,
+                                                         VulkanCommandBufferInfo* command_buffer_info,
+                                                         VulkanQueryPoolInfo*     query_pool_info,
+                                                         uint32_t                 firstQuery,
+                                                         uint32_t                 queryCount)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && query_pool_info != nullptr);
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, firstQuery, queryCount, false });
+    track_query_state_ = true;
+    func(command_buffer_info->handle, query_pool_info->handle, firstQuery, queryCount);
+}
+
+void VulkanReplayConsumerBase::OverrideResetQueryPool(PFN_vkResetQueryPool    func,
+                                                      const VulkanDeviceInfo* device_info,
+                                                      VulkanQueryPoolInfo*    query_pool_info,
+                                                      uint32_t                firstQuery,
+                                                      uint32_t                queryCount)
+{
+    GFXRECON_ASSERT(device_info != nullptr && query_pool_info != nullptr);
+
+    SetLatchedQueryAvailability(query_pool_info, firstQuery, queryCount, false);
+    func(device_info->handle, query_pool_info->handle, firstQuery, queryCount);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
@@ -4896,14 +5056,30 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
     {
-        auto* device_table = GetDeviceTable(queue_info->handle);
-        GFXRECON_ASSERT(device_table != nullptr);
-        resource_dumper_->QueueSubmit(current_submits_span, *device_table, queue_info, fence, index);
+        resource_dumper_->QueueSubmit(
+            current_submits_span, GetInjectedDeviceCalls(queue_info->handle), queue_info, fence, index);
     }
     else
     {
         result = func(
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
+
+    // update terminal event-state / query-availability for the submitted command-buffers
+    if ((track_event_state_ || track_query_state_) && submit_info_data != nullptr)
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const auto command_buffer_ids = submit_info_data[i].pCommandBuffers.GetPointer();
+            for (size_t j = 0; j < submit_info_data[i].pCommandBuffers.GetLength(); ++j)
+            {
+                if (auto* cmd_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]))
+                {
+                    ApplyRecordedEventOps(cmd_buffer_info);
+                    ApplyRecordedQueryOps(cmd_buffer_info);
+                }
+            }
+        }
     }
 
     // The result to report to the event sink might be different from the
@@ -4922,13 +5098,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     // Update layout on the image infos.
     if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
     {
-        for (uint32_t i = 0; i < submitCount; ++i)
+        for (auto submit : pSubmits->GetMetaStructSpan())
         {
-            const size_t command_buffer_count = submit_info_data[i].pCommandBuffers.GetLength();
-            const auto   command_buffer_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
-            for (size_t j = 0; (command_buffer_ids != nullptr) && (j < command_buffer_count); ++j)
+            for (auto command_buffer : submit.pCommandBuffers.GetSpan())
             {
-                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]));
+                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer));
             }
         }
     }
@@ -4940,7 +5114,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data->pNext))
+                                                    submit_info_data[i].pNext))
                 {
                     break;
                 }
@@ -5168,14 +5342,31 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
     {
-        auto* device_table = GetDeviceTable(queue_info->handle);
-        GFXRECON_ASSERT(device_table != nullptr);
-        resource_dumper_->QueueSubmit2(current_submits_span, *device_table, queue_info, fence, index);
+        resource_dumper_->QueueSubmit2(
+            current_submits_span, GetInjectedDeviceCalls(queue_info->handle), queue_info, fence, index);
     }
     else
     {
         result = func(
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
+
+    // update terminal event-state / query-availability for the submitted command-buffers
+    if ((track_event_state_ || track_query_state_) && submit_info_data != nullptr)
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const auto command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            for (size_t j = 0; j < submit_info_data[i].pCommandBufferInfos->GetLength(); ++j)
+            {
+                if (auto* cmd_buffer_info =
+                        GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer))
+                {
+                    ApplyRecordedEventOps(cmd_buffer_info);
+                    ApplyRecordedQueryOps(cmd_buffer_info);
+                }
+            }
+        }
     }
 
     // The result to report to the event sink might be different from the
@@ -5194,19 +5385,16 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     // Update layout on the image infos.
     if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
     {
-        for (uint32_t i = 0; i < submitCount; ++i)
+        for (const auto& submit : pSubmits->GetMetaStructSpan())
         {
-            if (submit_info_data[i].pCommandBufferInfos == nullptr)
+            if (submit.pCommandBufferInfos == nullptr)
             {
                 continue;
             }
 
-            const size_t command_buffer_count = submit_info_data[i].pCommandBufferInfos->GetLength();
-            const auto   command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
-            for (size_t j = 0; (command_buffer_infos != nullptr) && (j < command_buffer_count); ++j)
+            for (const auto& command_buffer_info : submit.pCommandBufferInfos->GetMetaStructSpan())
             {
-                PropagateImageLayouts(
-                    GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer));
+                PropagateImageLayouts(GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_info.commandBuffer));
             }
         }
     }
@@ -5219,7 +5407,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data->pNext))
+                                                    submit_info_data[i].pNext))
                 {
                     break;
                 }
@@ -5952,6 +6140,30 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
             in_commandBuffer->addresses_to_replace.insert(secondary_cmd_buffer_info->addresses_to_replace.begin(),
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
+
+        // Update the image's layout based on the recorded layout transitions in the secondary command buffer.
+        for (const auto& [image_id, secondary_layouts] : secondary_cmd_buffer_info->image_layout_barriers)
+        {
+            auto& primary_layouts = in_commandBuffer->image_layout_barriers[image_id];
+            if (primary_layouts.IsInitialized())
+            {
+                primary_layouts.MergeFrom(secondary_layouts);
+            }
+            else
+            {
+                primary_layouts = secondary_layouts;
+            }
+        }
+
+        // preserve set/reset event ordering from executed secondaries for submit-time state tracking
+        in_commandBuffer->recorded_event_ops.insert(in_commandBuffer->recorded_event_ops.end(),
+                                                    secondary_cmd_buffer_info->recorded_event_ops.begin(),
+                                                    secondary_cmd_buffer_info->recorded_event_ops.end());
+
+        // same for recorded query ops
+        in_commandBuffer->recorded_query_ops.insert(in_commandBuffer->recorded_query_ops.end(),
+                                                    secondary_cmd_buffer_info->recorded_query_ops.begin(),
+                                                    secondary_cmd_buffer_info->recorded_query_ops.end());
     }
     func(command_buffer, commandBufferCount, command_buffers);
 }
@@ -7083,7 +7295,10 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         image_info->layer_count    = modified_create_info.arrayLayers;
         image_info->level_count    = modified_create_info.mipLevels;
 
-        image_info->current_layout = modified_create_info.initialLayout;
+        image_info->subresource_layouts.Initialize(modified_create_info.mipLevels,
+                                                   modified_create_info.arrayLayers,
+                                                   graphics::GetFormatAspects(modified_create_info.format));
+        image_info->subresource_layouts.SetUniformLayout(modified_create_info.initialLayout);
 
         if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
@@ -7405,6 +7620,19 @@ VkResult VulkanReplayConsumerBase::OverrideGetVideoSessionMemoryRequirementsKHR(
         video_session_info->allocator_data);
 }
 
+static VkImageLayout GetAttachmentStencilFinalLayout(const VkAttachmentDescription&)
+{
+    // Overload when VkAttachmentDescription has no pNext chain, so it can never carry a separate stencil final layout.
+    return VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+static VkImageLayout GetAttachmentStencilFinalLayout(const VkAttachmentDescription2& attachment_desc)
+{
+    const auto* stencil_layout =
+        graphics::vulkan_struct_get_pnext<VkAttachmentDescriptionStencilLayout>(&attachment_desc);
+    return (stencil_layout != nullptr) ? stencil_layout->stencilFinalLayout : VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
 template <typename T>
 void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerDecoder<VkRenderPass>* pRenderPass)
 {
@@ -7419,9 +7647,12 @@ void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerD
 
         // Save attachment descriptions to VulkanRenderPassInfo.
         render_pass_info->attachment_description_final_layouts.resize(attachment_count);
+        render_pass_info->attachment_description_stencil_final_layouts.resize(attachment_count);
         for (uint32_t i = 0; i < attachment_count; ++i)
         {
             render_pass_info->attachment_description_final_layouts[i] = attachment_descs[i].finalLayout;
+            render_pass_info->attachment_description_stencil_final_layouts[i] =
+                GetAttachmentStencilFinalLayout(attachment_descs[i]);
         }
     }
 }
@@ -7553,14 +7784,10 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
                                    imageMemoryBarrierCount,
                                    pImageMemoryBarriers->GetPointer());
 
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
-    {
-        auto image_id                                        = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
-        command_buffer_info->image_layout_barriers[image_id] = pImageMemoryBarriers->GetPointer()[i].newLayout;
-        VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
-        assert(img_info != nullptr);
-        img_info->intermediate_layout = pImageMemoryBarriers->GetPointer()[i].newLayout;
-    }
+    UpdateTrackedImageLayoutBarriers(command_buffer_info,
+                                     imageMemoryBarrierCount,
+                                     pImageMemoryBarriers->GetMetaStructPointer(),
+                                     pImageMemoryBarriers->GetPointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
@@ -7575,16 +7802,11 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
         const auto* dependency_info_meta = pDependencyInfo->GetMetaStructPointer();
         if (dependency_info_meta->pImageMemoryBarriers != nullptr)
         {
-            const auto* img_barriers_meta = dependency_info_meta->pImageMemoryBarriers->GetMetaStructPointer();
-            for (uint32_t i = 0; i < dependency_info_meta->pImageMemoryBarriers->GetLength(); ++i)
-            {
-                format::HandleId image_id = img_barriers_meta[i].image;
-                command_buffer_info->image_layout_barriers[image_id] =
-                    dependency_info_meta->pImageMemoryBarriers->GetPointer()[i].newLayout;
-
-                VulkanImageInfo* img_info     = object_info_table_->GetVkImageInfo(image_id);
-                img_info->intermediate_layout = dependency_info_meta->pImageMemoryBarriers->GetPointer()[i].newLayout;
-            }
+            UpdateTrackedImageLayoutBarriers(
+                command_buffer_info,
+                static_cast<uint32_t>(dependency_info_meta->pImageMemoryBarriers->GetLength()),
+                dependency_info_meta->pImageMemoryBarriers->GetMetaStructPointer(),
+                dependency_info_meta->pImageMemoryBarriers->GetPointer());
         }
     }
 }
@@ -7595,6 +7817,71 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2KHR(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     OverrideCmdPipelineBarrier2(func, command_buffer_info, pDependencyInfo);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWaitEvents(
+    PFN_vkCmdWaitEvents                                        func,
+    VulkanCommandBufferInfo*                                   command_buffer_info,
+    uint32_t                                                   eventCount,
+    HandlePointerDecoder<VkEvent>*                             pEvents,
+    VkPipelineStageFlags                                       srcStageMask,
+    VkPipelineStageFlags                                       dstStageMask,
+    uint32_t                                                   memoryBarrierCount,
+    const StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
+    uint32_t                                                   bufferMemoryBarrierCount,
+    const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+    uint32_t                                                   imageMemoryBarrierCount,
+    const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers)
+{
+    func(command_buffer_info->handle,
+         eventCount,
+         pEvents->GetHandlePointer(),
+         srcStageMask,
+         dstStageMask,
+         memoryBarrierCount,
+         pMemoryBarriers->GetPointer(),
+         bufferMemoryBarrierCount,
+         pBufferMemoryBarriers->GetPointer(),
+         imageMemoryBarrierCount,
+         pImageMemoryBarriers->GetPointer());
+
+    UpdateTrackedImageLayoutBarriers(command_buffer_info,
+                                     imageMemoryBarrierCount,
+                                     pImageMemoryBarriers->GetMetaStructPointer(),
+                                     pImageMemoryBarriers->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWaitEvents2(
+    PFN_vkCmdWaitEvents2                                  func,
+    VulkanCommandBufferInfo*                              command_buffer_info,
+    uint32_t                                              eventCount,
+    HandlePointerDecoder<VkEvent>*                        pEvents,
+    const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
+{
+    func(command_buffer_info->handle, eventCount, pEvents->GetHandlePointer(), pDependencyInfos->GetPointer());
+
+    const auto* dependency_info_meta = pDependencyInfos->GetMetaStructPointer();
+    const auto* dependency_info      = pDependencyInfos->GetPointer();
+    if (dependency_info_meta != nullptr && dependency_info != nullptr)
+    {
+        for (uint32_t i = 0; i < pDependencyInfos->GetLength(); ++i)
+        {
+            if (dependency_info_meta[i].pImageMemoryBarriers == nullptr)
+            {
+                continue;
+            }
+
+            const auto* img_barriers_meta = dependency_info_meta[i].pImageMemoryBarriers->GetMetaStructPointer();
+            const auto* img_barriers      = dependency_info[i].pImageMemoryBarriers;
+            if (img_barriers_meta == nullptr || img_barriers == nullptr)
+            {
+                continue;
+            }
+
+            UpdateTrackedImageLayoutBarriers(
+                command_buffer_info, dependency_info[i].imageMemoryBarrierCount, img_barriers_meta, img_barriers);
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
@@ -8529,10 +8816,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         // If supported surface formats were not queried before, query them now
         if (!physical_device_info->surface_formats && options_.swapchain_option != util::SwapchainOption::kOffscreen)
         {
-            const auto instance_table = GetInstanceTable(physical_device_info->handle);
-            util::BeginInjectedCommands();
-            uint32_t surface_format_count = 0;
-            auto     result               = instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+            const auto                       instance_table = GetInstanceTable(physical_device_info->handle);
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            uint32_t                         surface_format_count = 0;
+            auto                             result               = instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
                 physical_device_info->handle, modified_create_info.surface, &surface_format_count, nullptr);
             if (result == VK_SUCCESS && surface_format_count > 0)
             {
@@ -8552,7 +8839,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                     physical_device_info->surface_formats.reset();
                 }
             }
-            util::EndInjectedCommands();
         }
 
         // check if 'replay_create_info->imageFormat' is supported,
@@ -8876,16 +9162,19 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
                     break;
                 }
 
-                image_info->format         = swapchain_info->format;
-                image_info->extent         = { swapchain_info->width, swapchain_info->height, 1 };
-                image_info->layer_count    = swapchain_info->image_array_layers;
-                image_info->level_count    = 1;
-                image_info->tiling         = VK_IMAGE_TILING_OPTIMAL;
-                image_info->usage          = swapchain_info->image_usage;
-                image_info->sample_count   = VK_SAMPLE_COUNT_1_BIT;
-                image_info->type           = VK_IMAGE_TYPE_2D;
-                image_info->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-                image_info->swapchain_id   = swapchain_info->capture_id;
+                image_info->format       = swapchain_info->format;
+                image_info->extent       = { swapchain_info->width, swapchain_info->height, 1 };
+                image_info->layer_count  = swapchain_info->image_array_layers;
+                image_info->level_count  = 1;
+                image_info->tiling       = VK_IMAGE_TILING_OPTIMAL;
+                image_info->usage        = swapchain_info->image_usage;
+                image_info->sample_count = VK_SAMPLE_COUNT_1_BIT;
+                image_info->type         = VK_IMAGE_TYPE_2D;
+                image_info->swapchain_id = swapchain_info->capture_id;
+
+                // Initialize() leaves every subresource VK_IMAGE_LAYOUT_UNDEFINED, where swapchain images start.
+                image_info->subresource_layouts.Initialize(
+                    image_info->level_count, image_info->layer_count, graphics::GetFormatAspects(image_info->format));
 
                 // Create a copy of the image info to use for image cleanup when the swapchain is destroyed.
                 swapchain_info->image_infos.push_back(*image_info);
@@ -8918,16 +9207,19 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
                 auto* image_info = static_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 GFXRECON_ASSERT(image_info != nullptr);
 
-                image_info->format         = swapchain_info->format;
-                image_info->extent         = { swapchain_info->width, swapchain_info->height, 1 };
-                image_info->layer_count    = swapchain_info->image_array_layers;
-                image_info->level_count    = 1;
-                image_info->tiling         = VK_IMAGE_TILING_OPTIMAL;
-                image_info->usage          = swapchain_info->image_usage;
-                image_info->sample_count   = VK_SAMPLE_COUNT_1_BIT;
-                image_info->type           = VK_IMAGE_TYPE_2D;
-                image_info->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-                image_info->swapchain_id   = swapchain_info->capture_id;
+                image_info->format       = swapchain_info->format;
+                image_info->extent       = { swapchain_info->width, swapchain_info->height, 1 };
+                image_info->layer_count  = swapchain_info->image_array_layers;
+                image_info->level_count  = 1;
+                image_info->tiling       = VK_IMAGE_TILING_OPTIMAL;
+                image_info->usage        = swapchain_info->image_usage;
+                image_info->sample_count = VK_SAMPLE_COUNT_1_BIT;
+                image_info->type         = VK_IMAGE_TYPE_2D;
+                image_info->swapchain_id = swapchain_info->capture_id;
+
+                // Initialize() leaves every subresource VK_IMAGE_LAYOUT_UNDEFINED, where swapchain images start.
+                image_info->subresource_layouts.Initialize(
+                    image_info->level_count, image_info->layer_count, graphics::GetFormatAspects(image_info->format));
             }
 
             // Store image handles for screenshot generation.
@@ -10207,7 +10499,7 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     if (options_.dumping_resources)
     {
         resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
-            command_buffer_info, *GetDeviceTable(device_info->handle), infoCount, pInfos, ppBuildRangeInfos);
+            command_buffer_info, GetInjectedDeviceCalls(device_info->handle), infoCount, pInfos, ppBuildRangeInfos);
     }
 
     if (UseAddressReplacement(device_info))
@@ -10237,7 +10529,7 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
         const auto* src       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
         const auto* dst       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
         resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
-            *GetDeviceTable(device_info->handle), command_buffer_info, src, dst);
+            GetInjectedDeviceCalls(device_info->handle), command_buffer_info, src, dst);
     }
 
     VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -10267,6 +10559,9 @@ void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesK
     VkCommandBuffer             command_buffer       = command_buffer_info->handle;
     VkAccelerationStructureKHR* acceleration_structs = pAccelerationStructures->GetHandlePointer();
     VkQueryPool                 query_pool           = query_pool_info->handle;
+
+    command_buffer_info->recorded_query_ops.push_back({ query_pool_info->capture_id, firstQuery, count, true });
+    track_query_state_ = true;
 
     {
         auto& address_replacer = GetDeviceAddressReplacer(device_info);
@@ -10850,6 +11145,8 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->addresses_to_replace.clear();
     command_buffer_info->addresses_to_resolve.clear();
     command_buffer_info->in_rendering_scope = false;
+    command_buffer_info->recorded_event_ops.clear();
+    command_buffer_info->recorded_query_ops.clear();
 
     // free potential shadow-resources associated with this command-buffer
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
@@ -10893,8 +11190,11 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     {
         const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 
-        res = resource_dumper_->BeginCommandBuffer(
-            index, command_buffer_info, GetDeviceTable(device->handle), GetInstanceTable(device->parent), begin_info);
+        res = resource_dumper_->BeginCommandBuffer(index,
+                                                   command_buffer_info,
+                                                   GetInjectedDeviceCalls(device->handle),
+                                                   GetInstanceTable(device->parent),
+                                                   begin_info);
     }
 
     if (res == VK_SUCCESS)
@@ -11305,21 +11605,14 @@ void VulkanReplayConsumerBase::UpdateTrackedRenderPassFinalLayouts(VulkanCommand
 
     for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
     {
-        auto image_view_id   = attachment_image_view_ids[i];
-        auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-        if (image_view_info == nullptr)
-        {
-            continue;
-        }
+        format::HandleId image_view_id = attachment_image_view_ids[i];
 
-        command_buffer_info->image_layout_barriers[image_view_info->image_id] =
-            render_pass_info->attachment_description_final_layouts[i];
+        UpdateTrackedImageViewLayout(
+            command_buffer_info, image_view_id, render_pass_info->attachment_description_final_layouts[i]);
 
-        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_view_info->image_id);
-        if (img_info != nullptr)
-        {
-            img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
-        }
+        // The stencil aspect can have its own final layout
+        UpdateTrackedImageViewLayout(
+            command_buffer_info, image_view_id, render_pass_info->attachment_description_stencil_final_layouts[i]);
     }
 }
 
@@ -11338,12 +11631,66 @@ void VulkanReplayConsumerBase::UpdateTrackedImageViewLayout(VulkanCommandBufferI
         return;
     }
 
-    command_buffer_info->image_layout_barriers[image_view_info->image_id] = layout;
-
     VulkanImageInfo* image_info = object_info_table_->GetVkImageInfo(image_view_info->image_id);
-    if (image_info != nullptr)
+    if (image_info == nullptr)
     {
-        image_info->intermediate_layout = layout;
+        return;
+    }
+
+    InitializeCommandBufferImageLayouts(command_buffer_info, image_info);
+
+    VkImageSubresourceRange range = image_view_info->subresource_range;
+    range.aspectMask &= graphics::GetLayoutAspects(layout);
+
+    if (range.aspectMask != 0)
+    {
+        command_buffer_info->image_layout_barriers[image_view_info->image_id].SetLayout(range, layout);
+    }
+
+    image_info->intermediate_layout = layout;
+}
+
+void VulkanReplayConsumerBase::UpdateTrackedImageLayoutBarriers(
+    VulkanCommandBufferInfo*            command_buffer_info,
+    uint32_t                            imageMemoryBarrierCount,
+    const Decoded_VkImageMemoryBarrier* image_memory_barriers_meta,
+    const VkImageMemoryBarrier*         image_memory_barriers)
+{
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+    {
+        format::HandleId image_id = image_memory_barriers_meta[i].image;
+
+        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
+        if (img_info != nullptr)
+        {
+            InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
+            command_buffer_info->image_layout_barriers[image_id].SetLayout(image_memory_barriers[i].subresourceRange,
+                                                                           image_memory_barriers[i].newLayout);
+
+            img_info->intermediate_layout = image_memory_barriers[i].newLayout;
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::UpdateTrackedImageLayoutBarriers(
+    VulkanCommandBufferInfo*             command_buffer_info,
+    uint32_t                             imageMemoryBarrierCount,
+    const Decoded_VkImageMemoryBarrier2* image_memory_barriers_meta,
+    const VkImageMemoryBarrier2*         image_memory_barriers)
+{
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+    {
+        format::HandleId image_id = image_memory_barriers_meta[i].image;
+
+        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_id);
+        if (img_info != nullptr)
+        {
+            InitializeCommandBufferImageLayouts(command_buffer_info, img_info);
+            command_buffer_info->image_layout_barriers[image_id].SetLayout(image_memory_barriers[i].subresourceRange,
+                                                                           image_memory_barriers[i].newLayout);
+
+            img_info->intermediate_layout = image_memory_barriers[i].newLayout;
+        }
     }
 }
 
@@ -11412,13 +11759,15 @@ void VulkanReplayConsumerBase::PropagateImageLayouts(const VulkanCommandBufferIn
         return;
     }
 
-    for (const auto& [image_id, layout] : command_buffer_info->image_layout_barriers)
+    for (const auto& [image_id, command_buffer_layouts] : command_buffer_info->image_layout_barriers)
     {
         VulkanImageInfo* image_info = object_info_table_->GetVkImageInfo(image_id);
-        if (image_info != nullptr)
+        if (image_info == nullptr)
         {
-            image_info->current_layout = layout;
+            continue;
         }
+
+        image_info->subresource_layouts.MergeFrom(command_buffer_layouts);
     }
 }
 
@@ -11695,7 +12044,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
         auto* image_view_info = static_cast<VulkanImageViewInfo*>(view_decoder->GetConsumerData(0));
         GFXRECON_ASSERT(image_view_info != nullptr);
 
-        image_view_info->image_id = create_info_decoder->GetMetaStructPointer()->image;
+        image_view_info->image_id          = create_info_decoder->GetMetaStructPointer()->image;
+        image_view_info->subresource_range = modified_create_info.subresourceRange;
     }
 
     // clean potential opaque creation-data
@@ -11818,18 +12168,19 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                 };
             }
 
-            screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info,
-                                            GetInjectedDeviceCalls(device_info->handle),
-                                            memory_properties,
-                                            device_info->allocator.get(),
-                                            image_info->handle,
-                                            image_info->format,
-                                            image_info->extent.width,
-                                            image_info->extent.height,
-                                            0,
-                                            screenshot_scale,
-                                            image_info->current_layout);
+            screenshot_handler_->WriteImage(
+                filename_prefix,
+                device_info,
+                GetInjectedDeviceCalls(device_info->handle),
+                memory_properties,
+                device_info->allocator.get(),
+                image_info->handle,
+                image_info->format,
+                image_info->extent.width,
+                image_info->extent.height,
+                0,
+                screenshot_scale,
+                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
         }
 
         screenshot_handler_->EndFrame();
@@ -12667,14 +13018,13 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplateKHR(
-            call_info,
-            GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplateKHR,
-            in_commandBuffer,
-            in_descriptorUpdateTemplate,
-            in_layout,
-            args.set,
-            args.pData.GetPointer());
+        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplateKHR(call_info,
+                                                                        GetInjectedDeviceCalls(in_commandBuffer),
+                                                                        in_commandBuffer,
+                                                                        in_descriptorUpdateTemplate,
+                                                                        in_layout,
+                                                                        args.set,
+                                                                        args.pData.GetPointer());
     }
 }
 
@@ -12705,7 +13055,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     if (options_.dumping_resources)
     {
         resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-            call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR, in_commandBuffer, value);
+            call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, value);
     }
 }
 
@@ -12799,7 +13149,7 @@ void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
                 const auto* src = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
                 const auto* dst = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
                 resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
-                    *GetDeviceTable(device_info->handle), nullptr, src, dst);
+                    GetInjectedDeviceCalls(device_info->handle), nullptr, src, dst);
             }
         }
 
@@ -12834,7 +13184,7 @@ void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
         if (options_.dumping_resources)
         {
             resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
-                nullptr, *GetDeviceTable(device_info->handle), info_count, pInfos, ppRangeInfos);
+                nullptr, GetInjectedDeviceCalls(device_info->handle), info_count, pInfos, ppRangeInfos);
         }
 
         if (UseAddressReplacement(device_info))
@@ -12847,14 +13197,13 @@ void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
         if (options_.dumping_resources)
         {
             ApiCallInfo call_info{ block_index_, 0 };
-            resource_dumper_->Process_vkCmdBuildAccelerationStructuresKHR(
-                call_info,
-                GetDeviceTable(device_info->handle)->CmdBuildAccelerationStructuresKHR,
-                VK_NULL_HANDLE,
-                info_count,
-                pInfos,
-                ppRangeInfos,
-                false);
+            resource_dumper_->Process_vkCmdBuildAccelerationStructuresKHR(call_info,
+                                                                          GetInjectedDeviceCalls(device_info->handle),
+                                                                          VK_NULL_HANDLE,
+                                                                          info_count,
+                                                                          pInfos,
+                                                                          ppRangeInfos,
+                                                                          false);
         }
     }
 }

@@ -200,7 +200,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_map<format::HandleId, bool> profilingLockState;
 
     // Image layout tracking data
-    std::unordered_map<format::HandleId, VkImageLayout> initial_image_layouts_;
+    std::unordered_map<format::HandleId, graphics::ImageLayoutMap> initial_image_layouts_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
