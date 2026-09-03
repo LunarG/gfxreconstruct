@@ -235,6 +235,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     if (!options.screenshot_ranges.empty())
     {
         screenshot_controller_ = std::make_unique<ScreenshotController>(options);
+        screenshot_json_       = std::make_unique<VulkanScreenshotJson>(options, *screenshot_controller_);
     }
 
     switch (options.swapchain_option)
@@ -2597,21 +2598,101 @@ void VulkanReplayConsumerBase::SetSwapchainWindowSize(const Decoded_VkSwapchainC
     }
 }
 
-void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const
+void VulkanReplayConsumerBase::EndScreenshotFrame(std::optional<VkResult> replay_result)
+{
+    GFXRECON_ASSERT((screenshot_controller_ != nullptr) && (screenshot_json_ != nullptr));
+
+    // Only screenshot frames have entries in the json output.
+    if (screenshot_controller_->IsScreenshotFrame())
+    {
+        screenshot_json_->EndFrame(replay_result);
+    }
+
+    screenshot_controller_->EndFrame();
+}
+
+bool VulkanReplayConsumerBase::WriteScreenshotOutput(ScreenshotSource&                         source,
+                                                     const ScreenshotRequest&                  request,
+                                                     const VulkanScreenshotJson::OutputImage&  json_output_image,
+                                                     const VulkanScreenshotJson::OutputSource& json_source)
+{
+    GFXRECON_ASSERT((screenshot_controller_ != nullptr) && (screenshot_json_ != nullptr));
+
+    if ((request.width == 0) || (request.height == 0))
+    {
+        screenshot_json_->SkipOutput(
+            json_source,
+            &json_output_image,
+            request.base_layer,
+            screenshot_reason::kZeroSizeImage,
+            "Cannot create a screenshot for a 0 size image (width=" + std::to_string(request.width) +
+                ", height=" + std::to_string(request.height) + ")",
+            false);
+        return false;
+    }
+
+    // At least one entry, so a request of no layers still gets its failed output.
+    std::vector<bool> delivered(std::max<uint32_t>(request.layer_count, 1), false);
+    uint32_t          layers_written = 0;
+
+    // One read for every layer, thus one queue submit and one wait for the frame.
+    source.Readback(request, [&](uint32_t layer, const CpuImage& cpu_image) {
+        GFXRECON_ASSERT((layer >= request.base_layer) && ((layer - request.base_layer) < delivered.size()));
+        delivered[layer - request.base_layer] = true;
+
+        ScreenshotWriteResult result;
+        if (screenshot_controller_->Finish(
+                ScreenshotController::LayerFilename(request, layer), cpu_image, request.rotation, &result))
+        {
+            ++layers_written;
+        }
+
+        screenshot_json_->RecordOutput(json_source, layer, json_output_image, result);
+    });
+
+    // A layer that failed to read back never reaches the callback
+    for (uint32_t i = 0; i < delivered.size(); ++i)
+    {
+        if (!delivered[i])
+        {
+            screenshot_json_->SkipOutput(json_source,
+                                         &json_output_image,
+                                         request.base_layer + i,
+                                         screenshot_reason::kReadbackFailed,
+                                         "Layer " + std::to_string(request.base_layer + i) +
+                                             " could not be read back from the device",
+                                         true);
+        }
+    }
+
+    return layers_written > 0;
+}
+
+void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info,
+                                                const VulkanQueueInfo*          queue_info,
+                                                VkResult                        original_result)
 {
     if (meta_info != nullptr && meta_info->decoded_value != nullptr && !meta_info->pSwapchains.IsNull())
     {
         auto present_info  = meta_info->decoded_value;
         auto swapchain_ids = meta_info->pSwapchains.GetPointer();
 
+        GFXRECON_ASSERT(screenshot_json_ != nullptr);
+        screenshot_json_->BeginFrameSwapchain(
+            "vkQueuePresentKHR", queue_info, original_result, block_index_, present_info->swapchainCount);
+
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
             auto swapchain_info = object_info_table_->GetVkSwapchainKHRInfo(swapchain_ids[i]);
+            auto surface_info   = (swapchain_info != nullptr)
+                                      ? object_info_table_->GetVkSurfaceKHRInfo(swapchain_info->surface_id)
+                                      : nullptr;
+
             if (swapchain_info != nullptr && swapchain_info->device_info != nullptr &&
                 swapchain_info->images.size() > 0)
             {
-                auto     device_info = swapchain_info->device_info;
                 uint32_t image_index = present_info->pImageIndices[i];
+                auto     device_info = swapchain_info->device_info;
 
                 auto instance_table = GetInstanceTable(device_info->parent);
                 assert(instance_table != nullptr);
@@ -2626,10 +2707,46 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
                 VkFormat      image_format = swapchain_info->format;
                 VkImageLayout image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-                VkImage       image        = swapchain_info->images[image_index];
+                VkImage       image        = VK_NULL_HANDLE;
                 uint32_t      image_width  = swapchain_info->width;
                 uint32_t      image_height = swapchain_info->height;
                 uint32_t      num_layers   = 1;
+
+                const VkSurfaceTransformFlagBitsKHR recorded_pre_transform =
+                    screenshot_controller_->ApplyPreRotation() ? swapchain_info->pre_transform
+                                                               : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+
+                VulkanScreenshotJson::OutputImage json_output_image{
+                    image_format, image_width, image_height, recorded_pre_transform
+                };
+
+                // Describes the image this swapchain presents for the screenshot JSON. Replaced below when a present
+                // override image takes its place.
+                auto json_source = screenshot_json_->SwapchainSource("swapchainImage",
+                                                                     format::kNullHandleId,
+                                                                     meta_info,
+                                                                     i,
+                                                                     swapchain_ids[i],
+                                                                     image_index,
+                                                                     swapchain_info,
+                                                                     surface_info);
+
+                if (image_index < swapchain_info->images.size())
+                {
+                    image = swapchain_info->images[image_index];
+                }
+                else
+                {
+                    screenshot_json_->SkipOutput(json_source,
+                                                 &json_output_image,
+                                                 0,
+                                                 screenshot_reason::kImageIndexOutOfRange,
+                                                 "Present image index " + std::to_string(image_index) +
+                                                     " exceeds the " + std::to_string(swapchain_info->images.size()) +
+                                                     " replay images of swapchain " + std::to_string(swapchain_ids[i]),
+                                                 true);
+                    continue;
+                }
 
                 // apply swapchain-image override, if any
                 const VulkanImageInfo* override_img_info = nullptr;
@@ -2645,14 +2762,39 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image_width  = override_img_info->extent.width;
                         image_height = override_img_info->extent.height;
                         num_layers   = override_img_info->layer_count;
+
+                        json_output_image.format = image_format;
+                        json_output_image.width  = image_width;
+                        json_output_image.height = image_height;
+
+                        json_source = screenshot_json_->SwapchainSource("presentOverrideImage",
+                                                                        present_override_image_id_,
+                                                                        meta_info,
+                                                                        i,
+                                                                        swapchain_ids[i],
+                                                                        image_index,
+                                                                        swapchain_info,
+                                                                        surface_info);
+                    }
+                    else
+                    {
+                        screenshot_json_->SkipOutput(json_source,
+                                                     nullptr,
+                                                     0,
+                                                     screenshot_reason::kUnknownImage,
+                                                     "Present override image " +
+                                                         std::to_string(present_override_image_id_) +
+                                                         " is not known to replay",
+                                                     true);
                     }
                 }
 
                 ScreenshotRequest request;
-                request.width       = image_width;
-                request.height      = image_height;
-                request.layer_count = num_layers;
-                request.scale       = screenshot_controller_->ResolveScale(image_width, image_height);
+                request.width         = image_width;
+                request.height        = image_height;
+                request.layer_count   = num_layers;
+                request.scale         = screenshot_controller_->ResolveScale(image_width, image_height);
+                request.filename_base = filename_prefix;
                 if (screenshot_controller_->ApplyPreRotation())
                 {
                     request.rotation = RotationForSurfaceTransform(swapchain_info->pre_transform);
@@ -2692,26 +2834,69 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                               memory_properties,
                                               source_image);
 
-                // One read for every layer, thus one queue submit and one wait for the frame.
-                source.Readback(request, [&](uint32_t layer, const CpuImage& cpu_image) {
-                    screenshot_controller_->Finish(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
-                                                                  : filename_prefix,
-                                                   cpu_image,
-                                                   request.rotation);
-                });
+                WriteScreenshotOutput(source, request, json_output_image, json_source);
+            }
+            else if (swapchain_info == nullptr)
+            {
+                const auto json_source = screenshot_json_->SwapchainSource("swapchainImage",
+                                                                           format::kNullHandleId,
+                                                                           meta_info,
+                                                                           i,
+                                                                           swapchain_ids[i],
+                                                                           0,
+                                                                           swapchain_info,
+                                                                           surface_info);
+
+                screenshot_json_->SkipOutput(json_source,
+                                             nullptr,
+                                             0,
+                                             screenshot_reason::kUnknownSwapchain,
+                                             "Swapchain " + std::to_string(swapchain_ids[i]) +
+                                                 " is not known to replay",
+                                             true);
+            }
+            else
+            {
+                const auto json_source = screenshot_json_->SwapchainSource("swapchainImage",
+                                                                           format::kNullHandleId,
+                                                                           meta_info,
+                                                                           i,
+                                                                           swapchain_ids[i],
+                                                                           0,
+                                                                           swapchain_info,
+                                                                           surface_info);
+
+                screenshot_json_->SkipOutput(json_source,
+                                             nullptr,
+                                             0,
+                                             screenshot_reason::kSwapchainNoImages,
+                                             "Swapchain " + std::to_string(swapchain_ids[i]) +
+                                                 " has no replay images (surface filtered out by "
+                                                 "--surface-index, or an offscreen swapchain that never "
+                                                 "acquired an image)",
+                                             false);
             }
         }
     }
 }
 
 bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
-    const VulkanCommandBufferInfo* command_buffer_info)
+    const VulkanCommandBufferInfo* command_buffer_info,
+    const char*                    call_name,
+    const VulkanQueueInfo*         queue_info,
+    VkResult                       original_result,
+    VkResult                       replay_result)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
+    GFXRECON_ASSERT(screenshot_json_ != nullptr);
+
     if (command_buffer_info->is_frame_boundary)
     {
         if (screenshot_controller_->IsScreenshotFrame())
         {
+            screenshot_json_->BeginFrameCommandBuffer(
+                call_name, queue_info, original_result, block_index_, command_buffer_info->capture_id);
+
             VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
 
             VkPhysicalDeviceMemoryProperties memory_properties;
@@ -2725,20 +2910,74 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                 instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
             }
 
+            if (command_buffer_info->frame_buffer_ids.empty())
+            {
+                screenshot_json_->SkipFrame(screenshot_reason::kNoFramebuffers,
+                                            "The frame boundary command buffer rendered to no framebuffer",
+                                            false);
+            }
+
             for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
             {
                 auto framebuffer_info =
                     object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+                if (framebuffer_info == nullptr)
+                {
+                    screenshot_json_->SkipOutput(
+                        screenshot_json_->ImageSource("framebufferAttachment", format::kNullHandleId),
+                        nullptr,
+                        0,
+                        screenshot_reason::kUnknownFramebuffer,
+                        "Framebuffer " + std::to_string(command_buffer_info->frame_buffer_ids[i]) + " (render pass " +
+                            std::to_string(i) + ") is not known to replay",
+                        true);
+                    continue;
+                }
 
                 for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
                 {
-                    auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
-                    auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-                    auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
+                    auto                   image_view_id   = framebuffer_info->attachment_image_view_ids[j];
+                    auto                   image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+                    const format::HandleId image_id =
+                        (image_view_info != nullptr) ? image_view_info->image_id : format::kNullHandleId;
+                    auto image_info =
+                        (image_view_info != nullptr) ? object_info_table_->GetVkImageInfo(image_id) : nullptr;
+
+                    const auto json_source = screenshot_json_->FramebufferAttachmentSource(
+                        image_id, command_buffer_info->frame_buffer_ids[i], i, j, image_view_id);
+
+                    if (image_info == nullptr)
+                    {
+                        screenshot_json_->SkipOutput(json_source,
+                                                     nullptr,
+                                                     0,
+                                                     screenshot_reason::kUnknownImage,
+                                                     "Attachment " + std::to_string(j) + " of framebuffer " +
+                                                         std::to_string(command_buffer_info->frame_buffer_ids[i]) +
+                                                         ((image_view_info == nullptr)
+                                                              ? ": image view " + std::to_string(image_view_id)
+                                                              : ": image " + std::to_string(image_id)) +
+                                                         " is not known to replay",
+                                                     true);
+                        continue;
+                    }
+
+                    const VulkanScreenshotJson::OutputImage json_output_image{ image_info->format,
+                                                                               image_info->extent.width,
+                                                                               image_info->extent.height,
+                                                                               VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };
 
                     // Only screenshot images that are color attachments.
                     if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
                     {
+                        screenshot_json_->SkipOutput(json_source,
+                                                     &json_output_image,
+                                                     0,
+                                                     screenshot_reason::kNotColorAttachment,
+                                                     "Attachment " + std::to_string(j) + " of framebuffer " +
+                                                         std::to_string(command_buffer_info->frame_buffer_ids[i]) +
+                                                         " is not a color attachment",
+                                                     false);
                         continue;
                     }
 
@@ -2761,6 +3000,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                     request.height = image_info->extent.height;
                     request.scale =
                         screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+                    request.filename_base = filename_prefix;
 
                     const VkImageLayout image_layout =
                         image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
@@ -2780,55 +3020,89 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                                                   memory_properties,
                                                   source_image);
 
-                    source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
-                        screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
-                    });
+                    WriteScreenshotOutput(source, request, json_output_image, json_source);
                 }
             }
         }
-        screenshot_controller_->EndFrame();
+
+        EndScreenshotFrame(replay_result);
         return true;
     }
     return false;
 }
 
 bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
-                                                               const PNextNode*        pnext)
+                                                               const PNextNode*        pnext,
+                                                               const char*             call_name,
+                                                               const VulkanQueueInfo*  queue_info,
+                                                               VkResult                original_result,
+                                                               VkResult                replay_result)
 {
+    GFXRECON_ASSERT(screenshot_json_ != nullptr);
+
     const auto* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pnext);
-    if (frame_boundary == nullptr ||
+    if (frame_boundary == nullptr || frame_boundary->decoded_value == nullptr ||
         ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) == 0))
     {
         return false;
     }
 
-    VkPhysicalDeviceMemoryProperties memory_properties;
-    {
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-        auto                             instance_table = GetInstanceTable(device_info->parent);
-        GFXRECON_ASSERT(instance_table != nullptr);
-
-        instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
-    }
-
     if (screenshot_controller_->IsScreenshotFrame())
     {
-        for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
+        screenshot_json_->BeginFrameFrameBoundaryEXT(
+            call_name, queue_info, original_result, block_index_, frame_boundary);
+        const size_t image_count = frame_boundary->pImages.GetLength();
+
+        VkPhysicalDeviceMemoryProperties memory_properties;
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto                             instance_table = GetInstanceTable(device_info->parent);
+            GFXRECON_ASSERT(instance_table != nullptr);
+
+            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+        }
+
+        if (image_count == 0)
+        {
+            // A frame boundary without images is valid, and common for offscreen rendering. There is nothing replay
+            // could screenshot, so say so instead of silently skipping the frame.
+            screenshot_json_->SkipFrame(screenshot_reason::kFrameBoundaryNoImages,
+                                        std::string("VkFrameBoundaryEXT on ") + call_name +
+                                            " lists no images; nothing to screenshot",
+                                        false);
+        }
+
+        for (size_t i = 0; i < image_count; ++i)
         {
             std::string filename_prefix = screenshot_controller_->FilenameFor();
 
-            if (frame_boundary->pImages.GetLength() > 1)
+            if (image_count > 1)
             {
                 filename_prefix += "_image_" + std::to_string(i);
             }
 
-            const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
-            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
+            const format::HandleId image_id   = frame_boundary->pImages.GetPointer()[i];
+            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(image_id);
+
+            const auto json_source = screenshot_json_->ImageSource("frameBoundaryImage", image_id, i);
+
+            if (image_info == nullptr)
+            {
+                screenshot_json_->SkipOutput(json_source,
+                                             nullptr,
+                                             0,
+                                             screenshot_reason::kUnknownImage,
+                                             "VkFrameBoundaryEXT image " + std::to_string(image_id) +
+                                                 " is not known to replay",
+                                             true);
+                continue;
+            }
 
             ScreenshotRequest request;
             request.width  = image_info->extent.width;
             request.height = image_info->extent.height;
             request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+            request.filename_base = filename_prefix;
 
             const VkImageLayout image_layout =
                 image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
@@ -2848,17 +3122,17 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                                           memory_properties,
                                           source_image);
 
-            source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
-                screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
-            });
+            const VulkanScreenshotJson::OutputImage json_output_image{
+                image_info->format, request.width, request.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+            };
+            WriteScreenshotOutput(source, request, json_output_image, json_source);
         }
     }
 
-    screenshot_controller_->EndFrame();
+    EndScreenshotFrame(replay_result);
 
     return true;
 }
-
 void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo, CreateInstanceInfoState& create_state)
 {
@@ -5087,7 +5361,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data[i].pNext))
+                                                    submit_info_data[i].pNext,
+                                                    "vkQueueSubmit",
+                                                    queue_info,
+                                                    original_result,
+                                                    result))
                 {
                     break;
                 }
@@ -5098,7 +5376,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 {
                     auto command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]);
 
-                    if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
+                    // Check whether any of the submitted command lists buffers are frame boundaries.
+                    if (CheckCommandBufferInfoForFrameBoundary(
+                            command_buffer_info, "vkQueueSubmit", queue_info, original_result, result))
                     {
                         break;
                     }
@@ -5380,7 +5660,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data[i].pNext))
+                                                    submit_info_data[i].pNext,
+                                                    "vkQueueSubmit2",
+                                                    queue_info,
+                                                    original_result,
+                                                    result))
                 {
                     break;
                 }
@@ -5391,7 +5675,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 {
                     auto command_buffer_info =
                         GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer);
-                    if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
+                    if (CheckCommandBufferInfoForFrameBoundary(
+                            command_buffer_info, "vkQueueSubmit2", queue_info, original_result, result))
                     {
                         break;
                     }
@@ -9576,7 +9861,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         auto meta_info = pPresentInfo->GetMetaStructPointer();
         assert((meta_info != nullptr) && !meta_info->pSwapchains.IsNull());
 
-        WriteScreenshots(meta_info);
+        WriteScreenshots(meta_info, queue_info, original_result);
     }
 
     // If rendering is restricted to a specific surface, need to check for dummy swapchains at present.
@@ -9983,7 +10268,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
     if (screenshot_controller_ != nullptr)
     {
-        screenshot_controller_->EndFrame();
+        EndScreenshotFrame(result);
     }
 
     return result;
@@ -12232,45 +12517,61 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
     if (screenshot_controller_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
-        if (screenshot_controller_->IsScreenshotFrame() && image_info != nullptr)
+        if (screenshot_controller_->IsScreenshotFrame())
         {
-            const std::string filename_prefix = screenshot_controller_->FilenameFor();
+            screenshot_json_->BeginFrameFrameBoundaryANDROID(
+                "vkFrameBoundaryANDROID", nullptr, std::nullopt, block_index_, semaphore_info);
 
-            auto instance_table = GetInstanceTable(device_info->parent);
-            GFXRECON_ASSERT(instance_table != nullptr);
+            if (image_info != nullptr)
+            {
+                const std::string filename_prefix = screenshot_controller_->FilenameFor();
 
-            VkPhysicalDeviceMemoryProperties memory_properties;
-            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+                auto instance_table = GetInstanceTable(device_info->parent);
+                GFXRECON_ASSERT(instance_table != nullptr);
 
-            ScreenshotRequest request;
-            request.width  = image_info->extent.width;
-            request.height = image_info->extent.height;
-            request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+                VkPhysicalDeviceMemoryProperties memory_properties;
+                instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
 
-            const VkImageLayout image_layout =
-                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+                ScreenshotRequest request;
+                request.width  = image_info->extent.width;
+                request.height = image_info->extent.height;
+                request.scale =
+                    screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+                request.filename_base = filename_prefix;
 
-            VulkanScreenshotSource::Image source_image;
-            source_image.handle             = image_info->handle;
-            source_image.format             = image_info->format;
-            source_image.type               = image_info->type;
-            source_image.tiling             = image_info->tiling;
-            source_image.sample_count       = image_info->sample_count;
-            source_image.layer_layouts      = { image_layout };
-            source_image.queue_family_index = image_info->queue_family_index;
+                const VkImageLayout image_layout =
+                    image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
 
-            VulkanScreenshotSource source(device_info,
-                                          GetInjectedDeviceCalls(device_info->handle),
-                                          GetInstanceTable(device_info->parent),
-                                          memory_properties,
-                                          source_image);
+                VulkanScreenshotSource::Image source_image;
+                source_image.handle             = image_info->handle;
+                source_image.format             = image_info->format;
+                source_image.type               = image_info->type;
+                source_image.tiling             = image_info->tiling;
+                source_image.sample_count       = image_info->sample_count;
+                source_image.layer_layouts      = { image_layout };
+                source_image.queue_family_index = image_info->queue_family_index;
 
-            source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
-                screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
-            });
+                VulkanScreenshotSource source(device_info,
+                                              GetInjectedDeviceCalls(device_info->handle),
+                                              GetInstanceTable(device_info->parent),
+                                              memory_properties,
+                                              source_image);
+
+                const auto image_source = screenshot_json_->ImageSource("frameBoundaryImage", image_info->capture_id);
+                const VulkanScreenshotJson::OutputImage json_output_image{
+                    image_info->format, request.width, request.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+                };
+                WriteScreenshotOutput(source, request, json_output_image, image_source);
+            }
+            else
+            {
+                screenshot_json_->SkipFrame(screenshot_reason::kFrameBoundaryAndroidNoImage,
+                                            "vkFrameBoundaryANDROID was called without an image",
+                                            false);
+            }
         }
 
-        screenshot_controller_->EndFrame();
+        EndScreenshotFrame(std::nullopt);
     }
 
     bool presented_ad_hoc = false;

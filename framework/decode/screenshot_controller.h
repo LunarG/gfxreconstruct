@@ -23,12 +23,14 @@
 #define GFXRECON_DECODE_SCREENSHOT_CONTROLLER_H
 
 #include "decode/replay_options.h"
+#include "decode/screenshot_result.h"
 #include "util/defines.h"
 #include "util/image_writer.h"
 #include "util/options.h"
 
 #include <functional>
 #include <optional>
+#include <string>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -78,6 +80,7 @@ struct ScreenshotRequest
     uint32_t                            layer_count{ 1 };
     std::optional<std::array<float, 2>> scale;    //!< From ScreenshotController::ResolveScale.
     Rotation                            rotation; //!< Applied by Finish, not by the read-back.
+    std::string                         filename_base;
 };
 
 /**
@@ -145,6 +148,9 @@ class ScreenshotController
 
     uint32_t GetCurrentFrame() const { return current_frame_; }
 
+    //! The file prefix every screenshot name starts with, output directory included.
+    const std::string& FilePrefix() const { return file_prefix_; }
+
     /**
      * @brief The name of the file for one of this frame's images, no extension.
      *
@@ -157,6 +163,15 @@ class ScreenshotController
      * so the names stay distinct without changing for the common case.
      */
     std::string FilenameFor(uint32_t index = 0, uint32_t count = 1) const;
+
+    /**
+     * @brief The name of the file for one layer of a requested image, no extension.
+     *
+     * "<filename_base>_layer_<n>" when the request has more than one layer, and
+     * the request's filename_base itself otherwise, so a single-layer image
+     * keeps the name FilenameFor gave it.
+     */
+    static std::string LayerFilename(const ScreenshotRequest& request, uint32_t layer);
 
     /**
      * @brief The scale to read an image of this size back at.
@@ -187,9 +202,16 @@ class ScreenshotController
      * A rotation needs four bytes per pixel, so an image in any other layout
      * is written un-rotated and says so.
      *
+     * @param result  When not null, receives what happened: the file that was
+     *                written and its size, or why it was not, plus any warning
+     *                raised on the way.  For a caller that keeps a record of
+     *                its screenshots.
      * @return Whether the file was written.
      */
-    bool Finish(const std::string& filename_base, const CpuImage& image, const Rotation& rotation);
+    bool Finish(const std::string&     filename_base,
+                const CpuImage&        image,
+                const Rotation&        rotation,
+                ScreenshotWriteResult* result = nullptr);
 
   private:
     uint32_t                            current_frame_{ 1 };

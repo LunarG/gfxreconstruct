@@ -203,6 +203,8 @@ bool WriteImage(const std::string& filename,
  * @param data           Pixel data.
  * @param pitch          Bytes per row, or 0 for tightly packed rows.
  * @param data_format    How data is laid out.
+ * @param written_filename  Receives the complete file name, extension included, when not null. Set whether or not
+ *                          the write succeeded, so a caller can name the file it is missing.
  * @return Whether the file was written.
  */
 bool WriteScreenshotFile(const std::string& filename_base,
@@ -210,8 +212,9 @@ bool WriteScreenshotFile(const std::string& filename_base,
                          uint32_t           width,
                          uint32_t           height,
                          const void*        data,
-                         uint32_t           pitch       = 0,
-                         DataFormats        data_format = kFormat_BGRA);
+                         uint32_t           pitch            = 0,
+                         DataFormats        data_format      = kFormat_BGRA,
+                         std::string*       written_filename = nullptr);
 
 /**
  * @brief Specifies the rotation angle applied to an image.
