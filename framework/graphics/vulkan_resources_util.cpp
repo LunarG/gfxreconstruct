@@ -2519,10 +2519,10 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         tmp_data[i].scaling_supported =
             IsScalingSupported(img.format, img.tiling, dst_format, img.type, img.extent, img.scale);
 
-        tmp_data[i].use_blit =
-            (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
+        const bool scale_requested = (img.scale[0] != 1.0f) || (img.scale[1] != 1.0f);
 
-        GFXRECON_ASSERT((!img.dump_resources && img.scale == 1.0f) || (img.dump_resources));
+        tmp_data[i].use_blit =
+            (img.format != dst_format && blit_supported) || (scale_requested && tmp_data[i].scaling_supported);
         tmp_data[i].scaled_extent = graphics::ScaleExtent3DNoDepth(img.extent, img.scale);
 
         uint64_t resource_size = img.resource_size;
@@ -2706,7 +2706,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    img.layer_count,
                                    img.aspect,
                                    img.queue_family_index,
-                                   tmp_data[i].scaling_supported ? img.scale : 1.0f,
+                                   tmp_data[i].scaling_supported ? img.scale : std::array<float, 2>{ 1.0f, 1.0f },
                                    tmp_data[i].scaled_image,
                                    tmp_data[i].scaled_image_memory);
 
@@ -3463,17 +3463,17 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
     return false;
 }
 
-bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
-                                             VkImageTiling     src_image_tiling,
-                                             VkFormat          dst_format,
-                                             VkImageType       type,
-                                             const VkExtent3D& extent,
-                                             float             scale) const
+bool VulkanResourcesUtil::IsScalingSupported(VkFormat                    src_format,
+                                             VkImageTiling               src_image_tiling,
+                                             VkFormat                    dst_format,
+                                             VkImageType                 type,
+                                             const VkExtent3D&           extent,
+                                             const std::array<float, 2>& scale) const
 {
     VkImageTiling dst_image_tiling;
     bool          is_blit_supported = IsBlitSupported(src_format, src_image_tiling, dst_format, &dst_image_tiling);
 
-    if (is_blit_supported && scale > 1.0f)
+    if (is_blit_supported && ((std::abs(scale[0]) > 1.0f) || (std::abs(scale[1]) > 1.0f)))
     {
         VkImageFormatProperties dst_img_format_props;
         instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
@@ -3493,7 +3493,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
         }
     }
 
-    return scale == 1.0f || is_blit_supported;
+    return ((scale[0] == 1.0f) && (scale[1] == 1.0f)) || is_blit_supported;
 }
 
 void VulkanResourcesUtil::BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params)
@@ -3529,21 +3529,21 @@ void VulkanResourcesUtil::BlitImage(VkCommandBuffer command_buffer, const blit_i
                                        blit_image_params.aspect);
 }
 
-VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
-                                        VkImage               image,
-                                        VkFormat              format,
-                                        VkFormat              dst_format,
-                                        VkImageType           type,
-                                        VkImageTiling         tiling,
-                                        const VkExtent3D&     extent,
-                                        const VkExtent3D&     scaled_extent,
-                                        uint32_t              mip_levels,
-                                        uint32_t              array_layers,
-                                        VkImageAspectFlagBits aspect,
-                                        uint32_t              queue_family_index,
-                                        float                 scale,
-                                        VkImage&              scaled_image,
-                                        VkDeviceMemory&       scaled_image_mem)
+VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer             command_buffer,
+                                        VkImage                     image,
+                                        VkFormat                    format,
+                                        VkFormat                    dst_format,
+                                        VkImageType                 type,
+                                        VkImageTiling               tiling,
+                                        const VkExtent3D&           extent,
+                                        const VkExtent3D&           scaled_extent,
+                                        uint32_t                    mip_levels,
+                                        uint32_t                    array_layers,
+                                        VkImageAspectFlagBits       aspect,
+                                        uint32_t                    queue_family_index,
+                                        const std::array<float, 2>& scale,
+                                        VkImage&                    scaled_image,
+                                        VkDeviceMemory&             scaled_image_mem)
 {
     scaled_image     = VK_NULL_HANDLE;
     scaled_image_mem = VK_NULL_HANDLE;
@@ -3552,7 +3552,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     bool blit_supported = IsBlitSupported(format, tiling, dst_format, &dst_img_tiling);
 
     // In case of scalling an image up, check if the image resolution is supported by the implementation
-    if (blit_supported && scale > 1.0f)
+    if (blit_supported && ((std::abs(scale[0]) > 1.0f) || (std::abs(scale[1]) > 1.0f)))
     {
         blit_supported = IsScalingSupported(format, tiling, dst_format, type, extent, scale);
         if (!blit_supported)
@@ -3567,18 +3567,18 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     }
 
     // Create a scaled image and then blit to scaled image
-    VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-    create_info.pNext                 = nullptr;
-    create_info.flags                 = 0;
-    create_info.imageType             = type;
-    create_info.format                = dst_format;
-    create_info.extent                = (scale > 1.0f) ? scaled_extent : extent;
-    create_info.mipLevels             = mip_levels;
-    create_info.arrayLayers           = array_layers;
-    create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-    create_info.tiling                = dst_img_tiling;
-    create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    VkImageCreateInfo create_info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    create_info.pNext             = nullptr;
+    create_info.flags             = 0;
+    create_info.imageType         = type;
+    create_info.format            = dst_format;
+    create_info.extent      = ((std::abs(scale[0]) > 1.0f) || (std::abs(scale[1]) > 1.0f)) ? scaled_extent : extent;
+    create_info.mipLevels   = mip_levels;
+    create_info.arrayLayers = array_layers;
+    create_info.samples     = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling      = dst_img_tiling;
+    create_info.usage       = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices   = nullptr;
     create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -3675,6 +3675,15 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
         blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
 
         blit_regions[i] = blit_region;
+
+        if (scale[0] < 0.0f)
+        {
+            std::swap(blit_regions[i].dstOffsets[0].x, blit_regions[i].dstOffsets[1].x);
+        }
+        if (scale[1] < 0.0f)
+        {
+            std::swap(blit_regions[i].dstOffsets[0].y, blit_regions[i].dstOffsets[1].y);
+        }
     }
 
     injected->CmdBlitImage(command_buffer,

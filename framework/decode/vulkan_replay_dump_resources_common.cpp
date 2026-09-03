@@ -384,8 +384,10 @@ VkResult DumpImage(DumpedImage&                               dumped_image,
     }
 
     // Scale can be greater than one so we need to check if we can scale that much
+    const std::array<float, 2> scale_xy = { scale, scale };
+
     const bool scaling_supported = resource_util.IsScalingSupported(
-        image_info->format, image_info->tiling, dst_format, image_info->type, image_info->extent, scale);
+        image_info->format, image_info->tiling, dst_format, image_info->type, image_info->extent, scale_xy);
 
     dumped_image.scaling_failed = (scale != 1.0f && !scaling_supported);
     dumped_image.dumped_format  = dst_format;
@@ -445,7 +447,7 @@ VkResult DumpImage(DumpedImage&                               dumped_image,
         image_resource.size               = image_info->size;
         image_resource.level_sizes        = &subresource_sizes;
         image_resource.aspect             = aspect;
-        image_resource.scale              = scale;
+        image_resource.scale              = scale_xy;
         image_resource.dst_format         = dst_format;
         image_resource.dump_resources     = true;
 
