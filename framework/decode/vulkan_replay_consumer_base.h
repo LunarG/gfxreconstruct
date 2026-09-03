@@ -1054,6 +1054,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         VulkanCommandBufferInfo*                        command_buffer_info,
                                         StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
 
+    void OverrideCmdWaitEvents(PFN_vkCmdWaitEvents                                        func,
+                               VulkanCommandBufferInfo*                                   command_buffer_info,
+                               uint32_t                                                   eventCount,
+                               HandlePointerDecoder<VkEvent>*                             pEvents,
+                               VkPipelineStageFlags                                       srcStageMask,
+                               VkPipelineStageFlags                                       dstStageMask,
+                               uint32_t                                                   memoryBarrierCount,
+                               const StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
+                               uint32_t                                                   bufferMemoryBarrierCount,
+                               const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+                               uint32_t                                                   imageMemoryBarrierCount,
+                               const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers);
+
+    void OverrideCmdWaitEvents2(PFN_vkCmdWaitEvents2                                  func,
+                                VulkanCommandBufferInfo*                              command_buffer_info,
+                                uint32_t                                              eventCount,
+                                HandlePointerDecoder<VkEvent>*                        pEvents,
+                                const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos);
+
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
         VkResult                                                                  original_result,
@@ -1515,6 +1534,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void UpdateTrackedImageViewLayout(VulkanCommandBufferInfo* command_buffer_info,
                                       format::HandleId         image_view_id,
                                       VkImageLayout            layout);
+
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*            command_buffer_info,
+                                          uint32_t                            imageMemoryBarrierCount,
+                                          const Decoded_VkImageMemoryBarrier* image_memory_barriers_meta,
+                                          const VkImageMemoryBarrier*         image_memory_barriers);
+
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*             command_buffer_info,
+                                          uint32_t                             imageMemoryBarrierCount,
+                                          const Decoded_VkImageMemoryBarrier2* image_memory_barriers_meta,
+                                          const VkImageMemoryBarrier2*         image_memory_barriers);
 
     void UpdateTrackedAttachmentLayout(VulkanCommandBufferInfo*                 command_buffer_info,
                                        const VkRenderingAttachmentInfo*         attachment,
@@ -2019,12 +2048,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
-    // Returns true if any replay-injected operation needs to know the layout images are currently in.
-    bool RequiresImageLayoutTracking() const
-    {
-        return (screenshot_handler_ != nullptr) || options_.dumping_resources || requires_image_layout_tracking_;
-    }
-
     /**
      * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
      *
@@ -2254,8 +2277,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
 
   protected:
-    bool requires_image_layout_tracking_{ false };
-
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:
     //
     //    1. Replay with command line option --opcd or --omit-pipeline-cache-data and some
