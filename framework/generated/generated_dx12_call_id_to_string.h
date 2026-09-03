@@ -83,6 +83,12 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12DeviceChild_GetDevice:
         out = L"ID3D12DeviceChild_GetDevice";
         break;
+    case format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedSize:
+        out = L"ID3D12RootSignature1_GetSerializedSize";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedData:
+        out = L"ID3D12RootSignature1_GetSerializedData";
+        break;
     case format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc:
         out = L"ID3D12RootSignatureDeserializer_GetRootSignatureDesc";
         break;
@@ -791,6 +797,39 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary:
         out = L"ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_RegisterTrimNotificationCallback:
+        out = L"ID3D12Device15_RegisterTrimNotificationCallback";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_UnregisterTrimNotificationCallback:
+        out = L"ID3D12Device15_UnregisterTrimNotificationCallback";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView:
+        out = L"ID3D12Device15_TryCreateShaderResourceView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView:
+        out = L"ID3D12Device15_TryCreateUnorderedAccessView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView:
+        out = L"ID3D12Device15_TryCreateConstantBufferView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2:
+        out = L"ID3D12Device15_TryCreateSampler2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView:
+        out = L"ID3D12Device15_TryCreateRenderTargetView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView:
+        out = L"ID3D12Device15_TryCreateDepthStencilView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView:
+        out = L"ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_CreateQueryHeap1:
+        out = L"ID3D12Device15_CreateQueryHeap1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData:
+        out = L"ID3D12Device15_ResolveQueryData";
+        break;
     case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc:
         out = L"ID3D12StateObjectDatabase_SetApplicationDesc";
         break;
@@ -832,6 +871,12 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState:
         out = L"ID3D12Tools2_SetApplicationSpecificDriverState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime:
+        out = L"ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled:
+        out = L"ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled";
         break;
     case format::ApiCallId::ApiCall_ID3D12PageableTools_GetAllocation:
         out = L"ID3D12PageableTools_GetAllocation";
@@ -893,6 +938,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile:
         out = L"ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile";
         break;
+    case format::ApiCallId::ApiCall_ID3D12ApplicationIdentity_SetApplicationIdentity:
+        out = L"ID3D12ApplicationIdentity_SetApplicationIdentity";
+        break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         out = L"ID3D12GraphicsCommandList5_RSSetShadingRate";
         break;
@@ -940,6 +988,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved1:
         out = L"ID3D12GBVDiagnostics_GBVReserved1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceStatistics_GetStateObjectStatistics:
+        out = L"ID3D12DeviceStatistics_GetStateObjectStatistics";
         break;
     case format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer:
         out = L"ID3D10Blob_GetBufferPointer";

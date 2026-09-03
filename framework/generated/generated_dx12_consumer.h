@@ -153,6 +153,18 @@ class Dx12Consumer : public Dx12ConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDevice){}
 
+    virtual void Process_ID3D12RootSignature1_GetSerializedSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        SIZE_T return_value){}
+
+    virtual void Process_ID3D12RootSignature1_GetSerializedData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pData,
+        SIZE_T Size){}
+
     virtual void Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -1859,6 +1871,92 @@ class Dx12Consumer : public Dx12ConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvRootSignature){}
 
+    virtual void Process_ID3D12Device15_RegisterTrimNotificationCallback(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_REGISTER_TRIM_NOTIFICATION>* pData){}
+
+    virtual void Process_ID3D12Device15_UnregisterTrimNotificationCallback(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DWORD CallbackCookie){}
+
+    virtual void Process_ID3D12Device15_TryCreateShaderResourceView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_TryCreateUnorderedAccessView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        format::HandleId pCounterResource,
+        StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_TryCreateConstantBufferView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_TryCreateSampler2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_TryCreateRenderTargetView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_TryCreateDepthStencilView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pTargetedResource,
+        format::HandleId pFeedbackResource,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12Device15_CreateQueryHeap1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
+        D3D12_QUERY_HEAP_FLAGS Flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvHeap){}
+
+    virtual void Process_ID3D12Device15_ResolveQueryData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pQueryHeap,
+        D3D12_QUERY_TYPE Type,
+        UINT StartIndex,
+        UINT NumQueries,
+        uint64_t pResolvedQueryData){}
+
     virtual void Process_ID3D12StateObjectDatabase_SetApplicationDesc(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -1960,6 +2058,16 @@ class Dx12Consumer : public Dx12ConsumerBase
         HRESULT return_value,
         format::HandleId pAdapter,
         format::HandleId pBlob){}
+
+    virtual void Process_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL bDisable){}
+
+    virtual void Process_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value){}
 
     virtual void Process_ID3D12PageableTools_GetAllocation(
         const ApiCallInfo& call_info,
@@ -2098,6 +2206,13 @@ class Dx12Consumer : public Dx12ConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvStateObjectDatabase){}
 
+    virtual void Process_ID3D12ApplicationIdentity_SetApplicationIdentity(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC>* pDesc,
+        Decoded_GUID AppId){}
+
     virtual void Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2198,6 +2313,12 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_ID3D12GBVDiagnostics_GBVReserved1(
         const ApiCallInfo& call_info,
         format::HandleId object_id){}
+
+    virtual void Process_ID3D12DeviceStatistics_GetStateObjectStatistics(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_STATISTICS>* pStatistics){}
 
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0

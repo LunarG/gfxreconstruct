@@ -663,6 +663,66 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateSamp
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device15_TryCreateShaderResourceView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device15_TryCreateUnorderedAccessView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device15_TryCreateRenderTargetView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device15_TryCreateDepthStencilView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device15_TryCreateConstantBufferView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Debug_EnableDebugLayer>
 {
     template <typename... Args>

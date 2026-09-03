@@ -115,6 +115,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12DeviceChild_GetDevice:
         Decode_ID3D12DeviceChild_GetDevice(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedSize:
+        Decode_ID3D12RootSignature1_GetSerializedSize(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedData:
+        Decode_ID3D12RootSignature1_GetSerializedData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc:
         Decode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -817,6 +823,39 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary:
         Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_RegisterTrimNotificationCallback:
+        Decode_ID3D12Device15_RegisterTrimNotificationCallback(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_UnregisterTrimNotificationCallback:
+        Decode_ID3D12Device15_UnregisterTrimNotificationCallback(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView:
+        Decode_ID3D12Device15_TryCreateShaderResourceView(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView:
+        Decode_ID3D12Device15_TryCreateUnorderedAccessView(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView:
+        Decode_ID3D12Device15_TryCreateConstantBufferView(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2:
+        Decode_ID3D12Device15_TryCreateSampler2(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView:
+        Decode_ID3D12Device15_TryCreateRenderTargetView(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView:
+        Decode_ID3D12Device15_TryCreateDepthStencilView(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView:
+        Decode_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_CreateQueryHeap1:
+        Decode_ID3D12Device15_CreateQueryHeap1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData:
+        Decode_ID3D12Device15_ResolveQueryData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc:
         Decode_ID3D12StateObjectDatabase_SetApplicationDesc(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -858,6 +897,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState:
         Decode_ID3D12Tools2_SetApplicationSpecificDriverState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime:
+        Decode_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled:
+        Decode_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12PageableTools_GetAllocation:
         Decode_ID3D12PageableTools_GetAllocation(object_id, call_info, parameter_buffer, buffer_size);
@@ -919,6 +964,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile:
         Decode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12ApplicationIdentity_SetApplicationIdentity:
+        Decode_ID3D12ApplicationIdentity_SetApplicationIdentity(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -966,6 +1014,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved1:
         Decode_ID3D12GBVDiagnostics_GBVReserved1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceStatistics_GetStateObjectStatistics:
+        Decode_ID3D12DeviceStatistics_GetStateObjectStatistics(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer:
         Decode_ID3D10Blob_GetBufferPointer(object_id, call_info, parameter_buffer, buffer_size);
@@ -2095,6 +2146,42 @@ size_t Dx12Decoder::Decode_ID3D12DeviceChild_GetDevice(format::HandleId object_i
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12DeviceChild_GetDevice(call_info, object_id, return_value, riid, &ppvDevice);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12RootSignature1_GetSerializedSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    SIZE_T return_value;
+
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12RootSignature1_GetSerializedSize(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12RootSignature1_GetSerializedData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pData;
+    SIZE_T Size;
+    HRESULT return_value;
+
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Size);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12RootSignature1_GetSerializedData(call_info, object_id, return_value, &pData, Size);
     }
 
     return bytes_read;
@@ -7102,6 +7189,260 @@ size_t Dx12Decoder::Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibr
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12Device15_RegisterTrimNotificationCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_REGISTER_TRIM_NOTIFICATION> pData;
+    HRESULT return_value;
+
+    bytes_read += pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_RegisterTrimNotificationCallback(call_info, object_id, return_value, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_UnregisterTrimNotificationCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD CallbackCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackCookie);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_UnregisterTrimNotificationCallback(call_info, object_id, return_value, CallbackCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateShaderResourceView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC> pDesc;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateShaderResourceView(call_info, object_id, return_value, pResource, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateUnorderedAccessView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    format::HandleId pCounterResource;
+    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC> pDesc;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pCounterResource);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateUnorderedAccessView(call_info, object_id, return_value, pResource, pCounterResource, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateConstantBufferView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC> pDesc;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateConstantBufferView(call_info, object_id, return_value, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateSampler2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2> pDesc;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateSampler2(call_info, object_id, return_value, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateRenderTargetView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC> pDesc;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateRenderTargetView(call_info, object_id, return_value, pResource, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateDepthStencilView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC> pDesc;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateDepthStencilView(call_info, object_id, return_value, pResource, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pTargetedResource;
+    format::HandleId pFeedbackResource;
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
+    DestDescriptor.decoded_value = &value_DestDescriptor;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTargetedResource);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pFeedbackResource);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(call_info, object_id, return_value, pTargetedResource, pFeedbackResource, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_CreateQueryHeap1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC> pDesc;
+    D3D12_QUERY_HEAP_FLAGS Flags;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvHeap;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_CreateQueryHeap1(call_info, object_id, return_value, &pDesc, Flags, riid, &ppvHeap);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device15_ResolveQueryData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pQueryHeap;
+    D3D12_QUERY_TYPE Type;
+    UINT StartIndex;
+    UINT NumQueries;
+    uint64_t pResolvedQueryData;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pQueryHeap);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &StartIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumQueries);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResolvedQueryData);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device15_ResolveQueryData(call_info, object_id, return_value, pQueryHeap, Type, StartIndex, NumQueries, pResolvedQueryData);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_SetApplicationDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7385,6 +7726,38 @@ size_t Dx12Decoder::Decode_ID3D12Tools2_SetApplicationSpecificDriverState(format
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Tools2_SetApplicationSpecificDriverState(call_info, object_id, return_value, pAdapter, pBlob);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL bDisable;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bDisable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(call_info, object_id, bDisable);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(call_info, object_id, return_value);
     }
 
     return bytes_read;
@@ -7800,6 +8173,28 @@ size_t Dx12Decoder::Decode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDat
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12ApplicationIdentity_SetApplicationIdentity(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC> pDesc;
+    Decoded_GUID AppId;
+    GUID value_AppId;
+    AppId.decoded_value = &value_AppId;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &AppId);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12ApplicationIdentity_SetApplicationIdentity(call_info, object_id, return_value, &pDesc, AppId);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -8095,6 +8490,24 @@ size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GBVReserved1(format::HandleId ob
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12GBVDiagnostics_GBVReserved1(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12DeviceStatistics_GetStateObjectStatistics(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_STATISTICS> pStatistics;
+    HRESULT return_value;
+
+    bytes_read += pStatistics.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceStatistics_GetStateObjectStatistics(call_info, object_id, return_value, &pStatistics);
     }
 
     return bytes_read;
