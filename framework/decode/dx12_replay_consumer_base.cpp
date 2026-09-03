@@ -456,7 +456,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
         for (auto& resource_info : resource_infos)
         {
             auto object_info = GetObjectInfo(resource_info.second.resource_id);
-            if (object_info->extra_info != nullptr)
+            if (object_info != nullptr && object_info->extra_info != nullptr)
             {
                 auto extra_info = GetExtraInfo<D3D12ResourceInfo>(object_info);
                 if (extra_info->swap_chain_id != format::kNullHandleId)
@@ -467,6 +467,12 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                 {
                     others_resource_infos.insert(std::pair(resource_info.first, &resource_info.second));
                 }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("ApplyBatchedResourceInitInfo: skipping resource_id %" PRIu64
+                                     " with missing object/extra info; its init data will not be applied.",
+                                     resource_info.second.resource_id);
             }
         }
 
@@ -533,9 +539,23 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
         {
             auto object_info          = GetObjectInfo(resource_info.second->resource_id);
             auto extra_info           = GetExtraInfo<D3D12ResourceInfo>(object_info);
+            if (extra_info == nullptr)
+            {
+                GFXRECON_LOG_WARNING("ApplyBatchedResourceInitInfo: skipping swapchain resource_id %" PRIu64
+                                     "; missing D3D12ResourceInfo extra info",
+                                     resource_info.second->resource_id);
+                continue;
+            }
             auto swapchain_info       = GetObjectInfo(extra_info->swap_chain_id);
             auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
-
+            if (swapchain_extra_info == nullptr)
+            {
+                GFXRECON_LOG_WARNING("ApplyBatchedResourceInitInfo: skipping swapchain resource_id %" PRIu64
+                                     " swap_chain_id %" PRIu64 "did not resovle to a valid swapchain",
+                                     resource_info.second->resource_id,
+                                     extra_info->swap_chain_id);
+                continue;
+            }
             resource_data_util_->ExecuteTransitionCommandList(resource_info.second->resource,
                                                               resource_info.second->before_states,
                                                               resource_info.second->after_states,
