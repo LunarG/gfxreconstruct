@@ -128,6 +128,9 @@ class VulkanResourcesUtil
 
         //! A factor for width and one for height.  A negative factor mirrors that axis.
         std::array<float, 2> scale = { 1.0f, 1.0f };
+
+        //! The first layer to read.  A screenshot reads one layer of an image that has many.
+        uint32_t base_layer = 0;
     };
 
     //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
@@ -317,7 +320,8 @@ class VulkanResourcesUtil
                            uint32_t                     array_layers,
                            VkImageAspectFlags           aspect,
                            const std::vector<uint64_t>& sizes,
-                           bool                         is_dump_resources);
+                           bool                         is_dump_resources,
+                           uint32_t                     base_layer = 0);
 
     void CopyBuffer(VkCommandBuffer command_buffer,
                     VkBuffer        source_buffer,
@@ -370,6 +374,7 @@ class VulkanResourcesUtil
                        VkImageAspectFlagBits       aspect,
                        uint32_t                    queue_family_index,
                        const std::array<float, 2>& scale,
+                       uint32_t                    src_base_layer,
                        VkImage&                    scaled_image,
                        VkDeviceMemory&             scaled_image_mem);
 
