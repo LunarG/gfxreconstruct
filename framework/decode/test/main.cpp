@@ -28,7 +28,7 @@
 
 #include "decode/referenced_resource_table.h"
 #include "decode/screenshot_controller.h"
-#include "decode/screenshot_handler.h"
+#include "decode/vulkan_screenshot_handler.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"

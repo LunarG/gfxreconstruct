@@ -1552,7 +1552,8 @@ void VulkanResourcesUtil::CopyImageToBuffer(VkCommandBuffer              command
                                             uint32_t                     array_layers,
                                             VkImageAspectFlags           aspect,
                                             const std::vector<uint64_t>& sizes,
-                                            bool                         is_dump_resources)
+                                            bool                         is_dump_resources,
+                                            uint32_t                     base_layer)
 {
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
@@ -1608,7 +1609,7 @@ void VulkanResourcesUtil::CopyImageToBuffer(VkCommandBuffer              command
             // not just the start of the staging buffer.
             current_offset                              = AlignBufferOffset(current_offset, copy_alignment);
             copy_region.bufferOffset                    = current_offset;
-            copy_region.imageSubresource.baseArrayLayer = l;
+            copy_region.imageSubresource.baseArrayLayer = base_layer + l;
             copy_regions.push_back(copy_region);
 
             if (is_dump_resources)
@@ -2707,6 +2708,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    img.aspect,
                                    img.queue_family_index,
                                    tmp_data[i].scaling_supported ? img.scale : std::array<float, 2>{ 1.0f, 1.0f },
+                                   img.base_layer,
                                    tmp_data[i].scaled_image,
                                    tmp_data[i].scaled_image_memory);
 
@@ -2736,7 +2738,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                   img.layer_count,
                                   img.aspect,
                                   img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
-                                  img.dump_resources);
+                                  img.dump_resources,
+                                  tmp_data[i].use_blit ? 0 : img.base_layer);
             }
 
             // Cache flushing barrier. Make results visible to host
@@ -3542,6 +3545,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer             command_buff
                                         VkImageAspectFlagBits       aspect,
                                         uint32_t                    queue_family_index,
                                         const std::array<float, 2>& scale,
+                                        uint32_t                    src_base_layer,
                                         VkImage&                    scaled_image,
                                         VkDeviceMemory&             scaled_image_mem)
 {
@@ -3667,7 +3671,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer             command_buff
         blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(extent.width) >> i, 1);
         blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(extent.height) >> i, 1);
         blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(extent.depth) >> i, 1);
-        blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
+        blit_region.srcSubresource  = { aspectMask, i, src_base_layer, array_layers };
 
         blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(scaled_extent.width) >> i, 1);
         blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(scaled_extent.height) >> i, 1);

@@ -27,7 +27,7 @@
 
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
-#include "decode/screenshot_handler.h"
+#include "decode/vulkan_screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_decoder_base.h"
 #include "decode/vulkan_device_address_tracker.h"
@@ -2044,8 +2044,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
-    void InitializeScreenshotHandler();
-
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
     /**
@@ -2205,9 +2203,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     SwapchainImageTracker                                                    swapchain_image_tracker_;
     HardwareBufferMap                                                        hardware_buffers_;
     HardwareBufferMemoryMap                                                  hardware_buffer_memory_info_;
-    std::unique_ptr<ScreenshotHandler>                                       screenshot_handler_;
+    std::unique_ptr<ScreenshotController>                                    screenshot_controller_;
     std::unique_ptr<VulkanSwapchain>                                         swapchain_;
-    std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
     VulkanDecoder*                                                           decoder_ = nullptr;
 
