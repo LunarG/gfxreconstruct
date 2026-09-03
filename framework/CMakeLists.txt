@@ -11,6 +11,7 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_framework_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_arm_data_graph_structs.cpp>
+            $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_schema.cpp>
             ${CMAKE_CURRENT_LIST_DIR}/../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_framework_test PRIVATE gfxrecon_encode gfxrecon_decode)
     if (MSVC)

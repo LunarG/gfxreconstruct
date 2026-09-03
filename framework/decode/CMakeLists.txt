@@ -72,6 +72,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/decoded_representation_traits.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.cpp
@@ -333,6 +334,11 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_traits.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_native_struct_traits.inc
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_struct_traits.inc
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_command_traits.inc
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp

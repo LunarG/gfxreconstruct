@@ -58,6 +58,12 @@ from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForward
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
 from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
+# Field Schema
+from vulkan_schema_generator import (
+    VulkanSchemaGenerator, VulkanSchemaGeneratorOptions, SCHEMA_PART_IDENTITY, SCHEMA_PART_DECODED_TRAITS,
+    SCHEMA_PART_NATIVE_STRUCT_TRAITS, SCHEMA_PART_DECODED_STRUCT_TRAITS, SCHEMA_PART_DECODED_COMMAND_TRAITS
+)
+
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
 from vulkan_replay_frame_loop_consumer_base_header_generator import VulkanFrameLoopConsumerBaseHeaderGenerator, VulkanFrameLoopConsumerBaseHeaderGeneratorOptions
@@ -334,6 +340,30 @@ def make_gen_opts(args):
             extra_headers=extra_headers
         )
     ]
+
+    # Field schema generators. One model produces every part, and the member-trait parts are separate files so that
+    # a target includes only the storage population it uses.
+    for schema_filename, schema_part, schema_protect in (
+        ('generated_vulkan_schema.h', SCHEMA_PART_IDENTITY, True),
+        ('generated_vulkan_schema_decoded_traits.h', SCHEMA_PART_DECODED_TRAITS, True),
+        ('generated_vulkan_schema_native_struct_traits.inc', SCHEMA_PART_NATIVE_STRUCT_TRAITS, False),
+        ('generated_vulkan_schema_decoded_struct_traits.inc', SCHEMA_PART_DECODED_STRUCT_TRAITS, False),
+        ('generated_vulkan_schema_decoded_command_traits.inc', SCHEMA_PART_DECODED_COMMAND_TRAITS, False),
+    ):
+        gen_opts[schema_filename] = [
+            VulkanSchemaGenerator,
+            VulkanSchemaGeneratorOptions(
+                schema_part=schema_part,
+                filename=schema_filename,
+                directory=directory,
+                blacklists=blacklists,
+                platform_types=platform_types,
+                prefix_text=prefix_strings + vk_prefix_strings,
+                protect_file=schema_protect,
+                protect_feature=False,
+                extra_headers=extra_headers
+            )
+        ]
 
     gen_opts['generated_vulkan_pnext_struct_decoder.cpp'] = [
         DecodePNextStructGenerator,
