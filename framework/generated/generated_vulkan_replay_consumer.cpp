@@ -1230,11 +1230,10 @@ void VulkanReplayConsumer::Process_vkDestroyPipelineLayout(
     const ApiCallInfo&                          call_info,
     args::DestroyPipelineLayout&                args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkPipelineLayout in_pipelineLayout = MapHandle<VulkanPipelineLayoutInfo>(args.pipelineLayout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_pipelineLayout = GetObjectInfoTable().GetVkPipelineLayoutInfo(args.pipelineLayout);
 
-    GetDeviceTable(in_device)->DestroyPipelineLayout(in_device, in_pipelineLayout, in_pAllocator);
+    OverrideDestroyPipelineLayout(GetDeviceTable(in_device->handle)->DestroyPipelineLayout, in_device, in_pipelineLayout, &args.pAllocator);
     RemoveHandle(args.pipelineLayout, &CommonObjectInfoTable::RemoveVkPipelineLayoutInfo);
 }
 
