@@ -829,7 +829,8 @@ bool WriteScreenshotFile(const std::string& filename_base,
                          uint32_t           height,
                          const void*        data,
                          uint32_t           pitch,
-                         DataFormats        data_format)
+                         DataFormats        data_format,
+                         std::string*       filename)
 {
     ScreenshotFormat written_format = file_format;
 
@@ -841,12 +842,17 @@ bool WriteScreenshotFile(const std::string& filename_base,
     }
 #endif
 
-    const char*       extension = (written_format == ScreenshotFormat::kPng) ? ".png" : ".bmp";
-    const std::string filename  = filename_base + extension;
+    const char*       extension      = (written_format == ScreenshotFormat::kPng) ? ".png" : ".bmp";
+    const std::string whole_filename = filename_base + extension;
 
-    if (!WriteImage(filename, written_format, width, height, data, pitch, data_format))
+    if (filename != nullptr)
     {
-        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write file %s", filename.c_str());
+        *filename = whole_filename;
+    }
+
+    if (!WriteImage(whole_filename, written_format, width, height, data, pitch, data_format))
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write file %s", whole_filename.c_str());
         return false;
     }
 
