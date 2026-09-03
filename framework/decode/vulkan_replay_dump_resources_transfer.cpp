@@ -145,7 +145,9 @@ VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer            
         dst_image.image_info.handle              = dst_image.image;
         dst_image.image_info.capture_id          = format::kNullHandleId;
         dst_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        dst_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dst_image.image_info.subresource_layouts.Initialize(
+            dst_image.image_info.level_count, dst_image.image_info.layer_count, aspects);
+        dst_image.image_info.subresource_layouts.SetUniformLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
         // Transition new image/aspect into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
         const VkImageMemoryBarrier new_img_barrier = {

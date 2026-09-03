@@ -693,6 +693,41 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const VulkanDeviceInfo* device_info,
                                     const VulkanFenceInfo*  fence_info);
 
+    VkResult OverrideGetEventStatus(PFN_vkGetEventStatus    func,
+                                    VkResult                original_result,
+                                    const VulkanDeviceInfo* device_info,
+                                    const VulkanEventInfo*  event_info);
+
+    VkResult OverrideSetEvent(PFN_vkSetEvent          func,
+                              VkResult                original_result,
+                              const VulkanDeviceInfo* device_info,
+                              VulkanEventInfo*        event_info);
+
+    VkResult OverrideResetEvent(PFN_vkResetEvent        func,
+                                VkResult                original_result,
+                                const VulkanDeviceInfo* device_info,
+                                VulkanEventInfo*        event_info);
+
+    void OverrideCmdSetEvent(PFN_vkCmdSetEvent        func,
+                             VulkanCommandBufferInfo* command_buffer_info,
+                             VulkanEventInfo*         event_info,
+                             VkPipelineStageFlags     stageMask);
+
+    void OverrideCmdResetEvent(PFN_vkCmdResetEvent      func,
+                               VulkanCommandBufferInfo* command_buffer_info,
+                               VulkanEventInfo*         event_info,
+                               VkPipelineStageFlags     stageMask);
+
+    void OverrideCmdSetEvent2(PFN_vkCmdSetEvent2                              func,
+                              VulkanCommandBufferInfo*                        command_buffer_info,
+                              VulkanEventInfo*                                event_info,
+                              StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
+
+    void OverrideCmdResetEvent2(PFN_vkCmdResetEvent2     func,
+                                VulkanCommandBufferInfo* command_buffer_info,
+                                VulkanEventInfo*         event_info,
+                                VkPipelineStageFlags2    stageMask);
+
     VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
                                          VkResult                   original_result,
                                          const VulkanDeviceInfo*    device_info,
@@ -703,6 +738,41 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          PointerDecoder<uint8_t>*   pData,
                                          VkDeviceSize               stride,
                                          VkQueryResultFlags         flags);
+
+    void OverrideCmdEndQuery(PFN_vkCmdEndQuery        func,
+                             VulkanCommandBufferInfo* command_buffer_info,
+                             VulkanQueryPoolInfo*     query_pool_info,
+                             uint32_t                 query);
+
+    void OverrideCmdEndQueryIndexedEXT(PFN_vkCmdEndQueryIndexedEXT func,
+                                       VulkanCommandBufferInfo*    command_buffer_info,
+                                       VulkanQueryPoolInfo*        query_pool_info,
+                                       uint32_t                    query,
+                                       uint32_t                    index);
+
+    void OverrideCmdWriteTimestamp(PFN_vkCmdWriteTimestamp  func,
+                                   VulkanCommandBufferInfo* command_buffer_info,
+                                   VkPipelineStageFlagBits  pipelineStage,
+                                   VulkanQueryPoolInfo*     query_pool_info,
+                                   uint32_t                 query);
+
+    void OverrideCmdWriteTimestamp2(PFN_vkCmdWriteTimestamp2 func,
+                                    VulkanCommandBufferInfo* command_buffer_info,
+                                    VkPipelineStageFlags2    stage,
+                                    VulkanQueryPoolInfo*     query_pool_info,
+                                    uint32_t                 query);
+
+    void OverrideCmdResetQueryPool(PFN_vkCmdResetQueryPool  func,
+                                   VulkanCommandBufferInfo* command_buffer_info,
+                                   VulkanQueryPoolInfo*     query_pool_info,
+                                   uint32_t                 firstQuery,
+                                   uint32_t                 queryCount);
+
+    void OverrideResetQueryPool(PFN_vkResetQueryPool    func,
+                                const VulkanDeviceInfo* device_info,
+                                VulkanQueryPoolInfo*    query_pool_info,
+                                uint32_t                firstQuery,
+                                uint32_t                queryCount);
 
     VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
                                  uint64_t                                    index,
@@ -1371,6 +1441,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ClearCommandBufferInfo(VulkanCommandBufferInfo* command_buffer_info);
 
+    // apply a command-buffer's recorded set/reset event ops to the tracked VulkanEventInfo::latched_set
+    void ApplyRecordedEventOps(const VulkanCommandBufferInfo* command_buffer_info);
+
+    // apply a command-buffer's recorded query ops to the tracked VulkanQueryPoolInfo availability
+    void ApplyRecordedQueryOps(const VulkanCommandBufferInfo* command_buffer_info);
+
     VkResult OverrideBeginCommandBuffer(PFN_vkBeginCommandBuffer                                func,
                                         uint64_t                                                index,
                                         VkResult                                                original_result,
@@ -1454,24 +1530,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder);
 
     void UpdateTrackedRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
-
-    template <typename ImageMemoryBarrierMetaT, typename ImageMemoryBarrierT>
-    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*       command_buffer_info,
-                                          uint32_t                       imageMemoryBarrierCount,
-                                          const ImageMemoryBarrierMetaT* image_memory_barriers_meta,
-                                          const ImageMemoryBarrierT*     image_memory_barriers)
-    {
-        for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
-        {
-            format::HandleId image_id                            = image_memory_barriers_meta[i].image;
-            command_buffer_info->image_layout_barriers[image_id] = image_memory_barriers[i].newLayout;
-            VulkanImageInfo* img_info                            = object_info_table_->GetVkImageInfo(image_id);
-            if (img_info != nullptr)
-            {
-                img_info->intermediate_layout = image_memory_barriers[i].newLayout;
-            }
-        }
-    }
 
     void UpdateTrackedImageViewLayout(VulkanCommandBufferInfo* command_buffer_info,
                                       format::HandleId         image_view_id,
@@ -1980,6 +2038,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
+    // Returns true if any replay-injected operation needs to know the layout images are currently in.
+    bool RequiresImageLayoutTracking() const
+    {
+        return (screenshot_handler_ != nullptr) || options_.dumping_resources || requires_image_layout_tracking_;
+    }
+
     /**
      * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
      *
@@ -2172,6 +2236,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // data), so we ignore those semaphores when they are encountered.
     bool have_imported_semaphores_;
 
+    // set once any vkCmdSetEvent/vkCmdResetEvent is recorded, gating the submit-time event-state walk
+    bool track_event_state_ = false;
+
+    // set once any device query op is recorded, gating the submit-time query-availability walk
+    bool track_query_state_ = false;
+
     // Used to track if any shadow sync objects are active to avoid checking if not needed.
     // SHadowed objects are ignored when they would have been unsignaled (waited on).
     // [Currently set during a call to AcquireNextImage if the VkSurfaceKHR is VK_NULL_HANDLE.
@@ -2203,6 +2273,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
 
   protected:
+    bool requires_image_layout_tracking_{ false };
+
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:
     //
     //    1. Replay with command line option --opcd or --omit-pipeline-cache-data and some

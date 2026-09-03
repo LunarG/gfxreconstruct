@@ -2654,6 +2654,12 @@ void MapStructHandles(Decoded_VkComputeOccupancyPriorityParametersNV* wrapper, c
 
 void MapStructHandles(Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkCooperativeMatrixProperties2EXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixInfo2EXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2672,7 +2678,13 @@ void MapStructHandles(Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateIn
 
 void MapStructHandles(Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageTilingControlCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkAccelerationStructureBuildRangeInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 

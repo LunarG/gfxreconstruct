@@ -346,6 +346,107 @@ typedef GfxrReplayPluginV1* (*PFN_gfxrCreateReplayPluginV1)(const GfxrReplayPlug
 
 This sketch is intentionally narrow. The eventual public header should stay materially equivalent to this shape unless the contract above changes.
 
+## ABI Versioning and Compatibility
+
+A replay event plugin is a binary that the customer builds and ships. Replay must load a plugin that the customer built with an older public header. This section gives the rules that keep this true.
+
+### Two Version Levels
+
+The ABI has two version levels. Each level has a different effect on the plugins that already exist.
+
+| Level | Carrier | Changes for | Effect on a plugin that exists |
+| :---- | :---- | :---- | :---- |
+| Major | the `V1` in `gfxrCreateReplayPluginV1` and `GfxrReplayPluginV1` | a change that breaks the contract | The plugin keeps the old factory symbol. Replay loads it through the old path. |
+| Minor | `GFXR_REPLAY_PLUGIN_ABI_VERSION` | a change that only adds | The plugin keeps its behavior. Replay does not emit the new data to it. |
+
+A change that only adds is a new event type, or a new field at the end of an event struct. Every other change breaks the contract.
+
+### Version Negotiation
+
+When replay creates the plugin instance, replay and the plugin agree on one version. This version is the negotiated version. It does not change for the rest of the replay.
+
+The steps are:
+
+1. Replay sets `GfxrReplayPluginCreateInfo.abi_version` to `GFXR_REPLAY_PLUGIN_ABI_VERSION`. This is the newest version that replay knows.
+2. The plugin factory function reads that field.
+3. The plugin sets `GfxrReplayPluginV1.abi_version` to the lower of two values. The two values are the newest version that the plugin knows, and the value from step 1.
+4. When the reported version is in the range from `GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION` to `GFXR_REPLAY_PLUGIN_ABI_VERSION`, the loader accepts the plugin.
+5. The negotiated version is the value that the plugin reported in step 3.
+
+Step 3 lets a new plugin run against an older replay. The plugin reports the version that both sides know, in place of a version that replay cannot supply.
+
+Note: the loader accepts only an exact match of the version today. The range test and `GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION` become necessary with the first increase of the version.
+
+### What Replay Emits to an Older Plugin
+
+Replay must not emit an event type that the negotiated version does not contain. A plugin that reports version 1 receives the version 1 event stream and nothing more.
+
+This rule puts the work on replay, not on the plugin. A plugin binary that already exists cannot learn a new rule. Replay is the only side that can change.
+
+Replay holds one table of event types to make this rule mechanical. Each row gives the event type, the size of its struct, and the version that introduced it. The replay sink reads this table. The sink removes each event that the negotiated version does not contain.
+
+CAUTION: Do not emit a new event type to a plugin that reports ABI version 1. The version 1 contract does not tell a plugin to accept an unknown event type. A version 1 plugin can return an error result. Replay then disables the plugin for the full replay.
+
+### Rules for a Plugin
+
+A plugin must obey these rules:
+
+1. Return `GFXR_REPLAY_PLUGIN_RESULT_OK` for an event type that the plugin does not know.
+2. Read `header.struct_size` before you read a field that a later version added. When `struct_size` is too small to contain the field, the field is not present.
+3. Read `create_info->abi_version` in the factory function. Do not expect an event type that a later version added.
+4. Return `GFXR_REPLAY_PLUGIN_RESULT_ERROR` only for an internal failure of the plugin. Replay stops all further events after one error result.
+
+### Rules for a Change to the ABI
+
+These rules apply to every change inside one major version:
+
+* Add a new field only at the end of a struct. Do not insert, move, or resize a field that exists.
+* Give a new event type the next unused number. Do not reuse the number of an event type that replay does not emit any more.
+* Keep every struct definition that shipped. When an event type becomes obsolete, replay does not emit it any more. The type and its struct stay in the header.
+* Keep the `reserved` field in `GfxrReplayEventHeader` at zero. A later version can give this field a meaning.
+* When you add to the ABI, increase `GFXR_REPLAY_PLUGIN_ABI_VERSION` by one.
+* Add a `static_assert` on the size of each public struct, and on the offset of each field in it. A change to the layout then stops the build.
+
+### When a New Major Version is Necessary
+
+A new major version is necessary for these changes:
+
+* the meaning of a field that exists changes
+* a change removes, moves, or resizes a field
+* a change removes an event type
+* the signature of `on_event` or of the factory function changes
+* the failure policy changes
+
+To add a major version, do these steps:
+
+1. Add `GfxrReplayPluginV2` and the factory name `gfxrCreateReplayPluginV2` to the header.
+2. Keep the version 1 declarations in the header without a change.
+3. Make the loader look for the version 2 symbol first, then for the version 1 symbol.
+4. Add a sink that emits only the version 1 event stream to a version 1 plugin.
+
+The internal replay sink makes step 4 small. Replay code emits events to the sink. Replay code does not know which plugin version is behind the sink.
+
+### Procedure to Add an Event Type
+
+To add an event type, do these steps:
+
+1. Add the enumerant to `GfxrReplayEventType` with the next unused number.
+2. Add the event struct. Put `GfxrReplayEventHeader` first in it.
+3. Add a `static_assert` on the size of the new struct.
+4. Increase `GFXR_REPLAY_PLUGIN_ABI_VERSION` by one.
+5. Add a row to the event table in replay. Give the size of the struct and the new version.
+6. Add a row to the event contract table and to the version history table in this document.
+7. Add a test with a plugin that reports the new version. The plugin must receive the new event type.
+8. Add a test with a plugin that reports the previous version. The plugin must not receive the new event type.
+
+### Version History
+
+| ABI version | Event types | Changes |
+| :---- | :---- | :---- |
+| 1 | `QueueSubmitBegin`, `QueueSubmitEnd`, `FrameBegin`, `FrameEnd` | first public version |
+
+Add a row for each increase of `GFXR_REPLAY_PLUGIN_ABI_VERSION`.
+
 ## Replay Workflow and Platform Plumbing
 
 The replay-side flow is:

@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
@@ -3095,7 +3096,16 @@ static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPas
         {
             att_img_view_info =
                 object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_ref.attachment]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
+
+            GFXRECON_ASSERT(att_img_view_info != nullptr);
+
+            VulkanImageInfo* att_img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
+            if (att_img_info != nullptr)
+            {
+                InitializeCommandBufferImageLayouts(original_command_buffer_info, att_img_info);
+                original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].SetLayout(
+                    att_img_view_info->subresource_range, att_ref.layout);
+            }
         }
         else if (!render_pass_info->begin_renderpass_override_attachments.empty())
         {
@@ -3123,15 +3133,23 @@ static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPas
         {
             att_img_view_info =
                 object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
-                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
         }
         else if (!render_pass_info->begin_renderpass_override_attachments.empty())
         {
             att_img_view_info = object_info_table.GetVkImageViewInfo(
                 render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
-                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
+        }
+
+        if (att_img_view_info != nullptr)
+        {
+            VulkanImageInfo* att_img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
+            if (att_img_info != nullptr)
+            {
+                InitializeCommandBufferImageLayouts(original_command_buffer_info, att_img_info);
+                original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].SetLayout(
+                    att_img_view_info->subresource_range,
+                    original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout);
+            }
         }
     }
 }
