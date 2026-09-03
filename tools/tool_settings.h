@@ -490,7 +490,7 @@ static std::optional<std::array<float, 2>> GetScreenshotScale(const gfxrecon::ut
             }
             else
             {
-                // single value provided — apply uniformly
+                // single value provided -- apply uniformly
                 scale[1] = scale[0];
             }
             return scale;
@@ -911,6 +911,9 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     options.screenshot_format      = GetScreenshotFormat(arg_parser);
     options.screenshot_dir         = GetScreenshotDir(arg_parser);
     options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+
+    GetScreenshotSize(arg_parser, options.screenshot_width, options.screenshot_height);
+    options.screenshot_scale = GetScreenshotScale(arg_parser);
 }
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H
