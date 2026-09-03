@@ -453,18 +453,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     //! track arbitrary handles that are currently used by asynchronous operations
-    void TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
-                           const std::function<void()>&                sync_fn);
+    uint64_t TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                               const std::function<void()>&                sync_fn);
 
-    //! clear handles that are currently used by asynchronous operations,
-    //! invoke stored deletion-functions
-    void ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles);
+    //! Clear handle references for the given async task, and invoke deferred post-build
+    //! callbacks once all referencing tasks have finished.
+    void ClearAsyncHandles(uint64_t async_task_id, const std::unordered_set<format::HandleId>& async_handles);
 
     //! schedules deletion of already tracked handles
+    //! synchronizes all active async tasks referencing the handle and invokes the destroy function
     void DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn);
 
     //! return true if this handle is currently being tracked (was passed to 'TrackAsyncHandles' earlier)
-    bool IsUsedByAsyncTask(uint64_t handle) const { return async_tracked_handles_.count(handle) > 0; }
+    bool IsUsedByAsyncTask(format::HandleId handle) const;
 
     //! returns true if asynchronous operations should be used at all
     bool UseAsyncOperations() { return options_.num_pipeline_creation_jobs != 0; }
@@ -1627,6 +1628,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  const VulkanPipelineInfo*                                  pipeline_info,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
+    void OverrideDestroyPipelineLayout(PFN_vkDestroyPipelineLayout                                func,
+                                       const VulkanDeviceInfo*                                    device_info,
+                                       VulkanPipelineLayoutInfo*                                  pipeline_layout_info,
+                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
     void OverrideDestroyRenderPass(PFN_vkDestroyRenderPass                                    func,
                                    const VulkanDeviceInfo*                                    device_info,
                                    VulkanRenderPassInfo*                                      renderpass_info,
@@ -2166,6 +2172,34 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     template <typename CreateInfo>
     static void RemoveFailOnCompileRequiredFlags(CreateInfo* create_infos, uint32_t create_info_count);
 
+    /**
+     * @brief   DestroyTrackedHandle handles synchronous or deferred destruction of Vulkan handles
+     *          (e.g., VkPipeline, VkPipelineLayout, VkRenderPass, VkShaderModule) tracked across replay.
+     *
+     * If the handle is referenced by active asynchronous tasks (e.g. concurrent pipeline compilation),
+     * destruction is deferred via DestroyAsyncHandle until all referencing tasks complete. Otherwise,
+     * it is destroyed immediately.
+     *
+     * For pipelines, if compilation completed asynchronously in the background, the handle is resolved
+     * via MapHandle prior to destruction. An optional PreDestroyHook can be provided to execute cleanup
+     * (such as destroying associated pipeline caches) immediately before driver destruction.
+     *
+     * @tparam  InfoType            Object info wrapper struct (e.g., VulkanPipelineInfo)
+     * @tparam  DestroyFunc         Vulkan API destroy function pointer type
+     * @tparam  PreDestroyHook      Optional callable invoked with the resolved handle prior to driver destruction
+     * @param   func                Vulkan API destroy function (e.g., vkDestroyPipeline)
+     * @param   device_info         VulkanDeviceInfo struct for the owning logical device
+     * @param   object_info         Object info struct containing the handle and capture ID
+     * @param   pAllocator          Optional Vulkan allocation callbacks
+     * @param   pre_destroy_hook    Optional callback invoked before calling func
+     */
+    template <typename InfoType, typename DestroyFunc, typename PreDestroyHook = std::nullptr_t>
+    void DestroyTrackedHandle(DestroyFunc                                                func,
+                              const VulkanDeviceInfo*                                    device_info,
+                              const InfoType*                                            object_info,
+                              const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                              PreDestroyHook                                             pre_destroy_hook = nullptr);
+
   private:
     util::platform::LibraryHandle                                            loader_handle_;
     PFN_vkGetInstanceProcAddr                                                get_instance_proc_addr_;
@@ -2197,20 +2231,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
 
-    //! async_tracked_handle_asset_t groups assets used by tracked async-dependencies
-    struct async_tracked_handle_asset_t
-    {
-        //! function to synchronize (blocking wait) with parent asynchronous-task
-        std::function<void()> sync_fn;
+    //! Asynchronous task and handle tracking:
+    //! Multiple background compilation tasks can concurrently reference shared handles
+    //! (e.g. VkPipelineLayout, VkRenderPass, VkShaderModule). Handles track the set of
+    //! active async task IDs referencing them to maintain reference counts and allow
+    //! synchronizing all referencing tasks prior to handle destruction.
+    uint64_t                                            next_async_task_id_{ 1 };
+    std::unordered_map<uint64_t, std::function<void()>> async_task_sync_fns_;
 
-        //! function used to defer deletion of a tracked async-dependency
+    //! Tracks active asynchronous tasks and deferred operations for a Vulkan handle
+    struct AsyncTrackedHandle
+    {
+        //! Active async task IDs referencing this handle
+        std::unordered_set<uint64_t> async_task_ids;
+
+        //! Deferred action invoked on the main thread after all referencing async tasks complete
         std::function<void()> post_build_fn;
     };
-    //! stores handles used/referenced by currently running async tasks
-    std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;
 
-    //! decide whether to sync/wait or defer deletion of handles used by currently running async tasks
-    static constexpr bool async_defer_deletion_ = false;
+    //! Maps a tracked handle ID to its active referencing async tasks and optional post-build callback.
+    std::unordered_map<format::HandleId, AsyncTrackedHandle> async_tracked_handles_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
@@ -2287,6 +2327,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           VkPipelineCache         pipelineCache,
                                           VkPipeline*             pipelines,
                                           size_t                  pipelineCount);
+    void            DestroyAssociatedPipelineCache(const VulkanDeviceInfo* device_info, VkPipeline pipeline);
 
     const bool save_pipeline_caches_to_file;
     const bool load_pipeline_caches_from_file;

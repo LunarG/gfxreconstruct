@@ -8514,13 +8514,12 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
         size_t               info_size   = graphics::vulkan_struct_deep_copy(info, 1, nullptr);
         std::vector<uint8_t> info_copy(info_size);
         graphics::vulkan_struct_deep_copy(info, 1, info_copy.data());
-        auto& async_handle_asset         = async_tracked_handles_[pipeline_id];
-        async_handle_asset.post_build_fn = [this,
-                                            device = device_info->handle,
-                                            pipeline_id,
-                                            func,
-                                            info_copy = std::move(info_copy),
-                                            original_result]() mutable {
+        async_tracked_handles_[pipeline_id].post_build_fn = [this,
+                                                             device = device_info->handle,
+                                                             pipeline_id,
+                                                             func,
+                                                             info_copy = std::move(info_copy),
+                                                             original_result]() mutable {
             auto* info = reinterpret_cast<VkDebugUtilsObjectNameInfoEXT*>(info_copy.data());
 
             // correct referenced handle in info. this would sync, but task is already done
@@ -13551,70 +13550,69 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     return replay_result;
 }
 
+void VulkanReplayConsumerBase::DestroyAssociatedPipelineCache(const VulkanDeviceInfo* device_info, VkPipeline pipeline)
+{
+    if (pipeline == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
+    auto itCorresp = pipeline_cache_correspondances_.find(pipeline);
+    if (itCorresp != pipeline_cache_correspondances_.end())
+    {
+        format::HandleId id = itCorresp->second;
+        pipeline_cache_correspondances_.erase(itCorresp);
+
+        // For batched pipeline creations or shared pipeline caches, multiple pipelines
+        // reference the same pipeline cache ID. Do not destroy the driver cache until the last pipeline is destroyed.
+        bool sameIdFound = false;
+        for (const auto& elt : pipeline_cache_correspondances_)
+        {
+            if (elt.second == id)
+            {
+                sameIdFound = true;
+                break;
+            }
+        }
+
+        // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
+        if (!sameIdFound)
+        {
+            auto itTracked = tracked_pipeline_caches_.find(id);
+            GFXRECON_ASSERT(itTracked != tracked_pipeline_caches_.end());
+            GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
+            GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
+
+            if (save_pipeline_caches_to_file)
+            {
+                SavePipelineCache(id, itTracked->second);
+            }
+            auto device_table = GetInjectedDeviceCalls(device_info->handle);
+            auto injected     = device_table.Open();
+            injected->DestroyPipelineCache(itTracked->second.device_info->handle, itTracked->second.vk_cache, nullptr);
+            tracked_pipeline_caches_.erase(itTracked);
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     PFN_vkDestroyPipeline                                      func,
     const VulkanDeviceInfo*                                    device_info,
     const VulkanPipelineInfo*                                  pipeline_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    GFXRECON_ASSERT(device_info != nullptr);
-    VkDevice                     in_device     = device_info->handle;
-    VkPipeline                   in_pipeline   = VK_NULL_HANDLE;
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    DestroyTrackedHandle(func, device_info, pipeline_info, pAllocator, [this, device_info](VkPipeline p) {
+        DestroyAssociatedPipelineCache(device_info, p);
+    });
+}
 
-    if (pipeline_info != nullptr)
-    {
-        in_pipeline =
-            MapHandle<VulkanPipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
-
-        if (IsUsedByAsyncTask(pipeline_info->capture_id))
-        {
-            // schedule deletion
-            DestroyAsyncHandle(pipeline_info->capture_id, [func, in_device, in_pipeline, in_pAllocator]() {
-                func(in_device, in_pipeline, in_pAllocator);
-            });
-            return;
-        }
-
-        // Check if the pipeline has been created with a specially created pipeline cache
-        auto itCorresp = pipeline_cache_correspondances_.find(pipeline_info->handle);
-        if (itCorresp != pipeline_cache_correspondances_.end())
-        {
-            format::HandleId id = itCorresp->second;
-            pipeline_cache_correspondances_.erase(itCorresp);
-
-            // Find if other pipelines have been created with the same pipeline cache
-            bool sameIdFound = false;
-            for (const auto& elt : pipeline_cache_correspondances_)
-            {
-                if (elt.second == id)
-                {
-                    sameIdFound = true;
-                    break;
-                }
-            }
-
-            // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
-            if (!sameIdFound)
-            {
-                auto itTracked = tracked_pipeline_caches_.find(id);
-                GFXRECON_ASSERT(itTracked != tracked_pipeline_caches_.end());
-                GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
-                GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
-
-                if (save_pipeline_caches_to_file)
-                {
-                    SavePipelineCache(id, itTracked->second);
-                }
-                auto device_table = GetInjectedDeviceCalls(device_info->handle);
-                auto injected     = device_table.Open();
-                injected->DestroyPipelineCache(
-                    itTracked->second.device_info->handle, itTracked->second.vk_cache, nullptr);
-                tracked_pipeline_caches_.erase(itTracked);
-            }
-        }
-    }
-    func(in_device, in_pipeline, in_pAllocator);
+void VulkanReplayConsumerBase::OverrideDestroyPipelineLayout(
+    PFN_vkDestroyPipelineLayout                                func,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanPipelineLayoutInfo*                                  pipeline_layout_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    DestroyTrackedHandle(func, device_info, pipeline_layout_info, pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
@@ -13623,24 +13621,7 @@ void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
     VulkanRenderPassInfo*                                      renderpass_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice                     in_device     = device_info->handle;
-    VkRenderPass                 in_renderpass = VK_NULL_HANDLE;
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-
-    if (renderpass_info != nullptr)
-    {
-        in_renderpass = renderpass_info->handle;
-
-        if (IsUsedByAsyncTask(renderpass_info->capture_id))
-        {
-            // schedule deletion
-            DestroyAsyncHandle(renderpass_info->capture_id, [func, in_device, in_renderpass, in_pAllocator]() {
-                func(in_device, in_renderpass, in_pAllocator);
-            });
-            return;
-        }
-    }
-    func(in_device, in_renderpass, in_pAllocator);
+    DestroyTrackedHandle(func, device_info, renderpass_info, pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
@@ -13649,24 +13630,7 @@ void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
     VulkanShaderModuleInfo*                                    shader_module_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice                     in_device        = device_info->handle;
-    VkShaderModule               in_shader_module = VK_NULL_HANDLE;
-    const VkAllocationCallbacks* in_pAllocator    = GetAllocationCallbacks(pAllocator);
-
-    if (shader_module_info != nullptr)
-    {
-        in_shader_module = shader_module_info->handle;
-
-        if (IsUsedByAsyncTask(shader_module_info->capture_id))
-        {
-            // schedule deletion
-            DestroyAsyncHandle(shader_module_info->capture_id, [func, in_device, in_shader_module, in_pAllocator]() {
-                func(in_device, in_shader_module, in_pAllocator);
-            });
-            return;
-        }
-    }
-    func(in_device, in_shader_module, in_pAllocator);
+    DestroyTrackedHandle(func, device_info, shader_module_info, pAllocator);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingGOOGLE(
@@ -13828,7 +13792,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
     }
-    TrackAsyncHandles(handle_deps, sync_fn);
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -13840,6 +13804,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                  call_info,
                  in_pAllocator,
                  createInfoCount,
+                 async_task_id,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
                  pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
@@ -13864,16 +13829,19 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                                 pipeline_cache,
                                 cache_pipeline_id,
                                 replay_result,
-                                pipeline_handles = out_pipelines.data(),
-                                num_pipelines    = out_pipelines.size(),
-                                handle_deps      = std::move(handle_deps)] {
+                                pipeline_handles = out_pipelines,
+                                async_task_id,
+                                handle_deps = std::move(handle_deps)]() mutable {
             // asynchronous operation is done. clear tracked handles, call deferred deletes
-            ClearAsyncHandles(handle_deps);
+            ClearAsyncHandles(async_task_id, handle_deps);
 
             // if a pipeline cache was created, track it to know when to destroy it/save it to file
             if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
             {
-                TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, pipeline_handles, num_pipelines);
+                // Capture pipeline_handles by value to avoid referencing out_pipelines
+                // after it is moved into the future return value.
+                TrackNewPipelineCache(
+                    device_info, cache_pipeline_id, pipeline_cache, pipeline_handles.data(), pipeline_handles.size());
             }
         });
         return { replay_result, std::move(out_pipelines) };
@@ -13952,7 +13920,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
     }
-    TrackAsyncHandles(handle_deps, sync_fn);
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -13964,6 +13932,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                  call_info,
                  in_pAllocator,
                  createInfoCount,
+                 async_task_id,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
                  pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
@@ -13981,16 +13950,19 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                                 pipeline_cache,
                                 cache_pipeline_id,
                                 replay_result,
-                                pipeline_handles = out_pipelines.data(),
-                                num_pipelines    = out_pipelines.size(),
-                                handle_deps      = std::move(handle_deps)] {
+                                pipeline_handles = out_pipelines,
+                                async_task_id,
+                                handle_deps = std::move(handle_deps)]() mutable {
             // asynchronous operation is done. clear tracked handles, call deferred deletes
-            ClearAsyncHandles(handle_deps);
+            ClearAsyncHandles(async_task_id, handle_deps);
 
             // if a pipeline cache was created, track it to know when to destroy it/save it to file
             if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
             {
-                TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, pipeline_handles, num_pipelines);
+                // Capture pipeline_handles by value to avoid referencing out_pipelines
+                // after it is moved into the future return value.
+                TrackNewPipelineCache(
+                    device_info, cache_pipeline_id, pipeline_cache, pipeline_handles.data(), pipeline_handles.size());
             }
         });
         return { replay_result, std::move(out_pipelines) };
@@ -14029,7 +14001,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
             MapHandle<VulkanShaderEXTInfo>(parent_id, &VulkanObjectInfoTable::GetVkShaderEXTInfo);
         };
     }
-    TrackAsyncHandles(handle_deps, sync_fn);
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
 
     // assemble array of info-structs
     std::vector<VulkanShaderEXTInfo*> shader_ext_infos(pShaders->GetLength());
@@ -14049,6 +14021,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                  in_pAllocator,
                  use_address_replacement,
                  createInfoCount,
+                 async_task_id,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
                  shaders          = std::move(shaders),
@@ -14081,39 +14054,63 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
         }
 
         // schedule dependency-clear on main-thread
-        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
+        MainThreadQueue().post([this, async_task_id, handle_deps = std::move(handle_deps)] {
+            ClearAsyncHandles(async_task_id, handle_deps);
+        });
         return { replay_result, std::move(out_shaders) };
     };
     return task;
 }
 
-void VulkanReplayConsumerBase::TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
-                                                 const std::function<void()>&                sync_fn)
+bool VulkanReplayConsumerBase::IsUsedByAsyncTask(format::HandleId handle) const
 {
-    for (const auto& handle : async_handles)
-    {
-        // check to avoid overwriting existing handle-destructors
-        if (async_tracked_handles_.count(handle) == 0)
-        {
-            async_tracked_handles_[handle] = { sync_fn, {} };
-        }
-    }
+    auto it = async_tracked_handles_.find(handle);
+    return it != async_tracked_handles_.end() && !it->second.async_task_ids.empty();
 }
 
-void VulkanReplayConsumerBase::ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
+uint64_t VulkanReplayConsumerBase::TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                                                     const std::function<void()>&                sync_fn)
 {
+    uint64_t async_task_id = next_async_task_id_++;
+    if (sync_fn)
+    {
+        async_task_sync_fns_[async_task_id] = sync_fn;
+    }
+
     for (const auto& handle : async_handles)
     {
+        if (handle != format::kNullHandleId)
+        {
+            async_tracked_handles_[handle].async_task_ids.insert(async_task_id);
+        }
+    }
+    return async_task_id;
+}
+
+void VulkanReplayConsumerBase::ClearAsyncHandles(uint64_t                                    async_task_id,
+                                                 const std::unordered_set<format::HandleId>& async_handles)
+{
+    async_task_sync_fns_.erase(async_task_id);
+
+    for (const auto& handle : async_handles)
+    {
+        if (handle == format::kNullHandleId)
+        {
+            continue;
+        }
+
         auto it = async_tracked_handles_.find(handle);
         if (it != async_tracked_handles_.end())
         {
-            const auto& [tracked_handle, handle_asset] = *it;
-
-            if (handle_asset.post_build_fn)
+            it->second.async_task_ids.erase(async_task_id);
+            if (it->second.async_task_ids.empty())
             {
-                handle_asset.post_build_fn();
+                if (it->second.post_build_fn)
+                {
+                    it->second.post_build_fn();
+                }
+                async_tracked_handles_.erase(it);
             }
-            async_tracked_handles_.erase(it);
         }
     }
 }
@@ -14124,28 +14121,93 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
 
     if (it != async_tracked_handles_.end())
     {
-        async_tracked_handle_asset_t& handle_asset = it->second;
+        // Snapshot the set of active async task IDs referencing this handle
+        auto task_ids = it->second.async_task_ids;
+        for (uint64_t tid : task_ids)
+        {
+            auto sync_it = async_task_sync_fns_.find(tid);
+            if (sync_it != async_task_sync_fns_.end() && sync_it->second)
+            {
+                sync_it->second();
+            }
+        }
 
-        if constexpr (async_defer_deletion_)
+        // Synchronizing tasks above signals completion, but post-creation tasks (TrackNewPipelineCache,
+        // ClearAsyncHandles) were dispatched to MainThreadQueue(). Draining the queue guarantees that
+        // pipeline-to-cache correspondences are registered before destroy_fn() executes.
+        main_thread_queue_.poll();
+
+        auto post_it = async_tracked_handles_.find(handle);
+        if (post_it != async_tracked_handles_.end())
         {
-            handle_asset.post_build_fn = std::move(destroy_fn);
+            if (post_it->second.post_build_fn)
+            {
+                post_it->second.post_build_fn();
+            }
+            async_tracked_handles_.erase(post_it);
         }
-        else
+
+        if (destroy_fn)
         {
-            if (handle_asset.sync_fn)
-            {
-                handle_asset.sync_fn();
-            }
-            if (handle_asset.post_build_fn)
-            {
-                handle_asset.post_build_fn();
-            }
-            if (destroy_fn)
-            {
-                destroy_fn();
-            }
-            async_tracked_handles_.erase(it);
+            destroy_fn();
         }
+    }
+}
+
+template <typename InfoType, typename DestroyFunc, typename PreDestroyHook>
+void VulkanReplayConsumerBase::DestroyTrackedHandle(
+    DestroyFunc                                                func,
+    const VulkanDeviceInfo*                                    device_info,
+    const InfoType*                                            object_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    PreDestroyHook                                             pre_destroy_hook)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    VkDevice                      in_device     = device_info->handle;
+    typename InfoType::HandleType in_handle     = VK_NULL_HANDLE;
+    const VkAllocationCallbacks*  in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    if (object_info != nullptr)
+    {
+        in_handle = object_info->handle;
+
+        if constexpr (std::is_same_v<InfoType, VulkanPipelineInfo>)
+        {
+            if (in_handle == VK_NULL_HANDLE)
+            {
+                // If an async pipeline completed in the background, it was removed from async_tracked_handles_
+                // so IsUsedByAsyncTask returned false, but its handle in pipeline_info remains VK_NULL_HANDLE
+                // until mapped. Map it here to avoid skipping vkDestroyPipeline and leaking the driver handle.
+                in_handle =
+                    MapHandle<VulkanPipelineInfo>(object_info->capture_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
+            }
+        }
+
+        if (IsUsedByAsyncTask(object_info->capture_id))
+        {
+            auto capture_id = object_info->capture_id;
+            DestroyAsyncHandle(capture_id, [func, in_device, in_handle, in_pAllocator, pre_destroy_hook]() {
+                if (in_handle != VK_NULL_HANDLE)
+                {
+                    if constexpr (!std::is_same_v<PreDestroyHook, std::nullptr_t>)
+                    {
+                        pre_destroy_hook(in_handle);
+                    }
+                    func(in_device, in_handle, in_pAllocator);
+                }
+            });
+            return;
+        }
+
+        if constexpr (!std::is_same_v<PreDestroyHook, std::nullptr_t>)
+        {
+            pre_destroy_hook(in_handle);
+        }
+    }
+
+    if (in_handle != VK_NULL_HANDLE)
+    {
+        func(in_device, in_handle, in_pAllocator);
     }
 }
 
