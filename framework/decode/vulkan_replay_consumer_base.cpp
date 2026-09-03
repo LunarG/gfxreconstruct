@@ -5096,7 +5096,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     }
 
     // Update layout on the image infos.
-    if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
+    if ((result == VK_SUCCESS) && (submit_info_data != nullptr))
     {
         for (auto submit : pSubmits->GetMetaStructSpan())
         {
@@ -5383,7 +5383,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     // Update layout on the image infos.
-    if ((result == VK_SUCCESS) && (submit_info_data != nullptr) && RequiresImageLayoutTracking())
+    if ((result == VK_SUCCESS) && (submit_info_data != nullptr))
     {
         for (const auto& submit : pSubmits->GetMetaStructSpan())
         {
