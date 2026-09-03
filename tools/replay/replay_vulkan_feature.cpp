@@ -86,6 +86,7 @@ const char kShaderReplaceArgument[]            = "--replace-shaders";
 const char kSwapchainOption[]                  = "--swapchain";
 const char kPresentModeOption[]                = "--present-mode";
 const char kPresentOverrideImageArgument[]     = "--present-override";
+const char kPresentFrameBoundaryArgument[]     = "--present-frame-boundary";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
@@ -347,6 +348,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.offscreen_swapchain_frame_boundary = true;
     }
 
+    if (arg_parser.IsOptionSet(kPresentFrameBoundaryArgument))
+    {
+        replay_options.present_frame_boundary = true;
+    }
+
     if (arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitLongOption) ||
         arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitShortOption))
     {
@@ -597,6 +603,14 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                  "named one." },
                true,
                kPresentOverrideImageArgument },
+             { "",
+               { "Live-present an image whenever replay encounters VkFrameBoundaryEXT or a",
+                 "recognized command-buffer frame marker. An image selected with",
+                 "--present-override takes precedence; otherwise replay uses the first image",
+                 "declared by VkFrameBoundaryEXT. This requires the virtual swapchain. A",
+                 "multi-layer image is tiled into one window." },
+               false,
+               kPresentFrameBoundaryArgument },
              { "",
                { "Skip the blit to the real swapchain to increase replay performance." },
                false,
