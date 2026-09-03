@@ -2046,7 +2046,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void InitializeScreenshotHandler();
 
-    void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
+    void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info,
+                          const VulkanQueueInfo*          queue_info,
+                          VkResult                        original_result);
 
     /**
      * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
@@ -2058,8 +2060,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     void PropagateImageLayouts(const VulkanCommandBufferInfo* command_buffer_info);
 
-    bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info);
-    bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info, const PNextNode* pnext);
+    bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info,
+                                                const char*                    call_name,
+                                                const VulkanQueueInfo*         queue_info,
+                                                VkResult                       original_result,
+                                                VkResult                       replay_result);
+    bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
+                                         const PNextNode*        pnext,
+                                         const char*             call_name,
+                                         const VulkanQueueInfo*  queue_info,
+                                         VkResult                original_result,
+                                         VkResult                replay_result);
 
     void UpdateDescriptorSetInfoWithTemplate(VulkanDescriptorSetInfo*                  desc_set_info,
                                              const VulkanDescriptorUpdateTemplateInfo* template_info,

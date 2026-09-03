@@ -20,17 +20,21 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/decoder_util.h"
 #include "decode/screenshot_handler.h"
+#include "decode/vulkan_temporary_objects.h"
+#include "decode/window.h"
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "graphics/vulkan_resources_util.h"
-#include "decode/decoder_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 
 #include <limits>
 #include <algorithm>
 #include <memory>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -41,49 +45,80 @@ static constexpr uint32_t kDefaultQueueIndex       = 0;
 static constexpr size_t kUnormIndex = 0;
 static constexpr size_t kSrgbIndex  = 1;
 
-inline void WriteImageFile(
-    const std::string& filename, util::ScreenshotFormat file_format, uint32_t width, uint32_t height, void* data)
+static bool WriteImageFile(const std::string&     filename_prefix,
+                           util::ScreenshotFormat file_format,
+                           uint32_t               width,
+                           uint32_t               height,
+                           const void*            data,
+                           ScreenshotWriteResult& result)
 {
+    std::string filename;
+    bool        written = false;
+
     switch (file_format)
     {
         default:
             GFXRECON_LOG_ERROR("Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
+            result.messages.push_back({ screenshot_reason::kFormatFallback,
+                                        "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP." });
             // Intentional fall-through
         case util::ScreenshotFormat::kBmp:
-            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, data))
+            filename = filename_prefix + ".bmp";
+            written  = util::imagewriter::WriteBmpImage(filename, width, height, data);
+            if (!written)
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
             }
             break;
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
         case util::ScreenshotFormat::kPng:
-            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, data))
+            filename = filename_prefix + ".png";
+            written  = util::imagewriter::WritePngImage(filename, width, height, data);
+            if (!written)
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
             }
             break;
 #endif // GFXRECON_ENABLE_PNG_SCREENSHOT
     }
+
+    if (written)
+    {
+        result.status = ScreenshotStatus::kWritten;
+        result.file   = filename;
+        result.width  = width;
+        result.height = height;
+    }
+    else
+    {
+        result.status      = ScreenshotStatus::kFailed;
+        result.reason_code = screenshot_reason::kFileWriteFailed;
+        result.message     = "Screenshot could not be created: failed to write file " + filename;
+        result.file.clear();
+    }
+
+    return written;
 }
 
-void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
-                                   const VulkanDeviceInfo*                    device_info,
-                                   const graphics::VulkanInjectedDeviceCalls& injected_calls,
-                                   const VkPhysicalDeviceMemoryProperties&    memory_properties,
-                                   VulkanResourceAllocator*                   allocator,
-                                   VkImage                                    image,
-                                   VkFormat                                   format,
-                                   uint32_t                                   width,
-                                   uint32_t                                   height,
-                                   uint32_t                                   layer,
-                                   const std::optional<std::array<float, 2>>& copy_scale,
-                                   VkImageLayout                              image_layout,
-                                   VkSurfaceTransformFlagBitsKHR              pre_transform)
+ScreenshotWriteResult ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
+                                                    const VulkanDeviceInfo*                    device_info,
+                                                    const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                                                    const VkPhysicalDeviceMemoryProperties&    memory_properties,
+                                                    VulkanResourceAllocator*                   allocator,
+                                                    VkImage                                    image,
+                                                    VkFormat                                   format,
+                                                    uint32_t                                   width,
+                                                    uint32_t                                   height,
+                                                    uint32_t                                   layer,
+                                                    const std::optional<std::array<float, 2>>& copy_scale,
+                                                    VkImageLayout                              image_layout,
+                                                    VkSurfaceTransformFlagBitsKHR              pre_transform)
 {
     if (!injected_calls.IsValid() || allocator == nullptr)
     {
         GFXRECON_LOG_ERROR("Screenshot could not be created: missing device table or allocator");
-        return;
+        return ScreenshotWriteResult::Failed(screenshot_reason::kMissingDeviceTable,
+                                             "Screenshot could not be created: missing device table or allocator");
     }
 
     // The screenshot copy below is made by replay and is not in the capture file.
@@ -96,7 +131,9 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                              filename_prefix.c_str(),
                              width,
                              height);
-        return;
+        return ScreenshotWriteResult::Skipped(screenshot_reason::kZeroSizeImage,
+                                              "Cannot create screenshot for 0 size image (width=" +
+                                                  std::to_string(width) + ", height=" + std::to_string(height) + ")");
     }
 
     // derive output-size and orientation from provided scale
@@ -114,6 +151,19 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         flip_y      = copy_scale.value()[1] < 0.f;
     }
 
+    if (copy_width == 0 || copy_height == 0)
+    {
+        GFXRECON_LOG_WARNING("Screenshot scaling reduced dimensions to zero (width=%" PRIu32 ", height=%" PRIu32 ").",
+                             copy_width,
+                             copy_height);
+
+        return ScreenshotWriteResult::Skipped(
+            screenshot_reason::kZeroSizeImage,
+            "Screenshot scaling reduced dimensions to zero (width=" + std::to_string(copy_width) +
+                ", height=" + std::to_string(copy_height) + ")");
+    }
+
+    ScreenshotWriteResult write_result;
     VkResult result = VK_SUCCESS;
     auto     device = device_info->handle;
     // TODO: Improved queue selection; ensure queue supports transfer operations.
@@ -141,387 +191,404 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
         }
         else
         {
-            GFXRECON_LOG_ERROR("Screenshot could not be created: failed to create a command pool")
+            GFXRECON_LOG_ERROR("Screenshot could not be created: failed to create a command pool");
+            return ScreenshotWriteResult::Failed(screenshot_reason::kCommandPoolCreateFailed,
+                                                 "Screenshot could not be created: failed to create a command pool",
+                                                 result);
         }
     }
+
+    auto& copy_resource = copy_resource_entry->second;
+    auto  copy_format   = GetConversionFormat(format);
+
+    // Get a queue.
+    VkQueue queue = GetDeviceQueue(injected.GetTable(), device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
+    if (queue == VK_NULL_HANDLE)
+    {
+        return ScreenshotWriteResult::Failed(screenshot_reason::kCommandBufferAllocateFailed,
+                                             "Screenshot could not be created: failed detect a suitable queue",
+                                             result);
+    }
+
+    // Get a buffer size.
+    VkDeviceSize buffer_size     = copy_resource.buffer_size;
+    bool         create_resource = false;
+
+    // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
+    if (buffer_size == 0 || copy_resource.width != copy_width || copy_resource.height != copy_height ||
+        copy_resource.format != copy_format || copy_resource.flip_x != flip_x || copy_resource.flip_y != flip_y)
+    {
+        buffer_size     = GetCopyBufferSize(device, injected, copy_format, copy_width, copy_height);
+        create_resource = true;
+    }
+
+    if (create_resource)
+    {
+        if (buffer_size == 0)
+        {
+            // GetCopyBufferSize failed to determine a valid size.
+            return ScreenshotWriteResult::Failed(screenshot_reason::kUnsupportedFormat,
+                                                 "Screenshot could not be created: failed to determine transfer "
+                                                 "buffer size for format " +
+                                                     util::ToString(copy_format));
+        }
+
+        // Need to create/recreate resource.
+        DestroyCopyResource(device, &copy_resource);
+
+        result = CreateCopyResource(device,
+                                    injected,
+                                    memory_properties,
+                                    buffer_size,
+                                    format,
+                                    copy_format,
+                                    width,
+                                    height,
+                                    copy_width,
+                                    copy_height,
+                                    flip_x,
+                                    flip_y,
+                                    &copy_resource);
+    }
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to create a transfer resource");
+        return ScreenshotWriteResult::Failed(screenshot_reason::kTransferResourceCreateFailed,
+                                             "Screenshot could not be created: failed to create a transfer resource",
+                                             result);
+    }
+
+    // Get a command buffer.
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+    VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+    allocate_info.pNext                       = nullptr;
+    allocate_info.commandPool                 = copy_resource.command_pool;
+    allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocate_info.commandBufferCount          = 1;
+
+    result = injected->AllocateCommandBuffers(device, &allocate_info, &command_buffer);
+    if (result == VK_SUCCESS)
+    {
+        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        begin_info.pNext                    = nullptr;
+        begin_info.flags                    = 0;
+        begin_info.pInheritanceInfo         = nullptr;
+
+        result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
+    }
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to allocate or begin a command buffer");
+        if (command_buffer != VK_NULL_HANDLE)
+        {
+            injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+        }
+
+        return ScreenshotWriteResult::Failed(
+            screenshot_reason::kCommandBufferAllocateFailed,
+            "Screenshot could not be created: failed to allocate or begin a command buffer",
+            result);
+    }
+
+    auto image_aspect_mask = graphics::GetFormatAspects(format);
+
+    // Transition source image from image_layout to the TRANSFER_SRC layout.
+    VkImageMemoryBarrier src_image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+    src_image_barrier.pNext                           = nullptr;
+    src_image_barrier.srcAccessMask                   = 0;
+    src_image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+    src_image_barrier.oldLayout                       = image_layout;
+    src_image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    src_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    src_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    src_image_barrier.image                           = image;
+    src_image_barrier.subresourceRange.aspectMask     = image_aspect_mask;
+    src_image_barrier.subresourceRange.baseArrayLayer = layer;
+    src_image_barrier.subresourceRange.layerCount     = 1;
+    src_image_barrier.subresourceRange.baseMipLevel   = 0;
+    src_image_barrier.subresourceRange.levelCount     = 1;
+
+    injected->CmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &src_image_barrier);
+
+    // The 'copy_image' is the image to be used with the image to buffer copy.
+    VkImage copy_image             = image;
+    auto    copy_image_aspect_mask = graphics::GetFormatAspects(copy_format);
+
+    if (copy_resource.convert_image != VK_NULL_HANDLE)
+    {
+        // Need to perform a blit to covert the Vulkan image format to the image file format.
+        copy_image = copy_resource.convert_image;
+
+        // Transition blit target to the TRANSFER_DST layout.
+        VkImageMemoryBarrier convert_image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        convert_image_barrier.pNext                           = nullptr;
+        convert_image_barrier.srcAccessMask                   = 0;
+        convert_image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
+        convert_image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+        convert_image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        convert_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        convert_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        convert_image_barrier.image                           = copy_image;
+        convert_image_barrier.subresourceRange.aspectMask     = copy_image_aspect_mask;
+        convert_image_barrier.subresourceRange.baseArrayLayer = 0;
+        convert_image_barrier.subresourceRange.layerCount     = 1;
+        convert_image_barrier.subresourceRange.baseMipLevel   = 0;
+        convert_image_barrier.subresourceRange.levelCount     = 1;
+
+        injected->CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &convert_image_barrier);
+
+        VkImageBlit blit_region;
+        blit_region.srcSubresource.aspectMask     = image_aspect_mask;
+        blit_region.srcSubresource.mipLevel       = 0;
+        blit_region.srcSubresource.baseArrayLayer = layer;
+        blit_region.srcSubresource.layerCount     = 1;
+        blit_region.srcOffsets[0].x               = 0;
+        blit_region.srcOffsets[0].y               = 0;
+        blit_region.srcOffsets[0].z               = 0;
+        blit_region.srcOffsets[1].x               = width;
+        blit_region.srcOffsets[1].y               = height;
+        blit_region.srcOffsets[1].z               = 1;
+        blit_region.dstSubresource.aspectMask     = copy_image_aspect_mask;
+        blit_region.dstSubresource.mipLevel       = 0;
+        blit_region.dstSubresource.baseArrayLayer = 0;
+        blit_region.dstSubresource.layerCount     = 1;
+        blit_region.dstOffsets[0].x               = flip_x ? copy_width : 0;
+        blit_region.dstOffsets[0].y               = flip_y ? copy_height : 0;
+        blit_region.dstOffsets[0].z               = 0;
+        blit_region.dstOffsets[1].x               = flip_x ? 0 : copy_width;
+        blit_region.dstOffsets[1].y               = flip_y ? 0 : copy_height;
+        blit_region.dstOffsets[1].z               = 1;
+
+        injected->CmdBlitImage(command_buffer,
+                               image,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               copy_image,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               1,
+                               &blit_region,
+                               VK_FILTER_NEAREST);
+
+        // Transition blit target from the TRANSFER_DST layout to TRANSFER_SRC layout for the image to
+        // buffer copy.
+        convert_image_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        convert_image_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        convert_image_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        convert_image_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+        injected->CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &convert_image_barrier);
+    }
+
+    VkBufferImageCopy copy_region;
+    copy_region.bufferOffset                    = 0;
+    copy_region.bufferRowLength                 = 0;
+    copy_region.bufferImageHeight               = 0;
+    copy_region.imageSubresource.aspectMask     = copy_image_aspect_mask;
+    copy_region.imageSubresource.mipLevel       = 0;
+    copy_region.imageSubresource.baseArrayLayer = 0;
+    copy_region.imageSubresource.layerCount     = 1;
+    copy_region.imageOffset                     = { 0, 0, 0 };
+    copy_region.imageExtent                     = { copy_width, copy_height, 1 };
+
+    injected->CmdCopyImageToBuffer(
+        command_buffer, copy_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, copy_resource.buffer, 1, &copy_region);
+
+    // Transition source image back to image_layout after the screenshot.
+    src_image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+    src_image_barrier.dstAccessMask       = 0;
+    src_image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    src_image_barrier.newLayout           = image_layout;
+    src_image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    src_image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+    injected->CmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &src_image_barrier);
+
+    // Make sure any pending work is finished, as we are not waiting on any semaphores from previous
+    // submissions.
+    result = injected->DeviceWaitIdle(device);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("ScreenshotHandler: DeviceWaitIdle failed with %s", util::ToString(result).c_str());
+        injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+        return ScreenshotWriteResult::Failed(screenshot_reason::kDeviceWaitIdleFailed,
+                                             "ScreenshotHandler: DeviceWaitIdle failed with " + util::ToString(result),
+                                             result);
+    }
+
+    result = injected->EndCommandBuffer(command_buffer);
 
     if (result == VK_SUCCESS)
     {
-        auto&   copy_resource = copy_resource_entry->second;
-        auto    copy_format   = GetConversionFormat(format);
-        VkQueue queue         = VK_NULL_HANDLE;
+        VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.waitSemaphoreCount   = 0;
+        submit_info.pWaitSemaphores      = nullptr;
+        submit_info.pWaitDstStageMask    = nullptr;
+        submit_info.commandBufferCount   = 1;
+        submit_info.pCommandBuffers      = &command_buffer;
+        submit_info.signalSemaphoreCount = 0;
+        submit_info.pSignalSemaphores    = nullptr;
 
-        // Get a queue.
-        queue = GetDeviceQueue(injected.GetTable(), device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
+        result = injected->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+    }
 
-        // Get a buffer size.
-        VkDeviceSize buffer_size     = copy_resource.buffer_size;
-        bool         create_resource = false;
+    if (result != VK_SUCCESS)
+    {
+        injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+        const char* path = (copy_resource.convert_image != VK_NULL_HANDLE ? "(blit path) " : "");
+        GFXRECON_LOG_ERROR(
+            "ScreenshotHandler: Queue submission %sfailed with %s", path, util::ToString(result).c_str());
+        return ScreenshotWriteResult::Failed(screenshot_reason::kQueueSubmitFailed,
+                                             std::string("ScreenshotHandler: Queue submission ") + path +
+                                                 "failed with " + util::ToString(result),
+                                             result);
+    }
 
-        // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
-        if (buffer_size == 0 || copy_resource.width != copy_width || copy_resource.height != copy_height ||
-            copy_resource.format != copy_format || copy_resource.flip_x != flip_x || copy_resource.flip_y != flip_y)
+    result = injected->QueueWaitIdle(queue);
+    if (result != VK_SUCCESS)
+    {
+        injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+
+        GFXRECON_LOG_ERROR("ScreenshotHandler: Queue wait failed with %s", util::ToString(result).c_str());
+        const char* path = (copy_resource.convert_image != VK_NULL_HANDLE ? "(blit path) " : "");
+        return ScreenshotWriteResult::Failed(screenshot_reason::kQueueSubmitFailed,
+                                             std::string("ScreenshotHandler: QueueWaitIdle ") + path + "failed with " +
+                                                 util::ToString(result),
+                                             result);
+    }
+
+    injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+
+    void* data = nullptr;
+    result     = allocator->MapResourceMemoryDirect(copy_resource.buffer_size, 0, &data, copy_resource.buffer_data);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to map resource memory");
+        return ScreenshotWriteResult::Failed(screenshot_reason::kMemoryMapFailed,
+                                             "Screenshot could not be created: failed to map resource memory",
+                                             result);
+    }
+
+    if ((copy_resource.memory_property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) !=
+        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+    {
+        VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
+        invalidate_range.pNext               = nullptr;
+        invalidate_range.memory              = copy_resource.buffer_memory;
+        invalidate_range.offset              = 0;
+        invalidate_range.size                = copy_resource.buffer_size;
+
+        allocator->InvalidateMappedMemoryRangesDirect(1, &invalidate_range, &copy_resource.buffer_memory_data);
+    }
+
+    void*  write_data  = data;
+    size_t pixel_count = static_cast<size_t>(copy_width) * copy_height;
+
+    uint32_t final_width  = copy_width;
+    uint32_t final_height = copy_height;
+
+    util::imagewriter::ImageRotation rotation = util::imagewriter::ImageRotation::DEG_0;
+    if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
+        pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR)
+    {
+        rotation = util::imagewriter::ImageRotation::DEG_90;
+    }
+    else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR ||
+             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR)
+    {
+        rotation = util::imagewriter::ImageRotation::DEG_180;
+    }
+    else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR ||
+             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR)
+    {
+        rotation = util::imagewriter::ImageRotation::DEG_270;
+    }
+
+    bool is_mirrored = (pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR ||
+                        pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR ||
+                        pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR ||
+                        pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR);
+
+    if (rotation != util::imagewriter::ImageRotation::DEG_0 || is_mirrored)
+    {
+        // Note: We safely assume a 32-bit pixel format (4 bytes) because GetConversionFormat()
+        // strictly enforces VK_FORMAT_B8G8R8A8_UNORM or VK_FORMAT_B8G8R8A8_SRGB.
+        GFXRECON_ASSERT(copy_format == VK_FORMAT_B8G8R8A8_UNORM || copy_format == VK_FORMAT_B8G8R8A8_SRGB);
+
+        try
         {
-            buffer_size     = GetCopyBufferSize(device, injected, copy_format, copy_width, copy_height);
-            create_resource = true;
-        }
-
-        if (create_resource)
-        {
-            // Need to create/recreate resource.
-            DestroyCopyResource(device, &copy_resource);
-
-            result = CreateCopyResource(device,
-                                        injected,
-                                        memory_properties,
-                                        buffer_size,
-                                        format,
-                                        copy_format,
-                                        width,
-                                        height,
-                                        copy_width,
-                                        copy_height,
-                                        flip_x,
-                                        flip_y,
-                                        &copy_resource);
-        }
-        else if (buffer_size == 0)
-        {
-            // GetCopyBufferSize failed to determine a valid size.
-            result = VK_ERROR_INITIALIZATION_FAILED;
-        }
-
-        if (result == VK_SUCCESS)
-        {
-            // Get a command buffer.
-            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-
-            VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-            allocate_info.pNext                       = nullptr;
-            allocate_info.commandPool                 = copy_resource.command_pool;
-            allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            allocate_info.commandBufferCount          = 1;
-
-            result = injected->AllocateCommandBuffers(device, &allocate_info, &command_buffer);
-            if (result == VK_SUCCESS)
+            if (rotated_pixels_buffer_.size() < pixel_count)
             {
-                VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-                begin_info.pNext                    = nullptr;
-                begin_info.flags                    = 0;
-                begin_info.pInheritanceInfo         = nullptr;
-
-                result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
+                rotated_pixels_buffer_.resize(pixel_count);
             }
 
-            if (result == VK_SUCCESS)
-            {
-                auto image_aspect_mask = graphics::GetFormatAspects(format);
+            const uint32_t* src_pixels = reinterpret_cast<const uint32_t*>(data);
+            uint32_t*       dst_pixels = rotated_pixels_buffer_.data();
+            write_data                 = rotated_pixels_buffer_.data();
 
-                // Transition source image from image_layout to the TRANSFER_SRC layout.
-                VkImageMemoryBarrier src_image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-                src_image_barrier.pNext                           = nullptr;
-                src_image_barrier.srcAccessMask                   = 0;
-                src_image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                src_image_barrier.oldLayout                       = image_layout;
-                src_image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                src_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                src_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                src_image_barrier.image                           = image;
-                src_image_barrier.subresourceRange.aspectMask     = image_aspect_mask;
-                src_image_barrier.subresourceRange.baseArrayLayer = layer;
-                src_image_barrier.subresourceRange.layerCount     = 1;
-                src_image_barrier.subresourceRange.baseMipLevel   = 0;
-                src_image_barrier.subresourceRange.levelCount     = 1;
+            final_width  = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
+                           rotation == util::imagewriter::ImageRotation::DEG_270)
+                               ? copy_height
+                               : copy_width;
+            final_height = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
+                            rotation == util::imagewriter::ImageRotation::DEG_270)
+                               ? copy_width
+                               : copy_height;
 
-                injected->CmdPipelineBarrier(command_buffer,
-                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                             0,
-                                             0,
-                                             nullptr,
-                                             0,
-                                             nullptr,
-                                             1,
-                                             &src_image_barrier);
-
-                // The 'copy_image' is the image to be used with the image to buffer copy.
-                VkImage copy_image             = image;
-                auto    copy_image_aspect_mask = graphics::GetFormatAspects(copy_format);
-
-                if (copy_resource.convert_image != VK_NULL_HANDLE)
-                {
-                    // Need to perform a blit to covert the Vulkan image format to the image file format.
-                    copy_image = copy_resource.convert_image;
-
-                    // Transition blit target to the TRANSFER_DST layout.
-                    VkImageMemoryBarrier convert_image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-                    convert_image_barrier.pNext                           = nullptr;
-                    convert_image_barrier.srcAccessMask                   = 0;
-                    convert_image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    convert_image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-                    convert_image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    convert_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    convert_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    convert_image_barrier.image                           = copy_image;
-                    convert_image_barrier.subresourceRange.aspectMask     = copy_image_aspect_mask;
-                    convert_image_barrier.subresourceRange.baseArrayLayer = 0;
-                    convert_image_barrier.subresourceRange.layerCount     = 1;
-                    convert_image_barrier.subresourceRange.baseMipLevel   = 0;
-                    convert_image_barrier.subresourceRange.levelCount     = 1;
-
-                    injected->CmdPipelineBarrier(command_buffer,
-                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 1,
-                                                 &convert_image_barrier);
-
-                    VkImageBlit blit_region;
-                    blit_region.srcSubresource.aspectMask     = image_aspect_mask;
-                    blit_region.srcSubresource.mipLevel       = 0;
-                    blit_region.srcSubresource.baseArrayLayer = layer;
-                    blit_region.srcSubresource.layerCount     = 1;
-                    blit_region.srcOffsets[0].x               = 0;
-                    blit_region.srcOffsets[0].y               = 0;
-                    blit_region.srcOffsets[0].z               = 0;
-                    blit_region.srcOffsets[1].x               = width;
-                    blit_region.srcOffsets[1].y               = height;
-                    blit_region.srcOffsets[1].z               = 1;
-                    blit_region.dstSubresource.aspectMask     = copy_image_aspect_mask;
-                    blit_region.dstSubresource.mipLevel       = 0;
-                    blit_region.dstSubresource.baseArrayLayer = 0;
-                    blit_region.dstSubresource.layerCount     = 1;
-                    blit_region.dstOffsets[0].x               = flip_x ? copy_width : 0;
-                    blit_region.dstOffsets[0].y               = flip_y ? copy_height : 0;
-                    blit_region.dstOffsets[0].z               = 0;
-                    blit_region.dstOffsets[1].x               = flip_x ? 0 : copy_width;
-                    blit_region.dstOffsets[1].y               = flip_y ? 0 : copy_height;
-                    blit_region.dstOffsets[1].z               = 1;
-
-                    injected->CmdBlitImage(command_buffer,
-                                           image,
-                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                           copy_image,
-                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                           1,
-                                           &blit_region,
-                                           VK_FILTER_NEAREST);
-
-                    // Transition blit target from the TRANSFER_DST layout to TRANSFER_SRC layout for the image to
-                    // buffer copy.
-                    convert_image_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    convert_image_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                    convert_image_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    convert_image_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-
-                    injected->CmdPipelineBarrier(command_buffer,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 1,
-                                                 &convert_image_barrier);
-                }
-
-                VkBufferImageCopy copy_region;
-                copy_region.bufferOffset                    = 0;
-                copy_region.bufferRowLength                 = 0;
-                copy_region.bufferImageHeight               = 0;
-                copy_region.imageSubresource.aspectMask     = copy_image_aspect_mask;
-                copy_region.imageSubresource.mipLevel       = 0;
-                copy_region.imageSubresource.baseArrayLayer = 0;
-                copy_region.imageSubresource.layerCount     = 1;
-                copy_region.imageOffset                     = { 0, 0, 0 };
-                copy_region.imageExtent                     = { copy_width, copy_height, 1 };
-
-                injected->CmdCopyImageToBuffer(command_buffer,
-                                               copy_image,
-                                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                               copy_resource.buffer,
-                                               1,
-                                               &copy_region);
-
-                // Transition source image back to image_layout after the screenshot.
-                src_image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-                src_image_barrier.dstAccessMask       = 0;
-                src_image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                src_image_barrier.newLayout           = image_layout;
-                src_image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                src_image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-                injected->CmdPipelineBarrier(command_buffer,
-                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                             0,
-                                             0,
-                                             nullptr,
-                                             0,
-                                             nullptr,
-                                             1,
-                                             &src_image_barrier);
-
-                injected->EndCommandBuffer(command_buffer);
-
-                // Make sure any pending work is finished, as we are not waiting on any semaphores from previous
-                // submissions.
-                result = injected->DeviceWaitIdle(device);
-                if (result != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("ScreenshotHandler: DeviceWaitIdle failed with %s",
-                                       util::ToString(result).c_str());
-                }
-
-                if (result == VK_SUCCESS)
-                {
-                    VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-                    submit_info.waitSemaphoreCount   = 0;
-                    submit_info.pWaitSemaphores      = nullptr;
-                    submit_info.pWaitDstStageMask    = nullptr;
-                    submit_info.commandBufferCount   = 1;
-                    submit_info.pCommandBuffers      = &command_buffer;
-                    submit_info.signalSemaphoreCount = 0;
-                    submit_info.pSignalSemaphores    = nullptr;
-
-                    result = injected->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
-                    if (result != VK_SUCCESS)
-                    {
-                        GFXRECON_LOG_ERROR("ScreenshotHandler: Queue submission %sfailed with %s",
-                                           (copy_resource.convert_image != VK_NULL_HANDLE ? "(blit path) " : ""),
-                                           util::ToString(result).c_str());
-                    }
-                }
-
-                if (result == VK_SUCCESS)
-                {
-                    result = injected->QueueWaitIdle(queue);
-                    if (result != VK_SUCCESS)
-                    {
-                        GFXRECON_LOG_ERROR("ScreenshotHandler: Queue wait failed with %s",
-                                           util::ToString(result).c_str());
-                    }
-                }
-
-                if (result == VK_SUCCESS)
-                {
-                    void* data = nullptr;
-                    result     = allocator->MapResourceMemoryDirect(
-                        copy_resource.buffer_size, 0, &data, copy_resource.buffer_data);
-
-                    if (result == VK_SUCCESS)
-                    {
-                        if ((copy_resource.memory_property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) !=
-                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-                        {
-                            VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
-                            invalidate_range.pNext               = nullptr;
-                            invalidate_range.memory              = copy_resource.buffer_memory;
-                            invalidate_range.offset              = 0;
-                            invalidate_range.size                = copy_resource.buffer_size;
-
-                            allocator->InvalidateMappedMemoryRangesDirect(
-                                1, &invalidate_range, &copy_resource.buffer_memory_data);
-                        }
-
-                        void*  write_data  = data;
-                        size_t pixel_count = static_cast<size_t>(copy_width) * copy_height;
-
-                        uint32_t final_width  = copy_width;
-                        uint32_t final_height = copy_height;
-
-                        util::imagewriter::ImageRotation rotation = util::imagewriter::ImageRotation::DEG_0;
-                        if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
-                            pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR)
-                        {
-                            rotation = util::imagewriter::ImageRotation::DEG_90;
-                        }
-                        else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR ||
-                                 pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR)
-                        {
-                            rotation = util::imagewriter::ImageRotation::DEG_180;
-                        }
-                        else if (pre_transform == VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR ||
-                                 pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR)
-                        {
-                            rotation = util::imagewriter::ImageRotation::DEG_270;
-                        }
-
-                        bool is_mirrored =
-                            (pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR ||
-                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR ||
-                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR ||
-                             pre_transform == VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR);
-
-                        if (rotation != util::imagewriter::ImageRotation::DEG_0 || is_mirrored)
-                        {
-                            // Note: We safely assume a 32-bit pixel format (4 bytes) because GetConversionFormat()
-                            // strictly enforces VK_FORMAT_B8G8R8A8_UNORM or VK_FORMAT_B8G8R8A8_SRGB.
-                            GFXRECON_ASSERT(copy_format == VK_FORMAT_B8G8R8A8_UNORM ||
-                                            copy_format == VK_FORMAT_B8G8R8A8_SRGB);
-
-                            try
-                            {
-                                if (rotated_pixels_buffer_.size() < pixel_count)
-                                {
-                                    rotated_pixels_buffer_.resize(pixel_count);
-                                }
-
-                                const uint32_t* src_pixels = reinterpret_cast<const uint32_t*>(data);
-                                uint32_t*       dst_pixels = rotated_pixels_buffer_.data();
-                                write_data                 = rotated_pixels_buffer_.data();
-
-                                final_width  = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
-                                               rotation == util::imagewriter::ImageRotation::DEG_270)
-                                                   ? copy_height
-                                                   : copy_width;
-                                final_height = (rotation == util::imagewriter::ImageRotation::DEG_90 ||
-                                                rotation == util::imagewriter::ImageRotation::DEG_270)
-                                                   ? copy_width
-                                                   : copy_height;
-
-                                util::imagewriter::RotateAndMirrorPixels(rotation,
-                                                                         is_mirrored,
-                                                                         src_pixels,
-                                                                         dst_pixels,
-                                                                         copy_width,
-                                                                         copy_height,
-                                                                         final_width,
-                                                                         final_height);
-                            }
-                            catch (const std::bad_alloc&)
-                            {
-                                GFXRECON_LOG_ERROR("Screenshot could not be rotated: failed to allocate memory");
-                            }
-                        }
-
-                        WriteImageFile(filename_prefix, screenshot_format_, final_width, final_height, write_data);
-
-                        allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to map resource memory");
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Screenshot could not be created: failed to execute image transfer");
-                }
-
-                injected->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
-            }
+            util::imagewriter::RotateAndMirrorPixels(
+                rotation, is_mirrored, src_pixels, dst_pixels, copy_width, copy_height, final_width, final_height);
         }
-        else
+        catch (const std::bad_alloc&)
         {
-            GFXRECON_LOG_ERROR("Screenshot could not be created: failed to create a transfer resource");
+            // The unrotated image is still written.
+            GFXRECON_LOG_ERROR("Screenshot could not be rotated: failed to allocate memory");
+            write_result.messages.push_back({ screenshot_reason::kRotationAllocFailed,
+                                              "Screenshot could not be rotated: failed to allocate memory" });
         }
     }
+
+    WriteImageFile(filename_prefix, screenshot_format_, final_width, final_height, write_data, write_result);
+
+    allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
+
+    return write_result;
 }
 
 void ScreenshotHandler::DestroyDeviceResources(VkDevice                                   device,
@@ -542,6 +609,262 @@ void ScreenshotHandler::DestroyDeviceResources(VkDevice                         
 
         copy_resources_.erase(entry);
     }
+}
+
+ScreenshotHandler::~ScreenshotHandler()
+{
+    if (json_ != nullptr)
+    {
+        // The frame counter starts at 1, so the number of frames seen is one less than the current frame.
+        json_->Close(current_frame_number_ - 1);
+    }
+}
+
+void ScreenshotHandler::OpenResultJson(const VulkanReplayOptions& options, const std::string& filename)
+{
+    json_ = std::make_unique<ScreenshotJson>(options);
+    if (!json_->Open(filename))
+    {
+        GFXRECON_LOG_WARNING("Screenshot results will not be recorded: could not open %s", filename.c_str());
+        json_.reset();
+    }
+}
+
+void ScreenshotHandler::BeginFrame(const char*             boundary_type,
+                                   const char*             call_name,
+                                   const VulkanQueueInfo*  queue_info,
+                                   std::optional<VkResult> capture_result,
+                                   uint64_t                block_index)
+{
+    if ((json_ == nullptr) || !IsScreenshotFrame())
+    {
+        return;
+    }
+
+    std::optional<format::HandleId> queue_id;
+    if (queue_info != nullptr)
+    {
+        queue_id = queue_info->capture_id;
+    }
+
+    json_->BeginFrame(current_frame_number_, block_index, boundary_type, call_name, queue_id, capture_result);
+}
+
+void ScreenshotHandler::SetBoundarySwapchain(uint32_t swapchain_count)
+{
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        json->SetBoundarySwapchain(swapchain_count);
+    }
+}
+
+void ScreenshotHandler::SetBoundaryCommandBuffer(format::HandleId command_buffer_id)
+{
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        json->SetBoundaryCommandBuffer(command_buffer_id);
+    }
+}
+
+void ScreenshotHandler::SetBoundaryFrameBoundaryEXT(const Decoded_VkFrameBoundaryEXT* frame_boundary)
+{
+    ScreenshotJson* json = GetOpenJsonFrame();
+    if ((json == nullptr) || (frame_boundary == nullptr) || (frame_boundary->decoded_value == nullptr))
+    {
+        return;
+    }
+
+    json->SetBoundaryFrameBoundaryEXT(
+        *frame_boundary->decoded_value, frame_boundary->pImages.GetPointer(), frame_boundary->pImages.GetLength());
+}
+
+void ScreenshotHandler::SetBoundaryFrameBoundaryANDROID(const VulkanSemaphoreInfo* semaphore_info)
+{
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        std::optional<format::HandleId> semaphore_id;
+        if (semaphore_info != nullptr)
+        {
+            semaphore_id = semaphore_info->capture_id;
+        }
+        json->SetBoundaryFrameBoundaryANDROID(semaphore_id);
+    }
+}
+
+void ScreenshotHandler::SkipFrame(const char* code, const std::string& message, bool is_error)
+{
+    if (is_error)
+    {
+        GFXRECON_LOG_ERROR("Frame %u: no screenshot written (%s): %s", current_frame_number_, code, message.c_str());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Frame %u: no screenshot written (%s): %s", current_frame_number_, code, message.c_str());
+    }
+
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        json->SetFrameReason(code, message, is_error);
+    }
+}
+
+void ScreenshotHandler::AddOutput(const char*           source_kind,
+                                  format::HandleId      image_id,
+                                  uint32_t              layer,
+                                  std::optional<size_t> image_index)
+{
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        json->AddOutput(source_kind, image_id, layer);
+        if (image_index)
+        {
+            json->SetOutputImageIndex(image_index.value());
+        }
+    }
+}
+
+void ScreenshotHandler::AddFramebufferAttachmentOutput(format::HandleId image_id,
+                                                       format::HandleId framebuffer_id,
+                                                       size_t           render_pass_index,
+                                                       size_t           attachment_index,
+                                                       format::HandleId image_view_id)
+{
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        json->AddOutput("framebufferAttachment", image_id, 0);
+        json->SetOutputFramebufferAttachment(framebuffer_id, render_pass_index, attachment_index, image_view_id);
+    }
+}
+
+void ScreenshotHandler::AddSwapchainOutput(const char*                     source_kind,
+                                           format::HandleId                image_id,
+                                           uint32_t                        layer,
+                                           const Decoded_VkPresentInfoKHR* meta_info,
+                                           uint32_t                        swapchain_index,
+                                           format::HandleId                swapchain_id,
+                                           uint32_t                        image_index,
+                                           const VulkanSwapchainKHRInfo*   swapchain_info,
+                                           const VulkanSurfaceKHRInfo*     surface_info)
+{
+    ScreenshotJson* json = GetOpenJsonFrame();
+    if (json == nullptr)
+    {
+        return;
+    }
+
+    json->AddOutput(source_kind, image_id, layer);
+    json->SetOutputSwapchain(swapchain_id, swapchain_index, image_index);
+
+    if (swapchain_info != nullptr)
+    {
+        std::optional<std::string> surface_extension;
+        std::optional<VkExtent2D>  window_size;
+
+        if ((surface_info != nullptr) && (surface_info->window != nullptr))
+        {
+            surface_extension = surface_info->window->GetWsiExtension();
+            window_size       = surface_info->window->GetSize();
+        }
+
+        json->SetOutputPresentInfo(meta_info,
+                                   swapchain_index,
+                                   swapchain_info->surface_id,
+                                   surface_extension,
+                                   window_size,
+                                   { swapchain_info->width, swapchain_info->height });
+    }
+}
+
+ScreenshotWriteResult ScreenshotHandler::WriteOutput(const std::string&                         filename_prefix,
+                                                     const VulkanDeviceInfo*                    device_info,
+                                                     const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                                                     const VkPhysicalDeviceMemoryProperties&    memory_properties,
+                                                     VkImage                                    image,
+                                                     VkFormat                                   format,
+                                                     uint32_t                                   width,
+                                                     uint32_t                                   height,
+                                                     uint32_t                                   layer,
+                                                     VkImageLayout                              image_layout,
+                                                     VkSurfaceTransformFlagBitsKHR              pre_transform)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    ScreenshotJson* json = GetOpenJsonFrame();
+    if (json != nullptr)
+    {
+        json->SetOutputImage(format, width, height, pre_transform);
+    }
+
+    // NOTE: optional scale takes precedence over explicit screenshot width/height
+    auto screenshot_scale = scale_;
+    if (!screenshot_scale && width_ > 0 && height_ > 0 && width > 0 && height > 0)
+    {
+        screenshot_scale = { static_cast<float>(width_) / static_cast<float>(width),
+                             static_cast<float>(height_) / static_cast<float>(height) };
+    }
+
+    ScreenshotWriteResult result = WriteImage(filename_prefix,
+                                              device_info,
+                                              injected_calls,
+                                              memory_properties,
+                                              device_info->allocator.get(),
+                                              image,
+                                              format,
+                                              width,
+                                              height,
+                                              layer,
+                                              screenshot_scale,
+                                              image_layout,
+                                              pre_transform);
+
+    if (json != nullptr)
+    {
+        json->SetOutputResult(result);
+    }
+
+    return result;
+}
+
+void ScreenshotHandler::SkipOutput(const char* code, const std::string& message, bool is_error)
+{
+    if (is_error)
+    {
+        GFXRECON_LOG_ERROR(
+            "Screenshot for frame %u could not be created (%s): %s", current_frame_number_, code, message.c_str());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Screenshot for frame %u skipped (%s): %s", current_frame_number_, code, message.c_str());
+    }
+
+    if (ScreenshotJson* json = GetOpenJsonFrame())
+    {
+        json->SetOutputSkipped(code, message, is_error);
+    }
+}
+
+void ScreenshotHandler::EndFrame(std::optional<VkResult> replay_result)
+{
+    ScreenshotJson* json = GetOpenJsonFrame();
+    if (json != nullptr)
+    {
+        if (replay_result)
+        {
+            json->SetReplayResult(replay_result.value());
+
+            if (replay_result.value() < 0)
+            {
+                json->AddFrameMessage(
+                    screenshot_reason::kReplayCallFailed,
+                    "The call that ended the frame failed in replay; the screenshot content may not be valid",
+                    replay_result);
+            }
+        }
+
+        json->EndFrame();
+    }
+
+    ScreenshotHandlerBase::EndFrame();
 }
 
 bool ScreenshotHandler::IsSrgbFormat(VkFormat image_format) const
@@ -814,6 +1137,11 @@ void ScreenshotHandler::DestroyCopyResource(VkDevice device, CopyResource* copy_
             copy_resource->convert_image_memory      = VK_NULL_HANDLE;
             copy_resource->convert_image_memory_data = 0;
         }
+
+        copy_resource->buffer_size = 0;
+        copy_resource->width       = 0;
+        copy_resource->height      = 0;
+        copy_resource->format      = VK_FORMAT_UNDEFINED;
     }
 }
 
