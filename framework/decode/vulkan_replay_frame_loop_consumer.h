@@ -39,9 +39,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                   graphics::FrameLoopInfo&                  frame_loop_info) :
         VulkanReplayFrameLoopConsumerBase(application, options),
         frame_loop_info_(frame_loop_info)
-    {
-        requires_image_layout_tracking_ = true;
-    }
+    {}
 
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
