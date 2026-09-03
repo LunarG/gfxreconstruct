@@ -23,11 +23,11 @@
 // Schema algorithms. This header composes the field-model vocabulary with the schema-independent TypeList facility.
 // It defines no API type descriptor and no Field descriptor; those are generated content.
 
-#ifndef GFXRECON_UTIL_SCHEMA_UTIL_H
-#define GFXRECON_UTIL_SCHEMA_UTIL_H
+#ifndef GFXRECON_SCHEMA_SCHEMA_UTIL_H
+#define GFXRECON_SCHEMA_SCHEMA_UTIL_H
 
 #include "util/defines.h"
-#include "util/schema_field_model.h"
+#include "schema/field_model.h"
 #include "util/type_list.h"
 
 #include <concepts>
@@ -66,7 +66,7 @@ template <HasCommandSchema ApiElement>
 using Return = util::TypeListSole<ReturnMatches<ApiElement>>;
 
 template <HasCommandSchema ApiElement>
-using ReturnType = typename Return<ApiElement>::api_type::native_type;
+using ReturnType = ElementType<typename Return<ApiElement>::api_type>;
 
 template <HasCommandSchema ApiElement>
 using ParameterFields = util::TypeListDrop<typename Schema<ApiElement>::Fields, IsReturnField>;
@@ -121,4 +121,4 @@ decltype(auto) InvokeFromFields(Function&& function, FieldStore& store)
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_SCHEMA_UTIL_H
+#endif // GFXRECON_SCHEMA_SCHEMA_UTIL_H

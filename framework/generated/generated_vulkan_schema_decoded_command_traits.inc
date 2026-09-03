@@ -31,8 +31,8 @@
 
 #include "generated/generated_vulkan_decoder_args.h"
 #include "generated/generated_vulkan_schema.h"
+#include "schema/field_model.h"
 #include "util/defines.h"
-#include "util/schema_field_model.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"

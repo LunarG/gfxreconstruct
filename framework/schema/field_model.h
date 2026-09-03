@@ -22,15 +22,14 @@
 
 // Field-model vocabulary for the generic field schema and action model.
 //
-// This header carries no API type descriptor, no Field descriptor, and no
-// member-trait specialization. Those are generated content.
+// This header carries no API type descriptor, no Field descriptor, and no member-trait specialization. Those are
+// generated content.
 //
-// The logical kinds here are the fixed part of the vocabulary. The generator
-// emits the leaf scalar kinds actually used by the supported APIs, because
-// that set follows the registry rather than this header.
+// It also names no wire representation type. schema/encoding.h joins a kind to its wire type, and only the Encode
+// and Decode adapters include it, so a header that needs field identity reaches no format type.
 
-#ifndef GFXRECON_UTIL_SCHEMA_FIELD_MODEL_H
-#define GFXRECON_UTIL_SCHEMA_FIELD_MODEL_H
+#ifndef GFXRECON_SCHEMA_FIELD_MODEL_H
+#define GFXRECON_SCHEMA_FIELD_MODEL_H
 
 #include "util/defines.h"
 
@@ -42,14 +41,93 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// Logical kinds. A scalar kind derives from field_kind::Scalar so that one concept selects the shared scalar access
-// pattern while the exact kind still selects the named Encode or Decode operation. Handle, structure, and void kinds
-// do not derive from Scalar, because their access patterns differ.
+// Logical kinds. A kind is a plain empty tag that names one logical Encode and Decode operation, so an operation is
+// written as one flat overload for each kind, each naming the ParameterEncoder or ValueDecoder function that already
+// exists for it. That keeps every operation a list of one-liners over an API surface that is itself a flat list.
+//
+// A kind therefore duplicates part of what the descriptor's element_type says: DeviceSize and UInt64 are both 64 bits
+// wide, and Flags and Flags64 differ only by width. That duplication is deliberate. It can only go wrong in the
+// generator's own type-resolution loop, which assigns kind and element type together for a whole class of types at
+// once, so a mistake shows up across hundreds of descriptors and fails the round trip rather than hiding in one.
+// The generator checks the agreement at generation time, where the risk actually lives.
+//
+// A scalar kind derives from field_kind::Scalar so that one concept selects the shared scalar access pattern while
+// the exact kind still selects the operation.
 GFXRECON_BEGIN_NAMESPACE(field_kind)
 
 struct Scalar
 {};
 
+// Recorded as the element type itself. These exist so that an operation has one overload for each named
+// ParameterEncoder and ValueDecoder function, not because anything is converted.
+struct UInt8 : Scalar
+{};
+
+struct UInt16 : Scalar
+{};
+
+struct UInt32 : Scalar
+{};
+
+struct UInt64 : Scalar
+{};
+
+struct Int8 : Scalar
+{};
+
+struct Int16 : Scalar
+{};
+
+struct Int32 : Scalar
+{};
+
+struct Int64 : Scalar
+{};
+
+struct Float : Scalar
+{};
+
+struct Double : Scalar
+{};
+
+// Recorded through a wire type that gfxrecon::format names in its own right, so the capture format can change it
+// without touching any descriptor. schema/encoding.h holds the mapping. The wire type need not differ from the
+// element type today: SampleMaskEncodeType and VkSampleMask are both 32 bits, but reserving the name is what keeps
+// them free to diverge.
+struct Char : Scalar
+{};
+
+struct WChar : Scalar
+{};
+
+struct SizeT : Scalar
+{};
+
+struct Enum : Scalar
+{};
+
+struct Flags : Scalar
+{};
+
+struct Flags64 : Scalar
+{};
+
+struct SampleMask : Scalar
+{};
+
+struct DeviceSize : Scalar
+{};
+
+struct DeviceAddress : Scalar
+{};
+
+// An opaque address recorded as a 64-bit value: a function pointer, or a pointer to a non-API object.
+struct Address : Scalar
+{};
+
+// Handle, structure and void access patterns differ from the scalar pattern, so they do not derive from Scalar.
+// Handle has a wire type of its own; a structure is expanded field by field and void has no wire representation, so
+// neither has a row in schema/encoding.h.
 struct Handle
 {};
 
@@ -90,6 +168,15 @@ struct NoValue
 {};
 
 GFXRECON_END_NAMESPACE(field_shape)
+
+// The API's own C++ type for one element of a field that names this descriptor. It is not the declared type of any
+// field: the shape supplies the packaging, so a pointer-array field naming this descriptor is declared as a pointer
+// to this type.
+template <typename ApiType>
+using ElementType = typename ApiType::element_type;
+
+template <typename Field>
+using FieldElementType = ElementType<typename Field::api_type>;
 
 // Optional capability of an API type descriptor. Capture-side wrapper state and decoded representation are not two
 // halves of one descriptor, so an action is constrained on the capability it names.
@@ -162,18 +249,19 @@ void Set(Storage& storage, Field field, ValueType&& value)
     }
 }
 
-// Shape concepts. Every one of these selects on exactly two facts, the API type's logical kind and the field use's
-// shape.
+// Shape concepts select action overloads from the API type's logical kind and the field use's shape.
 template <typename Field>
 concept HandleField = std::same_as<typename Field::api_type::kind, field_kind::Handle> &&
                       std::same_as<typename Field::shape, field_shape::Value>;
 
 template <typename Field>
-concept StructField = std::same_as<typename Field::api_type::kind, field_kind::Struct>;
-
-template <typename Field>
 concept ScalarField = std::derived_from<typename Field::api_type::kind, field_kind::Scalar> &&
                       std::same_as<typename Field::shape, field_shape::Value>;
+
+// StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
+// An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
+template <typename Field>
+concept StructField = std::same_as<typename Field::api_type::kind, field_kind::Struct>;
 
 template <typename Field>
 concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;
@@ -200,9 +288,9 @@ concept StoresFieldAs = Addressable<FieldStore, Field> && requires(FieldStore& s
 };
 
 template <typename FieldStore, typename Field>
-concept StoresNativeField = StoresFieldAs<FieldStore, Field, typename Field::api_type::native_type>;
+concept StoresElementField = StoresFieldAs<FieldStore, Field, FieldElementType<Field>>;
 
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_SCHEMA_FIELD_MODEL_H
+#endif // GFXRECON_SCHEMA_FIELD_MODEL_H

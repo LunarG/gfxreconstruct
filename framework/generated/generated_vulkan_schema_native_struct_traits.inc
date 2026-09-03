@@ -30,8 +30,8 @@
 #ifndef GFXRECON_GENERATED_VULKAN_SCHEMA_NATIVE_STRUCT_TRAITS_INC_INC
 
 #include "generated/generated_vulkan_schema.h"
+#include "schema/field_model.h"
 #include "util/defines.h"
-#include "util/schema_field_model.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"

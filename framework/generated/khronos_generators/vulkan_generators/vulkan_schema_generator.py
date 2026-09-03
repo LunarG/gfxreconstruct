@@ -106,7 +106,7 @@ class VulkanSchemaGeneratorOptions(VulkanBaseGeneratorOptions):
             begin_end.specific_headers.extend((
                 'format/platform_types.h',
                 'util/defines.h',
-                'util/schema_util.h',
+                'schema/schema_util.h',
                 'util/type_list.h',
             ))
             begin_end.system_headers.extend(('cstddef', 'string_view'))
@@ -130,7 +130,7 @@ class VulkanSchemaGeneratorOptions(VulkanBaseGeneratorOptions):
             begin_end.specific_headers.extend((
                 'generated/generated_vulkan_schema.h',
                 'util/defines.h',
-                'util/schema_field_model.h',
+                'schema/field_model.h',
             ))
 
             if schema_part == SCHEMA_PART_DECODED_STRUCT_TRAITS:
@@ -171,10 +171,43 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
     specializations, decoded representation traits, and partitioned member traits.
     """
 
-    # Logical scalar kinds, keyed by the C++ representation that the registry resolves a named type to. The generated
-    # header emits one field_kind leaf for each kind that the API actually uses, because that set follows the registry
-    # rather than the hand-written field model.
-    SCALAR_KIND_FOR_TYPE = {
+    # The logical kinds the field model declares. A kind other than Identity, Handle, Struct or Void corresponds to
+    # exactly one gfxrecon::format wire typedef, and schema/encoding.h holds the join. The generator validates every
+    # kind it emits against this set, so it cannot invent one.
+    # The logical kinds the field model declares. The generator validates every kind it emits against this set, so
+    # it cannot invent one, and a kind with no row in schema/encoding.h fails at the point of use.
+    KNOWN_KINDS = (
+        'UInt8',
+        'UInt16',
+        'UInt32',
+        'UInt64',
+        'Int8',
+        'Int16',
+        'Int32',
+        'Int64',
+        'Float',
+        'Double',
+        'Char',
+        'WChar',
+        'SizeT',
+        'Enum',
+        'Flags',
+        'Flags64',
+        'SampleMask',
+        'DeviceSize',
+        'DeviceAddress',
+        'Address',
+        'Handle',
+        'Struct',
+        'Void',
+        'Scalar',
+    )
+
+    # Registry type to logical kind. This is curated data about the API rather than generator logic: the registry
+    # does not say which types use which encoding, so it comes from GFXReconstruct's hand-written encoder. It belongs
+    # in a JSON configuration beside blacklists.json, and is inline for now so the content is reviewable in one place
+    # with the rules that consume it.
+    KIND_FOR_TYPE = {
         'int8_t': 'Int8',
         'int16_t': 'Int16',
         'int32_t': 'Int32',
@@ -184,15 +217,63 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         'uint32_t': 'UInt32',
         'uint64_t': 'UInt64',
         'int': 'Int32',
-        'char': 'Char',
-        'wchar_t': 'WChar',
-        'size_t': 'Size',
         'float': 'Float',
         'double': 'Double',
+        'char': 'Char',
+        'wchar_t': 'WChar',
+        'size_t': 'SizeT',
+        'VkDeviceSize': 'DeviceSize',
+        'VkDeviceAddress': 'DeviceAddress',
+        'VkSampleMask': 'SampleMask',
     }
 
+    # The primitive each kind's element type must ultimately resolve to. A kind duplicates part of what element_type
+    # says, and this is where that duplication is checked: the generator assigns both from one type resolution, so a
+    # disagreement is a bug in that resolution and is caught here rather than reaching the wire.
+    #
+    # Enum, Address, Handle, Struct and Void are absent because their element types are not primitives.
+    KIND_ELEMENT_BASETYPE = {
+        'Int8': ('int8_t', ),
+        'Int16': ('int16_t', ),
+        'Int32': ('int32_t', 'int'),
+        'Int64': ('int64_t', ),
+        'UInt8': ('uint8_t', ),
+        'UInt16': ('uint16_t', ),
+        'UInt32': ('uint32_t', ),
+        'UInt64': ('uint64_t', ),
+        'Float': ('float', ),
+        'Double': ('double', ),
+        'Char': ('char', ),
+        'WChar': ('wchar_t', ),
+        'SizeT': ('size_t', ),
+        'SampleMask': ('uint32_t', ),
+        'DeviceSize': ('uint64_t', ),
+        'DeviceAddress': ('uint64_t', ),
+        'Flags': ('uint32_t', ),
+        'Flags64': ('uint64_t', ),
+    }
+
+    # Types the API headers do not declare with a distinct name of their own, so a descriptor cannot be named for
+    # them and their element type needs no qualification.
+    PRIMITIVE_TYPES = (
+        'int8_t',
+        'int16_t',
+        'int32_t',
+        'int64_t',
+        'uint8_t',
+        'uint16_t',
+        'uint32_t',
+        'uint64_t',
+        'int',
+        'char',
+        'wchar_t',
+        'size_t',
+        'float',
+        'double',
+    )
+
     # Descriptor names for the types whose registry spelling is not a usable identifier. A descriptor is a type of
-    # its own, so it cannot be named for a keyword, and it must not shadow the native type it names.
+    # its own, so it cannot be named for a keyword, and it must not shadow the element type it names.
     DESCRIPTOR_NAME_FOR_TYPE = {
         'int8_t': 'Int8',
         'int16_t': 'Int16',
@@ -211,8 +292,9 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         'void': 'Void',
     }
 
-    # Kinds that the hand-written field model owns. The generator must not redefine these.
-    FIXED_KINDS = ('Scalar', 'Handle', 'Struct', 'Void')
+    # A field the API declares as a plain integer but GFXReconstruct treats as a handle, with the handle type carried
+    # by a sibling field at run time. The type alone cannot express that, so those fields name one shared descriptor.
+    GENERIC_HANDLE_DESCRIPTOR = 'GenericHandle'
 
     RETURN_FIELD_NAME = 'result'
 
@@ -230,9 +312,8 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         self.schema_structs = []  # Structure names that get a Schema specialization.
         self.schema_commands = []  # Command names that get a Schema specialization.
         self.api_type_kinds = dict()  # Descriptor name to field_kind expression.
-        self.api_type_natives = dict()  # Descriptor name to native type expression.
-        self.scalar_kinds = set()  # Scalar field_kind leaves that the generated descriptors name.
-        self.unresolved_types = set()  # Registry types with no logical kind.
+        self.api_type_elements = dict()  # Descriptor name to element type expression.
+        self.defaulted_types = set()  # Registry types that reached Identity without being classified.
 
     #
     # Model
@@ -252,6 +333,10 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         # 'void' always has a descriptor, because a void command still has one Return Field.
         self.add_api_type('void')
 
+        # One shared descriptor for the runtime-typed handle fields.
+        self.api_type_kinds[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
+        self.api_type_elements[self.GENERIC_HANDLE_DESCRIPTOR] = 'uint64_t'
+
         for struct in self.schema_structs:
             # Every element that gets a Schema also gets a descriptor, because the decoded representation traits key
             # on the descriptor even when no Field names the type.
@@ -266,10 +351,10 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             for value in params:
                 self.add_api_type(value.base_type)
 
-        if self.unresolved_types:
+        if self.defaulted_types:
             write(
-                '* Vulkan schema: no logical kind for {}'.format(
-                    ', '.join(sorted(self.unresolved_types))
+                '* Vulkan schema: unclassified, treated as a plain scalar: {}'.format(
+                    ', '.join(sorted(self.defaulted_types))
                 ),
                 file=sys.stderr
             )
@@ -305,22 +390,66 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
     def get_descriptor_path(self, base_type):
         return 'api_type::vulkan::{}'.format(self.get_descriptor_name(base_type))
 
-    def get_native_type(self, base_type):
-        """The C++ type expression that a descriptor's native_type names."""
+    def get_generic_handles(self, owner, is_command, members):
+        """Map member name to selector name for the fields GFXReconstruct treats as runtime-typed handles.
+
+        The API declares these as plain integers, so no type-level fact can express them. The knowledge is curated in
+        the base generator's generic-handle tables.
+        """
+        generic = dict()
+
+        for value in members:
+            if is_command:
+                if not self.is_generic_cmd_handle_value(owner, value.name):
+                    continue
+                selector = self.get_generic_cmd_handle_type_value(owner, value.name)
+            else:
+                if not self.is_generic_struct_handle_value(owner, value.name):
+                    continue
+                selector = self.get_generic_struct_handle_type_value(owner, value.name)
+
+            if selector and any(member.name == selector for member in members):
+                generic[value.name] = selector
+
+        return generic
+
+    def get_element_type(self, base_type):
+        """The API's own C++ type for one element of a field that names this descriptor.
+
+        This is the element type, not the declared type of any field. The shape supplies the packaging, so a
+        pointer-array field naming this descriptor is declared as a pointer to this type.
+        """
         resolved = self.resolve_type_alias(base_type)
 
         if resolved == 'void':
             return 'void'
 
-        if resolved in self.SCALAR_KIND_FOR_TYPE:
+        if resolved in self.PRIMITIVE_TYPES:
             return resolved
 
         # Everything else is a name the API headers declare at global scope. The qualification matters, because a
         # descriptor carries the name of the type it describes.
         return '::{}'.format(resolved)
 
+    def get_underlying_primitive(self, base_type):
+        """Follow basetype and bitmask declarations down to the primitive a named type resolves to."""
+        resolved = self.resolve_type_alias(base_type)
+
+        for _ in range(8):
+            if resolved in self.PRIMITIVE_TYPES:
+                return resolved
+
+            if self.is_flags(resolved):
+                resolved = self.flags_types[resolved]
+            elif self.has_basetype(resolved):
+                resolved = self.get_basetype(resolved)
+            else:
+                return None
+
+        return None
+
     def get_logical_kind(self, base_type):
-        """Select the logical kind that identifies the Encode and Decode operation for a registry type."""
+        """Select the logical kind that names the Encode and Decode operation for a registry type."""
         api_data = self.get_api_data()
         resolved = self.resolve_type_alias(base_type)
 
@@ -345,22 +474,30 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         if self.is_enum(resolved):
             return 'Enum'
 
+        # A function pointer and a pointer to a non-API object are both recorded as a 64-bit address.
         if self.is_function_ptr(resolved):
-            return 'FunctionPointer'
+            return 'Address'
 
-        scalar = self.SCALAR_KIND_FOR_TYPE.get(resolved)
+        curated = self.KIND_FOR_TYPE.get(resolved)
 
-        if scalar is None and self.has_basetype(resolved):
+        if curated is not None:
+            return curated
+
+        if self.has_basetype(resolved):
             underlying = self.get_basetype(resolved)
+
             if underlying == 'void':
-                return 'Void'
-            scalar = self.SCALAR_KIND_FOR_TYPE.get(underlying)
+                return 'Address'
 
-        if scalar is not None:
-            return scalar
+            curated = self.KIND_FOR_TYPE.get(underlying)
 
-        self.unresolved_types.add(resolved)
-        return 'Unresolved'
+            if curated is not None:
+                return curated
+
+        # Nothing classified this type. field_kind::Scalar has no row in schema/encoding.h, so it satisfies the
+        # scalar concepts but cannot be encoded, and the generator reports it.
+        self.defaulted_types.add(resolved)
+        return 'Scalar'
 
     def add_api_type(self, base_type):
         name = self.get_descriptor_name(base_type)
@@ -370,11 +507,26 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
         kind = self.get_logical_kind(base_type)
 
-        if kind not in self.FIXED_KINDS:
-            self.scalar_kinds.add(kind)
+        if kind not in self.KNOWN_KINDS:
+            raise RuntimeError(
+                'Vulkan schema: kind {} for {} is not declared by the field model'.format(kind, base_type)
+            )
+
+        # A kind restates part of what the element type says. Check the agreement here, in the one loop that assigns
+        # both, rather than carrying machinery in the schema to make the restatement impossible.
+        expected = self.KIND_ELEMENT_BASETYPE.get(kind)
+
+        if expected is not None:
+            underlying = self.get_underlying_primitive(base_type)
+
+            if underlying is not None and underlying not in expected:
+                raise RuntimeError(
+                    'Vulkan schema: {} has kind {}, which requires an element type resolving to {}, but it '
+                    'resolves to {}'.format(base_type, kind, ' or '.join(expected), underlying)
+                )
 
         self.api_type_kinds[name] = kind
-        self.api_type_natives[name] = self.get_native_type(base_type)
+        self.api_type_elements[name] = self.get_element_type(base_type)
 
     #
     # Field model
@@ -424,16 +576,23 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
         return length
 
-    def make_field_definition(self, value, members):
+    def make_field_definition(self, value, members, generic_handles):
         """One Field descriptor. It names its API type descriptor and its shape, and restates no type fact."""
         shape = self.get_field_shape(value)
+        selector = generic_handles.get(value.name)
+
+        if selector is not None:
+            descriptor = 'api_type::vulkan::{}'.format(self.GENERIC_HANDLE_DESCRIPTOR)
+        else:
+            descriptor = self.get_descriptor_path(value.base_type)
 
         parts = [
-            'using api_type = {};'.format(
-                self.get_descriptor_path(value.base_type)
-            ),
+            'using api_type = {};'.format(descriptor),
             'using shape = field_shape::{};'.format(shape),
         ]
+
+        if selector is not None:
+            parts.append('using selector_field = {};'.format(selector))
 
         count_field = self.get_count_field(value, members)
 
@@ -497,19 +656,22 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             self.RETURN_FIELD_NAME, ' '.join(parts)
         )
 
-    def write_field_namespace(self, element, members, return_type=None):
+    def write_field_namespace(self, element, members, owner, is_command, return_type=None):
         """One namespace of Field descriptors for one API element."""
         write(
             'GFXRECON_BEGIN_NAMESPACE({})'.format(element), file=self.outFile
         )
 
-        # A count_field can name a sibling that the registry declares later, so forward declare every Field that a
-        # sibling names.
+        generic_handles = self.get_generic_handles(owner, is_command, members)
+
+        # A count_field or a selector_field can name a sibling that the registry declares later, so forward declare
+        # every Field that a sibling names.
         referenced = [
             count for count in (
                 self.get_count_field(value, members) for value in members
             ) if count
         ]
+        referenced.extend(generic_handles.values())
 
         for member in members:
             if member.name in referenced:
@@ -517,7 +679,7 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
         for value in members:
             write(
-                self.make_field_definition(value, members),
+                self.make_field_definition(value, members, generic_handles),
                 file=self.outFile
             )
 
@@ -535,21 +697,25 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         namespace = self.get_field_namespace(element)
         entries = ['{}::{}'.format(namespace, name) for name in field_names]
 
-        lines = ['template <> struct Schema<{}>'.format(key), '{']
-        line = '    using Fields = util::TypeList<'
-        indent = ' ' * len(line)
+        lines = ['template <>', 'struct Schema<{}>'.format(key), '{']
+        prefix = '    using Fields = util::TypeList<'
+        indent = ' ' * len(prefix)
+        line = prefix
 
         for index, entry in enumerate(entries):
             separator = ',' if index + 1 < len(entries) else '>;'
-            if len(line) + len(entry) + len(separator) > 120 and line.strip(
-            ) != 'using Fields = util::TypeList<':
-                lines.append(line)
+            fragment = entry + separator
+
+            if line not in (prefix, indent) and (len(line) + len(fragment)) > 120:
+                lines.append(line.rstrip())
                 line = indent
-            line += entry + separator
+
+            line += fragment
+
             if separator == ',':
                 line += ' '
 
-        lines.append(line)
+        lines.append(line.rstrip())
         lines.append('};')
 
         return '\n'.join(lines)
@@ -583,7 +749,6 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
         self.newline()
 
-        self.write_scalar_kinds()
         self.write_api_type_descriptors()
         self.write_command_tags()
         self.write_field_descriptors()
@@ -591,30 +756,17 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
         write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
 
-    def write_scalar_kinds(self):
-        write(
-            '// Logical scalar kinds used by this API. A scalar kind derives from field_kind::Scalar, so one concept',
-            file=self.outFile
-        )
-        write(
-            '// selects the shared scalar access pattern while the exact kind still selects the named operation.',
-            file=self.outFile
-        )
-        write('GFXRECON_BEGIN_NAMESPACE(field_kind)', file=self.outFile)
-
-        for kind in sorted(self.scalar_kinds):
-            write('struct {} : Scalar {{}};'.format(kind), file=self.outFile)
-
-        write('GFXRECON_END_NAMESPACE(field_kind)', file=self.outFile)
-        self.newline()
-
     def write_api_type_descriptors(self):
         write(
-            '// API type descriptors. A descriptor carries the native type and the logical kind. It never carries a',
+            '// API type descriptors. A descriptor carries the API\'s own type for one element and the logical kind',
             file=self.outFile
         )
         write(
-            '// wire type, and it never carries decoded representation.',
+            '// that names its Encode and Decode operation. It carries no wire representation type and no decoded',
+            file=self.outFile
+        )
+        write(
+            '// representation; schema/encoding.h joins a kind to its wire type.',
             file=self.outFile
         )
         write('GFXRECON_BEGIN_NAMESPACE(api_type)', file=self.outFile)
@@ -622,8 +774,8 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
         for name in sorted(self.api_type_kinds):
             write(
-                'struct {} {{ using native_type = {}; using kind = field_kind::{}; }};'.format(
-                    name, self.api_type_natives[name], self.api_type_kinds[name]
+                'struct {} {{ using element_type = {}; using kind = field_kind::{}; }};'.format(
+                    name, self.api_type_elements[name], self.api_type_kinds[name]
                 ),
                 file=self.outFile
             )
@@ -660,12 +812,18 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
         self.newline()
 
         for struct in self.schema_structs:
-            self.write_field_namespace(struct, self.all_struct_members[struct])
+            self.write_field_namespace(
+                struct, self.all_struct_members[struct], struct, False
+            )
 
         for command in self.schema_commands:
             return_type, _, params = self.all_cmd_params[command]
             self.write_field_namespace(
-                self.get_command_tag(command), params, return_type=return_type
+                self.get_command_tag(command),
+                params,
+                command,
+                True,
+                return_type=return_type
             )
 
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
@@ -674,7 +832,11 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
     def write_schemas(self):
         write(
-            '// Schemas. A structure keys on its native type, and a command keys on its command tag.',
+            '// Schemas. A structure keys on its API type descriptor and a command on its command tag, which is the',
+            file=self.outFile
+        )
+        write(
+            '// same key TraitsFor uses, so one spelling reaches both.',
             file=self.outFile
         )
         self.newline()
@@ -683,7 +845,7 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             names = [value.name for value in self.all_struct_members[struct]]
             write(
                 self.make_schema_specialization(
-                    '::{}'.format(struct), struct, names
+                    self.get_descriptor_path(struct), struct, names
                 ),
                 file=self.outFile
             )

@@ -334,6 +334,9 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/schema/field_model.h
+                    ${GFXRECON_SOURCE_DIR}/framework/schema/schema_util.h
+                    ${GFXRECON_SOURCE_DIR}/framework/schema/encoding.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_traits.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_native_struct_traits.inc
