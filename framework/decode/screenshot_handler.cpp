@@ -41,31 +41,6 @@ static constexpr uint32_t kDefaultQueueIndex       = 0;
 static constexpr size_t kUnormIndex = 0;
 static constexpr size_t kSrgbIndex  = 1;
 
-inline void WriteImageFile(
-    const std::string& filename, util::ScreenshotFormat file_format, uint32_t width, uint32_t height, void* data)
-{
-    switch (file_format)
-    {
-        default:
-            GFXRECON_LOG_ERROR("Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
-            // Intentional fall-through
-        case util::ScreenshotFormat::kBmp:
-            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, data))
-            {
-                GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
-            }
-            break;
-#ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
-        case util::ScreenshotFormat::kPng:
-            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, data))
-            {
-                GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
-            }
-            break;
-#endif // GFXRECON_ENABLE_PNG_SCREENSHOT
-    }
-}
-
 void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
                                    const VulkanDeviceInfo*                    device_info,
                                    const graphics::VulkanInjectedDeviceCalls& injected_calls,
@@ -500,7 +475,8 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                             }
                         }
 
-                        WriteImageFile(filename_prefix, screenshot_format_, final_width, final_height, write_data);
+                        util::imagewriter::WriteScreenshotFile(
+                            filename_prefix, screenshot_format_, final_width, final_height, write_data);
 
                         allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
                     }
