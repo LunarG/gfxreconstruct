@@ -877,11 +877,6 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
     }
 }
 
-// The aspect bits ImageLayoutMap tracks, in the order it slots them.
-static constexpr VkImageAspectFlagBits kTrackedAspects[] = { VK_IMAGE_ASPECT_COLOR_BIT,   VK_IMAGE_ASPECT_DEPTH_BIT,
-                                                             VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_ASPECT_PLANE_0_BIT,
-                                                             VK_IMAGE_ASPECT_PLANE_1_BIT, VK_IMAGE_ASPECT_PLANE_2_BIT };
-
 static bool IsRestorableLayout(VkImageLayout layout)
 {
     return (layout != VK_IMAGE_LAYOUT_UNDEFINED) && (layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
@@ -935,7 +930,7 @@ static void AppendImageLayoutRestoreBarriers(const VulkanImageInfo*             
     }
 
     // Otherwise restore each subresource individually.
-    for (VkImageAspectFlagBits aspect : kTrackedAspects)
+    for (VkImageAspectFlagBits aspect : graphics::kLayoutMapAspects)
     {
         if ((aspects & aspect) == 0)
         {
