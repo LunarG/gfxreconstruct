@@ -724,6 +724,67 @@ void RotateAndMirrorPixels(ImageRotation   rotation,
     }
 }
 
+bool WriteImage(const std::string& filename,
+                ScreenshotFormat   file_format,
+                uint32_t           width,
+                uint32_t           height,
+                const void*        data,
+                uint32_t           pitch,
+                DataFormats        data_format,
+                bool               write_alpha,
+                bool               separate_alpha)
+{
+    switch (file_format)
+    {
+        case ScreenshotFormat::kPng:
+            return separate_alpha ? WritePngImageSeparateAlpha(filename, width, height, data, pitch, data_format)
+                                  : WritePngImage(filename, width, height, data, pitch, data_format, write_alpha);
+
+        case ScreenshotFormat::kBmp:
+            return separate_alpha ? WriteBmpImageSeparateAlpha(filename, width, height, data, pitch, data_format)
+                                  : WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha);
+
+        default:
+            // A value outside the enumeration.  Write something rather than
+            // nothing, and let the caller's own report say a file is missing.
+            GFXRECON_LOG_ERROR("%s(): unrecognized image file format %u; writing a BMP instead",
+                               __func__,
+                               static_cast<uint32_t>(file_format));
+            WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha);
+            return false;
+    }
+}
+
+bool WriteScreenshotFile(const std::string& filename_base,
+                         ScreenshotFormat   file_format,
+                         uint32_t           width,
+                         uint32_t           height,
+                         const void*        data,
+                         uint32_t           pitch,
+                         DataFormats        data_format)
+{
+    ScreenshotFormat written_format = file_format;
+
+#ifndef GFXRECON_ENABLE_PNG_SCREENSHOT
+    if (written_format == ScreenshotFormat::kPng)
+    {
+        GFXRECON_LOG_WARNING_ONCE("This build has no PNG support, thus screenshots are written as BMP files.");
+        written_format = ScreenshotFormat::kBmp;
+    }
+#endif
+
+    const char*       extension = (written_format == ScreenshotFormat::kPng) ? ".png" : ".bmp";
+    const std::string filename  = filename_base + extension;
+
+    if (!WriteImage(filename, written_format, width, height, data, pitch, data_format))
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write file %s", filename.c_str());
+        return false;
+    }
+
+    return true;
+}
+
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
