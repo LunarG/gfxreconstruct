@@ -69,6 +69,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkImageSubresourceRange',
     'VkImageMemoryBarrier',
     'VkShaderModuleCreateInfo',
+    'VkSparseBufferMemoryBindInfo',
 )
 
 

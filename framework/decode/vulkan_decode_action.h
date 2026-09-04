@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Five overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Six overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -178,6 +178,29 @@ class DecodeStructAction
         field_ref->decoded_value = &schema::GetRef(DecodedValueRef(storage), field);
 
         bytes_read_ += DecodeStruct(Cursor(), Remaining(), field_ref);
+    }
+
+    // A run of structures decodes into an allocated StructPointerDecoder, and the decoded value's pointer follows
+    // it. Every StructPointerDecoder member is an allocated pointer and every other decoder member is held by
+    // value, so the shape and kind that select this overload also settle which form to write; nothing here tests
+    // for it. If that ever stops holding, this body fails to compile and names the field.
+    //
+    // The decoder descends into each element through DecodeStruct, so this is legacy descent like the embedded
+    // structure case, once per element. Whether an element type is itself a field walk is that structure's
+    // business.
+    template <typename Field, typename Storage>
+    requires schema::StructField<Field> && schema::PointerArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+        using Decoder   = std::remove_pointer_t<std::remove_cvref_t<decltype(field_ref)>>;
+
+        field_ref = DecodeAllocator::Allocate<Decoder>();
+
+        bytes_read_ += field_ref->Decode(Cursor(), Remaining());
+
+        schema::GetRef(DecodedValueRef(storage), field) = field_ref->GetPointer();
     }
 
     // The extension chain keeps runtime sType dispatch, and the decoded value's pointer follows the decoded node.

@@ -2533,23 +2533,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparseM
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparseBufferMemoryBindInfo* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    VkSparseBufferMemoryBindInfo* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
-    value->buffer = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
-    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseMemoryBind>>();
-    bytes_read += wrapper->pBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pBinds = wrapper->pBinds->GetPointer();
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

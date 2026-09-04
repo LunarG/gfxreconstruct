@@ -40,6 +40,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "generated/generated_vulkan_struct_encoders.h"
+#include "encode/struct_pointer_encoder.h"
 #include "util/logging.h"
 
 #include "generated/generated_vulkan_schema_decoded_command_members.h"
@@ -420,6 +421,79 @@ TEST_CASE("A field walk decodes a scalar array into the wrapper and points the n
     for (size_t i = 0; i < kCode.size(); ++i)
     {
         CHECK(walked_value.pCode[i] == kCode[i]);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes an array of structures and descends into each element", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkSparseBufferMemoryBindInfo is the smallest migrated structure carrying a PointerArray of structures, and it
+    // has no sType and no pNext, which is worth having: the walk makes no assumption that a structure is
+    // extensible, and this is the first migrated one that is not.
+    //
+    // Its element type, VkSparseMemoryBind, is not migrated. So each element descends through the procedural
+    // DecodeStruct, which is the point of calling this legacy descent: an array of a structure the field walk does
+    // not own still decodes, and the two implementations meet at the ordinary entry point.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr format::HandleId kBufferId = 0x0000BEEFCAFE0002ull;
+
+    VkSparseMemoryBind binds[2]{};
+    binds[0].resourceOffset = 0x1000;
+    binds[0].size           = 0x2000;
+    binds[0].memory         = VK_NULL_HANDLE;
+    binds[0].memoryOffset   = 0x3000;
+    binds[0].flags          = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
+    binds[1].resourceOffset = 0x4000;
+    binds[1].size           = 0x5000;
+    binds[1].memory         = VK_NULL_HANDLE;
+    binds[1].memoryOffset   = 0x6000;
+    binds[1].flags          = 0;
+
+    const uint32_t kBindCount = 2;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeHandleIdValue(kBufferId);
+    encoder->EncodeUInt32Value(kBindCount);
+    encode::EncodeStructArray(encoder, binds, kBindCount);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkSparseBufferMemoryBindInfo         walked_value{};
+    Decoded_VkSparseBufferMemoryBindInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    CHECK(walked.buffer == kBufferId);
+    CHECK(walked_value.buffer == VK_NULL_HANDLE);
+    CHECK(walked_value.bindCount == kBindCount);
+
+    // The decoder was allocated, holds the run at the length the wire carried, and the decoded value's pointer
+    // aliases its storage rather than a copy.
+    REQUIRE(walked.pBinds != nullptr);
+    REQUIRE(walked.pBinds->GetPointer() != nullptr);
+    CHECK(walked.pBinds->GetLength() == kBindCount);
+    CHECK(walked_value.pBinds == walked.pBinds->GetPointer());
+
+    // Each element descended through the procedural decoder for VkSparseMemoryBind, in order.
+    for (uint32_t i = 0; i < kBindCount; ++i)
+    {
+        CHECK(walked_value.pBinds[i].resourceOffset == binds[i].resourceOffset);
+        CHECK(walked_value.pBinds[i].size == binds[i].size);
+        CHECK(walked_value.pBinds[i].memoryOffset == binds[i].memoryOffset);
+        CHECK(walked_value.pBinds[i].flags == binds[i].flags);
     }
 
     DecodeAllocator::End();
