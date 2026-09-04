@@ -604,7 +604,16 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain_ResizeBuffers(
 
 void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
 {
-    if (ShouldTriggerScreenshot())
+    // Screenshot can be triggered by hotkey or specified frames.
+    bool scheduled_screenshot = ShouldTriggerScreenshot();
+    bool hotkey_screenshot    = IsScreenshotHotkeyPressed();
+
+    if (hotkey_screenshot)
+    {
+        GFXRECON_LOG_INFO("Screenshot hotkey pressed; taking a screenshot of frame %u", GetCurrentFrame());
+    }
+
+    if (scheduled_screenshot || hotkey_screenshot)
     {
         auto swapchain_info = swapchain_wrapper->GetObjectInfo();
         GFXRECON_ASSERT(swapchain_info != nullptr);
