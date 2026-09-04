@@ -189,7 +189,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
-        void Restore(uint32_t queue_family_index);
+        void Restore();
         void DestroyShadowBuffers();
 
         format::HandleId                                   device_id_;
@@ -202,7 +202,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     BufferTracking& GetBufferTracking(format::HandleId device);
     void            RecordBufferStates();
-    void            FixupDeviceBuffers(format::HandleId device, format::HandleId queue);
+    void            FixupDeviceBuffers(format::HandleId device);
     void            ResetBufferTracking();
     void            ResetBufferTracking(format::HandleId device);
 
