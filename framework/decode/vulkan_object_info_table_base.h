@@ -27,6 +27,7 @@
 #include "decode/vulkan_object_info.h"
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
@@ -62,8 +63,24 @@ static inline void sync_handle(T* object)
     static_assert(has_handle_future_v<T>);
     if (object != nullptr && object->handle == VK_NULL_HANDLE && object->future.valid())
     {
-        const auto& [result, async_handles] = object->future.get();
-        object->handle                      = async_handles[object->future_handle_index];
+        try
+        {
+            const auto& [result, async_handles] = object->future.get();
+            // Guard against bounds overrun if pipeline creation failed or returned fewer handles than expected.
+            if (object->future_handle_index < async_handles.size())
+            {
+                object->handle = async_handles[object->future_handle_index];
+            }
+        }
+        catch (const std::exception& e)
+        {
+            // Catch std::exception (not just std::future_error) to prevent std::bad_alloc or other
+            // worker-thread exceptions from escaping during FreeAllLiveObjects in destructors.
+            GFXRECON_LOG_ERROR("Future error while synchronizing handle: %s", e.what());
+        }
+
+        // Release shared state and prevent redundant future.get() synchronization on subsequent lookups.
+        object->future = {};
     }
 }
 
