@@ -929,18 +929,31 @@ static void AppendImageLayoutRestoreBarriers(const VulkanImageInfo*             
         return;
     }
 
-    // Otherwise restore each subresource individually.
-    for (VkImageAspectFlagBits aspect : graphics::kLayoutMapAspects)
-    {
-        if ((aspects & aspect) == 0)
-        {
-            continue;
-        }
 
-        for (uint32_t mip_level = 0; mip_level < mip_levels; ++mip_level)
+
+    struct AspectTransition
+    {
+        VkImageAspectFlags aspects;
+        VkImageLayout      old_layout;
+        VkImageLayout      new_layout;
+    };
+    // Map to group aspects sharing the same transition.
+    AspectTransition transitions[std::size(graphics::kLayoutMapAspects)];
+
+    // Restore each subresource individually, while coalescing aspects.
+    for (uint32_t mip_level = 0; mip_level < mip_levels; ++mip_level)
+    {
+        for (uint32_t array_layer = 0; array_layer < array_layers; ++array_layer)
         {
-            for (uint32_t array_layer = 0; array_layer < array_layers; ++array_layer)
+            uint32_t transition_count = 0;
+
+            for (VkImageAspectFlagBits aspect : graphics::kLayoutMapAspects)
             {
+                if ((aspects & aspect) == 0)
+                {
+                    continue;
+                }
+
                 const VkImageLayout initial = initial_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
                 const VkImageLayout current = current_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
 
@@ -949,11 +962,30 @@ static void AppendImageLayoutRestoreBarriers(const VulkanImageInfo*             
                     continue;
                 }
 
-                barriers.push_back(MakeLayoutRestoreBarrier(
-                    image_info->handle,
-                    current,
-                    initial,
-                    { static_cast<VkImageAspectFlags>(aspect), mip_level, 1, array_layer, 1 }));
+                // Check if there is an existing transition (uses the same old and new layouts).
+                uint32_t index = 0;
+                while ((index < transition_count) &&
+                       ((transitions[index].old_layout != current) || (transitions[index].new_layout != initial)))
+                {
+                    ++index;
+                }
+                // Otherwise create a new transition.
+                if (index == transition_count)
+                {
+                    transitions[transition_count++] = { 0, current, initial };
+                }
+
+                transitions[index].aspects |= aspect;
+            }
+
+            for (uint32_t index = 0; index < transition_count; ++index)
+            {
+                const AspectTransition& transition = transitions[index];
+
+                barriers.push_back(MakeLayoutRestoreBarrier(image_info->handle,
+                                                            transition.old_layout,
+                                                            transition.new_layout,
+                                                            { transition.aspects, mip_level, 1, array_layer, 1 }));
             }
         }
     }
