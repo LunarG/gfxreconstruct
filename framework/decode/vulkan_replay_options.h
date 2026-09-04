@@ -178,7 +178,7 @@ struct VulkanReplayOptions : public ReplayOptions
     int32_t                             override_gpu_group_index{ -1 };
     int32_t                             surface_index{ -1 };
     CreateResourceAllocator             create_resource_allocator;
-    uint32_t                            screenshot_width, screenshot_height;
+    uint32_t                            screenshot_width{ 0 }, screenshot_height{ 0 };
     std::optional<std::array<float, 2>> screenshot_scale;
     std::string                         replace_shader_dir;
     SkipGetFenceStatus                  skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
