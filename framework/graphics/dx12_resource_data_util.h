@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -101,6 +101,11 @@ class Dx12ResourceDataUtil
     dx12::ID3D12ResourceComPtr GetStagingBuffer(CopyType type, uint64_t required_buffer_size);
     dx12::ID3D12ResourceComPtr CreateStagingBuffer(CopyType type, uint64_t required_buffer_size);
 
+    dx12::ID3D12ResourceComPtr GetBatchStagingBuffer(uint64_t required_buffer_size);
+    void                       ResetBatchHeap();
+    void                       ReleaseBatchHeap();
+    void                       SetBatchHeapMemoryLimits(IDXGIAdapter3* adapter, double max_mem_usage, bool is_uma);
+
     HRESULT ExecuteAndWaitForCommandList(ID3D12CommandQueue* queue = nullptr);
 
     // Build and execute a command list that copies data to or from the target_resource.
@@ -140,6 +145,8 @@ class Dx12ResourceDataUtil
                                      const std::vector<uint64_t>& subresource_offsets,
                                      const std::vector<uint64_t>& subresource_sizes);
 
+    HRESULT EnsureBatchHeap(uint64_t min_capacity);
+
     ID3D12Device*                          device_;
     dx12::ID3D12CommandQueueComPtr         command_queue_;
     dx12::ID3D12CommandAllocatorComPtr     command_allocator_;
@@ -149,6 +156,14 @@ class Dx12ResourceDataUtil
     uint64_t                               staging_buffer_sizes_[2];
     const uint64_t                         min_buffer_size_;
     uint64_t                               fence_value_;
+
+    dx12::ID3D12HeapComPtr batch_upload_heap_;
+    uint64_t               batch_heap_capacity_;
+    uint64_t               batch_heap_offset_;
+
+    dx12::IDXGIAdapter3ComPtr batch_heap_adapter_;
+    double                    batch_heap_max_mem_usage_;
+    bool                      batch_heap_is_uma_;
 
     // Temporary buffers.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;
