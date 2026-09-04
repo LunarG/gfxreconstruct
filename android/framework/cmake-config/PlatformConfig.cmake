@@ -9,6 +9,10 @@ find_package(nlohmann_json REQUIRED CONFIG PATHS "${nlohmann_json_DIR}" NO_DEFAU
 set(CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/external/cmake-modules")
 list(APPEND CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/cmake")
 
+find_package(LZ4)
+find_package(ZSTD)
+find_package(ZLIB)
+
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
