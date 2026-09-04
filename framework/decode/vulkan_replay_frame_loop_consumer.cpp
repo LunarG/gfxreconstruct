@@ -21,6 +21,7 @@
 */
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
+#include "decode/vulkan_temporary_objects.h"
 
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
@@ -346,6 +347,7 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
     GFXRECON_LOG_DEBUG("VulkanReplayFrameLoopConsumer::StartLooping()");
     TrackFenceStates();
     TrackEventStates();
+    TrackImageLayouts();
     TrackSemaphoreStates();
 }
 
@@ -875,6 +877,205 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
     }
 }
 
+static bool IsRestorableLayout(VkImageLayout layout)
+{
+    return (layout != VK_IMAGE_LAYOUT_UNDEFINED) && (layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
+}
+
+static VkImageMemoryBarrier MakeLayoutRestoreBarrier(VkImage                        image,
+                                                     VkImageLayout                  old_layout,
+                                                     VkImageLayout                  new_layout,
+                                                     const VkImageSubresourceRange& subresource_range)
+{
+    VkImageMemoryBarrier barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+    barrier.srcAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.dstAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.oldLayout            = old_layout;
+    barrier.newLayout            = new_layout;
+    barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image                = image;
+    barrier.subresourceRange     = subresource_range;
+    return barrier;
+}
+
+static void AppendImageLayoutRestoreBarriers(const VulkanImageInfo*             image_info,
+                                             const graphics::ImageLayoutMap&    initial_layouts,
+                                             std::vector<VkImageMemoryBarrier>& barriers)
+{
+    const graphics::ImageLayoutMap& current_layouts = image_info->subresource_layouts;
+
+    if (!initial_layouts.IsInitialized() || !current_layouts.IsInitialized())
+    {
+        return;
+    }
+
+    const VkImageAspectFlags aspects      = initial_layouts.GetAspects();
+    const uint32_t           mip_levels   = initial_layouts.GetMipLevels();
+    const uint32_t           array_layers = initial_layouts.GetArrayLayers();
+
+    // Uniform fast path.
+    if (initial_layouts.IsUniform() && current_layouts.IsUniform())
+    {
+        const VkImageAspectFlagBits first_aspect = static_cast<VkImageAspectFlagBits>(aspects & ~(aspects - 1));
+        const VkImageLayout         initial      = initial_layouts.GetSubresourceLayout(first_aspect, 0, 0);
+        const VkImageLayout         current      = current_layouts.GetSubresourceLayout(first_aspect, 0, 0);
+
+        if ((initial != current) && IsRestorableLayout(initial))
+        {
+            barriers.push_back(MakeLayoutRestoreBarrier(
+                image_info->handle, current, initial, { aspects, 0, mip_levels, 0, array_layers }));
+        }
+        return;
+    }
+
+    struct AspectTransition
+    {
+        VkImageAspectFlags aspects;
+        VkImageLayout      old_layout;
+        VkImageLayout      new_layout;
+    };
+    // Map to group aspects sharing the same transition.
+    AspectTransition transitions[std::size(graphics::kLayoutMapAspects)];
+
+    // Restore each subresource individually, while coalescing aspects.
+    for (uint32_t mip_level = 0; mip_level < mip_levels; ++mip_level)
+    {
+        for (uint32_t array_layer = 0; array_layer < array_layers; ++array_layer)
+        {
+            uint32_t transition_count = 0;
+
+            for (VkImageAspectFlagBits aspect : graphics::kLayoutMapAspects)
+            {
+                if ((aspects & aspect) == 0)
+                {
+                    continue;
+                }
+
+                const VkImageLayout initial = initial_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
+                const VkImageLayout current = current_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
+
+                if ((initial == current) || !IsRestorableLayout(initial))
+                {
+                    continue;
+                }
+
+                // Check if there is an existing transition (uses the same old and new layouts).
+                uint32_t index = 0;
+                while ((index < transition_count) &&
+                       ((transitions[index].old_layout != current) || (transitions[index].new_layout != initial)))
+                {
+                    ++index;
+                }
+                // Otherwise create a new transition.
+                if (index == transition_count)
+                {
+                    transitions[transition_count++] = { 0, current, initial };
+                }
+
+                transitions[index].aspects |= aspect;
+            }
+
+            for (uint32_t index = 0; index < transition_count; ++index)
+            {
+                const AspectTransition& transition = transitions[index];
+
+                barriers.push_back(MakeLayoutRestoreBarrier(image_info->handle,
+                                                            transition.old_layout,
+                                                            transition.new_layout,
+                                                            { transition.aspects, mip_level, 1, array_layer, 1 }));
+            }
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::TrackImageLayouts()
+{
+    initial_image_layouts_.clear();
+    GetObjectInfoTable().VisitVkImageInfo([this](const VulkanImageInfo* image_info) {
+        if (image_info->handle != VK_NULL_HANDLE)
+        {
+            initial_image_layouts_[image_info->capture_id] = image_info->subresource_layouts;
+        }
+    });
+}
+
+void VulkanReplayFrameLoopConsumer::SubmitImageLayoutBarriers(const VulkanDeviceInfo*                  device_info,
+                                                              const VulkanQueueInfo*                   queue_info,
+                                                              const std::vector<VkImageMemoryBarrier>& barriers)
+{
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    TemporaryCommandBuffer temp_command_buffer(*device_info, *device_table);
+
+    VkResult result = temp_command_buffer.CreateAndBegin(queue_info->family_index, queue_info->queue_index);
+    CHECK_VK_RESULT(result, "TemporaryCommandBuffer::CreateAndBegin");
+
+    device_table->CmdPipelineBarrier(temp_command_buffer.command_buffer,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     static_cast<uint32_t>(barriers.size()),
+                                     barriers.data());
+
+    result = temp_command_buffer.SubmitAndDestroy();
+    CHECK_VK_RESULT(result, "TemporaryCommandBuffer::SubmitAndDestroy");
+}
+
+void VulkanReplayFrameLoopConsumer::FixupImageLayouts(format::HandleId device, format::HandleId queue)
+{
+    if (initial_image_layouts_.empty())
+    {
+        return;
+    }
+
+    VulkanObjectInfoTable& table       = GetObjectInfoTable();
+    VulkanQueueInfo*       queue_info  = table.GetVkQueueInfo(queue);
+    VulkanDeviceInfo*      device_info = table.GetVkDeviceInfo(device);
+    GFXRECON_ASSERT(queue_info != nullptr && device_info != nullptr);
+
+    // Transition every image subresource that has changed from its original layout.
+    std::vector<VkImageMemoryBarrier> barriers;
+    table.VisitVkImageInfo([this, device, &table, &barriers](const VulkanImageInfo* image_info) {
+        if (image_info->handle == VK_NULL_HANDLE || image_info->parent_id != device)
+        {
+            return;
+        }
+
+        // Images created inside the loop range have no starting layout to return to.
+        auto initial_layouts = initial_image_layouts_.find(image_info->capture_id);
+        if (initial_layouts == initial_image_layouts_.end())
+        {
+            return;
+        }
+
+        const size_t barrier_count = barriers.size();
+        AppendImageLayoutRestoreBarriers(image_info, initial_layouts->second, barriers);
+        if (barriers.size() == barrier_count)
+        {
+            return;
+        }
+
+        VulkanImageInfo* mutable_image_info = table.GetVkImageInfo(image_info->capture_id);
+        GFXRECON_ASSERT(mutable_image_info != nullptr);
+        mutable_image_info->subresource_layouts = initial_layouts->second;
+
+        mutable_image_info->intermediate_layout = barriers.back().newLayout;
+    });
+
+    if (barriers.empty())
+    {
+        return;
+    }
+
+    SubmitImageLayoutBarriers(device_info, queue_info, barriers);
+}
+
 void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)
 {
     if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
@@ -882,6 +1083,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
         return;
     }
     FixupDeviceEvents(device);
+    FixupImageLayouts(device, queue);
     FixupDeviceFences(device, queue);
     GetSemaphoreTracking(device).FixupSemaphores(queue);
 }

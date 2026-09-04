@@ -114,6 +114,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void FixupDeviceEvents(format::HandleId device);
     void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
 
+    // Image layout tracking and restoration.
+    void TrackImageLayouts();
+    void FixupImageLayouts(format::HandleId device, format::HandleId queue);
+    void SubmitImageLayoutBarriers(const VulkanDeviceInfo*                  device_info,
+                                   const VulkanQueueInfo*                   queue_info,
+                                   const std::vector<VkImageMemoryBarrier>& barriers);
     struct SemaphoreTracking
     {
         SemaphoreTracking(VkDevice                           device,
@@ -190,6 +196,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;
+
+    // Image layout tracking data
+    std::unordered_map<format::HandleId, graphics::ImageLayoutMap> initial_image_layouts_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

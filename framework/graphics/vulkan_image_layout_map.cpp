@@ -31,23 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 VkImageAspectFlags ImageLayoutMap::GetAspectFromIndex(uint32_t aspect_index)
 {
-    switch (aspect_index)
-    {
-        case 0:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
-        case 1:
-            return VK_IMAGE_ASPECT_DEPTH_BIT;
-        case 2:
-            return VK_IMAGE_ASPECT_STENCIL_BIT;
-        case 3:
-            return VK_IMAGE_ASPECT_PLANE_0_BIT;
-        case 4:
-            return VK_IMAGE_ASPECT_PLANE_1_BIT;
-        case 5:
-            return VK_IMAGE_ASPECT_PLANE_2_BIT;
-        default:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
-    }
+    return (aspect_index < kAspectSlotCount) ? kLayoutMapAspects[aspect_index] : VK_IMAGE_ASPECT_COLOR_BIT;
 }
 
 uint32_t ImageLayoutMap::GetAspectSlotCount() const
