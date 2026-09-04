@@ -39,6 +39,20 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+template <typename RegionCopy>
+static VkDeviceSize GetBufferSizeFromCopyImage(const RegionCopy& region, uint32_t array_layers, VkFormat format);
+
+// The four fields GetBufferSizeFromCopyImage reads.  The size of a tightly
+// packed region needs nothing else, thus it does not need a copy struct of the
+// host image copy, which says a host image copy happens when none does.
+struct TightCopyRegion
+{
+    uint32_t                 memoryRowLength{ 0 };
+    uint32_t                 memoryImageHeight{ 0 };
+    VkImageSubresourceLayers imageSubresource{};
+    VkExtent3D               imageExtent{};
+};
+
 static constexpr bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
 {
     return ((property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -1015,7 +1029,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
     for (uint32_t m = 0; m < mip_levels; ++m)
     {
         // Compute exact bytes copied for one tightly-packed region.
-        VkImageToMemoryCopy copy_region{};
+        TightCopyRegion copy_region{};
         copy_region.memoryRowLength                 = 0;
         copy_region.memoryImageHeight               = 0;
         copy_region.imageExtent                     = graphics::ScaleToMipLevel(extent, m);
