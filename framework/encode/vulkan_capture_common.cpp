@@ -23,6 +23,7 @@
 #include "vulkan_capture_common.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/platform.h"
+#include "util/hashing_manager.h"
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -212,7 +213,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
 
             if (vulkan_capture_manager)
             {
-                // Track the memory with the PageGuardManager
+                // Track the AHB memory
                 const auto tracking_mode = vulkan_capture_manager->GetMemoryTrackingMode();
                 if ((tracking_mode == CaptureSettings::MemoryTrackingMode::kPageGuard ||
                      tracking_mode == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
@@ -230,6 +231,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                                               util::PageGuardManager::kNullShadowHandle,
                                               false,  // No shadow memory for the imported AHB memory.
                                               false); // Write watch is not supported for this case.
+                }
+                else if (tracking_mode == CaptureSettings::MemoryTrackingMode::kHashing &&
+                         vulkan_capture_manager->GetPageGuardTrackAhbMemory())
+                {
+                    util::HashingManager* manager = util::HashingManager::Get();
+                    GFXRECON_ASSERT(manager != nullptr);
+
+                    manager->AddTrackedMemory(memory_id, data, static_cast<size_t>(allocation_size));
                 }
             }
 
