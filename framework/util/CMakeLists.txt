@@ -26,7 +26,7 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-if (ANDROID)
+if (BUILD_ANDROID_APP)
     add_library(native_app_glue STATIC
                 ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
     target_include_directories(native_app_glue PUBLIC
@@ -37,10 +37,10 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.h>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.cpp>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.h>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/alignment_utils.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_version_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_version_info.cpp
@@ -159,7 +159,7 @@ target_include_directories(gfxrecon_util
 
 if (ANDROID)
     target_include_directories(gfxrecon_util PUBLIC
-                               ${ANDROID_NDK}/sources/android/native_app_glue
+                               $<$<BOOL:${BUILD_ANDROID_APP}>:${ANDROID_NDK}/sources/android/native_app_glue>
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb)
     target_compile_definitions(gfxrecon_util PUBLIC
