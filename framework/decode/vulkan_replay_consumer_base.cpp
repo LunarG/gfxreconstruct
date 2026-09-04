@@ -398,6 +398,8 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = true;
 
+    application_->GetReplayEventSink()->StateSetupBegin();
+
     // If a trace file has the state begin marker, it must be a trim trace file.
     replaying_trimmed_capture_ = true;
 }
@@ -415,6 +417,8 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         resource_dumper_->ProcessStateEndMarker();
     }
+
+    application_->GetReplayEventSink()->StateSetupEnd();
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)

@@ -29,20 +29,8 @@ GFXRECON_BEGIN_NAMESPACE(plugin)
 
 static size_t GetSizeOfStruct(GfxrReplayEventType type)
 {
-    switch (type)
-    {
-        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
-            return sizeof(GfxrReplayQueueSubmitBeginEvent);
-        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END:
-            return sizeof(GfxrReplayQueueSubmitEndEvent);
-        case GFXR_REPLAY_EVENT_FRAME_BEGIN:
-            return sizeof(GfxrReplayFrameBeginEvent);
-        case GFXR_REPLAY_EVENT_FRAME_END:
-            return sizeof(GfxrReplayFrameEndEvent);
-        default:
-            GFXRECON_ASSERT(false && "Unknown event type");
-            return 0;
-    }
+    int idx = type - 1;
+    return kEventTraits[idx].size;
 }
 
 GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType type)
@@ -54,6 +42,22 @@ GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType typ
     header.timestamp_ns          = static_cast<uint64_t>(util::datetime::GetTimestamp());
     header.frame_index           = current_frame_index_;
     return header;
+}
+
+void ReplayEventSink::StateSetupBegin()
+{
+    GfxrReplayStateSetupBeginEvent event = {};
+    event.header                         = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN);
+
+    EmitStateSetupBegin(event);
+}
+
+void ReplayEventSink::StateSetupEnd()
+{
+    GfxrReplayStateSetupEndEvent event = {};
+    event.header                       = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_SETUP_END);
+
+    EmitStateSetupEnd(event);
 }
 
 uint64_t ReplayEventSink::QueueSubmitBegin(format::HandleId queue_id)
@@ -149,6 +153,16 @@ PluginReplayEventSink::~PluginReplayEventSink()
     {
         close_library_(library_);
     }
+}
+
+void PluginReplayEventSink::EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event)
+{
+    Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event)
