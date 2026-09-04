@@ -47,6 +47,7 @@
 #include "generated/generated_vulkan_schema_native_struct_members.h"
 
 #include <memory>
+#include <vector>
 #include <type_traits>
 
 namespace
@@ -358,6 +359,68 @@ TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema fiel
     // The extension chain took the chain overload.
     CHECK(walked.pNext == nullptr);
     CHECK(walked_value.pNext == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a scalar array into the wrapper and points the native member at it", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkShaderModuleCreateInfo is the smallest migrated structure carrying a PointerArray of scalars. Its pCode is
+    // the case the scalar-array overload exists for: the run decodes into the wrapper's PointerDecoder and the
+    // native pointer follows it, the same shape the extension chain already had.
+    //
+    // codeSize is the sibling count field, and the walk never reads it. It is decoded as its own scalar in its own
+    // position, and the array's length travels with the array on the wire, so the two are independent on purpose --
+    // a walk that consulted the count would have to know which field it was.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // A recognizable SPIR-V-shaped run: the magic number first, so a misread offset is obvious rather than subtle.
+    constexpr uint32_t          kFlags    = 0;
+    const std::vector<uint32_t> kCode     = { 0x07230203u, 0x00010000u, 0x0008000au, 0x0000002bu, 0x00000000u };
+    const size_t                kCodeSize = kCode.size() * sizeof(uint32_t);
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(kFlags);
+    encoder->EncodeSizeTValue(kCodeSize);
+    encoder->EncodeUInt32Array(kCode.data(), kCode.size());
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkShaderModuleCreateInfo         walked_value{};
+    Decoded_VkShaderModuleCreateInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO);
+    CHECK(walked_value.flags == kFlags);
+    CHECK(walked_value.codeSize == kCodeSize);
+    CHECK(walked_value.pNext == nullptr);
+
+    // The run landed in the wrapper's PointerDecoder at the length the wire carried...
+    REQUIRE(walked.pCode.GetPointer() != nullptr);
+    CHECK(walked.pCode.GetLength() == kCode.size());
+
+    // ...the native member points at that same storage rather than a copy...
+    CHECK(walked_value.pCode == walked.pCode.GetPointer());
+
+    // ...and every element round-tripped in order.
+    for (size_t i = 0; i < kCode.size(); ++i)
+    {
+        CHECK(walked_value.pCode[i] == kCode[i]);
+    }
 
     DecodeAllocator::End();
     util::Log::Release();

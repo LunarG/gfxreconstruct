@@ -261,9 +261,12 @@ template <typename Field>
 concept HandleField = std::same_as<typename Field::api_type::kind, field_kind::Handle> &&
     std::same_as<typename Field::shape, field_shape::Value>;
 
+// The kind alone, so a shape other than Value can select on it. ScalarField is the value-shaped case.
 template <typename Field>
-concept ScalarField = std::derived_from<typename Field::api_type::kind, field_kind::Scalar> &&
-    std::same_as<typename Field::shape, field_shape::Value>;
+concept ScalarKindField = std::derived_from<typename Field::api_type::kind, field_kind::Scalar>;
+
+template <typename Field>
+concept ScalarField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
