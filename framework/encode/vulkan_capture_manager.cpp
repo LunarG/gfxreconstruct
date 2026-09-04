@@ -2166,11 +2166,12 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
     VkResult vk_result =
         device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
 
-    if (vk_result == VK_SUCCESS)
+    // There was originally an assert on properties.allocationSize inside the if(). It was causing a crash
+    // when trying to trace on the Android emulator in some circumstances. The failure is a nomral operating error
+    // not a cause for a crash in debug mode.
+    if (vk_result == VK_SUCCESS && properties.allocationSize > 0)
     {
         const size_t ahb_size = properties.allocationSize;
-        assert(ahb_size);
-
         CommonProcessHardwareBuffer(thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr);
     }
     else
