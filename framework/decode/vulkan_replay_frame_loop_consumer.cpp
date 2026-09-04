@@ -929,8 +929,6 @@ static void AppendImageLayoutRestoreBarriers(const VulkanImageInfo*             
         return;
     }
 
-
-
     struct AspectTransition
     {
         VkImageAspectFlags aspects;
