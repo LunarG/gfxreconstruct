@@ -646,9 +646,9 @@ void Dx12StateTracker::TrackPresentedImages(IDXGISwapChain_Wrapper*        wrapp
         wrapper_info->image_acquired_info[image_index].is_present_parameters = true;
         wrapper_info->image_acquired_info[image_index].dirty_rects.resize(present_parameters->DirtyRectsCount);
         util::platform::MemoryCopy(wrapper_info->image_acquired_info[image_index].dirty_rects.data(),
-                                   present_parameters->DirtyRectsCount * sizeof RECT,
+                                   present_parameters->DirtyRectsCount * sizeof(RECT),
                                    present_parameters->pDirtyRects,
-                                   present_parameters->DirtyRectsCount * sizeof RECT);
+                                   present_parameters->DirtyRectsCount * sizeof(RECT));
         wrapper_info->image_acquired_info[image_index].scroll_rect   = *present_parameters->pScrollRect;
         wrapper_info->image_acquired_info[image_index].scroll_offset = *present_parameters->pScrollOffset;
     }
