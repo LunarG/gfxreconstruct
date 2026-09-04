@@ -352,8 +352,11 @@ void VulkanReplayFrameLoopConsumer::ResetBufferTracking(format::HandleId device)
 
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyDevice(const ApiCallInfo& call_info, args::DestroyDevice& args)
 {
+    if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
+    {
+        ResetBufferTracking(args.device);
+    }
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(call_info, args);
-    ResetBufferTracking(args.device);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
