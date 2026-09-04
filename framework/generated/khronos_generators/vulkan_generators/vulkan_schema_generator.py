@@ -57,26 +57,27 @@ from khronos_struct_decoders_header_generator import KhronosStructDecodersHeader
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions
 
 # The parts of the generated schema.
+# Structures whose DecodeStruct comes from the schema field walk. The struct-decoders generators read this and skip
+# both the procedural body and the prototype; the hand-written constrained template in decode/vulkan_decode_struct.h
+# supplies the definition. Their decoded wrapper is still generated as usual.
 #
-# 'identity' is the shared part. It carries logical kinds, API type descriptors, command tags, Field descriptors, and
-# the Schema specializations that order them. It needs the API headers and nothing else.
-#
-# 'decoded_traits' resolves an API element to its decoded representation. It needs the generated decoded declarations.
-#
-# The remaining parts are member traits, one file for each storage population. They are target-private.
-SCHEMA_PART_IDENTITY = 'identity'
-SCHEMA_PART_DECODED_TRAITS = 'decoded_traits'
-SCHEMA_PART_NATIVE_STRUCT_TRAITS = 'native_struct_traits'
-SCHEMA_PART_DECODED_STRUCT_TRAITS = 'decoded_struct_traits'
-SCHEMA_PART_DECODED_COMMAND_TRAITS = 'decoded_command_traits'
+# A structure may only appear here when the decode Action has an Apply overload for every one of its fields.
+# WalkFields fails to compile and names the field when it does not, so a wrong entry is a build error, not a silent
+# gap.
+SCHEMA_OWNED_STRUCT_DECODERS = (
+    'VkBufferMemoryBarrier',
+    'VkImageSubresourceRange',
+    'VkImageMemoryBarrier',
+)
 
 
-class VulkanSchemaGeneratorOptions(VulkanBaseGeneratorOptions):
-    """Options for generating one part of the Vulkan field schema."""
+class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
+    """Shared options for every part of the Vulkan field schema. One subclass for each generated file, which is
+    what add_part_headers exists to let each one state.
+    """
 
     def __init__(
         self,
-        schema_part=SCHEMA_PART_IDENTITY,
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
@@ -98,54 +99,9 @@ class VulkanSchemaGeneratorOptions(VulkanBaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
-        self.schema_part = schema_part
-
         begin_end = self.begin_end_file_data
 
-        if schema_part == SCHEMA_PART_IDENTITY:
-            begin_end.specific_headers.extend((
-                'format/platform_types.h',
-                'util/defines.h',
-                'schema/schema_util.h',
-                'util/type_list.h',
-            ))
-            begin_end.system_headers.extend(('cstddef', 'string_view'))
-        elif schema_part == SCHEMA_PART_DECODED_TRAITS:
-            begin_end.specific_headers.extend((
-                'decode/decoded_representation_traits.h',
-                'format/api_call_id.h',
-                'generated/generated_vulkan_decoder_args.h',
-                'generated/generated_vulkan_schema.h',
-                'generated/generated_vulkan_struct_decoders.h',
-                'util/defines.h',
-            ))
-        else:
-            # A member-trait partition is target-private, and is included by one implementation file. It carries its
-            # own include guard so that a target which includes two partitions still compiles.
-            guard = 'GFXRECON_{}_INC'.format(
-                filename.replace('.', '_').upper()
-            ) if filename else 'GFXRECON_VULKAN_SCHEMA_TRAITS_INC'
-
-            begin_end.guards.append(('ifndef', guard))
-            begin_end.specific_headers.extend((
-                'generated/generated_vulkan_schema.h',
-                'util/defines.h',
-                'schema/field_model.h',
-            ))
-
-            if schema_part == SCHEMA_PART_DECODED_STRUCT_TRAITS:
-                begin_end.specific_headers.append(
-                    'generated/generated_vulkan_struct_decoders.h'
-                )
-            elif schema_part == SCHEMA_PART_DECODED_COMMAND_TRAITS:
-                begin_end.specific_headers.append(
-                    'generated/generated_vulkan_decoder_args.h'
-                )
-
-            begin_end.specific_headers.sort()
-            begin_end.pre_namespace_code.extend(
-                ('#define {}'.format(guard), '')
-            )
+        self.add_part_headers(begin_end)
 
         # A command tag carries the command name with its API prefix removed, and the Windows headers define macros
         # for two of the resulting names. Every part shares this treatment, so a tag spells the same in all of them.
@@ -165,10 +121,127 @@ class VulkanSchemaGeneratorOptions(VulkanBaseGeneratorOptions):
         # gfxrecon::decode.
         begin_end.namespaces.append('gfxrecon')
 
+    def add_part_headers(self, begin_end):
+        """Name the headers this part's generated file needs. One override for each generated file."""
+        raise NotImplementedError
 
-class VulkanSchemaGenerator(VulkanBaseGenerator):
-    """Generates the Vulkan field schema: API type descriptors, command tags, Field descriptors, Schema
-    specializations, decoded representation traits, and partitioned member traits.
+
+class VulkanSchemaIdentityGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the schema itself: logical kinds, API type descriptors, command tags, Field descriptors, and the
+    Schema specializations that order them. It needs the API headers and nothing else.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'format/platform_types.h',
+            'util/defines.h',
+            'schema/schema_util.h',
+            'util/type_list.h',
+        ))
+        begin_end.system_headers.extend(('cstddef', 'string_view'))
+
+
+class VulkanSchemaApiElementTraitsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the correspondence between an API element and its decoded representation, in both directions. It
+    needs the generated decoded declarations.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'decode/api_element_traits.h',
+            'format/api_call_id.h',
+            'generated/generated_vulkan_decoder_args.h',
+            'generated/generated_vulkan_schema.h',
+            'generated/generated_vulkan_struct_decoders.h',
+            'util/defines.h',
+        ))
+
+
+class VulkanSchemaMemberPartitionGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Shared options for a member-trait partition: one file for each storage population. A subclass adds the
+    declarations of the storage type it is keyed on.
+    """
+
+    def storage_header(self):
+        """The header declaring this partition's storage type, or None when the API headers already supply it."""
+        return None
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema.h',
+            'util/defines.h',
+            'schema/field_model.h',
+        ))
+
+        storage_header = self.storage_header()
+        if storage_header:
+            begin_end.specific_headers.append(storage_header)
+
+        begin_end.specific_headers.sort()
+
+        # A member-trait partition is target-private. Say so in the generated file, since that is what a reader
+        # reaching for the include will open.
+        begin_end.pre_namespace_code.extend((
+            '// TARGET-PRIVATE. Include this only from the one implementation header that owns an operation',
+            '// family, and include the whole set of partitions that operation reads. Do not include it from a',
+            '// header other targets pull in.',
+            '//',
+            '// An operation constrains its Apply overloads on these specializations. A translation unit that',
+            '// sees some of them and not others still compiles: the constraints simply answer no, and the same',
+            '// call resolves to a different overload than it does next door. Nothing diagnoses that. Keeping',
+            '// the include in one place is what makes the partial state unreachable -- and the partitions exist',
+            '// to keep this weight out of translation units that do not read it, which spreading the include',
+            '// around also defeats.',
+            '',
+        ))
+
+
+class VulkanSchemaNativeStructMembersGeneratorOptions(
+    VulkanSchemaMemberPartitionGeneratorOptions
+):
+    """Options for the member traits keyed on the native API structure. The API headers declare it."""
+
+
+class VulkanSchemaDecodedStructMembersGeneratorOptions(
+    VulkanSchemaMemberPartitionGeneratorOptions
+):
+    """Options for the member traits keyed on the decoded structure wrapper."""
+
+    def storage_header(self):
+        return 'generated/generated_vulkan_struct_decoders.h'
+
+
+class VulkanSchemaDecodedCommandMembersGeneratorOptions(
+    VulkanSchemaMemberPartitionGeneratorOptions
+):
+    """Options for the member traits keyed on a command's decoded argument storage."""
+
+    def storage_header(self):
+        return 'generated/generated_vulkan_decoder_args.h'
+
+
+class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the cross-generator agreement checks. Compiled only by the framework test target, so it costs a
+    product build nothing and can include whatever it needs to check. Compiling it is the test; there is nothing to
+    run.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'decode/api_element_traits.h',
+            'generated/generated_vulkan_decoder_args.h',
+            'generated/generated_vulkan_schema.h',
+            'generated/generated_vulkan_decode_api_element_traits.h',
+            'generated/generated_vulkan_struct_decoders.h',
+            'schema/schema_util.h',
+            'util/defines.h',
+        ))
+        begin_end.system_headers.append('type_traits')
+
+
+class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
+    """Shared model for every part of the Vulkan field schema. One subclass for each generated file: the model is
+    built here and write_part decides which of it that file carries.
     """
 
     # The logical kinds the field model declares. A kind other than Identity, Handle, Struct or Void corresponds to
@@ -727,23 +800,13 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
     def endFile(self):
         """Method override."""
         self.build_model()
-
-        part = self.genOpts.schema_part
-
-        if part == SCHEMA_PART_IDENTITY:
-            self.write_identity()
-        elif part == SCHEMA_PART_DECODED_TRAITS:
-            self.write_decoded_traits()
-        elif part == SCHEMA_PART_NATIVE_STRUCT_TRAITS:
-            self.write_native_struct_traits()
-        elif part == SCHEMA_PART_DECODED_STRUCT_TRAITS:
-            self.write_decoded_struct_traits()
-        elif part == SCHEMA_PART_DECODED_COMMAND_TRAITS:
-            self.write_decoded_command_traits()
-        else:
-            raise RuntimeError('Unknown schema part: ' + str(part))
+        self.write_part()
 
         VulkanBaseGenerator.endFile(self)
+
+    def write_part(self):
+        """Write the content of this part's generated file. One override for each generated file."""
+        raise NotImplementedError
 
     def write_identity(self):
         write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
@@ -836,7 +899,7 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             file=self.outFile
         )
         write(
-            '// same key TraitsFor uses, so one spelling reaches both.',
+            '// same key ApiElementTraits uses, so one spelling reaches both.',
             file=self.outFile
         )
         self.newline()
@@ -864,31 +927,35 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             )
             self.newline()
 
-    def write_decoded_traits(self):
-        """Decoded representation traits. The key is the API type descriptor or the command tag."""
+    def write_api_element_traits(self):
+        """The correspondence between an API element and its decoded representation, in both directions."""
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
+        write(
+            '// A structure needs no decoded_value_type: that is its element type, which its API type descriptor',
+            file=self.outFile
+        )
+        write('// already carries.', file=self.outFile)
+
         for struct in self.schema_structs:
             write(
-                'template <> struct TraitsFor<schema::api_type::vulkan::{name}> '
-                '{{ using decoded_type = Decoded_{name}; using decoded_value_type = ::{name}; }};'.format(
-                    name=struct
-                ),
+                'template <> struct ApiElementTraits<schema::api_type::vulkan::{name}> '
+                '{{ using decoded_type = Decoded_{name}; }};'.format(name=struct),
                 file=self.outFile
             )
 
         self.newline()
 
-        # The decoded command wrapper is today's generated args structure. The formal API-signature storage that the
-        # design also names does not exist yet, so no decoded_value_type is emitted for a command.
+        # A command's decoded wrapper is today's generated args structure. The formal API-signature storage the
+        # design also names does not exist yet, so no decoded_value_type is emitted for a command either.
         for command in self.schema_commands:
             if not self.has_decoded_command_storage(command):
                 continue
 
             tag = self.get_command_tag(command)
             write(
-                'template <> struct TraitsFor<schema::command::vulkan::{tag}> '
+                'template <> struct ApiElementTraits<schema::command::vulkan::{tag}> '
                 '{{ using decoded_type = args::{tag}; '
                 'static constexpr format::ApiCallId call_id = format::ApiCallId::ApiCall_{command}; }};'.format(
                     tag=tag, command=command
@@ -897,18 +964,116 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             )
 
         self.newline()
+        write(
+            '// The inverse. An operation handed a decoded wrapper reaches the schema through this, and decode is',
+            file=self.outFile
+        )
+        write('// not the only operation family that needs to.', file=self.outFile)
+
+        for struct in self.schema_structs:
+            write(
+                'template <> struct ApiElementFor<Decoded_{name}> '
+                '{{ using type = schema::api_type::vulkan::{name}; }};'.format(name=struct),
+                file=self.outFile
+            )
+
+        self.newline()
+
+        for command in self.schema_commands:
+            if not self.has_decoded_command_storage(command):
+                continue
+
+            tag = self.get_command_tag(command)
+            write(
+                'template <> struct ApiElementFor<args::{tag}> '
+                '{{ using type = schema::command::vulkan::{tag}; }};'.format(tag=tag),
+                file=self.outFile
+            )
+
+        self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
 
-    def write_trait_partition_prologue(self, description):
+    def write_checks(self):
+        """Static checks over the whole generated schema, compiled by the framework test target.
+
+        Three of these compare one generator's output against another's. A decoded wrapper's struct_type comes from
+        the struct-decoders generator, which knows nothing about the schema, so agreeing with the descriptor's
+        element type is a real cross-check rather than this generator confirming itself.
+        """
+        # The file already opens gfxrecon, from the options, so only the inner namespace belongs here.
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+
+        write('// Every structure has a well formed schema, and no structure has a return Field.', file=self.outFile)
+
+        for struct in self.schema_structs:
+            element = 'schema::{}'.format(self.get_descriptor_path(struct))
+            write('static_assert(schema::HasSchema<{}>);'.format(element), file=self.outFile)
+            write('static_assert(!schema::HasCommandSchema<{}>);'.format(element), file=self.outFile)
+
+        self.newline()
+        write(
+            '// Every command schema has exactly one return Field, which is what HasCommandSchema tests through',
+            file=self.outFile
+        )
+        write('// TypeListSole.', file=self.outFile)
+
+        for command in self.schema_commands:
+            tag = 'schema::command::vulkan::{}'.format(self.get_command_tag(command))
+            write('static_assert(schema::HasCommandSchema<{}>);'.format(tag), file=self.outFile)
+
+        self.newline()
+        write('// The two trait directions agree, so a mis-paired line in either cannot pass.', file=self.outFile)
+
+        for struct in self.schema_structs:
+            write(
+                'static_assert(std::is_same_v<Decoded<typename ApiElementFor<Decoded_{name}>::type>, '
+                'Decoded_{name}>);'.format(name=struct),
+                file=self.outFile
+            )
+
+        self.newline()
+
+        for command in self.schema_commands:
+            if not self.has_decoded_command_storage(command):
+                continue
+
+            tag = self.get_command_tag(command)
+            write(
+                'static_assert(std::is_same_v<Decoded<typename ApiElementFor<args::{tag}>::type>, '
+                'args::{tag}>);'.format(tag=tag),
+                file=self.outFile
+            )
+
+        self.newline()
+        write(
+            '// Cross-generator: the element type on the descriptor against struct_type on the decoded wrapper,',
+            file=self.outFile
+        )
+        write('// which the struct-decoders generator emits without any knowledge of the schema.', file=self.outFile)
+
+        for struct in self.schema_structs:
+            write(
+                'static_assert(std::is_same_v<schema::ElementType<schema::{path}>, '
+                'typename Decoded_{name}::struct_type>);'.format(
+                    path=self.get_descriptor_path(struct), name=struct
+                ),
+                file=self.outFile
+            )
+
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+
+    def write_member_partition_prologue(self, description):
         write('// {}'.format(description), file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
         self.newline()
 
-    def write_trait_partition_epilogue(self):
+    def write_member_partition_epilogue(self):
         self.newline()
         write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
 
-    def make_member_trait(self, storage, field, member_expression):
+    def make_member_pointer(self, storage, field, member_expression):
         return (
             'template <> struct MemberPointer<{storage}, {field}> '
             '{{ static constexpr auto value = &{member}; }};'.format(
@@ -916,7 +1081,7 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             )
         )
 
-    def make_bitfield_member_trait(self, storage, field, member_name, value_type):
+    def make_bitfield_member_pointer(self, storage, field, member_name, value_type):
         """A bitfield has no pointer to member, so the mapping supplies accessors and a sentinel value."""
         return (
             'template <> struct MemberPointer<{storage}, {field}> : NonAddressableMember '
@@ -926,8 +1091,8 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             )
         )
 
-    def write_native_struct_traits(self):
-        self.write_trait_partition_prologue(
+    def write_native_struct_members(self):
+        self.write_member_partition_prologue(
             'Member traits for native structure storage.'
         )
 
@@ -939,24 +1104,24 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
                 if value.bitfield_width:
                     write(
-                        self.make_bitfield_member_trait(
+                        self.make_bitfield_member_pointer(
                             storage, field, value.name, value.base_type
                         ),
                         file=self.outFile
                     )
                 else:
                     write(
-                        self.make_member_trait(
+                        self.make_member_pointer(
                             storage, field,
                             '{}::{}'.format(storage, value.name)
                         ),
                         file=self.outFile
                     )
 
-        self.write_trait_partition_epilogue()
+        self.write_member_partition_epilogue()
 
-    def write_decoded_struct_traits(self):
-        self.write_trait_partition_prologue(
+    def write_decoded_struct_members(self):
+        self.write_member_partition_prologue(
             'Member traits for decoded structure storage.'
         )
 
@@ -974,17 +1139,17 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
                     continue
 
                 write(
-                    self.make_member_trait(
+                    self.make_member_pointer(
                         storage, self.get_field_path(struct, value.name),
                         '{}::{}'.format(storage, value.name)
                     ),
                     file=self.outFile
                 )
 
-        self.write_trait_partition_epilogue()
+        self.write_member_partition_epilogue()
 
-    def write_decoded_command_traits(self):
-        self.write_trait_partition_prologue(
+    def write_decoded_command_members(self):
+        self.write_member_partition_prologue(
             'Member traits for decoded command-wrapper storage.'
         )
 
@@ -998,7 +1163,7 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
 
             for value in params:
                 write(
-                    self.make_member_trait(
+                    self.make_member_pointer(
                         storage, self.get_field_path(tag, value.name),
                         '{}::{}'.format(storage, value.name)
                     ),
@@ -1008,7 +1173,7 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
             # A void Return Field has no storage member, so it has no mapping.
             if self.clean_return_type(return_type) != 'void':
                 write(
-                    self.make_member_trait(
+                    self.make_member_pointer(
                         storage,
                         self.get_field_path(tag, self.RETURN_FIELD_NAME),
                         '{}::{}'.format(storage, self.RETURN_FIELD_NAME)
@@ -1016,4 +1181,48 @@ class VulkanSchemaGenerator(VulkanBaseGenerator):
                     file=self.outFile
                 )
 
-        self.write_trait_partition_epilogue()
+        self.write_member_partition_epilogue()
+
+
+class VulkanSchemaIdentityGenerator(VulkanSchemaBaseGenerator):
+    """Generates the schema itself: API type descriptors, command tags, Field descriptors, and Schema
+    specializations.
+    """
+
+    def write_part(self):
+        self.write_identity()
+
+
+class VulkanSchemaApiElementTraitsGenerator(VulkanSchemaBaseGenerator):
+    """Generates ApiElementTraits and ApiElementFor: an API element to its decoded representation, and back."""
+
+    def write_part(self):
+        self.write_api_element_traits()
+
+
+class VulkanSchemaNativeStructMembersGenerator(VulkanSchemaBaseGenerator):
+    """Generates the member traits keyed on the native API structure."""
+
+    def write_part(self):
+        self.write_native_struct_members()
+
+
+class VulkanSchemaDecodedStructMembersGenerator(VulkanSchemaBaseGenerator):
+    """Generates the member traits keyed on the decoded structure wrapper."""
+
+    def write_part(self):
+        self.write_decoded_struct_members()
+
+
+class VulkanSchemaDecodedCommandMembersGenerator(VulkanSchemaBaseGenerator):
+    """Generates the member traits keyed on a command's decoded argument storage."""
+
+    def write_part(self):
+        self.write_decoded_command_members()
+
+
+class VulkanSchemaChecksGenerator(VulkanSchemaBaseGenerator):
+    """Generates the cross-generator agreement checks. Compiling the result is the test."""
+
+    def write_part(self):
+        self.write_checks()

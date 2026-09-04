@@ -19788,7 +19788,7 @@ GFXRECON_END_NAMESPACE(vulkan)
 GFXRECON_END_NAMESPACE(field)
 
 // Schemas. A structure keys on its API type descriptor and a command on its command tag, which is the
-// same key TraitsFor uses, so one spelling reaches both.
+// same key ApiElementTraits uses, so one spelling reaches both.
 
 template <>
 struct Schema<api_type::vulkan::StdVideoH264SpsVuiFlags>

@@ -37,8 +37,18 @@ class KhronosStructDecodersForwardGenerator():
         self.newline()
 
         for struct in self.get_all_filtered_struct_names():
+            # A structure whose decoder is the schema field walk is declared by one constrained template in
+            # decode/vulkan_decode_struct.h. It must not also get a non-template prototype here: a non-template
+            # wins overload resolution, and this one would name a symbol that has no definition.
+            if self.skip_struct_decoder_prototype(struct):
+                continue
+
             write(
                 'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
                 .format(struct),
                 file=self.outFile
             )
+
+    def skip_struct_decoder_prototype(self, struct):
+        """Whether a constrained template declares this structure's decoder instead. Overridden per API."""
+        return False

@@ -181,7 +181,10 @@ using FieldElementType = ElementType<typename Field::api_type>;
 // Optional capability of an API type descriptor. Capture-side wrapper state and decoded representation are not two
 // halves of one descriptor, so an action is constrained on the capability it names.
 template <typename ApiType>
-concept HasCaptureWrapper = requires { typename ApiType::capture_wrapper_type; };
+concept HasCaptureWrapper = requires
+{
+    typename ApiType::capture_wrapper_type;
+};
 
 // Member traits. The primary template stays undefined, so an absent specialization makes the access concepts fail
 // rather than producing a hard error.
@@ -199,20 +202,24 @@ struct NonAddressableMember
 };
 
 template <typename Storage, typename Field>
-concept HasMember = requires { MemberPointer<std::remove_cv_t<Storage>, Field>::value; };
+concept HasMember = requires
+{
+    MemberPointer<std::remove_cv_t<Storage>, Field>::value;
+};
 
 template <typename Storage, typename Field>
-concept Addressable = requires {
+concept Addressable = requires
+{
     requires std::is_member_object_pointer_v<decltype(MemberPointer<std::remove_cv_t<Storage>, Field>::value)>;
 };
 
 template <typename Storage, typename Field>
-concept NonAddressable = HasMember<Storage, Field> && (!Addressable<Storage, Field>);
+concept NonAddressable = HasMember<Storage, Field> &&(!Addressable<Storage, Field>);
 
 // GetRef is the normal primitive for an addressable member. The constraint removes it from the overload set for a
 // non-addressable member, so another action overload wins by overload resolution.
 template <typename Storage, typename Field>
-    requires Addressable<Storage, Field>
+requires Addressable<Storage, Field>
 [[nodiscard]] decltype(auto) GetRef(Storage& storage, Field)
 {
     return (storage.*MemberPointer<std::remove_cv_t<Storage>, Field>::value);
@@ -220,7 +227,7 @@ template <typename Storage, typename Field>
 
 // Get expresses a read by value, and is the only read available for a non-addressable member.
 template <typename Storage, typename Field>
-    requires HasMember<Storage, Field>
+requires HasMember<Storage, Field>
 [[nodiscard]] auto Get(const Storage& storage, Field field)
 {
     if constexpr (Addressable<Storage, Field>)
@@ -236,7 +243,7 @@ template <typename Storage, typename Field>
 
 // Set expresses a write, and is the only write available for a non-addressable member.
 template <typename Storage, typename Field, typename ValueType>
-    requires HasMember<Storage, Field>
+requires HasMember<Storage, Field>
 void Set(Storage& storage, Field field, ValueType&& value)
 {
     if constexpr (Addressable<Storage, Field>)
@@ -252,11 +259,11 @@ void Set(Storage& storage, Field field, ValueType&& value)
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
 template <typename Field>
 concept HandleField = std::same_as<typename Field::api_type::kind, field_kind::Handle> &&
-                      std::same_as<typename Field::shape, field_shape::Value>;
+    std::same_as<typename Field::shape, field_shape::Value>;
 
 template <typename Field>
 concept ScalarField = std::derived_from<typename Field::api_type::kind, field_kind::Scalar> &&
-                      std::same_as<typename Field::shape, field_shape::Value>;
+    std::same_as<typename Field::shape, field_shape::Value>;
 
 // StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
@@ -281,14 +288,16 @@ concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::E
 template <typename Field>
 concept NoValueField = std::same_as<typename Field::shape, field_shape::NoValue>;
 
-// Storage concepts. These describe what a store holds for a Field, and stay independent of any one operation family.
-template <typename FieldStore, typename Field, typename ValueType>
-concept StoresFieldAs = Addressable<FieldStore, Field> && requires(FieldStore& store, Field field) {
-    requires std::same_as<std::remove_cvref_t<decltype(GetRef(store, field))>, ValueType>;
+// Storage concepts. These describe what a storage type holds for a Field, and stay independent of any one operation
+// family.
+template <typename Storage, typename Field, typename ValueType>
+concept StoresFieldAs = Addressable<Storage, Field> && requires(Storage& storage, Field field)
+{
+    requires std::same_as<std::remove_cvref_t<decltype(GetRef(storage, field))>, ValueType>;
 };
 
-template <typename FieldStore, typename Field>
-concept StoresElementField = StoresFieldAs<FieldStore, Field, FieldElementType<Field>>;
+template <typename Storage, typename Field>
+concept StoresElementField = StoresFieldAs<Storage, Field, FieldElementType<Field>>;
 
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)

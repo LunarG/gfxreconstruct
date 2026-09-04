@@ -60,8 +60,12 @@ from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, Dec
 
 # Field Schema
 from vulkan_schema_generator import (
-    VulkanSchemaGenerator, VulkanSchemaGeneratorOptions, SCHEMA_PART_IDENTITY, SCHEMA_PART_DECODED_TRAITS,
-    SCHEMA_PART_NATIVE_STRUCT_TRAITS, SCHEMA_PART_DECODED_STRUCT_TRAITS, SCHEMA_PART_DECODED_COMMAND_TRAITS
+    VulkanSchemaIdentityGenerator, VulkanSchemaIdentityGeneratorOptions,
+    VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions,
+    VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions,
+    VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions,
+    VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
+    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions
 )
 
 # Consumers
@@ -341,19 +345,25 @@ def make_gen_opts(args):
         )
     ]
 
-    # Field schema generators. One model produces every part, and the member-trait parts are separate files so that
-    # a target includes only the storage population it uses.
-    for schema_filename, schema_part, schema_protect in (
-        ('generated_vulkan_schema.h', SCHEMA_PART_IDENTITY, True),
-        ('generated_vulkan_schema_decoded_traits.h', SCHEMA_PART_DECODED_TRAITS, True),
-        ('generated_vulkan_schema_native_struct_traits.inc', SCHEMA_PART_NATIVE_STRUCT_TRAITS, False),
-        ('generated_vulkan_schema_decoded_struct_traits.inc', SCHEMA_PART_DECODED_STRUCT_TRAITS, False),
-        ('generated_vulkan_schema_decoded_command_traits.inc', SCHEMA_PART_DECODED_COMMAND_TRAITS, False),
+    # Field schema generators. One model, one generated file for each part of it, so that a target includes only
+    # the storage population it uses.
+    for schema_filename, schema_generator, schema_options, schema_protect in (
+        ('generated_vulkan_schema.h',
+         VulkanSchemaIdentityGenerator, VulkanSchemaIdentityGeneratorOptions, True),
+        ('generated_vulkan_decode_api_element_traits.h',
+         VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions, True),
+        ('generated_vulkan_schema_native_struct_members.h',
+         VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions, True),
+        ('generated_vulkan_schema_decoded_struct_members.h',
+         VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions, True),
+        ('generated_vulkan_schema_decoded_command_members.h',
+         VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
+        ('generated_vulkan_schema_checks.cpp',
+         VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
     ):
         gen_opts[schema_filename] = [
-            VulkanSchemaGenerator,
-            VulkanSchemaGeneratorOptions(
-                schema_part=schema_part,
+            schema_generator,
+            schema_options(
                 filename=schema_filename,
                 directory=directory,
                 blacklists=blacklists,

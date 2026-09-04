@@ -72,7 +72,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
-                    ${CMAKE_CURRENT_LIST_DIR}/decoded_representation_traits.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_element_traits.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.cpp
@@ -334,14 +334,13 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
-                    ${GFXRECON_SOURCE_DIR}/framework/schema/field_model.h
-                    ${GFXRECON_SOURCE_DIR}/framework/schema/schema_util.h
-                    ${GFXRECON_SOURCE_DIR}/framework/schema/encoding.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema.h
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_traits.h
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_native_struct_traits.inc
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_struct_traits.inc
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_command_traits.inc
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decode_api_element_traits.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_native_struct_members.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_struct_members.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_command_members.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_action.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
@@ -474,6 +473,7 @@ if (NOT ANDROID)
 endif()
 
 target_link_libraries(gfxrecon_decode
+                        gfxrecon_schema
                         gfxrecon_graphics
                         gfxrecon_format
                         gfxrecon_util

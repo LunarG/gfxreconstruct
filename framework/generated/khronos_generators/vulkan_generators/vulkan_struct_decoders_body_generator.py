@@ -24,6 +24,7 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_body_generator import KhronosStructDecodersBodyGenerator
+from vulkan_schema_generator import SCHEMA_OWNED_STRUCT_DECODERS
 
 
 class VulkanStructDecodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -53,6 +54,7 @@ class VulkanStructDecodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
+            'decode/vulkan_decode_struct.h',
             'generated/generated_vulkan_struct_decoders.h',
             '',
             'decode/custom_vulkan_struct_decoders.h',
@@ -79,6 +81,10 @@ class VulkanStructDecodersBodyGenerator(
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+    def skip_struct_decoder(self, struct):
+        """Method override. The schema field walk owns these decoders, so no procedural body is emitted."""
+        return struct in SCHEMA_OWNED_STRUCT_DECODERS
 
     def write_base_out_struct_decoder(self):
         body = '\n'

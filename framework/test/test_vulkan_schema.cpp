@@ -29,16 +29,24 @@
 #include <catch2/catch.hpp>
 
 #include "generated/generated_vulkan_schema.h"
-#include "generated/generated_vulkan_schema_decoded_traits.h"
+#include "generated/generated_vulkan_decode_api_element_traits.h"
 
 // The generated schema reaches no wire representation type, so the encoding join is included separately, the way an
 // Encode or Decode adapter would include it.
 #include "schema/encoding.h"
 
-#include "generated/generated_vulkan_schema_decoded_command_traits.inc"
-#include "generated/generated_vulkan_schema_decoded_struct_traits.inc"
-#include "generated/generated_vulkan_schema_native_struct_traits.inc"
+#include "decode/decode_allocator.h"
+#include "decode/vulkan_decode_struct.h"
+#include "encode/parameter_buffer.h"
+#include "encode/parameter_encoder.h"
+#include "generated/generated_vulkan_struct_encoders.h"
+#include "util/logging.h"
 
+#include "generated/generated_vulkan_schema_decoded_command_members.h"
+#include "generated/generated_vulkan_schema_decoded_struct_members.h"
+#include "generated/generated_vulkan_schema_native_struct_members.h"
+
+#include <memory>
 #include <type_traits>
 
 namespace
@@ -47,7 +55,7 @@ using namespace gfxrecon;
 
 using Command = schema::command::vulkan::CmdPipelineBarrier;
 
-// A structure keys its schema on its API type descriptor, the same key TraitsFor uses.
+// A structure keys its schema on its API type descriptor, the same key ApiElementTraits uses.
 using Barrier = schema::api_type::vulkan::VkBufferMemoryBarrier;
 
 namespace cmd_field     = schema::field::vulkan::CmdPipelineBarrier;
@@ -80,8 +88,8 @@ static_assert(std::is_same_v<schema::ParameterFields<Command>,
 // A non-void command resolves its native return type from the same Return Field.
 static_assert(std::is_same_v<schema::ReturnType<schema::command::vulkan::CreateBuffer>, VkResult>);
 
-// A kind names a wire representation, and it is emitted only where that differs from the element type. Two named
-// types that share one C++ representation still stay distinct, because the descriptor is the identity.
+// A kind names the logical Encode and Decode operation for a registry type, and schema/encoding.h joins it to a wire
+// representation.
 static_assert(
     std::is_same_v<schema::ElementType<schema::api_type::vulkan::VkPipelineStageFlags>, VkPipelineStageFlags>);
 static_assert(std::is_same_v<schema::api_type::vulkan::VkPipelineStageFlags::kind, schema::field_kind::Flags>);
@@ -92,11 +100,9 @@ static_assert(std::is_same_v<schema::api_type::vulkan::VkDeviceSize::kind, schem
 
 // Two registry names that share one C++ representation stay distinct, because the descriptor is the identity.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
-static_assert(!std::is_same_v<schema::api_type::vulkan::VkAccessFlags2,
-                              schema::api_type::vulkan::VkPipelineStageFlags2>);
+static_assert(
+    !std::is_same_v<schema::api_type::vulkan::VkAccessFlags2, schema::api_type::vulkan::VkPipelineStageFlags2>);
 
-// A width does not split a kind either: 32-bit and 64-bit flags share one kind, and the encoding join derives the
-// wire width from the element type, so no descriptor can disagree with its own width.
 // A kind is specific, so each one maps to the ParameterEncoder and ValueDecoder function that already exists for
 // it. That restates part of what element_type says, and the generator checks the agreement in the one loop that
 // assigns both.
@@ -150,7 +156,7 @@ static_assert(schema::NonAddressable<VkAccelerationStructureInstanceKHR,
 // Decoded representation resolves through the traits key, which is the same key the schema uses.
 static_assert(std::is_same_v<decode::Decoded<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
 static_assert(std::is_same_v<decode::Decoded<Command>, decode::args::CmdPipelineBarrier>);
-static_assert(decode::TraitsFor<Command>::call_id == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
+static_assert(decode::ApiElementTraits<Command>::call_id == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
 
 // One walk visits the whole field list, and one Action supplies the Apply overloads that its shapes select.
 struct CountingAction
@@ -159,26 +165,16 @@ struct CountingAction
     size_t scalars = 0;
     size_t others  = 0;
 
-    template <typename Field, typename Store>
-        requires schema::HandleField<Field>
-    void Apply(Field, Store&)
-    {
-        ++handles;
-    }
+    template <typename Field, typename Storage>
+    requires schema::HandleField<Field>
+    void Apply(Field, Storage&) { ++handles; }
 
-    template <typename Field, typename Store>
-        requires schema::ScalarField<Field>
-    void Apply(Field, Store&)
-    {
-        ++scalars;
-    }
+    template <typename Field, typename Storage>
+    requires schema::ScalarField<Field>
+    void Apply(Field, Storage&) { ++scalars; }
 
-    template <typename Field, typename Store>
-        requires(!schema::HandleField<Field> && !schema::ScalarField<Field>)
-    void Apply(Field, Store&)
-    {
-        ++others;
-    }
+    template <typename Field, typename Storage>
+    requires(!schema::HandleField<Field> && !schema::ScalarField<Field>) void Apply(Field, Storage&) { ++others; }
 };
 
 // The positional invocation step expands to the call the driver path already makes.
@@ -291,4 +287,158 @@ TEST_CASE("A generated command schema invokes a positional call in parameter ord
     schema::InvokeFromFields<Command>(RecordPipelineBarrier, store);
 
     CHECK(store.memoryBarrierCount == 0);
+}
+
+TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema field walk", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkBufferMemoryBarrier is in SCHEMA_OWNED_STRUCT_DECODERS, so the struct-decoders generator emits no
+    // procedural body for it and DecodeStruct is the field walk. Nothing below names a field of the structure: the
+    // schema orders them and the hand-written Action decides what each one means.
+    //
+    // Equivalence with the procedural body was checked field for field before the swap, by decoding the same buffer
+    // both ways. That comparison is no longer available once the procedural body is gone, so what remains is the
+    // round trip against the values written below, which is independent of either implementation.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // The wire layout is written from the encoder primitives rather than from EncodeStruct, for one reason: a handle
+    // encodes through GetWrappedId, so a handle the capture layer never wrapped would record as a null identity and
+    // the handle path would not be exercised with a real value. The call order below is the generated encoder's,
+    // which is the canonical field order the schema also carries.
+    constexpr format::HandleId kBufferId       = 0x0000BEEFCAFE0001ull;
+    constexpr VkAccessFlags    kSrcAccess      = VK_ACCESS_TRANSFER_WRITE_BIT;
+    constexpr VkAccessFlags    kDstAccess      = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT;
+    constexpr uint32_t         kSrcQueueFamily = 3;
+    constexpr uint32_t         kDstQueueFamily = 7;
+    constexpr VkDeviceSize     kOffset         = 0x1122334455667788ull;
+    constexpr VkDeviceSize     kSize           = 4096;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(kSrcAccess);
+    encoder->EncodeFlagsValue(kDstAccess);
+    encoder->EncodeUInt32Value(kSrcQueueFamily);
+    encoder->EncodeUInt32Value(kDstQueueFamily);
+    encoder->EncodeHandleIdValue(kBufferId);
+    encoder->EncodeUInt64Value(kOffset);
+    encoder->EncodeUInt64Value(kSize);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    // This is the ordinary decode entry point. Its body is DecodeStructByWalk<VkBufferMemoryBarrier>.
+    VkBufferMemoryBarrier         walked_value{};
+    Decoded_VkBufferMemoryBarrier walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    // ...and round-trips the value that was written, in the right order and at the right width. A field read out of
+    // order or at the wrong width would land in a neighbour, so these also pin the canonical field order.
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER);
+    CHECK(walked_value.srcAccessMask == kSrcAccess);
+    CHECK(walked_value.dstAccessMask == kDstAccess);
+    CHECK(walked_value.srcQueueFamilyIndex == kSrcQueueFamily);
+    CHECK(walked_value.dstQueueFamilyIndex == kDstQueueFamily);
+    CHECK(walked_value.offset == kOffset);
+    CHECK(walked_value.size == kSize);
+
+    // The handle lands in the wrapper as a capture-file identity, and the native handle is left for replay to map.
+    CHECK(walked.buffer == kBufferId);
+    CHECK(walked_value.buffer == VK_NULL_HANDLE);
+
+    // The extension chain took the chain overload.
+    CHECK(walked.pNext == nullptr);
+    CHECK(walked_value.pNext == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk descends into an embedded structure", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkImageMemoryBarrier adds one field the previous structure did not have: an embedded VkImageSubresourceRange.
+    // That field needs the fourth Apply overload, which allocates the nested decoded wrapper, links it to the inline
+    // native member, and descends through DecodeStruct. VkImageSubresourceRange is itself schema-owned here, so the
+    // descent lands in a second field walk -- but the outer Action neither knows nor cares about that.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr format::HandleId   kImageId        = 0x0000FEEDFACE0002ull;
+    constexpr VkAccessFlags      kSrcAccess      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    constexpr VkAccessFlags      kDstAccess      = VK_ACCESS_SHADER_READ_BIT;
+    constexpr VkImageLayout      kOldLayout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    constexpr VkImageLayout      kNewLayout      = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    constexpr uint32_t           kSrcQueueFamily = 11;
+    constexpr uint32_t           kDstQueueFamily = 13;
+    constexpr VkImageAspectFlags kAspect         = VK_IMAGE_ASPECT_COLOR_BIT;
+    constexpr uint32_t           kBaseMip        = 2;
+    constexpr uint32_t           kLevels         = 3;
+    constexpr uint32_t           kBaseLayer      = 4;
+    constexpr uint32_t           kLayers         = 5;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(kSrcAccess);
+    encoder->EncodeFlagsValue(kDstAccess);
+    encoder->EncodeEnumValue(kOldLayout);
+    encoder->EncodeEnumValue(kNewLayout);
+    encoder->EncodeUInt32Value(kSrcQueueFamily);
+    encoder->EncodeUInt32Value(kDstQueueFamily);
+    encoder->EncodeHandleIdValue(kImageId);
+    // The embedded structure is written inline, in its own schema order.
+    encoder->EncodeFlagsValue(kAspect);
+    encoder->EncodeUInt32Value(kBaseMip);
+    encoder->EncodeUInt32Value(kLevels);
+    encoder->EncodeUInt32Value(kBaseLayer);
+    encoder->EncodeUInt32Value(kLayers);
+
+    DecodeAllocator::Begin();
+
+    VkImageMemoryBarrier         value{};
+    Decoded_VkImageMemoryBarrier wrapper{};
+    wrapper.decoded_value = &value;
+
+    const size_t bytes_read = DecodeStruct(parameter_buffer->GetData(), parameter_buffer->GetDataSize(), &wrapper);
+
+    CHECK(bytes_read == parameter_buffer->GetDataSize());
+
+    CHECK(value.sType == VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER);
+    CHECK(value.srcAccessMask == kSrcAccess);
+    CHECK(value.dstAccessMask == kDstAccess);
+    CHECK(value.oldLayout == kOldLayout);
+    CHECK(value.newLayout == kNewLayout);
+    CHECK(value.srcQueueFamilyIndex == kSrcQueueFamily);
+    CHECK(value.dstQueueFamilyIndex == kDstQueueFamily);
+
+    CHECK(wrapper.image == kImageId);
+    CHECK(value.image == VK_NULL_HANDLE);
+
+    // The embedded overload allocated a nested wrapper and pointed it at the inline native member. That link is what
+    // lets handle mapping and any later pass reach the nested decoded state.
+    REQUIRE(wrapper.subresourceRange != nullptr);
+    CHECK(wrapper.subresourceRange->decoded_value == &value.subresourceRange);
+
+    // ...and the descent decoded it.
+    CHECK(value.subresourceRange.aspectMask == kAspect);
+    CHECK(value.subresourceRange.baseMipLevel == kBaseMip);
+    CHECK(value.subresourceRange.levelCount == kLevels);
+    CHECK(value.subresourceRange.baseArrayLayer == kBaseLayer);
+    CHECK(value.subresourceRange.layerCount == kLayers);
+
+    DecodeAllocator::End();
+    util::Log::Release();
 }

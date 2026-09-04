@@ -24,6 +24,7 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_forward_generator import KhronosStructDecodersForwardGenerator
+from vulkan_schema_generator import SCHEMA_OWNED_STRUCT_DECODERS
 
 
 class VulkanStructDecodersForwardGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -75,6 +76,10 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+    def skip_struct_decoder_prototype(self, struct):
+        """Method override. A schema-owned decoder is declared by the constrained template."""
+        return struct in SCHEMA_OWNED_STRUCT_DECODERS
 
     def endFile(self):
         """Method override."""
