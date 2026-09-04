@@ -330,6 +330,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     CommonObjectInfoTable& GetObjectInfoTable() { return *object_info_table_; }
 
+    VulkanCommandBufferUtil& GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info);
+
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void PostProcessExternalObject(
@@ -2068,7 +2070,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
     VulkanFrameWarmUp&                  GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info);
-    VulkanCommandBufferUtil&            GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info);
     VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
     /**

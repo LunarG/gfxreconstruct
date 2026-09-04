@@ -22,8 +22,9 @@
 # IN THE SOFTWARE.
 
 from khronos_base_generator import write
+from khronos_base_generator import KhronosBaseGenerator
 
-class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
+class KhronosReplayFrameLoopConsumerBaseBodyGenerator(KhronosBaseGenerator):
     """Base class for generating replay frame loop consumers body code."""
 
     # Create-info structs (used by REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES)
@@ -58,7 +59,13 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
-                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
+                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED +
+                 self.REPLAY_FRAME_LOOP_COMMAND_BUFFER_STATE_OVERRIDES) and
+                 "vkCmd" != command[0:5])
+
+    def is_command_buffer_command(self, command):
+        return ((command in self.REPLAY_FRAME_LOOP_COMMAND_BUFFER_STATE_OVERRIDES) or
+               ("vkCmd" == command[0:5]))
 
     def genCallReplayConsumer(self, return_type, name, values):
         return f'{self.platform_type}ReplayConsumer::Process_{name}(call_info, args);\n'
@@ -286,6 +293,14 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {\n'
             body += '        return;\n'
             body += '    }\n'
+            body += '    ' + self.genCallReplayConsumer(return_type, name, values)
+
+        elif self.is_command_buffer_command(name):
+            body += '    // Only record command buffer commands on first iteration of looping frame.\n'
+            body += '    if (getFrameLoopInfo().IsRepetition())\n'
+            body += '    {\n'
+            body += "        return;\n"
+            body += "    }\n"
             body += '    ' + self.genCallReplayConsumer(return_type, name, values)
 
         else:

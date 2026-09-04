@@ -11279,7 +11279,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
                 resource_dumper_->ResetCommandBuffer(cb_info->handle);
             }
 
-            if (options_.isolate_render_passes)
+            if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
             {
                 GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
             }

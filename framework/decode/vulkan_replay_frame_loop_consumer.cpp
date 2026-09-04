@@ -414,6 +414,19 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInf
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
+                                                                 args::ResetCommandBuffer& args)
+{
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
+    {
+        VulkanCommandBufferInfo* cb_info     = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+        VulkanDeviceInfo*        device_info = GetObjectInfoTable().GetVkDeviceInfo(cb_info->parent_id);
+        VulkanCommandBufferUtil& cbu         = GetDeviceCommandBufferUtil(device_info);
+        cbu.ReplaceWithAssociatedCommandBuffer(cb_info);
+    }
+    VulkanReplayConsumer::Process_vkResetCommandBuffer(call_info, args);
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,
                                                                     args::DestroyDescriptorPool& args)
 {
@@ -455,12 +468,20 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCal
 void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
                                                                  args::BeginCommandBuffer& args)
 {
-    VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
-
-    if (frame_loop_info_.IsLooping())
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
+        // While looping, we'll be submitting the command buffer repeatedly,
+        // so remove the one-time-submit flag
+        args.pBeginInfo.GetPointer()->flags &= ~VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        VulkanCommandBufferInfo* cb_info     = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+        VulkanDeviceInfo*        device_info = GetObjectInfoTable().GetVkDeviceInfo(cb_info->parent_id);
+        VulkanCommandBufferUtil& cbu         = GetDeviceCommandBufferUtil(device_info);
+        cbu.BeginCommandBuffer(cb_info);
+
+        VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
+
         // Record query pool reset commands
-        VulkanCommandBufferInfo* cb_info       = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
         format::HandleId         device        = cb_info->parent_id;
         VkDevice                 replay_device = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
         GFXRECON_ASSERT(replay_device != 0);
@@ -478,6 +499,18 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
     }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkFreeCommandBuffers(
+    const ApiCallInfo&                          call_info,
+    args::FreeCommandBuffers&                   args)
+{
+    // Don't free any command buffers while inside the loop range
+    if (frame_loop_info_.IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)

@@ -788,7 +788,7 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
 {
     if (is_enabled_)
     {
-        if (replay_options_.isolate_render_passes)
+        if (replay_options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
         {
             auto  decoder  = std::make_unique<decode::VulkanStateRecordingDecoder>();
             auto* consumer = dynamic_cast<decode::VulkanReplayConsumerBase*>(replay_consumer_.get());
