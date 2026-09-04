@@ -139,8 +139,10 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/replay_options.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.h
-                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_controller.h
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_controller.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_handler.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_handler.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/string_array_decoder.h

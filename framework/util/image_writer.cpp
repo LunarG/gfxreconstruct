@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <inttypes.h>
 #include <limits>
 #include <math.h>
@@ -86,6 +87,10 @@ const uint32_t kImageBppNoAlpha    = 3;  // Expecting 3 bytes per pixel for 32-b
 static size_t               temporary_buffer_size = 0;
 static std::vector<uint8_t> temporary_buffer;
 
+// The alpha channel gets a buffer of its own, because the conversion below
+// writes into temporary_buffer and would destroy an alpha image held there.
+static std::vector<uint8_t> alpha_buffer;
+
 #define CheckFwriteRetVal(_val_, _file_)                                                              \
     {                                                                                                 \
         if (!_val_)                                                                                   \
@@ -107,7 +112,11 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
 {
     assert(data_pitch);
 
-    uint32_t output_pitch = width * (write_alpha ? kImageBpp : kImageBppNoAlpha);
+    // Every conversion below writes this many bytes for a row, then moves to
+    // output_pitch and starts the next one.
+    const uint32_t row_data_size = width * (write_alpha ? kImageBpp : kImageBppNoAlpha);
+
+    uint32_t output_pitch = row_data_size;
     if (!is_png)
     {
         output_pitch = static_cast<uint32_t>(util::platform::GetAlignedSize(output_pitch, 4));
@@ -118,6 +127,21 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
     {
         temporary_buffer_size = output_size;
         temporary_buffer.resize(output_size);
+    }
+
+    // A bitmap row is aligned to four bytes, so output_pitch can be larger
+    // than the row the conversions write, and they never touch the difference.
+    // This buffer is kept between calls, so the gap holds bytes of whatever
+    // image used it last, and WriteBmpImage writes the whole aligned pitch to
+    // the file.  Two effects, both bad: the file carries bytes that belong to
+    // no image, and the same image written twice gives two different files.
+    if (output_pitch > row_data_size)
+    {
+        const uint32_t padding_size = output_pitch - row_data_size;
+        for (uint32_t y = 0; y < height; ++y)
+        {
+            std::memset(temporary_buffer.data() + (y * output_pitch) + row_data_size, 0, padding_size);
+        }
     }
 
     uint8_t* temp_buffer = temporary_buffer.data();
@@ -153,6 +177,43 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                     if (write_alpha)
                     {
                         *(temp_buffer++) = a;
+                    }
+                }
+
+                bytes += data_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
+            }
+        }
+        break;
+
+        case kFormat_RGB:
+        {
+            const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t r = bytes[(3 * x) + 0];
+                    const uint8_t g = bytes[(3 * x) + 1];
+                    const uint8_t b = bytes[(3 * x) + 2];
+
+                    if (is_png)
+                    {
+                        *(temp_buffer++) = r;
+                        *(temp_buffer++) = g;
+                        *(temp_buffer++) = b;
+                    }
+                    else
+                    {
+                        *(temp_buffer++) = b;
+                        *(temp_buffer++) = g;
+                        *(temp_buffer++) = r;
+                    }
+
+                    if (write_alpha)
+                    {
+                        *(temp_buffer++) = 0xff;
                     }
                 }
 
@@ -358,14 +419,13 @@ static uint8_t*
 ExtractAlphaChannel(uint32_t width, uint32_t height, const void* data, uint32_t data_pitch, bool expand_to_rgb)
 {
     const size_t output_size = width * height * (expand_to_rgb ? kImageBppNoAlpha : 1);
-    if (temporary_buffer_size < output_size)
+    if (alpha_buffer.size() < output_size)
     {
-        temporary_buffer_size = output_size;
-        temporary_buffer.resize(output_size);
+        alpha_buffer.resize(output_size);
     }
 
     const uint32_t* pixels      = reinterpret_cast<const uint32_t*>(data);
-    uint8_t*        temp_buffer = temporary_buffer.data();
+    uint8_t*        temp_buffer = alpha_buffer.data();
 
     for (uint32_t y = 0; y < height; ++y)
     {
@@ -385,7 +445,7 @@ ExtractAlphaChannel(uint32_t width, uint32_t height, const void* data, uint32_t 
         pixels = reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(pixels) + data_pitch);
     }
 
-    return temporary_buffer.data();
+    return alpha_buffer.data();
 }
 
 static bool WriteBmpHeader(FILE* file, uint32_t width, uint32_t height, bool write_alpha)
@@ -463,7 +523,18 @@ bool WriteBmpImage(const std::string& filename,
         // Y needs to be inverted when writing the bitmap data.
         auto height_1 = height - 1;
 
-        if ((format == kFormat_BGR && !write_alpha) || (format == kFormat_BGRA && write_alpha))
+        const uint32_t bmp_pitch = static_cast<uint32_t>(
+            util::platform::GetAlignedSize(width * (write_alpha ? kImageBpp : kImageBppNoAlpha), 4));
+
+        // The rows can go to the file as they are only when they already have
+        // the layout of a bitmap row.  The header says the rows are aligned to
+        // four bytes, thus a source of another pitch has to go through the
+        // conversion, which aligns them.
+        const bool source_is_bitmap_layout =
+            ((format == kFormat_BGR && !write_alpha) || (format == kFormat_BGRA && write_alpha)) &&
+            (data_pitch == bmp_pitch);
+
+        if (source_is_bitmap_layout)
         {
             const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
             for (uint32_t y = 0; y < height; ++y)
@@ -474,9 +545,6 @@ bool WriteBmpImage(const std::string& filename,
         }
         else
         {
-            const uint32_t bmp_pitch = static_cast<uint32_t>(
-                util::platform::GetAlignedSize(width * (write_alpha ? kImageBpp : kImageBppNoAlpha), 4));
-
             const uint8_t* bytes =
                 ConvertIntoTemporaryBuffer(width, height, data, data_pitch, format, false, write_alpha);
             for (uint32_t y = 0; y < height; ++y)
@@ -722,6 +790,67 @@ void RotateAndMirrorPixels(ImageRotation   rotation,
                 src_pixels, dst_pixels, src_width, src_height, dst_width, dst_height);
         }
     }
+}
+
+bool WriteImage(const std::string& filename,
+                ScreenshotFormat   file_format,
+                uint32_t           width,
+                uint32_t           height,
+                const void*        data,
+                uint32_t           pitch,
+                DataFormats        data_format,
+                bool               write_alpha,
+                bool               separate_alpha)
+{
+    switch (file_format)
+    {
+        case ScreenshotFormat::kPng:
+            return separate_alpha ? WritePngImageSeparateAlpha(filename, width, height, data, pitch, data_format)
+                                  : WritePngImage(filename, width, height, data, pitch, data_format, write_alpha);
+
+        case ScreenshotFormat::kBmp:
+            return separate_alpha ? WriteBmpImageSeparateAlpha(filename, width, height, data, pitch, data_format)
+                                  : WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha);
+
+        default:
+            // A value outside the enumeration.  Write something rather than
+            // nothing, and let the caller's own report say a file is missing.
+            GFXRECON_LOG_ERROR("%s(): unrecognized image file format %u; writing a BMP instead",
+                               __func__,
+                               static_cast<uint32_t>(file_format));
+            WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha);
+            return false;
+    }
+}
+
+bool WriteScreenshotFile(const std::string& filename_base,
+                         ScreenshotFormat   file_format,
+                         uint32_t           width,
+                         uint32_t           height,
+                         const void*        data,
+                         uint32_t           pitch,
+                         DataFormats        data_format)
+{
+    ScreenshotFormat written_format = file_format;
+
+#ifndef GFXRECON_ENABLE_PNG_SCREENSHOT
+    if (written_format == ScreenshotFormat::kPng)
+    {
+        GFXRECON_LOG_WARNING_ONCE("This build has no PNG support, thus screenshots are written as BMP files.");
+        written_format = ScreenshotFormat::kBmp;
+    }
+#endif
+
+    const char*       extension = (written_format == ScreenshotFormat::kPng) ? ".png" : ".bmp";
+    const std::string filename  = filename_base + extension;
+
+    if (!WriteImage(filename, written_format, width, height, data, pitch, data_format))
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write file %s", filename.c_str());
+        return false;
+    }
+
+    return true;
 }
 
 GFXRECON_END_NAMESPACE(imagewriter)

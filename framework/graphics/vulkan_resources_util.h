@@ -30,6 +30,7 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_injected_calls.h"
 
+#include <array>
 #include <vector>
 #include <functional>
 #include <limits>
@@ -123,8 +124,13 @@ class VulkanResourcesUtil
 
         VkImageAspectFlagBits aspect         = VK_IMAGE_ASPECT_NONE;
         bool                  dump_resources = false;
-        float                 scale          = 1.0f;
         VkFormat              dst_format     = VK_FORMAT_UNDEFINED;
+
+        //! A factor for width and one for height.  A negative factor mirrors that axis.
+        std::array<float, 2> scale = { 1.0f, 1.0f };
+
+        //! The first layer to read.  A screenshot reads one layer of an image that has many.
+        uint32_t base_layer = 0;
     };
 
     //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
@@ -191,12 +197,12 @@ class VulkanResourcesUtil
                          VkFormat       dst_format,
                          VkImageTiling* dst_image_tiling = nullptr) const;
 
-    bool IsScalingSupported(VkFormat          src_format,
-                            VkImageTiling     src_image_tiling,
-                            VkFormat          dst_format,
-                            VkImageType       type,
-                            const VkExtent3D& extent,
-                            float             scale) const;
+    bool IsScalingSupported(VkFormat                    src_format,
+                            VkImageTiling               src_image_tiling,
+                            VkFormat                    dst_format,
+                            VkImageType                 type,
+                            const VkExtent3D&           extent,
+                            const std::array<float, 2>& scale) const;
 
     struct blit_image_params_t
     {
@@ -314,7 +320,8 @@ class VulkanResourcesUtil
                            uint32_t                     array_layers,
                            VkImageAspectFlags           aspect,
                            const std::vector<uint64_t>& sizes,
-                           bool                         is_dump_resources);
+                           bool                         is_dump_resources,
+                           uint32_t                     base_layer = 0);
 
     void CopyBuffer(VkCommandBuffer command_buffer,
                     VkBuffer        source_buffer,
@@ -354,21 +361,22 @@ class VulkanResourcesUtil
 
     VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, VkQueue queue);
 
-    VkResult BlitImage(VkCommandBuffer       command_buffer,
-                       VkImage               image,
-                       VkFormat              format,
-                       VkFormat              dst_format,
-                       VkImageType           type,
-                       VkImageTiling         tiling,
-                       const VkExtent3D&     extent,
-                       const VkExtent3D&     scaled_extent,
-                       uint32_t              mip_levels,
-                       uint32_t              array_layers,
-                       VkImageAspectFlagBits aspect,
-                       uint32_t              queue_family_index,
-                       float                 scale,
-                       VkImage&              scaled_image,
-                       VkDeviceMemory&       scaled_image_mem);
+    VkResult BlitImage(VkCommandBuffer             command_buffer,
+                       VkImage                     image,
+                       VkFormat                    format,
+                       VkFormat                    dst_format,
+                       VkImageType                 type,
+                       VkImageTiling               tiling,
+                       const VkExtent3D&           extent,
+                       const VkExtent3D&           scaled_extent,
+                       uint32_t                    mip_levels,
+                       uint32_t                    array_layers,
+                       VkImageAspectFlagBits       aspect,
+                       uint32_t                    queue_family_index,
+                       const std::array<float, 2>& scale,
+                       uint32_t                    src_base_layer,
+                       VkImage&                    scaled_image,
+                       VkDeviceMemory&             scaled_image_mem);
 
     void BlitHelper(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params) const;
 

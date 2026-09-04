@@ -388,9 +388,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
 
-    GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
-    replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
-
     if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
     {
         replay_options.present_override_image_name = override_name;
