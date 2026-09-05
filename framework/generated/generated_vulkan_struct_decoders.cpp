@@ -1170,23 +1170,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoAV1TileInfoFlags* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    StdVideoAV1TileInfoFlags* value = wrapper->decoded_value;
-
-    uint32_t temp_uniform_tile_spacing_flag;
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_uniform_tile_spacing_flag);
-    value->uniform_tile_spacing_flag = temp_uniform_tile_spacing_flag;
-    uint32_t temp_reserved;
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoAV1TileInfo* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

@@ -622,6 +622,47 @@ TEST_CASE("A field walk decodes a pointer to a structure through the same overlo
     util::Log::Release();
 }
 
+TEST_CASE("A field walk writes a bitfield through Set, since it has no address", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // StdVideoAV1TileInfoFlags is uniform_tile_spacing_flag : 1 and reserved : 31. Neither member has an address --
+    // C++ [class.bit]/3 forbids both &member and binding a non-const reference to one -- so the member trait holds
+    // generated Get and Set accessors in place of a pointer-to-member, and the walk writes through Set.
+    //
+    // Each bitfield is recorded as a whole uint32 on the wire, so a one-bit flag costs four bytes. The values below
+    // are chosen to prove that: 8 bytes for two fields, and reserved carries a value wider than one bit.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr uint32_t kUniformTileSpacing = 1;
+    constexpr uint32_t kReserved           = 0x2A;
+
+    parameter_encoder->EncodeUInt32Value(kUniformTileSpacing);
+    parameter_encoder->EncodeUInt32Value(kReserved);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    CHECK(encoded_size == 2 * sizeof(uint32_t));
+
+    DecodeAllocator::Begin();
+
+    StdVideoAV1TileInfoFlags         walked_value{};
+    Decoded_StdVideoAV1TileInfoFlags walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.uniform_tile_spacing_flag == kUniformTileSpacing);
+    CHECK(walked_value.reserved == kReserved);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;

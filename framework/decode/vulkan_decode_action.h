@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Seven overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Nine overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -82,6 +82,27 @@ class DecodeStructAction
     {
         bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
             Cursor(), Remaining(), &schema::GetRef(DecodedValueRef(storage), field));
+    }
+
+    // A bitfield cannot be decoded into. The address-of operator may not be applied to one and a non-const
+    // reference may not be bound to one, so there is no &member for the trait to hold and no reference for GetRef
+    // to return; the member trait supplies Set instead. That rule is C++ [class.bit]/3, a stable name resolvable at
+    // https://eel.is/c++draft/class.bit.
+    //
+    // So this decodes a whole value of the field's element type and writes it through. Each bitfield is recorded
+    // that way on the wire too -- a one-bit flag costs four bytes -- and the narrowing happens on the write,
+    // exactly as the procedural decoder does it.
+    //
+    // Disjoint from the value-shaped scalar overload by Addressable against NonAddressable, which cannot both hold.
+    template <typename Field, typename Storage>
+    requires schema::ScalarField<Field> && schema::NonAddressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        schema::FieldElementType<Field> value{};
+
+        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(Cursor(), Remaining(), &value);
+
+        schema::Set(DecodedValueRef(storage), field, value);
     }
 
     // A run of scalars decodes into the wrapper's PointerDecoder, and the decoded value's pointer follows it, as the

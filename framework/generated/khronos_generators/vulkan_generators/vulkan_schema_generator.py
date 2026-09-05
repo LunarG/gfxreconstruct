@@ -72,6 +72,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkSparseBufferMemoryBindInfo',
     'VkTransformMatrixKHR',
     'VkDeviceBufferMemoryRequirements',
+    'StdVideoAV1TileInfoFlags',
 )
 
 
