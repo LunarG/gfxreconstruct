@@ -558,6 +558,70 @@ TEST_CASE("A field walk decodes a fixed-extent array in place, extents from the 
     util::Log::Release();
 }
 
+TEST_CASE("A field walk decodes a pointer to a structure through the same overload as a run", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkDeviceBufferMemoryRequirements carries a pointer to one VkBufferCreateInfo. No overload was added for it:
+    // StructPointerDecoder reads its own length from the wire, so one structure is a run of one and the body is the
+    // array case unchanged. Only the constraint widened, from PointerArrayField to either pointer shape.
+    //
+    // The element is a large extensible structure that is not migrated, so this descends into the procedural
+    // decoder for something substantial rather than a leaf -- including that element's own pNext.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    VkBufferCreateInfo create_info{};
+    create_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
+    create_info.size                  = 0x4000;
+    create_info.usage                 = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encode::EncodeStructPtr(encoder, &create_info);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkDeviceBufferMemoryRequirements         walked_value{};
+    Decoded_VkDeviceBufferMemoryRequirements walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS);
+    CHECK(walked_value.pNext == nullptr);
+
+    // One element, and the decoded value's pointer aliases the decoder's storage.
+    REQUIRE(walked.pCreateInfo != nullptr);
+    REQUIRE(walked.pCreateInfo->GetPointer() != nullptr);
+    CHECK(walked.pCreateInfo->GetLength() == 1);
+    CHECK(walked_value.pCreateInfo == walked.pCreateInfo->GetPointer());
+
+    // The procedural decoder for the element ran, all the way through its own trailing fields.
+    const VkBufferCreateInfo& decoded_info = *walked_value.pCreateInfo;
+    CHECK(decoded_info.sType == VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO);
+    CHECK(decoded_info.flags == create_info.flags);
+    CHECK(decoded_info.size == create_info.size);
+    CHECK(decoded_info.usage == create_info.usage);
+    CHECK(decoded_info.sharingMode == create_info.sharingMode);
+    CHECK(decoded_info.queueFamilyIndexCount == 0u);
+    CHECK(decoded_info.pNext == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;

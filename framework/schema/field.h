@@ -110,8 +110,10 @@ concept HasCaptureWrapper = requires
 template <typename Storage, typename Field>
 struct MemberPointer;
 
-// Sentinel for a member that has no pointer-to-member. [class.bit]/3 does not permit the address-of operator on a
-// bitfield, so such a mapping supplies generated accessors instead.
+// Sentinel for a member that has no pointer-to-member. The address-of operator may not be applied to a bitfield and
+// a non-const reference may not be bound to one, so &Storage::member does not exist for such a member and GetRef
+// cannot serve it; the mapping supplies generated Get and Set accessors instead. That rule is C++ [class.bit]/3 --
+// a stable name, resolvable at https://eel.is/c++draft/class.bit.
 struct NotAddressable
 {};
 

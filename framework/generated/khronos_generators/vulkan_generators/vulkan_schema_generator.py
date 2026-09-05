@@ -71,6 +71,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkShaderModuleCreateInfo',
     'VkSparseBufferMemoryBindInfo',
     'VkTransformMatrixKHR',
+    'VkDeviceBufferMemoryRequirements',
 )
 
 

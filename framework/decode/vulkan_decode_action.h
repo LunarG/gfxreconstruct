@@ -169,18 +169,20 @@ class DecodeStructAction
         bytes_read_ += field_ref.template Decode<typename Field::api_type::kind>(Cursor(), Remaining());
     }
 
-    // A run of structures decodes into an allocated StructPointerDecoder, and the decoded value's pointer follows
-    // it. Every StructPointerDecoder member is an allocated pointer and every other decoder member is held by
-    // value, so the shape and kind that select this overload also settle which form to write; nothing here tests
-    // for it. If that ever stops holding, this body fails to compile and names the field.
+    // A pointer to a structure, or to a run of them. Both decode identically: StructPointerDecoder reads its own
+    // length from the wire, so one element is a run of one and the shape does not change the body. Every
+    // StructPointerDecoder member is an allocated pointer and every other decoder member is held by value, so the
+    // shape and kind that select this overload also settle which form to write; nothing here tests for it. If that
+    // ever stops holding, this body fails to compile and names the field.
     //
     // The decoder descends into each element through DecodeStruct, so this is legacy descent like the embedded
     // structure case, once per element. Whether an element type is itself a field walk is that structure's
     // business.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::PointerArrayField<Field> && schema::Addressable<Storage, Field> &&
-        schema::Addressable<typename Storage::struct_type, Field>
-    void Apply(Field field, Storage& storage)
+    requires schema::StructField<Field> &&
+        (schema::PointerField<Field> ||
+         schema::PointerArrayField<Field>)&&schema::Addressable<Storage, Field>&& schema::
+            Addressable<typename Storage::struct_type, Field> void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
         using Decoder   = std::remove_pointer_t<std::remove_cvref_t<decltype(field_ref)>>;
