@@ -40,7 +40,7 @@
 #include "decode/api_element_traits.h"
 #include "decode/vulkan_decode_action.h"
 #include "generated/generated_vulkan_schema.h"
-#include "schema/schema_util.h"
+#include "schema/schema.h"
 #include "util/defines.h"
 #include "util/logging.h"
 

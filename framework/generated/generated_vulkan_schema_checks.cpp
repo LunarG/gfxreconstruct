@@ -32,7 +32,7 @@
 #include "generated/generated_vulkan_schema.h"
 #include "generated/generated_vulkan_decode_api_element_traits.h"
 #include "generated/generated_vulkan_struct_decoders.h"
-#include "schema/schema_util.h"
+#include "schema/schema.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"

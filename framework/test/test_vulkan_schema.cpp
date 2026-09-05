@@ -33,7 +33,6 @@
 
 // The generated schema reaches no wire representation type, so the encoding join is included separately, the way an
 // Encode or Decode adapter would include it.
-#include "schema/encoding.h"
 
 #include "decode/decode_allocator.h"
 #include "decode/vulkan_decode_struct.h"
@@ -90,15 +89,15 @@ static_assert(std::is_same_v<schema::ParameterFields<Command>,
 // A non-void command resolves its native return type from the same Return Field.
 static_assert(std::is_same_v<schema::ReturnType<schema::command::vulkan::CreateBuffer>, VkResult>);
 
-// A kind names the logical Encode and Decode operation for a registry type, and schema/encoding.h joins it to a wire
+// A kind names the logical Encode and Decode operation for a registry type, and carries the wire
 // representation.
 static_assert(
     std::is_same_v<schema::ElementType<schema::api_type::vulkan::VkPipelineStageFlags>, VkPipelineStageFlags>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkPipelineStageFlags::kind, schema::field_kind::Flags>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkAccessFlags2::kind, schema::field_kind::Flags64>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkResult::kind, schema::field_kind::Enum>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkSampleMask::kind, schema::field_kind::SampleMask>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkDeviceSize::kind, schema::field_kind::DeviceSize>);
+static_assert(std::is_same_v<schema::api_type::vulkan::VkPipelineStageFlags::kind, format::kind::Flags>);
+static_assert(std::is_same_v<schema::api_type::vulkan::VkAccessFlags2::kind, format::kind::Flags64>);
+static_assert(std::is_same_v<schema::api_type::vulkan::VkResult::kind, format::kind::Enum>);
+static_assert(std::is_same_v<schema::api_type::vulkan::VkSampleMask::kind, format::kind::SampleMask>);
+static_assert(std::is_same_v<schema::api_type::vulkan::VkDeviceSize::kind, format::kind::DeviceSize>);
 
 // Two registry names that share one C++ representation stay distinct, because the descriptor is the identity.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
@@ -108,8 +107,8 @@ static_assert(
 // A kind is specific, so each one maps to the ParameterEncoder and ValueDecoder function that already exists for
 // it. That restates part of what element_type says, and the generator checks the agreement in the one loop that
 // assigns both.
-static_assert(std::is_same_v<schema::api_type::vulkan::UInt32::kind, schema::field_kind::UInt32>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkBool32::kind, schema::field_kind::UInt32>);
+static_assert(std::is_same_v<schema::api_type::vulkan::UInt32::kind, format::kind::UInt32>);
+static_assert(std::is_same_v<schema::api_type::vulkan::VkBool32::kind, format::kind::UInt32>);
 static_assert(std::is_same_v<schema::ElementType<schema::api_type::vulkan::UInt32>, uint32_t>);
 static_assert(schema::ScalarField<barrier_field::srcQueueFamilyIndex>);
 
@@ -119,11 +118,11 @@ static_assert(schema::ScalarField<barrier_field::offset>);
 static_assert(schema::ScalarField<barrier_field::sType>);
 
 // The wire representation is reached through the encoding join, never through the descriptor.
-static_assert(std::is_same_v<schema::EncodedTypeFor<barrier_field::srcAccessMask>, format::FlagsEncodeType>);
-static_assert(std::is_same_v<schema::EncodedTypeFor<barrier_field::sType>, format::EnumEncodeType>);
-static_assert(std::is_same_v<schema::EncodedTypeFor<barrier_field::offset>, format::DeviceSizeEncodeType>);
-static_assert(std::is_same_v<schema::EncodedTypeFor<barrier_field::srcQueueFamilyIndex>, uint32_t>);
-static_assert(std::is_same_v<schema::EncodedTypeFor<barrier_field::buffer>, format::HandleEncodeType>);
+static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcAccessMask>, format::FlagsEncodeType>);
+static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::sType>, format::EnumEncodeType>);
+static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::offset>, format::DeviceSizeEncodeType>);
+static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcQueueFamilyIndex>, uint32_t>);
+static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, format::HandleEncodeType>);
 
 // Shape concepts select on exactly the logical kind and the use-site shape.
 static_assert(schema::HandleField<barrier_field::buffer>);
@@ -494,6 +493,65 @@ TEST_CASE("A field walk decodes an array of structures and descends into each el
         CHECK(walked_value.pBinds[i].size == binds[i].size);
         CHECK(walked_value.pBinds[i].memoryOffset == binds[i].memoryOffset);
         CHECK(walked_value.pBinds[i].flags == binds[i].flags);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a fixed-extent array in place, extents from the API declaration", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkTransformMatrixKHR is one field, float matrix[3][4], and it is the case the schema cannot describe: for a
+    // multidimensional array the generator records array_dimension and a comma-joined length expression, which is
+    // a string, and no extent value at all. The overload takes both extents from std::extent_v on the API member's
+    // declared type instead, which the member trait already names, so the one and two dimensional cases need no
+    // separate treatment.
+    //
+    // This is also the only shape so far that writes nothing to the decoded value at the end. The decoder is
+    // pointed at the decoded value's own storage, so decoding fills the native array directly.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // Row-major and asymmetric, so a transposed or flattened read lands on a different value.
+    VkTransformMatrixKHR source{};
+    float                next = 1.0f;
+    for (uint32_t row = 0; row < 3; ++row)
+    {
+        for (uint32_t col = 0; col < 4; ++col)
+        {
+            source.matrix[row][col] = next;
+            next += 1.0f;
+        }
+    }
+
+    parameter_encoder->EncodeFloat2DMatrix(source.matrix, 3, 4);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkTransformMatrixKHR         walked_value{};
+    Decoded_VkTransformMatrixKHR walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    // The decoder wrote into the decoded value's own storage rather than storage of its own.
+    CHECK(walked.matrix.GetPointer() == &walked_value.matrix[0][0]);
+    CHECK(walked.matrix.GetLength() == 12);
+
+    for (uint32_t row = 0; row < 3; ++row)
+    {
+        for (uint32_t col = 0; col < 4; ++col)
+        {
+            CHECK(walked_value.matrix[row][col] == source.matrix[row][col]);
+        }
     }
 
     DecodeAllocator::End();

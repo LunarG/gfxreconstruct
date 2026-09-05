@@ -21,8 +21,10 @@
 # IN THE SOFTWARE.
 ###############################################################################
 
-# The field model and its algorithms. Header-only and API-agnostic: it names no Vulkan type, no decoded
-# representation and no operation, so capture and replay can both reach it without reaching each other.
+# The arrangement layer. format defines the primitives a capture can represent and how each is encoded; this
+# defines how they are arranged -- which API type a Field names, how it is packaged, and which store member holds
+# it. Header-only and API-agnostic: it names no Vulkan type, no decoded representation and no operation, so capture
+# and replay can both reach it without reaching each other.
 #
 # Generated content is not here. An API's descriptors, Field descriptors and schemas are generated into
 # framework/generated and listed by the target that compiles them.
@@ -33,7 +35,7 @@ target_include_directories(gfxrecon_schema
                            INTERFACE
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-# util supplies defines.h and the TypeList facility; format supplies the wire types encoding.h maps kinds onto.
+# util supplies defines.h and the TypeList facility; format supplies the kinds a Field names and their widths.
 target_link_libraries(gfxrecon_schema
                       INTERFACE
                           gfxrecon_util
@@ -44,6 +46,5 @@ target_link_libraries(gfxrecon_schema
 # tool, not just the targets that read them. A custom target puts them in the IDE and in no build.
 add_custom_target(gfxrecon_schema_headers
                   SOURCES
-                      ${CMAKE_CURRENT_LIST_DIR}/field_model.h
-                      ${CMAKE_CURRENT_LIST_DIR}/schema_util.h
-                      ${CMAKE_CURRENT_LIST_DIR}/encoding.h)
+                      ${CMAKE_CURRENT_LIST_DIR}/field.h
+                      ${CMAKE_CURRENT_LIST_DIR}/schema.h)

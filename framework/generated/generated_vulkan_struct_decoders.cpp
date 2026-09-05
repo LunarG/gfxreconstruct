@@ -15577,19 +15577,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkTransformMatrixKHR* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    VkTransformMatrixKHR* value = wrapper->decoded_value;
-
-    wrapper->matrix.SetExternalMemory(value->matrix, 3, 4);
-    bytes_read += wrapper->matrix.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAabbPositionsKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

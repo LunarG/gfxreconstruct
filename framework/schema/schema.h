@@ -20,14 +20,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Schema algorithms. This header composes the field-model vocabulary with the schema-independent TypeList facility.
-// It defines no API type descriptor and no Field descriptor; those are generated content.
+// A Schema is the arrangement: the canonical, ordered Field list for one API element, and the algorithms over it.
+// It composes schema/field.h with the schema-independent TypeList facility, and defines no API type descriptor and
+// no Field descriptor -- those are generated content.
 
-#ifndef GFXRECON_SCHEMA_SCHEMA_UTIL_H
-#define GFXRECON_SCHEMA_SCHEMA_UTIL_H
+#ifndef GFXRECON_SCHEMA_SCHEMA_H
+#define GFXRECON_SCHEMA_SCHEMA_H
 
 #include "util/defines.h"
-#include "schema/field_model.h"
+#include "schema/field.h"
 #include "util/type_list.h"
 
 #include <concepts>
@@ -131,4 +132,4 @@ decltype(auto) InvokeFromFields(Function&& function, Storage& storage)
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_SCHEMA_SCHEMA_UTIL_H
+#endif // GFXRECON_SCHEMA_SCHEMA_H

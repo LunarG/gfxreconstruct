@@ -70,6 +70,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkImageMemoryBarrier',
     'VkShaderModuleCreateInfo',
     'VkSparseBufferMemoryBindInfo',
+    'VkTransformMatrixKHR',
 )
 
 
@@ -137,7 +138,7 @@ class VulkanSchemaIdentityGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
         begin_end.specific_headers.extend((
             'format/platform_types.h',
             'util/defines.h',
-            'schema/schema_util.h',
+            'schema/schema.h',
             'util/type_list.h',
         ))
         begin_end.system_headers.extend(('cstddef', 'string_view'))
@@ -172,7 +173,7 @@ class VulkanSchemaMemberPartitionGeneratorOptions(VulkanSchemaBaseGeneratorOptio
         begin_end.specific_headers.extend((
             'generated/generated_vulkan_schema.h',
             'util/defines.h',
-            'schema/field_model.h',
+            'schema/field.h',
         ))
 
         storage_header = self.storage_header()
@@ -235,7 +236,7 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'generated/generated_vulkan_schema.h',
             'generated/generated_vulkan_decode_api_element_traits.h',
             'generated/generated_vulkan_struct_decoders.h',
-            'schema/schema_util.h',
+            'schema/schema.h',
             'util/defines.h',
         ))
         begin_end.system_headers.append('type_traits')
@@ -247,10 +248,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     """
 
     # The logical kinds the field model declares. A kind other than Identity, Handle, Struct or Void corresponds to
-    # exactly one gfxrecon::format wire typedef, and schema/encoding.h holds the join. The generator validates every
-    # kind it emits against this set, so it cannot invent one.
+    # exactly one gfxrecon::format wire typedef, which the kind tag itself carries. The generator validates every
     # The logical kinds the field model declares. The generator validates every kind it emits against this set, so
-    # it cannot invent one, and a kind with no row in schema/encoding.h fails at the point of use.
+    # it cannot invent one, and a kind with no wire type fails at the point of use.
+    #
+    # TO DO -- delete this. It is a copy of the C++ tag list in another language, and it fails in the wrong
+    # direction: a kind added in C++ and not here is silently never emitted, while a kind here and not in C++ was
+    # already going to fail the build at the symbol. Now that the kinds live in format::kind
+    # the build is the check, and this list only adds a second place to update.
     KNOWN_KINDS = (
         'UInt8',
         'UInt16',
@@ -282,6 +287,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     # does not say which types use which encoding, so it comes from GFXReconstruct's hand-written encoder. It belongs
     # in a JSON configuration beside blacklists.json, and is inline for now so the content is reviewable in one place
     # with the rules that consume it.
+    # Registry type to logical kind. The three Vulkan entries are here to stop the resolution the procedural
+    # decoders perform: those follow the registry's basetype chain to a primitive, so VkDeviceSize decodes as
+    # DecodeUInt64. That is not a bug and not a width difference -- VkDeviceSize is uint64_t and its wire type is
+    # uint64_t. The schema declines to resolve them so the kind survives into the field model, where a consumer can
+    # tell a device size from an arbitrary 64-bit integer. size_t is in this list for the other reason: it really
+    # does vary, 4 or 8 bytes in memory against 8 on the wire.
+    #
+    # TO DO -- the eight primitive rows duplicate KhronosBaseGenerator.encode_types, which this generator inherits.
+    # Seed from self.encode_types and keep here only what differs, so the list reads as the deliberate divergences
+    # rather than hiding them among copies. Left alone for now to keep the procedural generators untouched.
     KIND_FOR_TYPE = {
         'int8_t': 'Int8',
         'int16_t': 'Int16',
@@ -386,7 +401,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         # Model built once in endFile and shared by every part.
         self.schema_structs = []  # Structure names that get a Schema specialization.
         self.schema_commands = []  # Command names that get a Schema specialization.
-        self.api_type_kinds = dict()  # Descriptor name to field_kind expression.
+        self.api_type_kinds = dict()  # Descriptor name to format::kind expression.
         self.api_type_elements = dict()  # Descriptor name to element type expression.
         self.defaulted_types = set()  # Registry types that reached Identity without being classified.
 
@@ -569,7 +584,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             if curated is not None:
                 return curated
 
-        # Nothing classified this type. field_kind::Scalar has no row in schema/encoding.h, so it satisfies the
+        # Nothing classified this type. format::kind::Scalar has no wire type, so it satisfies the
         # scalar concepts but cannot be encoded, and the generator reports it.
         self.defaulted_types.add(resolved)
         return 'Scalar'
@@ -831,7 +846,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             file=self.outFile
         )
         write(
-            '// representation; schema/encoding.h joins a kind to its wire type.',
+            '// representation; each kind in format/format.h carries the wire type it is recorded as.',
             file=self.outFile
         )
         write('GFXRECON_BEGIN_NAMESPACE(api_type)', file=self.outFile)
@@ -839,7 +854,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for name in sorted(self.api_type_kinds):
             write(
-                'struct {} {{ using element_type = {}; using kind = field_kind::{}; }};'.format(
+                'struct {} {{ using element_type = {}; using kind = format::kind::{}; }};'.format(
                     name, self.api_type_elements[name], self.api_type_kinds[name]
                 ),
                 file=self.outFile

@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Six overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Seven overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -36,8 +36,8 @@
 #include "decode/pointer_decoder.h"
 #include "decode/value_decoder.h"
 #include "decode/vulkan_pnext_node.h"
-#include "schema/field_model.h"
-#include "schema/schema_util.h"
+#include "schema/field.h"
+#include "schema/schema.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
@@ -59,64 +59,13 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Declared the way the generated struct decoders declare it; there is no header that publishes it.
 size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
 
-// One adapter for each logical scalar kind, each naming the ValueDecoder function that already exists for it. The
-// kind is not an alias for the function name: SampleMask, DeviceSize, DeviceAddress and Address all decode through a
-// differently named function, because ValueDecoder has no entry point of their own.
-
-// clang-format off
-template <typename T> size_t DecodeScalar(schema::field_kind::Enum,    const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeEnumValue(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Flags,   const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeFlagsValue(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Flags64, const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeFlags64Value(b, n, v); }
-
-template <typename T> size_t DecodeScalar(schema::field_kind::UInt8,  const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt8Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::UInt16, const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt16Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::UInt32, const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt32Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::UInt64, const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt64Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Int8,   const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeInt8Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Int16,  const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeInt16Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Int32,  const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeInt32Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Int64,  const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeInt64Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Float,  const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeFloatValue(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Double, const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeDoubleValue(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::SizeT,  const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeSizeTValue(b, n, v); }
-
-template <typename T> size_t DecodeScalar(schema::field_kind::SampleMask,    const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt32Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::DeviceSize,    const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt64Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::DeviceAddress, const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt64Value(b, n, v); }
-template <typename T> size_t DecodeScalar(schema::field_kind::Address,       const uint8_t* b, size_t n, T* v) { return ValueDecoder::DecodeUInt64Value(b, n, v); }
-// clang-format on
-
-// field_kind::Char and field_kind::WChar have no adapter here on purpose. Text is never a value-shaped scalar; it
-// reaches decode through StringDecoder and its relatives, which the pointer shapes select.
-
-// The same one-liner-per-kind treatment for a run of scalars. PointerDecoder names its entry point by type rather
-// than taking one, so this is a second table over the same kinds rather than a reuse of the one above. The decoder
-// reads its own length from the wire, so a scalar array consults no sibling count field.
-
-// clang-format off
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Enum,    const uint8_t* b, size_t n, D& d) { return d.DecodeEnum(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Flags,   const uint8_t* b, size_t n, D& d) { return d.DecodeFlags(b, n); }
-
-template <typename D> size_t DecodeScalarArray(schema::field_kind::UInt8,  const uint8_t* b, size_t n, D& d) { return d.DecodeUInt8(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::UInt16, const uint8_t* b, size_t n, D& d) { return d.DecodeUInt16(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::UInt32, const uint8_t* b, size_t n, D& d) { return d.DecodeUInt32(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::UInt64, const uint8_t* b, size_t n, D& d) { return d.DecodeUInt64(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Int8,   const uint8_t* b, size_t n, D& d) { return d.DecodeInt8(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Int16,  const uint8_t* b, size_t n, D& d) { return d.DecodeInt16(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Int32,  const uint8_t* b, size_t n, D& d) { return d.DecodeInt32(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Int64,  const uint8_t* b, size_t n, D& d) { return d.DecodeInt64(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Float,  const uint8_t* b, size_t n, D& d) { return d.DecodeFloat(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Double, const uint8_t* b, size_t n, D& d) { return d.DecodeDouble(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::SizeT,  const uint8_t* b, size_t n, D& d) { return d.DecodeSizeT(b, n); }
-
-template <typename D> size_t DecodeScalarArray(schema::field_kind::SampleMask,    const uint8_t* b, size_t n, D& d) { return d.DecodeVkSampleMask(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::DeviceSize,    const uint8_t* b, size_t n, D& d) { return d.DecodeVkDeviceSize(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::DeviceAddress, const uint8_t* b, size_t n, D& d) { return d.DecodeVkDeviceAddress(b, n); }
-template <typename D> size_t DecodeScalarArray(schema::field_kind::Address,       const uint8_t* b, size_t n, D& d) { return d.DecodeVoidPtr(b, n); }
-// clang-format on
-
-// field_kind::Flags64 has no adapter because PointerDecoder has no entry point for it and no Vulkan structure
-// declares an array of 64-bit flags. If one appears, WalkFields names the field and this is where it goes.
+// There is no table here joining a logical kind to a wire type, and no wire type is named. ValueDecoder and
+// PointerDecoder each take a kind, and format/format.h carries the width on the kind itself, so this operation says
+// only what a field's kind is -- which the schema already told it.
+//
+// Their named entry points -- DecodeVkDeviceSize, DecodeFlags and the rest -- each hardcode one wire type, which is
+// the same fact stated a second time. Going through the kind keeps one statement of it, and reaches the kinds no
+// named entry point covers: PointerDecoder has no DecodeFlags64, and Decode<format::kind::Flags64> needs none.
 
 // The decode Action. It carries the read cursor, so one instance walks one structure.
 class DecodeStructAction
@@ -131,11 +80,11 @@ class DecodeStructAction
     requires schema::ScalarField<Field> && schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
-        bytes_read_ += DecodeScalar(
-            typename Field::api_type::kind{}, Cursor(), Remaining(), &schema::GetRef(DecodedValueRef(storage), field));
+        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
+            Cursor(), Remaining(), &schema::GetRef(DecodedValueRef(storage), field));
     }
 
-    // A run of scalars decodes into the wrapper's PointerDecoder, and the native pointer follows it, exactly as the
+    // A run of scalars decodes into the wrapper's PointerDecoder, and the decoded value's pointer follows it, as the
     // extension chain's does. The sibling count field is decoded as its own scalar in its own position; the array
     // length travels with the array on the wire, so nothing here reads across fields.
     template <typename Field, typename Storage>
@@ -145,7 +94,7 @@ class DecodeStructAction
     {
         auto& field_ref = schema::GetRef(storage, field);
 
-        bytes_read_ += DecodeScalarArray(typename Field::api_type::kind{}, Cursor(), Remaining(), field_ref);
+        bytes_read_ += field_ref.template Decode<typename Field::api_type::kind>(Cursor(), Remaining());
 
         schema::GetRef(DecodedValueRef(storage), field) = field_ref.GetPointer();
     }
@@ -156,7 +105,8 @@ class DecodeStructAction
     requires schema::HandleField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
-        bytes_read_ += ValueDecoder::DecodeHandleIdValue(Cursor(), Remaining(), &schema::GetRef(storage, field));
+        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
+            Cursor(), Remaining(), &schema::GetRef(storage, field));
         schema::GetRef(DecodedValueRef(storage), field) = VK_NULL_HANDLE;
     }
 
@@ -178,6 +128,45 @@ class DecodeStructAction
         field_ref->decoded_value = &schema::GetRef(DecodedValueRef(storage), field);
 
         bytes_read_ += DecodeStruct(Cursor(), Remaining(), field_ref);
+    }
+
+    // A fixed-extent array decodes in place. The decoder is pointed at the decoded value's own storage and writes
+    // straight into it, so unlike every other overload nothing is assigned to the decoded value afterwards: it is
+    // already the target.
+    //
+    // The extents come from the API member's declared type, not from the schema. The schema records a usable
+    // extent only for a one-dimensional array; for a multidimensional one it records the dimension count and a
+    // joined length expression, which is a string. std::extent_v recovers both dimensions from the C++
+    // declaration the member trait already names, so the two cases need no separate treatment here and the
+    // schema needs no extent at all for this.
+    template <typename Field, typename Storage>
+    requires schema::ScalarKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+        auto& array_ref = schema::GetRef(DecodedValueRef(storage), field);
+        using ArrayType = std::remove_cvref_t<decltype(array_ref)>;
+
+        static_assert(std::is_array_v<ArrayType>,
+                      "A StaticArray field must be declared as an array in the API type it belongs to");
+
+        // The bound is PointerDecoder's, not the registry's. It supplies SetExternalMemory for one and two
+        // dimensions and no more, so a rank the registry might one day add would otherwise fail as an unviable
+        // overload rather than as a statement of the limit.
+        static_assert(std::rank_v<ArrayType> <= 2,
+                      "PointerDecoder::SetExternalMemory covers one and two dimensions only");
+
+        if constexpr (std::rank_v<ArrayType> == 2)
+        {
+            field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>, std::extent_v<ArrayType, 1>);
+        }
+        else
+        {
+            field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
+        }
+
+        bytes_read_ += field_ref.template Decode<typename Field::api_type::kind>(Cursor(), Remaining());
     }
 
     // A run of structures decodes into an allocated StructPointerDecoder, and the decoded value's pointer follows
