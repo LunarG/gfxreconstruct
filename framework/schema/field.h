@@ -194,6 +194,11 @@ concept ScalarField = ScalarKindField<Field> && std::same_as<typename Field::sha
 template <typename Field>
 concept StructField = std::same_as<typename Field::api_type::kind, format::kind::Struct>;
 
+// An opaque address: recorded as the value the capture saw rather than followed, so nothing is at the other end
+// to decode and the field is value-shaped whether or not the declaration writes a star.
+template <typename Field>
+concept AddressField = std::same_as<typename Field::api_type::kind, format::kind::Address>;
+
 template <typename Field>
 concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;
 

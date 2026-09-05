@@ -663,6 +663,122 @@ TEST_CASE("A field walk writes a bitfield through Set, since it has no address",
     util::Log::Release();
 }
 
+TEST_CASE("A field walk keeps an opaque pointer in the wrapper and leaves the decoded value null", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkCheckpointData2NV::pCheckpointMarker is a void pointer to something outside the API. The capture recorded
+    // whatever address the application held, which means nothing in this process, so it lands in the wrapper as a
+    // value and the decoded value's pointer is left null for replay to resolve through PreProcessExternalObject --
+    // the same division a handle gets.
+    //
+    // Its descriptor is api_type::vulkan::ExternalObject, whose kind is Address, so the schema states the wire
+    // form and the overload reads it from the kind like every other. The descriptor exists because the declared
+    // type cannot state it: this is void*, and so is a counted run of bytes, and so is pNext.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // A value with bits above 32, so a narrowed read would land somewhere visibly wrong.
+    constexpr uint64_t              kMarker = 0x00007FFCDEADBEEFull;
+    constexpr VkPipelineStageFlags2 kStage  = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlags64Value(kStage);
+    encoder->EncodeVoidPtr(reinterpret_cast<const void*>(static_cast<uintptr_t>(kMarker)));
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkCheckpointData2NV         walked_value{};
+    Decoded_VkCheckpointData2NV walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV);
+    CHECK(walked_value.pNext == nullptr);
+    CHECK(walked_value.stage == kStage);
+
+    // The captured address is in the wrapper, at full width...
+    CHECK(walked.pCheckpointMarker == kMarker);
+
+    // ...and the decoded value's pointer is null, not the captured address reinterpreted.
+    CHECK(walked_value.pCheckpointMarker == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes both address populations in one structure", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkAllocationCallbacks is the densest address case: one pointer to something outside the API, and five
+    // function pointers. The first names the ExternalObject descriptor and the rest name their own PFN_* ones,
+    // but every field has kind Address, so one overload takes all six and the schema needed no special case for
+    // the function pointers.
+    //
+    // It also has no sType and no pNext.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr uint64_t kUserData = 0x00007FFCAAAA0001ull;
+    constexpr uint64_t kAlloc    = 0x00007FFCAAAA0002ull;
+    constexpr uint64_t kRealloc  = 0x00007FFCAAAA0003ull;
+    constexpr uint64_t kFree     = 0x00007FFCAAAA0004ull;
+    constexpr uint64_t kInternal = 0x00007FFCAAAA0005ull;
+    constexpr uint64_t kIntFree  = 0x00007FFCAAAA0006ull;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeVoidPtr(reinterpret_cast<const void*>(static_cast<uintptr_t>(kUserData)));
+    for (uint64_t fn : { kAlloc, kRealloc, kFree, kInternal, kIntFree })
+    {
+        // EncodeFunctionPtr reinterprets its argument, so it takes a function pointer rather than the value.
+        encoder->EncodeFunctionPtr(reinterpret_cast<PFN_vkVoidFunction>(static_cast<uintptr_t>(fn)));
+    }
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    CHECK(encoded_size == 6 * sizeof(uint64_t));
+
+    DecodeAllocator::Begin();
+
+    VkAllocationCallbacks         walked_value{};
+    Decoded_VkAllocationCallbacks walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    // Every captured value is in the wrapper, at full width and in order.
+    CHECK(walked.pUserData == kUserData);
+    CHECK(walked.pfnAllocation == kAlloc);
+    CHECK(walked.pfnReallocation == kRealloc);
+    CHECK(walked.pfnFree == kFree);
+    CHECK(walked.pfnInternalAllocation == kInternal);
+    CHECK(walked.pfnInternalFree == kIntFree);
+
+    // ...and every pointer in the decoded value is null, function pointers included.
+    CHECK(walked_value.pUserData == nullptr);
+    CHECK(walked_value.pfnAllocation == nullptr);
+    CHECK(walked_value.pfnReallocation == nullptr);
+    CHECK(walked_value.pfnFree == nullptr);
+    CHECK(walked_value.pfnInternalAllocation == nullptr);
+    CHECK(walked_value.pfnInternalFree == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;

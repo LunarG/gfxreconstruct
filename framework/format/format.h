@@ -141,8 +141,10 @@ struct DeviceSize    : Scalar { using encode_type = DeviceSizeEncodeType; };
 struct DeviceAddress : Scalar { using encode_type = DeviceAddressEncodeType; };
 struct Format        : Scalar { using encode_type = FormatEncodeType; };
 
-// An opaque address recorded as a 64-bit value: a function pointer, or a pointer to a non-API object.
-struct Address : Scalar { using encode_type = AddressEncodeType; };
+// An opaque address recorded as a 64-bit value: a function pointer, or a pointer to a non-API object. Like a
+// handle, it records an identity rather than the thing itself, so its access pattern differs from a scalar's and
+// it does not derive from Scalar.
+struct Address : Tag { using encode_type = AddressEncodeType; };
 
 // A handle records the capture-file identity rather than the handle itself, so its access pattern differs from a
 // scalar's and it does not derive from Scalar.

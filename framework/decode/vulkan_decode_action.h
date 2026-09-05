@@ -215,6 +215,24 @@ class DecodeStructAction
         schema::GetRef(DecodedValueRef(storage), field) = field_ref->GetPointer();
     }
 
+    // An opaque address records the value the capture saw, into the wrapper, and leaves the decoded value null.
+    // That is the same division a handle gets, and for the same reason: the value means nothing in this process,
+    // so anything that needs it reads the wrapper and replay resolves it -- through PreProcessExternalObject, for
+    // the fields the ExternalObject descriptor names.
+    //
+    // Both a function pointer member and a pointer to something outside the API reach this. The schema shapes
+    // both as values, because that is what the capture recorded, whether or not the declaration writes a star.
+    template <typename Field, typename Storage>
+    requires schema::AddressField<Field> && schema::ValueShapedField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
+            Cursor(), Remaining(), &schema::GetRef(storage, field));
+
+        schema::GetRef(DecodedValueRef(storage), field) = nullptr;
+    }
+
     // The extension chain keeps runtime sType dispatch, and the decoded value's pointer follows the decoded node.
     template <typename Field, typename Storage>
     requires schema::ExtensionChainField<Field> && schema::Addressable<Storage, Field>

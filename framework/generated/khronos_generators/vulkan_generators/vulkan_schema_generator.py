@@ -73,6 +73,8 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkTransformMatrixKHR',
     'VkDeviceBufferMemoryRequirements',
     'StdVideoAV1TileInfoFlags',
+    'VkCheckpointData2NV',
+    'VkAllocationCallbacks',
 )
 
 
@@ -388,6 +390,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     # by a sibling field at run time. The type alone cannot express that, so those fields name one shared descriptor.
     GENERIC_HANDLE_DESCRIPTOR = 'GenericHandle'
 
+    # An opaque pointer: a handle to something outside the API, or a pointer to memory this process does not own.
+    # It is recorded as the 64-bit value the capture saw, and replay resolves it through
+    # PreProcessExternalObject. The type alone cannot express that -- the declared type is void, and a void
+    # pointer with a count is a run of bytes, not an address -- so the fields that mean it name one shared
+    # descriptor, selected by the base generator's EXTERNAL_OBJECT_TYPES the same way four other generators
+    # select it.
+    EXTERNAL_OBJECT_DESCRIPTOR = 'ExternalObject'
+
     RETURN_FIELD_NAME = 'result'
 
     def __init__(
@@ -428,6 +438,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         # One shared descriptor for the runtime-typed handle fields.
         self.api_type_kinds[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
         self.api_type_elements[self.GENERIC_HANDLE_DESCRIPTOR] = 'uint64_t'
+
+        # One element is the address itself, not what it points at, the same way GenericHandle's element is the
+        # uint64_t it stores rather than the object it names. So a Value-shaped field of this descriptor is a
+        # void*, and a Pointer-shaped one is a void** -- which is what the declarations say.
+        self.api_type_kinds[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'Address'
+        self.api_type_elements[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'void*'
 
         for struct in self.schema_structs:
             # Every element that gets a Schema also gets a descriptor, because the decoded representation traits key
@@ -473,6 +489,23 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 break
 
         return resolved
+
+    def is_external_object(self, value):
+        """A pointer to something outside the API, recorded as the 64-bit value the capture saw.
+
+        The same test the struct decoders, the decoder bodies, the JSON consumer, the replay consumers and deep
+        copy already make, reading the same inherited list. Two void pointers are not this. A counted one is a run
+        of bytes, which decodes into storage rather than being recorded as an address; those generators exclude it
+        with the same is_array test. The extension chain is also declared void*, and they exclude it by handling
+        pNext before they reach this test at all, which is what the first test here does.
+        """
+        if self.is_extended_struct_definition(value):
+            return False
+
+        return (
+            value.base_type in self.EXTERNAL_OBJECT_TYPES and value.is_pointer
+            and not value.is_array
+        )
 
     def get_descriptor_name(self, base_type):
         """The identifier of the API type descriptor for a registry type."""
@@ -645,6 +678,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         if self.is_extended_struct_definition(value):
             return 'ExtensionChain'
 
+        # A direct opaque address is a value. The declaration writes a star, but nothing is at the other end to
+        # decode: the capture recorded the pointer itself, which is what a handle does with a star-free
+        # declaration. Shape says what the use site does, so it says Value.
+        #
+        # One more star is a different field. void** is an output slot: the capture records a pointer to an
+        # address, the decoder reads it into a PointerDecoder, and replay writes the resolved pointer back through
+        # it. That is pointer-shaped, and the depth test below is the one the decoder bodies already make.
+        if self.is_external_object(value) and value.pointer_count == 1:
+            return 'Value'
+
         if value.is_array and not value.is_dynamic:
             return 'StaticArray'
 
@@ -675,6 +718,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         if selector is not None:
             descriptor = 'api_type::vulkan::{}'.format(self.GENERIC_HANDLE_DESCRIPTOR)
+        elif self.is_external_object(value):
+            descriptor = 'api_type::vulkan::{}'.format(self.EXTERNAL_OBJECT_DESCRIPTOR)
         else:
             descriptor = self.get_descriptor_path(value.base_type)
 
