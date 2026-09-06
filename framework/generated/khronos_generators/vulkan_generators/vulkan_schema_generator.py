@@ -78,6 +78,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkRenderPassAttachmentBeginInfo',
     'VkDebugUtilsLabelEXT',
     'VkLayerProperties',
+    'VkPipelineCacheCreateInfo',
 )
 
 
@@ -493,6 +494,35 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         return resolved
 
+    def is_opaque_bytes(self, value):
+        """A counted run of bytes the API declares as a void pointer.
+
+        The capture stores it as bytes and nothing else: the wrapper declares PointerDecoder<uint8_t> and the
+        decoder reads uint8_t elements. void names no element, so the descriptor names the element the capture
+        actually keeps. That is the sibling of is_external_object, which takes the uncounted case -- the same
+        is_array test those generators make, read the other way.
+
+        FOR REVIEW -- naming these uint8_t cooks the schema, and the reviewer is not sold on it.
+
+        What it buys: the existing scalar-run overload takes them unchanged, so the Action needs no specialisation
+        at all for the fifteen fields this covers.
+
+        What it costs, measured: nineteen UInt8 pointer-array fields on structures, fifteen from void* and four
+        declared uint8_t*, and the schema can no longer tell them apart. A consumer that wants to know a field was
+        an opaque blob rather than a declared byte array has nowhere to read it.
+
+        Two ways out, if the cost is judged too high. A distinct kind -- Bytes, say -- restores the distinction but
+        buys an Action overload whose body would be identical to the scalar-run one, which is the specialisation
+        this was avoiding. Better is probably a distinct descriptor keeping kind UInt8:
+
+            struct OpaqueBytes { using element_type = uint8_t; using kind = format::kind::UInt8; };
+
+        The overloads constrain on kind, not descriptor, so one overload still covers both, and the name carries
+        the distinction for anything reading the schema. That looks like both properties at once and is the option
+        to weigh first.
+        """
+        return value.base_type in self.EXTERNAL_OBJECT_TYPES and value.is_pointer and value.is_array
+
     def is_external_object(self, value):
         """A pointer to something outside the API, recorded as the 64-bit value the capture saw.
 
@@ -723,6 +753,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             descriptor = 'api_type::vulkan::{}'.format(self.GENERIC_HANDLE_DESCRIPTOR)
         elif self.is_external_object(value):
             descriptor = 'api_type::vulkan::{}'.format(self.EXTERNAL_OBJECT_DESCRIPTOR)
+        elif self.is_opaque_bytes(value):
+            descriptor = self.get_descriptor_path('uint8_t')
         else:
             descriptor = self.get_descriptor_path(value.base_type)
 

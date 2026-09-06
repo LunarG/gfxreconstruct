@@ -942,6 +942,62 @@ TEST_CASE("A field walk decodes fixed-extent strings in place", "[schema]")
     util::Log::Release();
 }
 
+TEST_CASE("A counted void pointer decodes as the bytes the capture kept", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkPipelineCacheCreateInfo::pInitialData is declared const void* with a byte count. No overload was added for
+    // it: the capture stores it as bytes, so the descriptor names uint8_t and the scalar-run overload takes it
+    // unchanged. void names no element, and the wrapper had already settled the question by declaring
+    // PointerDecoder<uint8_t>.
+    //
+    // With this the Void descriptor is left with only the two uses where void really means no value: the extension
+    // chain and a void command's return.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // Not a printable string, and with a zero in the middle, so a read that stopped early would be visible.
+    const std::vector<uint8_t> kBlob = { 0xDE, 0xAD, 0x00, 0xBE, 0xEF, 0x7F, 0x80, 0x01 };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(VkPipelineCacheCreateFlags{ 0 });
+    encoder->EncodeSizeTValue(kBlob.size());
+    encoder->EncodeVoidArray(kBlob.data(), kBlob.size());
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkPipelineCacheCreateInfo         walked_value{};
+    Decoded_VkPipelineCacheCreateInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO);
+    CHECK(walked_value.pNext == nullptr);
+    CHECK(walked_value.initialDataSize == kBlob.size());
+
+    // The run landed in the wrapper at full length, and the decoded value points at it rather than a copy.
+    REQUIRE(walked.pInitialData.GetPointer() != nullptr);
+    CHECK(walked.pInitialData.GetLength() == kBlob.size());
+    CHECK(walked_value.pInitialData == walked.pInitialData.GetPointer());
+
+    const uint8_t* decoded_bytes = static_cast<const uint8_t*>(walked_value.pInitialData);
+    for (size_t i = 0; i < kBlob.size(); ++i)
+    {
+        CHECK(decoded_bytes[i] == kBlob[i]);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;
