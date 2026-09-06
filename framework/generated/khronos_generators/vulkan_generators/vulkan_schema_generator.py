@@ -76,6 +76,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkCheckpointData2NV',
     'VkAllocationCallbacks',
     'VkRenderPassAttachmentBeginInfo',
+    'VkDebugUtilsLabelEXT',
 )
 
 

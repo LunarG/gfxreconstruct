@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Ten overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Eleven overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -145,6 +145,25 @@ class DecodeStructAction
         bytes_read_ += schema::GetRef(storage, field).Decode(Cursor(), Remaining());
 
         schema::GetRef(DecodedValueRef(storage), field) = nullptr;
+    }
+
+    // Text: one string, or a run of them. Both decode the same way and differ only in the decoder class the
+    // wrapper declares -- StringDecoder or WStringDecoder for one, StringArrayDecoder for a run -- and all three
+    // read their own length from the wire and hand back storage the decoded value can point at.
+    //
+    // Unlike a scalar run, no kind is passed: each of those classes is instantiated on its character type and
+    // reads the matching encode type by construction, so the kind selects the member rather than the call.
+    template <typename Field, typename Storage>
+    requires schema::TextKindField<Field> &&
+        (schema::PointerField<Field> ||
+         schema::PointerArrayField<Field>)&&schema::Addressable<Storage, Field>&& schema::
+            Addressable<typename Storage::struct_type, Field> void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+
+        bytes_read_ += field_ref.Decode(Cursor(), Remaining());
+
+        schema::GetRef(DecodedValueRef(storage), field) = field_ref.GetPointer();
     }
 
     // An embedded structure allocates its decoded wrapper, links that wrapper to the inline decoded value member, and

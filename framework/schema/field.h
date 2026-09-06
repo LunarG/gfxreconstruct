@@ -193,6 +193,11 @@ concept ScalarField = ScalarKindField<Field> && std::same_as<typename Field::sha
 
 // StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
+// Text, of either width. The two kinds pick different decoder classes, and nothing else about them differs.
+template <typename Field>
+concept TextKindField = std::same_as<typename Field::api_type::kind, format::kind::Char> ||
+    std::same_as<typename Field::api_type::kind, format::kind::WChar>;
+
 template <typename Field>
 concept StructField = std::same_as<typename Field::api_type::kind, format::kind::Struct>;
 

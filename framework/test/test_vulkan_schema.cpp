@@ -47,6 +47,7 @@
 #include "generated/generated_vulkan_schema_native_struct_members.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 #include <type_traits>
 
@@ -830,6 +831,61 @@ TEST_CASE("A field walk decodes a run of handles into the wrapper and nulls the 
 
     // ...and the decoded value's pointer is null, not pointed at them.
     CHECK(walked_value.pAttachments == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a string and points the decoded value at it", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkDebugUtilsLabelEXT is a string beside a fixed-extent array, so it exercises the two shapes that both
+    // decode in place of the API's own storage but resolve it differently: the string allocates and the decoded
+    // value points at what it allocated, while color decodes straight into the decoded value's own array.
+    //
+    // One overload serves a single string and a run of them. StringDecoder, WStringDecoder and StringArrayDecoder
+    // all read their own length and hand back storage, so only the wrapper's member type differs, and the kind
+    // picks that rather than picking a call.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const char* const kLabel   = "gfxrecon-schema-walk";
+    const float       kColor[] = { 0.25f, 0.5f, 0.75f, 1.0f };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeString(kLabel);
+    encoder->EncodeFloatArray(kColor, 4);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkDebugUtilsLabelEXT         walked_value{};
+    Decoded_VkDebugUtilsLabelEXT walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT);
+    CHECK(walked_value.pNext == nullptr);
+
+    // The string round-tripped, and the decoded value points at the decoder's storage rather than a copy.
+    REQUIRE(walked_value.pLabelName != nullptr);
+    CHECK(std::string(walked_value.pLabelName) == kLabel);
+    CHECK(walked_value.pLabelName == walked.pLabelName.GetPointer());
+
+    // The fixed-extent array beside it decoded into the decoded value directly, as it has no storage of its own.
+    CHECK(walked.color.GetPointer() == &walked_value.color[0]);
+    for (size_t i = 0; i < 4; ++i)
+    {
+        CHECK(walked_value.color[i] == kColor[i]);
+    }
 
     DecodeAllocator::End();
     util::Log::Release();
