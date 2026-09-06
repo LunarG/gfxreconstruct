@@ -215,6 +215,12 @@ concept PointerField = std::same_as<typename Field::shape, field_shape::Pointer>
 template <typename Field>
 concept PointerArrayField = std::same_as<typename Field::shape, field_shape::PointerArray>;
 
+// Either pointer shape. A decoder that reads its own length from the wire cannot tell them apart -- a pointer to
+// one element is a run of one -- so an operation whose body does not consult the length constrains on this rather
+// than on the two shapes separately.
+template <typename Field>
+concept PointerShapedField = PointerField<Field> || PointerArrayField<Field>;
+
 template <typename Field>
 concept StaticArrayField = std::same_as<typename Field::shape, field_shape::StaticArray>;
 

@@ -998,6 +998,67 @@ TEST_CASE("A counted void pointer decodes as the bytes the capture kept", "[sche
     util::Log::Release();
 }
 
+TEST_CASE("One overload takes a scalar pointer and a scalar run in the same structure", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkRenderingInputAttachmentIndexInfo carries a run of uint32_t and two pointers to one uint32_t, all the same
+    // kind. No overload was added: the scalar-run constraint widened to either pointer shape, because
+    // PointerDecoder reads its own length from the wire and one element is a run of one.
+    //
+    // The reference exemplar VkBindMemoryStatus reaches the same overload with kind Enum, which is the half this
+    // structure does not show.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const std::vector<uint32_t> kIndices = { 3, 1, 4, 1, 5 };
+    constexpr uint32_t          kDepth   = 7;
+    constexpr uint32_t          kStencil = 9;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeUInt32Value(static_cast<uint32_t>(kIndices.size()));
+    encoder->EncodeUInt32Array(kIndices.data(), kIndices.size());
+    encoder->EncodeUInt32Ptr(&kDepth);
+    encoder->EncodeUInt32Ptr(&kStencil);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkRenderingInputAttachmentIndexInfo         walked_value{};
+    Decoded_VkRenderingInputAttachmentIndexInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO);
+    CHECK(walked_value.colorAttachmentCount == kIndices.size());
+
+    // The run, at its own length.
+    REQUIRE(walked_value.pColorAttachmentInputIndices != nullptr);
+    CHECK(walked.pColorAttachmentInputIndices.GetLength() == kIndices.size());
+    for (size_t i = 0; i < kIndices.size(); ++i)
+    {
+        CHECK(walked_value.pColorAttachmentInputIndices[i] == kIndices[i]);
+    }
+
+    // The single pointers, each a run of one through the same overload.
+    REQUIRE(walked_value.pDepthInputAttachmentIndex != nullptr);
+    REQUIRE(walked_value.pStencilInputAttachmentIndex != nullptr);
+    CHECK(walked.pDepthInputAttachmentIndex.GetLength() == 1);
+    CHECK(walked.pStencilInputAttachmentIndex.GetLength() == 1);
+    CHECK(*walked_value.pDepthInputAttachmentIndex == kDepth);
+    CHECK(*walked_value.pStencilInputAttachmentIndex == kStencil);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;

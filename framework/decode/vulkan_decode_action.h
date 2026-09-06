@@ -105,11 +105,14 @@ class DecodeStructAction
         schema::Set(DecodedValueRef(storage), field, value);
     }
 
-    // A run of scalars decodes into the wrapper's PointerDecoder, and the decoded value's pointer follows it, as the
-    // extension chain's does. The sibling count field is decoded as its own scalar in its own position; the array
-    // length travels with the array on the wire, so nothing here reads across fields.
+    // A pointer to one scalar, or to a run of them. Both decode into the wrapper's PointerDecoder and the decoded
+    // value's pointer follows, as the extension chain's does: the decoder reads its own length from the wire, so
+    // one element is a run of one and the shape does not change the body.
+    //
+    // The sibling count field is decoded as its own scalar in its own position, and the array's length travels
+    // with the array, so nothing here reads across fields.
     template <typename Field, typename Storage>
-    requires schema::ScalarKindField<Field> && schema::PointerArrayField<Field> &&
+    requires schema::ScalarKindField<Field> && schema::PointerShapedField<Field> &&
         schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
@@ -154,10 +157,9 @@ class DecodeStructAction
     // Unlike a scalar run, no kind is passed: each of those classes is instantiated on its character type and
     // reads the matching encode type by construction, so the kind selects the member rather than the call.
     template <typename Field, typename Storage>
-    requires schema::TextKindField<Field> &&
-        (schema::PointerField<Field> ||
-         schema::PointerArrayField<Field>)&&schema::Addressable<Storage, Field>&& schema::
-            Addressable<typename Storage::struct_type, Field> void Apply(Field field, Storage& storage)
+    requires schema::TextKindField<Field> && schema::PointerShapedField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
 
@@ -256,10 +258,9 @@ class DecodeStructAction
     // structure case, once per element. Whether an element type is itself a field walk is that structure's
     // business.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> &&
-        (schema::PointerField<Field> ||
-         schema::PointerArrayField<Field>)&&schema::Addressable<Storage, Field>&& schema::
-            Addressable<typename Storage::struct_type, Field> void Apply(Field field, Storage& storage)
+    requires schema::StructField<Field> && schema::PointerShapedField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
         using Decoder   = std::remove_pointer_t<std::remove_cvref_t<decltype(field_ref)>>;

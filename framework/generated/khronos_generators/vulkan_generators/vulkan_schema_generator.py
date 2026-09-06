@@ -79,6 +79,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkDebugUtilsLabelEXT',
     'VkLayerProperties',
     'VkPipelineCacheCreateInfo',
+    'VkRenderingInputAttachmentIndexInfo',
 )
 
 
