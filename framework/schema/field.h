@@ -77,12 +77,14 @@ struct StaticArray
 struct ExtensionChain
 {};
 
-// A field with no runtime value, storage member, or encoded bytes. The void return Field is the only current use.
+// The return Field of a command that returns void. It has no runtime value, no storage member and no encoded
+// bytes; it exists so that every command schema carries exactly one return Field, which is what lets ReturnMatches
+// find it and ParameterFields drop it. All 443 uses are a command's result, and there are no others.
 //
-// Not NoValue, which is what this was called: X11's Xutil.h defines that as a macro, and vulkan.h reaches it
+// Not NoValue, which is the obvious name: X11's Xutil.h defines that as a macro, and vulkan.h reaches Xutil.h
 // through Xrandr.h whenever VK_USE_PLATFORM_XLIB_XRANDR_EXT is set, so every Linux build broke on it. Of the
 // thirty-six names this vocabulary declares, it was the only collision.
-struct Absent
+struct VoidReturn
 {};
 
 GFXRECON_END_NAMESPACE(field_shape)
@@ -232,7 +234,7 @@ template <typename Field>
 concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
 
 template <typename Field>
-concept NoValueField = std::same_as<typename Field::shape, field_shape::Absent>;
+concept NoValueField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
 
 // Storage concepts. These describe what a storage type holds for a Field, and stay independent of any one operation
 // family.
