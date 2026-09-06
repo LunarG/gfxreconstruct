@@ -80,6 +80,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkLayerProperties',
     'VkPipelineCacheCreateInfo',
     'VkRenderingInputAttachmentIndexInfo',
+    'VkImageBlit2',
 )
 
 

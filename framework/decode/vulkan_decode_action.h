@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Twelve overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Thirteen overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -288,6 +288,31 @@ class DecodeStructAction
             Cursor(), Remaining(), &schema::GetRef(storage, field));
 
         schema::GetRef(DecodedValueRef(storage), field) = nullptr;
+    }
+
+    // A fixed-extent array of structures. The decoder is still allocated, as it is for any run of structures, but
+    // it is then pointed at the decoded value's own array and decodes into that, so nothing is assigned
+    // afterwards -- the fixed-extent half of the pattern, on the structure decoder rather than a scalar one.
+    //
+    // Each element still descends through DecodeStruct, so this is legacy descent once per element.
+    template <typename Field, typename Storage>
+    requires schema::StructField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+        auto& array_ref = schema::GetRef(DecodedValueRef(storage), field);
+        using Decoder   = std::remove_pointer_t<std::remove_cvref_t<decltype(field_ref)>>;
+        using ArrayType = std::remove_cvref_t<decltype(array_ref)>;
+
+        static_assert(std::is_array_v<ArrayType>,
+                      "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(std::rank_v<ArrayType> == 1, "A fixed-extent array of structures is one dimensional");
+
+        field_ref = DecodeAllocator::Allocate<Decoder>();
+        field_ref->SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
+
+        bytes_read_ += field_ref->Decode(Cursor(), Remaining());
     }
 
     // The extension chain keeps runtime sType dispatch, and the decoded value's pointer follows the decoded node.

@@ -1059,6 +1059,72 @@ TEST_CASE("One overload takes a scalar pointer and a scalar run in the same stru
     util::Log::Release();
 }
 
+TEST_CASE("A field walk decodes a fixed-extent array of structures in place", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkImageBlit2 carries two VkOffset3D[2]. The decoder is allocated as it is for any run of structures, then
+    // pointed at the decoded value's own array so it decodes into that, which is the fixed-extent half of the
+    // pattern applied to the structure decoder. Nothing is assigned afterwards.
+    //
+    // Its reference twin VkImageBlit is the same structure without sType and pNext.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    VkImageSubresourceLayers src_layers{ VK_IMAGE_ASPECT_COLOR_BIT, 1, 2, 3 };
+    VkImageSubresourceLayers dst_layers{ VK_IMAGE_ASPECT_DEPTH_BIT, 4, 5, 6 };
+    const VkOffset3D         src_offsets[2] = { { 10, 11, 12 }, { 13, 14, 15 } };
+    const VkOffset3D         dst_offsets[2] = { { 20, 21, 22 }, { 23, 24, 25 } };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_IMAGE_BLIT_2);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encode::EncodeStruct(encoder, src_layers);
+    encode::EncodeStructArray(encoder, src_offsets, 2);
+    encode::EncodeStruct(encoder, dst_layers);
+    encode::EncodeStructArray(encoder, dst_offsets, 2);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkImageBlit2         walked_value{};
+    Decoded_VkImageBlit2 walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_IMAGE_BLIT_2);
+    CHECK(walked_value.pNext == nullptr);
+
+    // Both runs decoded into the decoded value's own arrays rather than storage of the decoder's.
+    REQUIRE(walked.srcOffsets != nullptr);
+    REQUIRE(walked.dstOffsets != nullptr);
+    CHECK(walked.srcOffsets->GetPointer() == &walked_value.srcOffsets[0]);
+    CHECK(walked.dstOffsets->GetPointer() == &walked_value.dstOffsets[0]);
+
+    // Each element descended through DecodeStruct, in order and to the right array.
+    for (uint32_t i = 0; i < 2; ++i)
+    {
+        CHECK(walked_value.srcOffsets[i].x == src_offsets[i].x);
+        CHECK(walked_value.srcOffsets[i].y == src_offsets[i].y);
+        CHECK(walked_value.srcOffsets[i].z == src_offsets[i].z);
+        CHECK(walked_value.dstOffsets[i].x == dst_offsets[i].x);
+        CHECK(walked_value.dstOffsets[i].y == dst_offsets[i].y);
+        CHECK(walked_value.dstOffsets[i].z == dst_offsets[i].z);
+    }
+
+    // The embedded structures between them decoded too.
+    CHECK(walked_value.srcSubresource.mipLevel == src_layers.mipLevel);
+    CHECK(walked_value.dstSubresource.layerCount == dst_layers.layerCount);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;
