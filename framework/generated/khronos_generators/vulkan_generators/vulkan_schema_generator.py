@@ -30,7 +30,7 @@ This is the initial version. It emits:
     one API type descriptor for each registry type that a Field names or a Schema keys on
     one command tag for each command
     one Field descriptor for each command parameter and structure member
-    one Return Field for each command, including a NoValue Return Field for a void command
+    one Return Field for each command, including a Absent Return Field for a void command
     one Schema specialization for each command and structure
     one decoded representation trait for each structure and each generated command decoder
     one member trait for each valid storage and Field pair, in three storage populations
@@ -46,8 +46,8 @@ Two Field descriptor properties differ from the design text, because the registr
 
     The name property is emitted as field_name. Vulkan declares members called 'name', and a class member cannot
     share the name of its enclosing class.
-    The shape vocabulary adds Pointer, StaticArray, and ExtensionChain to Value, PointerArray, and NoValue. The
-    design names field_shape::Value, field_shape::PointerArray, and field_shape::NoValue, and it names an
+    The shape vocabulary adds Pointer, StaticArray, and ExtensionChain to Value, PointerArray, and Absent. The
+    design names field_shape::Value, field_shape::PointerArray, and field_shape::Absent, and it names an
     ExtensionChainField concept, but it does not define the complete set.
 """
 
@@ -810,7 +810,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return 'struct {} {{ {} }};'.format(value.name, ' '.join(parts))
 
     def make_return_field_definition(self, return_type):
-        """Every command has one Return Field, including a NoValue Return Field for a void command."""
+        """Every command has one Return Field, including a Absent Return Field for a void command."""
         is_void = self.clean_return_type(return_type) == 'void'
 
         parts = [
@@ -818,7 +818,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 self.get_descriptor_path(self.clean_return_type(return_type))
             ),
             'using shape = field_shape::{};'.format(
-                'NoValue' if is_void else 'Value'
+                'Absent' if is_void else 'Value'
             ),
             'static constexpr bool is_return = true;',
             'static constexpr std::string_view field_name = "{}";'.format(

@@ -78,7 +78,11 @@ struct ExtensionChain
 {};
 
 // A field with no runtime value, storage member, or encoded bytes. The void return Field is the only current use.
-struct NoValue
+//
+// Not NoValue, which is what this was called: X11's Xutil.h defines that as a macro, and vulkan.h reaches it
+// through Xrandr.h whenever VK_USE_PLATFORM_XLIB_XRANDR_EXT is set, so every Linux build broke on it. Of the
+// thirty-six names this vocabulary declares, it was the only collision.
+struct Absent
 {};
 
 GFXRECON_END_NAMESPACE(field_shape)
@@ -228,7 +232,7 @@ template <typename Field>
 concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
 
 template <typename Field>
-concept NoValueField = std::same_as<typename Field::shape, field_shape::NoValue>;
+concept NoValueField = std::same_as<typename Field::shape, field_shape::Absent>;
 
 // Storage concepts. These describe what a storage type holds for a Field, and stay independent of any one operation
 // family.

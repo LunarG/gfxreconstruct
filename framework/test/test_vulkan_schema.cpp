@@ -69,7 +69,7 @@ static_assert(schema::HasCommandSchema<Command>);
 static_assert(schema::HasSchema<Barrier>);
 static_assert(!schema::HasCommandSchema<Barrier>);
 
-// A void command still carries one Return Field, shaped NoValue, and its ReturnType is void.
+// A void command still carries one Return Field, shaped Absent, and its ReturnType is void.
 static_assert(std::is_same_v<schema::Return<Command>, cmd_field::result>);
 static_assert(std::is_same_v<schema::ReturnType<Command>, void>);
 static_assert(schema::NoValueField<cmd_field::result>);
