@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Eleven overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Twelve overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -164,6 +164,27 @@ class DecodeStructAction
         bytes_read_ += field_ref.Decode(Cursor(), Remaining());
 
         schema::GetRef(DecodedValueRef(storage), field) = field_ref.GetPointer();
+    }
+
+    // A fixed-extent string decodes in place, like any fixed-extent array: the decoder is pointed at the decoded
+    // value's own storage and writes straight into it, so nothing is assigned afterwards. The extent comes from
+    // the API member's declared type, for the reason the scalar case gives.
+    template <typename Field, typename Storage>
+    requires schema::TextKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+        auto& array_ref = schema::GetRef(DecodedValueRef(storage), field);
+        using ArrayType = std::remove_cvref_t<decltype(array_ref)>;
+
+        static_assert(std::is_array_v<ArrayType>,
+                      "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(std::rank_v<ArrayType> == 1, "A fixed-extent string is one dimensional");
+
+        field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
+
+        bytes_read_ += field_ref.Decode(Cursor(), Remaining());
     }
 
     // An embedded structure allocates its decoded wrapper, links that wrapper to the inline decoded value member, and

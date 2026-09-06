@@ -77,6 +77,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkAllocationCallbacks',
     'VkRenderPassAttachmentBeginInfo',
     'VkDebugUtilsLabelEXT',
+    'VkLayerProperties',
 )
 
 

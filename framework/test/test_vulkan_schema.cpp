@@ -891,6 +891,57 @@ TEST_CASE("A field walk decodes a string and points the decoded value at it", "[
     util::Log::Release();
 }
 
+TEST_CASE("A field walk decodes fixed-extent strings in place", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkLayerProperties carries two fixed-extent strings of different extents, with scalars between them. Like any
+    // fixed-extent array they decode into the decoded value's own storage rather than into storage of the
+    // decoder's, so nothing is assigned afterwards and the extents come from the API declaration.
+    //
+    // The names are shorter than their arrays, which is the case worth pinning: the wire carries the string, not
+    // the array, so the two fields are not the same size on the wire even though both arrays are fixed.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const char* const  kLayer       = "VK_LAYER_LUNARG_gfxreconstruct";
+    const char* const  kDescription = "GFXReconstruct capture layer";
+    constexpr uint32_t kSpec        = VK_API_VERSION_1_3;
+    constexpr uint32_t kImpl        = 42;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeString(kLayer);
+    encoder->EncodeUInt32Value(kSpec);
+    encoder->EncodeUInt32Value(kImpl);
+    encoder->EncodeString(kDescription);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkLayerProperties         walked_value{};
+    Decoded_VkLayerProperties walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.specVersion == kSpec);
+    CHECK(walked_value.implementationVersion == kImpl);
+
+    // Both strings landed in the decoded value's own arrays, not in storage the decoder allocated.
+    CHECK(walked.layerName.GetPointer() == &walked_value.layerName[0]);
+    CHECK(walked.description.GetPointer() == &walked_value.description[0]);
+
+    CHECK(std::string(walked_value.layerName) == kLayer);
+    CHECK(std::string(walked_value.description) == kDescription);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;

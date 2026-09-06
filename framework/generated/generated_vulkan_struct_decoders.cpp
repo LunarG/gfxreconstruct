@@ -2297,23 +2297,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExtensi
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerProperties* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    VkLayerProperties* value = wrapper->decoded_value;
-
-    wrapper->layerName.SetExternalMemory(value->layerName, VK_MAX_EXTENSION_NAME_SIZE);
-    bytes_read += wrapper->layerName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->specVersion));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->implementationVersion));
-    wrapper->description.SetExternalMemory(value->description, VK_MAX_DESCRIPTION_SIZE);
-    bytes_read += wrapper->description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubmitInfo* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

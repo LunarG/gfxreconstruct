@@ -130,8 +130,11 @@ struct UInt64 : Scalar { using encode_type = UInt64EncodeType; };
 struct Float  : Scalar { using encode_type = FloatEncodeType; };
 struct Double : Scalar { using encode_type = DoubleEncodeType; };
 
-struct Char          : Scalar { using encode_type = CharEncodeType; };
-struct WChar         : Scalar { using encode_type = WCharEncodeType; };
+// Text reaches an operation through a string decoder rather than a value or pointer one, so like a handle its
+// access pattern differs from a scalar's and it does not derive from Scalar. No API field is a single character
+// either: text is always an array, a pointer, or a run of pointers.
+struct Char  : Tag { using encode_type = CharEncodeType; };
+struct WChar : Tag { using encode_type = WCharEncodeType; };
 struct SizeT         : Scalar { using encode_type = SizeTEncodeType; };
 struct Enum          : Scalar { using encode_type = EnumEncodeType; };
 struct Flags         : Scalar { using encode_type = FlagsEncodeType; };
