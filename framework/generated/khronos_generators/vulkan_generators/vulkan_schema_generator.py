@@ -75,6 +75,7 @@ SCHEMA_OWNED_STRUCT_DECODERS = (
     'StdVideoAV1TileInfoFlags',
     'VkCheckpointData2NV',
     'VkAllocationCallbacks',
+    'VkRenderPassAttachmentBeginInfo',
 )
 
 

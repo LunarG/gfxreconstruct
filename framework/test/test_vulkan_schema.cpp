@@ -779,6 +779,62 @@ TEST_CASE("A field walk decodes both address populations in one structure", "[sc
     util::Log::Release();
 }
 
+TEST_CASE("A field walk decodes a run of handles into the wrapper and nulls the decoded value", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // VkRenderPassAttachmentBeginInfo::pAttachments is a run of VkImageView. It gets the same division a single
+    // handle gets: the capture-file identities land in the wrapper's HandlePointerDecoder and the decoded value's
+    // pointer stays null, because replay maps the identities to handles of its own run.
+    //
+    // The identities are written with EncodeHandleIdArray rather than EncodeVulkanHandleArray, for the reason the
+    // single-handle test gives: the latter goes through GetWrappedId, so handles this process never wrapped would
+    // record as null and the path would not be exercised with real values.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const std::vector<format::HandleId> kViews = { 0x0000BEEFCAFE0011ull,
+                                                   0x0000BEEFCAFE0012ull,
+                                                   0x0000BEEFCAFE0013ull };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeUInt32Value(static_cast<uint32_t>(kViews.size()));
+    encoder->EncodeHandleIdArray(kViews.data(), kViews.size());
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkRenderPassAttachmentBeginInfo         walked_value{};
+    Decoded_VkRenderPassAttachmentBeginInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO);
+    CHECK(walked_value.pNext == nullptr);
+    CHECK(walked_value.attachmentCount == kViews.size());
+
+    // The identities are in the wrapper, in order and at full length...
+    REQUIRE(walked.pAttachments.GetPointer() != nullptr);
+    CHECK(walked.pAttachments.GetLength() == kViews.size());
+    for (size_t i = 0; i < kViews.size(); ++i)
+    {
+        CHECK(walked.pAttachments.GetPointer()[i] == kViews[i]);
+    }
+
+    // ...and the decoded value's pointer is null, not pointed at them.
+    CHECK(walked_value.pAttachments == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
 TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;

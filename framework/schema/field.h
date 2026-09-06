@@ -179,8 +179,10 @@ void Set(Storage& storage, Field field, ValueType&& value)
 
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
 template <typename Field>
-concept HandleField = std::same_as<typename Field::api_type::kind, format::kind::Handle> &&
-    std::same_as<typename Field::shape, field_shape::Value>;
+concept HandleKindField = std::same_as<typename Field::api_type::kind, format::kind::Handle>;
+
+template <typename Field>
+concept HandleField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // The kind alone, so a shape other than Value can select on it. ScalarField is the value-shaped case.
 template <typename Field>
