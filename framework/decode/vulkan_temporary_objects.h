@@ -143,6 +143,11 @@ struct TemporaryCommandBuffer
 
     VkResult CreateAndBegin(uint32_t queue_family_index, uint32_t queue_index = 0);
 
+    VkResult CreateAndBegin(const VulkanQueueInfo& queue_info);
+
+    // Creates the command pool and command buffer and begins recording. `queue` must already be set.
+    VkResult CreateAndBeginForQueue(uint32_t queue_family_index);
+
     VkResult SubmitAndDestroy();
 
     VkResult SubmitAndReset();

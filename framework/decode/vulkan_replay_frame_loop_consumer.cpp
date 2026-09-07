@@ -1300,7 +1300,7 @@ void VulkanReplayFrameLoopConsumer::SubmitImageLayoutBarriers(const VulkanDevice
 
     TemporaryCommandBuffer temp_command_buffer(*device_info, *device_table);
 
-    VkResult result = temp_command_buffer.CreateAndBegin(queue_info->family_index, queue_info->queue_index);
+    VkResult result = temp_command_buffer.CreateAndBegin(*queue_info);
     CHECK_VK_RESULT(result, "TemporaryCommandBuffer::CreateAndBegin");
 
     device_table->CmdPipelineBarrier(temp_command_buffer.command_buffer,
