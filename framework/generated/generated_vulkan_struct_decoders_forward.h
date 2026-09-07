@@ -31,6 +31,7 @@
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
 
 #include "util/defines.h"
+#include "util/type_list.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
@@ -2718,6 +2719,39 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDrawMeshTasksIndirectCommandEXT* wrapper);
 struct Decoded_VkBaseOutStructure;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper);
+
+// The structures whose decoder the schema drives, rather than a body generated for each.
+//
+// The constraint is for diagnosis, not selection: the template would resolve correctly without it,
+// since a non-template beats a template wherever a prototype above still exists. What it buys is
+// that a wrapper with no instantiation fails at the call naming its type, rather than at the link
+// naming a mangled symbol.
+using SchemaDrivenStructs = util::TypeList<
+    Decoded_StdVideoAV1TileInfoFlags,
+    Decoded_VkAllocationCallbacks,
+    Decoded_VkBufferMemoryBarrier,
+    Decoded_VkCheckpointData2NV,
+    Decoded_VkDebugUtilsLabelEXT,
+    Decoded_VkDeviceBufferMemoryRequirements,
+    Decoded_VkImageBlit2,
+    Decoded_VkImageMemoryBarrier,
+    Decoded_VkImageSubresourceRange,
+    Decoded_VkLayerProperties,
+    Decoded_VkPipelineCacheCreateInfo,
+    Decoded_VkRenderPassAttachmentBeginInfo,
+    Decoded_VkRenderingInputAttachmentIndexInfo,
+    Decoded_VkShaderModuleCreateInfo,
+    Decoded_VkSparseBufferMemoryBindInfo,
+    Decoded_VkTransformMatrixKHR
+>;
+
+template <typename Wrapper>
+concept SchemaDriven = util::TypeListContainsV<SchemaDrivenStructs, Wrapper>;
+
+// Defined in decode/vulkan_decode_struct_impl.h, which is private to the one translation unit
+// that instantiates it. See that header for why.
+template <SchemaDriven Wrapper>
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Wrapper* wrapper);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

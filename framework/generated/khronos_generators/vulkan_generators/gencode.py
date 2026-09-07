@@ -65,9 +65,7 @@ from vulkan_schema_generator import (
     VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions,
     VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions,
     VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
-    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
-    VulkanDecodeWalkedStructsGenerator, VulkanDecodeWalkedStructsGeneratorOptions,
-    VulkanDecodeStructInstantiationsGenerator, VulkanDecodeStructInstantiationsGeneratorOptions
+    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions
 )
 
 # Consumers
@@ -362,10 +360,6 @@ def make_gen_opts(args):
          VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
         ('generated_vulkan_schema_checks.cpp',
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
-        ('generated_vulkan_decode_walked_structs.h',
-         VulkanDecodeWalkedStructsGenerator, VulkanDecodeWalkedStructsGeneratorOptions, True),
-        ('generated_vulkan_decode_struct_instantiations.cpp',
-         VulkanDecodeStructInstantiationsGenerator, VulkanDecodeStructInstantiationsGeneratorOptions, False),
     ):
         gen_opts[schema_filename] = [
             schema_generator,

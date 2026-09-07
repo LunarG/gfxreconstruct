@@ -27,7 +27,7 @@
 **
 */
 
-#include "decode/vulkan_decode_struct.h"
+#include "decode/vulkan_decode_struct_impl.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"

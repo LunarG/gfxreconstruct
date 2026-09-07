@@ -58,32 +58,21 @@ from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOption
 
 # The parts of the generated schema.
 # Structures whose DecodeStruct comes from the schema field walk. The struct-decoders generators read this and skip
-# both the procedural body and the prototype; the hand-written constrained template in decode/vulkan_decode_struct.h
+# both the procedural body and the prototype; the hand-written constrained template in decode/vulkan_decode_struct_impl.h
 # supplies the definition. Their decoded wrapper is still generated as usual.
 #
 # A structure may only appear here when the decode Action has an Apply overload for every one of its fields.
 # WalkFields fails to compile and names the field when it does not, so a wrong entry is a build error, not a silent
 # gap.
 #
-# WARNING -- this constant is about to become the ground truth for three artifacts, and nothing yet checks that they
-# agree.
+# WARNING -- this constant is the ground truth for three artifacts, and nothing checks that they agree.
 #
-# The plan is to stop the implementation header reaching every caller. Today it must be included wherever
-# DecodeStruct is instantiated, which after full migration is nine translation units, four of them consumers with
-# no business seeing member-pointer traits, each parsing about 50,000 lines of schema. Instead: declare the template
-# in a broadly included header, constrain it on a typelist, and instantiate it explicitly in one place. Nine
-# translation units become one, and each new operation family costs one more rather than nine more.
+#   1. the skip decision           -- no generated body, no generated prototype
+#   2. the SchemaDrivenStructs typelist  -- the constraint on the broadly declared template
+#   3. an explicit instantiation   -- in generated_vulkan_struct_decoders.cpp, the one place the walk compiles
 #
-# That makes this list the source of three derived things:
-#
-#   1. the skip decision here      -- no generated body, no generated prototype
-#   2. a WalkedWrappers typelist   -- the constraint on the broadly declared template
-#   3. an explicit instantiation   -- the one definition, in the implementation translation unit
-#
-# The list flips polarity at the crossover: an include list while most structures are still procedural, an exclude
-# list once the walk owns everything and only the hand-written unions remain. Whichever is shorter.
-#
-# How the four drift directions behave, since they are not alike:
+# All three are emitted from this list, so they can only disagree if one is hand-edited. How the four directions
+# behave, since they are not alike:
 #
 #   skipped but not instantiated   link error, naming a mangled symbol. Loud, poor diagnostic.
 #   skipped but not in typelist    compile error at the call. Loud, good diagnostic.
@@ -91,11 +80,11 @@ from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOption
 #                                  is dead code that compiles, links and is never reached.
 #   in typelist but not skipped    SILENT, same reason. The constraint permits what the non-template already took.
 #
-# The two silent ones waste rather than break, which is why this is deferred rather than urgent. The guard when it
-# is time: assert in the checks file, for every schema-owned structure, that TypeListContainsV<WalkedWrappers,
-# Decoded_X> holds. That catches typelist drift from this constant; the link catches instantiation drift; nothing
-# cheap catches the dead-code direction, and it costs only compile time.
-SCHEMA_OWNED_STRUCT_DECODERS = (
+# The two silent ones waste rather than break, which is why there is no guard yet. The cheap one when it is wanted:
+# assert in the checks file, for every structure in this list, that TypeListContainsV<SchemaDrivenStructs,
+# Decoded_X> holds. That catches typelist drift; the link catches instantiation drift; nothing cheap catches the
+# dead-code direction, and it costs only compile time.
+SCHEMA_DRIVEN_STRUCTS = (
     'VkBufferMemoryBarrier',
     'VkImageSubresourceRange',
     'VkImageMemoryBarrier',
@@ -262,36 +251,6 @@ class VulkanSchemaDecodedCommandMembersGeneratorOptions(
 
     def storage_header(self):
         return 'generated/generated_vulkan_decoder_args.h'
-
-
-class VulkanDecodeWalkedStructsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the list of structures whose DecodeStruct is the field walk.
-
-    Deliberately light. It names decoded wrappers and nothing else, so the header that constrains the broadly
-    declared DecodeStruct on it costs a caller nothing beyond forward declarations it already has.
-    """
-
-    def add_part_headers(self, begin_end):
-        begin_end.specific_headers.extend((
-            'generated/generated_vulkan_struct_decoders_forward.h',
-            'util/defines.h',
-            'util/type_list.h',
-        ))
-
-
-class VulkanDecodeStructInstantiationsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the one translation unit that instantiates the walk.
-
-    This is where the schema, the Action and the member-trait partitions are compiled, and the only place. Every
-    other caller sees a declaration.
-    """
-
-    def add_part_headers(self, begin_end):
-        begin_end.specific_headers.extend((
-            'decode/vulkan_decode_struct_impl.h',
-            'generated/generated_vulkan_struct_decoders.h',
-            'util/defines.h',
-        ))
 
 
 class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
@@ -1155,65 +1114,6 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
 
-    def write_walked_structs(self):
-        write(
-            '// The structures whose DecodeStruct is the schema field walk. The broadly declared template is',
-            file=self.outFile
-        )
-        write(
-            '// constrained on this, so a wrapper with no instantiation fails at the call naming its type rather',
-            file=self.outFile
-        )
-        write('// than at the link naming a mangled symbol.', file=self.outFile)
-        write('//', file=self.outFile)
-        write(
-            '// The list is generated from the same constant that decides which procedural bodies to skip. See the',
-            file=self.outFile
-        )
-        write(
-            '// warning on SCHEMA_OWNED_STRUCT_DECODERS for how the three derived artifacts can disagree.',
-            file=self.outFile
-        )
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-
-        walked = [s for s in self.schema_structs if s in SCHEMA_OWNED_STRUCT_DECODERS]
-
-        write('using WalkedStructs = util::TypeList<', file=self.outFile)
-
-        for index, struct in enumerate(sorted(walked)):
-            comma = ',' if index + 1 < len(walked) else ''
-            write('    Decoded_{}{}'.format(struct, comma), file=self.outFile)
-
-        write('>;', file=self.outFile)
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-
-    def write_struct_instantiations(self):
-        write(
-            '// One explicit instantiation for each structure the walk owns. This is the only translation unit that',
-            file=self.outFile
-        )
-        write(
-            '// compiles the walk, so the schema and the member-trait partitions reach no other target.',
-            file=self.outFile
-        )
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-
-        walked = [s for s in self.schema_structs if s in SCHEMA_OWNED_STRUCT_DECODERS]
-
-        for struct in sorted(walked):
-            write(
-                'template size_t DecodeStruct<Decoded_{name}>(const uint8_t*, size_t, Decoded_{name}*);'.format(
-                    name=struct
-                ),
-                file=self.outFile
-            )
-
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-
     def write_checks(self):
         """Static checks over the whole generated schema, compiled by the framework test target.
 
@@ -1440,20 +1340,6 @@ class VulkanSchemaDecodedCommandMembersGenerator(VulkanSchemaBaseGenerator):
 
     def write_part(self):
         self.write_decoded_command_members()
-
-
-class VulkanDecodeWalkedStructsGenerator(VulkanSchemaBaseGenerator):
-    """Generates the typelist of structures the walk owns."""
-
-    def write_part(self):
-        self.write_walked_structs()
-
-
-class VulkanDecodeStructInstantiationsGenerator(VulkanSchemaBaseGenerator):
-    """Generates the explicit instantiations, one per structure the walk owns."""
-
-    def write_part(self):
-        self.write_struct_instantiations()
 
 
 class VulkanSchemaChecksGenerator(VulkanSchemaBaseGenerator):

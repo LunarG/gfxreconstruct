@@ -27,7 +27,7 @@
 **
 */
 
-#include "decode/vulkan_decode_struct.h"
+#include "decode/vulkan_decode_struct_impl.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
@@ -24734,6 +24734,24 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOut
     return bytes_read;
 }
 
+
+// The schema drives these decoders. This is the only translation unit that compiles the walk.
+template size_t DecodeStruct<Decoded_StdVideoAV1TileInfoFlags>(const uint8_t*, size_t, Decoded_StdVideoAV1TileInfoFlags*);
+template size_t DecodeStruct<Decoded_VkAllocationCallbacks>(const uint8_t*, size_t, Decoded_VkAllocationCallbacks*);
+template size_t DecodeStruct<Decoded_VkBufferMemoryBarrier>(const uint8_t*, size_t, Decoded_VkBufferMemoryBarrier*);
+template size_t DecodeStruct<Decoded_VkCheckpointData2NV>(const uint8_t*, size_t, Decoded_VkCheckpointData2NV*);
+template size_t DecodeStruct<Decoded_VkDebugUtilsLabelEXT>(const uint8_t*, size_t, Decoded_VkDebugUtilsLabelEXT*);
+template size_t DecodeStruct<Decoded_VkDeviceBufferMemoryRequirements>(const uint8_t*, size_t, Decoded_VkDeviceBufferMemoryRequirements*);
+template size_t DecodeStruct<Decoded_VkImageBlit2>(const uint8_t*, size_t, Decoded_VkImageBlit2*);
+template size_t DecodeStruct<Decoded_VkImageMemoryBarrier>(const uint8_t*, size_t, Decoded_VkImageMemoryBarrier*);
+template size_t DecodeStruct<Decoded_VkImageSubresourceRange>(const uint8_t*, size_t, Decoded_VkImageSubresourceRange*);
+template size_t DecodeStruct<Decoded_VkLayerProperties>(const uint8_t*, size_t, Decoded_VkLayerProperties*);
+template size_t DecodeStruct<Decoded_VkPipelineCacheCreateInfo>(const uint8_t*, size_t, Decoded_VkPipelineCacheCreateInfo*);
+template size_t DecodeStruct<Decoded_VkRenderPassAttachmentBeginInfo>(const uint8_t*, size_t, Decoded_VkRenderPassAttachmentBeginInfo*);
+template size_t DecodeStruct<Decoded_VkRenderingInputAttachmentIndexInfo>(const uint8_t*, size_t, Decoded_VkRenderingInputAttachmentIndexInfo*);
+template size_t DecodeStruct<Decoded_VkShaderModuleCreateInfo>(const uint8_t*, size_t, Decoded_VkShaderModuleCreateInfo*);
+template size_t DecodeStruct<Decoded_VkSparseBufferMemoryBindInfo>(const uint8_t*, size_t, Decoded_VkSparseBufferMemoryBindInfo*);
+template size_t DecodeStruct<Decoded_VkTransformMatrixKHR>(const uint8_t*, size_t, Decoded_VkTransformMatrixKHR*);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

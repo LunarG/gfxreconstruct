@@ -28,7 +28,6 @@
 
 #include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
-#include "decode/vulkan_decode_struct.h"
 #include "generated/generated_openxr_struct_decoders.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"

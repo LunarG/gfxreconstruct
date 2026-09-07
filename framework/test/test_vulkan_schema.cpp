@@ -35,7 +35,7 @@
 // Encode or Decode adapter would include it.
 
 #include "decode/decode_allocator.h"
-#include "decode/vulkan_decode_struct.h"
+#include "decode/vulkan_decode_struct_impl.h"
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "generated/generated_vulkan_struct_encoders.h"

@@ -340,10 +340,7 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_struct_members.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_command_members.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_action.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct_impl.h
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decode_walked_structs.h
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decode_struct_instantiations.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp

@@ -38,7 +38,7 @@
 
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/decode_allocator.h"
-#include "decode/vulkan_decode_struct.h"
+#include "decode/vulkan_decode_struct_impl.h"
 #include "decode/vulkan_pnext_node.h"
 #include "decode/vulkan_pnext_typed_node.h"
 #include "generated/generated_vulkan_struct_decoders.h"
