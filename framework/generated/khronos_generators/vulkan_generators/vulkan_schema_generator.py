@@ -264,6 +264,36 @@ class VulkanSchemaDecodedCommandMembersGeneratorOptions(
         return 'generated/generated_vulkan_decoder_args.h'
 
 
+class VulkanDecodeWalkedStructsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the list of structures whose DecodeStruct is the field walk.
+
+    Deliberately light. It names decoded wrappers and nothing else, so the header that constrains the broadly
+    declared DecodeStruct on it costs a caller nothing beyond forward declarations it already has.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_struct_decoders_forward.h',
+            'util/defines.h',
+            'util/type_list.h',
+        ))
+
+
+class VulkanDecodeStructInstantiationsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the one translation unit that instantiates the walk.
+
+    This is where the schema, the Action and the member-trait partitions are compiled, and the only place. Every
+    other caller sees a declaration.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'decode/vulkan_decode_struct_impl.h',
+            'generated/generated_vulkan_struct_decoders.h',
+            'util/defines.h',
+        ))
+
+
 class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Options for the cross-generator agreement checks. Compiled only by the framework test target, so it costs a
     product build nothing and can include whatever it needs to check. Compiling it is the test; there is nothing to
@@ -1125,6 +1155,65 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
 
+    def write_walked_structs(self):
+        write(
+            '// The structures whose DecodeStruct is the schema field walk. The broadly declared template is',
+            file=self.outFile
+        )
+        write(
+            '// constrained on this, so a wrapper with no instantiation fails at the call naming its type rather',
+            file=self.outFile
+        )
+        write('// than at the link naming a mangled symbol.', file=self.outFile)
+        write('//', file=self.outFile)
+        write(
+            '// The list is generated from the same constant that decides which procedural bodies to skip. See the',
+            file=self.outFile
+        )
+        write(
+            '// warning on SCHEMA_OWNED_STRUCT_DECODERS for how the three derived artifacts can disagree.',
+            file=self.outFile
+        )
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+
+        walked = [s for s in self.schema_structs if s in SCHEMA_OWNED_STRUCT_DECODERS]
+
+        write('using WalkedStructs = util::TypeList<', file=self.outFile)
+
+        for index, struct in enumerate(sorted(walked)):
+            comma = ',' if index + 1 < len(walked) else ''
+            write('    Decoded_{}{}'.format(struct, comma), file=self.outFile)
+
+        write('>;', file=self.outFile)
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+
+    def write_struct_instantiations(self):
+        write(
+            '// One explicit instantiation for each structure the walk owns. This is the only translation unit that',
+            file=self.outFile
+        )
+        write(
+            '// compiles the walk, so the schema and the member-trait partitions reach no other target.',
+            file=self.outFile
+        )
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+
+        walked = [s for s in self.schema_structs if s in SCHEMA_OWNED_STRUCT_DECODERS]
+
+        for struct in sorted(walked):
+            write(
+                'template size_t DecodeStruct<Decoded_{name}>(const uint8_t*, size_t, Decoded_{name}*);'.format(
+                    name=struct
+                ),
+                file=self.outFile
+            )
+
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+
     def write_checks(self):
         """Static checks over the whole generated schema, compiled by the framework test target.
 
@@ -1351,6 +1440,20 @@ class VulkanSchemaDecodedCommandMembersGenerator(VulkanSchemaBaseGenerator):
 
     def write_part(self):
         self.write_decoded_command_members()
+
+
+class VulkanDecodeWalkedStructsGenerator(VulkanSchemaBaseGenerator):
+    """Generates the typelist of structures the walk owns."""
+
+    def write_part(self):
+        self.write_walked_structs()
+
+
+class VulkanDecodeStructInstantiationsGenerator(VulkanSchemaBaseGenerator):
+    """Generates the explicit instantiations, one per structure the walk owns."""
+
+    def write_part(self):
+        self.write_struct_instantiations()
 
 
 class VulkanSchemaChecksGenerator(VulkanSchemaBaseGenerator):

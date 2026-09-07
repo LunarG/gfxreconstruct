@@ -102,6 +102,8 @@ generate_targets = [
     'generated_vulkan_schema_decoded_struct_members.h',
     'generated_vulkan_schema_decoded_command_members.h',
     'generated_vulkan_schema_checks.cpp',
+    'generated_vulkan_decode_walked_structs.h',
+    'generated_vulkan_decode_struct_instantiations.cpp',
 ]
 
 
