@@ -130,6 +130,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, float data);
 void FieldToJson(nlohmann::ordered_json& jdata, double data);
 void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data);
 void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data);
+void FieldToJson(nlohmann::ordered_json& jdata, const std::u16string_view data);
 
 #if defined(D3D12_SUPPORT)
 /// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character

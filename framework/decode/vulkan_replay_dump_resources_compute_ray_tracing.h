@@ -32,6 +32,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -64,10 +65,10 @@ class DispatchTraceRaysDumpingContext
 
     ~DispatchTraceRaysDumpingContext();
 
-    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
-                                const graphics::VulkanDeviceTable*   dev_table,
-                                const graphics::VulkanInstanceTable* inst_table,
-                                const VkCommandBufferBeginInfo*      begin_info);
+    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*                   orig_cmd_buf_info,
+                                const graphics::VulkanInjectedDeviceCalls& dev_table,
+                                const graphics::VulkanInstanceTable*       inst_table,
+                                const VkCommandBufferBeginInfo*            begin_info);
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
 
@@ -218,11 +219,11 @@ class DispatchTraceRaysDumpingContext
         {
             ClonedDescriptorBase() = delete;
 
-            ClonedDescriptorBase(VkShaderStageFlags                 stage_flags,
-                                 VkDescriptorType                   type,
-                                 format::HandleId                   parent_device,
-                                 const graphics::VulkanDeviceTable& dt,
-                                 const CommonObjectInfoTable&       oit) :
+            ClonedDescriptorBase(VkShaderStageFlags                         stage_flags,
+                                 VkDescriptorType                           type,
+                                 format::HandleId                           parent_device,
+                                 const graphics::VulkanInjectedDeviceCalls& dt,
+                                 const CommonObjectInfoTable&               oit) :
                 device_memory(VK_NULL_HANDLE),
                 stages(stage_flags), desc_type(type), parent_device_id(parent_device), device_table(dt),
                 object_info_table(oit)
@@ -236,29 +237,30 @@ class DispatchTraceRaysDumpingContext
 
                 if (device_memory != VK_NULL_HANDLE)
                 {
-                    device_table.FreeMemory(device, device_memory, nullptr);
+                    auto injected = device_table.Open();
+                    injected->FreeMemory(device, device_memory, nullptr);
                     device_memory = VK_NULL_HANDLE;
                 }
             }
 
-            VkDeviceMemory                     device_memory;
-            VkShaderStageFlags                 stages;
-            VkDescriptorType                   desc_type;
-            format::HandleId                   parent_device_id;
-            const graphics::VulkanDeviceTable& device_table;
-            const CommonObjectInfoTable&       object_info_table;
+            VkDeviceMemory                            device_memory;
+            VkShaderStageFlags                        stages;
+            VkDescriptorType                          desc_type;
+            format::HandleId                          parent_device_id;
+            const graphics::VulkanInjectedDeviceCalls device_table;
+            const CommonObjectInfoTable&              object_info_table;
         };
 
         struct ClonedImageDescriptor : ClonedDescriptorBase
         {
             ClonedImageDescriptor() = delete;
 
-            ClonedImageDescriptor(const VulkanImageInfo&             src_img_info,
-                                  VkShaderStageFlags                 stage_flags,
-                                  VkDescriptorType                   type,
-                                  format::HandleId                   parent_device,
-                                  const graphics::VulkanDeviceTable& dt,
-                                  const CommonObjectInfoTable&       oit) :
+            ClonedImageDescriptor(const VulkanImageInfo&                     src_img_info,
+                                  VkShaderStageFlags                         stage_flags,
+                                  VkDescriptorType                           type,
+                                  format::HandleId                           parent_device,
+                                  const graphics::VulkanInjectedDeviceCalls& dt,
+                                  const CommonObjectInfoTable&               oit) :
                 ClonedDescriptorBase(stage_flags, type, parent_device, dt, oit),
                 new_image_info(src_img_info)
             {}
@@ -270,7 +272,8 @@ class DispatchTraceRaysDumpingContext
 
                 if (new_image_info.handle != VK_NULL_HANDLE)
                 {
-                    device_table.DestroyImage(device_info->handle, new_image_info.handle, nullptr);
+                    auto injected = device_table.Open();
+                    injected->DestroyImage(device_info->handle, new_image_info.handle, nullptr);
                     new_image_info.handle = VK_NULL_HANDLE;
                 }
             }
@@ -282,13 +285,13 @@ class DispatchTraceRaysDumpingContext
         {
             ClonedBufferDescriptor() = delete;
 
-            ClonedBufferDescriptor(const VulkanBufferInfo&            src_buffer_info,
-                                   VkDeviceSize                       size,
-                                   VkShaderStageFlags                 stage_flags,
-                                   VkDescriptorType                   type,
-                                   format::HandleId                   parent_device,
-                                   const graphics::VulkanDeviceTable& dt,
-                                   const CommonObjectInfoTable&       oit) :
+            ClonedBufferDescriptor(const VulkanBufferInfo&                    src_buffer_info,
+                                   VkDeviceSize                               size,
+                                   VkShaderStageFlags                         stage_flags,
+                                   VkDescriptorType                           type,
+                                   format::HandleId                           parent_device,
+                                   const graphics::VulkanInjectedDeviceCalls& dt,
+                                   const CommonObjectInfoTable&               oit) :
                 ClonedDescriptorBase(stage_flags, type, parent_device, dt, oit),
                 new_buffer_info(src_buffer_info), cloned_size(size)
             {}
@@ -300,7 +303,8 @@ class DispatchTraceRaysDumpingContext
 
                 if (new_buffer_info.handle != VK_NULL_HANDLE)
                 {
-                    device_table.DestroyBuffer(device_info->handle, new_buffer_info.handle, nullptr);
+                    auto injected = device_table.Open();
+                    injected->DestroyBuffer(device_info->handle, new_buffer_info.handle, nullptr);
                     new_buffer_info.handle = VK_NULL_HANDLE;
                 }
             }
@@ -658,7 +662,7 @@ class DispatchTraceRaysDumpingContext
 
     const VulkanPerDeviceAddressTrackers& address_trackers_;
 
-    const graphics::VulkanDeviceTable*      device_table_;
+    graphics::VulkanInjectedDeviceCalls     device_table_;
     VkDevice                                parent_device_;
     const graphics::VulkanInstanceTable*    instance_table_;
     CommonObjectInfoTable&                  object_info_table_;

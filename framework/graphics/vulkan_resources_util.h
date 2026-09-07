@@ -28,6 +28,7 @@
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_injected_calls.h"
 
 #include <vector>
 #include <functional>
@@ -49,6 +50,15 @@ class VulkanResourcesUtil
                         const VulkanDeviceTable&                               device_table,
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
+
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanInjectedDeviceCalls&                       injected_device_calls,
+                        const VulkanInstanceTable&                             instance_table,
+                        const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
@@ -374,16 +384,19 @@ class VulkanResourcesUtil
         StagingMemoryContext mem;
     };
 
-    VkDevice                   device_;
-    const VulkanDeviceTable&   device_table_;
-    VkPhysicalDevice           physical_device_;
-    const VulkanInstanceTable& instance_table_;
+    VkDevice                        device_;
+    const VulkanInjectedDeviceCalls device_table_;
+    VkPhysicalDevice                physical_device_;
+    const VulkanInstanceTable&      instance_table_;
 
     // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
 
     // Required to check available physical device features
     const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info_;
+
+    // Effective device version and enabled device extensions, for selecting core vs extension entry point flavors.
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info_;
 
     struct command_assets_t
     {

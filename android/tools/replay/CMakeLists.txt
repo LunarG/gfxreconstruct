@@ -24,6 +24,7 @@ add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application application)
 add_library(gfxrecon-replay
             SHARED
                 ${GFXRECON_SOURCE_DIR}/tools/tool_settings.h
+                ${GFXRECON_SOURCE_DIR}/tools/tool_feature_options.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h

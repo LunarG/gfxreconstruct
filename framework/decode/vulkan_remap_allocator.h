@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_REMAP_ALLOCATOR_H
 
 #include "decode/vulkan_default_allocator.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include <vector>
@@ -34,22 +35,18 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanRemapAllocator : public VulkanDefaultAllocator
 {
   public:
-    VulkanRemapAllocator() {}
+    VulkanRemapAllocator() : VulkanDefaultAllocator() {}
 
     VulkanRemapAllocator(const std::string& custom_error_string) : VulkanDefaultAllocator(custom_error_string) {}
 
     VulkanRemapAllocator(std::string&& custom_error_string) : VulkanDefaultAllocator(std::move(custom_error_string)) {}
 
-    virtual VkResult Initialize(uint32_t                                api_version,
-                                VkInstance                              instance,
-                                VkPhysicalDevice                        physical_device,
-                                VkDevice                                device,
-                                const VkDeviceCreateInfo&               device_create_info,
-                                const std::vector<std::string>&         enabled_device_extensions,
-                                VkPhysicalDeviceType                    capture_device_type,
-                                const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                const Functions&                        functions) override;
+    virtual VkResult Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                VkDevice                             device,
+                                const VkDeviceCreateInfo&            device_create_info,
+                                const std::vector<std::string>&      enabled_device_extensions,
+                                const graphics::VulkanInstanceTable& instance_table,
+                                const graphics::VulkanDeviceTable*   device_table) override;
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,

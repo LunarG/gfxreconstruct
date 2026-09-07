@@ -34,6 +34,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+/// @brief Sizes the command buffer's layout map for an image, so that later SetLayout calls have somewhere to record.
+///
+/// Every subresource of the new map starts VK_IMAGE_LAYOUT_UNDEFINED, which marks it as untouched by this command
+/// buffer. Does nothing if the map already exists.
+/// @param command_buffer_info Command buffer that records the layout transitions.
+/// @param image_info Image whose subresources the map is sized from.
+void InitializeCommandBufferImageLayouts(VulkanCommandBufferInfo* command_buffer_info,
+                                         const VulkanImageInfo*   image_info);
+
 /// @brief Handles and semaphore that belong to the splits of one command buffer.
 ///
 /// Replay can split one recording across multiple command buffers. This class owns the

@@ -33,6 +33,7 @@
 #include "generated/generated_dx12_decoder.h"
 
 #include <memory>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
@@ -55,10 +56,7 @@ class OptimizeDx12Feature : public OptimizeFeature
 
     // Command-line options and arguments
     // -------------------------------------
-    std::string GetOptions() const override;
-    std::string GetArguments() const override;
-    std::string GetSynopsisFragment() const override;
-    void        PrintUsage() const override;
+    std::vector<util::FeatureOptionDesc> GetOptionDescs() const override;
 
   private:
     decode::Dx12OptimizationOptions BuildOptions(const util::ArgumentParser& args) const;

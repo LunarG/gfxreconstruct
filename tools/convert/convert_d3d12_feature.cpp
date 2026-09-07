@@ -23,6 +23,9 @@
 
 #if defined(D3D12_SUPPORT)
 
+// This needs to be included before d3d12.h so that IIDs are defined and not just declared.
+#include <initguid.h>
+
 #include "convert_feature.h"
 
 #include "decode/dx12_detection_consumer.h"

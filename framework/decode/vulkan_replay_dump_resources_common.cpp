@@ -25,6 +25,8 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_temporary_objects.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
@@ -40,6 +42,7 @@
 #include <sstream>
 #include <tuple>
 #include <utility>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -121,12 +124,12 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
     return dst_format;
 }
 
-VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
-                       const graphics::VulkanDeviceTable*      device_table,
-                       const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                       const VulkanImageInfo*                  image_info,
-                       VkImage*                                new_image,
-                       VkDeviceMemory*                         new_image_memory)
+VkResult CreateVkImage(const CommonObjectInfoTable&               object_info_table,
+                       const graphics::VulkanInjectedDeviceCalls& device_table,
+                       const VkPhysicalDeviceMemoryProperties*    replay_device_phys_mem_props,
+                       const VulkanImageInfo*                     image_info,
+                       VkImage*                                   new_image,
+                       VkDeviceMemory*                            new_image_memory)
 {
     VkImageCreateInfo ci;
     ci.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -148,9 +151,9 @@ VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(image_info->parent_id);
     VkDevice                device      = device_info->handle;
 
-    assert(device_table);
     assert(new_image);
-    VkResult res = device_table->CreateImage(device, &ci, nullptr, new_image);
+    auto     injected = device_table.Open();
+    VkResult res      = injected->CreateImage(device, &ci, nullptr, new_image);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("CreateImage failed with %s", util::ToString<VkResult>(res).c_str());
@@ -160,7 +163,7 @@ VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table
     VkMemoryRequirements mem_reqs       = {};
     VkMemoryAllocateInfo mem_alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr };
 
-    device_table->GetImageMemoryRequirements(device, *new_image, &mem_reqs);
+    injected->GetImageMemoryRequirements(device, *new_image, &mem_reqs);
     mem_alloc_info.allocationSize = mem_reqs.size;
 
     assert(replay_device_phys_mem_props);
@@ -175,14 +178,14 @@ VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table
     mem_alloc_info.memoryTypeIndex = index;
 
     assert(new_image_memory);
-    res = device_table->AllocateMemory(device, &mem_alloc_info, nullptr, new_image_memory);
+    res = injected->AllocateMemory(device, &mem_alloc_info, nullptr, new_image_memory);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("AllocateMemory failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
 
-    res = device_table->BindImageMemory(device, *new_image, *new_image_memory, 0);
+    res = injected->BindImageMemory(device, *new_image, *new_image_memory, 0);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("BindImageMemory failed with %s", util::ToString<VkResult>(res).c_str());
@@ -328,19 +331,19 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
     }
 }
 
-VkResult DumpImage(DumpedImage&                         dumped_image,
-                   VkImageLayout                        layout,
-                   float                                scale,
-                   bool                                 dump_image_raw,
-                   const ImageSubresourceRanges&        subresource_range,
-                   DumpedImageHostData&                 data,
-                   const VulkanDeviceInfo*              device_info,
-                   const graphics::VulkanDeviceTable*   device_table,
-                   const graphics::VulkanInstanceTable* instance_table,
-                   const CommonObjectInfoTable&         object_info_table)
+VkResult DumpImage(DumpedImage&                               dumped_image,
+                   VkImageLayout                              layout,
+                   float                                      scale,
+                   bool                                       dump_image_raw,
+                   const ImageSubresourceRanges&              subresource_range,
+                   DumpedImageHostData&                       data,
+                   const VulkanDeviceInfo*                    device_info,
+                   const graphics::VulkanInjectedDeviceCalls& device_table,
+                   const graphics::VulkanInstanceTable*       instance_table,
+                   const CommonObjectInfoTable&               object_info_table)
 {
     GFXRECON_ASSERT(device_info != nullptr);
-    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(device_table.IsValid());
     GFXRECON_ASSERT(instance_table != nullptr);
 
     const VulkanImageInfo* image_info = dumped_image.image_info;
@@ -351,9 +354,10 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
-                                                *device_table,
+                                                device_table,
                                                 *instance_table,
                                                 device_info->property_feature_info,
+                                                device_info->version_extension_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     // Choose the format in which the image will be dumped from the gpu into the host memory
@@ -528,15 +532,15 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     return VK_SUCCESS;
 }
 
-VkResult DumpBuffer(const DumpedBuffer&                  dumped_buffer,
-                    DumpedHostData&                      data,
-                    const VulkanDeviceInfo*              device_info,
-                    const graphics::VulkanDeviceTable*   device_table,
-                    const graphics::VulkanInstanceTable* instance_table,
-                    const CommonObjectInfoTable&         object_info_table)
+VkResult DumpBuffer(const DumpedBuffer&                        dumped_buffer,
+                    DumpedHostData&                            data,
+                    const VulkanDeviceInfo*                    device_info,
+                    const graphics::VulkanInjectedDeviceCalls& device_table,
+                    const graphics::VulkanInstanceTable*       instance_table,
+                    const CommonObjectInfoTable&               object_info_table)
 {
     GFXRECON_ASSERT(device_info != nullptr);
-    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(device_table.IsValid());
     GFXRECON_ASSERT(instance_table != nullptr);
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
@@ -544,9 +548,10 @@ VkResult DumpBuffer(const DumpedBuffer&                  dumped_buffer,
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
-                                                *device_table,
+                                                device_table,
                                                 *instance_table,
                                                 device_info->property_feature_info,
+                                                device_info->version_extension_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     GFXRECON_ASSERT(dumped_buffer.size);
@@ -626,15 +631,15 @@ std::string IndexTypeToStr(VkIndexType type)
     return index_type_name;
 }
 
-VkResult CreateVkBuffer(VkDeviceSize                            size,
-                        const graphics::VulkanDeviceTable&      device_table,
-                        VkDevice                                parent_device,
-                        const VkBaseInStructure*                buffer_create_info_pNext,
-                        const VkBaseInStructure*                allocate_memory_info_pNext,
-                        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                        VkBufferUsageFlags                      usage_flags,
-                        VkBuffer*                               new_buffer,
-                        VkDeviceMemory*                         new_memory)
+VkResult CreateVkBuffer(VkDeviceSize                               size,
+                        const graphics::VulkanInjectedDeviceCalls& device_table,
+                        VkDevice                                   parent_device,
+                        const VkBaseInStructure*                   buffer_create_info_pNext,
+                        const VkBaseInStructure*                   allocate_memory_info_pNext,
+                        const VkPhysicalDeviceMemoryProperties*    replay_device_phys_mem_props,
+                        VkBufferUsageFlags                         usage_flags,
+                        VkBuffer*                                  new_buffer,
+                        VkDeviceMemory*                            new_memory)
 {
     assert(size);
     assert(new_buffer != nullptr);
@@ -652,7 +657,8 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     bci.queueFamilyIndexCount = 0;
     bci.pQueueFamilyIndices   = nullptr;
 
-    VkResult res = device_table.CreateBuffer(parent_device, &bci, nullptr, new_buffer);
+    auto     injected = device_table.Open();
+    VkResult res      = injected->CreateBuffer(parent_device, &bci, nullptr, new_buffer);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s(): CreateBuffer failed with: %s", __func__, util::ToString<VkResult>(res).c_str());
@@ -662,7 +668,7 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     VkMemoryRequirements mem_reqs       = {};
     VkMemoryAllocateInfo mem_alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, allocate_memory_info_pNext };
 
-    device_table.GetBufferMemoryRequirements(parent_device, *new_buffer, &mem_reqs);
+    injected->GetBufferMemoryRequirements(parent_device, *new_buffer, &mem_reqs);
     mem_alloc_info.allocationSize = mem_reqs.size;
 
     uint32_t mem_index = graphics::GetMemoryTypeIndex(
@@ -684,14 +690,14 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
         mem_alloc_info.pNext   = &alloc_flags_info;
     }
 
-    res = device_table.AllocateMemory(parent_device, &mem_alloc_info, nullptr, new_memory);
+    res = injected->AllocateMemory(parent_device, &mem_alloc_info, nullptr, new_memory);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s(): AllocateMemory failed with %s", __func__, util::ToString<VkResult>(res).c_str());
         return res;
     }
 
-    res = device_table.BindBufferMemory(parent_device, *new_buffer, *new_memory, 0);
+    res = injected->BindBufferMemory(parent_device, *new_buffer, *new_memory, 0);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s(): BindBufferMemory failed with %s", __func__, util::ToString<VkResult>(res).c_str());
@@ -1397,7 +1403,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
 
 static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResourcesContext* acceleration_structure,
                                                const VulkanDeviceInfo*                    device_info,
-                                               const graphics::VulkanDeviceTable&         device_table,
+                                               const graphics::VulkanInjectedDeviceCalls& device_table,
                                                const CommonObjectInfoTable&               object_info_table_)
 {
     constexpr uint32_t query_count = 1;
@@ -1408,72 +1414,24 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
     const VkDevice                          device    = device_info->handle;
 
-    // A query pool is required for vkCmdWriteAccelerationStructuresPropertiesKHR
-    const VkQueryPoolCreateInfo qci = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
-                                        nullptr,
-                                        VkQueryPoolCreateFlagBits(0),
-                                        VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
-                                        static_cast<uint32_t>(query_count),
-                                        VkQueryPipelineStatisticFlags(0) };
+    auto injected = device_table.Open();
 
-    VkQueryPool query_pool;
-    VkResult    res = device_table.CreateQueryPool(device, &qci, nullptr, &query_pool);
+    TemporaryCommandBuffer temp_command_buffer(*device_info, device_table);
+    VkResult               res = temp_command_buffer.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: CreateQueryPool failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    const uint32_t compute_queue_family_index = FindComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (compute_queue_family_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("%s: Failed to find a compute queue family index", __func__)
-        return VK_ERROR_UNKNOWN;
-    }
-
-    // Create temporary command pool and buffer to execute vkCmdWriteAccelerationStructuresPropertiesKHR
-    const VkCommandPoolCreateInfo cpci = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-                                           nullptr,
-                                           VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                                           compute_queue_family_index };
-    VkCommandPool                 cmd_pool;
-    res = device_table.CreateCommandPool(device, &cpci, nullptr, &cmd_pool);
+    // Create a query pool
+    TemporaryQueryPool query(device, device_table);
+    res = query.Create(query_count);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("(%s) CreateCommandPool failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    const VkCommandBufferAllocateInfo cbai = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, nullptr, cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1
-    };
-    VkCommandBuffer cmd_buffer;
-    res = device_table.AllocateCommandBuffers(device, &cbai, &cmd_buffer);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("(%s) AllocateCommandBuffers failed (%s)", __func__, util::ToString(res).c_str());
-        return res;
-    }
-
-    res = device_table.ResetCommandBuffer(cmd_buffer, 0);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: ResetCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    const VkCommandBufferBeginInfo cbbi = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
-    };
-    res = device_table.BeginCommandBuffer(cmd_buffer, &cbbi);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    // Reset query pool
-    device_table.CmdResetQueryPool(cmd_buffer, query_pool, 0, 1);
+    injected->CmdResetQueryPool(temp_command_buffer.command_buffer, query.query_pool, 0, 1);
 
     // Flush any pending writes to the acceleration structure
     const VkMemoryBarrier mem_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER,
@@ -1481,8 +1439,8 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                           VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
                                           VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT };
 
-    device_table.CmdPipelineBarrier(
-        cmd_buffer,
+    injected->CmdPipelineBarrier(
+        temp_command_buffer.command_buffer,
         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
         VkDependencyFlagBits(0),
@@ -1497,36 +1455,16 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     // VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR
     for (uint32_t i = 0; i < query_count; ++i)
     {
-        device_table.CmdWriteAccelerationStructuresPropertiesKHR(
-            cmd_buffer,
+        injected->CmdWriteAccelerationStructuresPropertiesKHR(
+            temp_command_buffer.command_buffer,
             1,
             &acceleration_structure->as_info->handle,
             VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
-            query_pool,
+            query.query_pool,
             static_cast<uint32_t>(i));
     }
 
-    device_table.EndCommandBuffer(cmd_buffer);
-
-    VkQueue compute_queue = VK_NULL_HANDLE;
-    device_table.GetDeviceQueue(device, compute_queue_family_index, 0, &compute_queue);
-    if (compute_queue == VK_NULL_HANDLE)
-    {
-        GFXRECON_LOG_ERROR("%s: GetDeviceQueue failed to get family index %u", __func__, compute_queue_family_index)
-        return VK_ERROR_UNKNOWN;
-    }
-
-    TemporaryFence fence(device, device_table);
-
-    const VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &cmd_buffer, 0, nullptr };
-    res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: QueueSubmit failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    res = fence.Wait();
+    res = temp_command_buffer.SubmitAndReset();
     if (res != VK_SUCCESS)
     {
         return res;
@@ -1534,31 +1472,17 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
 
     // Read query results
     std::vector<VkDeviceSize> query_results(query_count);
-    res = device_table.GetQueryPoolResults(device,
-                                           query_pool,
-                                           0,
-                                           query_count,
-                                           query_results.size() * sizeof(VkDeviceSize),
-                                           query_results.data(),
-                                           sizeof(VkDeviceSize),
-                                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+    res = injected->GetQueryPoolResults(device,
+                                        query.query_pool,
+                                        0,
+                                        query_count,
+                                        query_results.size() * sizeof(VkDeviceSize),
+                                        query_results.data(),
+                                        sizeof(VkDeviceSize),
+                                        VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: GetQueryPoolResults failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    res = device_table.ResetCommandBuffer(cmd_buffer, 0);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: ResetCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    res = device_table.BeginCommandBuffer(cmd_buffer, &cbbi);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: BeginCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
@@ -1594,8 +1518,20 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                                  nullptr,
                                                  acceleration_structure->serialized_data.buffer };
 
+        const PFN_vkGetBufferDeviceAddress get_buffer_device_address =
+            device_info->version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_2,
+                                                                    injected->GetBufferDeviceAddress,
+                                                                    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+                                                                    injected->GetBufferDeviceAddressKHR);
+        if (get_buffer_device_address == nullptr)
+        {
+            GFXRECON_LOG_ERROR("%s: Neither vkGetBufferDeviceAddress nor vkGetBufferDeviceAddressKHR is available",
+                               __func__)
+            return VK_ERROR_UNKNOWN;
+        }
+
         VkDeviceOrHostAddressKHR device_address;
-        device_address.deviceAddress = device_table.GetBufferDeviceAddressKHR(device, &bdai);
+        device_address.deviceAddress = get_buffer_device_address(device, &bdai);
 
         GFXRECON_ASSERT(acceleration_structure->as_info->handle != VK_NULL_HANDLE);
         const VkCopyAccelerationStructureToMemoryInfoKHR castmi = {
@@ -1605,7 +1541,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
             device_address,
             VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR
         };
-        device_table.CmdCopyAccelerationStructureToMemoryKHR(cmd_buffer, &castmi);
+        injected->CmdCopyAccelerationStructureToMemoryKHR(temp_command_buffer.command_buffer, &castmi);
 
         const VkBufferMemoryBarrier buf_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                                     nullptr,
@@ -1617,45 +1553,22 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
                                                     0,
                                                     serialized_size };
 
-        device_table.CmdPipelineBarrier(cmd_buffer,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT |
-                                            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                        VkDependencyFlagBits(0),
-                                        0,
-                                        nullptr,
-                                        1,
-                                        &buf_barrier,
-                                        0,
-                                        nullptr);
+        injected->CmdPipelineBarrier(temp_command_buffer.command_buffer,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT |
+                                         VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VkDependencyFlagBits(0),
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &buf_barrier,
+                                     0,
+                                     nullptr);
     }
 
-    device_table.EndCommandBuffer(cmd_buffer);
+    res = temp_command_buffer.SubmitAndDestroy();
 
-    res = fence.Reset();
-    if (res != VK_SUCCESS)
-    {
-        return res;
-    }
-
-    res = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: QueueSubmit (2) failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    res = fence.Wait();
-    if (res != VK_SUCCESS)
-    {
-        return res;
-    }
-
-    // Release temporary vulkan objects
-    device_table.DestroyCommandPool(device, cmd_pool, nullptr);
-    device_table.DestroyQueryPool(device, query_pool, nullptr);
-
-    return VK_SUCCESS;
+    return res;
 }
 
 static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumped_as,
@@ -1663,7 +1576,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
                          AccelerationStructureDumpResourcesContext*        as_context,
                          const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
                          const VulkanDeviceInfo*                           device_info,
-                         const graphics::VulkanDeviceTable&                device_table,
+                         const graphics::VulkanInjectedDeviceCalls&        device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
                          const VulkanPerDeviceAddressTrackers&             address_trackers)
@@ -1684,7 +1597,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
             VkResult res = DumpBuffer(blas_triangles.vertex_buffer,
                                       new_dumped_triangles_host_data.vertex_buffer,
                                       device_info,
-                                      &device_table,
+                                      device_table,
                                       &instance_table,
                                       object_info_table);
             if (res != VK_SUCCESS)
@@ -1700,7 +1613,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
                 res = DumpBuffer(blas_triangles.index_buffer,
                                  new_dumped_triangles_host_data.index_buffer,
                                  device_info,
-                                 &device_table,
+                                 device_table,
                                  &instance_table,
                                  object_info_table);
                 if (res != VK_SUCCESS)
@@ -1717,7 +1630,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
                 res = DumpBuffer(blas_triangles.transform_buffer,
                                  new_dumped_triangles_host_data.transform_buffer,
                                  device_info,
-                                 &device_table,
+                                 device_table,
                                  &instance_table,
                                  object_info_table);
                 if (res != VK_SUCCESS)
@@ -1745,7 +1658,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
             VkResult res = DumpBuffer(new_aabb_buffer.aabb_buffer,
                                       new_dumped_aabb_host_data.aabb_buffer,
                                       device_info,
-                                      &device_table,
+                                      device_table,
                                       &instance_table,
                                       object_info_table);
             if (res != VK_SUCCESS)
@@ -1780,7 +1693,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
         res = DumpBuffer(dumped_as.serialized_buffer,
                          dumped_as_host_data.serialized_data,
                          device_info,
-                         &device_table,
+                         device_table,
                          &instance_table,
                          object_info_table);
         if (res != VK_SUCCESS)
@@ -1800,7 +1713,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                          AccelerationStructureDumpResourcesContext*        as_context,
                          const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
                          const VulkanDeviceInfo*                           device_info,
-                         const graphics::VulkanDeviceTable&                device_table,
+                         const graphics::VulkanInjectedDeviceCalls&        device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
                          const VulkanPerDeviceAddressTrackers&             address_trackers,
@@ -1841,7 +1754,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
         VkResult res = DumpBuffer(new_instance_buffer.instance_buffer,
                                   new_instance_buffer_host_data.instance_buffer,
                                   device_info,
-                                  &device_table,
+                                  device_table,
                                   &instance_table,
                                   object_info_table);
         if (res != VK_SUCCESS)
@@ -1929,7 +1842,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
         res = DumpBuffer(dumped_as.serialized_buffer,
                          dumped_as_host_data.serialized_data,
                          device_info,
-                         &device_table,
+                         device_table,
                          &instance_table,
                          object_info_table);
         if (res != VK_SUCCESS)
@@ -1949,7 +1862,7 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    AccelerationStructureDumpResourcesContext*        as_context,
                                    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
                                    const VulkanDeviceInfo*                           device_info,
-                                   const graphics::VulkanDeviceTable&                device_table,
+                                   const graphics::VulkanInjectedDeviceCalls&        device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
                                    const VulkanPerDeviceAddressTrackers&             address_trackers,
@@ -1988,17 +1901,20 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
     return res;
 }
 
-void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
-                          const graphics::VulkanDeviceTable& device_table,
-                          VkBuffer                           src,
-                          VkBuffer                           dst,
-                          const std::vector<VkBufferCopy>&   regions,
-                          VkAccessFlags                      src_access_mask,
-                          VkAccessFlags                      dst_access_mask,
-                          VkPipelineStageFlags               src_stage_mask,
-                          VkPipelineStageFlags               dst_stage_mask)
+void CopyBufferAndBarrier(VkCommandBuffer                            command_buffer,
+                          const graphics::VulkanInjectedDeviceCalls& device_table,
+                          VkBuffer                                   src,
+                          VkBuffer                                   dst,
+                          const std::vector<VkBufferCopy>&           regions,
+                          VkAccessFlags                              src_access_mask,
+                          VkAccessFlags                              dst_access_mask,
+                          VkPipelineStageFlags                       src_stage_mask,
+                          VkPipelineStageFlags                       dst_stage_mask)
 {
-    device_table.CmdCopyBuffer(
+    GFXRECON_ASSERT(device_table.IsValid());
+
+    auto injected = device_table.Open();
+    injected->CmdCopyBuffer(
         command_buffer, src, dst, GFXRECON_NARROWING_CAST(uint32_t, regions.size()), regions.data());
 
     const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -2010,32 +1926,33 @@ void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
                                                    dst,
                                                    0,
                                                    VK_WHOLE_SIZE };
-    device_table.CmdPipelineBarrier(command_buffer,
-                                    src_stage_mask,
-                                    dst_stage_mask,
-                                    VkDependencyFlags(0),
-                                    0,
-                                    nullptr,
-                                    1,
-                                    &buffer_barrier,
-                                    0,
-                                    nullptr);
+    injected->CmdPipelineBarrier(command_buffer,
+                                 src_stage_mask,
+                                 dst_stage_mask,
+                                 VkDependencyFlags(0),
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &buffer_barrier,
+                                 0,
+                                 nullptr);
 }
 
-VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
-                            VkQueue                            queue,
-                            const VkSubmitInfo2&               submit_info_2,
-                            VkFence                            fence)
+VkResult SubmitInfo2OnQueue(const graphics::VulkanInjectedDeviceCalls&        device_table,
+                            const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                            VkQueue                                           queue,
+                            const VkSubmitInfo2&                              submit_info_2,
+                            VkFence                                           fence)
 {
+    auto injected = device_table.Open();
+
     // Check if the implementation supports either vkQueueSubmit2 (Vulkan 1.3) or vkQueueSubmit2KHR
     // (VK_KHR_synchronization2). In either case submit directly without converting
-    if (device_table.QueueSubmit2 != graphics::noop::vkQueueSubmit2)
+    const PFN_vkQueueSubmit2 queue_submit2 = device_version_extension_info.SelectApiCallFlavor(
+        VK_API_VERSION_1_3, injected->QueueSubmit2, VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, injected->QueueSubmit2KHR);
+    if (queue_submit2 != nullptr)
     {
-        return device_table.QueueSubmit2(queue, 1, &submit_info_2, fence);
-    }
-    else if (device_table.QueueSubmit2KHR != graphics::noop::vkQueueSubmit2KHR)
-    {
-        return device_table.QueueSubmit2KHR(queue, 1, &submit_info_2, fence);
+        return queue_submit2(queue, 1, &submit_info_2, fence);
     }
 
     // Otherwise fall back to vkQueueSubmit. SubmitInfoTranslator narrows the VkSubmitInfo2 back into a VkSubmitInfo,
@@ -2043,7 +1960,7 @@ VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
     // only meaningful for queue-side synchronization, which is irrelevant here because the dump-resources submits are
     // serialized with host fence waits.
     graphics::SubmitInfoTranslator translator(std::span<const VkSubmitInfo2>(&submit_info_2, 1));
-    return device_table.QueueSubmit(queue, 1, translator.GetSubmitInfos().data(), fence);
+    return injected->QueueSubmit(queue, 1, translator.GetSubmitInfos().data(), fence);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

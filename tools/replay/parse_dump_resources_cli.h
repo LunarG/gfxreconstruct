@@ -26,6 +26,8 @@
 
 #include "replay_settings.h"
 
+#include "decode/vulkan_replay_options.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(parse_dump_resources)
 

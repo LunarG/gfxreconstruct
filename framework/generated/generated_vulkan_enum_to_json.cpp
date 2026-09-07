@@ -1798,6 +1798,24 @@ void to_json(nlohmann::ordered_json& jdata, const VkConditionalRenderingFlagsEXT
     });
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkCooperativeMatrixFlagsEXT_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkCooperativeMatrixFlagsEXT>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkCooperativeMatrixFlagsEXT>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT:
+                return std::string("VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkCullModeFlags_t& flags)
 {
     if (!JsonOptions::expand_flags)
@@ -4500,7 +4518,20 @@ void to_json(nlohmann::ordered_json& jdata, const VkPresentTimingInfoFlagsEXT_t&
 
 void to_json(nlohmann::ordered_json& jdata, const VkPrivateDataSlotCreateFlags_t& flags)
 {
-    jdata = to_hex_fixed_width(static_cast<VkPrivateDataSlotCreateFlags>(flags));
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkPrivateDataSlotCreateFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkPrivateDataSlotCreateFlags>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV:
+                return std::string("VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV");
+        }
+        return to_hex_fixed_width(flags);
+    });
 }
 
 void to_json(nlohmann::ordered_json& jdata, const VkQueryControlFlags_t& flags)
@@ -8415,6 +8446,18 @@ void to_json(nlohmann::ordered_json& jdata, const VkConservativeRasterizationMod
     }
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkCooperativeMatrixFlagBitsEXT& value)
+{
+    switch (value) {
+        case VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT:
+            jdata = "VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkCooperativeVectorMatrixLayoutNV& value)
 {
     switch (value) {
@@ -9596,6 +9639,9 @@ void to_json(nlohmann::ordered_json& jdata, const VkDriverId& value)
             break;
         case VK_DRIVER_ID_APE_SOFT:
             jdata = "VK_DRIVER_ID_APE_SOFT";
+            break;
+        case VK_DRIVER_ID_RESERVED_31:
+            jdata = "VK_DRIVER_ID_RESERVED_31";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
@@ -11937,6 +11983,24 @@ void to_json(nlohmann::ordered_json& jdata, const VkImageTiling& value)
     }
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkImageTilingControlEXT& value)
+{
+    switch (value) {
+        case VK_IMAGE_TILING_CONTROL_DEFAULT_EXT:
+            jdata = "VK_IMAGE_TILING_CONTROL_DEFAULT_EXT";
+            break;
+        case VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT:
+            jdata = "VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT";
+            break;
+        case VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT:
+            jdata = "VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkImageType& value)
 {
     switch (value) {
@@ -13951,6 +14015,18 @@ void to_json(nlohmann::ordered_json& jdata, const VkPrimitiveTopology& value)
             break;
         case VK_PRIMITIVE_TOPOLOGY_PATCH_LIST:
             jdata = "VK_PRIMITIVE_TOPOLOGY_PATCH_LIST";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkPrivateDataSlotCreateFlagBits& value)
+{
+    switch (value) {
+        case VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV:
+            jdata = "VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
@@ -18817,6 +18893,15 @@ void to_json(nlohmann::ordered_json& jdata, const VkStructureType& value)
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
             jdata = "VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            jdata = "VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT";
             break;
@@ -18868,8 +18953,17 @@ void to_json(nlohmann::ordered_json& jdata, const VkStructureType& value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);

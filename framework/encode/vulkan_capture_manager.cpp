@@ -821,6 +821,15 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         // Track state of physical device properties and features at device creation
         wrapper->property_feature_info = property_feature_info;
 
+        // Track the effective device version and enabled extensions for selecting core vs extension entry point
+        // flavors.
+        VkPhysicalDeviceProperties physical_device_properties{};
+        instance_table->GetPhysicalDeviceProperties(physicalDevice, &physical_device_properties);
+        wrapper->version_extension_info.api_version =
+            std::min(physical_device_wrapper->parent_info.api_version, physical_device_properties.apiVersion);
+        wrapper->version_extension_info.enabled_extensions.assign(modified_extensions.begin(),
+                                                                  modified_extensions.end());
+
         if (!IsCaptureModeTrack())
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
@@ -852,10 +861,9 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                                     const VkAllocationCallbacks* pAllocator,
                                                     VkBuffer*                    pBuffer)
 {
-    VkResult result           = VK_SUCCESS;
-    auto     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice device_unwrapped = device_wrapper->handle;
-    auto     device_table     = vulkan_wrappers::GetDeviceTable(device);
+    VkResult result         = VK_SUCCESS;
+    auto     device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    auto     device_table   = vulkan_wrappers::GetDeviceTable(device);
 
     // we need to deep-copy, potentially contains VkBufferUsageFlags2CreateInfoKHR in pNext-chain
     std::unique_ptr<uint8_t[]> struct_storage;
@@ -911,7 +919,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
     }
 
     // create buffer with augmented create- and usage-flags
-    result = device_table->CreateBuffer(device_unwrapped, modified_create_info, pAllocator, pBuffer);
+    result = device_table->CreateBuffer(device, modified_create_info, pAllocator, pBuffer);
 
     if ((result == VK_SUCCESS) && (pBuffer != nullptr))
     {
@@ -922,7 +930,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
         auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
         GFXRECON_ASSERT(buffer_wrapper);
-        buffer_wrapper->device         = device;
+        buffer_wrapper->device         = device_wrapper;
         buffer_wrapper->size           = modified_create_info->size;
         buffer_wrapper->usage          = pCreateInfo->usage;
         buffer_wrapper->modified_flags = modified_create_info->flags;
@@ -939,11 +947,11 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
             if (device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
-                opaque_address = device_table->GetBufferOpaqueCaptureAddress(device_unwrapped, &info);
+                opaque_address = device_table->GetBufferOpaqueCaptureAddress(device, &info);
             }
             else
             {
-                opaque_address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
+                opaque_address = device_table->GetBufferOpaqueCaptureAddressKHR(device, &info);
             }
             WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, opaque_address);
 
@@ -964,7 +972,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
             };
             descriptor_data_info_ext.buffer = buffer_wrapper->handle;
             VkResult get_data_result        = device_table->GetBufferOpaqueCaptureDescriptorDataEXT(
-                device_unwrapped, &descriptor_data_info_ext, opaque_data.data());
+                device, &descriptor_data_info_ext, opaque_data.data());
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
             WriteSetOpaqueCaptureDescriptorData(
@@ -1054,7 +1062,7 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
 
         auto* image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
         GFXRECON_ASSERT(image_wrapper);
-        image_wrapper->bind_device = device_wrapper;
+        image_wrapper->device = device_wrapper;
 
         // These are required to generate a fill command in case external memory is bound to this image
         image_wrapper->image_type     = modified_create_info.imageType;
@@ -2279,6 +2287,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
+                                                device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
@@ -2313,6 +2322,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
+                                                device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     std::vector<VkImageAspectFlagBits> aspects;

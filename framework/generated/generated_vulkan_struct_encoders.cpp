@@ -12101,6 +12101,40 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupa
     encoder->EncodeUInt32Value(value.computeOccupancyPriority);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixProperties2EXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.MGranularity);
+    encoder->EncodeUInt32Value(value.NGranularity);
+    encoder->EncodeUInt32Value(value.KGranularity);
+    encoder->EncodeEnumValue(value.AType);
+    encoder->EncodeEnumValue(value.BType);
+    encoder->EncodeEnumValue(value.CType);
+    encoder->EncodeEnumValue(value.ResultType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixInfo2EXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.scope);
+    encoder->EncodeUInt32Value(value.invocations);
+    encoder->EncodeUInt32Value(value.subgroupSize);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.cooperativeMatrixProperties2);
+    encoder->EncodeUInt32Value(value.cooperativeMatrixReductions);
+    encoder->EncodeUInt32Value(value.cooperativeMatrixConversions);
+    encoder->EncodeUInt32Value(value.cooperativeMatrixPerElementOperations);
+    encoder->EncodeUInt32Value(value.cooperativeMatrixGetCoordinate);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -12170,11 +12204,32 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveRest
     encoder->EncodeUInt32Value(value.primitiveRestartIndex);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageTilingControlFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.imageTilingControl);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageTilingControlCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.tilingControl);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.cooperativeMatrixDecodeVector);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.privateDataBaseHandle);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

@@ -32,6 +32,7 @@
 #include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/defines.h"
@@ -73,24 +74,14 @@ struct MinMaxVertexIndex
 
 using BoundDescriptorSets = std::map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
 
-DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
-                                       const graphics::VulkanDeviceTable*   device_table,
-                                       const graphics::VulkanInstanceTable* instance_table,
-                                       const CommonObjectInfoTable&         object_info_table,
-                                       VkFormat                             src_format,
-                                       VkImageTiling                        src_image_tiling,
-                                       VkImageType                          type,
-                                       util::ScreenshotFormat               image_file_format,
-                                       bool                                 dump_raw = false);
-
 const char* ImageFileExtension(DumpedImageFormat image_format);
 
-VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
-                       const graphics::VulkanDeviceTable*      device_table,
-                       const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                       const VulkanImageInfo*                  image_info,
-                       VkImage*                                new_image,
-                       VkDeviceMemory*                         new_image_memory);
+VkResult CreateVkImage(const CommonObjectInfoTable&               object_info_table,
+                       const graphics::VulkanInjectedDeviceCalls& device_table,
+                       const VkPhysicalDeviceMemoryProperties*    replay_device_phys_mem_props,
+                       const VulkanImageInfo*                     image_info,
+                       VkImage*                                   new_image,
+                       VkDeviceMemory*                            new_image_memory);
 
 uint32_t VkIndexTypeToBytes(VkIndexType type);
 
@@ -106,24 +97,24 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             in
                              const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
 
 // Fetch image from the GPU into host memory
-VkResult DumpImage(DumpedImage&                         dumped_image,
-                   VkImageLayout                        layout,
-                   float                                scale,
-                   bool                                 dump_image_raw,
-                   const ImageSubresourceRanges&        subresource_range,
-                   DumpedImageHostData&                 data,
-                   const VulkanDeviceInfo*              device_info,
-                   const graphics::VulkanDeviceTable*   device_table,
-                   const graphics::VulkanInstanceTable* instance_table,
-                   const CommonObjectInfoTable&         object_info_table);
+VkResult DumpImage(DumpedImage&                               dumped_image,
+                   VkImageLayout                              layout,
+                   float                                      scale,
+                   bool                                       dump_image_raw,
+                   const ImageSubresourceRanges&              subresource_range,
+                   DumpedImageHostData&                       data,
+                   const VulkanDeviceInfo*                    device_info,
+                   const graphics::VulkanInjectedDeviceCalls& device_table,
+                   const graphics::VulkanInstanceTable*       instance_table,
+                   const CommonObjectInfoTable&               object_info_table);
 
 // Fetch a buffer from the GPU into host memory
-VkResult DumpBuffer(const DumpedBuffer&                  buffer,
-                    DumpedHostData&                      data,
-                    const VulkanDeviceInfo*              device_info,
-                    const graphics::VulkanDeviceTable*   device_table,
-                    const graphics::VulkanInstanceTable* instance_table,
-                    const CommonObjectInfoTable&         object_info_table);
+VkResult DumpBuffer(const DumpedBuffer&                        buffer,
+                    DumpedHostData&                            data,
+                    const VulkanDeviceInfo*                    device_info,
+                    const graphics::VulkanInjectedDeviceCalls& device_table,
+                    const graphics::VulkanInstanceTable*       instance_table,
+                    const CommonObjectInfoTable&               object_info_table);
 
 // Fetch an acceleration structure from the GPU into host memory
 VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                      dumped_as,
@@ -131,7 +122,7 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    AccelerationStructureDumpResourcesContext*        as_context,
                                    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
                                    const VulkanDeviceInfo*                           device_info,
-                                   const graphics::VulkanDeviceTable&                device_table,
+                                   const graphics::VulkanInjectedDeviceCalls&        device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
                                    const VulkanPerDeviceAddressTrackers&             address_trackers,
@@ -145,15 +136,15 @@ std::string FormatToStr(VkFormat format);
 
 std::string IndexTypeToStr(VkIndexType type);
 
-VkResult CreateVkBuffer(VkDeviceSize                            size,
-                        const graphics::VulkanDeviceTable&      device_table,
-                        VkDevice                                parent_device,
-                        const VkBaseInStructure*                pNext,
-                        const VkBaseInStructure*                allocate_memory_info_pNext,
-                        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                        VkBufferUsageFlags                      usage_flags,
-                        VkBuffer*                               new_buffer,
-                        VkDeviceMemory*                         new_memory);
+VkResult CreateVkBuffer(VkDeviceSize                               size,
+                        const graphics::VulkanInjectedDeviceCalls& device_table,
+                        VkDevice                                   parent_device,
+                        const VkBaseInStructure*                   pNext,
+                        const VkBaseInStructure*                   allocate_memory_info_pNext,
+                        const VkPhysicalDeviceMemoryProperties*    replay_device_phys_mem_props,
+                        VkBufferUsageFlags                         usage_flags,
+                        VkBuffer*                                  new_buffer,
+                        VkDeviceMemory*                            new_memory);
 
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags);
 
@@ -163,18 +154,19 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
 // synchronization2, the submit info is converted into a VkSubmitInfo and submitted via vkQueueSubmit. The
 // dump-resources submissions are serialized with host fence waits, so the wait-stage masks lost during down-conversion
 // do not affect correctness.
-VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
-                            VkQueue                            queue,
-                            const VkSubmitInfo2&               submit_info_2,
-                            VkFence                            fence);
+VkResult SubmitInfo2OnQueue(const graphics::VulkanInjectedDeviceCalls&        device_table,
+                            const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                            VkQueue                                           queue,
+                            const VkSubmitInfo2&                              submit_info_2,
+                            VkFence                                           fence);
 
 // Inject a CmdCopyBuffer(command_buffer, src, dst, regions.count(), regions.size()) into the provided command buffer
 // followed by the appropriate pipeline barrier
-void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
-                          const graphics::VulkanDeviceTable& device_table,
-                          VkBuffer                           src,
-                          VkBuffer                           dst,
-                          const std::vector<VkBufferCopy>&   regions,
+void CopyBufferAndBarrier(VkCommandBuffer                            command_buffer,
+                          const graphics::VulkanInjectedDeviceCalls& device_table,
+                          VkBuffer                                   src,
+                          VkBuffer                                   dst,
+                          const std::vector<VkBufferCopy>&           regions,
                           VkAccessFlags src_access_mask = VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
                           VkAccessFlags dst_access_mask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_READ_BIT,
                           VkPipelineStageFlags src_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT,

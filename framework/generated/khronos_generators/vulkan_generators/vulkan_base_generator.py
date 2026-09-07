@@ -406,8 +406,8 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
         param_decls.append(param_decl)
 
         param_decl = self.make_aligned_param_decl(
-            'PFN_' + name.rsplit('_', 1)[1], 'func', self.INDENT_SIZE,
-            self.genOpts.align_func_param
+            'const graphics::VulkanInjectedDeviceCalls&', 'device_table',
+            self.INDENT_SIZE, self.genOpts.align_func_param
         )
         param_decls.append(param_decl)
 

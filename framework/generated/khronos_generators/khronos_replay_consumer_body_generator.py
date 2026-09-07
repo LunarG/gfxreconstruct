@@ -87,7 +87,7 @@ class KhronosReplayConsumerBodyGenerator():
         """Method may be overriden. """
         return ''
 
-    def make_resource_dumper_call(self, api_data, name, values, is_override, is_dump_resources_transfer, return_type, dispatchfunc, arglist, before_command):
+    def make_resource_dumper_call(self, api_data, name, values, is_override, is_dump_resources_transfer, return_type, arglist, before_command):
         is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
         is_dump_resources = self.is_dump_resources_api_call(name)
 
@@ -158,11 +158,15 @@ class KhronosReplayConsumerBodyGenerator():
         else:
             call_expr += '    if (options_.dumping_resources && options_.dump_resources_before)\n'
 
+        device_table_expr = 'GetInjectedDeviceCalls(in_{}{})'.format(
+            values[0].name, '->handle' if is_override else ''
+        )
+
         call_expr += '    {\n'
         if return_type == api_data.return_type_enum:
-            call_expr += '        resource_dumper_->Process_{}(call_info, {}, {}, {});\n'.format(name, dispatchfunc, self.get_return_value(), dump_resource_arglist)
+            call_expr += '        resource_dumper_->Process_{}(call_info, {}, {}, {});\n'.format(name, device_table_expr, self.get_return_value(), dump_resource_arglist)
         else:
-            call_expr += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            call_expr += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, device_table_expr, dump_resource_arglist)
 
         call_expr += '    }\n'
 
@@ -245,7 +249,7 @@ class KhronosReplayConsumerBodyGenerator():
             # Dump resources code generation
             if is_dump_resources and is_dump_resources_transfer:
                 body += self.make_resource_dumper_call(api_data, name, values, is_override, is_dump_resources_transfer,
-                                                       return_type, dispatchfunc, arglist, True)
+                                                       return_type, arglist, True)
 
         if return_type == api_data.return_type_enum:
             if is_async:
@@ -271,7 +275,7 @@ class KhronosReplayConsumerBodyGenerator():
         # Dump resources code generation
         if is_dump_resources:
             body += self.make_resource_dumper_call(api_data, name, values, is_override, is_dump_resources_transfer,
-                                                   return_type, dispatchfunc, arglist, False)
+                                                   return_type, arglist, False)
 
         if postexpr:
             body += '\n'

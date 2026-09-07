@@ -123,6 +123,9 @@ class BlockProcessor
     // -------------------------------------------------------------------------
 
     template <typename Policy>
+    file_processor::ProcessBlockState ProcessBlock(Policy& policy, BlockBuffer& block_buffer);
+
+    template <typename Policy>
     file_processor::ProcessBlockState ProcessBlocks(Policy& policy);
 
     // -------------------------------------------------------------------------

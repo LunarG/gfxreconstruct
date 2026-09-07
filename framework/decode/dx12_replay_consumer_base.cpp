@@ -1463,7 +1463,7 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
                 GFXRECON_LOG_WARNING("Mismatch:");
 
                 std::string capture_adapter_str =
-                    gfxrecon::util::WCharArrayToString(adapter_info_header.adapter_desc.Description);
+                    gfxrecon::util::Char16ArrayToString(adapter_info_header.adapter_desc.Description);
 
                 GFXRECON_LOG_WARNING("Capture-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
                                      capture_adapter_str.c_str(),
@@ -1476,7 +1476,7 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
                     format::DxgiAdapterDesc replay_adapter_desc = adapters_.begin()->second.internal_desc;
 
                     std::string replay_adapter_str =
-                        gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+                        gfxrecon::util::Char16ArrayToString(replay_adapter_desc.Description);
 
                     GFXRECON_LOG_WARNING("Replay-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
                                          replay_adapter_str.c_str(),
@@ -1493,7 +1493,7 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
                         format::DxgiAdapterDesc replay_adapter_desc = adapter.second.internal_desc;
 
                         std::string replay_adapter_str =
-                            gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+                            gfxrecon::util::Char16ArrayToString(replay_adapter_desc.Description);
 
                         GFXRECON_LOG_WARNING("[%s] [DeviceID 0x%x] [VendorId 0x%x]",
                                              replay_adapter_str.c_str(),

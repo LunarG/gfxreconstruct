@@ -33,6 +33,7 @@
 #include "decode/vulkan_replay_dump_resources_transfer.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/compressor.h"
@@ -62,11 +63,11 @@ class VulkanReplayDumpResourcesBase
 
     ~VulkanReplayDumpResourcesBase();
 
-    VkResult BeginCommandBuffer(uint64_t                             bcb_index,
-                                VulkanCommandBufferInfo*             original_command_buffer_info,
-                                const graphics::VulkanDeviceTable*   device_table,
-                                const graphics::VulkanInstanceTable* inst_table,
-                                const VkCommandBufferBeginInfo*      begin_info);
+    VkResult BeginCommandBuffer(uint64_t                                   bcb_index,
+                                VulkanCommandBufferInfo*                   original_command_buffer_info,
+                                const graphics::VulkanInjectedDeviceCalls& device_table,
+                                const graphics::VulkanInstanceTable*       inst_table,
+                                const VkCommandBufferBeginInfo*            begin_info);
 
     void OverrideCmdDraw(const ApiCallInfo& call_info,
                          PFN_vkCmdDraw      func,
@@ -540,17 +541,17 @@ class VulkanReplayDumpResourcesBase
                                     uint32_t                 commandBufferCount,
                                     const VkCommandBuffer*   pCommandBuffers);
 
-    VkResult QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
-                         const graphics::VulkanDeviceTable& device_table,
-                         const VulkanQueueInfo*             queue,
-                         VkFence                            fence,
-                         uint64_t                           index);
+    VkResult QueueSubmit(std::span<const VkSubmitInfo>              submit_infos,
+                         const graphics::VulkanInjectedDeviceCalls& device_table,
+                         const VulkanQueueInfo*                     queue,
+                         VkFence                                    fence,
+                         uint64_t                                   index);
 
-    VkResult QueueSubmit2(std::span<const VkSubmitInfo2>     submit_infos_2,
-                          const graphics::VulkanDeviceTable& device_table,
-                          const VulkanQueueInfo*             queue,
-                          VkFence                            fence,
-                          uint64_t                           index);
+    VkResult QueueSubmit2(std::span<const VkSubmitInfo2>             submit_infos_2,
+                          const graphics::VulkanInjectedDeviceCalls& device_table,
+                          const VulkanQueueInfo*                     queue,
+                          VkFence                                    fence,
+                          uint64_t                                   index);
 
     bool MustDumpQueueSubmitIndex(uint64_t index) const;
 
@@ -649,17 +650,17 @@ class VulkanReplayDumpResourcesBase
     // created and the input buffers are cloned
     void OverrideCmdBuildAccelerationStructuresKHR(
         const VulkanCommandBufferInfo*                                             original_command_buffer,
-        const graphics::VulkanDeviceTable&                                         device_table,
+        const graphics::VulkanInjectedDeviceCalls&                                 device_table,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
 
     // Like OverrideCmdBuildAccelerationStructuresKHR Handles population of acceleration_structures_context_ map.
     // In this case of copying AS it simply makes the new entry in the map to point at the src AS's entry.
-    void HandleCmdCopyAccelerationStructureKHR(const graphics::VulkanDeviceTable&        device_table,
-                                               const VulkanCommandBufferInfo*            original_command_buffer,
-                                               const VulkanAccelerationStructureKHRInfo* src,
-                                               const VulkanAccelerationStructureKHRInfo* dst);
+    void HandleCmdCopyAccelerationStructureKHR(const graphics::VulkanInjectedDeviceCalls& device_table,
+                                               const VulkanCommandBufferInfo*             original_command_buffer,
+                                               const VulkanAccelerationStructureKHRInfo*  src,
+                                               const VulkanAccelerationStructureKHRInfo*  dst);
 
     void HandleDestroyAccelerationStructureKHR(const VulkanAccelerationStructureKHRInfo* as_info);
 
@@ -944,7 +945,6 @@ class VulkanReplayDumpResourcesBase
 
     DumpResourcesAccelerationStructuresContext acceleration_structures_context_;
     bool                                       dump_as_build_input_buffers_;
-
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

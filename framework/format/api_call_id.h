@@ -863,6 +863,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdCopyGpaSessionResultsAMD                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1375),
     ApiCall_vkGetGpaDeviceClockInfoAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1376),
     ApiCall_vkSetGpaDeviceClockModeAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1377),
+    ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1378),
 
     ApiCall_VulkanLast,
 

@@ -2841,7 +2841,7 @@ void device_initialization_phase_1(application::Application& app, InitInfo& init
         {
             int                         events = 0;
             struct android_poll_source* source = nullptr;
-            int result = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
+            int result = ALooper_pollOnce(-1, nullptr, &events, reinterpret_cast<void**>(&source));
             if (result >= 0 && source)
             {
                 source->process(init.android_app, source);

@@ -93,10 +93,10 @@ def CreateReplayParser():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' replay', description='Launch the replay tool.')
     parser.add_argument('-p', '--push-file', metavar='LOCAL_FILE', help='Local file to push to the location on device specified by <file>')
     parser.add_argument('--version', action='store_true', default=False, help='Print version information and exit (forwarded to replay tool)')
-    parser.add_argument('--log-level', metavar='LEVEL', help='Specify highest level message to log. Options are: debug, info, warning, error, and fatal. Default is info. (forwarded to replay tool)')
+    parser.add_argument('--log-level', metavar='LEVEL', help='Specify lowest level message to log. Options are: fatal, error, warning, info, and debug. Default is info. (forwarded to replay tool)')
     parser.add_argument('--log-timestamps', action='store_true', help='Output a timestamp in front of each log message. (forwarded to replay tool)')
     parser.add_argument('--log-file', metavar='DEVICE_FILE', help='Write log messages to a file at the specified path instead of logcat (forwarded to replay tool)')
-    parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify highest debug messenger severity level. Options are: debug, info, warning, and error. Default is warning. (forwarded to replay tool)')
+    parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify lowest debug messenger severity level. Options are: error, warning, info, and debug. Default is warning. (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
 

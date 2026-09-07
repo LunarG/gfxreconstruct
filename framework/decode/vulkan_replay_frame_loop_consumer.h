@@ -51,6 +51,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
+    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -71,6 +73,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
     void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override;
+
+    void Process_vkCreateQueryPool(const ApiCallInfo& call_info, args::CreateQueryPool& args) override;
+
     void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
 
     void Process_vkCreateSemaphore(const ApiCallInfo& call_info, args::CreateSemaphore& args) override;
@@ -115,6 +120,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void FixupDeviceEvents(format::HandleId device);
     void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
 
+    // Image layout tracking and restoration.
+    void TrackImageLayouts();
+    void FixupImageLayouts(format::HandleId device, format::HandleId queue);
+    void SubmitImageLayoutBarriers(const VulkanDeviceInfo*                  device_info,
+                                   const VulkanQueueInfo*                   queue_info,
+                                   const std::vector<VkImageMemoryBarrier>& barriers);
     struct SemaphoreTracking
     {
         SemaphoreTracking(VkDevice                           device,
@@ -218,8 +229,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
-    std::unordered_map<format::HandleId, FenceTracking>     per_device_fence_tracking_;
     std::unordered_map<format::HandleId, SemaphoreTracking> per_device_semaphore_tracking_;
+
+    std::unordered_map<format::HandleId, uint32_t> query_pool_sizes_;
+
+    std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
 
     std::unordered_set<format::HandleId>                host_visible_events_;
     std::unordered_map<format::HandleId, EventTracking> per_device_event_tracking_;
@@ -231,6 +245,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;
+
+    // Image layout tracking data
+    std::unordered_map<format::HandleId, graphics::ImageLayoutMap> initial_image_layouts_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

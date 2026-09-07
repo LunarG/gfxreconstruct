@@ -485,6 +485,12 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetBlockIndexGFXR()
     return manager->GetBlockIndex();
 }
 
+VKAPI_ATTR uint32_t VKAPI_CALL vkGetCurrentFrameGFXR()
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    return manager->GetCurrentFrame();
+}
+
 VKAPI_ATTR void VKAPI_CALL vkDumpAssetsGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();

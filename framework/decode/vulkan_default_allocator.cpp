@@ -24,50 +24,26 @@
 
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_resource_allocator.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/platform.h"
 
 #include <cassert>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanDefaultAllocator::VulkanDefaultAllocator() : device_(VK_NULL_HANDLE), memory_properties_{} {}
+VulkanDefaultAllocator::VulkanDefaultAllocator() : VulkanResourceAllocator() {}
 
 VulkanDefaultAllocator::VulkanDefaultAllocator(const std::string& custom_error_string) :
-    device_(VK_NULL_HANDLE), memory_properties_{}, custom_error_string_(custom_error_string)
+    VulkanResourceAllocator(), custom_error_string_(custom_error_string)
 {}
 
 VulkanDefaultAllocator::VulkanDefaultAllocator(std::string&& custom_error_string) :
-    device_(VK_NULL_HANDLE), memory_properties_{}, custom_error_string_(std::move(custom_error_string))
+    VulkanResourceAllocator(), custom_error_string_(std::move(custom_error_string))
 {}
-
-VkResult VulkanDefaultAllocator::Initialize(uint32_t                                api_version,
-                                            VkInstance                              instance,
-                                            VkPhysicalDevice                        physical_device,
-                                            VkDevice                                device,
-                                            const VkDeviceCreateInfo&               device_create_info,
-                                            const std::vector<std::string>&         enabled_device_extensions,
-                                            VkPhysicalDeviceType                    capture_device_type,
-                                            const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                            const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                            const Functions&                        functions)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(api_version);
-    GFXRECON_UNREFERENCED_PARAMETER(instance);
-    GFXRECON_UNREFERENCED_PARAMETER(physical_device);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(device_create_info);
-    GFXRECON_UNREFERENCED_PARAMETER(enabled_device_extensions);
-    GFXRECON_UNREFERENCED_PARAMETER(capture_device_type);
-    GFXRECON_UNREFERENCED_PARAMETER(capture_memory_properties);
-
-    device_            = device;
-    functions_         = functions;
-    memory_properties_ = replay_memory_properties;
-
-    return VK_SUCCESS;
-}
 
 void VulkanDefaultAllocator::Destroy()
 {
@@ -234,7 +210,7 @@ VkResult VulkanDefaultAllocator::AllocateMemory(const VkMemoryAllocateInfo*  all
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
     if ((allocate_info != nullptr) && (allocator_data != nullptr) &&
-        (allocate_info->memoryTypeIndex < memory_properties_.memoryTypeCount))
+        (allocate_info->memoryTypeIndex < replay_memory_properties_.memoryTypeCount))
     {
         result = Allocate(allocate_info, allocation_callbacks, capture_id, memory, allocator_data);
     }
@@ -631,7 +607,7 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
 
 void VulkanDefaultAllocator::ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info)
 {
-    if ((allocate_info != nullptr) && (allocate_info->memoryTypeIndex >= memory_properties_.memoryTypeCount))
+    if ((allocate_info != nullptr) && (allocate_info->memoryTypeIndex >= replay_memory_properties_.memoryTypeCount))
     {
         GFXRECON_LOG_FATAL(
             "Memory allocation failed: specified memory type index exceeds number of available memory types.");
@@ -651,8 +627,10 @@ void VulkanDefaultAllocator::ReportBindBufferIncompatibility(VkBuffer     buffer
 
     if (allocator_memory_data != 0)
     {
+        auto injected = device_table_.Open();
+
         VkMemoryRequirements requirements;
-        functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
+        injected->GetBufferMemoryRequirements(device_, buffer, &requirements);
         ReportBindIncompatibility(&requirements, &allocator_memory_data, 1);
     }
 }
@@ -666,11 +644,13 @@ void VulkanDefaultAllocator::ReportBindBuffer2Incompatibility(uint32_t          
 
     if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
     {
+        auto injected = device_table_.Open();
+
         std::vector<VkMemoryRequirements> requirements(bind_info_count);
 
         for (uint32_t i = 0; i < bind_info_count; ++i)
         {
-            functions_.get_buffer_memory_requirements(device_, bind_infos[i].buffer, &requirements[i]);
+            injected->GetBufferMemoryRequirements(device_, bind_infos[i].buffer, &requirements[i]);
         }
 
         ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);
@@ -685,8 +665,10 @@ void VulkanDefaultAllocator::ReportBindImageIncompatibility(VkImage      image,
 
     if (allocator_memory_data != 0)
     {
+        auto injected = device_table_.Open();
+
         VkMemoryRequirements requirements;
-        functions_.get_image_memory_requirements(device_, image, &requirements);
+        injected->GetImageMemoryRequirements(device_, image, &requirements);
         ReportBindIncompatibility(&requirements, &allocator_memory_data, 1);
     }
 }
@@ -700,11 +682,13 @@ void VulkanDefaultAllocator::ReportBindImage2Incompatibility(uint32_t           
 
     if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
     {
+        auto injected = device_table_.Open();
+
         std::vector<VkMemoryRequirements> requirements(bind_info_count);
 
         for (uint32_t i = 0; i < bind_info_count; ++i)
         {
-            functions_.get_image_memory_requirements(device_, bind_infos[i].image, &requirements[i]);
+            injected->GetImageMemoryRequirements(device_, bind_infos[i].image, &requirements[i]);
         }
 
         ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);
@@ -721,13 +705,15 @@ void VulkanDefaultAllocator::ReportBindVideoSessionIncompatibility(VkVideoSessio
 
     if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
     {
+        auto injected = device_table_.Open();
+
         uint32_t session_requirements_count = 0;
-        functions_.get_video_session_memory_requirements(device_, video_session, &session_requirements_count, nullptr);
+        injected->GetVideoSessionMemoryRequirementsKHR(device_, video_session, &session_requirements_count, nullptr);
 
         VkVideoSessionMemoryRequirementsKHR reqs = {};
         reqs.sType                               = VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR;
         std::vector<VkVideoSessionMemoryRequirementsKHR> session_requirements(session_requirements_count, reqs);
-        functions_.get_video_session_memory_requirements(
+        injected->GetVideoSessionMemoryRequirementsKHR(
             device_, video_session, &session_requirements_count, session_requirements.data());
 
         std::vector<VkMemoryRequirements> requirements;
@@ -751,6 +737,8 @@ void VulkanDefaultAllocator::ReportBindAccelerationStructureMemoryNVIncompatibil
 
     if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
     {
+        auto injected = device_table_.Open();
+
         std::vector<VkMemoryRequirements>     reqs(bind_info_count);
         std::vector<VkMemoryRequirements2KHR> reqs2(bind_info_count);
 
@@ -764,7 +752,7 @@ void VulkanDefaultAllocator::ReportBindAccelerationStructureMemoryNVIncompatibil
             reqs2[i]       = {};
             reqs2[i].sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
 
-            functions_.get_acceleration_structure_memory_requirements_nv(device_, &acc_reqs_info, &reqs2[i]);
+            injected->GetAccelerationStructureMemoryRequirementsNV(device_, &acc_reqs_info, &reqs2[i]);
 
             reqs[i] = reqs2[i].memoryRequirements;
         }
@@ -865,10 +853,10 @@ void VulkanDefaultAllocator::ReportBindIncompatibility(const VkMemoryRequirement
     }
 }
 
-VkResult VulkanDefaultAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
-                                                         VkMemoryMapFlags flags,
-                                                         void**           data,
-                                                         ResourceData     allocator_data)
+VkResult VulkanDefaultAllocator::MapResourceMemoryDirectImpl(VkDeviceSize     size,
+                                                             VkMemoryMapFlags flags,
+                                                             void**           data,
+                                                             ResourceData     allocator_data)
 {
     VkResult result = VK_ERROR_MEMORY_MAP_FAILED;
 
@@ -879,12 +867,13 @@ VkResult VulkanDefaultAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
         if (!resource_alloc_info->bound_memory_infos.empty() &&
             resource_alloc_info->bound_memory_infos[0].memory != VK_NULL_HANDLE)
         {
-            result = functions_.map_memory(device_,
-                                           resource_alloc_info->bound_memory_infos[0].memory,
-                                           resource_alloc_info->bound_memory_infos[0].offset,
-                                           size,
-                                           flags,
-                                           data);
+            auto injected = device_table_.Open();
+            result        = injected->MapMemory(device_,
+                                         resource_alloc_info->bound_memory_infos[0].memory,
+                                         resource_alloc_info->bound_memory_infos[0].offset,
+                                         size,
+                                         flags,
+                                         data);
         }
 
         // TODO: Implement it when it's necessary.
@@ -909,7 +898,7 @@ VkResult VulkanDefaultAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
     return result;
 }
 
-void VulkanDefaultAllocator::UnmapResourceMemoryDirect(ResourceData allocator_data)
+void VulkanDefaultAllocator::UnmapResourceMemoryDirectImpl(ResourceData allocator_data)
 {
     if (allocator_data != 0)
     {
@@ -918,7 +907,8 @@ void VulkanDefaultAllocator::UnmapResourceMemoryDirect(ResourceData allocator_da
         if (!resource_alloc_info->bound_memory_infos.empty() &&
             resource_alloc_info->bound_memory_infos[0].memory != VK_NULL_HANDLE)
         {
-            functions_.unmap_memory(device_, resource_alloc_info->bound_memory_infos[0].memory);
+            auto injected = device_table_.Open();
+            injected->UnmapMemory(device_, resource_alloc_info->bound_memory_infos[0].memory);
         }
 
         // TODO: Implement it when it's necessary.
@@ -953,13 +943,13 @@ VkResult VulkanDefaultAllocator::Allocate(const VkMemoryAllocateInfo*  allocate_
 
     if (result >= 0)
     {
-        assert(allocate_info->memoryTypeIndex < memory_properties_.memoryTypeCount);
+        assert(allocate_info->memoryTypeIndex < replay_memory_properties_.memoryTypeCount);
 
         auto memory_alloc_info               = new MemoryAllocInfo;
         memory_alloc_info->capture_id        = capture_id;
         memory_alloc_info->memory_type_index = allocate_info->memoryTypeIndex;
         memory_alloc_info->property_flags =
-            memory_properties_.memoryTypes[allocate_info->memoryTypeIndex].propertyFlags;
+            replay_memory_properties_.memoryTypes[allocate_info->memoryTypeIndex].propertyFlags;
         (*allocator_data) = reinterpret_cast<MemoryData>(memory_alloc_info);
     }
 
