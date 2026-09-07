@@ -66,8 +66,6 @@ const char kRemoveUnsupportedOption[]            = "--remove-unsupported";
 const char kValidateOption[]                     = "--validate";
 const char kDebugDeviceLostOption[]              = "--debug-device-lost";
 const char kCreateDummyAllocationsOption[]       = "--create-dummy-allocations";
-const char kOmitNullHardwareBuffersLongOption[]  = "--omit-null-hardware-buffers";
-const char kOmitNullHardwareBuffersShortOption[] = "--onhb";
 const char kScreenshotAllOption[]                = "--screenshot-all";
 const char kScreenshotRangeArgument[]            = "--screenshots";
 const char kScreenshotIntervalArgument[]         = "--screenshot-interval";
@@ -823,12 +821,6 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
     {
         options.remove_unsupported_features = true;
-    }
-
-    if (arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption) ||
-        arg_parser.IsOptionSet(kOmitNullHardwareBuffersShortOption))
-    {
-        options.omit_null_hardware_buffers = true;
     }
 
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
