@@ -64,6 +64,37 @@ from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOption
 # A structure may only appear here when the decode Action has an Apply overload for every one of its fields.
 # WalkFields fails to compile and names the field when it does not, so a wrong entry is a build error, not a silent
 # gap.
+#
+# WARNING -- this constant is about to become the ground truth for three artifacts, and nothing yet checks that they
+# agree.
+#
+# The plan is to stop the implementation header reaching every caller. Today it must be included wherever
+# DecodeStruct is instantiated, which after full migration is nine translation units, four of them consumers with
+# no business seeing member-pointer traits, each parsing about 50,000 lines of schema. Instead: declare the template
+# in a broadly included header, constrain it on a typelist, and instantiate it explicitly in one place. Nine
+# translation units become one, and each new operation family costs one more rather than nine more.
+#
+# That makes this list the source of three derived things:
+#
+#   1. the skip decision here      -- no generated body, no generated prototype
+#   2. a WalkedWrappers typelist   -- the constraint on the broadly declared template
+#   3. an explicit instantiation   -- the one definition, in the implementation translation unit
+#
+# The list flips polarity at the crossover: an include list while most structures are still procedural, an exclude
+# list once the walk owns everything and only the hand-written unions remain. Whichever is shorter.
+#
+# How the four drift directions behave, since they are not alike:
+#
+#   skipped but not instantiated   link error, naming a mangled symbol. Loud, poor diagnostic.
+#   skipped but not in typelist    compile error at the call. Loud, good diagnostic.
+#   instantiated but not skipped   SILENT. The generated non-template still wins every call, so the instantiation
+#                                  is dead code that compiles, links and is never reached.
+#   in typelist but not skipped    SILENT, same reason. The constraint permits what the non-template already took.
+#
+# The two silent ones waste rather than break, which is why this is deferred rather than urgent. The guard when it
+# is time: assert in the checks file, for every schema-owned structure, that TypeListContainsV<WalkedWrappers,
+# Decoded_X> holds. That catches typelist drift from this constant; the link catches instantiation drift; nothing
+# cheap catches the dead-code direction, and it costs only compile time.
 SCHEMA_OWNED_STRUCT_DECODERS = (
     'VkBufferMemoryBarrier',
     'VkImageSubresourceRange',
