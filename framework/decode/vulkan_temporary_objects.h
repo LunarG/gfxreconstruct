@@ -139,9 +139,9 @@ struct TemporaryCommandBuffer
         }
     };
 
-    VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp);
+    VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp, uint32_t queue_index = 0);
 
-    VkResult CreateAndBegin(uint32_t queue_family_index);
+    VkResult CreateAndBegin(uint32_t queue_family_index, uint32_t queue_index = 0);
 
     VkResult SubmitAndDestroy();
 
