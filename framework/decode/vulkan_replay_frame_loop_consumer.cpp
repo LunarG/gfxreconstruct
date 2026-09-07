@@ -23,6 +23,7 @@
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_temporary_objects.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
 
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -367,6 +368,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     if (create_info != nullptr)
     {
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+        if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
+        {
+            usage_flags2->usage |= VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_2_TRANSFER_DST_BIT;
+        }
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(call_info, args);
