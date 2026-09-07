@@ -146,13 +146,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify lowest level message to log. Options are:");
     GFXRECON_WRITE_CONSOLE("          \t\tfatal, error, warning, info, and debug. Default is info.");
     GFXRECON_WRITE_CONSOLE("  --log-timestamps\tOutput a timestamp in front of each log message.");
-    GFXRECON_WRITE_CONSOLE("  --log-file <file>\tWrite log messages to a file at the specified path.")
+    GFXRECON_WRITE_CONSOLE("  --log-file <file>\tWrite log messages to a file at the specified path.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: Empty string (file logging disabled).");
 #if defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
     GFXRECON_WRITE_CONSOLE(
-        "  --debug-messenger-level <level>\tSpecify lowest debug messenger severity level. Options are:")
+        "  --debug-messenger-level <level>\tSpecify lowest debug messenger severity level. Options are:");
     GFXRECON_WRITE_CONSOLE("          \t\terror, warning, info, and debug. Default is warning.");
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
@@ -224,8 +224,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
 #if defined(_WIN32)
-    GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("Windows only:")
+    GFXRECON_WRITE_CONSOLE("");
+    GFXRECON_WRITE_CONSOLE("Windows only:");
     GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
     GFXRECON_WRITE_CONSOLE("          \t\tDump resources for a specific drawcall.");
     GFXRECON_WRITE_CONSOLE(
