@@ -28,8 +28,10 @@
 #include "decode/block_parser.h"
 #include "util/defines.h"
 #include "util/logging.h"
+#include "util/options.h"
 #include "util/thread_safe_queue.h"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cinttypes>
@@ -328,6 +330,51 @@ struct ContinueProcessingPolicy
         constexpr static bool kCheckBlockLimit = true;
         constexpr static bool kCheckDecoders   = true;
     };
+};
+
+// Replay ranges are kept compact, including when a range covers the entire uint32_t domain.
+class BlockSkipRanges
+{
+  public:
+    void SetRanges(std::vector<util::UintRange> ranges)
+    {
+        std::sort(ranges.begin(), ranges.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
+        ranges_.clear();
+        for (const auto& range : ranges)
+        {
+            if (range.first > range.last)
+            {
+                continue;
+            }
+            if (!ranges_.empty() &&
+                static_cast<uint64_t>(range.first) <= static_cast<uint64_t>(ranges_.back().last) + 1)
+            {
+                ranges_.back().last = std::max(ranges_.back().last, range.last);
+            }
+            else
+            {
+                ranges_.push_back(range);
+            }
+        }
+    }
+
+    bool operator()(uint64_t block_index, format::BlockType block_type) const
+    {
+        const auto base_type = format::RemoveCompressedBlockBit(block_type);
+        if ((base_type != format::kFunctionCallBlock) && (base_type != format::kMethodCallBlock) &&
+            (base_type != format::kMetaDataBlock))
+        {
+            return false;
+        }
+        const auto range =
+            std::lower_bound(ranges_.begin(), ranges_.end(), block_index, [](const auto& range, uint64_t index) {
+                return range.last < index;
+            });
+        return (range != ranges_.end()) && (range->first <= block_index);
+    }
+
+  private:
+    std::vector<util::UintRange> ranges_;
 };
 
 // Functor that tracks a set of block indices to skip during processing.

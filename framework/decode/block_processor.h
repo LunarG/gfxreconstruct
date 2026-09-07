@@ -149,6 +149,8 @@ class BlockProcessor
     }
     bool HasPendingBlocksToSkip() const noexcept { return !pending_blocks_to_skip_.empty(); }
 
+    void SetSkipBlockIndices(std::vector<util::UintRange> ranges) { skip_block_ranges_.SetRanges(std::move(ranges)); }
+
   private:
     // Frame/block/error tracking -- written exclusively by the active loading path.
     uint64_t     frame_number_{ file_processor::kFirstFrame };
@@ -167,6 +169,7 @@ class BlockProcessor
     // Block-index-based skip list; optional on_complete fires once all targeted blocks are skipped.
     std::unique_ptr<file_processor::BlockSkip> block_skip_;
     std::unordered_set<uint64_t>               pending_blocks_to_skip_;
+    file_processor::BlockSkipRanges            skip_block_ranges_;
 
     // Parameters supplied to InitializeFrameProcessing (quit_before_frame, preload_range, etc.).
     // block_limit is NOT here -- it lives on FileProcessor and is passed into policies as a scalar.

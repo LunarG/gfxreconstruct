@@ -136,7 +136,12 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
     file_processor::ProcessVisitor    process_visitor(*this);
 
     const bool skip_block = block_skip_ && (*block_skip_)(block_index_);
-    if (!skip_block)
+    const bool skip_index = skip_block_ranges_(block_index_, block_buffer.Header().type);
+    if (skip_index)
+    {
+        GFXRECON_LOG_INFO("Skipping block index %" PRIu64 " (type=%u)", block_index_, block_buffer.Header().type);
+    }
+    if (!skip_block && !skip_index)
     {
         block_parser.SetBlockIndex(block_index_);
         block_parser.SetFrameNumber(frame_number_);

@@ -484,6 +484,7 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_decode_test "")
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_skip_index.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
     if (MSVC)

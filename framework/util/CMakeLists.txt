@@ -280,6 +280,7 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_util_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_options.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_image_writer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp

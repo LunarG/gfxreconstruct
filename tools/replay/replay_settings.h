@@ -41,7 +41,7 @@ const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--pause-frame,--wsi,--screenshots,--screenshot-interval,"
     "--screenshot-format,--screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,"
     "--mfr|--measurement-frame-range,--fw|--force-windowed,--fwo|--force-windowed-origin,--measurement-file,"
-    "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,"
+    "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,--skip-index,"
     "--pcj|--pipeline-creation-jobs,--quit-after-frame,"
     "--wait-before-first-submit,--frame-warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,"
     "--loop-count";
@@ -114,7 +114,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--wait-before-first-submit <milliseconds>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--frame-warm-up-spirv <spirv-file>] [--frame-warm-up-load <load>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>] [--skip-index <ranges>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--wait-before-frame <milliseconds>]");
 #if !defined(_WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <filename>.json]");
@@ -221,6 +221,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
     GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
+    GFXRECON_WRITE_CONSOLE("  --skip-index <index[,index|start-end]...>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSkip API calls and metadata at 0-based block indices (0 to 4294967295).");
+    GFXRECON_WRITE_CONSOLE("          \t\tAccepts comma-separated indices and inclusive ranges, e.g. 0,7,10-20.");
+    GFXRECON_WRITE_CONSOLE("          \t\tFrame/state markers and annotations are preserved.");
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
 #if defined(_WIN32)
