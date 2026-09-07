@@ -23,7 +23,13 @@
 #include "decode/vulkan_temporary_objects.h"
 
 #include "decode/decoder_util.h"
+#include "graphics/vulkan_device_util.h"
+#include "util/alignment_utils.h"
+
 #include <vulkan/vulkan_core.h>
+
+#include <cinttypes>
+#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -200,6 +206,184 @@ VkResult TemporaryQueryPool::Create(uint32_t query_count)
     }
 
     return res;
+}
+
+VkResult TemporaryBufferBlock::Create(VkDeviceSize block_bytes)
+{
+    GFXRECON_ASSERT(buffer == VK_NULL_HANDLE);
+
+    const auto& allocator = device_info.allocator;
+    if (allocator == nullptr)
+    {
+        GFXRECON_LOG_ERROR("%s() called for a device without a resource allocator", __func__);
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    if (block_bytes == 0)
+    {
+        GFXRECON_LOG_ERROR("%s() called with a size of zero", __func__);
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    VkBufferCreateInfo buffer_create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    buffer_create_info.size               = block_bytes;
+    buffer_create_info.usage              = buffer_usage;
+    buffer_create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+    VkResult res = allocator->CreateBufferDirect(&buffer_create_info, nullptr, &buffer, &resource_data);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s() CreateBufferDirect failed for %" PRIu64 " bytes (%s)",
+                           __func__,
+                           static_cast<uint64_t>(block_bytes),
+                           util::ToString(res).c_str());
+        Destroy();
+        return res;
+    }
+
+    VkMemoryRequirements memory_requirements = {};
+    {
+        auto injected = device_table.Open();
+        injected->GetBufferMemoryRequirements(device_info.handle, buffer, &memory_requirements);
+    }
+
+    const bool have_replay_properties = (physical_device_info.replay_device_info != nullptr) &&
+                                        physical_device_info.replay_device_info->memory_properties.has_value();
+    const VkPhysicalDeviceMemoryProperties& replay_memory_properties =
+        have_replay_properties ? physical_device_info.replay_device_info->memory_properties.value()
+                               : physical_device_info.capture_memory_properties;
+
+    const uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
+        replay_memory_properties, memory_requirements.memoryTypeBits, requested_memory_properties);
+
+    if (memory_type_index == std::numeric_limits<uint32_t>::max())
+    {
+        GFXRECON_LOG_ERROR("%s() found no memory type with properties 0x%x",
+                           __func__,
+                           static_cast<unsigned int>(requested_memory_properties));
+        Destroy();
+        return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+    }
+
+    VkMemoryAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+    allocate_info.allocationSize       = memory_requirements.size;
+    allocate_info.memoryTypeIndex      = memory_type_index;
+
+    res = allocator->AllocateMemoryDirect(&allocate_info, nullptr, &memory, &memory_data);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s() AllocateMemoryDirect failed for %" PRIu64 " bytes (%s)",
+                           __func__,
+                           static_cast<uint64_t>(memory_requirements.size),
+                           util::ToString(res).c_str());
+        Destroy();
+        return res;
+    }
+
+    res = allocator->BindBufferMemoryDirect(buffer, memory, 0, resource_data, memory_data, &memory_property_flags);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s() BindBufferMemoryDirect failed (%s)", __func__, util::ToString(res).c_str());
+        Destroy();
+        return res;
+    }
+
+    size = block_bytes;
+
+    if ((requested_memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0)
+    {
+        void* mapped = nullptr;
+        res          = allocator->MapResourceMemoryDirect(VK_WHOLE_SIZE, 0, &mapped, resource_data);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("%s() MapResourceMemoryDirect failed (%s)", __func__, util::ToString(res).c_str());
+            Destroy();
+            return res;
+        }
+
+        mapped_data = static_cast<uint8_t*>(mapped);
+    }
+
+    return VK_SUCCESS;
+}
+
+void TemporaryBufferBlock::Destroy()
+{
+    const auto& allocator = device_info.allocator;
+    if (allocator != nullptr)
+    {
+        if (mapped_data != nullptr)
+        {
+            allocator->UnmapResourceMemoryDirect(resource_data);
+        }
+
+        if (buffer != VK_NULL_HANDLE)
+        {
+            allocator->DestroyBufferDirect(buffer, nullptr, resource_data);
+        }
+
+        if (memory != VK_NULL_HANDLE)
+        {
+            allocator->FreeMemoryDirect(memory, nullptr, memory_data);
+        }
+    }
+
+    buffer                = VK_NULL_HANDLE;
+    memory                = VK_NULL_HANDLE;
+    resource_data         = 0;
+    memory_data           = 0;
+    size                  = 0;
+    used                  = 0;
+    mapped_data           = nullptr;
+    memory_property_flags = 0;
+}
+
+TemporaryBuffer TemporaryBufferBlock::CreateBuffer(VkDeviceSize buffer_size, VkDeviceSize alignment)
+{
+    TemporaryBuffer temp_buffer;
+
+    if ((buffer == VK_NULL_HANDLE) || (buffer_size == 0))
+    {
+        return temp_buffer;
+    }
+
+    if ((alignment == 0) || !util::is_pow_2(alignment))
+    {
+        GFXRECON_LOG_ERROR(
+            "%s() alignment %" PRIu64 " is not a power of two", __func__, static_cast<uint64_t>(alignment));
+        return temp_buffer;
+    }
+
+    // Round up for alignment
+    const VkDeviceSize mask = alignment - 1;
+    if (used > (std::numeric_limits<VkDeviceSize>::max() - mask))
+    {
+        return temp_buffer;
+    }
+
+    const VkDeviceSize offset = (used + mask) & ~mask;
+    if ((offset > size) || (buffer_size > (size - offset)))
+    {
+        GFXRECON_LOG_WARNING("%s() a %" PRIu64 " byte request does not fit in the %" PRIu64
+                             " bytes remaining in this block",
+                             __func__,
+                             static_cast<uint64_t>(buffer_size),
+                             static_cast<uint64_t>((offset <= size) ? (size - offset) : 0));
+        return temp_buffer;
+    }
+
+    temp_buffer.buffer = buffer;
+    temp_buffer.offset = offset;
+    temp_buffer.size   = buffer_size;
+
+    if (mapped_data != nullptr)
+    {
+        temp_buffer.mapped_data = mapped_data + offset;
+    }
+
+    used = offset + buffer_size;
+
+    return temp_buffer;
 }
 
 GFXRECON_END_NAMESPACE(decode)
