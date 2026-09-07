@@ -521,7 +521,7 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
 void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device)
 {
     auto it = per_device_buffer_tracking_.find(device);
-    if (it == per_device_buffer_tracking_.end() || it->second.shadow_buffers_.empty())
+    if (it == per_device_buffer_tracking_.end())
     {
         return;
     }
