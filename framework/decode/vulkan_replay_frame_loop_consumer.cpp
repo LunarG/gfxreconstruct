@@ -710,6 +710,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInf
 void VulkanReplayFrameLoopConsumer::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
                                                                  args::ResetCommandBuffer& args)
 {
+    GFXRECON_LOG_INFO("In ResetCommandBuffer (capture-time handle == %" PRIu64 ")", args.commandBuffer);
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         VulkanCommandBufferInfo* cb_info     = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
@@ -761,6 +762,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCal
 void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
                                                                  args::BeginCommandBuffer& args)
 {
+    GFXRECON_LOG_INFO("In BeginCommandBuffer (capture-time handle == %" PRIu64 ")", args.commandBuffer);
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         // While looping, we'll be submitting the command buffer repeatedly,
@@ -791,6 +793,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             // keep tracked query availability in sync with the injected reset
             cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
+    } else if (!frame_loop_info_.IsLooping())
+    {
+        VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
     }
 }
 
@@ -798,6 +803,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::FreeCommandBuffers&                   args)
 {
+    GFXRECON_LOG_INFO("In FreeCommandBuffers.");
     // Don't free any command buffers while inside the loop range
     if (frame_loop_info_.IsLooping())
     {
@@ -1428,6 +1434,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo&
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
+    GFXRECON_LOG_INFO("In QueueSubmit.");
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
     if (frame_loop_info_.IsLooping())
