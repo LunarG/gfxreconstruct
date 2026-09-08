@@ -1958,6 +1958,19 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
         delegate_.DumpEnd();
     }
 
+    for (auto& params : transfer_params_)
+    {
+        if (params.second.params)
+        {
+            params.second.params->dumped_resources.Reset();
+        }
+
+        if (params.second.before_params)
+        {
+            params.second.before_params->dumped_resources.Reset();
+        }
+    }
+
     return VK_SUCCESS;
 }
 

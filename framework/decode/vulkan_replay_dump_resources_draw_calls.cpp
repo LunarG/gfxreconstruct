@@ -1243,6 +1243,12 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
     {
         rpc.second.image_descriptors.clear();
         rpc.second.buffer_descriptors.clear();
+        rpc.second.acceleration_structures.clear();
+    }
+
+    for (auto& dc_params : draw_call_params_)
+    {
+        dc_params.second->dumped_resources.Reset();
     }
 
     GFXRECON_LOG_INFO("Done.")
