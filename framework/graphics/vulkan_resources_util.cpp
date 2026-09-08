@@ -1135,6 +1135,78 @@ uint64_t VulkanResourcesUtil::GetImageSubresourceSizesDumpResources(VkFormat    
     return resource_size;
 }
 
+VulkanResourcesUtil::SubresourceLocation VulkanResourcesUtil::GetImageLayerLocationOptimal(VkFormat          format,
+                                                                                           const VkExtent3D& extent,
+                                                                                           uint32_t          mip_levels,
+                                                                                           uint32_t      array_layers,
+                                                                                           VkImageTiling tiling,
+                                                                                           VkImageAspectFlagBits aspect,
+                                                                                           uint32_t              level,
+                                                                                           uint32_t              layer)
+{
+    SubresourceLocation location;
+
+    if ((level >= mip_levels) || (layer >= array_layers))
+    {
+        GFXRECON_LOG_ERROR("%s: level %u and layer %u are not both inside an image of %u levels and %u layers",
+                           __func__,
+                           level,
+                           layer,
+                           mip_levels,
+                           array_layers);
+        return location;
+    }
+
+    std::vector<uint64_t> subresource_offsets;
+    if (GetImageResourceSizesOptimal(
+            format, extent, mip_levels, array_layers, tiling, aspect, &subresource_offsets, nullptr) == 0)
+    {
+        return location;
+    }
+    GFXRECON_ASSERT(subresource_offsets.size() == mip_levels);
+
+    // A copy of more than one layer puts the layers of a level next to each other, each of them the
+    // size of one tightly packed layer.
+    TightCopyRegion copy_region{};
+    copy_region.memoryRowLength                 = 0;
+    copy_region.memoryImageHeight               = 0;
+    copy_region.imageExtent                     = graphics::ScaleToMipLevel(extent, level);
+    copy_region.imageSubresource.aspectMask     = aspect;
+    copy_region.imageSubresource.baseArrayLayer = 0;
+    copy_region.imageSubresource.layerCount     = 1;
+
+    location.size   = GetBufferSizeFromCopyImage(copy_region, 1, format);
+    location.offset = subresource_offsets[level] + (layer * location.size);
+
+    return location;
+}
+
+std::span<const uint8_t> VulkanResourcesUtil::GetImageLayerData(std::span<const uint8_t> resource_data,
+                                                                VkFormat                 format,
+                                                                const VkExtent3D&        extent,
+                                                                uint32_t                 mip_levels,
+                                                                uint32_t                 array_layers,
+                                                                VkImageTiling            tiling,
+                                                                VkImageAspectFlagBits    aspect,
+                                                                uint32_t                 level,
+                                                                uint32_t                 layer)
+{
+    const SubresourceLocation location =
+        GetImageLayerLocationOptimal(format, extent, mip_levels, array_layers, tiling, aspect, level, layer);
+
+    if ((location.size == 0) || ((location.offset + location.size) > resource_data.size()))
+    {
+        GFXRECON_LOG_ERROR("%s: level %u and layer %u are not inside %zu bytes of image data",
+                           __func__,
+                           level,
+                           layer,
+                           resource_data.size());
+        return {};
+    }
+
+    return resource_data.subspan(location.offset, location.size);
+}
+
 VkResult VulkanResourcesUtil::AllocateStagingMemory(const VkMemoryRequirements& requirements, StagingMemoryContext& ctx)
 {
     GFXRECON_ASSERT(memory_properties_);
@@ -1482,10 +1554,13 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
                                                            VkImage            image,
                                                            VkImageLayout      current_layout,
                                                            VkImageLayout      destination_layout,
-                                                           VkImageAspectFlags aspect)
+                                                           VkImageAspectFlags aspect,
+                                                           uint32_t           base_layer,
+                                                           uint32_t           layer_count)
 {
     GFXRECON_ASSERT(image != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(layer_count > 0);
 
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1500,8 +1575,8 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
     memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    memory_barrier.subresourceRange.baseArrayLayer = 0;
-    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+    memory_barrier.subresourceRange.baseArrayLayer = base_layer;
+    memory_barrier.subresourceRange.layerCount     = layer_count;
 
     auto injected = device_table_.Open();
     injected->CmdPipelineBarrier(command_buffer,
@@ -1520,10 +1595,13 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
                                                              VkImage            image,
                                                              VkImageLayout      old_layout,
                                                              VkImageLayout      new_layout,
-                                                             VkImageAspectFlags aspect)
+                                                             VkImageAspectFlags aspect,
+                                                             uint32_t           base_layer,
+                                                             uint32_t           layer_count)
 {
     GFXRECON_ASSERT(image != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(layer_count > 0);
 
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1534,8 +1612,8 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
     memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    memory_barrier.subresourceRange.baseArrayLayer = 0;
-    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+    memory_barrier.subresourceRange.baseArrayLayer = base_layer;
+    memory_barrier.subresourceRange.layerCount     = layer_count;
 
     memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
     memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
@@ -2701,7 +2779,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                  img.image,
                                                  img.layout,
                                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                 tmp_data[i].transition_aspect);
+                                                 tmp_data[i].transition_aspect,
+                                                 img.base_layer,
+                                                 img.layer_count);
             }
 
             VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
@@ -2786,7 +2866,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                    img.image,
                                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                                    img.layout,
-                                                   tmp_data[i].transition_aspect);
+                                                   tmp_data[i].transition_aspect,
+                                                   img.base_layer,
+                                                   img.layer_count);
             }
         } // current batch, record commands
 

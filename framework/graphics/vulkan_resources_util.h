@@ -36,6 +36,7 @@
 #include <limits>
 #include <map>
 #include <optional>
+#include <span>
 #include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -99,7 +100,49 @@ class VulkanResourcesUtil
                                                    std::vector<uint64_t>& subresource_offsets,
                                                    std::vector<uint64_t>& subresource_sizes);
 
-    //! aggregate type to group information about an image-resource
+    // Where one layer of one mip level sits in the host memory of an image-resource
+    struct SubresourceLocation
+    {
+        uint64_t offset = 0; // in bytes from the start of the resource
+        uint64_t size   = 0; // bytes of the layer
+    };
+
+    // Finds one layer of one mip level in the host memory that ReadImageResources writes for a
+    // resource that does not dump resources.  That memory holds one entry for each mip level, and
+    // an entry holds all of the layers of its level, so a layer has no entry of its own.  The
+    // size of a layer is also not the size of the level divided by the number of layers, because
+    // the size of a level holds the bytes that align the level after it as well.
+    //
+    // A dump-resources read needs no such calculation.  There each level and each layer has an
+    // entry of its own from GetImageSubresourceSizesDumpResources.
+    //
+    // The parameters are those of the data that came back, so a read that converts the format or
+    // scales the extent gives the format and the extent it converted or scaled to.  A 3D image has
+    // one layer, and the size of that layer is the size of the full level.
+    //
+    // The returned size is 0 when the level or the layer is outside the image.
+    SubresourceLocation GetImageLayerLocationOptimal(VkFormat              format,
+                                                     const VkExtent3D&     extent,
+                                                     uint32_t              mip_levels,
+                                                     uint32_t              array_layers,
+                                                     VkImageTiling         tiling,
+                                                     VkImageAspectFlagBits aspect,
+                                                     uint32_t              level,
+                                                     uint32_t              layer);
+
+    // The bytes of one layer of one mip level inside the data of an image-resource, or an empty
+    // span when GetImageLayerLocationOptimal does not find the layer inside the data.
+    std::span<const uint8_t> GetImageLayerData(std::span<const uint8_t> resource_data,
+                                               VkFormat                 format,
+                                               const VkExtent3D&        extent,
+                                               uint32_t                 mip_levels,
+                                               uint32_t                 array_layers,
+                                               VkImageTiling            tiling,
+                                               VkImageAspectFlagBits    aspect,
+                                               uint32_t                 level,
+                                               uint32_t                 layer);
+
+    // aggregate type to group information about an image-resource
     struct ImageResource
     {
         format::HandleId   handle_id          = format::kNullHandleId;
@@ -116,24 +159,27 @@ class VulkanResourcesUtil
         bool               external_format    = false;
         VkDeviceSize       size               = 0;
 
-        //! optionally provide resource_size
+        // optionally provide resource_size
         VkDeviceSize resource_size = 0;
 
-        //! optionally provide sizes of sub-resources (mipmap-levels)
+        // optionally provide sizes of sub-resources (mipmap-levels)
         const std::vector<VkDeviceSize>* level_sizes = nullptr;
 
         VkImageAspectFlagBits aspect         = VK_IMAGE_ASPECT_NONE;
         bool                  dump_resources = false;
         VkFormat              dst_format     = VK_FORMAT_UNDEFINED;
 
-        //! A factor for width and one for height.  A negative factor mirrors that axis.
+        // A factor for width and one for height.  A negative factor mirrors that axis.
         std::array<float, 2> scale = { 1.0f, 1.0f };
 
-        //! The first layer to read.  A screenshot reads one layer of an image that has many.
+        // The first layer to read.  ReadImageResources reads levels [0, level_count)
+        // of the layers [base_layer, base_layer + layer_count), and writes them to
+        // host memory one level at a time, each level holding all of its layers:
+        // M(0)L(0) ... M(0)L(n-1), M(1)L(0) ... M(1)L(n-1), and so on.
         uint32_t base_layer = 0;
     };
 
-    //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
+    // signature for a callback-function, providing an ImageResource and a corresponding data-pointer
     using ReadImageResourcesCallbackFn =
         std::function<void(const ImageResource& img_resource, const void* data, size_t num_bytes)>;
 
@@ -176,7 +222,7 @@ class VulkanResourcesUtil
         uint32_t         queue_family_index = 0;
     };
 
-    //! signature for a callback-function, providing a BufferResource and a corresponding data-pointer
+    // signature for a callback-function, providing a BufferResource and a corresponding data-pointer
     using ReadBufferResourcesCallbackFn = std::function<void(const BufferResource& buffer_resource, const void* data)>;
 
     /**
@@ -297,17 +343,24 @@ class VulkanResourcesUtil
     void     DestroyStagingTensor();
     void     DestroyStagingTensorMemory();
 
+    // A layer range keeps the barrier off the layers that the caller does not read.  The layers
+    // of one image can hold different layouts, thus a barrier over all of them can name a layout
+    // that a layer is not in, which makes the contents of that layer undefined.
     void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
                                           VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect);
+                                          VkImageAspectFlags aspect,
+                                          uint32_t           base_layer  = 0,
+                                          uint32_t           layer_count = VK_REMAINING_ARRAY_LAYERS);
 
     void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
                                             VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect);
+                                            VkImageAspectFlags aspect,
+                                            uint32_t           base_layer  = 0,
+                                            uint32_t           layer_count = VK_REMAINING_ARRAY_LAYERS);
 
     void CopyImageToBuffer(VkCommandBuffer              command_buffer,
                            VkImage                      image,
