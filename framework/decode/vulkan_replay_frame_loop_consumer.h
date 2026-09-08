@@ -188,7 +188,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                        const VulkanPhysicalDeviceInfo&    physical_device_info) :
             device_id_(device_id),
             device_table_(device_table), object_table_(object_table),
-            shadow_block_(device_info, physical_device_info, device_table)
+            shadow_pool_(device_info, physical_device_info, device_table)
         {}
 
         static constexpr VkDeviceSize kShadowBufferAlignment = 4;
@@ -197,10 +197,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         void Restore();
         void DestroyShadowBuffers();
 
-        format::HandleId                                      device_id_;
-        const graphics::VulkanDeviceTable&                    device_table_;
-        CommonObjectInfoTable&                                object_table_;
-        TemporaryBufferBlock                                  shadow_block_;
+        format::HandleId                   device_id_;
+        const graphics::VulkanDeviceTable& device_table_;
+        CommonObjectInfoTable&             object_table_;
+
+        /// Backing storage for every shadow copy on this device.
+        TemporaryBufferPool                                   shadow_pool_;
         std::unordered_map<format::HandleId, TemporaryBuffer> shadow_buffers_;
     };
 

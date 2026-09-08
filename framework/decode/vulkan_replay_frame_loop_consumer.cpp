@@ -30,6 +30,9 @@
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 #include "decode/vulkan_replay_frame_loop_consumer.h"
 
+#include <algorithm>
+#include <memory>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -559,43 +562,38 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         return;
     }
 
-    if (shadow_block_.buffer == VK_NULL_HANDLE)
-    {
-        const VkResult result = shadow_block_.Create(total_bytes);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_WARNING("Failed to create a %" PRIu64 " byte shadow buffer block with %s; buffer contents "
-                                 "will not be restored across loop repetitions.",
-                                 total_bytes,
-                                 util::ToString(result).c_str());
-            return;
-        }
-    }
-
     TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
     if (temp_cmd_buff.CreateAndBegin(graphics::FindGraphicsOrComputeQueueFamilyIndex) != VK_SUCCESS)
     {
         return;
     }
 
-    uint32_t copy_count = 0;
+    shadow_pool_.Reserve(total_bytes);
+
+    VkDeviceSize shadowed_bytes = 0;
+    uint32_t     copy_count     = 0;
+
     for (const VulkanBufferInfo* buffer_info : pending)
     {
-        const TemporaryBuffer shadow = shadow_block_.CreateBuffer(buffer_info->size, kShadowBufferAlignment);
-        if (!shadow.IsValid())
+        const TemporaryBuffer shadow = shadow_pool_.CreateBuffer(buffer_info->size, kShadowBufferAlignment);
+        if (shadow.IsValid())
         {
-            GFXRECON_LOG_WARNING("No room in the shadow buffer block for buffer %" PRIu64 " (size %" PRIu64
-                                 "); its contents will not be restored across loop repetitions.",
-                                 buffer_info->capture_id,
-                                 buffer_info->size);
-            continue;
+            VkBufferCopy region = { 0, shadow.offset, shadow.size };
+            device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
+
+            shadow_buffers_[buffer_info->capture_id] = shadow;
+            shadowed_bytes += util::aligned_value(buffer_info->size, kShadowBufferAlignment);
+            ++copy_count;
         }
+    }
 
-        VkBufferCopy region = { 0, shadow.offset, shadow.size };
-        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
-
-        shadow_buffers_[buffer_info->capture_id] = shadow;
-        ++copy_count;
+    if (copy_count < pending.size())
+    {
+        GFXRECON_LOG_WARNING("Ran out of shadow storage after %" PRIu64 " of %" PRIu64
+                             " bytes; the remaining buffer contents will not be restored across loop "
+                             "repetitions.",
+                             shadowed_bytes,
+                             total_bytes);
     }
 
     if (copy_count > 0)
@@ -643,7 +641,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore()
 
 void VulkanReplayFrameLoopConsumer::BufferTracking::DestroyShadowBuffers()
 {
-    shadow_block_.Destroy();
+    shadow_pool_.Destroy();
     shadow_buffers_.clear();
 }
 

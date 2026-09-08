@@ -28,6 +28,7 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include <algorithm>
 #include <cinttypes>
 #include <limits>
 
@@ -242,10 +243,9 @@ VkResult TemporaryBufferBlock::Create(VkDeviceSize block_bytes)
     }
 
     VkMemoryRequirements memory_requirements = {};
-    {
-        auto injected = device_table.Open();
-        injected->GetBufferMemoryRequirements(device_info.handle, buffer, &memory_requirements);
-    }
+
+    auto injected = device_table.Open();
+    injected->GetBufferMemoryRequirements(device_info.handle, buffer, &memory_requirements);
 
     const bool have_replay_properties = (physical_device_info.replay_device_info != nullptr) &&
                                         physical_device_info.replay_device_info->memory_properties.has_value();
@@ -364,11 +364,11 @@ TemporaryBuffer TemporaryBufferBlock::CreateBuffer(VkDeviceSize buffer_size, VkD
     const VkDeviceSize offset = (used + mask) & ~mask;
     if ((offset > size) || (buffer_size > (size - offset)))
     {
-        GFXRECON_LOG_WARNING("%s() a %" PRIu64 " byte request does not fit in the %" PRIu64
-                             " bytes remaining in this block",
-                             __func__,
-                             static_cast<uint64_t>(buffer_size),
-                             static_cast<uint64_t>((offset <= size) ? (size - offset) : 0));
+        GFXRECON_LOG_DEBUG("%s() a %" PRIu64 " byte request does not fit in the %" PRIu64
+                           " bytes remaining in this block",
+                           __func__,
+                           static_cast<uint64_t>(buffer_size),
+                           static_cast<uint64_t>((offset <= size) ? (size - offset) : 0));
         return temp_buffer;
     }
 
@@ -376,14 +376,86 @@ TemporaryBuffer TemporaryBufferBlock::CreateBuffer(VkDeviceSize buffer_size, VkD
     temp_buffer.offset = offset;
     temp_buffer.size   = buffer_size;
 
-    if (mapped_data != nullptr)
-    {
-        temp_buffer.mapped_data = mapped_data + offset;
-    }
-
     used = offset + buffer_size;
 
     return temp_buffer;
+}
+
+VkResult TemporaryBufferPool::AddBlock(VkDeviceSize block_bytes)
+{
+    auto block = std::make_unique<TemporaryBufferBlock>(
+        device_info, physical_device_info, device_table, buffer_usage, requested_memory_properties);
+
+    const VkResult res = block->Create(block_bytes);
+    if (res != VK_SUCCESS)
+    {
+        return res;
+    }
+
+    blocks.push_back(std::move(block));
+
+    return VK_SUCCESS;
+}
+
+TemporaryBuffer TemporaryBufferPool::CreateBuffer(VkDeviceSize buffer_size, VkDeviceSize alignment)
+{
+    TemporaryBuffer temp_buffer;
+
+    if (buffer_size == 0)
+    {
+        return temp_buffer;
+    }
+
+    if ((alignment == 0) || !util::is_pow_2(alignment))
+    {
+        GFXRECON_LOG_ERROR(
+            "%s() alignment %" PRIu64 " is not a power of two", __func__, static_cast<uint64_t>(alignment));
+        return temp_buffer;
+    }
+
+    // The most recently added block is the one most likely to have room.
+    for (auto it = blocks.rbegin(); it != blocks.rend(); ++it)
+    {
+        temp_buffer = (*it)->CreateBuffer(buffer_size, alignment);
+        if (temp_buffer.IsValid())
+        {
+            break;
+        }
+    }
+
+    const VkDeviceSize needed = util::aligned_value(buffer_size, alignment);
+
+    if (!temp_buffer.IsValid() && !exhausted)
+    {
+        // Size the new block for everything still expected.
+        const VkDeviceSize block_bytes = std::max(needed, std::min(expected_bytes, max_block_size));
+
+        if (AddBlock(block_bytes) == VK_SUCCESS)
+        {
+            temp_buffer = blocks.back()->CreateBuffer(buffer_size, alignment);
+            if (!temp_buffer.IsValid())
+            {
+                blocks.pop_back();
+                exhausted = true;
+            }
+        }
+        else
+        {
+            exhausted = true;
+        }
+    }
+
+    expected_bytes -= std::min(expected_bytes, needed);
+
+    return temp_buffer;
+}
+
+void TemporaryBufferPool::Destroy()
+{
+    // Each block releases its own resources.
+    blocks.clear();
+    expected_bytes = 0;
+    exhausted      = false;
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -183,8 +183,6 @@ struct TemporaryBuffer
     VkDeviceSize offset{ 0 };
     VkDeviceSize size{ 0 };
 
-    uint8_t* mapped_data{ nullptr }; // block pointer + offset; null unless HOST_VISIBLE was requested
-
     bool IsValid() const { return (buffer != VK_NULL_HANDLE) && (size != 0); }
 };
 
@@ -225,8 +223,6 @@ struct TemporaryBufferBlock
     // Carves size bytes out of the block.
     TemporaryBuffer CreateBuffer(VkDeviceSize size, VkDeviceSize alignment = kDefaultAlignment);
 
-    void Reset() { used = 0; }
-
     VkBuffer                              buffer{ VK_NULL_HANDLE };
     VkDeviceMemory                        memory{ VK_NULL_HANDLE };
     VulkanResourceAllocator::ResourceData resource_data{ 0 };
@@ -241,6 +237,61 @@ struct TemporaryBufferBlock
 
     VkBufferUsageFlags    buffer_usage;
     VkMemoryPropertyFlags requested_memory_properties;
+
+    const VulkanDeviceInfo&             device_info;
+    const VulkanPhysicalDeviceInfo&     physical_device_info;
+    graphics::VulkanInjectedDeviceCalls device_table;
+};
+
+// Collection of TemporaryBufferBlocks
+struct TemporaryBufferPool
+{
+    // Preferred size for a new block. Both maxMemoryAllocationSize and maxBufferSize are only
+    // guaranteed to be 1 GiB.
+    static constexpr VkDeviceSize kDefaultMaxBlockSize = 256ull * 1024 * 1024;
+
+    TemporaryBufferPool(const VulkanDeviceInfo&                    dev_info,
+                        const VulkanPhysicalDeviceInfo&            phys_dev_info,
+                        const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                        VkBufferUsageFlags                         usage = TemporaryBufferBlock::kDefaultUsage,
+                        VkMemoryPropertyFlags memory_properties          = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        VkDeviceSize          max_block_bytes            = kDefaultMaxBlockSize) :
+        buffer_usage(usage),
+        requested_memory_properties(memory_properties), max_block_size(max_block_bytes), device_info(dev_info),
+        physical_device_info(phys_dev_info), device_table(injected_calls)
+    {}
+
+    TemporaryBufferPool(const VulkanDeviceInfo&            dev_info,
+                        const VulkanPhysicalDeviceInfo&    phys_dev_info,
+                        const graphics::VulkanDeviceTable& dev_table,
+                        VkBufferUsageFlags                 usage             = TemporaryBufferBlock::kDefaultUsage,
+                        VkMemoryPropertyFlags              memory_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        VkDeviceSize                       max_block_bytes   = kDefaultMaxBlockSize) :
+        TemporaryBufferPool(dev_info,
+                            phys_dev_info,
+                            graphics::VulkanInjectedDeviceCalls(&dev_table),
+                            usage,
+                            memory_properties,
+                            max_block_bytes)
+    {}
+
+    // Hints at the total number of bytes still expected to be requested.
+    void Reserve(VkDeviceSize total_bytes) { expected_bytes = total_bytes; }
+
+    TemporaryBuffer CreateBuffer(VkDeviceSize size, VkDeviceSize alignment = TemporaryBufferBlock::kDefaultAlignment);
+
+    VkResult AddBlock(VkDeviceSize block_bytes);
+
+    void Destroy();
+
+    std::vector<std::unique_ptr<TemporaryBufferBlock>> blocks;
+
+    VkBufferUsageFlags    buffer_usage;
+    VkMemoryPropertyFlags requested_memory_properties;
+    VkDeviceSize          max_block_size;
+
+    VkDeviceSize expected_bytes{ 0 };
+    bool         exhausted{ false };
 
     const VulkanDeviceInfo&             device_info;
     const VulkanPhysicalDeviceInfo&     physical_device_info;
