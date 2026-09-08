@@ -103,14 +103,6 @@ using FieldElementType = ElementType<typename Field::api_type>;
 template <typename Field>
 using FieldEncodeType = format::EncodeTypeFor<typename Field::api_type::kind>;
 
-// Optional capability of an API type descriptor. Capture-side wrapper state and decoded representation are not two
-// halves of one descriptor, so an action is constrained on the capability it names.
-template <typename ApiType>
-concept HasCaptureWrapper = requires
-{
-    typename ApiType::capture_wrapper_type;
-};
-
 // Member traits. The primary template stays undefined, so an absent specialization makes the access concepts fail
 // rather than producing a hard error.
 template <typename Storage, typename Field>
@@ -184,14 +176,6 @@ void Set(Storage& storage, Field field, ValueType&& value)
 }
 
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
-// A field whose API type alone cannot say what it is: the API declares a plain integer, and a sibling field names
-// the handle type at run time. The schema records that sibling, so an operation can tell these from handles whose
-// type is in their declaration.
-template <typename Field>
-concept HasSelectorField = requires
-{
-    typename Field::selector_field;
-};
 
 template <typename Field>
 concept HandleKindField = std::same_as<typename Field::api_type::kind, format::kind::Handle>;
@@ -220,6 +204,13 @@ concept StructField = std::same_as<typename Field::api_type::kind, format::kind:
 // to decode and the field is value-shaped whether or not the declaration writes a star.
 template <typename Field>
 concept AddressField = std::same_as<typename Field::api_type::kind, format::kind::Address>;
+
+// A kind that records an identifier rather than the thing itself: a handle's capture-file id, or the address the
+// capture saw. Nothing decodes into the API's own member for either; the identifier goes to the wrapper and the
+// member is nulled until replay resolves it. The two kinds share that pattern and nothing else, so one concept
+// names the pair.
+template <typename Field>
+concept IdentifierKindField = HandleKindField<Field> || AddressField<Field>;
 
 template <typename Field>
 concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;

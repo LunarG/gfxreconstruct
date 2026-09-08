@@ -61,12 +61,6 @@ concept HasDecodedValueType = requires
     typename ApiElementTraits<ApiElement>::decoded_value_type;
 };
 
-template <typename ApiElement>
-concept HasCallId = requires
-{
-    ApiElementTraits<ApiElement>::call_id;
-};
-
 // The concrete Decoded_Vk* and args:: declarations remain real types. This alias provides generic access without
 // changing their type identity, linkage, or forward declarations.
 template <typename ApiElement>

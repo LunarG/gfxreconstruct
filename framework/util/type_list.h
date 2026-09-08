@@ -26,7 +26,6 @@
 #include "util/defines.h"
 
 #include <concepts>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -81,21 +80,6 @@ template <typename List, typename Accessor, typename Function>
 decltype(auto) ApplyFields(Accessor&& accessor, Function&& function)
 {
     return ApplyFieldsImpl(List{}, std::forward<Accessor>(accessor), std::forward<Function>(function));
-}
-
-template <typename List, typename Accessor>
-decltype(auto) ApplyFieldsToTuple(Accessor&& accessor)
-{
-    return ApplyFields<List>(std::forward<Accessor>(accessor), [](auto&&... values) {
-        return std::forward_as_tuple(std::forward<decltype(values)>(values)...);
-    });
-}
-
-template <typename List, typename Accessor>
-auto ApplyFieldsToValueTuple(Accessor&& accessor)
-{
-    return ApplyFields<List>(std::forward<Accessor>(accessor),
-                             [](auto&&... values) { return std::make_tuple(std::forward<decltype(values)>(values)...); });
 }
 
 GFXRECON_BEGIN_NAMESPACE(detail)

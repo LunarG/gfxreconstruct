@@ -26,8 +26,14 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Fourteen overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Twelve overloads cover every structure the schema drives. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
+//
+// Two access primitives, by one rule. schema::Set writes a value to the decoded member, and is what every overload
+// uses to store a result: it is the same assignment where the member is addressable and the only write that exists
+// where it is not, so the Action never asks which. schema::GetRef appears only where a decoder needs the member's
+// address -- the fixed-extent arrays decoded in place, and the embedded structure whose wrapper links to it -- and
+// once unevaluated, to name a member's declared type.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
 #define GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -75,27 +81,19 @@ class DecodeStructAction
 
     size_t BytesRead() const { return bytes_read_; }
 
-    // A value-shaped scalar decodes straight into the decoded value, which is where the API expects to read it.
-    template <typename Field, typename Storage>
-    requires schema::ScalarField<Field> && schema::Addressable<typename Storage::struct_type, Field>
-    void Apply(Field field, Storage& storage)
-    {
-        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
-            Cursor(), Remaining(), &schema::GetRef(DecodedValueRef(storage), field));
-    }
-
-    // A bitfield cannot be decoded into. The address-of operator may not be applied to one and a non-const
-    // reference may not be bound to one, so there is no &member for the trait to hold and no reference for GetRef
-    // to return; the member trait supplies Set instead. That rule is C++ [class.bit]/3, a stable name resolvable at
-    // https://eel.is/c++draft/class.bit.
+    // A value-shaped scalar decodes a whole value of the field's element type and writes it to the decoded value,
+    // which is where the API expects to read it.
     //
-    // So this decodes a whole value of the field's element type and writes it through. Each bitfield is recorded
-    // that way on the wire too -- a one-bit flag costs four bytes -- and the narrowing happens on the write,
-    // exactly as the procedural decoder does it.
+    // It is not decoded in place, because not every member has a place. A bitfield cannot be decoded into: the
+    // address-of operator may not be applied to one and a non-const reference may not be bound to one, so there is
+    // no &member for the trait to hold and no reference for GetRef to return. That rule is C++ [class.bit]/3, a
+    // stable name resolvable at https://eel.is/c++draft/class.bit. Writing through Set serves both: it is the same
+    // assignment for an ordinary member, and for a bitfield it reaches the accessor the member trait supplies.
     //
-    // Disjoint from the value-shaped scalar overload by Addressable against NonAddressable, which cannot both hold.
+    // Each bitfield is recorded as a whole value on the wire too -- a one-bit flag costs four bytes -- and the
+    // narrowing happens on the write, exactly as the procedural decoder did it.
     template <typename Field, typename Storage>
-    requires schema::ScalarField<Field> && schema::NonAddressable<typename Storage::struct_type, Field>
+    requires schema::ScalarField<Field> && schema::HasMember<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         schema::FieldElementType<Field> value{};
@@ -120,27 +118,40 @@ class DecodeStructAction
 
         bytes_read_ += field_ref.template Decode<typename Field::api_type::kind>(Cursor(), Remaining());
 
-        schema::GetRef(DecodedValueRef(storage), field) = field_ref.GetPointer();
+        schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
     }
 
-    // A handle decodes as the capture-file identity, into the decoded wrapper. The handle in the decoded value is
-    // nulled, and stays null until replay maps the identity to a handle from this run. Both halves are the
-    // invariant: the wrapper carries the captured identity, the decoded value carries no handle from another run.
+    // A value-shaped identifier -- a handle, or an opaque address -- decodes as what the capture recorded, into the
+    // decoded wrapper. The decoded value's member is nulled, and stays null until replay resolves the identifier:
+    // a handle through the mapping to a handle from this run, an address through PreProcessExternalObject for the
+    // fields the ExternalObject descriptor names. Both halves are the invariant: the wrapper carries the captured
+    // identifier, the decoded value carries nothing from another run.
     //
-    // The null is written as a value-initialized element rather than as VK_NULL_HANDLE, so that one body serves
-    // both spellings of a handle. VK_NULL_HANDLE follows the build's handle representation -- a null pointer where
-    // handles are pointers, 0 where they are integers -- so for a field declared as a handle type this writes
-    // exactly what that macro would. A handle the API declares as a plain integer, with a sibling field naming its
-    // type at run time, is uint64_t in either build, and gets the 0 its generated body wrote; VK_NULL_HANDLE is a
-    // null pointer in the builds where handles are pointers, and would not convert there.
+    // The null is written as a value-initialized member -- the decoded value's own declared type -- rather than as
+    // VK_NULL_HANDLE, nullptr, or the field's element type, so that one body serves every spelling. VK_NULL_HANDLE
+    // follows the build's handle representation -- a null pointer where handles are pointers, 0 where they are
+    // integers -- so for a member declared as a handle type this writes exactly what that macro would. A handle the
+    // API declares as a plain integer, with a sibling field naming its type at run time, is uint64_t in either
+    // build, and gets the 0 its generated body wrote; VK_NULL_HANDLE is a null pointer in the builds where handles
+    // are pointers, and would not convert there. A function pointer or a pointer to something outside the API
+    // value-initializes to nullptr, which is what its generated body wrote. The element type would not do for the
+    // last of those: every address outside the API names the one ExternalObject descriptor, whose element type is
+    // void*, while the member itself may be a typed platform pointer such as HMONITOR, to which a null void* does
+    // not convert.
+    //
+    // The address case reaches this whether or not the declaration writes a star: the schema shapes it as a value,
+    // because that is what the capture recorded.
     template <typename Field, typename Storage>
-    requires schema::HandleField<Field> && schema::Addressable<Storage, Field>
+    requires schema::IdentifierKindField<Field> && schema::ValueShapedField<Field> &&
+        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
+        using Member = std::remove_cvref_t<decltype(schema::GetRef(DecodedValueRef(storage), field))>;
+
         bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
             Cursor(), Remaining(), &schema::GetRef(storage, field));
 
-        schema::GetRef(DecodedValueRef(storage), field) = schema::FieldElementType<Field>{};
+        schema::Set(DecodedValueRef(storage), field, Member{});
     }
 
     // A run of handles decodes into the wrapper's HandlePointerDecoder, and the decoded value's pointer is nulled
@@ -156,7 +167,7 @@ class DecodeStructAction
     {
         bytes_read_ += schema::GetRef(storage, field).Decode(Cursor(), Remaining());
 
-        schema::GetRef(DecodedValueRef(storage), field) = nullptr;
+        schema::Set(DecodedValueRef(storage), field, nullptr);
     }
 
     // Text: one string, or a run of them. Both decode the same way and differ only in the decoder class the
@@ -174,7 +185,7 @@ class DecodeStructAction
 
         bytes_read_ += field_ref.Decode(Cursor(), Remaining());
 
-        schema::GetRef(DecodedValueRef(storage), field) = field_ref.GetPointer();
+        schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
     }
 
     // A fixed-extent string decodes in place, like any fixed-extent array: the decoder is pointed at the decoded
@@ -278,25 +289,7 @@ class DecodeStructAction
 
         bytes_read_ += field_ref->Decode(Cursor(), Remaining());
 
-        schema::GetRef(DecodedValueRef(storage), field) = field_ref->GetPointer();
-    }
-
-    // An opaque address records the value the capture saw, into the wrapper, and leaves the decoded value null.
-    // That is the same division a handle gets, and for the same reason: the value means nothing in this process,
-    // so anything that needs it reads the wrapper and replay resolves it -- through PreProcessExternalObject, for
-    // the fields the ExternalObject descriptor names.
-    //
-    // Both a function pointer member and a pointer to something outside the API reach this. The schema shapes
-    // both as values, because that is what the capture recorded, whether or not the declaration writes a star.
-    template <typename Field, typename Storage>
-    requires schema::AddressField<Field> && schema::ValueShapedField<Field> && schema::Addressable<Storage, Field> &&
-        schema::Addressable<typename Storage::struct_type, Field>
-    void Apply(Field field, Storage& storage)
-    {
-        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
-            Cursor(), Remaining(), &schema::GetRef(storage, field));
-
-        schema::GetRef(DecodedValueRef(storage), field) = nullptr;
+        schema::Set(DecodedValueRef(storage), field, field_ref->GetPointer());
     }
 
     // A fixed-extent array of structures. The decoder is still allocated, as it is for any run of structures, but
@@ -364,7 +357,7 @@ class DecodeStructAction
 
         bytes_read_ += DecodePNextStruct(Cursor(), Remaining(), &field_ref);
 
-        schema::GetRef(DecodedValueRef(storage), field) = field_ref ? field_ref->GetPointer() : nullptr;
+        schema::Set(DecodedValueRef(storage), field, field_ref ? field_ref->GetPointer() : nullptr);
     }
 
   private:
