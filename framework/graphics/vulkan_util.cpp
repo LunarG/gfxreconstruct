@@ -186,6 +186,24 @@ uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
     return VK_QUEUE_FAMILY_IGNORED;
 }
 
+uint32_t FindGraphicsOrComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
+    {
+        if (families.queue_family_index_enabled[i])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if (flags_entry != families.queue_family_properties_flags.end() &&
+                (flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
+            {
+                return i;
+            }
+        }
+    }
+
+    return VK_QUEUE_FAMILY_IGNORED;
+}
+
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags)
 {
     std::vector<VkPipelineBindPoint> bind_points;
