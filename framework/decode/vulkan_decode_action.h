@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Thirteen overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
+// Fourteen overloads cover the structures reached so far. A field whose shape or kind none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_ACTION_H
@@ -123,15 +123,24 @@ class DecodeStructAction
         schema::GetRef(DecodedValueRef(storage), field) = field_ref.GetPointer();
     }
 
-    // A handle decodes as the capture-file identity, into the decoded wrapper. The handle in the decoded value
-    // stays null until replay maps the identity to a handle from this run.
+    // A handle decodes as the capture-file identity, into the decoded wrapper. The handle in the decoded value is
+    // nulled, and stays null until replay maps the identity to a handle from this run. Both halves are the
+    // invariant: the wrapper carries the captured identity, the decoded value carries no handle from another run.
+    //
+    // The null is written as a value-initialized element rather than as VK_NULL_HANDLE, so that one body serves
+    // both spellings of a handle. VK_NULL_HANDLE follows the build's handle representation -- a null pointer where
+    // handles are pointers, 0 where they are integers -- so for a field declared as a handle type this writes
+    // exactly what that macro would. A handle the API declares as a plain integer, with a sibling field naming its
+    // type at run time, is uint64_t in either build, and gets the 0 its generated body wrote; VK_NULL_HANDLE is a
+    // null pointer in the builds where handles are pointers, and would not convert there.
     template <typename Field, typename Storage>
     requires schema::HandleField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
             Cursor(), Remaining(), &schema::GetRef(storage, field));
-        schema::GetRef(DecodedValueRef(storage), field) = VK_NULL_HANDLE;
+
+        schema::GetRef(DecodedValueRef(storage), field) = schema::FieldElementType<Field>{};
     }
 
     // A run of handles decodes into the wrapper's HandlePointerDecoder, and the decoded value's pointer is nulled
@@ -313,6 +322,37 @@ class DecodeStructAction
         field_ref->SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
 
         bytes_read_ += field_ref->Decode(Cursor(), Remaining());
+    }
+
+    // A fixed-extent array of handles. The two calls do unrelated things, despite reading like a sequence.
+    //
+    // Decode reads the captured identities into the decoder's own storage, as every handle shape does.
+    // SetExternalMemory does not redirect that: it hands the decoder the decoded value's array to use as the
+    // destination for the native handles replay maps those identities to, later. So nothing is written into the
+    // decoded value here, which is why this shape has no null to write -- the array is an output buffer waiting
+    // on the mapping step, not storage the decode fills. The invariant holds for that reason rather than by
+    // assignment: the identities are in the decoder, and no handle from another run is in the decoded value.
+    //
+    // VkPhysicalDeviceGroupProperties::physicalDevices is the only field in the registry with this shape, and it
+    // is the one the inversion found -- coverage measured by script had counted it as a scalar array, because a
+    // handle is not a scalar kind and the script did not model that. The extent below is VK_MAX_DEVICE_GROUP_SIZE,
+    // which is the capacity the generated body passed.
+    template <typename Field, typename Storage>
+    requires schema::HandleKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+        auto& array_ref = schema::GetRef(DecodedValueRef(storage), field);
+        using ArrayType = std::remove_cvref_t<decltype(array_ref)>;
+
+        static_assert(std::is_array_v<ArrayType>,
+                      "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(std::rank_v<ArrayType> == 1, "A fixed-extent array of handles is one dimensional");
+
+        field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
+
+        bytes_read_ += field_ref.Decode(Cursor(), Remaining());
     }
 
     // The extension chain keeps runtime sType dispatch, and the decoded value's pointer follows the decoded node.

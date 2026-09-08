@@ -24,7 +24,7 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_forward_generator import KhronosStructDecodersForwardGenerator
-from vulkan_schema_generator import SCHEMA_DRIVEN_STRUCTS
+from vulkan_schema_generator import is_schema_driven
 
 
 class VulkanStructDecodersForwardGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -80,37 +80,54 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
 
     def skip_struct_decoder_prototype(self, struct):
         """Method override. A schema-owned decoder is declared by the constrained template."""
-        return struct in SCHEMA_DRIVEN_STRUCTS
+        return is_schema_driven(self, struct)
 
     def write_schema_driven_declarations(self):
         """The declaration side of the structures the schema drives.
 
         These sit beside the prototypes they replace, and in the same file, because they are the same thing: a
         caller needs one declaration per structure either way, and which kind it gets is the only difference. As
-        structures migrate, prototypes leave and typelist entries arrive, and no caller's includes change.
+        structures migrate, prototypes leave and exclusions leave with them, and no caller's includes change.
+
+        The list names what the schema does NOT drive, rather than what it does. Both spellings pick out the same
+        template, but this one is a handful of entries where the other was the whole population, and that matters
+        here: this header is included nearly everywhere, and every use of the concept expands the list as a fold,
+        so the list's length is multiplied by the number of call sites.
+
+        Custom decoders are not listed. They are declared in decode/custom_vulkan_struct_decoders.h as
+        non-template overloads, which beat this template wherever they are visible, and their wrappers are not
+        declared in this file at all.
         """
-        driven = sorted(
+        excluded = sorted(
             struct for struct in self.get_all_filtered_struct_names()
-            if struct in SCHEMA_DRIVEN_STRUCTS
+            if not is_schema_driven(self, struct)
+            and struct not in self.all_struct_aliases
+            and struct not in self.all_union_aliases
         )
 
-        self.newline()
-        write('// The structures whose decoder the schema drives, rather than a body generated for each.', file=self.outFile)
-        write('//', file=self.outFile)
-        write('// The constraint is for diagnosis, not selection: the template would resolve correctly without it,', file=self.outFile)
-        write('// since a non-template beats a template wherever a prototype above still exists. What it buys is', file=self.outFile)
-        write('// that a wrapper with no instantiation fails at the call naming its type, rather than at the link', file=self.outFile)
-        write('// naming a mangled symbol.', file=self.outFile)
-        write('using SchemaDrivenStructs = util::TypeList<', file=self.outFile)
+        # VkBaseOutStructure keeps a generated body, written by hand above, so it belongs to this category too.
+        excluded.append('VkBaseOutStructure')
 
-        for index, struct in enumerate(driven):
-            comma = ',' if index + 1 < len(driven) else ''
+        self.newline()
+        write('// The structures the schema does not drive: each keeps a generated body and a prototype above.', file=self.outFile)
+        write('//', file=self.outFile)
+        write('// Stated as an exclusion because this header is included nearly everywhere and the concept', file=self.outFile)
+        write('// expands the list at every use. Naming the driven population instead would put a fold over', file=self.outFile)
+        write('// every structure at every call site, to decide a question the exclusions answer in a step.', file=self.outFile)
+        write('using NonSchemaDrivenStructs = util::TypeList<', file=self.outFile)
+
+        for index, struct in enumerate(excluded):
+            comma = ',' if index + 1 < len(excluded) else ''
             write('    Decoded_{}{}'.format(struct, comma), file=self.outFile)
 
         write('>;', file=self.outFile)
         self.newline()
+        write('// The constraint is for diagnosis, not selection: the template would resolve correctly without', file=self.outFile)
+        write('// it, since a non-template beats a template wherever a prototype above still exists. What it', file=self.outFile)
+        write('// buys is that a structure with a body of its own fails at the call naming its type, rather', file=self.outFile)
+        write('// than at the link naming a mangled symbol.', file=self.outFile)
         write('template <typename Wrapper>', file=self.outFile)
-        write('concept SchemaDriven = util::TypeListContainsV<SchemaDrivenStructs, Wrapper>;', file=self.outFile)
+        write('concept SchemaDriven = !util::TypeListContainsV<NonSchemaDrivenStructs, Wrapper>;', file=self.outFile)
         self.newline()
         write('// Defined in decode/vulkan_decode_struct_impl.h, which is private to the one translation unit', file=self.outFile)
         write('// that instantiates it. See that header for why.', file=self.outFile)

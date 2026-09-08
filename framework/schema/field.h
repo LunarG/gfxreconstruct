@@ -184,6 +184,15 @@ void Set(Storage& storage, Field field, ValueType&& value)
 }
 
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
+// A field whose API type alone cannot say what it is: the API declares a plain integer, and a sibling field names
+// the handle type at run time. The schema records that sibling, so an operation can tell these from handles whose
+// type is in their declaration.
+template <typename Field>
+concept HasSelectorField = requires
+{
+    typename Field::selector_field;
+};
+
 template <typename Field>
 concept HandleKindField = std::same_as<typename Field::api_type::kind, format::kind::Handle>;
 

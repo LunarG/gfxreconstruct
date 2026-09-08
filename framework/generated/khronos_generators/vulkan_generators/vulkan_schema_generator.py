@@ -56,52 +56,29 @@ from khronos_base_generator import write
 from khronos_struct_decoders_header_generator import KhronosStructDecodersHeaderGenerator
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions
 
-# The parts of the generated schema.
-# Structures whose DecodeStruct comes from the schema field walk. The struct-decoders generators read this and skip
-# both the procedural body and the prototype; the hand-written constrained template in decode/vulkan_decode_struct_impl.h
-# supplies the definition. Their decoded wrapper is still generated as usual.
+# Which structures the schema field walk decodes. The struct-decoders generators ask this and skip both the
+# procedural body and the prototype for those; the hand-written constrained template in
+# decode/vulkan_decode_struct_impl.h supplies the definition. Their decoded wrapper is still generated as usual.
 #
-# A structure may only appear here when the decode Action has an Apply overload for every one of its fields.
-# WalkFields fails to compile and names the field when it does not, so a wrong entry is a build error, not a silent
-# gap.
-#
-# WARNING -- this constant is the ground truth for three artifacts, and nothing checks that they agree.
-#
-#   1. the skip decision           -- no generated body, no generated prototype
-#   2. the SchemaDrivenStructs typelist  -- the constraint on the broadly declared template
-#   3. an explicit instantiation   -- in generated_vulkan_struct_decoders.cpp, the one place the walk compiles
-#
-# All three are emitted from this list, so they can only disagree if one is hand-edited. How the four directions
-# behave, since they are not alike:
-#
-#   skipped but not instantiated   link error, naming a mangled symbol. Loud, poor diagnostic.
-#   skipped but not in typelist    compile error at the call. Loud, good diagnostic.
-#   instantiated but not skipped   SILENT. The generated non-template still wins every call, so the instantiation
-#                                  is dead code that compiles, links and is never reached.
-#   in typelist but not skipped    SILENT, same reason. The constraint permits what the non-template already took.
-#
-# The two silent ones waste rather than break, which is why there is no guard yet. The cheap one when it is wanted:
-# assert in the checks file, for every structure in this list, that TypeListContainsV<SchemaDrivenStructs,
-# Decoded_X> holds. That catches typelist drift; the link catches instantiation drift; nothing cheap catches the
-# dead-code direction, and it costs only compile time.
-SCHEMA_DRIVEN_STRUCTS = (
-    'VkBufferMemoryBarrier',
-    'VkImageSubresourceRange',
-    'VkImageMemoryBarrier',
-    'VkShaderModuleCreateInfo',
-    'VkSparseBufferMemoryBindInfo',
-    'VkTransformMatrixKHR',
-    'VkDeviceBufferMemoryRequirements',
-    'StdVideoAV1TileInfoFlags',
-    'VkCheckpointData2NV',
-    'VkAllocationCallbacks',
-    'VkRenderPassAttachmentBeginInfo',
-    'VkDebugUtilsLabelEXT',
-    'VkLayerProperties',
-    'VkPipelineCacheCreateInfo',
-    'VkRenderingInputAttachmentIndexInfo',
-    'VkImageBlit2',
-)
+# The answer may only be yes when the decode Action has an Apply overload for every one of the structure's fields.
+# WalkFields fails to compile and names the field when it does not, so a wrong answer is a build error, not a
+# silent gap.
+def is_schema_driven(generator, struct):
+    """Whether the schema drives this structure's operations, rather than a body generated for each.
+
+    One predicate with four readers -- the Schema specializations, the skip decision for bodies and prototypes,
+    the NonSchemaDrivenStructs typelist (which reads it inverted, and so states the complement), and the explicit
+    instantiations -- so they cannot disagree.
+
+    Membership is exactly "the schema describes it", and nothing that must stay hand-written has a schema: unions
+    cannot be walked field by field, aliases resolve to the structure they name, and the twenty structures whose
+    decoders are hand-written are already absent from the filtered set. Callers pass names from
+    get_all_filtered_struct_names, which is where that filtering happens.
+    """
+    return (
+        struct not in generator.all_struct_aliases and struct not in generator.all_union_aliases
+        and struct not in generator.union_names
+    )
 
 
 class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -451,9 +428,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """Resolve every API type that a Field names, and select the elements that get a Schema."""
         self.schema_structs = [
             struct for struct in self.get_all_filtered_struct_names()
-            if struct not in self.all_struct_aliases
-            and struct not in self.all_union_aliases
-            and struct not in self.union_names
+            if is_schema_driven(self, struct)
         ]
 
         self.schema_commands = list(self.get_all_filtered_cmd_names())
