@@ -70,14 +70,20 @@ def is_schema_driven(generator, struct):
     the NonSchemaDrivenStructs typelist (which reads it inverted, and so states the complement), and the explicit
     instantiations -- so they cannot disagree.
 
-    Membership is exactly "the schema describes it", and nothing that must stay hand-written has a schema: unions
-    cannot be walked field by field, aliases resolve to the structure they name, and the twenty structures whose
-    decoders are hand-written are already absent from the filtered set. Callers pass names from
-    get_all_filtered_struct_names, which is where that filtering happens.
+    Callers pass names from get_all_filtered_struct_names. That set already holds no alias, no union and none of
+    the structures whose decoders are hand-written, so nothing here restates those exclusions: against the current
+    registry this predicate is the identity, and every structure in the set is driven.
+
+    What it does exclude is the one arrangement the schema has no shape for. A member whose type is the parent of
+    a base-header hierarchy -- children_structs, populated from the registry's parentstruct attribute -- is
+    decoded by the procedural body through a discriminator and a switch over the child types. The field walk would
+    classify that member as a plain structure and decode it as the parent, which compiles and is wrong. The Vulkan
+    registry declares no such hierarchy today, so this changes no output; it is the seam where the exclusion lives
+    when one appears.
     """
-    return (
-        struct not in generator.all_struct_aliases and struct not in generator.all_union_aliases
-        and struct not in generator.union_names
+    return not any(
+        value.base_type in generator.children_structs
+        for value in generator.all_struct_members[struct]
     )
 
 

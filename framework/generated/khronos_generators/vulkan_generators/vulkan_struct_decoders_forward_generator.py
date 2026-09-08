@@ -101,8 +101,6 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
         excluded = sorted(
             struct for struct in self.get_all_filtered_struct_names()
             if not is_schema_driven(self, struct)
-            and struct not in self.all_struct_aliases
-            and struct not in self.all_union_aliases
         )
 
         # VkBaseOutStructure keeps a generated body, written by hand above, so it belongs to this category too.
