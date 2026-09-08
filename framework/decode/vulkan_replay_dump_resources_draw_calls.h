@@ -304,7 +304,8 @@ class DrawCallsDumpingContext
 
     VkResult FetchDrawIndirectParams(DrawCallParams& dc_params);
 
-    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallParams& dc_params);
+    struct DrawCallSlot;
+    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallSlot& slot);
 
     VulkanCommandBufferInfo*     original_command_buffer_info_;
     decode::Index                bcb_index_;
@@ -312,13 +313,26 @@ class DrawCallsDumpingContext
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
 
+    struct RenderPassContext;
+
     // One entry per dump slot, in finalization order: the draw call block index that finalizes
     // the slot and, for draws merged from a secondary, the block index of the vkCmdExecuteCommands
     // that executes them (UNDEFINED_INDEX for the primary's own draws).
+    //
+    // The render pass correlation lives here rather than in DrawCallParams because a DrawCallParams
+    // object is shared between every execution of the same secondary draw call (see UpdateSecondaries),
+    // whereas each execution gets its own slot and may happen inside a different render pass or subpass.
     struct DrawCallSlot
     {
         Index dc_index;
         Index execute_index;
+
+        // The render pass context this slot's draw call was recorded in and the subpass ordinal within it.
+        // Captured in FinalizeCommandBuffer while the render pass is active. For draw calls recorded in a
+        // secondary command buffer that inherits the primary's render pass (RENDER_PASS_CONTINUE), it is
+        // filled in from the primary at vkCmdExecuteCommands time.
+        std::shared_ptr<RenderPassContext> render_pass_context;
+        uint64_t                           subpass{ 0 };
     };
     std::vector<DrawCallSlot> dc_slots_;
 
@@ -372,7 +386,7 @@ class DrawCallsDumpingContext
             new_render_targets.depth_attachment_layout  = depth_attachment_layout;
         }
 
-        // Contexts are shared through shared_ptr (render_pass_contexts_ and DrawCallParams::render_pass_context)
+        // Contexts are shared through shared_ptr (render_pass_contexts_ and DrawCallSlot::render_pass_context)
         // and own their cloned VkRenderPass handles, which Release() destroys exactly once.
         RenderPassContext(const RenderPassContext&)            = delete;
         RenderPassContext& operator=(const RenderPassContext&) = delete;
@@ -811,13 +825,6 @@ class DrawCallsDumpingContext
         // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
         // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
         std::map<Index, SecondaryIdentifiers> secondary_identifiers;
-
-        // The render pass context this draw call was recorded in and the subpass ordinal within it. Captured in
-        // FinalizeCommandBuffer while the render pass is active. For draw calls recorded in a secondary command
-        // buffer that inherits the primary's render pass (RENDER_PASS_CONTINUE), it is filled in from the primary
-        // at vkCmdExecuteCommands time.
-        std::shared_ptr<RenderPassContext> render_pass_context;
-        uint64_t                           subpass{ 0 };
 
         DumpedResourcesInfo dumped_resources;
     };

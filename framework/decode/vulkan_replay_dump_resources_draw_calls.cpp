@@ -994,15 +994,14 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
     {
         const auto& current_rp_context = render_pass_contexts_.back();
 
-        // Correlate the draw call with the render pass it was recorded in. Draw calls from secondaries that
+        // Correlate this slot with the render pass it is being finalized in. Draw calls from secondaries that
         // inherit the primary's render pass are correlated here as well, when UpdateSecondaries finalizes them
-        // from within the primary at vkCmdExecuteCommands time.
-        if (dc_params != nullptr && dc_params->render_pass_context == nullptr)
-        {
-            GFXRECON_ASSERT(!current_rp_context->render_targets.empty());
-            dc_params->render_pass_context = current_rp_context;
-            dc_params->subpass             = current_rp_context->render_targets.size() - 1;
-        }
+        // from within the primary at vkCmdExecuteCommands time. With --dump-resources-before the "before" and
+        // "after" clones map to the same slot and are finalized inside the same render pass.
+        GFXRECON_ASSERT(!current_rp_context->render_targets.empty());
+        DrawCallSlot& slot       = dc_slots_[CmdBufToDCVectorIndex(current_cb_index_)];
+        slot.render_pass_context = current_rp_context;
+        slot.subpass             = current_rp_context->render_targets.size() - 1;
 
         if (current_rp_context->type == RenderPassType::kRenderPass)
         {
@@ -1125,7 +1124,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         // to index inside dc_slots_
         const size_t cb_absolute = CmdBufToDCVectorIndex(cb);
 
-        const Index dc_index = dc_slots_[cb_absolute].dc_index;
+        const DrawCallSlot& slot     = dc_slots_[cb_absolute];
+        const Index         dc_index = slot.dc_index;
 
         auto dc_params_entry = draw_call_params_.find(dc_index);
         GFXRECON_ASSERT(dc_params_entry != draw_call_params_.end());
@@ -1135,10 +1135,10 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
 
         uint64_t rp = 0;
         uint64_t sp = 0;
-        if (dc_params.render_pass_context != nullptr)
+        if (slot.render_pass_context != nullptr)
         {
-            rp = dc_params.render_pass_context->ordinal;
-            sp = dc_params.subpass;
+            rp = slot.render_pass_context->ordinal;
+            sp = slot.subpass;
         }
         else
         {
@@ -1228,7 +1228,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
             delegate_.DumpDrawCallInfo(draw_call_info);
         }
 
-        res = RevertRenderTargetImageLayouts(queue, dc_params);
+        res = RevertRenderTargetImageLayouts(queue, slot);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reverting render target attachments layouts failed(%s)",
@@ -1328,20 +1328,20 @@ void DrawCallsDumpingContext::TransitionRenderTargetLayouts(const RenderPassCont
     }
 }
 
-VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallParams& dc_params)
+VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallSlot& slot)
 {
-    if (dc_params.render_pass_context == nullptr)
+    if (slot.render_pass_context == nullptr)
     {
         GFXRECON_LOG_ERROR("Could not correlate draw call with index %" PRIu64
                            " with a render pass. Skipping render target layout revert.",
-                           dc_params.draw_call_index);
+                           slot.dc_index);
         return VK_SUCCESS;
     }
 
-    const auto&    render_pass_context = *dc_params.render_pass_context;
-    const uint64_t sp                  = dc_params.subpass;
+    const auto&    render_pass_context = *slot.render_pass_context;
+    const uint64_t sp                  = slot.subpass;
     GFXRECON_ASSERT(render_pass_context.render_targets.size() > sp);
-    auto& render_targets = dc_params.render_pass_context->render_targets[sp];
+    auto& render_targets = slot.render_pass_context->render_targets[sp];
 
     if (render_targets.color_att_imgs.empty() && render_targets.depth_att_img == nullptr)
     {
@@ -1475,18 +1475,19 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
 {
     assert(device_table_.IsValid());
 
-    const Index dc_index = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_index)].dc_index;
+    const DrawCallSlot& slot     = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_index)];
+    const Index         dc_index = slot.dc_index;
     GFXRECON_ASSERT(dc_params.draw_call_index == dc_index);
 
-    if (dc_params.render_pass_context == nullptr)
+    if (slot.render_pass_context == nullptr)
     {
         GFXRECON_LOG_ERROR("Draw call with index %" PRIu64 " is not correlated with a render pass. Skipping dump.",
                            dc_index);
         return VK_SUCCESS;
     }
 
-    const auto&    render_pass_context = *dc_params.render_pass_context;
-    const uint64_t sp                  = dc_params.subpass;
+    const auto&    render_pass_context = *slot.render_pass_context;
+    const uint64_t sp                  = slot.subpass;
     GFXRECON_ASSERT(render_pass_context.render_targets.size() > sp);
     const auto& render_targets = render_pass_context.render_targets[sp];
 
@@ -1665,7 +1666,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
 {
     // Descriptors are deduplicated per render pass. Uncorrelated draw calls share the nullptr entry.
     RenderPassDumpedDescriptors& dumped_descriptors =
-        render_pass_dumped_descriptors_[dc_params.render_pass_context.get()];
+        render_pass_dumped_descriptors_[dc_slots_[CmdBufToDCVectorIndex(cmd_buf_index)].render_pass_context.get()];
 
     const Index                   dc_index = dc_params.draw_call_index;
     const decode::CommandLocation command_location(bcb_index_, qs_index_, dc_index);
@@ -3789,6 +3790,9 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
     const DrawCallParameters& secondary_dc_params = secondary_context.GetDrawCallParameters();
     for (const auto& [secondary_index, secondary_params] : secondary_dc_params)
     {
+        // The slot the following FinalizeCommandBuffer calls are going to fill in
+        const size_t primary_slot_index = CmdBufToDCVectorIndex(current_cb_index_);
+
         auto entry = draw_call_params_.find(secondary_index);
         if (entry == draw_call_params_.end())
         {
@@ -3824,6 +3828,24 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
                 std::forward_as_tuple(execute_cmd_index, command_buffer_execute_index));
 
             FinalizeCommandBuffer();
+        }
+
+        // A secondary that begins its own render pass instance (dynamic rendering) is executed outside any render
+        // pass of the primary, so the primary could not correlate the slot above. The secondary correlated its own
+        // slot when it finalized the draw call, so take the render pass context from there.
+        DrawCallSlot& primary_slot = dc_slots_[primary_slot_index];
+        if (primary_slot.render_pass_context == nullptr)
+        {
+            const std::vector<DrawCallSlot>& secondary_slots = secondary_context.GetDrawCallSlots();
+            const auto                       secondary_slot =
+                std::find_if(secondary_slots.begin(),
+                             secondary_slots.end(),
+                             [index = secondary_index](const DrawCallSlot& s) { return s.dc_index == index; });
+            if (secondary_slot != secondary_slots.end())
+            {
+                primary_slot.render_pass_context = secondary_slot->render_pass_context;
+                primary_slot.subpass             = secondary_slot->subpass;
+            }
         }
     }
 }
