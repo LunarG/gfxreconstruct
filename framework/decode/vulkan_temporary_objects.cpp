@@ -41,31 +41,20 @@ VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_f
 
 VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index, uint32_t queue_index)
 {
-    {
-        auto injected = device_table.Open();
-        queue         = GetDeviceQueue(injected.GetTable(), &device_info, queue_family_index, queue_index);
-    }
+    auto injected = device_table.Open();
 
-    if (queue == VK_NULL_HANDLE)
+    return CreateAndBegin(queue_family_index,
+                          GetDeviceQueue(injected.GetTable(), &device_info, queue_family_index, queue_index));
+}
+
+VkResult TemporaryCommandBuffer::CreateAndBegin(uint32_t queue_family_index, VkQueue submit_queue)
+{
+    if (submit_queue == VK_NULL_HANDLE)
     {
         return VK_ERROR_UNKNOWN;
     }
 
-    return CreateAndBeginForQueue(queue_family_index);
-}
-
-VkResult TemporaryCommandBuffer::CreateAndBegin(const VulkanQueueInfo& queue_info)
-{
-    GFXRECON_ASSERT(queue_info.handle != VK_NULL_HANDLE);
-
-    queue = queue_info.handle;
-
-    return CreateAndBeginForQueue(queue_info.family_index);
-}
-
-VkResult TemporaryCommandBuffer::CreateAndBeginForQueue(uint32_t queue_family_index)
-{
-    GFXRECON_ASSERT(queue != VK_NULL_HANDLE);
+    queue = submit_queue;
 
     auto                          injected         = device_table.Open();
     const VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
