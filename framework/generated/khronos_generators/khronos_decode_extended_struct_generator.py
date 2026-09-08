@@ -42,8 +42,6 @@ class KhronosDecodeExtendedStructGenerator():
         )
         write('#include "decode/decode_allocator.h"', file=self.outFile)
 
-        if lower_api_name == 'vulkan':
-            write('#include "decode/vulkan_decode_struct_impl.h"', file=self.outFile)
         write(
             '#include "decode/{}_{}_node.h"'.format(
                 lower_api_name,
