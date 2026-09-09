@@ -1725,6 +1725,8 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::DestroyShadowImage(ImageState
 void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
     const std::vector<format::HandleId>& image_ids, const std::vector<format::HandleId>& restorable_image_ids)
 {
+    restore_commands_ = {};
+
     // Record layouts
     for (format::HandleId image_id : image_ids)
     {
@@ -1846,6 +1848,56 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
     CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "TemporaryCommandBuffer::SubmitAndDestroy");
 }
 
+void VulkanReplayFrameLoopConsumer::ImageTracking::BuildRestoreCommands()
+{
+    RestoreCommands& commands = restore_commands_;
+    commands.built            = true;
+
+    for (auto& [image_id, state] : image_states_)
+    {
+        VulkanImageInfo* image_info = object_table_.GetVkImageInfo(image_id);
+        if (image_info == nullptr || image_info->handle == VK_NULL_HANDLE)
+        {
+            continue;
+        }
+
+        const size_t first_post_barrier = commands.post_barriers.size();
+
+        if (state.HasShadow())
+        {
+            AppendTransferLayoutBarriers(
+                image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commands.pre_barriers);
+
+            image_info->subresource_layouts = state.initial_layouts;
+            AppendTransferLayoutBarriers(
+                image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commands.post_barriers);
+            ReverseLayoutBarriers(commands.post_barriers, first_post_barrier);
+
+            commands.copy_ids.push_back(image_id);
+        }
+        else // Image contents could not be restored but still restore the layouts to their initial state.
+        {
+            AppendImageLayoutBarriers(image_info, state.initial_layouts, commands.post_barriers);
+            if (commands.post_barriers.size() == first_post_barrier)
+            {
+                continue;
+            }
+
+            image_info->subresource_layouts = state.initial_layouts;
+        }
+
+        const VkImageLayout intermediate_layout = (commands.post_barriers.size() > first_post_barrier)
+                                                      ? commands.post_barriers.back().newLayout
+                                                      : VK_IMAGE_LAYOUT_MAX_ENUM;
+        if (intermediate_layout != VK_IMAGE_LAYOUT_MAX_ENUM)
+        {
+            image_info->intermediate_layout = intermediate_layout;
+        }
+
+        commands.layout_updates.emplace_back(image_id, intermediate_layout);
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queue)
 {
     if (image_states_.empty())
@@ -1857,51 +1909,31 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
     VulkanQueueInfo*  queue_info  = object_table_.GetVkQueueInfo(queue);
     GFXRECON_ASSERT(device_info != nullptr && queue_info != nullptr);
 
-    std::vector<format::HandleId> copy_ids;
-    // Puts every copyable subresource of each source image into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
-    std::vector<VkImageMemoryBarrier> pre_barriers;
-    // Transitions subresources to their initial recorded layouts.
-    std::vector<VkImageMemoryBarrier> post_barriers;
-
-    for (auto& [image_id, state] : image_states_)
+    const bool built_this_restore = !restore_commands_.built;
+    if (built_this_restore)
     {
-        VulkanImageInfo* image_info = object_table_.GetVkImageInfo(image_id);
-        if (image_info == nullptr || image_info->handle == VK_NULL_HANDLE)
-        {
-            continue;
-        }
-
-        const size_t first_post_barrier = post_barriers.size();
-
-        if (state.HasShadow())
-        {
-            AppendTransferLayoutBarriers(
-                image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, pre_barriers);
-
-            image_info->subresource_layouts = state.initial_layouts;
-            AppendTransferLayoutBarriers(
-                image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, post_barriers);
-            ReverseLayoutBarriers(post_barriers, first_post_barrier);
-
-            copy_ids.push_back(image_id);
-        }
-        else // Image contents could not be restored but still restore the layouts to their initial state.
-        {
-            AppendImageLayoutBarriers(image_info, state.initial_layouts, post_barriers);
-            if (post_barriers.size() == first_post_barrier)
-            {
-                continue;
-            }
-
-            image_info->subresource_layouts = state.initial_layouts;
-        }
-
-        image_info->intermediate_layout = post_barriers.back().newLayout;
+        BuildRestoreCommands();
     }
+    const RestoreCommands& commands = restore_commands_;
 
-    if (copy_ids.empty() && post_barriers.empty())
+    if (commands.copy_ids.empty() && commands.post_barriers.empty())
     {
         return;
+    }
+
+    if (!built_this_restore)
+    {
+        for (const auto& [image_id, intermediate_layout] : commands.layout_updates)
+        {
+            VulkanImageInfo* image_info = object_table_.GetVkImageInfo(image_id);
+            GFXRECON_ASSERT(image_info != nullptr);
+
+            image_info->subresource_layouts = image_states_.at(image_id).initial_layouts;
+            if (intermediate_layout != VK_IMAGE_LAYOUT_MAX_ENUM)
+            {
+                image_info->intermediate_layout = intermediate_layout;
+            }
+        }
     }
 
     TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
@@ -1912,10 +1944,10 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
 
     // Transition images to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL and shadows to
     // VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
-    CmdImageLayoutBarriers(device_table_, temp_cmd_buff.command_buffer, pre_barriers);
+    CmdImageLayoutBarriers(device_table_, temp_cmd_buff.command_buffer, commands.pre_barriers);
 
     // Copy the contents of each shadow into its source image.
-    for (format::HandleId image_id : copy_ids)
+    for (format::HandleId image_id : commands.copy_ids)
     {
         const VulkanImageInfo* image_info = object_table_.GetVkImageInfo(image_id);
         const ImageState&      state      = image_states_.at(image_id);
@@ -1930,7 +1962,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
     }
 
     // Transition images to their initial layouts and shadows to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
-    CmdImageLayoutBarriers(device_table_, temp_cmd_buff.command_buffer, post_barriers);
+    CmdImageLayoutBarriers(device_table_, temp_cmd_buff.command_buffer, commands.post_barriers);
 
     CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "TemporaryCommandBuffer::SubmitAndDestroy");
 }
@@ -1942,6 +1974,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::DestroyShadowImages()
         DestroyShadowImage(state);
     }
     image_states_.clear();
+    restore_commands_ = {};
 }
 
 void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)

@@ -245,6 +245,22 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             bool HasShadow() const { return shadow_image != VK_NULL_HANDLE; }
         };
 
+        struct RestoreCommands
+        {
+            // Puts every copyable subresource of each source image into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
+            std::vector<VkImageMemoryBarrier> pre_barriers;
+
+            // Transitions subresources to their initial recorded layouts.
+            std::vector<VkImageMemoryBarrier> post_barriers;
+
+            // Images whose contents are copied back out of their shadow.
+            std::vector<format::HandleId> copy_ids;
+
+            std::vector<std::pair<format::HandleId, VkImageLayout>> layout_updates;
+
+            bool built{ false };
+        };
+
         void RecordInitialState(const std::vector<format::HandleId>& image_ids,
                                 const std::vector<format::HandleId>& restorable_image_ids);
 
@@ -255,12 +271,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         bool CreateShadowImage(format::HandleId image_id, const VulkanImageInfo* image_info, ImageState& state);
         void DestroyShadowImage(ImageState& state);
 
+        void BuildRestoreCommands();
+
         format::HandleId                                 device_id_;
         const graphics::VulkanDeviceTable&               device_table_;
         CommonObjectInfoTable&                           object_table_;
         std::shared_ptr<VulkanResourceAllocator>         allocator_;
         const VkPhysicalDeviceMemoryProperties*          memory_properties_;
         std::unordered_map<format::HandleId, ImageState> image_states_;
+        RestoreCommands                                  restore_commands_;
     };
 
     ImageTracking& GetImageTracking(format::HandleId device);
