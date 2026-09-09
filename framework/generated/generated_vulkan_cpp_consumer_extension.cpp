@@ -10910,6 +10910,21 @@ static std::string GenerateExtensionStruct_VkPhysicalDeviceComputeOccupancyPrior
     return (struct_name == "NULL") ? struct_name : ("&" + struct_name);
 }
 
+static std::string GenerateExtensionStruct_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT(
+    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)
+{
+    std::string struct_name = GenerateStruct_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT(
+        out,
+        reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(struct_info),
+        reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(pnext_meta_data->GetMetaStructPointer()),
+        consumer);
+
+    // A structure generator returns "NULL" when it leaves the structure
+    // out, for example when the target platform does not have the type.
+    // Taking the address of that would not be valid C++.
+    return (struct_name == "NULL") ? struct_name : ("&" + struct_name);
+}
+
 static std::string GenerateExtensionStruct_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT(
     std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)
 {
@@ -11045,6 +11060,36 @@ static std::string GenerateExtensionStruct_VkPhysicalDevicePrimitiveRestartIndex
     return (struct_name == "NULL") ? struct_name : ("&" + struct_name);
 }
 
+static std::string GenerateExtensionStruct_VkImageTilingControlCreateInfoEXT(
+    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)
+{
+    std::string struct_name = GenerateStruct_VkImageTilingControlCreateInfoEXT(
+        out,
+        reinterpret_cast<const VkImageTilingControlCreateInfoEXT*>(struct_info),
+        reinterpret_cast<Decoded_VkImageTilingControlCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer()),
+        consumer);
+
+    // A structure generator returns "NULL" when it leaves the structure
+    // out, for example when the target platform does not have the type.
+    // Taking the address of that would not be valid C++.
+    return (struct_name == "NULL") ? struct_name : ("&" + struct_name);
+}
+
+static std::string GenerateExtensionStruct_VkPhysicalDeviceImageTilingControlFeaturesEXT(
+    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)
+{
+    std::string struct_name = GenerateStruct_VkPhysicalDeviceImageTilingControlFeaturesEXT(
+        out,
+        reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(struct_info),
+        reinterpret_cast<Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer()),
+        consumer);
+
+    // A structure generator returns "NULL" when it leaves the structure
+    // out, for example when the target platform does not have the type.
+    // Taking the address of that would not be valid C++.
+    return (struct_name == "NULL") ? struct_name : ("&" + struct_name);
+}
+
 static std::string GenerateExtensionStruct_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV(
     std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)
 {
@@ -11052,6 +11097,21 @@ static std::string GenerateExtensionStruct_VkPhysicalDeviceCooperativeMatrixDeco
         out,
         reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(struct_info),
         reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(pnext_meta_data->GetMetaStructPointer()),
+        consumer);
+
+    // A structure generator returns "NULL" when it leaves the structure
+    // out, for example when the target platform does not have the type.
+    // Taking the address of that would not be valid C++.
+    return (struct_name == "NULL") ? struct_name : ("&" + struct_name);
+}
+
+static std::string GenerateExtensionStruct_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV(
+    std::ostream& out, const void* struct_info, PNextNode* pnext_meta_data, VulkanCppConsumerBase& consumer)
+{
+    std::string struct_name = GenerateStruct_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV(
+        out,
+        reinterpret_cast<const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(struct_info),
+        reinterpret_cast<Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(pnext_meta_data->GetMetaStructPointer()),
         consumer);
 
     // A structure generator returns "NULL" when it leaves the structure
@@ -14084,13 +14144,7 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT(out,
-                                                                         casted_struct,
-                                                                         decoded_struct,
-                                                                         consumer);
-
+                next_struct_generator = GenerateExtensionStruct_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT: {
@@ -14130,23 +14184,11 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                 break;
             }
             case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkImageTilingControlCreateInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkImageTilingControlCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkImageTilingControlCreateInfoEXT(out,
-                                                  casted_struct,
-                                                  decoded_struct,
-                                                  consumer);
-
+                next_struct_generator = GenerateExtensionStruct_VkImageTilingControlCreateInfoEXT;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceImageTilingControlFeaturesEXT(out,
-                                                              casted_struct,
-                                                              decoded_struct,
-                                                              consumer);
-
+                next_struct_generator = GenerateExtensionStruct_VkPhysicalDeviceImageTilingControlFeaturesEXT;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: {
@@ -14154,13 +14196,7 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV(out,
-                                                                casted_struct,
-                                                                decoded_struct,
-                                                                consumer);
-
+                next_struct_generator = GenerateExtensionStruct_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR: {
