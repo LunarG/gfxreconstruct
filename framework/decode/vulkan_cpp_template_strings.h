@@ -2173,19 +2173,21 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
     // Record the capture versus replay indices.  VK_SUBOPTIMAL_KHR still gives a
     // valid image, so it must record the index as well.
     //
-    // The map goes from the capture index to the replay index, because the present
-    // gets the capture index from the capture file and must find the replay index.
+    // The map goes from the replay index to the capture index.  The generated code
+    // gives the present the same variable that this call fills in, so the present
+    // starts from the replay index and must find the capture index.
     if ((result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) &&
         g_swapchain_info.find(swapchain) != g_swapchain_info.end())
     {
-        ToCppSwapchainInfo* swapchain_info = g_swapchain_info[swapchain];
-        if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+        ToCppSwapchainInfo* swapchain_info     = g_swapchain_info[swapchain];
+        uint32_t            replay_image_index = *replay_index;
+        if (replay_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
         {
-            swapchain_info->acquired_indices.resize(captured_index + 1);
+            swapchain_info->acquired_indices.resize(replay_image_index + 1);
         }
 
-        swapchain_info->acquired_indices[captured_index].index    = *replay_index;
-        swapchain_info->acquired_indices[captured_index].acquired = true;
+        swapchain_info->acquired_indices[replay_image_index].index    = captured_index;
+        swapchain_info->acquired_indices[replay_image_index].acquired = true;
     }
 #endif // USE_VIRTUAL_SWAPCHAIN
     return result;
@@ -2251,11 +2253,6 @@ static const char* sSwapchainSourceCode_part_3 = R"(
         auto                     swapchain_count = pPresentInfo->swapchainCount;
         std::vector<VkSemaphore> present_wait_semaphores;
 
-        // The capture file supplies capture image indices.  The driver needs the replay
-        // indices, so collect them here and give the present the replacement array.
-        std::vector<uint32_t> replay_image_indices(pPresentInfo->pImageIndices,
-                                                   pPresentInfo->pImageIndices + swapchain_count);
-
         // TODO: There is a potential issue here where a vkQueuePresent comes in on a queue (let's call
         // it QueueX) which does not support vkCmdCopyImage (i.e. a video-only queue).  In that case,
         // we would need to insert an emtpy command buffer into the command stream of QueueX which
@@ -2274,21 +2271,21 @@ static const char* sSwapchainSourceCode_part_3 = R"(
             }
             ToCppSwapchainInfo* swapchain_info = g_swapchain_info[swapchain];
 
-            // The capture file supplies the capture index.  The replay index comes from
-            // the record that the matching vkAcquireNextImageKHR made.  A trimmed capture
+            // The generated code gives the present the variable that the matching
+            // vkAcquireNextImageKHR filled in, so this is the replay index.  The capture
+            // index comes from the record that the same acquire made.  A trimmed capture
             // can present an image that it did not acquire inside the trimmed range.
-            uint32_t capture_image_index = pPresentInfo->pImageIndices[i];
-            if (capture_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()) ||
-                !swapchain_info->acquired_indices[capture_image_index].acquired)
+            uint32_t replay_image_index = pPresentInfo->pImageIndices[i];
+            if (replay_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()) ||
+                !swapchain_info->acquired_indices[replay_image_index].acquired)
             {
-                printf("ERROR: Virtual swapchain vkQueuePresentKHR got capture image index %u, which swapchain %p "
+                printf("ERROR: Virtual swapchain vkQueuePresentKHR got replay image index %u, which swapchain %p "
                        "never acquired\n",
-                       capture_image_index,
+                       replay_image_index,
                        static_cast<void*>(swapchain));
                 continue;
             }
-            uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
-            replay_image_indices[i]     = replay_image_index;
+            uint32_t capture_image_index = swapchain_info->acquired_indices[replay_image_index].index;
 
             // Find the appropriate CommandCopyData struct for this queue family
             if (swapchain_info->copy_cmd_data.find(queue_info.family_index) == swapchain_info->copy_cmd_data.end())
@@ -2440,7 +2437,6 @@ static const char* sSwapchainSourceCode_part_3 = R"(
         VkPresentInfoKHR modified_present_info   = *pPresentInfo;
         modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(present_wait_semaphores.size());
         modified_present_info.pWaitSemaphores    = present_wait_semaphores.data();
-        modified_present_info.pImageIndices      = replay_image_indices.data();
         return loaded_vkQueuePresentKHR(queue, &modified_present_info);
     }
 #endif
