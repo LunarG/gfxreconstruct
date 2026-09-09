@@ -715,12 +715,12 @@ struct WrittenBlock
 
 WrittenBlock WriteTwoGroups()
 {
-    static VkBufferCreateInfo buffer_create_info{};
+    VkBufferCreateInfo buffer_create_info{};
     buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     buffer_create_info.size  = 4096;
     buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 
-    static VkImageCreateInfo image_create_info{};
+    VkImageCreateInfo image_create_info{};
     image_create_info.sType       = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_create_info.imageType   = VK_IMAGE_TYPE_2D;
     image_create_info.format      = VK_FORMAT_R8G8B8A8_UNORM;
@@ -732,17 +732,22 @@ WrittenBlock WriteTwoGroups()
 
     // Two members of different resource types at distinct bind offsets, so the round trip covers a
     // per-member offset and a per-member create-info type rather than one repeated value.
+    const gfxrecon::encode::ResourceAliasingCreateInfo encoded_buffer =
+        gfxrecon::encode::EncodeResourceAliasingCreateInfo(buffer_create_info);
+    const gfxrecon::encode::ResourceAliasingCreateInfo encoded_image =
+        gfxrecon::encode::EncodeResourceAliasingCreateInfo(image_create_info);
+
     gfxrecon::encode::ResourceAliasingGroupInfo group_0;
     group_0.memory_id = 12;
     group_0.group_id  = 1;
-    group_0.members.push_back({ 100, 0, &buffer_create_info });
-    group_0.members.push_back({ 101, 2048, &image_create_info });
+    group_0.members.push_back({ 100, 0, encoded_buffer });
+    group_0.members.push_back({ 101, 2048, encoded_image });
 
     gfxrecon::encode::ResourceAliasingGroupInfo group_1;
     group_1.memory_id = 15;
     group_1.group_id  = 2;
-    group_1.members.push_back({ 200, 4096, &image_create_info });
-    group_1.members.push_back({ 201, 4096, &buffer_create_info });
+    group_1.members.push_back({ 200, 4096, encoded_image });
+    group_1.members.push_back({ 201, 4096, encoded_buffer });
 
     gfxrecon::util::MemoryOutputStream stream;
     gfxrecon::encode::WriteResourceAliasingGroupsCommand(&stream, 7, 42, { group_0, group_1 });
@@ -751,6 +756,11 @@ WrittenBlock WriteTwoGroups()
     block.bytes.assign(stream.GetData(), stream.GetData() + stream.GetDataSize());
     return block;
 }
+
+// The first member header follows the block header fields and the first group header.
+constexpr size_t kFirstMemberOffset = sizeof(gfxrecon::format::ThreadId) + sizeof(gfxrecon::format::HandleId) +
+                                      sizeof(uint32_t) + sizeof(uint32_t) +
+                                      sizeof(gfxrecon::format::ResourceAliasingGroupHeader);
 
 } // namespace
 
@@ -851,6 +861,32 @@ TEST_CASE("A resource aliasing groups block is dropped whole when it cannot be r
     decode::DecodeAllocator::End();
 }
 
+TEST_CASE("A resource aliasing groups block with an unrecognized resource type is dropped", "[optimize]")
+{
+    using namespace gfxrecon;
+
+    const WrittenBlock   block = WriteTwoGroups();
+    std::vector<uint8_t> bytes(block.Payload(), block.Payload() + block.PayloadSize());
+
+    format::ResourceAliasingMemberHeader member_header{};
+    std::memcpy(&member_header, bytes.data() + kFirstMemberOffset, sizeof(member_header));
+    REQUIRE(member_header.resource_id == 100);
+
+    // kUnknown is what a member whose create-info was never filled in carries, and it is also what a
+    // resource type added later looks like to this reader.
+    member_header.resource_type = static_cast<uint32_t>(format::ResourceAliasingResourceType::kUnknown);
+    std::memcpy(bytes.data() + kFirstMemberOffset, &member_header, sizeof(member_header));
+
+    AliasingGroupsRecorder recorder;
+    decode::VulkanDecoder  decoder;
+    decoder.AddConsumer(&recorder);
+
+    decode::DecodeAllocator::Begin();
+    decoder.DispatchResourceAliasingGroupsCommand(bytes.data(), bytes.size());
+    REQUIRE(recorder.call_count == 0);
+    decode::DecodeAllocator::End();
+}
+
 TEST_CASE("A resource aliasing groups member skips a property it does not know", "[optimize]")
 {
     using namespace gfxrecon;
@@ -859,25 +895,23 @@ TEST_CASE("A resource aliasing groups member skips a property it does not know",
 
     // Splice an unknown property into the first member, in front of its create-info, and bump the member's
     // property count.  A reader of a later layout version writes exactly this.
-    const size_t first_member_offset = sizeof(format::ThreadId) + sizeof(format::HandleId) + sizeof(uint32_t) +
-                                       sizeof(uint32_t) + sizeof(format::ResourceAliasingGroupHeader);
 
     std::vector<uint8_t> bytes(block.Payload(), block.Payload() + block.PayloadSize());
 
     format::ResourceAliasingMemberHeader member_header{};
-    std::memcpy(&member_header, bytes.data() + first_member_offset, sizeof(member_header));
+    std::memcpy(&member_header, bytes.data() + kFirstMemberOffset, sizeof(member_header));
     REQUIRE(member_header.resource_id == 100);
     REQUIRE(member_header.property_count == 1);
 
     member_header.property_count = 2;
-    std::memcpy(bytes.data() + first_member_offset, &member_header, sizeof(member_header));
+    std::memcpy(bytes.data() + kFirstMemberOffset, &member_header, sizeof(member_header));
 
     const std::vector<uint8_t>             unknown_payload{ 0xde, 0xad, 0xbe, 0xef, 0x01, 0x02 };
     format::ResourceAliasingPropertyHeader unknown_header{};
     unknown_header.property_id   = 0xffff;
     unknown_header.property_size = static_cast<uint32_t>(unknown_payload.size());
 
-    const size_t         properties_offset = first_member_offset + sizeof(member_header);
+    const size_t         properties_offset = kFirstMemberOffset + sizeof(member_header);
     std::vector<uint8_t> unknown_property(sizeof(unknown_header) + unknown_payload.size());
     std::memcpy(unknown_property.data(), &unknown_header, sizeof(unknown_header));
     std::memcpy(unknown_property.data() + sizeof(unknown_header), unknown_payload.data(), unknown_payload.size());

@@ -28,6 +28,7 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 
+#include <iterator>
 #include <variant>
 #include <vector>
 
@@ -43,10 +44,36 @@ using ResourceAliasingCreateInfo = std::variant<StructPointerDecoder<Decoded_VkB
                                                 StructPointerDecoder<Decoded_VkImageCreateInfo>,
                                                 StructPointerDecoder<Decoded_VkTensorCreateInfoARM>>;
 
-static_assert(static_cast<uint32_t>(format::ResourceAliasingResourceType::kBuffer) == 0 &&
-                  static_cast<uint32_t>(format::ResourceAliasingResourceType::kImage) == 1 &&
-                  static_cast<uint32_t>(format::ResourceAliasingResourceType::kTensor) == 2,
-              "ResourceAliasingCreateInfo alternatives are ordered to match ResourceAliasingResourceType");
+/// The resource type of each ResourceAliasingCreateInfo alternative, in alternative order.
+inline constexpr format::ResourceAliasingResourceType kResourceAliasingAlternativeTypes[]{
+    format::ResourceAliasingResourceType::kBuffer,
+    format::ResourceAliasingResourceType::kImage,
+    format::ResourceAliasingResourceType::kTensor,
+};
+
+static_assert(std::variant_size_v<ResourceAliasingCreateInfo> == std::size(kResourceAliasingAlternativeTypes),
+              "every ResourceAliasingCreateInfo alternative needs a resource type");
+
+/**
+ * @brief   The name of a resource type, for human-readable output.
+ *
+ * @param   type  the resource type to name.
+ * @return  the name, or "unknown" for a type this build does not know.
+ */
+inline const char* ResourceAliasingResourceTypeToString(format::ResourceAliasingResourceType type)
+{
+    switch (type)
+    {
+        case format::ResourceAliasingResourceType::kBuffer:
+            return "buffer";
+        case format::ResourceAliasingResourceType::kImage:
+            return "image";
+        case format::ResourceAliasingResourceType::kTensor:
+            return "tensor";
+        default:
+            return "unknown";
+    }
+}
 
 /**
  * @brief   One resource of an aliasing group, as read from a resource aliasing groups meta-data block.
@@ -59,7 +86,7 @@ struct ResourceAliasingMember
 
     format::ResourceAliasingResourceType GetResourceType() const
     {
-        return static_cast<format::ResourceAliasingResourceType>(create_info.index());
+        return kResourceAliasingAlternativeTypes[create_info.index()];
     }
 };
 
