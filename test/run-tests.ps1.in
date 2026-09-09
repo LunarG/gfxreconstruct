@@ -1,0 +1,52 @@
+# Run the test cases with ctest, or run one test app directly.
+#
+# Usage, from the install test directory after an install:
+#   .\run-tests.ps1               Run every test case.
+#   .\run-tests.ps1 -L smoke      Pass every argument to ctest. Examples: -L <label>, -R <regex>, -j 4.
+#   .\run-tests.ps1 triangle      Run one test app without the runner and without a comparison.
+#
+# A plain "ctest --test-dir <build>\test -C <config>" also works, because CMake gives every test
+# case the same environment. This script adds the single app mode and the registry entries that
+# an administrator shell needs, because the loader ignores the path variables for an administrator.
+#
+# CMake generates this file from test/run-tests.ps1.in. Edit the template, not this file. The
+# environment comes from GFXRECON_TEST_ENVIRONMENT in test/CMakeLists.txt.
+
+$is_admin = ([Security.Principal.WindowsPrincipal] `
+              [Security.Principal.WindowsIdentity]::GetCurrent() `
+            ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator);
+
+if ($is_admin) {
+    New-Item -Path "HKLM:\SOFTWARE\Khronos"
+    New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan"
+    New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+    New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers" -Name "$pwd\VkLayer_gfxreconstruct.json" -PropertyType "DWord" -Value 0
+    New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers"
+    New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers" -Name "$pwd\test_apps\VkICD_mock_icd.json" -PropertyType "DWord" -Value 0
+}
+
+@GFXRECON_TEST_ENVIRONMENT_EXPORTS@
+#$env:GFXRECON_LOG_LEVEL=""
+#$env:VK_LOADER_DEBUG=""
+
+$ctest = "@CMAKE_CTEST_COMMAND@"
+$test_build_dir = "@GFXRECON_TEST_BUILD_DIR@"
+
+# A multi-config generator needs the configuration. A single-config generator ignores it.
+$ctest_config = "$<CONFIG>"
+$config_args = @()
+if ($ctest_config) {
+    $config_args = @("-C", $ctest_config)
+}
+
+if ($args.Count -eq 0 -or $args[0].StartsWith("-")) {
+    & $ctest --test-dir $test_build_dir @config_args --output-on-failure @args
+    exit $LASTEXITCODE
+} else {
+    $test_dir = "$pwd"
+    Push-Location "$test_dir\res"
+    & "$test_dir\test_apps\launcher\gfxrecon-test-launcher.exe" $args[0]
+    $result = $LASTEXITCODE
+    Pop-Location
+    exit $result
+}
