@@ -1,0 +1,39 @@
+#!/bin/sh
+# Run the test cases with ctest, or run one test app directly.
+#
+# Usage, from the install test directory after an install:
+#   ./run-tests_macos.sh              Run every test case.
+#   ./run-tests_macos.sh -L smoke     Pass every argument to ctest. Examples: -L <label>, -R <regex>, -j 4.
+#   ./run-tests_macos.sh triangle     Run one test app without the runner and without a comparison.
+#
+# A plain "ctest --test-dir <build>/test" also works, because CMake gives every test case the
+# same environment. This script adds the single app mode and the Vulkan library path, which
+# comes from the shell.
+#
+# CMake generates this file from test/run-tests_macos.sh.in. Edit the template, not this file.
+# The environment comes from GFXRECON_TEST_ENVIRONMENT in test/CMakeLists.txt.
+
+@GFXRECON_TEST_ENVIRONMENT_EXPORTS@
+export GFXRECON_VULKAN_LIBRARY_PATH="$VULKAN_LIBRARY_PATH"
+#export GFXRECON_LOG_LEVEL="info"
+#export VK_LOADER_DEBUG="layer"
+
+CTEST="@CMAKE_CTEST_COMMAND@"
+TEST_BUILD_DIR="@GFXRECON_TEST_BUILD_DIR@"
+
+# A multi-config generator needs the configuration. A single-config generator ignores it.
+CTEST_CONFIG="$<CONFIG>"
+CONFIG_ARGS=""
+if [ -n "$CTEST_CONFIG" ]; then
+    CONFIG_ARGS="-C $CTEST_CONFIG"
+fi
+
+case "$1" in
+    "" | -*)
+        exec "$CTEST" --test-dir "$TEST_BUILD_DIR" $CONFIG_ARGS --output-on-failure "$@"
+        ;;
+    *)
+        TEST_DIR="$PWD"
+        cd "$TEST_DIR/res" && exec "$TEST_DIR/test_apps/launcher/gfxrecon-test-launcher" "$1"
+        ;;
+esac

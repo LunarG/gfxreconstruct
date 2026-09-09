@@ -82,7 +82,11 @@ Test apps are built as part of the default build CMAKE build process. In order t
 
 ## **Test App Verification**
 
-To run the test apps and validate output against known good '.gfxr' files, build the project and then run the test script from within the 'test' install directory.
+To run the test cases, build and install the project.
+Then run `ctest --test-dir <build>/test`, or run the test script from the 'test' install directory.
+CMake gives every test case the Vulkan loader environment, so plain `ctest` works.
+The script exports the same environment and then calls `ctest`.
+`ctest` starts each test case from the install directory, so the install must exist before the run.
 
 *On Windows:* The test app must not be run as administrator.  If you receive an error that the ps1 script is not digitally signed, you will need to run 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine' to allow the script to run.
 
@@ -93,8 +97,28 @@ To run the test apps and validate output against known good '.gfxr' files, build
 |Linux| build/linux/x64/output/test        |run-tests.sh|
 |macOS| build/darwin/universal/output/test |run-tests_macos.sh|
 
+## **Run A Subset Of The Test Cases**
+
+If the first argument of the test script starts with `-`, every argument goes to `ctest`.
+Examples:
+
+```bash
+./run-tests.sh -L smoke      # Run the test cases with the "smoke" label.
+./run-tests.sh -R Triangle   # Run the test cases whose name matches a regular expression.
+./run-tests.sh -N            # List the test cases and run nothing.
+```
+
+Every test case has a `ctest` label and a timeout.
+The labels select tests by driver and by cost.
+`test/CMakeLists.txt` sets them, and it holds the environment list in `GFXRECON_TEST_ENVIRONMENT`.
+
 ## **Run A Single Test App**
 
-The default of Test Script `run-tests.sh` runs whole test apps. It could also run a single test app by specifying the test name, e.g. `run-tests.sh triangle`.
+When the first argument of the test script is a test app name, the script runs that app directly.
+That run has no runner and no comparison.
+Example: `run-tests.sh triangle`.
+The app starts in the `res` directory, which is where the harness starts it.
 
-It could also run the test app straightforwardly without the test script. However, many environment variables set in the test script are necessary for running a single test app. Plus, some paths of the environment variables might have to be modified to match your environment.
+You can also run a test app without the test script.
+The environment variables that the test script sets are necessary for that.
+Some of the paths in them must match your environment.
