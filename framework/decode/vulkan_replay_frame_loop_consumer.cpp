@@ -1768,8 +1768,6 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
 
     // Puts every copyable subresource of each source image into VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
     std::vector<VkImageMemoryBarrier> pre_barriers;
-    // Transitions those subresources back out of VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
-    std::vector<VkImageMemoryBarrier> post_barriers = pre_barriers;
 
     for (format::HandleId image_id : recorded_ids)
     {
@@ -1779,6 +1777,9 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
         AppendTransferLayoutBarriers(
             image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pre_barriers);
     }
+
+    // Transitions those subresources back out of VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
+    std::vector<VkImageMemoryBarrier> post_barriers = pre_barriers;
 
     ReverseLayoutBarriers(post_barriers);
 
