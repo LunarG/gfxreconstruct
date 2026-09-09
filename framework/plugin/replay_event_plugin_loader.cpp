@@ -32,11 +32,17 @@ static bool IsValidPluginStructSize(const GfxrReplayPluginV1* plugin)
     return plugin->struct_size >= sizeof(GfxrReplayPluginV1);
 }
 
-static bool IsValidPlugin(const GfxrReplayPluginV1* plugin)
+static bool IsValidPlugin(const GfxrReplayPluginV1* plugin, uint32_t& negotiated_version)
 {
-    return plugin != nullptr && plugin->abi_version >= GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION &&
+    bool is_valid = plugin != nullptr && plugin->abi_version >= GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION &&
            plugin->abi_version <= GFXR_REPLAY_PLUGIN_ABI_VERSION &&
            IsValidPluginStructSize(plugin) && plugin->destroy != nullptr && plugin->on_event != nullptr;
+    if (is_valid)
+    {
+        // Negotiate supported plugin ABI version
+        negotiated_version = std::min(plugin->abi_version, GFXR_REPLAY_PLUGIN_ABI_VERSION);
+    }
+    return is_valid;
 }
 
 std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& load_info)
@@ -85,7 +91,8 @@ std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& loa
         return nullptr;
     }
 
-    if (!IsValidPlugin(plugin))
+    uint32_t negotiated_abi_version = 0;
+    if (!IsValidPlugin(plugin, negotiated_abi_version))
     {
         GFXRECON_LOG_ERROR("Invalid plugin instance: %s", load_info.library_path.c_str());
         if (!IsValidPluginStructSize(plugin))
@@ -102,7 +109,7 @@ std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& loa
 
     GFXRECON_LOG_INFO("Successfully loaded plugin: %s", load_info.library_path.c_str());
 
-    return std::make_unique<PluginReplayEventSink>(library, plugin, ops.close_library);
+    return std::make_unique<PluginReplayEventSink>(library, plugin, negotiated_abi_version, ops.close_library);
 }
 
 GFXRECON_END_NAMESPACE(plugin)

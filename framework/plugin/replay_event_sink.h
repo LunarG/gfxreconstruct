@@ -102,6 +102,7 @@ class PluginReplayEventSink final : public ReplayEventSink
 
     PluginReplayEventSink(util::platform::LibraryHandle library,
                           GfxrReplayPluginV1*           plugin,
+                          uint32_t                      abi_version,
                           CloseLibraryFunc              close_library = util::platform::CloseLibrary);
     ~PluginReplayEventSink();
 
@@ -117,6 +118,7 @@ class PluginReplayEventSink final : public ReplayEventSink
     void Forward(const GfxrReplayEventHeader& event);
 
     bool                          disabled_      = false;
+    uint32_t                      abi_version_   = 0;
     util::platform::LibraryHandle library_       = nullptr;
     GfxrReplayPluginV1*           plugin_        = nullptr;
     CloseLibraryFunc              close_library_ = nullptr;
