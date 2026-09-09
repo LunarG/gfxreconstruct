@@ -32,6 +32,38 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+namespace
+{
+
+template <typename CreateInfo>
+ResourceAliasingCreateInfo Encode(format::ResourceAliasingResourceType type, const CreateInfo& create_info)
+{
+    util::MemoryOutputStream stream;
+    ParameterEncoder         encoder(&stream);
+
+    // Encoded as a pointer, so the consumer reads it back with the generated StructPointerDecoder.
+    EncodeStructPtr(&encoder, &create_info);
+
+    return { type, std::vector<uint8_t>(stream.GetData(), stream.GetData() + stream.GetDataSize()) };
+}
+
+} // namespace
+
+ResourceAliasingCreateInfo EncodeResourceAliasingCreateInfo(const VkBufferCreateInfo& create_info)
+{
+    return Encode(format::ResourceAliasingResourceType::kBuffer, create_info);
+}
+
+ResourceAliasingCreateInfo EncodeResourceAliasingCreateInfo(const VkImageCreateInfo& create_info)
+{
+    return Encode(format::ResourceAliasingResourceType::kImage, create_info);
+}
+
+ResourceAliasingCreateInfo EncodeResourceAliasingCreateInfo(const VkTensorCreateInfoARM& create_info)
+{
+    return Encode(format::ResourceAliasingResourceType::kTensor, create_info);
+}
+
 void WriteResourceAliasingGroupsCommand(util::OutputStream*                           output_stream,
                                         format::ThreadId                              thread_id,
                                         format::HandleId                              device_id,
@@ -53,13 +85,12 @@ void WriteResourceAliasingGroupsCommand(util::OutputStream*                     
 
         for (const ResourceAliasingMemberInfo& member : group.members)
         {
-            util::MemoryOutputStream create_info;
-            ParameterEncoder         encoder(&create_info);
-            // Encoded as a pointer, so the consumer reads it back with the generated StructPointerDecoder.
-            std::visit([&encoder](const auto* value) { EncodeStructPtr(&encoder, value); }, member.create_info);
+            // Only the EncodeResourceAliasingCreateInfo overloads set the type, so this fires when a
+            // member reached the writer without one.
+            GFXRECON_ASSERT(member.create_info.type != format::ResourceAliasingResourceType::kUnknown);
 
             format::ResourceAliasingMemberHeader member_header{};
-            member_header.resource_type  = static_cast<uint32_t>(member.create_info.index());
+            member_header.resource_type  = static_cast<uint32_t>(member.create_info.type);
             member_header.property_count = 1;
             member_header.resource_id    = member.resource_id;
             member_header.bind_offset    = member.bind_offset;
@@ -67,9 +98,9 @@ void WriteResourceAliasingGroupsCommand(util::OutputStream*                     
 
             format::ResourceAliasingPropertyHeader property_header{};
             property_header.property_id   = static_cast<uint32_t>(format::ResourceAliasingPropertyId::kCreateInfo);
-            property_header.property_size = static_cast<uint32_t>(create_info.GetDataSize());
+            property_header.property_size = static_cast<uint32_t>(member.create_info.encoded.size());
             body.Write(&property_header, sizeof(property_header));
-            body.Write(create_info.GetData(), create_info.GetDataSize());
+            body.Write(member.create_info.encoded.data(), member.create_info.encoded.size());
         }
     }
 
