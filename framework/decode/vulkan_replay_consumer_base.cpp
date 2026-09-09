@@ -3574,6 +3574,16 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                              "extension availability. Some replay features may not work correctly.");
     }
 
+    // we require vkGetDeviceBufferMemoryRequirements (Vulkan 1.3+ or VK_KHR_maintenance4)
+    const uint32_t effective_api_version = std::min(physical_device_info->parent_info.api_version,
+                                                    physical_device_info->replay_device_info->properties->apiVersion);
+    if (UseAddressReplacement(nullptr) && effective_api_version < VK_API_VERSION_1_3 &&
+        graphics::feature_util::IsSupportedExtension(available_extensions, VK_KHR_MAINTENANCE_4_EXTENSION_NAME) &&
+        !graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_MAINTENANCE_4_EXTENSION_NAME))
+    {
+        modified_extensions.push_back(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+    }
+
     // Enable device extensions required for resolving multisampled depth/stencil images
     for (const auto& vdr_required_extension : graphics::kVulkanDepthStencilResolveExtensions)
     {
@@ -3699,7 +3709,8 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
 
     // Track the effective device version and enabled extensions for selecting core vs extension entry point flavors.
     device_info->version_extension_info.api_version =
-        std::min(physical_device_info->parent_info.api_version, replay_device_info->properties->apiVersion);
+        std::min(physical_device_info->parent_info.api_version,
+                 physical_device_info->replay_device_info->properties->apiVersion);
     device_info->version_extension_info.enabled_extensions = enabled_extensions;
 
     InitializeResourceAllocator(
@@ -12981,24 +12992,29 @@ bool VulkanReplayConsumerBase::ResolveAliasingGroupMember(const VulkanDeviceInfo
             return false;
         }
 
-        auto get_requirements = device_table->GetDeviceBufferMemoryRequirements;
-        if (get_requirements == graphics::noop::vkGetDeviceBufferMemoryRequirements)
-        {
-            get_requirements = device_table->GetDeviceBufferMemoryRequirementsKHR;
-        }
-        if (get_requirements == graphics::noop::vkGetDeviceBufferMemoryRequirementsKHR)
-        {
-            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device has no "
-                                 "vkGetDeviceBufferMemoryRequirements (VK_KHR_maintenance4).");
-            return false;
-        }
-
         VkBufferCreateInfo modified_create_info = *create_info;
         ApplyReplayCreateInfoModifications(device_info, modified_create_info);
 
-        VkDeviceBufferMemoryRequirements info{ VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS };
-        info.pCreateInfo = &modified_create_info;
-        get_requirements(device_info->handle, &info, &requirements);
+        const auto get_requirements =
+            device_info->version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_3,
+                                                                    device_table->GetDeviceBufferMemoryRequirements,
+                                                                    VK_KHR_MAINTENANCE_4_EXTENSION_NAME,
+                                                                    device_table->GetDeviceBufferMemoryRequirementsKHR);
+
+        if (get_requirements != nullptr)
+        {
+            VkDeviceBufferMemoryRequirements info{ VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS };
+            info.pCreateInfo = &modified_create_info;
+            get_requirements(device_info->handle, &info, &requirements);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Resource aliasing groups: the replay device has no vkGetDeviceBufferMemoryRequirements "
+                "(%s).",
+                VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+            return false;
+        }
     }
     else if (const auto* decoder = std::get_if<StructPointerDecoder<Decoded_VkImageCreateInfo>>(&member.create_info))
     {
@@ -13017,24 +13033,29 @@ bool VulkanReplayConsumerBase::ResolveAliasingGroupMember(const VulkanDeviceInfo
             return false;
         }
 
-        auto get_requirements = device_table->GetDeviceImageMemoryRequirements;
-        if (get_requirements == graphics::noop::vkGetDeviceImageMemoryRequirements)
-        {
-            get_requirements = device_table->GetDeviceImageMemoryRequirementsKHR;
-        }
-        if (get_requirements == graphics::noop::vkGetDeviceImageMemoryRequirementsKHR)
-        {
-            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device has no "
-                                 "vkGetDeviceImageMemoryRequirements (VK_KHR_maintenance4).");
-            return false;
-        }
-
         VkImageCreateInfo modified_create_info = *create_info;
         ApplyReplayCreateInfoModifications(device_info, modified_create_info);
 
-        VkDeviceImageMemoryRequirements info{ VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS };
-        info.pCreateInfo = &modified_create_info;
-        get_requirements(device_info->handle, &info, &requirements);
+        const auto get_requirements =
+            device_info->version_extension_info.SelectApiCallFlavor(VK_API_VERSION_1_3,
+                                                                    device_table->GetDeviceImageMemoryRequirements,
+                                                                    VK_KHR_MAINTENANCE_4_EXTENSION_NAME,
+                                                                    device_table->GetDeviceImageMemoryRequirementsKHR);
+
+        if (get_requirements != nullptr)
+        {
+            VkDeviceImageMemoryRequirements info{ VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS };
+            info.pCreateInfo = &modified_create_info;
+            get_requirements(device_info->handle, &info, &requirements);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Resource aliasing groups: the replay device has no vkGetDeviceImageMemoryRequirements "
+                "(%s).",
+                VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+            return false;
+        }
     }
     else if (const auto* decoder =
                  std::get_if<StructPointerDecoder<Decoded_VkTensorCreateInfoARM>>(&member.create_info))
@@ -13048,10 +13069,11 @@ bool VulkanReplayConsumerBase::ResolveAliasingGroupMember(const VulkanDeviceInfo
         }
 
         const auto get_requirements = device_table->GetDeviceTensorMemoryRequirementsARM;
-        if (get_requirements == graphics::noop::vkGetDeviceTensorMemoryRequirementsARM)
+        if (!graphics::feature_util::IsSupportedExtension(device_info->version_extension_info.enabled_extensions,
+                                                          VK_ARM_TENSORS_EXTENSION_NAME))
         {
-            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device has no "
-                                 "vkGetDeviceTensorMemoryRequirementsARM.");
+            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device did not enable %s.",
+                                 VK_ARM_TENSORS_EXTENSION_NAME);
             return false;
         }
 
