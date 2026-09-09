@@ -382,11 +382,37 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(call_info, args);
 }
 
+static bool CanRestoreImage(const VkImageCreateInfo* create_info)
+{
+    if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkImageUsageFlags2CreateInfoKHR>(create_info))
+    {
+        if ((usage_flags2->usage & VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR) != 0)
+        {
+            return true;
+        }
+    }
+    else if ((create_info->usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) != 0)
+    {
+        return true;
+    }
+
+    if (const auto* stencil_usage2 = graphics::vulkan_struct_get_pnext<VkImageStencilUsage2CreateInfoKHR>(create_info))
+    {
+        return (stencil_usage2->stencilUsage & VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR) != 0;
+    }
+    if (const auto* stencil_usage = graphics::vulkan_struct_get_pnext<VkImageStencilUsageCreateInfo>(create_info))
+    {
+        return (stencil_usage->stencilUsage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) != 0;
+    }
+
+    return false;
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args)
 {
     VkImageCreateInfo* create_info = args.pCreateInfo.GetPointer();
 
-    if ((create_info != nullptr) && !args.pImage.IsNull())
+    if ((create_info != nullptr) && !args.pImage.IsNull() && !CanRestoreImage(create_info))
     {
         create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
