@@ -29,20 +29,38 @@
 
 #include "vulkan/vulkan.h"
 
-#include <variant>
+#include <cstdint>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 /**
- * @brief   The create-info of one aliasing group member.
+ * @brief   The create-info of one aliasing group member, already encoded.
  *
- * The alternative held is the member's resource type, so the two cannot disagree.  The pointed-to
- * struct, including its pNext chain, must outlive the write.
+ * Encoding it up front lets a caller that only sees a decoded create-info for the duration of one
+ * call keep it; only the EncodeResourceAliasingCreateInfo overloads produce one, so the resource
+ * type and the bytes cannot disagree.
  */
-using ResourceAliasingCreateInfo =
-    std::variant<const VkBufferCreateInfo*, const VkImageCreateInfo*, const VkTensorCreateInfoARM*>;
+struct ResourceAliasingCreateInfo
+{
+    format::ResourceAliasingResourceType type{ format::ResourceAliasingResourceType::kUnknown };
+    std::vector<uint8_t>                 encoded;
+};
+
+/**
+ * @brief   Encode a create-info for a resource aliasing group member.
+ *
+ * The generated struct encoders write it, so the pNext chain survives whatever it holds.  Handles
+ * inside a pNext chain do not: the encoder maps a decoded null handle to a null handle id, so a
+ * caller working from a decoded create-info must not offer one whose chain carries a handle.
+ *
+ * @param   create_info  the create-info to encode.
+ * @return  the encoded create-info, tagged with its resource type.
+ */
+ResourceAliasingCreateInfo EncodeResourceAliasingCreateInfo(const VkBufferCreateInfo& create_info);
+ResourceAliasingCreateInfo EncodeResourceAliasingCreateInfo(const VkImageCreateInfo& create_info);
+ResourceAliasingCreateInfo EncodeResourceAliasingCreateInfo(const VkTensorCreateInfoARM& create_info);
 
 /**
  * @brief   One resource of an aliasing group, as handed to the writer.

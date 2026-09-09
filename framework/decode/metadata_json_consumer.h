@@ -365,7 +365,7 @@ class MetadataJsonConsumer : public Base
             for (const ResourceAliasingMember& member : group.members)
             {
                 auto& jmember            = jmembers.emplace_back();
-                jmember["resource_type"] = static_cast<uint32_t>(member.GetResourceType());
+                jmember["resource_type"] = ResourceAliasingResourceTypeToString(member.GetResourceType());
                 HandleToJson(jmember["resource_id"], member.resource_id);
                 jmember["bind_offset"] = member.bind_offset;
                 std::visit([&jmember](const auto& create_info) { FieldToJson(jmember["create_info"], &create_info); },
