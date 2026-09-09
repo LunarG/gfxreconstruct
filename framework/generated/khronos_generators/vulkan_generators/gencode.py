@@ -58,6 +58,16 @@ from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForward
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
 from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
+# Field Schema
+from vulkan_schema_generator import (
+    VulkanSchemaIdentityGenerator, VulkanSchemaIdentityGeneratorOptions,
+    VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions,
+    VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions,
+    VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions,
+    VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
+    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions
+)
+
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
 from vulkan_replay_frame_loop_consumer_base_header_generator import VulkanFrameLoopConsumerBaseHeaderGenerator, VulkanFrameLoopConsumerBaseHeaderGeneratorOptions
@@ -334,6 +344,36 @@ def make_gen_opts(args):
             extra_headers=extra_headers
         )
     ]
+
+    # Field schema generators. One model, one generated file for each part of it, so that a target includes only
+    # the storage population it uses.
+    for schema_filename, schema_generator, schema_options, schema_protect in (
+        ('generated_vulkan_schema.h',
+         VulkanSchemaIdentityGenerator, VulkanSchemaIdentityGeneratorOptions, True),
+        ('generated_vulkan_decode_api_element_traits.h',
+         VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions, True),
+        ('generated_vulkan_schema_native_struct_members.h',
+         VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions, True),
+        ('generated_vulkan_schema_decoded_struct_members.h',
+         VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions, True),
+        ('generated_vulkan_schema_decoded_command_members.h',
+         VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
+        ('generated_vulkan_schema_checks.cpp',
+         VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
+    ):
+        gen_opts[schema_filename] = [
+            schema_generator,
+            schema_options(
+                filename=schema_filename,
+                directory=directory,
+                blacklists=blacklists,
+                platform_types=platform_types,
+                prefix_text=prefix_strings + vk_prefix_strings,
+                protect_file=schema_protect,
+                protect_feature=False,
+                extra_headers=extra_headers
+            )
+        ]
 
     gen_opts['generated_vulkan_pnext_struct_decoder.cpp'] = [
         DecodePNextStructGenerator,
