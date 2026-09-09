@@ -143,6 +143,8 @@ struct TemporaryCommandBuffer
 
     VkResult CreateAndBegin(uint32_t queue_family_index, uint32_t queue_index = 0);
 
+    VkResult CreateAndBegin(uint32_t queue_family_index, VkQueue submit_queue);
+
     VkResult SubmitAndDestroy();
 
     VkResult SubmitAndReset();
