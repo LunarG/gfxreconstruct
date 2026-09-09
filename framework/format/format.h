@@ -260,9 +260,10 @@ struct EnabledOptions
 // Resource type for members of resource aliasing groups.
 enum class ResourceAliasingResourceType : uint32_t
 {
-    kBuffer = 0,
-    kImage  = 1,
-    kTensor = 2,
+    kUnknown = 0,
+    kBuffer = 1,
+    kImage  = 2,
+    kTensor = 3,
 };
 
 // Per-member properties of a resource aliasing group.

@@ -33,6 +33,7 @@
 #include <memory>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
@@ -45,6 +46,8 @@ class OptimizeVulkanFeature : public OptimizeFeature
 
     std::string Label() const override { return "Vulkan"; }
     std::string CompiledHeaderVersionString() const override;
+
+    std::vector<util::FeatureOptionDesc> GetOptionDescs() const override;
 
     void RegisterDetectionDecoder(decode::FileProcessor& file_processor, uint64_t block_limit) override;
     bool WasDetected() const override;
@@ -59,7 +62,9 @@ class OptimizeVulkanFeature : public OptimizeFeature
                                          std::unordered_set<format::HandleId>& unreferenced_ids);
 
     // Pass 2: let each modifier collect the state it needs, and keep the ones that found work.
-    static bool ScanForModifiers(const std::string& input_filename, VulkanFileOptimizer::Modifiers& modifiers);
+    static bool ScanForModifiers(const std::string&              input_filename,
+                                 const util::ArgumentParser&     args,
+                                 VulkanFileOptimizer::Modifiers& modifiers);
 
     // Passes 3-4: determine unreferenced block indices, then write the optimized output file.
     bool WriteOptimizedFile(const std::string&                          input_filename,

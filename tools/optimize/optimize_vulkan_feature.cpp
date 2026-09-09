@@ -22,6 +22,7 @@
 
 #include "optimize_vulkan_feature.h"
 
+#include "vulkan_aliasing_group_modifier.h"
 #include "vulkan_file_optimizer.h"
 #include "decode/file_processor.h"
 #include "generated/generated_vulkan_referenced_block_consumer.h"
@@ -37,6 +38,20 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
 
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(OptimizeFeature, OptimizeVulkanFeature)
+
+// Writing the resource aliasing groups block changes where a replayer places aliased resources, so
+// every existing caller of this tool gets that change by default and needs a way back.
+constexpr const char kNoAliasingMetadata[] = "--no-aliasing-metadata";
+
+std::vector<util::FeatureOptionDesc> OptimizeVulkanFeature::GetOptionDescs() const
+{
+    return { { "",
+               { "Do not detect aliased resources and do not write the resource aliasing",
+                 "groups meta-data block. Replay then places aliased resources one bind",
+                 "at a time, as it does for a capture this tool has not seen." },
+               false,
+               kNoAliasingMetadata } };
+}
 
 std::string OptimizeVulkanFeature::CompiledHeaderVersionString() const
 {
@@ -100,10 +115,16 @@ bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&         
 }
 
 bool OptimizeVulkanFeature::ScanForModifiers(const std::string&              input_filename,
+                                             const util::ArgumentParser&     args,
                                              VulkanFileOptimizer::Modifiers& modifiers)
 {
     // Modifiers are constructed here, then dropped again if the scan finds nothing for them to do.
     VulkanFileOptimizer::Modifiers candidates;
+
+    if (!args.IsOptionSet(kNoAliasingMetadata))
+    {
+        candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>());
+    }
 
     if (candidates.empty())
     {
@@ -208,7 +229,7 @@ bool OptimizeVulkanFeature::Optimize(const std::string&          input_filename,
     }
 
     VulkanFileOptimizer::Modifiers modifiers;
-    if (!ScanForModifiers(input_filename, modifiers))
+    if (!ScanForModifiers(input_filename, args, modifiers))
     {
         return false;
     }
