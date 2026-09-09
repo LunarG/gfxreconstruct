@@ -38,38 +38,82 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-// A FileOptimizer that additionally runs a list of Vulkan modifiers over every block it writes.
-//
-// Each modifier is decoded twice. The scan pass, driven by the caller through a FileProcessor,
-// lets it collect state. This class drives the modification pass: it decodes the block again, hands
-// each modifier the block's parameter buffer, and then writes the pre-calls the modifiers queued,
-// the block itself unless a modifier dropped it, and the post-calls.
-//
-// With an empty modifier list this behaves exactly like FileOptimizer, and the output is byte
-// identical. A block no modifier rewrote is also passed through verbatim rather than re-encoded.
+/**
+ * @brief   A FileOptimizer that additionally runs a list of Vulkan modifiers over every block it writes.
+ *
+ * Each modifier is decoded twice. The scan pass collects state.
+ *
+ * This class performs the modification pass:
+ * - decodes the block again, points each modifier at the block's BlockEdit
+ * - writes the queued calls before/after the block and the block itself (unless a modifier dropped it)
+ *
+ * With empty modifier-list the behavior matches FileOptimizer.
+ * Blocks no modifier rewrote are passed through verbatim, rather than re-encoded.
+ */
 class VulkanFileOptimizer : public FileOptimizer
 {
   public:
     using Modifiers = std::vector<std::unique_ptr<VulkanModifierBase>>;
 
+    /**
+     * @brief   Create an optimizer for one input file.
+     *
+     * @param   unreferenced_ids     handles never referenced by a command buffer submission, whose
+     *                               initialization data is dropped.
+     * @param   unreferenced_blocks  block indices belonging to those handles, dropped as a whole.
+     * @param   modifiers            the modifiers to run, in the order they should run.
+     */
     VulkanFileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids,
                         const std::unordered_set<uint64_t>&         unreferenced_blocks,
                         Modifiers                                   modifiers);
 
   protected:
+    /**
+     * @brief   Run the modifiers over a function-call block, write the result.
+     *
+     * @param   parsed_block  the block read from the input file.
+     * @return  false if writing failed.
+     */
     bool ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
+
+    /**
+     * @brief   Run the modifiers over a meta-data block and write the result.
+     *
+     * @param   parsed_block  the block read from the input file.
+     * @return  false if writing failed.
+     */
     bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
 
   private:
-    // Runs every modifier over one decoded block, then writes the result. Defined in the .cpp,
-    // which is the only user.
+    /**
+     * @brief   Run every modifier over one decoded block, then write the result.
+     *
+     * @param   args          the decoded arguments of the block.
+     * @param   parsed_block  the block as read, used to copy its bytes through unchanged.
+     * @param   buffer        the block's parameters, which a modifier may rewrite.
+     * @return  false if writing failed.
+     */
     template <typename Args>
     bool ModifierDispatch(const Args& args, decode::ParsedBlock& parsed_block, encode::ParameterBuffer& buffer);
 
-    bool WriteNewCalls(const std::vector<std::unique_ptr<CallModifierBase::NewCallData>>& new_calls);
-    bool WriteFunctionCall(format::ApiCallId               call_id,
-                           format::ThreadId                thread_id,
-                           const util::MemoryOutputStream& parameter_buffer);
+    /**
+     * @brief   Write calls queued by modifiers for the current block.
+     *
+     * @param   calls  the queued calls, written in order.
+     * @return  false if writing failed.
+     */
+    bool WriteQueuedCalls(const std::vector<BlockEdit::QueuedCall>& calls);
+
+    /**
+     * @brief   Write one function-call block, compressing it if the output file is compressed.
+     *
+     * @param   call_id    the API call to write.
+     * @param   thread_id  the thread the call is attributed to.
+     * @param   data       the encoded call parameters.
+     * @param   size       the number of parameter bytes.
+     * @return  false if writing failed.
+     */
+    bool WriteFunctionCall(format::ApiCallId call_id, format::ThreadId thread_id, const uint8_t* data, size_t size);
 
     Modifiers             modifiers_;
     decode::VulkanDecoder decoder_;
