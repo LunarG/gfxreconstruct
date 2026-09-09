@@ -213,6 +213,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                    VkQueryType      query_type,
                                                                    format::HandleId acceleration_structure_id) override;
 
+    void ProcessResourceAliasingGroupsCommand(format::HandleId                          device_id,
+                                              const std::vector<ResourceAliasingGroup>& groups) override;
+
     template <typename T>
     void AllowCompileDuringPipelineCreation(uint32_t create_info_count, const T* create_infos)
     {
@@ -2113,6 +2116,53 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     bool CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const;
 
+    /**
+     * @brief   ApplyReplayCreateInfoModifications applies the create-info edits replay performs before
+     *          creating a resource: external-memory and external-format handling, the transfer-usage
+     *          bits a trimmed capture or dump-resources needs, and the device-address usage bit that
+     *          address-replacement requires.
+     *
+     * The resource create-overrides call this, and so does the resource aliasing groups meta-command
+     * handler, which has to query the same memory requirements replay will see.
+     *
+     * The capture-id keyed opaque-address and descriptor-buffer edits are not included: they are only
+     * reachable when address-replacement is off, and their source maps are not populated when the
+     * meta-command is processed.
+     *
+     * @param   device_info a device info struct
+     * @param   create_info the create-info to modify in place
+     */
+    void ApplyReplayCreateInfoModifications(const VulkanDeviceInfo* device_info, VkBufferCreateInfo& create_info) const;
+
+    /// @copydoc ApplyReplayCreateInfoModifications(const VulkanDeviceInfo*, VkBufferCreateInfo&) const
+    void ApplyReplayCreateInfoModifications(const VulkanDeviceInfo* device_info, VkImageCreateInfo& create_info) const;
+
+    /**
+     * @copydoc ApplyReplayCreateInfoModifications(const VulkanDeviceInfo*, VkBufferCreateInfo&) const
+     *
+     * @param   description_storage backing store for the modified VkTensorDescriptionARM, which the
+     *                              create-info points to and which must outlive the create-info.
+     */
+    void ApplyReplayCreateInfoModifications(const VulkanDeviceInfo* device_info,
+                                            VkTensorCreateInfoARM&  create_info,
+                                            VkTensorDescriptionARM& description_storage) const;
+
+    /**
+     * @brief   ResolveAliasingGroupMember queries the replay memory requirements of one aliasing group
+     *          member from the create-info the capture's metadata carries for it.
+     *
+     * The create-info goes through ApplyReplayCreateInfoModifications first, so the requirements match
+     * the resource replay will actually create.
+     *
+     * @param   device_info a device info struct
+     * @param   member      the member as decoded from the meta-data block
+     * @param   resolved    filled in on success
+     * @return  false if the member cannot be resolved, which drops its whole group.
+     */
+    bool ResolveAliasingGroupMember(const VulkanDeviceInfo*                       device_info,
+                                    const ResourceAliasingMember&                 member,
+                                    VulkanResourceAllocator::AliasingGroupMember& resolved) const;
+
     [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
                                                                       VkGraphicsPipelineCreateInfo* create_infos,
                                                                       const format::HandleId*       pipelines) const;
@@ -2324,6 +2374,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     // required for reverse lookup of handle-ids
     std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
+
+    // Devices that already received a resource aliasing groups block; a second one is ignored.
+    std::unordered_set<format::HandleId> resource_aliasing_group_devices_;
 
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:

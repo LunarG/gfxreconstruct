@@ -26,6 +26,8 @@
 // The expr_ parameter can be in the form of 'condition && "error string"'.
 // The error string will be printed if condition is false.
 #include "util/logging.h"
+
+#include <ranges>
 #ifdef NDEBUG
 #define VMA_ASSERT(expr_)
 #else
@@ -53,6 +55,7 @@
 #include "vk_mem_alloc.h"
 
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_aliasing_group_layout.h"
 #include "decode/vulkan_rebind_allocator.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
@@ -297,7 +300,6 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
                                              ResourceData*                allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
-    GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -311,6 +313,7 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
         if (result >= 0)
         {
             auto resource_alloc_info         = new ResourceAllocInfo;
+            resource_alloc_info->capture_id  = capture_id;
             resource_alloc_info->usage       = create_info->usage;
             resource_alloc_info->object_type = VK_OBJECT_TYPE_BUFFER;
             resource_alloc_info->create_size = create_info->size;
@@ -355,7 +358,6 @@ VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_
                                             ResourceData*                allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
-    GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -366,6 +368,7 @@ VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_
         if (result >= 0)
         {
             auto resource_alloc_info         = new ResourceAllocInfo;
+            resource_alloc_info->capture_id  = capture_id;
             resource_alloc_info->usage       = create_info->usage;
             resource_alloc_info->tiling      = create_info->tiling;
             resource_alloc_info->height      = create_info->extent.height;
@@ -801,6 +804,196 @@ void VulkanRebindAllocator::RemoveBoundRange(MemoryAllocInfo& memory_alloc_info,
                   [object_handle](const BoundResourceRange& r) { return r.object_handle == object_handle; });
 }
 
+void VulkanRebindAllocator::SetResourceAliasingGroups(const std::vector<AliasingGroup>& groups)
+{
+    for (const auto& [memory_id, group_id, members] : groups)
+    {
+        // A group of one places exactly like an ungrouped resource.
+        if (members.size() < 2)
+        {
+            continue;
+        }
+
+        auto& memory_groups = aliasing_groups_[memory_id];
+        if (memory_groups.contains(group_id))
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: group %u of memory %" PRIu64
+                                 " was already described; ignoring the repeat.",
+                                 group_id,
+                                 memory_id);
+            continue;
+        }
+
+        // Buffers get their alignment raised at bind time, so the shared block has to satisfy that too.
+        const AliasingGroupLayout layout = ComputeAliasingGroupLayout(members, min_buffer_alignment_);
+        if (!layout.valid)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: no single allocation can hold group %u of memory %" PRIu64
+                                 "; every member takes the per-resource path.",
+                                 group_id,
+                                 memory_id);
+            continue;
+        }
+
+        AliasingGroupInfo info;
+        info.memory_id        = memory_id;
+        info.group_id         = group_id;
+        info.base_offset      = layout.base_offset;
+        info.union_size       = layout.union_size;
+        info.alignment        = layout.alignment;
+        info.memory_type_bits = layout.memory_type_bits;
+
+        for (const auto& member : members)
+        {
+            info.members[member.resource_id] = member;
+        }
+
+        auto& entry = memory_groups[group_id] = std::move(info);
+        for (const auto& handle_id : entry.members | std::views::keys)
+        {
+            resource_aliasing_groups_[handle_id] = &entry;
+        }
+    }
+}
+
+VulkanRebindAllocator::AliasingGroupInfo*
+VulkanRebindAllocator::FindAliasingGroup(const ResourceAllocInfo& resource_alloc_info,
+                                         const MemoryAllocInfo&   memory_alloc_info)
+{
+    const auto entry = resource_aliasing_groups_.find(resource_alloc_info.capture_id);
+    if (entry == resource_aliasing_groups_.end())
+    {
+        return nullptr;
+    }
+
+    // A group belongs to one memory object; a bind into any other is not the one it describes.
+    if (entry->second->memory_id != memory_alloc_info.capture_id)
+    {
+        return nullptr;
+    }
+    return entry->second;
+}
+
+VulkanRebindAllocator::VmaMemoryInfo*
+VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    resource_alloc_info,
+                                                   MemoryAllocInfo&            memory_alloc_info,
+                                                   VkDeviceSize                memory_offset,
+                                                   const VkMemoryRequirements& replay_req,
+                                                   bool                        requires_dedicated_allocation,
+                                                   bool                        prefers_dedicated_allocation,
+                                                   VmaMemoryUsage              usage)
+{
+    AliasingGroupInfo* group = FindAliasingGroup(resource_alloc_info, memory_alloc_info);
+    if (group == nullptr || group->abandoned)
+    {
+        return nullptr;
+    }
+
+    const auto member = group->members.find(resource_alloc_info.capture_id);
+    GFXRECON_ASSERT(member != group->members.end());
+
+    if (memory_offset != member->second.bind_offset)
+    {
+        GFXRECON_LOG_WARNING("Rebind aliasing: resource %" PRIu64 " binds at offset %" PRIu64
+                             ", the metadata says %" PRIu64 ". taking the per-resource path for it.",
+                             resource_alloc_info.capture_id,
+                             memory_offset,
+                             member->second.bind_offset);
+        return nullptr;
+    }
+
+    // A resource that needs its own memory at replay cannot share the group's block.
+    if (requires_dedicated_allocation || prefers_dedicated_allocation)
+    {
+        GFXRECON_LOG_WARNING("Rebind aliasing: resource %" PRIu64 " requires a dedicated allocation at replay. "
+                             "taking the per-resource path for it.",
+                             resource_alloc_info.capture_id);
+        return nullptr;
+    }
+
+    // The shared block is created at the first bind of any member, sized for all of them.
+    if (group->allocation == nullptr)
+    {
+        VkMemoryRequirements group_req{};
+        group_req.size           = group->union_size;
+        group_req.alignment      = group->alignment;
+        group_req.memoryTypeBits = group->memory_type_bits;
+
+        // A zero captured size keeps FindVmaMemoryInfo from handing this block to an ungrouped
+        // resource: the group owns it.
+        constexpr VkMemoryRequirements no_capture_req{};
+
+        VmaMemoryInfo* group_allocation = nullptr;
+        const VkResult result           = VmaAllocateMemory(memory_alloc_info,
+                                                  group->base_offset,
+                                                  no_capture_req,
+                                                  group_req,
+                                                  false,
+                                                  false,
+                                                  VK_NULL_HANDLE,
+                                                  VK_NULL_HANDLE,
+                                                  usage,
+                                                  &group_allocation);
+        if (result < 0 || group_allocation == nullptr)
+        {
+            GFXRECON_LOG_WARNING("Rebind aliasing: allocating %" PRIu64 " bytes for group %u of memory %" PRIu64
+                                 " failed: %s. every member takes the per-resource path.",
+                                 group->union_size,
+                                 group->group_id,
+                                 group->memory_id,
+                                 util::ToString<VkResult>(result).c_str());
+            group->abandoned = true;
+            return nullptr;
+        }
+
+        group->allocation = group_allocation;
+        GFXRECON_LOG_DEBUG("Rebind aliasing: group %u of memory %" PRIu64 " holds %zu resources in %" PRIu64
+                           " bytes at base offset %" PRIu64 ".",
+                           group->group_id,
+                           group->memory_id,
+                           group->members.size(),
+                           group->union_size,
+                           group->base_offset);
+    }
+
+    // Per-member guards against the block that now exists. A member that fails one of them falls back
+    // on its own; the members already placed stay where they are.
+    const VkDeviceSize local = memory_offset - group->base_offset;
+
+    if (local + replay_req.size > group->allocation->replay_mem_req.size)
+    {
+        GFXRECON_LOG_WARNING("Rebind aliasing: resource %" PRIu64 " at relative offset %" PRIu64 " (size %" PRIu64
+                             ") exceeds the %" PRIu64 " byte group block. taking the per-resource path for it.",
+                             resource_alloc_info.capture_id,
+                             local,
+                             replay_req.size,
+                             group->allocation->replay_mem_req.size);
+        return nullptr;
+    }
+
+    if ((replay_req.memoryTypeBits & (1u << group->allocation->allocation_info.memoryType)) == 0)
+    {
+        GFXRECON_LOG_WARNING("Rebind aliasing: memory type %u of the group block is not supported by resource %" PRIu64
+                             " at replay. taking the per-resource path for it.",
+                             group->allocation->allocation_info.memoryType,
+                             resource_alloc_info.capture_id);
+        return nullptr;
+    }
+
+    const VkDeviceSize device_offset = group->allocation->allocation_info.offset + local;
+    if (replay_req.alignment != 0 && device_offset % replay_req.alignment != 0)
+    {
+        GFXRECON_LOG_WARNING("Rebind aliasing: device offset %" PRIu64 " does not satisfy the replay alignment %" PRIu64
+                             " of resource %" PRIu64 ". taking the per-resource path for it.",
+                             device_offset,
+                             replay_req.alignment,
+                             resource_alloc_info.capture_id);
+        return nullptr;
+    }
+
+    return group->allocation;
+}
+
 VkResult
 VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                                buffer,
                                                VkDeviceSize                            memory_offset,
@@ -841,6 +1034,21 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     const VkDeviceSize footprint = (capture_req.size > 0 && resource_alloc_info.create_size > 0)
                                        ? std::min(capture_req.size, resource_alloc_info.create_size)
                                        : std::max(capture_req.size, resource_alloc_info.create_size);
+
+    // A resource the capture's metadata grouped is placed by the group, and #3100 leaves it alone.
+    if (VmaMemoryInfo* grouped = FindAliasingGroupMemoryInfo(resource_alloc_info,
+                                                             memory_alloc_info,
+                                                             memory_offset,
+                                                             replay_req,
+                                                             requires_dedicated_allocation,
+                                                             prefers_dedicated_allocation,
+                                                             create_info.usage))
+    {
+        memory_alloc_info.bound_ranges.push_back(
+            { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, grouped, replay_req.size });
+        *vma_mem_info = grouped;
+        return VK_SUCCESS;
+    }
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
@@ -1175,6 +1383,24 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     // Images carry no flat create-size proxy, so the footprint is only known when the memory
     // requirement size was recorded; otherwise overlap is untestable and we use the per-resource path.
     const VkDeviceSize footprint = capture_req.size;
+
+    // A resource the capture's metadata grouped is placed by the group, and #3100 leaves it alone.
+    if (VmaMemoryInfo* grouped = FindAliasingGroupMemoryInfo(resource_alloc_info,
+                                                             memory_alloc_info,
+                                                             memory_offset,
+                                                             replay_req,
+                                                             requires_dedicated_allocation,
+                                                             prefers_dedicated_allocation,
+                                                             create_info.usage))
+    {
+        memory_alloc_info.bound_ranges.push_back({ .object_handle = VK_HANDLE_TO_UINT64(image),
+                                                   .offset        = memory_offset,
+                                                   .footprint     = footprint,
+                                                   .vma_mem_info  = grouped,
+                                                   .replay_size   = replay_req.size });
+        *vma_mem_info = grouped;
+        return VK_SUCCESS;
+    }
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
@@ -3096,6 +3322,19 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
                 vmaFreeMemory(allocator_, mem_info->allocation);
             }
 
+            // An aliasing group holding this block loses it, so a later member allocates a new one.
+            if (auto memory_groups = aliasing_groups_.find(mem_alc_info->capture_id);
+                memory_groups != aliasing_groups_.end())
+            {
+                for (auto& group_info : memory_groups->second | std::views::values)
+                {
+                    if (group_info.allocation == mem_info)
+                    {
+                        group_info.allocation = nullptr;
+                    }
+                }
+            }
+
             for (auto entry = mem_alc_info->vma_mem_infos.begin(); entry != mem_alc_info->vma_mem_infos.end();)
             {
                 if (entry->get() == mem_info)
@@ -3103,10 +3342,7 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
                     mem_alc_info->vma_mem_infos.erase(entry);
                     break;
                 }
-                else
-                {
-                    ++entry;
-                }
+                ++entry;
             }
         }
 
@@ -3636,7 +3872,6 @@ VkResult VulkanRebindAllocator::CreateTensor(const VkTensorCreateInfoARM* create
                                              ResourceData*                allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
-    GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -3647,6 +3882,7 @@ VkResult VulkanRebindAllocator::CreateTensor(const VkTensorCreateInfoARM* create
         if (result >= 0)
         {
             auto resource_alloc_info         = new ResourceAllocInfo;
+            resource_alloc_info->capture_id  = capture_id;
             resource_alloc_info->usage       = create_info->pDescription->usage;
             resource_alloc_info->object_type = VK_OBJECT_TYPE_TENSOR_ARM;
             (*allocator_data)                = reinterpret_cast<uintptr_t>(resource_alloc_info);
@@ -3788,6 +4024,24 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     create_info.pUserData      = nullptr;
 
     const VkDeviceSize footprint = capture_req.size;
+
+    // A resource the capture's metadata grouped is placed by the group, and #3100 leaves it alone.
+    if (VmaMemoryInfo* grouped = FindAliasingGroupMemoryInfo(resource_alloc_info,
+                                                             memory_alloc_info,
+                                                             memory_offset,
+                                                             replay_req,
+                                                             requires_dedicated_allocation,
+                                                             prefers_dedicated_allocation,
+                                                             create_info.usage))
+    {
+        memory_alloc_info.bound_ranges.push_back({ .object_handle = VK_HANDLE_TO_UINT64(tensor),
+                                                   .offset        = memory_offset,
+                                                   .footprint     = footprint,
+                                                   .vma_mem_info  = grouped,
+                                                   .replay_size   = replay_req.size });
+        *vma_mem_info = grouped;
+        return VK_SUCCESS;
+    }
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
