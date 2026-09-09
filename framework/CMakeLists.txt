@@ -3,6 +3,7 @@ add_subdirectory(plugin)
 add_subdirectory(graphics)
 add_subdirectory(format)
 add_subdirectory(encode)
+add_subdirectory(schema)
 add_subdirectory(decode)
 add_subdirectory(application)
 
@@ -11,6 +12,8 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_framework_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_arm_data_graph_structs.cpp>
+            $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_schema.cpp>
+            $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_checks.cpp>
             ${CMAKE_CURRENT_LIST_DIR}/../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_framework_test PRIVATE gfxrecon_encode gfxrecon_decode)
     if (MSVC)

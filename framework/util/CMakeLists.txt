@@ -131,6 +131,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.h
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/thread_safe_queue.h
+                    ${CMAKE_CURRENT_LIST_DIR}/type_list.h
                     ${CMAKE_CURRENT_LIST_DIR}/type_traits_extras.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
