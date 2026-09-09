@@ -74,6 +74,10 @@ const HandleId kNullHandleId              = 0;
 const size_t   kAdapterDescriptionSize    = 128;
 const int8_t   kNoneIndex                 = -1;
 
+// Layout version of the resource aliasing groups meta-data block.  A reader refuses a block it does not
+// know the layout of; a purely additive change goes into a new per-member property instead of a bump.
+const uint32_t kResourceAliasingGroupsLayoutVersion = 1;
+
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
 constexpr char kAnnotationLabelOperation[]           = "operation";
@@ -180,6 +184,7 @@ enum class MetaDataType : uint16_t
     kReserved45                                         = 45, // LunarG internal use
     kReserved46                                         = 46, // LunarG internal use
     kReserved47                                         = 47, // LunarG internal use
+    kResourceAliasingGroupsCommand                      = 48,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -250,6 +255,21 @@ enum ResizeWindowPreTransform : uint32_t
 struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
+};
+
+// Resource type for members of resource aliasing groups.
+enum class ResourceAliasingResourceType : uint32_t
+{
+    kBuffer = 0,
+    kImage  = 1,
+    kTensor = 2,
+};
+
+// Per-member properties of a resource aliasing group.
+enum class ResourceAliasingPropertyId : uint32_t
+{
+    kUnknown    = 0,
+    kCreateInfo = 1, // The member's create-info, written by the generated struct encoders.
 };
 
 // Resource values are values contained in resource data that may require special handling (e.g., mapping for replay).
@@ -808,6 +828,47 @@ struct InitializeMetaCommand
     // In the capture file, initialize metacommand data is written in the following order:
     // InitializeMetaCommandHeder
     // parameters data
+};
+
+// Groups of resources that alias one another inside a single device memory object, written by
+// gfxrecon-optimize after the vkCreateDevice of the device the groups belong to.  In the capture file the
+// block is written in the following order:
+//   ResourceAliasingGroupsCommandHeader
+//   group_count x
+//       ResourceAliasingGroupHeader
+//       member_count x
+//           ResourceAliasingMemberHeader
+//           property_count x
+//               ResourceAliasingPropertyHeader
+//               property_size bytes of property payload
+struct ResourceAliasingGroupsCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    uint32_t         layout_version; // kResourceAliasingGroupsLayoutVersion the block was written with.
+    uint32_t         group_count;
+};
+
+struct ResourceAliasingGroupHeader
+{
+    format::HandleId memory_id;    // Capture handle id of the memory the group's members are bound to.
+    uint32_t         group_id;     // Identifies the group within the block, >= 1.
+    uint32_t         member_count; // >= 2, a group of one is not an alias.
+};
+
+struct ResourceAliasingMemberHeader
+{
+    uint32_t         resource_type; // One of the ResourceAliasingResourceType values.
+    uint32_t         property_count;
+    format::HandleId resource_id; // Capture handle id of the buffer, image or tensor.
+    uint64_t         bind_offset; // Captured memory offset the member was bound at.
+};
+
+struct ResourceAliasingPropertyHeader
+{
+    uint32_t property_id;   // One of the ResourceAliasingPropertyId values.
+    uint32_t property_size; // Bytes of payload following this header.
 };
 
 // Restore size_t to normal behavior.
