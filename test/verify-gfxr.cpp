@@ -270,6 +270,17 @@ int run_command(const std::filesystem::path& working_directory,
     return result;
 }
 
+// Remove the outputs of an earlier run. When they stay in place and the app writes no capture, the
+// convert step reads the old file and the case passes for the wrong reason.
+void remove_previous_outputs(std::initializer_list<std::filesystem::path> paths)
+{
+    for (const auto& path : paths)
+    {
+        std::error_code error;
+        std::filesystem::remove(path, error);
+    }
+}
+
 void run_in_background(const char* test_name)
 {
     Paths paths{ test_name, nullptr, false };
@@ -291,9 +302,14 @@ void run_trimming_app(const Paths& paths, const char* test_name, const char* tri
         env_vars.SetEnv("GFXRECON_CAPTURE_TRIGGER", "F12");
     }
 
+    remove_previous_outputs(
+        { paths.capture_trimming_path, paths.app_trimming_json_path, paths.known_good_trimming_json_path });
+
     auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.full_executable_path << " in path "
                          << paths.working_directory;
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_trimming_path))
+        << "trimmed capture file was not produced: " << paths.capture_trimming_path;
 
     env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
     env_vars.UnsetEnv("GFXRECON_CAPTURE_TRIGGER");
@@ -332,11 +348,14 @@ void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigge
     bool workind_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(workind_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
+    remove_previous_outputs({ paths.capture_path, paths.app_json_path, paths.known_good_json_path });
+
     // run app
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
 
     // convert actual gfxr
     result = run_command(paths.base_path, paths.convert_path, { paths.capture_path.string() });
@@ -521,6 +540,10 @@ void capture_and_verify_screenshots(const char* test_name, std::vector<std::stri
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
+    std::filesystem::path replay_capture_path{ paths.base_path };
+    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    remove_previous_outputs({ paths.capture_path, replay_capture_path });
+
     // Run the app with capture enabled to produce the gfxr to replay.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
@@ -529,9 +552,9 @@ void capture_and_verify_screenshots(const char* test_name, std::vector<std::stri
 
     ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
 
-    // The capture layer is still enabled, so give the replay step a throwaway capture path (see capture_and_replay).
-    std::filesystem::path replay_capture_path{ paths.base_path };
-    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    // The gfxreconstruct capture layer is still enabled in the environment, so point GFXRECON_CAPTURE_FILE at a
+    // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
+    // input gfxr we are about to read.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
 
     // The screenshots and the results json carry this prefix and land in the test directory, where replay runs. With
