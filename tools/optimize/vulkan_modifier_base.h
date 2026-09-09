@@ -29,7 +29,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-// A Vulkan consumer that VulkanFileOptimizer can run as a modifier.
+/**
+ * @brief   A Vulkan consumer that VulkanFileOptimizer can run as a modifier.
+ */
 class VulkanModifierBase : public decode::VulkanConsumer, public CallModifierBase
 {
   public:
