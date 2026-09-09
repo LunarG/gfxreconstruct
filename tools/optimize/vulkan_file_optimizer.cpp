@@ -26,7 +26,6 @@
 #include "decode/decode_allocator.h"
 #include "decode/file_processor_visitors.h"
 #include "format/format.h"
-#include "util/logging.h"
 
 #include <cstring>
 #include <string>
@@ -91,8 +90,7 @@ bool VulkanFileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
         return false;
     }
 
-    // Meta-data blocks carry no call parameters. The buffer is still passed so that the modifiers
-    // can tell the modification pass from the scan pass.
+    // Meta-data blocks carry no call parameters, but a BlockEdit still needs one to reference.
     encode::ParameterBuffer buffer;
 
     auto dispatch_visitor = [this, &parsed_block, &buffer](const auto& store) {
@@ -118,9 +116,7 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
                                            decode::ParsedBlock&     parsed_block,
                                            encode::ParameterBuffer& buffer)
 {
-    bool                                                        delete_current_call = false;
-    std::vector<std::unique_ptr<CallModifierBase::NewCallData>> new_pre_calls;
-    std::vector<std::unique_ptr<CallModifierBase::NewCallData>> new_post_calls;
+    BlockEdit block_edit(buffer);
 
     if (decode::file_processor::DecoderSupportsDispatch(decoder_, args))
     {
@@ -136,26 +132,22 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
         for (auto& modifier : modifiers_)
         {
             modifier->SetCurrentBlockIndex(GetCurrentBlockIndex());
-            modifier->SetParameterBuffer(&buffer);
+            modifier->SetCurrentBlockEdit(&block_edit);
             decoder_.AddConsumer(modifier.get());
             std::apply(dispatch_call, args.GetTuple());
             decoder_.RemoveConsumer(modifier.get());
-
-            delete_current_call |= modifier->TakeDeleteCurrentCall();
-            modifier->AppendPreCalls(new_pre_calls);
-            modifier->AppendPostCalls(new_post_calls);
+            modifier->SetCurrentBlockEdit(nullptr);
         }
     }
 
-    if (!WriteNewCalls(new_pre_calls))
+    if (!WriteQueuedCalls(block_edit.Calls(BlockEdit::Position::kBefore)))
     {
         return false;
     }
 
-    if (delete_current_call)
+    if (block_edit.IsBlockDropped())
     {
-        // Replace the block with an annotation, so that block indices stay aligned with the ones
-        // computed at capture time.
+        // Replace the block with an annotation, so that block indices stay aligned.
         ++num_removed_blocks_;
 
         bool written = false;
@@ -184,8 +176,10 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
             // Pass the original block through untouched unless a modifier rewrote its parameters.
             const bool rewritten = (buffer.GetDataSize() != args.data_size) ||
                                    (std::memcmp(buffer.GetData(), args.data, args.data_size) != 0);
-            written = rewritten ? WriteFunctionCall(args.call_id, args.call_info.thread_id, buffer)
-                                : FileTransformer::WriteBytes(parsed_block);
+            written =
+                rewritten
+                    ? WriteFunctionCall(args.call_id, args.call_info.thread_id, buffer.GetData(), buffer.GetDataSize())
+                    : FileTransformer::WriteBytes(parsed_block);
         }
         else
         {
@@ -198,33 +192,30 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
         }
     }
 
-    return WriteNewCalls(new_post_calls);
+    return WriteQueuedCalls(block_edit.Calls(BlockEdit::Position::kAfter));
 }
 
-bool VulkanFileOptimizer::WriteNewCalls(const std::vector<std::unique_ptr<CallModifierBase::NewCallData>>& new_calls)
+bool VulkanFileOptimizer::WriteQueuedCalls(const std::vector<BlockEdit::QueuedCall>& calls)
 {
-    for (const auto& new_call : new_calls)
+    for (const auto& call : calls)
     {
-        switch (new_call->type)
+        switch (call.kind)
         {
-            case CallModifierBase::kApiCall:
-                if (!WriteFunctionCall(new_call->call_id, new_call->thread_id, new_call->parameter_buffer))
+            case BlockEdit::CallType::kApiCall:
+                if (!WriteFunctionCall(call.call_id, call.thread_id, call.data.data(), call.data.size()))
                 {
                     return false;
                 }
                 break;
-            case CallModifierBase::kMetaDataCall:
+            case BlockEdit::CallType::kMetaCommand:
                 // Meta-commands use custom structs and are not compressed, so the modifier has
                 // already serialised the whole block.
-                if (!WriteBytes(new_call->parameter_buffer.GetData(), new_call->parameter_buffer.GetDataSize()))
+                if (!WriteBytes(call.data.data(), call.data.size()))
                 {
                     HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write meta-command data");
                     return false;
                 }
                 break;
-            default:
-                GFXRECON_LOG_ERROR("Modifier queued a call of unrecognized type %d", new_call->type);
-                return false;
         }
     }
     return true;
@@ -232,14 +223,15 @@ bool VulkanFileOptimizer::WriteNewCalls(const std::vector<std::unique_ptr<CallMo
 
 // NOTE: This is the same code CaptureManager uses to write function call data. It could be moved to
 // a format utility.
-bool VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId               call_id,
-                                            format::ThreadId                thread_id,
-                                            const util::MemoryOutputStream& parameter_buffer)
+bool VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId call_id,
+                                            format::ThreadId  thread_id,
+                                            const uint8_t*    data,
+                                            size_t            size)
 {
     bool                                 not_compressed      = true;
     format::CompressedFunctionCallHeader compressed_header   = {};
     format::FunctionCallHeader           uncompressed_header = {};
-    size_t                               uncompressed_size   = parameter_buffer.GetDataSize();
+    size_t                               uncompressed_size   = size;
     size_t                               header_size         = 0;
     const void*                          header_pointer      = nullptr;
     size_t                               data_size           = 0;
@@ -250,8 +242,7 @@ bool VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId               call
 
     if (compressor != nullptr)
     {
-        size_t compressed_size =
-            compressor->Compress(uncompressed_size, parameter_buffer.GetData(), &compressed_parameter_buffer, 0);
+        size_t compressed_size = compressor->Compress(uncompressed_size, data, &compressed_parameter_buffer, 0);
 
         if ((0 < compressed_size) && (compressed_size < uncompressed_size))
         {
@@ -273,7 +264,7 @@ bool VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId               call
 
     if (not_compressed)
     {
-        data_pointer   = parameter_buffer.GetData();
+        data_pointer   = data;
         data_size      = uncompressed_size;
         header_pointer = &uncompressed_header;
         header_size    = sizeof(format::FunctionCallHeader);
