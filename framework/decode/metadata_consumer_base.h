@@ -27,6 +27,7 @@
 
 #include "util/defines.h"
 #include "format/format.h"
+#include "decode/vulkan_resource_aliasing_groups.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -140,6 +141,10 @@ class MetadataConsumerBase
     virtual void ProcessVulkanWriteAccelerationStructuresPropertiesCommand(format::HandleId device_id,
                                                                            VkQueryType      query_type,
                                                                            format::HandleId acceleration_structure_id)
+    {}
+
+    virtual void ProcessResourceAliasingGroupsCommand(format::HandleId                          device_id,
+                                                      const std::vector<ResourceAliasingGroup>& groups)
     {}
 
     virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, const format::ViewRelativeLocation& location) {

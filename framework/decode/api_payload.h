@@ -526,6 +526,19 @@ template <>
 struct DispatchHasAllocGuard<VulkanAccelerationStructuresWritePropertiesMetaArgs> : std::true_type
 {};
 
+struct ResourceAliasingGroupsArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    const uint8_t* parameter_buffer;
+    size_t         buffer_size;
+
+    auto GetTuple() const { return std::tie(parameter_buffer, buffer_size); }
+};
+template <>
+struct DispatchHasAllocGuard<ResourceAliasingGroupsArgs> : std::true_type
+{};
+
 struct ViewRelativeLocationArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
@@ -815,6 +828,12 @@ struct DispatchTraits<VulkanAccelerationStructuresWritePropertiesMetaArgs>
 };
 
 template <>
+struct DispatchTraits<ResourceAliasingGroupsArgs> : DispatchFlagTraits<ResourceAliasingGroupsArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchResourceAliasingGroupsCommand;
+};
+
+template <>
 struct DispatchTraits<ViewRelativeLocationArgs> : DispatchFlagTraits<ViewRelativeLocationArgs>
 {
     static constexpr auto kDecoderMethod = &ApiDecoder::DispatchViewRelativeLocation;
@@ -908,6 +927,7 @@ using DispatchArgs = std::variant<std::monostate,
                                   VulkanAccelerationStructuresBuildMetaArgs*,
                                   VulkanAccelerationStructuresCopyMetaArgs*,
                                   VulkanAccelerationStructuresWritePropertiesMetaArgs*,
+                                  ResourceAliasingGroupsArgs*,
                                   ViewRelativeLocationArgs*,
                                   InitializeMetaArgs*,
                                   ExtendedMetaDataArgs*,
