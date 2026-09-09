@@ -387,3 +387,20 @@ TEST_CASE("ReplayEventPluginLoader - read load", "[plugin]")
     plugin->QueueSubmitEnd(0, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
     plugin->FrameEnd();
 }
+
+TEST_CASE("ReplayEventPluginLoader - state setup markers", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    TestReplayEventSink event_sink;
+
+    event_sink.StateSetupBegin();
+    REQUIRE(event_sink.last_event_header.type == GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN);
+    event_sink.StateSetupEnd();
+    REQUIRE(event_sink.last_event_header.type == GFXR_REPLAY_EVENT_STATE_SETUP_END);
+
+    auto plugin = LoadPlugin({ SAMPLE_PLUGIN_PATH });
+    REQUIRE(plugin != nullptr);
+    plugin->StateSetupBegin();
+    plugin->StateSetupEnd();
+}

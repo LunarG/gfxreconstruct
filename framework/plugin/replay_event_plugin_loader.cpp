@@ -35,8 +35,8 @@ static bool IsValidPluginStructSize(const GfxrReplayPluginV1* plugin)
 static bool IsValidPlugin(const GfxrReplayPluginV1* plugin, uint32_t& negotiated_version)
 {
     bool is_valid = plugin != nullptr && plugin->abi_version >= GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION &&
-           plugin->abi_version <= GFXR_REPLAY_PLUGIN_ABI_VERSION &&
-           IsValidPluginStructSize(plugin) && plugin->destroy != nullptr && plugin->on_event != nullptr;
+                    plugin->abi_version <= GFXR_REPLAY_PLUGIN_ABI_VERSION && IsValidPluginStructSize(plugin) &&
+                    plugin->destroy != nullptr && plugin->on_event != nullptr;
     if (is_valid)
     {
         // Negotiate supported plugin ABI version

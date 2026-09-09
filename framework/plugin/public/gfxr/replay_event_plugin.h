@@ -47,8 +47,8 @@ typedef enum GfxrReplayEventType
     GFXR_REPLAY_EVENT_FRAME_END          = 4,
 
     // Provided by ABI v2
-    GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN  = 5,
-    GFXR_REPLAY_EVENT_STATE_SETUP_END    = 6,
+    GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN = 5,
+    GFXR_REPLAY_EVENT_STATE_SETUP_END   = 6,
 } GfxrReplayEventType;
 
 static_assert(sizeof(GfxrReplayEventType) == sizeof(uint32_t));
