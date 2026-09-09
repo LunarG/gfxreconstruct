@@ -24,6 +24,7 @@
 #define GFXRECON_OPTIMIZE_VULKAN_FEATURE_H
 
 #include "optimize_feature.h"
+#include "vulkan_file_optimizer.h"
 
 #include "decode/vulkan_detection_consumer.h"
 #include "format/format.h"
@@ -54,13 +55,17 @@ class OptimizeVulkanFeature : public OptimizeFeature
 
   private:
     // Pass 1: collect handles that were never referenced in a command buffer submission.
-    bool GetUnreferencedResources(const std::string&                    input_filename,
-                                  std::unordered_set<format::HandleId>& unreferenced_ids);
+    static bool GetUnreferencedResources(const std::string&                    input_filename,
+                                         std::unordered_set<format::HandleId>& unreferenced_ids);
 
-    // Passes 2-3: determine unreferenced block indices, then write the filtered output file.
-    bool FilterUnreferencedResources(const std::string&                          input_filename,
-                                     const std::string&                          output_filename,
-                                     const std::unordered_set<format::HandleId>& unreferenced_ids);
+    // Pass 2: let each modifier collect the state it needs, and keep the ones that found work.
+    static bool ScanForModifiers(const std::string& input_filename, VulkanFileOptimizer::Modifiers& modifiers);
+
+    // Passes 3-4: determine unreferenced block indices, then write the optimized output file.
+    bool WriteOptimizedFile(const std::string&                          input_filename,
+                            const std::string&                          output_filename,
+                            const std::unordered_set<format::HandleId>& unreferenced_ids,
+                            VulkanFileOptimizer::Modifiers              modifiers);
 
     std::unique_ptr<decode::VulkanDetectionConsumer> detection_consumer_;
     std::unique_ptr<decode::VulkanDecoder>           detection_decoder_;
