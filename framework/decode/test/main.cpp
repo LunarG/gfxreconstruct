@@ -39,6 +39,7 @@
 
 #include "decode/block_parser.h"
 
+#include <limits>
 #include <vector>
 
 const VkBuffer                   kBufferHandles[] = { gfxrecon::format::FromHandleId<VkBuffer>(0xabcd),
@@ -942,4 +943,135 @@ TEST_CASE("A resource aliasing groups member skips a property it does not know",
     REQUIRE(recorder.groups[1].members[1].resource_id == 201);
 
     decode::DecodeAllocator::End();
+}
+
+// ---------------------------------------------------------------------------------------------------------
+
+#include "decode/vulkan_aliasing_group_layout.h"
+
+namespace
+{
+
+using gfxrecon::decode::VulkanResourceAllocator;
+
+VulkanResourceAllocator::AliasingGroupMember MakeAliasingMember(gfxrecon::format::HandleId id,
+                                                                VkDeviceSize               offset,
+                                                                VkDeviceSize               size,
+                                                                VkDeviceSize               alignment,
+                                                                uint32_t memory_type_bits = 0xffffffff)
+{
+    VulkanResourceAllocator::AliasingGroupMember member;
+    member.resource_id                 = id;
+    member.bind_offset                 = offset;
+    member.requirements.size           = size;
+    member.requirements.alignment      = alignment;
+    member.requirements.memoryTypeBits = memory_type_bits;
+    return member;
+}
+
+} // namespace
+
+TEST_CASE("An aliasing group is sized from the union of its members", "[rebind]")
+{
+    SECTION("members at one offset need the largest of them")
+    {
+        // vulkan_compute_aliasing: a 4915200 byte buffer and a 1228800 byte image, both at offset 0.
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 4915200, 256), MakeAliasingMember(2, 0, 1228800, 1024) }, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.base_offset == 0);
+        REQUIRE(layout.union_size == 4915200);
+        REQUIRE(layout.alignment == 1024);
+    }
+
+    SECTION("a member reaching past the largest one extends the union")
+    {
+        // vulkan_aliasing_2: 1024 bytes at 0 and 1536 bytes at 512, so the union runs to 2048.
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 1024, 256), MakeAliasingMember(2, 512, 1536, 256) }, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.base_offset == 0);
+        REQUIRE(layout.union_size == 2048);
+    }
+
+    SECTION("the base is the smallest bind offset, and the union is relative to it")
+    {
+        // vulkan_aliasing_5: two 512 byte buffers at 4096.
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 4096, 512, 256), MakeAliasingMember(2, 4096, 512, 256) }, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.base_offset == 4096);
+        REQUIRE(layout.union_size == 512);
+    }
+
+    SECTION("nested members at three offsets all fit under the outermost")
+    {
+        // vulkan_aliasing_multilevel_containment: 8448 at 0 contains 4352 at 4096 contains 256 at 8192.
+        const std::vector<VulkanResourceAllocator::AliasingGroupMember> members{ MakeAliasingMember(1, 0, 8448, 256),
+                                                                                 MakeAliasingMember(2, 4096, 4352, 256),
+                                                                                 MakeAliasingMember(
+                                                                                     3, 8192, 256, 256) };
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(members, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.union_size == 8448);
+    }
+
+    SECTION("the union is rounded up to the alignment")
+    {
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 1000, 1024), MakeAliasingMember(2, 0, 512, 256) }, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.alignment == 1024);
+        REQUIRE(layout.union_size == 1024);
+    }
+
+    SECTION("the minimum alignment applies when no member asks for more")
+    {
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 64, 16), MakeAliasingMember(2, 0, 32, 16) }, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.alignment == 128);
+        REQUIRE(layout.union_size == 128);
+    }
+
+    SECTION("only the memory types every member accepts survive")
+    {
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 512, 256, 0b1110), MakeAliasingMember(2, 0, 512, 256, 0b0111) }, 128);
+
+        REQUIRE(layout.valid);
+        REQUIRE(layout.memory_type_bits == 0b0110);
+    }
+}
+
+TEST_CASE("An aliasing group that cannot be allocated is rejected", "[rebind]")
+{
+    SECTION("members sharing no memory type")
+    {
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 512, 256, 0b0001), MakeAliasingMember(2, 0, 512, 256, 0b0010) }, 128);
+
+        REQUIRE_FALSE(layout.valid);
+    }
+
+    SECTION("an empty group")
+    {
+        REQUIRE_FALSE(gfxrecon::decode::ComputeAliasingGroupLayout({}, 128).valid);
+    }
+
+    SECTION("a member whose extent overflows")
+    {
+        const auto layout = gfxrecon::decode::ComputeAliasingGroupLayout(
+            { MakeAliasingMember(1, 0, 512, 256),
+              MakeAliasingMember(2, 4096, std::numeric_limits<VkDeviceSize>::max(), 256) },
+            128);
+
+        REQUIRE_FALSE(layout.valid);
+    }
 }

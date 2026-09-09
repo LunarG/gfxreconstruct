@@ -6940,27 +6940,10 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto               replay_create_info   = pCreateInfo->GetPointer();
     VkBufferCreateInfo modified_create_info = *replay_create_info;
 
-    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
-    if (external_memory != nullptr && !CanPreserveExternalMemory(device_info) &&
-        (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT))
-    {
-        if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
-        {
-            graphics::vulkan_struct_remove_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
-        }
-        else
-        {
-            external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
-        }
-    }
+    ApplyReplayCreateInfoModifications(device_info, modified_create_info);
 
     // Check for a buffer device address.
     bool uses_address = false;
-
-    // when using opaque addresses (-m rebind), force support for VkBufferDeviceAddress to allow sanitizing
-    bool force_address =
-        UseAddressReplacement(device_info) && (replay_create_info->usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ||
-                                               replay_create_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
@@ -6975,22 +6958,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     auto* buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
     GFXRECON_ASSERT(buffer_info != nullptr);
-
-    // replaying a trimmed capture or dump-resources will require us to copy from buffers
-    if (replaying_trimmed_capture_ || options_.dumping_resources)
-    {
-        if (loading_trim_state_)
-        {
-            // ensure buffer-initialization can copy
-            modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        }
-
-        // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
-        // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
-        // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
-        // VK_BUFFER_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
-        modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    }
 
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay &&
         !UseAddressReplacement(device_info))
@@ -7045,10 +7012,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
             GFXRECON_LOG_DEBUG("Opaque device address is not available for VkBuffer object (ID = %" PRIu64 ")",
                                capture_id);
         }
-    }
-    else if (force_address)
-    {
-        modified_create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
 
     result = allocator->CreateBuffer(
@@ -7163,30 +7126,16 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto              replay_create_info   = pCreateInfo->GetPointer();
     VkImageCreateInfo modified_create_info = *replay_create_info;
 
+    ApplyReplayCreateInfoModifications(device_info, modified_create_info);
+
+    // The external-memory and external-format state the helper left behind, for the bookkeeping below.
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
+    auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(&modified_create_info);
+    bool  has_external_format = external_format != nullptr && external_format->externalFormat != 0;
+
     VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
         VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
     };
-
-    // replaying a trimmed capture, dump-resources or present-override might require us to copy from images
-    // NOTE: we skip TRANSFER_SRC_BIT flag when other incompatible flags are present
-    if ((replaying_trimmed_capture_ || options_.dumping_resources || !options_.present_override_image_name.empty()) &&
-        (modified_create_info.usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0)
-    {
-        // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
-        // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
-        // vkBindImageMemory failures due to memory requirement mismatch during replay. So here we add
-        // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
-
-        // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images.
-        // --present-override blits from an arbitrary image, which is only legal with the same flag.
-        modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-
-        if (loading_trim_state_)
-        {
-            // ensure image-initialization can copy
-            modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        }
-    }
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
@@ -7203,36 +7152,6 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         {
             GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkImage object (ID = %" PRIu64 ")",
                                capture_id);
-        }
-    }
-
-    // The original image might be external and it might be an unknown format, so perform any
-    // work necessary to handle these scenarios.
-    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
-    auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(&modified_create_info);
-    bool  has_external_format = external_format != nullptr && external_format->externalFormat != 0;
-    if (external_memory != nullptr)
-    {
-        if (modified_create_info.format == VK_FORMAT_UNDEFINED && has_external_format)
-        {
-            // In this case, the image has been sampled at capture time and format is now RGBA8_UNORM.
-            modified_create_info.format     = VK_FORMAT_R8G8B8A8_UNORM;
-            external_format->externalFormat = 0;
-            has_external_format             = false;
-        }
-
-        if (!CanPreserveExternalMemory(device_info) &&
-            (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT))
-        {
-            if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
-            {
-                graphics::vulkan_struct_remove_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
-                external_memory = nullptr;
-            }
-            else
-            {
-                external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
-            }
         }
     }
 
@@ -12933,6 +12852,298 @@ bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo*
     return GetDeviceTable(device_info->handle)->GetMemoryFdKHR != graphics::noop::vkGetMemoryFdKHR;
 }
 
+void VulkanReplayConsumerBase::ApplyReplayCreateInfoModifications(const VulkanDeviceInfo* device_info,
+                                                                  VkBufferCreateInfo&     create_info) const
+{
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&create_info);
+    if (external_memory != nullptr && !CanPreserveExternalMemory(device_info) &&
+        (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT))
+    {
+        if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+        {
+            graphics::vulkan_struct_remove_pnext<VkExternalMemoryBufferCreateInfo>(&create_info);
+        }
+        else
+        {
+            external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+        }
+    }
+
+    // replaying a trimmed capture or dump-resources will require us to copy from buffers
+    if (replaying_trimmed_capture_ || options_.dumping_resources)
+    {
+        if (loading_trim_state_)
+        {
+            // ensure buffer-initialization can copy
+            create_info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        }
+
+        // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
+        // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
+        // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
+        // VK_BUFFER_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
+        create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+
+    // when using opaque addresses (-m rebind), force support for VkBufferDeviceAddress to allow sanitizing
+    if (UseAddressReplacement(device_info) &&
+        (create_info.usage & (VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)))
+    {
+        create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+    }
+}
+
+void VulkanReplayConsumerBase::ApplyReplayCreateInfoModifications(const VulkanDeviceInfo* device_info,
+                                                                  VkImageCreateInfo&      create_info) const
+{
+    // replaying a trimmed capture, dump-resources or present-override might require us to copy from images
+    // NOTE: we skip TRANSFER_SRC_BIT flag when other incompatible flags are present
+    if ((replaying_trimmed_capture_ || options_.dumping_resources || !options_.present_override_image_name.empty()) &&
+        (create_info.usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0)
+    {
+        // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
+        // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
+        // vkBindImageMemory failures due to memory requirement mismatch during replay. So here we add
+        // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
+
+        // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images.
+        // --present-override blits from an arbitrary image, which is only legal with the same flag.
+        create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+        if (loading_trim_state_)
+        {
+            // ensure image-initialization can copy
+            create_info.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        }
+    }
+
+    // The original image might be external and it might be an unknown format, so perform any
+    // work necessary to handle these scenarios.
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(&create_info);
+    auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(&create_info);
+    if (external_memory != nullptr)
+    {
+        if (create_info.format == VK_FORMAT_UNDEFINED && external_format != nullptr &&
+            external_format->externalFormat != 0)
+        {
+            // In this case, the image has been sampled at capture time and format is now RGBA8_UNORM.
+            create_info.format              = VK_FORMAT_R8G8B8A8_UNORM;
+            external_format->externalFormat = 0;
+        }
+
+        if (!CanPreserveExternalMemory(device_info) &&
+            (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT))
+        {
+            if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+            {
+                graphics::vulkan_struct_remove_pnext<VkExternalMemoryImageCreateInfo>(&create_info);
+            }
+            else
+            {
+                external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::ApplyReplayCreateInfoModifications(const VulkanDeviceInfo* device_info,
+                                                                  VkTensorCreateInfoARM&  create_info,
+                                                                  VkTensorDescriptionARM& description_storage) const
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+
+    // inject TRANSFER-usage bits when replaying a trimmed capture. needed for initialization
+    if (replaying_trimmed_capture_ && create_info.pDescription != nullptr)
+    {
+        description_storage = *create_info.pDescription;
+        description_storage.usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
+        description_storage.usage |= VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM;
+        create_info.pDescription = &description_storage;
+    }
+}
+
+bool VulkanReplayConsumerBase::ResolveAliasingGroupMember(const VulkanDeviceInfo*                       device_info,
+                                                          const ResourceAliasingMember&                 member,
+                                                          VulkanResourceAllocator::AliasingGroupMember& resolved) const
+{
+    const auto* device_table = GetDeviceTable(device_info->handle);
+
+    VkMemoryDedicatedRequirements dedicated_requirements{ VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS };
+    VkMemoryRequirements2         requirements{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2, &dedicated_requirements };
+
+    if (const auto* decoder = std::get_if<StructPointerDecoder<Decoded_VkBufferCreateInfo>>(&member.create_info))
+    {
+        const VkBufferCreateInfo* create_info = decoder->GetPointer();
+        if (create_info == nullptr)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: buffer %" PRIu64 " carries no create-info.",
+                                 member.resource_id);
+            return false;
+        }
+
+        auto get_requirements = device_table->GetDeviceBufferMemoryRequirements;
+        if (get_requirements == graphics::noop::vkGetDeviceBufferMemoryRequirements)
+        {
+            get_requirements = device_table->GetDeviceBufferMemoryRequirementsKHR;
+        }
+        if (get_requirements == graphics::noop::vkGetDeviceBufferMemoryRequirementsKHR)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device has no "
+                                 "vkGetDeviceBufferMemoryRequirements (VK_KHR_maintenance4).");
+            return false;
+        }
+
+        VkBufferCreateInfo modified_create_info = *create_info;
+        ApplyReplayCreateInfoModifications(device_info, modified_create_info);
+
+        VkDeviceBufferMemoryRequirements info{ VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS };
+        info.pCreateInfo = &modified_create_info;
+        get_requirements(device_info->handle, &info, &requirements);
+    }
+    else if (const auto* decoder = std::get_if<StructPointerDecoder<Decoded_VkImageCreateInfo>>(&member.create_info))
+    {
+        const VkImageCreateInfo* create_info = decoder->GetPointer();
+        if (create_info == nullptr)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: image %" PRIu64 " carries no create-info.",
+                                 member.resource_id);
+            return false;
+        }
+
+        // A disjoint image has one requirement per plane, which a group cannot be sized from.
+        if ((create_info->flags & VK_IMAGE_CREATE_DISJOINT_BIT) != 0)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: image %" PRIu64 " is disjoint.", member.resource_id);
+            return false;
+        }
+
+        auto get_requirements = device_table->GetDeviceImageMemoryRequirements;
+        if (get_requirements == graphics::noop::vkGetDeviceImageMemoryRequirements)
+        {
+            get_requirements = device_table->GetDeviceImageMemoryRequirementsKHR;
+        }
+        if (get_requirements == graphics::noop::vkGetDeviceImageMemoryRequirementsKHR)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device has no "
+                                 "vkGetDeviceImageMemoryRequirements (VK_KHR_maintenance4).");
+            return false;
+        }
+
+        VkImageCreateInfo modified_create_info = *create_info;
+        ApplyReplayCreateInfoModifications(device_info, modified_create_info);
+
+        VkDeviceImageMemoryRequirements info{ VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS };
+        info.pCreateInfo = &modified_create_info;
+        get_requirements(device_info->handle, &info, &requirements);
+    }
+    else if (const auto* decoder =
+                 std::get_if<StructPointerDecoder<Decoded_VkTensorCreateInfoARM>>(&member.create_info))
+    {
+        const VkTensorCreateInfoARM* create_info = decoder->GetPointer();
+        if (create_info == nullptr || create_info->pDescription == nullptr)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: tensor %" PRIu64 " carries no create-info.",
+                                 member.resource_id);
+            return false;
+        }
+
+        const auto get_requirements = device_table->GetDeviceTensorMemoryRequirementsARM;
+        if (get_requirements == graphics::noop::vkGetDeviceTensorMemoryRequirementsARM)
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: the replay device has no "
+                                 "vkGetDeviceTensorMemoryRequirementsARM.");
+            return false;
+        }
+
+        VkTensorCreateInfoARM  modified_create_info = *create_info;
+        VkTensorDescriptionARM modified_description{};
+        ApplyReplayCreateInfoModifications(device_info, modified_create_info, modified_description);
+
+        VkDeviceTensorMemoryRequirementsARM info{ VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM };
+        info.pCreateInfo = &modified_create_info;
+        get_requirements(device_info->handle, &info, &requirements);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Resource aliasing groups: resource %" PRIu64 " has an unhandled resource type.",
+                             member.resource_id);
+        return false;
+    }
+
+    if (requirements.memoryRequirements.size == 0)
+    {
+        GFXRECON_LOG_WARNING("Resource aliasing groups: resource %" PRIu64 " needs no memory at replay.",
+                             member.resource_id);
+        return false;
+    }
+
+    resolved.resource_id                   = member.resource_id;
+    resolved.bind_offset                   = member.bind_offset;
+    resolved.requirements                  = requirements.memoryRequirements;
+    resolved.requires_dedicated_allocation = dedicated_requirements.requiresDedicatedAllocation == VK_TRUE;
+    resolved.prefers_dedicated_allocation  = dedicated_requirements.prefersDedicatedAllocation == VK_TRUE;
+    return true;
+}
+
+void VulkanReplayConsumerBase::ProcessResourceAliasingGroupsCommand(format::HandleId                          device_id,
+                                                                    const std::vector<ResourceAliasingGroup>& groups)
+{
+    VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device_id);
+    if (device_info == nullptr || device_info->allocator == nullptr)
+    {
+        GFXRECON_LOG_WARNING("Resource aliasing groups: device %" PRIu64 " is unknown; ignoring the block.", device_id);
+        return;
+    }
+
+    // Only an allocator that moves resources can honour a group; the others place as captured.
+    if (!UseAddressReplacement(device_info))
+    {
+        return;
+    }
+
+    if (!resource_aliasing_group_devices_.insert(device_id).second)
+    {
+        GFXRECON_LOG_WARNING(
+            "Resource aliasing groups: device %" PRIu64 " already has groups; ignoring the second block.", device_id);
+        return;
+    }
+
+    std::vector<VulkanResourceAllocator::AliasingGroup> resolved_groups;
+    resolved_groups.reserve(groups.size());
+
+    for (const auto& group : groups)
+    {
+        VulkanResourceAllocator::AliasingGroup resolved_group;
+        resolved_group.memory_id = group.memory_id;
+        resolved_group.group_id  = group.group_id;
+        resolved_group.members.reserve(group.members.size());
+
+        for (const auto& member : group.members)
+        {
+            VulkanResourceAllocator::AliasingGroupMember resolved_member;
+            if (!ResolveAliasingGroupMember(device_info, member, resolved_member))
+            {
+                resolved_group.members.clear();
+                break;
+            }
+            resolved_group.members.push_back(resolved_member);
+        }
+
+        if (resolved_group.members.empty())
+        {
+            GFXRECON_LOG_WARNING("Resource aliasing groups: group %u of memory %" PRIu64
+                                 " cannot be resolved on this device; its resources take the per-resource path.",
+                                 group.group_id,
+                                 group.memory_id);
+            continue;
+        }
+
+        resolved_groups.push_back(std::move(resolved_group));
+    }
+
+    device_info->allocator->SetResourceAliasingGroups(resolved_groups);
+}
+
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
                                                                          args::UpdateDescriptorSetWithTemplate& args)
 {
@@ -15206,15 +15417,8 @@ VulkanReplayConsumerBase::OverrideCreateTensorARM(PFN_vkCreateTensorARM         
     auto* tensor_info = static_cast<VulkanTensorARMInfo*>(tensor->GetConsumerData(0));
     GFXRECON_ASSERT(tensor_info != nullptr);
 
-    // inject TRANSFER-usage bits when replaying a trimmed capture. needed for initialization
-    VkTensorDescriptionARM modified_description_storage;
-    if (replaying_trimmed_capture_)
-    {
-        modified_description_storage = *modified_create_info.pDescription;
-        modified_description_storage.usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
-        modified_description_storage.usage |= VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM;
-        modified_create_info.pDescription = &modified_description_storage;
-    }
+    VkTensorDescriptionARM modified_description_storage{};
+    ApplyReplayCreateInfoModifications(device_info, modified_create_info, modified_description_storage);
 
     result = allocator->CreateTensor(
         &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_tensor, &allocator_data);
