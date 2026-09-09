@@ -143,6 +143,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_json.h
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_json.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_result.h
                     ${CMAKE_CURRENT_LIST_DIR}/string_array_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/string_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_decoder.h
@@ -468,6 +471,7 @@ target_link_libraries(gfxrecon_decode
                         gfxrecon_graphics
                         gfxrecon_format
                         gfxrecon_util
+                        project_version
                         $<$<BOOL:${ANDROID}>:gfxrecon_replay_event_plugin_loader>
                         vulkan_registry
                         vulkan_memory_allocator

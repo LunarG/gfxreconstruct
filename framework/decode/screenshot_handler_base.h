@@ -46,6 +46,8 @@ class ScreenshotHandlerBase
                           std::vector<ScreenshotRange>&& screenshot_ranges,
                           uint32_t                       screenshot_interval);
 
+    virtual ~ScreenshotHandlerBase() = default;
+
     uint32_t GetCurrentFrame() const { return current_frame_number_; }
 
     void EndFrame();
