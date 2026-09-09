@@ -26,6 +26,7 @@
 #define GFXRECON_DECODE_METADATA_JSON_CONSUMER_H
 
 #include "decode/custom_vulkan_struct_to_json.h"
+#include "decode/vulkan_resource_aliasing_groups.h"
 #include "format/format_json.h"
 #include "util/defines.h"
 #include "util/file_path.h"
@@ -344,6 +345,33 @@ class MetadataJsonConsumer : public Base
     {
         auto& jdata = WriteMetaCommandStart("VulkanCopyAccelerationStructuresCommand");
         FieldToJson(jdata["pInfo"], copy_infos);
+        WriteBlockEnd();
+    }
+
+    void ProcessResourceAliasingGroupsCommand(format::HandleId                          device_id,
+                                              const std::vector<ResourceAliasingGroup>& groups) override
+    {
+        auto& jdata = WriteMetaCommandStart("ResourceAliasingGroupsCommand");
+        HandleToJson(jdata["device_id"], device_id);
+
+        auto& jgroups = jdata["groups"];
+        for (const ResourceAliasingGroup& group : groups)
+        {
+            auto& jgroup = jgroups.emplace_back();
+            HandleToJson(jgroup["memory_id"], group.memory_id);
+            jgroup["group_id"] = group.group_id;
+
+            auto& jmembers = jgroup["members"];
+            for (const ResourceAliasingMember& member : group.members)
+            {
+                auto& jmember            = jmembers.emplace_back();
+                jmember["resource_type"] = static_cast<uint32_t>(member.GetResourceType());
+                HandleToJson(jmember["resource_id"], member.resource_id);
+                jmember["bind_offset"] = member.bind_offset;
+                std::visit([&jmember](const auto& create_info) { FieldToJson(jmember["create_info"], &create_info); },
+                           member.create_info);
+            }
+        }
         WriteBlockEnd();
     }
 
