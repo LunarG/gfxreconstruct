@@ -24,8 +24,8 @@
 //
 // PRIVATE. One translation unit includes this: generated_vulkan_struct_decoders.cpp, which holds the explicit
 // instantiations and the one procedural body that remains. Everything else sees the declaration in
-// generated_vulkan_struct_decoders_forward.h and links against those instantiations, reaching no schema, so the
-// next operation family costs one translation unit rather than one per caller.
+// decode/vulkan_decode_struct.h and links against those instantiations, reaching no schema, so the next operation
+// family costs one translation unit rather than one per caller.
 //
 // It is a header only because that .cpp is generated. This is the one piece of the arrangement that must stay
 // hand-written -- it names no structure and no field, which is the property the whole thing exists to have -- and
@@ -49,7 +49,7 @@
 
 #include "decode/api_element_traits.h"
 #include "decode/vulkan_decode_action.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "generated/generated_vulkan_schema.h"
 #include "schema/schema.h"
 #include "util/defines.h"

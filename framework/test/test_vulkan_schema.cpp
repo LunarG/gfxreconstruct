@@ -38,7 +38,7 @@
 #include "decode/vulkan_decode_struct_impl.h"
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
-#include "generated/generated_vulkan_struct_encoders.h"
+#include "encode/vulkan_encode_struct.h"
 #include "encode/struct_pointer_encoder.h"
 #include "util/logging.h"
 
@@ -46,6 +46,7 @@
 #include "generated/generated_vulkan_schema_decoded_struct_members.h"
 #include "generated/generated_vulkan_schema_native_struct_members.h"
 
+#include <cstring>
 #include <memory>
 #include <string>
 #include <vector>
@@ -278,6 +279,44 @@ TEST_CASE("One field walk covers a generated structure schema", "[schema]")
     CHECK(action.handles == 1);
     CHECK(action.scalars == 7);
     CHECK(action.others == 1);
+}
+
+TEST_CASE("Schema EncodeStruct matches scalar-value wire bytes", "[schema][encode]")
+{
+    // Migration candidate: its concrete public overload bridges to the generic EncodeStruct field walk.
+    VkExtent2D migrated{ 0x12345678u, 0x90abcdefu };
+
+    encode::ParameterBuffer migrated_buffer;
+    encode::ParameterEncoder migrated_encoder(&migrated_buffer);
+    encode::EncodeStruct(&migrated_encoder, migrated);
+
+    encode::ParameterBuffer migrated_oracle_buffer;
+    encode::ParameterEncoder migrated_oracle(&migrated_oracle_buffer);
+    migrated_oracle.EncodeUInt32Value(migrated.width);
+    migrated_oracle.EncodeUInt32Value(migrated.height);
+
+    REQUIRE(migrated_buffer.GetDataSize() == migrated_oracle_buffer.GetDataSize());
+    CHECK(std::memcmp(migrated_buffer.GetData(), migrated_oracle_buffer.GetData(), migrated_buffer.GetDataSize()) ==
+          0);
+
+    // Comparison candidate: its generated procedural body remains unchanged and exercises the same UInt32/value
+    // idiom once more. A separate primitive oracle makes the comparison independent of either implementation.
+    VkExtent3D comparison{ 0x10203040u, 0x50607080u, 0x90a0b0c0u };
+
+    encode::ParameterBuffer comparison_buffer;
+    encode::ParameterEncoder comparison_encoder(&comparison_buffer);
+    encode::EncodeStruct(&comparison_encoder, comparison);
+
+    encode::ParameterBuffer comparison_oracle_buffer;
+    encode::ParameterEncoder comparison_oracle(&comparison_oracle_buffer);
+    comparison_oracle.EncodeUInt32Value(comparison.width);
+    comparison_oracle.EncodeUInt32Value(comparison.height);
+    comparison_oracle.EncodeUInt32Value(comparison.depth);
+
+    REQUIRE(comparison_buffer.GetDataSize() == comparison_oracle_buffer.GetDataSize());
+    CHECK(std::memcmp(comparison_buffer.GetData(),
+                      comparison_oracle_buffer.GetData(),
+                      comparison_buffer.GetDataSize()) == 0);
 }
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")

@@ -35,7 +35,7 @@
 #include "decode/struct_pointer_decoder.h"
 #include "decode/openxr_next_node.h"
 #include "generated/generated_openxr_struct_decoders_forward.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

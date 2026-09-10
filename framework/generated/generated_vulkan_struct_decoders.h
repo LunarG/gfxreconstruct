@@ -36,11 +36,11 @@
 #include "decode/string_array_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_decode_struct.h"
 #include "decode/vulkan_pnext_node.h"
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_schema_types.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 #include "util/logging.h"
 

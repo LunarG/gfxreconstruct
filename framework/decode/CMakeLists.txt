@@ -203,6 +203,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_action.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct_impl.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp

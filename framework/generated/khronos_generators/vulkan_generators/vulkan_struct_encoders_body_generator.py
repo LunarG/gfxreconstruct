@@ -24,6 +24,7 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_encoders_body_generator import KhronosStructEncodersBodyGenerator
+from vulkan_schema_generator import is_schema_driven_encode
 
 
 class VulkanStructEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -53,11 +54,12 @@ class VulkanStructEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
-            'generated/generated_vulkan_struct_encoders.h',
+            'encode/vulkan_encode_struct.h',
             '',
             'encode/custom_vulkan_struct_encoders.h',
             'encode/parameter_encoder.h',
             'encode/struct_pointer_encoder.h',
+            'encode/vulkan_encode_struct_impl.h',
             'util/defines.h',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
@@ -78,10 +80,39 @@ class VulkanStructEncodersBodyGenerator(VulkanBaseGenerator, KhronosStructEncode
             diag_file=diag_file
         )
 
+    def skip_struct_type(self, struct_type):
+        """Method override. The schema field walk owns these encoders, so no procedural body is emitted."""
+        return is_schema_driven_encode(self, struct_type)
+
+    def write_schema_driven_instantiations(self):
+        """One explicit instantiation for each structure the schema drives.
+
+        These sit where the bodies they replace sat. This translation unit already compiles every procedural
+        encoder, so making it the one that compiles the walk keeps the schema and the member-trait partitions out
+        of every other target rather than following EncodeStruct into each caller.
+        """
+        driven = sorted(
+            struct for struct in self.get_all_filtered_struct_names()
+            if is_schema_driven_encode(self, struct)
+        )
+
+        write('// The schema drives these encoders. This is the only translation unit that compiles the walk.', file=self.outFile)
+
+        for struct in driven:
+            write(
+                'template void EncodeStruct<{name}>(ParameterEncoder*, const {name}&);'.format(
+                    name=struct
+                ),
+                file=self.outFile
+            )
+
+        self.newline()
+
     def endFile(self):
         """Method override."""
         KhronosStructEncodersBodyGenerator.write_encoder_content(self)
         self.newline()
+        self.write_schema_driven_instantiations()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)

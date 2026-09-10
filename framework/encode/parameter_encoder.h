@@ -108,6 +108,11 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlags64Value(T value)                                                                                  { EncodeValue(static_cast<format::Flags64EncodeType>(value)); }
 
+    // Encode a value using the wire representation selected by its logical schema kind. Operation code that holds
+    // a Field can use this without restating the kind-to-wire-type mapping encoded in format::kind.
+    template <format::HasEncodeType Kind, typename T>
+    void Encode(T value)                                                                                              { EncodeValue(static_cast<format::EncodeTypeFor<Kind>>(value)); }
+
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeUInt16Ptr(const uint16_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }

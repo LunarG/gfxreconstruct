@@ -33,6 +33,7 @@
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
+#include "util/type_list.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
@@ -110,7 +111,6 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1PictureInfoF
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1PictureInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1ReferenceInfoFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1ReferenceInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkExtent2D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtent3D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkOffset2D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkOffset3D& value);
@@ -1391,6 +1391,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayQueryFeatu
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectCommandEXT& value);
+
+// The structures the schema drives. encode/vulkan_encode_struct.h includes this header and declares the
+// constrained EncodeStruct over this list beside the prototypes.
+using SchemaDrivenStructs = util::TypeList<
+    VkExtent2D
+>;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

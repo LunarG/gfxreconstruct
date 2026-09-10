@@ -108,10 +108,8 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
 
         self.newline()
         write('// The structures the schema does not drive: each keeps a generated body and a prototype above.', file=self.outFile)
-        write('//', file=self.outFile)
-        write('// Stated as an exclusion because this header is included nearly everywhere and the concept', file=self.outFile)
-        write('// expands the list at every use. Naming the driven population instead would put a fold over', file=self.outFile)
-        write('// every structure at every call site, to decide a question the exclusions answer in a step.', file=self.outFile)
+        write('// decode/vulkan_decode_struct.h includes this header and declares the constrained DecodeStruct over', file=self.outFile)
+        write('// this list beside the prototypes; it says why the list is an exclusion.', file=self.outFile)
         write('using NonSchemaDrivenStructs = util::TypeList<', file=self.outFile)
 
         for index, struct in enumerate(excluded):
@@ -119,18 +117,6 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
             write('    Decoded_{}{}'.format(struct, comma), file=self.outFile)
 
         write('>;', file=self.outFile)
-        self.newline()
-        write('// The constraint is for diagnosis, not selection: the template would resolve correctly without', file=self.outFile)
-        write('// it, since a non-template beats a template wherever a prototype above still exists. What it', file=self.outFile)
-        write('// buys is that a structure with a body of its own fails at the call naming its type, rather', file=self.outFile)
-        write('// than at the link naming a mangled symbol.', file=self.outFile)
-        write('template <typename Wrapper>', file=self.outFile)
-        write('concept SchemaDriven = !util::TypeListContainsV<NonSchemaDrivenStructs, Wrapper>;', file=self.outFile)
-        self.newline()
-        write('// Defined in decode/vulkan_decode_struct_impl.h, which is private to the one translation unit', file=self.outFile)
-        write('// that instantiates it. See that header for why.', file=self.outFile)
-        write('template <SchemaDriven Wrapper>', file=self.outFile)
-        write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Wrapper* wrapper);', file=self.outFile)
 
     def endFile(self):
         """Method override."""

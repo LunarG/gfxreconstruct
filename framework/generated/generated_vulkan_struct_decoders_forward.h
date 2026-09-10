@@ -1394,25 +1394,11 @@ struct Decoded_VkBaseOutStructure;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper);
 
 // The structures the schema does not drive: each keeps a generated body and a prototype above.
-//
-// Stated as an exclusion because this header is included nearly everywhere and the concept
-// expands the list at every use. Naming the driven population instead would put a fold over
-// every structure at every call site, to decide a question the exclusions answer in a step.
+// decode/vulkan_decode_struct.h includes this header and declares the constrained DecodeStruct over
+// this list beside the prototypes; it says why the list is an exclusion.
 using NonSchemaDrivenStructs = util::TypeList<
     Decoded_VkBaseOutStructure
 >;
-
-// The constraint is for diagnosis, not selection: the template would resolve correctly without
-// it, since a non-template beats a template wherever a prototype above still exists. What it
-// buys is that a structure with a body of its own fails at the call naming its type, rather
-// than at the link naming a mangled symbol.
-template <typename Wrapper>
-concept SchemaDriven = !util::TypeListContainsV<NonSchemaDrivenStructs, Wrapper>;
-
-// Defined in decode/vulkan_decode_struct_impl.h, which is private to the one translation unit
-// that instantiates it. See that header for why.
-template <SchemaDriven Wrapper>
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Wrapper* wrapper);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

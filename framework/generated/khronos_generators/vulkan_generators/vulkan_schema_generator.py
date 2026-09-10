@@ -91,6 +91,18 @@ def is_schema_driven(generator, struct):
     )
 
 
+# The structures whose Encode the schema drives. Encode is pre-inversion: this is a positive list that grows one
+# structure at a time, each migrated against its retained procedural body. The list is private to this predicate;
+# the encoder header and body generators iterate the filtered structure names through it, the way the decode
+# generators do through is_schema_driven, so when Encode inverts this body changes and no generator does.
+_SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset(('VkExtent2D', ))
+
+
+def is_schema_driven_encode(generator, struct):
+    """Whether the schema drives this structure's Encode, rather than a body generated for it."""
+    return struct in _SCHEMA_DRIVEN_ENCODE_STRUCTS
+
+
 class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
     """Shared options for every part of the Vulkan field schema. One subclass for each generated file, which is
     what add_part_headers exists to let each one state.

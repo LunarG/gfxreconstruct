@@ -27,11 +27,12 @@
 **
 */
 
-#include "generated/generated_vulkan_struct_encoders.h"
+#include "encode/vulkan_encode_struct.h"
 
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_encode_struct_impl.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -825,12 +826,6 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1ReferenceInf
     encoder->EncodeUInt8Value(value.OrderHint);
     encoder->EncodeUInt8Array(value.reserved1, 3);
     EncodeStructPtr(encoder, value.pExtensionHeader);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkExtent2D& value)
-{
-    encoder->EncodeUInt32Value(value.width);
-    encoder->EncodeUInt32Value(value.height);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkExtent3D& value)
@@ -12505,6 +12500,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
     encoder->EncodeUInt32Value(value.groupCountY);
     encoder->EncodeUInt32Value(value.groupCountZ);
 }
+
+// The schema drives these encoders. This is the only translation unit that compiles the walk.
+template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

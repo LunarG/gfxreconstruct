@@ -24,6 +24,7 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_encoders_header_generator import KhronosStructEncodersHeaderGenerator
+from vulkan_schema_generator import is_schema_driven_encode
 
 
 class VulkanStructEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -56,6 +57,7 @@ class VulkanStructEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             'encode/parameter_encoder.h',
             'format/platform_types.h',
             'util/defines.h',
+            'util/type_list.h',
         ))
         self.begin_end_file_data.system_headers.append('cstdint')
         self.begin_end_file_data.namespaces.extend((
@@ -79,9 +81,31 @@ class VulkanStructEncodersHeaderGenerator(VulkanBaseGenerator, KhronosStructEnco
             diag_file=diag_file
         )
 
+    def skip_struct_type(self, struct_type):
+        """Method override. A schema-owned encoder is declared by the constrained template."""
+        return is_schema_driven_encode(self, struct_type)
+
+    def write_schema_driven_declarations(self):
+        """The declaration side of the structures the schema drives."""
+        self.newline()
+        write('// The structures the schema drives. encode/vulkan_encode_struct.h includes this header and declares the', file=self.outFile)
+        write('// constrained EncodeStruct over this list beside the prototypes.', file=self.outFile)
+        write('using SchemaDrivenStructs = util::TypeList<', file=self.outFile)
+
+        driven = sorted(
+            struct for struct in self.get_all_filtered_struct_names()
+            if is_schema_driven_encode(self, struct)
+        )
+        for index, struct in enumerate(driven):
+            comma = ',' if index + 1 < len(driven) else ''
+            write('    {}{}'.format(struct, comma), file=self.outFile)
+
+        write('>;', file=self.outFile)
+
     def endFile(self):
         """Method override."""
         KhronosStructEncodersHeaderGenerator.write_encoder_content(self)
+        self.write_schema_driven_declarations()
 
         self.newline()
 
