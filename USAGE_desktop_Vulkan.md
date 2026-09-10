@@ -1131,12 +1131,22 @@ buffer and image objects that were initialized in the state snapshot, but
 were not used by any submitted command buffer, and generate a new capture
 file that omits the data for these unused buffer and image objects.
 
+The tool also detects resources that alias the same device memory and records
+them in a `ResourceAliasingGroupsCommand` meta-data block. Under `-m rebind`,
+where replay places resources itself, replay reads the block and reserves one
+shared allocation per group before the first member of that group binds. Every
+member is then placed correctly whatever order the members bind in. A replay
+tool that does not recognize the block skips it.
+
+The pass runs by default. Pass `--no-aliasing-metadata` to leave the block out.
+
 ```text
 gfxrecon-optimize - Remove unused resource initialization data from trimmed
-                    GFXReconstruct capture files.
+                    GFXReconstruct capture files, and record the memory
+                    aliasing groups found in them.
 
 Usage:
-  gfxrecon-optimize [-h | --help] [--version] <input-file> <output-file>
+  gfxrecon-optimize [-h | --help] [--version] [--no-aliasing-metadata] <input-file> <output-file>
 
 Required arguments:
   <input-file>          The trimmed GFXReconstruct capture file to be
@@ -1147,6 +1157,11 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
+  --no-aliasing-metadata
+                        Do not detect aliased resources and do not write the
+                        resource aliasing groups meta-data block. Replay then
+                        places aliased resources one bind at a time, as it does
+                        for a capture this tool has not seen.
 ```
 
 ### JSON Lines Conversion
