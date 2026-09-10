@@ -35,7 +35,8 @@ This is the initial version. It emits:
     one Field descriptor for each command parameter and structure member
     one Return Field for each command, including a VoidReturn Return Field for a void command
     one Schema specialization for each command and structure
-    one decoded representation trait, in both directions, for each structure and each command
+    one decoded representation trait for each structure and each command; the inverse is the api_element member
+    the wrapper and args generators emit
     one member trait for each valid storage and Field pair, in three storage populations
 
 It does not yet emit:
@@ -1023,30 +1024,6 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
 
         self.newline()
-        write(
-            '// The inverse. An operation handed a decoded wrapper reaches the schema through this, and decode is',
-            file=self.outFile
-        )
-        write('// not the only operation family that needs to.', file=self.outFile)
-
-        for struct in self.schema_structs:
-            write(
-                'template <> struct ApiElementFor<Decoded_{name}> '
-                '{{ using type = schema::api_type::vulkan::{name}; }};'.format(name=struct),
-                file=self.outFile
-            )
-
-        self.newline()
-
-        for command in self.schema_commands:
-            tag = self.get_command_tag(command)
-            write(
-                'template <> struct ApiElementFor<args::{tag}> '
-                '{{ using type = schema::command::vulkan::{tag}; }};'.format(tag=tag),
-                file=self.outFile
-            )
-
-        self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
 
     def write_checks(self):
@@ -1079,11 +1056,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             write('static_assert(schema::HasCommandSchema<{}>);'.format(tag), file=self.outFile)
 
         self.newline()
-        write('// The two trait directions agree, so a mis-paired line in either cannot pass.', file=self.outFile)
+        write('// Each wrapper names its element, and the trait keyed on that element names the wrapper. The two', file=self.outFile)
+        write('// come from different generators, so a mis-paired line in either cannot pass.', file=self.outFile)
 
         for struct in self.schema_structs:
             write(
-                'static_assert(std::is_same_v<Decoded<typename ApiElementFor<Decoded_{name}>::type>, '
+                'static_assert(std::is_same_v<Decoded<typename Decoded_{name}::api_element>, '
                 'Decoded_{name}>);'.format(name=struct),
                 file=self.outFile
             )
@@ -1093,7 +1071,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for command in self.schema_commands:
             tag = self.get_command_tag(command)
             write(
-                'static_assert(std::is_same_v<Decoded<typename ApiElementFor<args::{tag}>::type>, '
+                'static_assert(std::is_same_v<Decoded<typename args::{tag}::api_element>, '
                 'args::{tag}>);'.format(tag=tag),
                 file=self.outFile
             )
@@ -1292,7 +1270,9 @@ class VulkanSchemaGenerator(VulkanSchemaBaseGenerator):
 
 
 class VulkanSchemaApiElementTraitsGenerator(VulkanSchemaBaseGenerator):
-    """Generates ApiElementTraits and ApiElementFor: an API element to its decoded representation, and back."""
+    """Generates ApiElementTraits: an API element to its decoded representation. The other direction is the
+    api_element member each wrapper carries, emitted by the wrapper's own generator.
+    """
 
     def write_part(self):
         self.write_api_element_traits()

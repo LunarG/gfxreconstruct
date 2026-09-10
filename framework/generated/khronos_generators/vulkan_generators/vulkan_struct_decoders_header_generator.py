@@ -62,6 +62,7 @@ class VulkanStructDecodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             'decode/vulkan_pnext_node.h',
             'format/format.h',
             'format/platform_types.h',
+            'generated/generated_vulkan_schema_types.h',
             'generated/generated_vulkan_struct_decoders_forward.h',
             'util/defines.h',
             'util/logging.h',
@@ -86,6 +87,15 @@ class VulkanStructDecodersHeaderGenerator(
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+    def make_api_element_alias(self, struct):
+        """Method override. Every generated Vulkan wrapper names its API type descriptor, which the schema generator
+        emits for every filtered structure. A blacklisted structure keeps a hand-written body and has no descriptor.
+        """
+        if self.is_struct_black_listed(struct):
+            return ''
+
+        return '    using api_element = schema::api_type::vulkan::{};\n'.format(struct)
 
     def write_base_out_struct_definition(self):
         entries = self.get_base_out_structure_type_info_list()

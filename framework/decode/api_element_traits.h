@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The correspondence between an API element and its decoded representation, in both directions.
+// The correspondence between an API element and its decoded representation.
 //
-// ApiElementTraits is keyed on the API element and says what decode uses to represent it. ApiElementFor is the
-// inverse, keyed on a decoded wrapper. Both are needed: an operation that starts from a schema goes one way, and an
-// operation handed a decoded wrapper goes the other. The namespace answers "traits for whom" -- these are what
-// gfxrecon::decode knows about an API element, not everything that is known about it.
+// ApiElementTraits is keyed on the API element and says what decode uses to represent it. The other direction needs
+// no trait: a decoded wrapper names its element as api_element, so an operation handed a wrapper reads it there. The
+// namespace answers "traits for whom" -- these are what gfxrecon::decode knows about an API element, not everything
+// that is known about it.
 //
 // Neither carries a schema, a Consumer interface, a Consumer member pointer, or compatibility invocation behavior. A
 // decoded wrapper names no schema type of its own, so the wrapper stays usable as the graph's currency.
@@ -73,15 +73,13 @@ template <typename ApiElement>
 requires HasDecodedValueType<ApiElement>
 using DecodedValue = typename ApiElementTraits<ApiElement>::decoded_value_type;
 
-// Keyed on a decoded wrapper, yielding the API element it represents. An operation handed a wrapper needs this to
-// reach the schema, and more than one operation family needs it, so it is not decode-specific machinery.
-template <typename Wrapper>
-struct ApiElementFor;
-
+// A decoded wrapper names the API element it represents, as api_element, the way it names its native type as
+// struct_type. An operation handed a wrapper reaches the schema and the traits through that member, so no inverse
+// trait is generated; the generated checks assert that each wrapper's element resolves back to the wrapper.
 template <typename Wrapper>
 concept HasApiElement = requires
 {
-    typename ApiElementFor<Wrapper>::type;
+    typename Wrapper::api_element;
 };
 
 GFXRECON_END_NAMESPACE(decode)

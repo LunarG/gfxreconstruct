@@ -33,7 +33,7 @@
 // looks like. Were the .cpp hand-written, this would be a function in it and this header would not exist.
 //
 // Everything generated that the body touches is a dependent name -- the descriptors, the Schema specializations,
-// the ApiElementFor specializations and both member-trait partitions are needed to instantiate, not to parse. So
+// each wrapper's api_element and both member-trait partitions are needed to instantiate, not to parse. So
 // this header could be light. It is not, because two headers it includes deliberately carry their generated
 // content: api_element_traits.h pulls the specializations so its concepts cannot silently answer no, and
 // vulkan_decode_action.h pulls the member partitions so its overloads cannot re-resolve on a partial set. Both
@@ -67,14 +67,14 @@ template <SchemaDriven Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
     static_assert(HasApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
-    static_assert(schema::HasSchema<typename ApiElementFor<Wrapper>::type>,
+    static_assert(schema::HasSchema<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 
     GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     DecodeStructAction action(buffer, buffer_size);
 
-    schema::WalkFields<typename ApiElementFor<Wrapper>::type>(action, *wrapper);
+    schema::WalkFields<typename Wrapper::api_element>(action, *wrapper);
 
     return action.BytesRead();
 }
