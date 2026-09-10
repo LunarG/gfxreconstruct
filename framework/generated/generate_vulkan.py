@@ -96,6 +96,8 @@ generate_targets = [
     'generated_vulkan_cpp_consumer_extension.h',
     'generated_vulkan_cpp_consumer_extension.cpp',
     'generated_vulkan_stype_util.h',
+    'generated_vulkan_schema_types.h',
+    'generated_vulkan_schema_fields.h',
     'generated_vulkan_schema.h',
     'generated_vulkan_decode_api_element_traits.h',
     'generated_vulkan_schema_native_struct_members.h',

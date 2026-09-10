@@ -34,7 +34,7 @@
 #include "decode/vulkan_decoder_args.h"
 #include "format/api_call_id.h"
 #include "generated/generated_vulkan_decoder_args.h"
-#include "generated/generated_vulkan_schema.h"
+#include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 

@@ -22,8 +22,11 @@
 """Generate the Vulkan field schema described by the generic field schema and action model.
 
 One generator emits every part of the schema from one field-order model, so no output owns a separate field order.
-The parts are separate files because member traits are partitioned by storage population, and only the target that
-owns an operation includes the population it needs.
+The parts are separate files so that each includer pays for what it names and no more. The schema itself is three
+files in a strict include order: types (API type descriptors and command tags) is what anything naming an API
+element needs; fields (Field descriptors) is what an Action's member traits need; schema (the Schema
+specializations) is what the field walk needs. The member traits are partitioned further by storage population, and
+only the target that owns an operation includes the population it reads.
 
 This is the initial version. It emits:
 
@@ -142,25 +145,53 @@ class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
         raise NotImplementedError
 
 
-class VulkanSchemaIdentityGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the schema itself: logical kinds, API type descriptors, command tags, Field descriptors, and the
-    Schema specializations that order them. It needs the API headers and nothing else.
+class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the API type descriptors and command tags. This is the public face of the schema: a descriptor is
+    the key every trait and Schema is looked up by, and a wrapper can name its own. It needs the API headers and the
+    kinds in format/format.h, and nothing else.
     """
 
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
+            'format/format.h',
             'format/platform_types.h',
             'util/defines.h',
-            'schema/schema.h',
-            'util/type_list.h',
+        ))
+
+
+class VulkanSchemaFieldsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the Field descriptors. A Field names its API type descriptor and a shape, so this needs the types
+    file and schema/field.h. Nothing outside an Action's member traits has a reason to name a Field.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema_types.h',
+            'schema/field.h',
+            'util/defines.h',
         ))
         begin_end.system_headers.extend(('cstddef', 'string_view'))
 
 
+class VulkanSchemaGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the Schema specializations that order the Fields. Only the field walk names a Schema, so only
+    the translation unit that compiles the walk includes this.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema_fields.h',
+            'schema/schema.h',
+            'util/defines.h',
+            'util/type_list.h',
+        ))
+
+
 class VulkanSchemaApiElementTraitsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Options for the correspondence between an API element and its decoded representation, in both directions. It
-    needs the decoded declarations, generated and hand-written: the args namespace is split across two headers, and
-    the command whose decoder is hand-written has its args structure in the hand-written one.
+    needs the descriptors and the decoded declarations, generated and hand-written: the args namespace is split
+    across two headers, and the command whose decoder is hand-written has its args structure in the hand-written
+    one. It needs no Field and no Schema.
     """
 
     def add_part_headers(self, begin_end):
@@ -169,7 +200,7 @@ class VulkanSchemaApiElementTraitsGeneratorOptions(VulkanSchemaBaseGeneratorOpti
             'decode/vulkan_decoder_args.h',
             'format/api_call_id.h',
             'generated/generated_vulkan_decoder_args.h',
-            'generated/generated_vulkan_schema.h',
+            'generated/generated_vulkan_schema_types.h',
             'generated/generated_vulkan_struct_decoders.h',
             'util/defines.h',
         ))
@@ -186,7 +217,7 @@ class VulkanSchemaMemberPartitionGeneratorOptions(VulkanSchemaBaseGeneratorOptio
 
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
-            'generated/generated_vulkan_schema.h',
+            'generated/generated_vulkan_schema_fields.h',
             'util/defines.h',
             'schema/field.h',
         ))
@@ -836,14 +867,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """Write the content of this part's generated file. One override for each generated file."""
         raise NotImplementedError
 
-    def write_identity(self):
+    def write_schema_part(self, *writers):
+        """Emit one part of the schema inside gfxrecon::schema, which every part opens the same way."""
         write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
         self.newline()
 
-        self.write_api_type_descriptors()
-        self.write_command_tags()
-        self.write_field_descriptors()
-        self.write_schemas()
+        for writer in writers:
+            writer()
 
         write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
 
@@ -1240,13 +1270,25 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.write_member_partition_epilogue()
 
 
-class VulkanSchemaIdentityGenerator(VulkanSchemaBaseGenerator):
-    """Generates the schema itself: API type descriptors, command tags, Field descriptors, and Schema
-    specializations.
-    """
+class VulkanSchemaTypesGenerator(VulkanSchemaBaseGenerator):
+    """Generates the API type descriptors and command tags."""
 
     def write_part(self):
-        self.write_identity()
+        self.write_schema_part(self.write_api_type_descriptors, self.write_command_tags)
+
+
+class VulkanSchemaFieldsGenerator(VulkanSchemaBaseGenerator):
+    """Generates the Field descriptors."""
+
+    def write_part(self):
+        self.write_schema_part(self.write_field_descriptors)
+
+
+class VulkanSchemaGenerator(VulkanSchemaBaseGenerator):
+    """Generates the Schema specializations that order the Fields."""
+
+    def write_part(self):
+        self.write_schema_part(self.write_schemas)
 
 
 class VulkanSchemaApiElementTraitsGenerator(VulkanSchemaBaseGenerator):

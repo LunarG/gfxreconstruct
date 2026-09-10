@@ -87,13 +87,14 @@ concept HasApiElement = requires
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-// THE ENTRY POINT, AND NOT A LIGHT ONE. Include this rather than an API's generated traits header: both doors
-// work, but one door is what keeps the specializations and the declarations from ever coming apart.
+// THE ENTRY POINT. Include this rather than an API's generated traits header: both doors work, but one door is
+// what keeps the specializations and the declarations from ever coming apart.
 //
-// It is not cheap. Reaching the specializations means reaching every enabled API's descriptors and every decoded
-// wrapper declaration -- around 69,000 lines of generated Vulkan headers alone, before vulkan.h and the video
-// headers. That is inherent: the trait keys are the descriptors. So put this in an implementation file, or in a
-// header whose consumers already pay for decode, and not in a widely included header merely to name Decoded<>.
+// Reaching the specializations means reaching every enabled API's type descriptors and every decoded wrapper and
+// args declaration. That is inherent: the trait keys are the descriptors and the values are the wrappers. It does
+// not reach a Field descriptor or a Schema: those live in separate generated files that only an Action's member
+// traits and the field walk include, so naming Decoded<> here costs the wrappers, which any decode header already
+// pays for, and not the schema.
 //
 // Each generated header includes this one back; the include guard makes that a no-op, and the primary templates
 // above are declared before this point, so either include order works.

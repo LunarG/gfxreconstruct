@@ -32,7 +32,7 @@
 
 #include "decode/vulkan_decoder_args.h"
 #include "generated/generated_vulkan_decoder_args.h"
-#include "generated/generated_vulkan_schema.h"
+#include "generated/generated_vulkan_schema_fields.h"
 #include "schema/field.h"
 #include "util/defines.h"
 

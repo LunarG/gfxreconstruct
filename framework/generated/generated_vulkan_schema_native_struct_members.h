@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_SCHEMA_NATIVE_STRUCT_MEMBERS_H
 #define  GFXRECON_GENERATED_VULKAN_SCHEMA_NATIVE_STRUCT_MEMBERS_H
 
-#include "generated/generated_vulkan_schema.h"
+#include "generated/generated_vulkan_schema_fields.h"
 #include "schema/field.h"
 #include "util/defines.h"
 
