@@ -490,8 +490,7 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
-    # gfxrecon_encode supplies the meta-data block writers the decode round-trip tests read back.
-    target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode gfxrecon_encode)
+    target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
     if (MSVC)
         # The test source exceeds the default number of sections during compilation, use this flag to increase the limit
         target_compile_options(gfxrecon_decode_test PRIVATE /bigobj)
