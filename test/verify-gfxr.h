@@ -1,10 +1,25 @@
 #ifndef GFXRECONSTRUCT_VERIFY_GFXR_H
 #define GFXRECONSTRUCT_VERIFY_GFXR_H
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 #include <vector>
 
 void run_in_background(const char* test_name);
+
+/**
+ * Parse callback for nlohmann::json::parse that drops the parts of a converted capture that differ
+ * between two runs or two machines: version fields, handles, pointers, file descriptors, the header
+ * block and every annotation block. Both the new capture and the known-good capture go through it
+ * before the comparison.
+ *
+ * @param depth   - nesting depth of the current event
+ * @param event   - the parse event
+ * @param parsed  - the key, the value or the finished object
+ * @return false to drop the key, the value or the object, true to keep it
+ */
+bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed);
 
 /**
  * Run an application with capture enabled, and compare the resulting gfxr file to a known good gfxr

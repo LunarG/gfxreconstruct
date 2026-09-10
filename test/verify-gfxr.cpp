@@ -8,58 +8,103 @@
 
 #include <util/logging.h>
 
+// Keys whose values differ between two captures of one app, or between two machines. The comparison
+// drops each of them wherever it appears.
+static const char* const kIgnoredKeys[] = {
+    "api_version",         // The version that the layer reports. It moves with every header update.
+    "apiVersion",          // The same value in VkApplicationInfo and VkPhysicalDeviceProperties.
+    "hinstance",           // Win32 handles differ per process.
+    "hwnd",                //
+    "pipelineCacheUUID",   // Driver identity.
+    "pipeline_cache_uuid", //
+    "ppData",              // Host pointers that vkMapMemory returns.
+    "fd",                  // File descriptors from an external memory export.
+    "app_name",            // The path of the launcher differs per machine.
+};
+
+// A key that starts with one of these names a function pointer, which differs per process.
+static const char* const kIgnoredKeyPrefixes[] = { "pfn" };
+
+// A top-level block that holds one of these keys is dropped whole. The header carries the source
+// path and the tool version. An annotation carries per-run text.
+static const char* const kIgnoredBlockKeys[] = { "header", "annotation" };
+
+// The Android hardware buffer import struct and the AHB properties query carry a "buffer" field that
+// is a host pointer. Only that "buffer" must go. The value that names the struct or the call arrives
+// first, and the "buffer" key arrives in a later event.
+static const char* const kAhbBufferMarkers[] = { "VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID",
+                                                 "vkGetAndroidHardwareBufferPropertiesANDROID" };
+
+static bool is_ignored_key(const std::string& key)
+{
+    for (const char* ignored : kIgnoredKeys)
+    {
+        if (key == ignored)
+        {
+            return true;
+        }
+    }
+    for (const char* prefix : kIgnoredKeyPrefixes)
+    {
+        if (key.rfind(prefix, 0) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
 {
+    // The marker value and the "buffer" key arrive in separate events. This flag carries the state
+    // between them, and the "buffer" key resets it.
     static bool skip_next_buffer = false;
 
     switch (event)
     {
         case nlohmann::json::parse_event_t::key:
         {
-            auto key = to_string(parsed);
-            if (key == "\"api_version\"")
+            const std::string key = parsed.get<std::string>();
+            if (is_ignored_key(key))
+            {
                 return false;
-            if (key == "\"apiVersion\"")
-                return false;
-            if (std::strncmp("\"pfn\"", key.c_str(), 4) == 0)
-                return false;
-            if (key == "\"hinstance\"")
-                return false;
-            if (key == "\"hwnd\"")
-                return false;
-            if (key == "\"pipelineCacheUUID\"")
-                return false;
-            if (key == "\"pipeline_cache_uuid\"")
-                return false;
-            if (key == "\"ppData\"")
-                return false;
-            if (key == "\"fd\"")
-                return false;
-            if (key == "\"app_name\"")
-                return false;
-            if (skip_next_buffer && key == "\"buffer\"")
+            }
+            if (skip_next_buffer && key == "buffer")
             {
                 skip_next_buffer = false;
                 return false;
             }
+            break;
         }
-        break;
         case nlohmann::json::parse_event_t::value:
         {
-            auto value = to_string(parsed);
-            if (value == "\"VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID\"" ||
-                value == "\"vkGetAndroidHardwareBufferPropertiesANDROID\"")
+            if (parsed.is_string())
             {
-                skip_next_buffer = true;
+                const std::string value = parsed.get<std::string>();
+                for (const char* marker : kAhbBufferMarkers)
+                {
+                    if (value == marker)
+                    {
+                        skip_next_buffer = true;
+                    }
+                }
             }
-        }
-        break;
-        case nlohmann::json::parse_event_t::object_end:
-            if (depth == 1 && parsed.contains("header"))
-                return false;
-            if (depth == 1 && parsed.contains("annotation"))
-                return false;
             break;
+        }
+        case nlohmann::json::parse_event_t::object_end:
+        {
+            if (depth == 1)
+            {
+                for (const char* block_key : kIgnoredBlockKeys)
+                {
+                    if (parsed.contains(block_key))
+                    {
+                        return false;
+                    }
+                }
+            }
+            break;
+        }
         default:
             break;
     }
