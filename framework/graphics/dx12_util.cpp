@@ -269,38 +269,19 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                             filename += "_frame_";
                             filename += std::to_string(frame_num);
 
-                            switch (screenshot_format)
-                            {
-                                default:
-                                    GFXRECON_LOG_ERROR(
-                                        "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
-                                    // Intentional fall-through
-                                case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch)))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write BMP file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                                case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImage(filename + ".png",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch),
-                                                                          util::imagewriter::kFormat_RGBA))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write PNG file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                            }
+                            // RetrieveImageData swizzled to BGRA only when a
+                            // BMP was asked for, thus the layout of the bytes
+                            // follows the file format.
+                            const auto data_format =
+                                convert_to_bgra ? util::imagewriter::kFormat_BGRA : util::imagewriter::kFormat_RGBA;
+
+                            util::imagewriter::WriteScreenshotFile(filename,
+                                                                   screenshot_format,
+                                                                   static_cast<unsigned int>(fb_desc.Width),
+                                                                   static_cast<unsigned int>(fb_desc.Height),
+                                                                   std::data(captured_image.data),
+                                                                   static_cast<unsigned int>(pitch),
+                                                                   data_format);
                         }
                     }
                 }
