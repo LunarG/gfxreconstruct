@@ -388,24 +388,43 @@ static bool CanRestoreImage(const VkImageCreateInfo* create_info)
     {
         if ((usage_flags2->usage & VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR) != 0)
         {
-            return true;
+            return false;
         }
     }
     else if ((create_info->usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) != 0)
     {
-        return true;
+        return false;
     }
 
     if (const auto* stencil_usage2 = graphics::vulkan_struct_get_pnext<VkImageStencilUsage2CreateInfoKHR>(create_info))
     {
-        return (stencil_usage2->stencilUsage & VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR) != 0;
+        if ((stencil_usage2->stencilUsage & VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR) != 0)
+        {
+            return false;
+        }
     }
-    if (const auto* stencil_usage = graphics::vulkan_struct_get_pnext<VkImageStencilUsageCreateInfo>(create_info))
+    else if (const auto* stencil_usage = graphics::vulkan_struct_get_pnext<VkImageStencilUsageCreateInfo>(create_info))
     {
-        return (stencil_usage->stencilUsage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) != 0;
+        if ((stencil_usage->stencilUsage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) != 0)
+        {
+            return false;
+        }
     }
 
-    return false;
+    const auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(create_info);
+    if ((external_format != nullptr) && (external_format->externalFormat != 0))
+    {
+        return false;
+    }
+
+    const auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(create_info);
+    if ((external_memory != nullptr) &&
+        ((external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID) != 0))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args)
@@ -413,8 +432,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& cal
     VkImageCreateInfo*      create_info = args.pCreateInfo.GetPointer();
     const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
 
-    if ((create_info != nullptr) && !args.pImage.IsNull() && (device_info != nullptr) &&
-        !CanRestoreImage(create_info) &&
+    if ((create_info != nullptr) && !args.pImage.IsNull() && (device_info != nullptr) && CanRestoreImage(create_info) &&
         graphics::VulkanResourcesUtil::IsFormatSupported(*GetInstanceTable(device_info->parent),
                                                          device_info->parent,
                                                          create_info->format,
