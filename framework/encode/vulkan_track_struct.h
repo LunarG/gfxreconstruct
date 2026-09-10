@@ -22,12 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_VULKAN_TRACK_STRUCT_H
-#define GFXRECON_ENCODE_VULKAN_TRACK_STRUCT_H
-
 #include "graphics/vulkan_struct_deep_copy.h"
-
-#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -69,5 +64,3 @@ inline T* TrackStructs(const T* structs, uint32_t count, std::unique_ptr<uint8_t
 GFXRECON_END_NAMESPACE(vulkan_trackers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_ENCODE_VULKAN_TRACK_STRUCT_H
