@@ -620,11 +620,11 @@ bool App::frame(const int frame_num)
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
-    if (sync_.image_in_flight[current_in_flight_frame_] != VK_NULL_HANDLE)
+    if (sync_.image_in_flight[image_index] != VK_NULL_HANDLE)
     {
-        init.disp.waitForFences(1, &sync_.image_in_flight[current_in_flight_frame_], VK_TRUE, UINT64_MAX);
+        init.disp.waitForFences(1, &sync_.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
     }
-    sync_.image_in_flight[current_in_flight_frame_] = sync_.in_flight_fences[current_in_flight_frame_];
+    sync_.image_in_flight[image_index] = sync_.in_flight_fences[current_in_flight_frame_];
 
     init.disp.resetCommandPool(command_pools_[current_in_flight_frame_], 0);
     VkCommandBuffer command_buffer = command_buffers_[current_in_flight_frame_];
