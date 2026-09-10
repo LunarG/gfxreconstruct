@@ -1350,9 +1350,21 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
     // Clean up references to dumped descriptors in case this command buffer is submitted again
     dispatch_dumped_descriptors_.buffer_descriptors.clear();
     dispatch_dumped_descriptors_.image_descriptors.clear();
+    dispatch_dumped_descriptors_.acceleration_structures.clear();
 
     trace_rays_dumped_descriptors_.buffer_descriptors.clear();
     trace_rays_dumped_descriptors_.image_descriptors.clear();
+    trace_rays_dumped_descriptors_.acceleration_structures.clear();
+
+    for (auto& tr_params : trace_rays_params_)
+    {
+        tr_params.second->dumped_resources.Reset();
+    }
+
+    for (auto& disp_params : dispatch_params_)
+    {
+        disp_params.second->dumped_resources.Reset();
+    }
 
     assert(res == VK_SUCCESS);
     return VK_SUCCESS;
@@ -2340,9 +2352,16 @@ void DispatchTraceRaysDumpingContext::AssignSecondary(
     secondary_context->command_buffer_level_ = DumpResourcesCommandBufferLevel::kSecondary;
 }
 
-bool DispatchTraceRaysDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
+std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
+DispatchTraceRaysDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) const
 {
-    return secondaries_.find(index) != secondaries_.end();
+    auto entry = secondaries_.find(execute_commands_index);
+    if (entry != secondaries_.end())
+    {
+        return entry->second;
+    }
+
+    return std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>();
 }
 
 void DispatchTraceRaysDumpingContext::UpdateSecondaries(DispatchTraceRaysDumpingContext& secondary_context,
