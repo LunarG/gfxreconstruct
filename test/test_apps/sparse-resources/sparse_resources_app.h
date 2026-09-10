@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(sparse_resources)
 
 const size_t   MAX_FRAMES_IN_FLIGHT = 2;
-const size_t   FRAMES_UNTIL_EXIT    = 1000;
+const size_t   FRAMES_UNTIL_EXIT    = 10;
 const size_t   STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
 const VkFormat IMAGE_FORMAT         = VK_FORMAT_R8G8B8A8_SRGB;
 
