@@ -410,9 +410,17 @@ static bool CanRestoreImage(const VkImageCreateInfo* create_info)
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args)
 {
-    VkImageCreateInfo* create_info = args.pCreateInfo.GetPointer();
+    VkImageCreateInfo*      create_info = args.pCreateInfo.GetPointer();
+    const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
 
-    if ((create_info != nullptr) && !args.pImage.IsNull() && !CanRestoreImage(create_info))
+    if ((create_info != nullptr) && !args.pImage.IsNull() && (device_info != nullptr) &&
+        !CanRestoreImage(create_info) &&
+        graphics::VulkanResourcesUtil::IsFormatSupported(*GetInstanceTable(device_info->parent),
+                                                         device_info->parent,
+                                                         create_info->format,
+                                                         create_info->tiling,
+                                                         VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
+                                                             VK_FORMAT_FEATURE_TRANSFER_DST_BIT))
     {
         create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
