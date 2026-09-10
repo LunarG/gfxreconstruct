@@ -489,6 +489,9 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
     if (MSVC)
+        # The test source exceeds the default number of sections during compilation, use this flag to increase the limit
+        target_compile_options(gfxrecon_decode_test PRIVATE /bigobj)
+
         # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
         # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
         if(CMAKE_SIZEOF_VOID_P EQUAL 4)
