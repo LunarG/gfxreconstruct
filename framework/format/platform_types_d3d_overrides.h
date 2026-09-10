@@ -6813,6 +6813,30 @@ struct D3D12_DISPATCH_GRAPH_DESC
     };
 };
 
+enum D3D12_TRIM_NOTIFICATION_FLAGS
+{
+    D3D12_TRIM_NOTIFICATION_FLAG_NONE                   = 0,
+    D3D12_TRIM_NOTIFICATION_FLAG_PERIODIC_TRIM          = 0x1,
+    D3D12_TRIM_NOTIFICATION_FLAG_RESTART_PERIODIC_TRIM  = 0x2,
+    D3D12_TRIM_NOTIFICATION_FLAG_TRIM_TO_BUDGET         = 0x4
+};
+
+struct D3D12_TRIM_NOTIFICATION
+{
+    void*                        pContext;
+    D3D12_TRIM_NOTIFICATION_FLAGS Flags;
+    UINT64                       NumBytesToTrim;
+};
+
+typedef void(__stdcall* D3D12_PFN_TRIM_NOTIFICATION_CALLBACK)(const D3D12_TRIM_NOTIFICATION* pNotification);
+
+struct D3D12_REGISTER_TRIM_NOTIFICATION
+{
+    D3D12_PFN_TRIM_NOTIFICATION_CALLBACK pfnCallback;
+    void*                                pContext;
+    DWORD                                CallbackCookie;
+};
+
 #endif // !defined(D3D12_SUPPORT)
 
 #endif // !defined(_WIN32)
