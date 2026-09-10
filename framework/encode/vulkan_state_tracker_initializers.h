@@ -26,7 +26,6 @@
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "encode/vulkan_track_struct.h"
 #include "generated/generated_vulkan_state_table.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -297,7 +296,12 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FramebufferWrapper, VkFra
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
-    vulkan_trackers::TrackStructs(create_info, 1, wrapper->create_info_data);
+
+    wrapper->create_info.flags            = create_info->flags;
+    wrapper->create_info.attachment_count = create_info->attachmentCount;
+    wrapper->create_info.width            = create_info->width;
+    wrapper->create_info.height           = create_info->height;
+    wrapper->create_info.layers           = create_info->layers;
 
     auto render_pass_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(create_info->renderPass);
     assert(render_pass_wrapper != nullptr);
@@ -902,7 +906,11 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
-    vulkan_trackers::TrackStructs(create_info, 1, wrapper->create_info_data);
+
+    wrapper->create_info.flags  = create_info->flags;
+    wrapper->create_info.format = create_info->format;
+    wrapper->create_info.offset = create_info->offset;
+    wrapper->create_info.range  = create_info->range;
 
     auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
     wrapper->buffer    = buffer;
@@ -927,7 +935,12 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageViewWrapper, VkImage
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
-    vulkan_trackers::TrackStructs(create_info, 1, wrapper->create_info_data);
+
+    wrapper->create_info.flags             = create_info->flags;
+    wrapper->create_info.view_type         = create_info->viewType;
+    wrapper->create_info.format            = create_info->format;
+    wrapper->create_info.components        = create_info->components;
+    wrapper->create_info.subresource_range = create_info->subresourceRange;
 
     auto image        = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(create_info->image);
     wrapper->image_id = image->handle_id;

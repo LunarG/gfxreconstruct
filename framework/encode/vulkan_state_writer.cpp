@@ -543,23 +543,6 @@ static std::string FlagsToString(VkFlags flags)
     return util::to_hex_fixed_width(flags);
 }
 
-// The pNext chain is written as the list of the structure types it contains.
-static nlohmann::ordered_json PNextToJson(const void* pnext)
-{
-    if (pnext == nullptr)
-    {
-        return nullptr;
-    }
-
-    auto stypes = nlohmann::ordered_json::array();
-    for (auto entry = reinterpret_cast<const VkBaseInStructure*>(pnext); entry != nullptr; entry = entry->pNext)
-    {
-        stypes.push_back(util::ToString(entry->sType));
-    }
-
-    return stypes;
-}
-
 static std::string MakeRemovedResourceAnnotation(const char*              reason,
                                                  const char*              call_name,
                                                  format::HandleId         handle_id,
@@ -577,18 +560,14 @@ static std::string ComposeRemovedBufferViewAnnotation(const vulkan_wrappers::Buf
 {
     GFXRECON_ASSERT(wrapper != nullptr);
 
-    nlohmann::ordered_json json_create_info = nullptr;
-    if (wrapper->create_info_data)
-    {
-        const auto* create_info    = reinterpret_cast<const VkBufferViewCreateInfo*>(wrapper->create_info_data.get());
-        json_create_info["sType"]  = util::ToString(create_info->sType);
-        json_create_info["flags"]  = FlagsToString(create_info->flags);
-        json_create_info["buffer"] = wrapper->buffer_id;
-        json_create_info["format"] = util::ToString(create_info->format);
-        json_create_info["offset"] = create_info->offset;
-        json_create_info["range"]  = create_info->range;
-        json_create_info["pNext"]  = PNextToJson(create_info->pNext);
-    }
+    const auto& create_info = wrapper->create_info;
+
+    nlohmann::ordered_json json_create_info;
+    json_create_info["flags"]  = FlagsToString(create_info.flags);
+    json_create_info["buffer"] = wrapper->buffer_id;
+    json_create_info["format"] = util::ToString(create_info.format);
+    json_create_info["offset"] = create_info.offset;
+    json_create_info["range"]  = create_info.range;
 
     return MakeRemovedResourceAnnotation(
         "orphaned buffer view", "vkCreateBufferView", wrapper->handle_id, std::move(json_create_info));
@@ -598,33 +577,28 @@ static std::string ComposeRemovedImageViewAnnotation(const vulkan_wrappers::Imag
 {
     GFXRECON_ASSERT(wrapper != nullptr);
 
-    nlohmann::ordered_json json_create_info = nullptr;
-    if (wrapper->create_info_data)
-    {
-        const auto* create_info      = reinterpret_cast<const VkImageViewCreateInfo*>(wrapper->create_info_data.get());
-        json_create_info["sType"]    = util::ToString(create_info->sType);
-        json_create_info["flags"]    = FlagsToString<VkImageViewCreateFlagBits>(create_info->flags);
-        json_create_info["image"]    = wrapper->image_id;
-        json_create_info["viewType"] = util::ToString(create_info->viewType);
-        json_create_info["format"]   = util::ToString(create_info->format);
+    const auto& create_info = wrapper->create_info;
 
-        nlohmann::ordered_json components_json;
-        components_json["r"]           = util::ToString(create_info->components.r);
-        components_json["g"]           = util::ToString(create_info->components.g);
-        components_json["b"]           = util::ToString(create_info->components.b);
-        components_json["a"]           = util::ToString(create_info->components.a);
-        json_create_info["components"] = components_json;
+    nlohmann::ordered_json json_create_info;
+    json_create_info["flags"]    = FlagsToString<VkImageViewCreateFlagBits>(create_info.flags);
+    json_create_info["image"]    = wrapper->image_id;
+    json_create_info["viewType"] = util::ToString(create_info.view_type);
+    json_create_info["format"]   = util::ToString(create_info.format);
 
-        nlohmann::ordered_json subresource_json;
-        subresource_json["aspectMask"] = FlagsToString<VkImageAspectFlagBits>(create_info->subresourceRange.aspectMask);
-        subresource_json["baseMipLevel"]     = create_info->subresourceRange.baseMipLevel;
-        subresource_json["levelCount"]       = create_info->subresourceRange.levelCount;
-        subresource_json["baseArrayLayer"]   = create_info->subresourceRange.baseArrayLayer;
-        subresource_json["layerCount"]       = create_info->subresourceRange.layerCount;
-        json_create_info["subresourceRange"] = subresource_json;
+    nlohmann::ordered_json components_json;
+    components_json["r"]           = util::ToString(create_info.components.r);
+    components_json["g"]           = util::ToString(create_info.components.g);
+    components_json["b"]           = util::ToString(create_info.components.b);
+    components_json["a"]           = util::ToString(create_info.components.a);
+    json_create_info["components"] = components_json;
 
-        json_create_info["pNext"] = PNextToJson(create_info->pNext);
-    }
+    nlohmann::ordered_json subresource_json;
+    subresource_json["aspectMask"]     = FlagsToString<VkImageAspectFlagBits>(create_info.subresource_range.aspectMask);
+    subresource_json["baseMipLevel"]   = create_info.subresource_range.baseMipLevel;
+    subresource_json["levelCount"]     = create_info.subresource_range.levelCount;
+    subresource_json["baseArrayLayer"] = create_info.subresource_range.baseArrayLayer;
+    subresource_json["layerCount"]     = create_info.subresource_range.layerCount;
+    json_create_info["subresourceRange"] = subresource_json;
 
     return MakeRemovedResourceAnnotation(
         "orphaned image view", "vkCreateImageView", wrapper->handle_id, std::move(json_create_info));
@@ -634,28 +608,18 @@ static std::string ComposeRemovedFramebufferAnnotation(const vulkan_wrappers::Fr
 {
     GFXRECON_ASSERT(wrapper != nullptr);
 
-    nlohmann::ordered_json json_create_info = nullptr;
-    if (wrapper->create_info_data)
-    {
-        const auto* create_info   = reinterpret_cast<const VkFramebufferCreateInfo*>(wrapper->create_info_data.get());
-        json_create_info["sType"] = util::ToString(create_info->sType);
-        json_create_info["flags"] = FlagsToString<VkFramebufferCreateFlagBits>(create_info->flags);
-        json_create_info["renderPass"]      = wrapper->render_pass_id;
-        json_create_info["attachmentCount"] = create_info->attachmentCount;
-        if (create_info->pAttachments != nullptr)
-        {
-            // The attachment handles are reported through their IDs, which stay valid after the views are destroyed.
-            json_create_info["pAttachments"] = wrapper->image_view_ids;
-        }
-        else
-        {
-            json_create_info["pAttachments"] = nullptr;
-        }
-        json_create_info["width"]  = create_info->width;
-        json_create_info["height"] = create_info->height;
-        json_create_info["layers"] = create_info->layers;
-        json_create_info["pNext"]  = PNextToJson(create_info->pNext);
-    }
+    const auto& create_info = wrapper->create_info;
+
+    nlohmann::ordered_json json_create_info;
+    json_create_info["flags"]           = FlagsToString<VkFramebufferCreateFlagBits>(create_info.flags);
+    json_create_info["renderPass"]      = wrapper->render_pass_id;
+    json_create_info["attachmentCount"] = create_info.attachment_count;
+    // The attachments are reported through their IDs, which stay valid after the views are destroyed. The list is
+    // empty for an imageless framebuffer, which does not reference any views.
+    json_create_info["pAttachments"] = wrapper->image_view_ids;
+    json_create_info["width"]        = create_info.width;
+    json_create_info["height"]       = create_info.height;
+    json_create_info["layers"]       = create_info.layers;
 
     return MakeRemovedResourceAnnotation(
         "orphaned framebuffer", "vkCreateFramebuffer", wrapper->handle_id, std::move(json_create_info));
