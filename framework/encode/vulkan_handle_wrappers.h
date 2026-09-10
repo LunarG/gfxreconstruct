@@ -313,6 +313,9 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
 
+    // Deep copy of the creation info, used to describe the view if its creation call is omitted at state write.
+    std::unique_ptr<uint8_t[]> create_info_data;
+
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
@@ -321,6 +324,9 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
     format::HandleId device_id{ format::kNullHandleId };
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
+
+    // Deep copy of the creation info, used to describe the view if its creation call is omitted at state write.
+    std::unique_ptr<uint8_t[]> create_info_data;
 
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 
@@ -339,6 +345,9 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 
     // Track handles of image attachments for processing render pass layout transitions.
     std::vector<ImageWrapper*> attachments;
+
+    // Deep copy of the creation info, used to describe the framebuffer if its creation call is omitted at state write.
+    std::unique_ptr<uint8_t[]> create_info_data;
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
