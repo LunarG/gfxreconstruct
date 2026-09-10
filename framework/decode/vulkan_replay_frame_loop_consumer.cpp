@@ -1633,7 +1633,7 @@ bool VulkanReplayFrameLoopConsumer::ImageTracking::CreateShadowImage(format::Han
     create_info.extent            = image_info->extent;
     create_info.mipLevels         = image_info->level_count;
     create_info.arrayLayers       = image_info->layer_count;
-    create_info.samples           = VK_SAMPLE_COUNT_1_BIT;
+    create_info.samples           = image_info->sample_count;
     create_info.tiling            = VK_IMAGE_TILING_OPTIMAL;
     create_info.usage             = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     create_info.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
