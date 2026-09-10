@@ -113,13 +113,21 @@ Dx12DumpResources::Dx12DumpResources(std::function<DxObjectInfo*(format::HandleI
 
 void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& capture_file_name)
 {
-    // prepare for copy resources
-    auto hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                             IID_PPV_ARGS(&track_dump_resources_.copy_cmd_allocator));
-
     const UINT64 initial_fence_value = 1;
-    device->CreateFence(initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
-    track_dump_resources_.fence_event        = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    auto hr = device->CreateFence(
+        initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_ERROR("Failed to create fence for dump resources (HRESULT = 0x%08x).", hr);
+    }
+    else
+    {
+        track_dump_resources_.fence_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+        if (track_dump_resources_.fence_event == nullptr)
+        {
+            GFXRECON_LOG_ERROR("Failed to create fence event for dump resources (error = %lu).", GetLastError());
+        }
+    }
     track_dump_resources_.fence_signal_value = initial_fence_value;
 
     if (user_delegate_ != nullptr)
@@ -162,6 +170,16 @@ void Dx12DumpResources::CloseDump()
 
     // Free the default delegate if it was used.
     default_delegate_ = nullptr;
+
+    if (track_dump_resources_.fence_event != nullptr)
+    {
+        CloseHandle(track_dump_resources_.fence_event);
+    }
+    track_dump_resources_.fence_event         = nullptr;
+    track_dump_resources_.fence               = nullptr;
+    track_dump_resources_.copy_queue          = nullptr;
+    track_dump_resources_.copy_ready_fence    = nullptr;
+    track_dump_resources_.copy_complete_fence = nullptr;
 }
 
 bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                             replay_object_info,
@@ -591,6 +609,18 @@ std::vector<uint32_t> GetDescSubIndices(uint32_t first_mip_slice,
                                         uint32_t total_array_count,
                                         uint32_t plane_slice)
 {
+    if (first_mip_slice >= total_mip_count || first_array_slice >= total_array_count)
+    {
+        return {};
+    }
+    if (mip_size > (total_mip_count - first_mip_slice))
+    {
+        mip_size = total_mip_count - first_mip_slice;
+    }
+    if (array_size > (total_array_count - first_array_slice))
+    {
+        array_size = total_array_count - first_array_slice;
+    }
     std::vector<uint32_t> result;
     for (UINT array_index = first_array_slice; array_index < (first_array_slice + array_size); ++array_index)
     {
@@ -605,6 +635,10 @@ std::vector<uint32_t> GetDescSubIndices(uint32_t first_mip_slice,
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -837,6 +871,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -907,6 +945,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -977,6 +1019,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& 
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHDepthStencilViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -1874,37 +1920,36 @@ void Dx12DumpResources::CopyDrawCallResource(DxObjectInfo*                      
         auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(source_resource);
         if (device != nullptr)
         {
-            // Get or create staging buffer.
-            if (!track_dump_resources_.copy_staging_buffer ||
-                (track_dump_resources_.copy_staging_buffer_size < copy_resource_data->total_size))
-            {
-                // TODO: If we could know the max required resource size for the all dump resources, we wouldn't need to
-                //       free and re-create buffer. But it's tough to know it. dx12_brower_consumer might help it.
-                //       It needs a map to match GPU virutal address with resources. Use a GPU virtal address
-                //       to find its resource, and then know the size.
-                track_dump_resources_.copy_staging_buffer = nullptr;
-                track_dump_resources_.copy_staging_buffer = graphics::Dx12ResourceDataUtil::CreateStagingBuffer(
-                    device, graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead, copy_resource_data->total_size);
-                track_dump_resources_.copy_staging_buffer_size = copy_resource_data->total_size;
-
-                GFXRECON_ASSERT(track_dump_resources_.copy_staging_buffer);
-            }
-            copy_resource_data->read_resource                   = track_dump_resources_.copy_staging_buffer;
+            // Deferred read callbacks retain the staging buffer and allocator until the copy completes.
+            copy_resource_data->read_resource = graphics::Dx12ResourceDataUtil::CreateStagingBuffer(
+                device, graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead, copy_resource_data->total_size);
             copy_resource_data->read_resource_is_staging_buffer = true;
 
-            if (track_dump_resources_.copy_cmd_allocator)
+            if (copy_resource_data->read_resource == nullptr)
             {
-                device->CreateCommandList(0,
-                                          D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                          track_dump_resources_.copy_cmd_allocator,
-                                          nullptr,
-                                          IID_PPV_ARGS(&copy_resource_data->cmd_list));
+                GFXRECON_LOG_ERROR("Failed to create staging buffer for dump resources.");
+                return;
             }
-
-            if (copy_resource_data->cmd_list == nullptr)
+            auto hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+                                                     IID_PPV_ARGS(&copy_resource_data->copy_cmd_allocator));
+            if (SUCCEEDED(hr))
             {
-                GFXRECON_LOG_ERROR("Failed to create command list for dump resources.");
+                hr = device->CreateCommandList(0,
+                                               D3D12_COMMAND_LIST_TYPE_DIRECT,
+                                               copy_resource_data->copy_cmd_allocator,
+                                               nullptr,
+                                               IID_PPV_ARGS(&copy_resource_data->cmd_list));
             }
+            if (FAILED(hr))
+            {
+                GFXRECON_LOG_ERROR("Failed to create copy command objects for dump resources (HRESULT = 0x%08x).", hr);
+                return;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to get device for dump resource copy.");
+            return;
         }
     }
 
@@ -1950,6 +1995,46 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
     }
 
     HRESULT hr = S_OK;
+    // A direct command list cannot be submitted to a compute or copy queue.
+    const bool use_dedicated_copy_queue =
+        !copy_resource_data->is_cpu_accessible && draw_call_queue->GetDesc().Type != D3D12_COMMAND_LIST_TYPE_DIRECT;
+    ID3D12CommandQueue* copy_queue = draw_call_queue;
+    if (use_dedicated_copy_queue)
+    {
+        if (track_dump_resources_.copy_queue == nullptr)
+        {
+            auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(draw_call_queue);
+            if (device == nullptr)
+            {
+                GFXRECON_LOG_ERROR("Failed to get device for dump resource copy queue.");
+                return false;
+            }
+            D3D12_COMMAND_QUEUE_DESC copy_queue_desc = {};
+            copy_queue_desc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
+            hr = device->CreateCommandQueue(&copy_queue_desc, IID_PPV_ARGS(&track_dump_resources_.copy_queue));
+            if (SUCCEEDED(hr))
+            {
+                hr = device->CreateFence(
+                    0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_ready_fence));
+            }
+            if (SUCCEEDED(hr))
+            {
+                hr = device->CreateFence(
+                    0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_complete_fence));
+            }
+            if (FAILED(hr))
+            {
+                track_dump_resources_.copy_queue          = nullptr;
+                track_dump_resources_.copy_ready_fence    = nullptr;
+                track_dump_resources_.copy_complete_fence = nullptr;
+                GFXRECON_LOG_ERROR("Failed to create copy queue synchronization objects for dump resources "
+                                   "(HRESULT = 0x%08x).",
+                                   hr);
+                return false;
+            }
+        }
+        copy_queue = track_dump_resources_.copy_queue;
+    }
     if (copy_resource_data->is_cpu_accessible)
     {
         // If the source_resource is CPU accessible, it can be read from directly.
@@ -2014,25 +2099,63 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
 
         if (SUCCEEDED(hr))
         {
-            // Execute the command list.
-            hr                             = copy_resource_data->cmd_list->Close();
-            ID3D12CommandList* cmd_lists[] = { copy_resource_data->cmd_list };
-            draw_call_queue->ExecuteCommandLists(1, cmd_lists);
+            hr = copy_resource_data->cmd_list->Close();
         }
-        else
+        if (FAILED(hr))
         {
             GFXRECON_LOG_ERROR("Failed to record commands to copy resource data for resource %" PRIu64,
                                copy_resource_data->source_resource_id);
+            return false;
+        }
+
+        if (use_dedicated_copy_queue)
+        {
+            // Separate timelines prevent source-ready signals from satisfying waits for copy completion.
+            const UINT64 copy_value = ++track_dump_resources_.copy_queue_fence_value;
+            hr = draw_call_queue->Signal(track_dump_resources_.copy_ready_fence, copy_value);
+            if (SUCCEEDED(hr))
+            {
+                hr = copy_queue->Wait(track_dump_resources_.copy_ready_fence, copy_value);
+            }
+            if (FAILED(hr))
+            {
+                GFXRECON_LOG_ERROR("Failed to order dump resource copy after source queue (HRESULT = 0x%08x).", hr);
+                return false;
+            }
+        }
+
+        ID3D12CommandList* cmd_lists[] = { copy_resource_data->cmd_list };
+        copy_queue->ExecuteCommandLists(1, cmd_lists);
+    }
+
+    if (use_dedicated_copy_queue)
+    {
+        const UINT64 copy_value = track_dump_resources_.copy_queue_fence_value;
+        hr = copy_queue->Signal(track_dump_resources_.copy_complete_fence, copy_value);
+        if (SUCCEEDED(hr))
+        {
+            hr = draw_call_queue->Wait(track_dump_resources_.copy_complete_fence, copy_value);
+        }
+        if (FAILED(hr))
+        {
+            // The copy is in flight; continuing could release its allocator or overwrite its source resource.
+            GFXRECON_LOG_FATAL("Failed to order source queue after dump resource copy (HRESULT = 0x%08x).", hr);
         }
     }
 
     // Signal the fence to indicate that data has been copied to the staging resource.
     hr = draw_call_queue->Signal(fence, fence_signal_value);
-    GFXRECON_ASSERT(SUCCEEDED(hr));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_FATAL("Failed to signal dump resource copy completion (HRESULT = 0x%08x).", hr);
+    }
 
     // Wait for the next fence value indicating that staging data has been read and is safe to continue.
     hr = draw_call_queue->Wait(fence, fence_wait_value);
-    GFXRECON_ASSERT(SUCCEEDED(hr));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_FATAL("Failed to wait for dump resource read completion (HRESULT = 0x%08x).", hr);
+    }
 
     return true;
 }
@@ -2057,9 +2180,19 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     }
     if (completed_value < fence_wait_value)
     {
-        ResetEvent(fence_event);
-        fence->SetEventOnCompletion(fence_wait_value, fence_event);
-        WaitForSingleObject(fence_event, INFINITE);
+        if (!ResetEvent(fence_event))
+        {
+            GFXRECON_LOG_FATAL("Failed to reset dump resource fence event (error = %lu).", GetLastError());
+        }
+        auto hr = fence->SetEventOnCompletion(fence_wait_value, fence_event);
+        if (FAILED(hr))
+        {
+            GFXRECON_LOG_FATAL("Failed to set dump resource completion event (HRESULT = 0x%08x).", hr);
+        }
+        if (WaitForSingleObject(fence_event, INFINITE) != WAIT_OBJECT_0)
+        {
+            GFXRECON_LOG_FATAL("Failed to wait for dump resource completion event (error = %lu).", GetLastError());
+        }
     }
 
     auto& subresource_datas = copy_resource_data->datas;
@@ -2121,13 +2254,22 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     copy_resource_data->Clear();
 
     // Signal command queue to continue execution.
-    fence->Signal(fence_signal_value);
+    auto hr = fence->Signal(fence_signal_value);
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_FATAL("Failed to signal dump resource read completion (HRESULT = 0x%08x).", hr);
+    }
 }
 
 void Dx12DumpResources::CopyResourceAsync(DxObjectInfo*                        queue_object_info,
                                           const std::vector<format::HandleId>& front_command_list_ids,
                                           CopyResourceDataPtr                  copy_resource_data)
 {
+    if (track_dump_resources_.fence == nullptr || track_dump_resources_.fence_event == nullptr)
+    {
+        return;
+    }
+
     auto fence               = track_dump_resources_.fence;
     auto fence_current_value = track_dump_resources_.fence_signal_value;
     auto fence_event         = track_dump_resources_.fence_event;
