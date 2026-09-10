@@ -221,8 +221,9 @@ bool VulkanFileOptimizer::WriteQueuedCalls(const std::vector<BlockEdit::QueuedCa
     return true;
 }
 
-// NOTE: This is the same code CaptureManager uses to write function call data. It could be moved to
-// a format utility.
+// TODO: consolidate with the same block writing in framework/encode/vulkan_state_writer.cpp,
+// framework/encode/dx12_state_writer.cpp, framework/encode/openxr_state_writer.cpp and
+// tools/compress/compression_converter.cpp.
 bool VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId call_id,
                                             format::ThreadId  thread_id,
                                             const uint8_t*    data,
@@ -244,7 +245,9 @@ bool VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId call_id,
     {
         size_t compressed_size = compressor->Compress(uncompressed_size, data, &compressed_parameter_buffer, 0);
 
-        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+        // A compressed block carries an extra uncompressed_size field, so count it against the win.
+        if ((0 < compressed_size) &&
+            ((compressed_size + sizeof(format::CompressedFunctionCallHeader::uncompressed_size)) < uncompressed_size))
         {
             data_pointer   = compressed_parameter_buffer.data();
             data_size      = compressed_size;
