@@ -41,16 +41,16 @@ GFXR_UTIL_REGISTER_FEATURE_CREATOR(OptimizeFeature, OptimizeVulkanFeature)
 
 // Writing the resource aliasing groups block changes where a replayer places aliased resources, so
 // every existing caller of this tool gets that change by default and needs a way back.
-constexpr const char kNoAliasingMetadata[] = "--no-aliasing-metadata";
+constexpr char kNoAliasingMetadata[] = "--no-aliasing-metadata";
 
 std::vector<util::FeatureOptionDesc> OptimizeVulkanFeature::GetOptionDescs() const
 {
-    return { { "",
-               { "Do not detect aliased resources and do not write the resource aliasing",
-                 "groups meta-data block. Replay then places aliased resources one bind",
-                 "at a time, as it does for a capture this tool has not seen." },
-               false,
-               kNoAliasingMetadata } };
+    return { { .name          = "",
+               .description   = { "Do not detect aliased resources and do not write the resource aliasing",
+                                  "groups meta-data block. Replay then places aliased resources one bind",
+                                  "at a time, as it does for a capture this tool has not seen." },
+               .has_argument  = false,
+               .trigger_names = kNoAliasingMetadata } };
 }
 
 std::string OptimizeVulkanFeature::CompiledHeaderVersionString() const
