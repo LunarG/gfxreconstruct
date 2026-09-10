@@ -27,6 +27,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugin)
 
+uint32_t GetEventAbiVersion(GfxrReplayEventType type)
+{
+    int idx = type - 1;
+    return kEventTraits[idx].since_version;
+}
+
 static size_t GetSizeOfStruct(GfxrReplayEventType type)
 {
     int idx = type - 1;
@@ -36,7 +42,7 @@ static size_t GetSizeOfStruct(GfxrReplayEventType type)
 GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType type)
 {
     GfxrReplayEventHeader header = {};
-    header.abi_version           = GFXR_REPLAY_PLUGIN_ABI_VERSION;
+    header.abi_version           = GetEventAbiVersion(type);
     header.struct_size           = GetSizeOfStruct(type);
     header.type                  = type;
     header.timestamp_ns          = static_cast<uint64_t>(util::datetime::GetTimestamp());
@@ -136,12 +142,12 @@ PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle libra
                                              uint32_t                      abi_version,
                                              CloseLibraryFunc              close_library) :
     library_(library),
-    plugin_(plugin), abi_version_(abi_version), close_library_(close_library), disabled_(false)
+    plugin_(plugin), negotiated_abi_version_(abi_version), close_library_(close_library), disabled_(false)
 {
     GFXRECON_ASSERT(library != nullptr);
     GFXRECON_ASSERT(plugin != nullptr);
     GFXRECON_ASSERT(plugin->on_event != nullptr);
-    GFXRECON_ASSERT(abi_version != 0);
+    GFXRECON_ASSERT(negotiated_abi_version_ != 0);
     GFXRECON_ASSERT(close_library != nullptr);
 }
 
@@ -159,61 +165,37 @@ PluginReplayEventSink::~PluginReplayEventSink()
 
 void PluginReplayEventSink::EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event)
 {
-    if (abi_version_ < 2)
-    {
-        return;
-    }
     Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event)
 {
-    if (abi_version_ < 2)
-    {
-        return;
-    }
     Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event)
 {
-    if (abi_version_ < 1)
-    {
-        return;
-    }
     Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event)
 {
-    if (abi_version_ < 1)
-    {
-        return;
-    }
     Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitFrameBegin(const GfxrReplayFrameBeginEvent& event)
 {
-    if (abi_version_ < 1)
-    {
-        return;
-    }
     Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitFrameEnd(const GfxrReplayFrameEndEvent& event)
 {
-    if (abi_version_ < 1)
-    {
-        return;
-    }
     Forward(event.header);
 }
 
 void PluginReplayEventSink::Forward(const GfxrReplayEventHeader& event)
 {
-    if (disabled_)
+    if (disabled_ || event.abi_version > negotiated_abi_version_)
     {
         return;
     }

@@ -47,6 +47,8 @@ constexpr EventTraits kEventTraits[] = {
     { GFXR_REPLAY_EVENT_STATE_SETUP_END, sizeof(GfxrReplayStateSetupEndEvent), 2 },
 };
 
+uint32_t GetEventAbiVersion(GfxrReplayEventType type);
+
 class ReplayEventSink
 {
   public:
@@ -118,11 +120,11 @@ class PluginReplayEventSink final : public ReplayEventSink
   private:
     void Forward(const GfxrReplayEventHeader& event);
 
-    bool                          disabled_      = false;
-    uint32_t                      abi_version_   = 0;
-    util::platform::LibraryHandle library_       = nullptr;
-    GfxrReplayPluginV1*           plugin_        = nullptr;
-    CloseLibraryFunc              close_library_ = nullptr;
+    bool                          disabled_               = false;
+    uint32_t                      negotiated_abi_version_ = 0; // Negotiated version from IsValidPlugin()
+    util::platform::LibraryHandle library_                = nullptr;
+    GfxrReplayPluginV1*           plugin_                 = nullptr;
+    CloseLibraryFunc              close_library_          = nullptr;
 };
 
 GFXRECON_END_NAMESPACE(plugin)

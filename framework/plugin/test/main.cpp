@@ -37,7 +37,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
   protected:
     void EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event) override
     {
-        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayStateSetupBeginEvent));
         last_event_header = event.header;
@@ -45,7 +45,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
 
     void EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event) override
     {
-        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_STATE_SETUP_END);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayStateSetupEndEvent));
         last_event_header = event.header;
@@ -53,7 +53,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
 
     void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override
     {
-        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayQueueSubmitBeginEvent));
         last_event_header = event.header;
@@ -61,7 +61,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
 
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override
     {
-        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayQueueSubmitEndEvent));
         last_event_header     = event.header;
@@ -70,7 +70,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
 
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override
     {
-        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_FRAME_BEGIN);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayFrameBeginEvent));
         last_event_header = event.header;
@@ -78,7 +78,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
 
     void EmitFrameEnd(const GfxrReplayFrameEndEvent& event) override
     {
-        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_FRAME_END);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayFrameEndEvent));
         last_event_header    = event.header;

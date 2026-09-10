@@ -107,6 +107,8 @@ The v1 event set and emission points are fixed as follows:
 | `QueueSubmitEnd` | Immediately after `vkQueueSubmit`, `vkQueueSubmit2`, `vkQueueSubmit2KHR` or, when `--sync` is enabled, immediately after replay waits for the gpu to become idle with `vkQueueWaitIdle()` | If replay never submits to a queue | `timestamp_ns`, `frame_index`, `submit_index`, `queue_id`, `completion_source, result` |
 | `FrameBegin` | Explicitly when the first replayed frame becomes active, and explicitly when each later replayed frame becomes active according to replay frame-boundary semantics | If replay never activates that frame | `timestamp_ns`, `frame_index` |
 | `FrameEnd` | Explicitly when replay reaches the frame boundary according to replay frame-boundary semantics | If replay never reaches the boundary for that frame | `timestamp_ns`, `frame_index`, `first_submit_index`, `last_submit_index` |
+| `StateSetupBegin` | Immediately when state setup begins | If not replaying a trimmed capture | No fields |
+| `StateSetupEnd` | Immediately when state setup ends | If not replaying a trimmed capture | No fields |
 
 For v1, every attempted replay submit emits `QueueSubmitBegin` followed by exactly one `QueueSubmitEnd`. The completion event reports whether replay stopped at submit return or at queue-wait-idle completion point, and it carries the associated `VkResult`.
 
@@ -167,6 +169,14 @@ This event is intended for:
 
 * frame duration visualization  
 * association of submit ranges with a replay frame
+
+### StateSetupBegin
+
+`StateSetupBegin` is emitted right before state setup commands start getting executed.
+
+### StateSetupEnd
+
+`StateSetupEnd` is emitted right after the last state setup command.
 
 ## Indexing and Sentinel Values
 
@@ -375,7 +385,7 @@ The steps are:
 
 Step 3 lets a new plugin run against an older replay. The plugin reports the version that both sides know, in place of a version that replay cannot supply.
 
-Note: the loader accepts only an exact match of the version today. The range test and `GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION` become necessary with the first increase of the version.
+Note: the loader and the plugin negotiate the use of the highest ABI version that they both support.
 
 ### What Replay Emits to an Older Plugin
 
@@ -444,6 +454,7 @@ To add an event type, do these steps:
 | ABI version | Event types | Changes |
 | :---- | :---- | :---- |
 | 1 | `QueueSubmitBegin`, `QueueSubmitEnd`, `FrameBegin`, `FrameEnd` | first public version |
+| 2 | `StateSetupBegin`, `StateSetupEnd` | state setup markers |
 
 Add a row for each increase of `GFXR_REPLAY_PLUGIN_ABI_VERSION`.
 
