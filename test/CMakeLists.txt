@@ -54,6 +54,9 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/acquired-image.cpp
         test_cases/set-environment.cpp
         test_cases/deep-pnext-chain.cpp
+        test_cases/host-image-copy.cpp
+        test_cases/sparse-resources.cpp
+        test_cases/triangle-extra-device.cpp
         test_cases/json-normalizer.cpp
         verify-gfxr.cpp)
 
