@@ -23,7 +23,7 @@
 #ifndef GFXRECON_REPLAY_FEATURE_H
 #define GFXRECON_REPLAY_FEATURE_H
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 // Forward declaration to avoid pulling NDK headers into this header.
 struct android_app;
 #endif
