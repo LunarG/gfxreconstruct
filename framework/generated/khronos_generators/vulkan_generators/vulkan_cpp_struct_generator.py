@@ -320,20 +320,21 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
             if arg.base_type in self.handle_names:
                 handleObjectType = makeObjectType(arg.base_type)
 
-            local_header.append(makeGenVar(strArrayName, strArrayName, handleObjectType, locals(), indent, addType=True, useThis=False)),
+            # The member points at an array.  Declare a real array in the generated
+            # source and give the member the array name, which decays to a pointer.
+            # The address of a literal is not valid C++, and a dereference of the
+            # array gives the wrong type and drops every element after the first.
+            local_header.append(makeGenVar(strArrayName, None, handleObjectType, locals(), indent, addType=True, useThis=False))
             local_header.append(makeGenCond('{lengths[0]} > 0', [
                 makeGenVarCall('std::string', strArrayValuesName, 'toStringJoin',
                                 [f'{struct_prefix}{arg.name}',
                                 f'{struct_prefix}{arg.name} + {lengths[0]}',
                                 f'[]({arg.base_type} current) {{{{ return std::to_string(current); }}}}',
                                 '", "'], locals(), indent + 4),
-                makeGenConditions([
-                    ['{lengths[0]} == 1', [makeGen(f'{strArrayName} = "&" + {strArrayValuesName};', locals(), indent + 8)]],
-                    ['{lengths[0]} > 1', [printOutStream([f'"{arg.base_type} "', strArrayName, '"[] = {{"', strArrayValuesName, '"}};"'], locals(), indent + 8)]],
-                    # No need for else case
-                ], locals(), indent + 4),
+                makeGenVar(strArrayName, arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
+                printOutStream([f'"{arg.base_type} "', strArrayName, '"[] = {{"', strArrayValuesName, '"}};"'], locals(), indent + 4),
             ], [], locals(), indent))
-            local_body.append(makeOutStructSet(f'"{{{{ *" << {strArrayName} << " }}}}"', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(strArrayName, locals(), isFirstArg, isLastArg, indent))
         else:
             local_body.append(makeOutStructSet(f'{struct_prefix}{arg.name} << "UL"', locals(), isFirstArg, isLastArg, indent))
 

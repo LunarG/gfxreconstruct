@@ -6153,24 +6153,21 @@ std::string GenerateStruct_VkSemaphoreWaitInfo(std::ostream &out, const VkSemaph
             out << "\t\t" << "VkSemaphore " << psemaphores_array << "[] = {" << psemaphores_values << "};" << std::endl;
         }
     }
-    std::string pvalues_array = "pvalues_array_" + std::to_string(consumer.GetNextId());
+    std::string pvalues_array = "NULL";
     if (structInfo->semaphoreCount > 0) {
         std::string pvalues_values = toStringJoin(structInfo->pValues,
                                                   structInfo->pValues + structInfo->semaphoreCount,
                                                   [](uint64_t current) { return std::to_string(current); },
                                                   ", ");
-        if (structInfo->semaphoreCount == 1) {
-            pvalues_array = "&" + pvalues_values;
-        } else if (structInfo->semaphoreCount > 1) {
-            out << "\t\t" << "uint64_t " << pvalues_array << "[] = {" << pvalues_values << "};" << std::endl;
-        }
+        pvalues_array = "pValues_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pvalues_array << "[] = {" << pvalues_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkSemaphoreWaitFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->semaphoreCount << "," << std::endl;
     struct_body << "\t\t\t" << psemaphores_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pvalues_array << " }" << ",";
+    struct_body << "\t\t\t" << pvalues_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "semaphoreWaitInfo");
     out << "\t\t" << "VkSemaphoreWaitInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -6339,36 +6336,30 @@ std::string GenerateStruct_VkSubpassEndInfo(std::ostream &out, const VkSubpassEn
 std::string GenerateStruct_VkTimelineSemaphoreSubmitInfo(std::ostream &out, const VkTimelineSemaphoreSubmitInfo* structInfo, Decoded_VkTimelineSemaphoreSubmitInfo* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pwait_semaphore_values_array = "pwait_semaphore_values_array_" + std::to_string(consumer.GetNextId());
+    std::string pwait_semaphore_values_array = "NULL";
     if (structInfo->waitSemaphoreValueCount > 0) {
         std::string pwait_semaphore_values_values = toStringJoin(structInfo->pWaitSemaphoreValues,
                                                                  structInfo->pWaitSemaphoreValues + structInfo->waitSemaphoreValueCount,
                                                                  [](uint64_t current) { return std::to_string(current); },
                                                                  ", ");
-        if (structInfo->waitSemaphoreValueCount == 1) {
-            pwait_semaphore_values_array = "&" + pwait_semaphore_values_values;
-        } else if (structInfo->waitSemaphoreValueCount > 1) {
-            out << "\t\t" << "uint64_t " << pwait_semaphore_values_array << "[] = {" << pwait_semaphore_values_values << "};" << std::endl;
-        }
+        pwait_semaphore_values_array = "pWaitSemaphoreValues_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pwait_semaphore_values_array << "[] = {" << pwait_semaphore_values_values << "};" << std::endl;
     }
-    std::string psignal_semaphore_values_array = "psignal_semaphore_values_array_" + std::to_string(consumer.GetNextId());
+    std::string psignal_semaphore_values_array = "NULL";
     if (structInfo->signalSemaphoreValueCount > 0) {
         std::string psignal_semaphore_values_values = toStringJoin(structInfo->pSignalSemaphoreValues,
                                                                    structInfo->pSignalSemaphoreValues + structInfo->signalSemaphoreValueCount,
                                                                    [](uint64_t current) { return std::to_string(current); },
                                                                    ", ");
-        if (structInfo->signalSemaphoreValueCount == 1) {
-            psignal_semaphore_values_array = "&" + psignal_semaphore_values_values;
-        } else if (structInfo->signalSemaphoreValueCount > 1) {
-            out << "\t\t" << "uint64_t " << psignal_semaphore_values_array << "[] = {" << psignal_semaphore_values_values << "};" << std::endl;
-        }
+        psignal_semaphore_values_array = "pSignalSemaphoreValues_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << psignal_semaphore_values_array << "[] = {" << psignal_semaphore_values_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->waitSemaphoreValueCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pwait_semaphore_values_array << " }" << "," << std::endl;
+    struct_body << "\t\t\t" << pwait_semaphore_values_array << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->signalSemaphoreValueCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << psignal_semaphore_values_array << " }" << ",";
+    struct_body << "\t\t\t" << psignal_semaphore_values_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "timelineSemaphoreSubmitInfo");
     out << "\t\t" << "VkTimelineSemaphoreSubmitInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -10034,17 +10025,14 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoKHR(std::ostream &
             out << "\t\t" << "VkDeviceMemory " << pacquire_syncs_array << "[] = {" << pacquire_syncs_values << "};" << std::endl;
         }
     }
-    std::string pacquire_keys_array = "pacquire_keys_array_" + std::to_string(consumer.GetNextId());
+    std::string pacquire_keys_array = "NULL";
     if (structInfo->acquireCount > 0) {
         std::string pacquire_keys_values = toStringJoin(structInfo->pAcquireKeys,
                                                         structInfo->pAcquireKeys + structInfo->acquireCount,
                                                         [](uint64_t current) { return std::to_string(current); },
                                                         ", ");
-        if (structInfo->acquireCount == 1) {
-            pacquire_keys_array = "&" + pacquire_keys_values;
-        } else if (structInfo->acquireCount > 1) {
-            out << "\t\t" << "uint64_t " << pacquire_keys_array << "[] = {" << pacquire_keys_values << "};" << std::endl;
-        }
+        pacquire_keys_array = "pAcquireKeys_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pacquire_keys_array << "[] = {" << pacquire_keys_values << "};" << std::endl;
     }
     std::string pacquire_timeouts_array = "NULL";
     if (structInfo->pAcquireTimeouts != NULL) {
@@ -10064,27 +10052,24 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoKHR(std::ostream &
             out << "\t\t" << "VkDeviceMemory " << prelease_syncs_array << "[] = {" << prelease_syncs_values << "};" << std::endl;
         }
     }
-    std::string prelease_keys_array = "prelease_keys_array_" + std::to_string(consumer.GetNextId());
+    std::string prelease_keys_array = "NULL";
     if (structInfo->releaseCount > 0) {
         std::string prelease_keys_values = toStringJoin(structInfo->pReleaseKeys,
                                                         structInfo->pReleaseKeys + structInfo->releaseCount,
                                                         [](uint64_t current) { return std::to_string(current); },
                                                         ", ");
-        if (structInfo->releaseCount == 1) {
-            prelease_keys_array = "&" + prelease_keys_values;
-        } else if (structInfo->releaseCount > 1) {
-            out << "\t\t" << "uint64_t " << prelease_keys_array << "[] = {" << prelease_keys_values << "};" << std::endl;
-        }
+        prelease_keys_array = "pReleaseKeys_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << prelease_keys_array << "[] = {" << prelease_keys_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->acquireCount << "," << std::endl;
     struct_body << "\t\t\t" << pacquire_syncs_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pacquire_keys_array << " }" << "," << std::endl;
+    struct_body << "\t\t\t" << pacquire_keys_array << "," << std::endl;
     struct_body << "\t\t\t" << pacquire_timeouts_array << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->releaseCount << "," << std::endl;
     struct_body << "\t\t\t" << prelease_syncs_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << prelease_keys_array << " }" << ",";
+    struct_body << "\t\t\t" << prelease_keys_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "win32KeyedMutexAcquireReleaseInfoKHR");
     out << "\t\t" << "VkWin32KeyedMutexAcquireReleaseInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -10096,36 +10081,30 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoKHR(std::ostream &
 std::string GenerateStruct_VkD3D12FenceSubmitInfoKHR(std::ostream &out, const VkD3D12FenceSubmitInfoKHR* structInfo, Decoded_VkD3D12FenceSubmitInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pwait_semaphore_values_array = "pwait_semaphore_values_array_" + std::to_string(consumer.GetNextId());
+    std::string pwait_semaphore_values_array = "NULL";
     if (structInfo->waitSemaphoreValuesCount > 0) {
         std::string pwait_semaphore_values_values = toStringJoin(structInfo->pWaitSemaphoreValues,
                                                                  structInfo->pWaitSemaphoreValues + structInfo->waitSemaphoreValuesCount,
                                                                  [](uint64_t current) { return std::to_string(current); },
                                                                  ", ");
-        if (structInfo->waitSemaphoreValuesCount == 1) {
-            pwait_semaphore_values_array = "&" + pwait_semaphore_values_values;
-        } else if (structInfo->waitSemaphoreValuesCount > 1) {
-            out << "\t\t" << "uint64_t " << pwait_semaphore_values_array << "[] = {" << pwait_semaphore_values_values << "};" << std::endl;
-        }
+        pwait_semaphore_values_array = "pWaitSemaphoreValues_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pwait_semaphore_values_array << "[] = {" << pwait_semaphore_values_values << "};" << std::endl;
     }
-    std::string psignal_semaphore_values_array = "psignal_semaphore_values_array_" + std::to_string(consumer.GetNextId());
+    std::string psignal_semaphore_values_array = "NULL";
     if (structInfo->signalSemaphoreValuesCount > 0) {
         std::string psignal_semaphore_values_values = toStringJoin(structInfo->pSignalSemaphoreValues,
                                                                    structInfo->pSignalSemaphoreValues + structInfo->signalSemaphoreValuesCount,
                                                                    [](uint64_t current) { return std::to_string(current); },
                                                                    ", ");
-        if (structInfo->signalSemaphoreValuesCount == 1) {
-            psignal_semaphore_values_array = "&" + psignal_semaphore_values_values;
-        } else if (structInfo->signalSemaphoreValuesCount > 1) {
-            out << "\t\t" << "uint64_t " << psignal_semaphore_values_array << "[] = {" << psignal_semaphore_values_values << "};" << std::endl;
-        }
+        psignal_semaphore_values_array = "pSignalSemaphoreValues_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << psignal_semaphore_values_array << "[] = {" << psignal_semaphore_values_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->waitSemaphoreValuesCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pwait_semaphore_values_array << " }" << "," << std::endl;
+    struct_body << "\t\t\t" << pwait_semaphore_values_array << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->signalSemaphoreValuesCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << psignal_semaphore_values_array << " }" << ",";
+    struct_body << "\t\t\t" << psignal_semaphore_values_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "d3D12FenceSubmitInfoKHR");
     out << "\t\t" << "VkD3D12FenceSubmitInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11095,22 +11074,19 @@ std::string GenerateStruct_VkPhysicalDevicePresentIdFeaturesKHR(std::ostream &ou
 std::string GenerateStruct_VkPresentIdKHR(std::ostream &out, const VkPresentIdKHR* structInfo, Decoded_VkPresentIdKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppresent_ids_array = "ppresent_ids_array_" + std::to_string(consumer.GetNextId());
+    std::string ppresent_ids_array = "NULL";
     if (structInfo->swapchainCount > 0) {
         std::string ppresent_ids_values = toStringJoin(structInfo->pPresentIds,
                                                        structInfo->pPresentIds + structInfo->swapchainCount,
                                                        [](uint64_t current) { return std::to_string(current); },
                                                        ", ");
-        if (structInfo->swapchainCount == 1) {
-            ppresent_ids_array = "&" + ppresent_ids_values;
-        } else if (structInfo->swapchainCount > 1) {
-            out << "\t\t" << "uint64_t " << ppresent_ids_array << "[] = {" << ppresent_ids_values << "};" << std::endl;
-        }
+        ppresent_ids_array = "pPresentIds_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << ppresent_ids_array << "[] = {" << ppresent_ids_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << ppresent_ids_array << " }" << ",";
+    struct_body << "\t\t\t" << ppresent_ids_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "presentIdKHR");
     out << "\t\t" << "VkPresentIdKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11904,22 +11880,19 @@ std::string GenerateStruct_VkPhysicalDevicePresentId2FeaturesKHR(std::ostream &o
 std::string GenerateStruct_VkPresentId2KHR(std::ostream &out, const VkPresentId2KHR* structInfo, Decoded_VkPresentId2KHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppresent_ids_array = "ppresent_ids_array_" + std::to_string(consumer.GetNextId());
+    std::string ppresent_ids_array = "NULL";
     if (structInfo->swapchainCount > 0) {
         std::string ppresent_ids_values = toStringJoin(structInfo->pPresentIds,
                                                        structInfo->pPresentIds + structInfo->swapchainCount,
                                                        [](uint64_t current) { return std::to_string(current); },
                                                        ", ");
-        if (structInfo->swapchainCount == 1) {
-            ppresent_ids_array = "&" + ppresent_ids_values;
-        } else if (structInfo->swapchainCount > 1) {
-            out << "\t\t" << "uint64_t " << ppresent_ids_array << "[] = {" << ppresent_ids_values << "};" << std::endl;
-        }
+        ppresent_ids_array = "pPresentIds_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << ppresent_ids_array << "[] = {" << ppresent_ids_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << ppresent_ids_array << " }" << ",";
+    struct_body << "\t\t\t" << ppresent_ids_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "presentId2KHR");
     out << "\t\t" << "VkPresentId2KHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -13112,17 +13085,14 @@ std::string GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(std::ostream &out
         pbuffer_indices_array = "pBufferIndices_" + std::to_string(consumer.GetNextId());
         out << "\t\t" << "uint32_t " << pbuffer_indices_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pBufferIndices, structInfo->setCount) << ";" << std::endl;
     }
-    std::string poffsets_array = "poffsets_array_" + std::to_string(consumer.GetNextId());
+    std::string poffsets_array = "NULL";
     if (structInfo->setCount > 0) {
         std::string poffsets_values = toStringJoin(structInfo->pOffsets,
                                                    structInfo->pOffsets + structInfo->setCount,
                                                    [](VkDeviceSize current) { return std::to_string(current); },
                                                    ", ");
-        if (structInfo->setCount == 1) {
-            poffsets_array = "&" + poffsets_values;
-        } else if (structInfo->setCount > 1) {
-            out << "\t\t" << "VkDeviceSize " << poffsets_array << "[] = {" << poffsets_values << "};" << std::endl;
-        }
+        poffsets_array = "pOffsets_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkDeviceSize " << poffsets_array << "[] = {" << poffsets_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
@@ -13131,7 +13101,7 @@ std::string GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(std::ostream &out
     struct_body << "\t\t\t" << structInfo->firstSet << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->setCount << "," << std::endl;
     struct_body << "\t\t\t" << pbuffer_indices_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << poffsets_array << " }" << ",";
+    struct_body << "\t\t\t" << poffsets_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "setDescriptorBufferOffsetsInfoEXT");
     out << "\t\t" << "VkSetDescriptorBufferOffsetsInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -14651,17 +14621,14 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoNV(std::ostream &o
             out << "\t\t" << "VkDeviceMemory " << pacquire_syncs_array << "[] = {" << pacquire_syncs_values << "};" << std::endl;
         }
     }
-    std::string pacquire_keys_array = "pacquire_keys_array_" + std::to_string(consumer.GetNextId());
+    std::string pacquire_keys_array = "NULL";
     if (structInfo->acquireCount > 0) {
         std::string pacquire_keys_values = toStringJoin(structInfo->pAcquireKeys,
                                                         structInfo->pAcquireKeys + structInfo->acquireCount,
                                                         [](uint64_t current) { return std::to_string(current); },
                                                         ", ");
-        if (structInfo->acquireCount == 1) {
-            pacquire_keys_array = "&" + pacquire_keys_values;
-        } else if (structInfo->acquireCount > 1) {
-            out << "\t\t" << "uint64_t " << pacquire_keys_array << "[] = {" << pacquire_keys_values << "};" << std::endl;
-        }
+        pacquire_keys_array = "pAcquireKeys_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pacquire_keys_array << "[] = {" << pacquire_keys_values << "};" << std::endl;
     }
     std::string pacquire_timeout_milliseconds_array = "NULL";
     if (structInfo->pAcquireTimeoutMilliseconds != NULL) {
@@ -14681,27 +14648,24 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoNV(std::ostream &o
             out << "\t\t" << "VkDeviceMemory " << prelease_syncs_array << "[] = {" << prelease_syncs_values << "};" << std::endl;
         }
     }
-    std::string prelease_keys_array = "prelease_keys_array_" + std::to_string(consumer.GetNextId());
+    std::string prelease_keys_array = "NULL";
     if (structInfo->releaseCount > 0) {
         std::string prelease_keys_values = toStringJoin(structInfo->pReleaseKeys,
                                                         structInfo->pReleaseKeys + structInfo->releaseCount,
                                                         [](uint64_t current) { return std::to_string(current); },
                                                         ", ");
-        if (structInfo->releaseCount == 1) {
-            prelease_keys_array = "&" + prelease_keys_values;
-        } else if (structInfo->releaseCount > 1) {
-            out << "\t\t" << "uint64_t " << prelease_keys_array << "[] = {" << prelease_keys_values << "};" << std::endl;
-        }
+        prelease_keys_array = "pReleaseKeys_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << prelease_keys_array << "[] = {" << prelease_keys_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->acquireCount << "," << std::endl;
     struct_body << "\t\t\t" << pacquire_syncs_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pacquire_keys_array << " }" << "," << std::endl;
+    struct_body << "\t\t\t" << pacquire_keys_array << "," << std::endl;
     struct_body << "\t\t\t" << pacquire_timeout_milliseconds_array << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->releaseCount << "," << std::endl;
     struct_body << "\t\t\t" << prelease_syncs_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << prelease_keys_array << " }" << ",";
+    struct_body << "\t\t\t" << prelease_keys_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "win32KeyedMutexAcquireReleaseInfoNV");
     out << "\t\t" << "VkWin32KeyedMutexAcquireReleaseInfoNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -16173,22 +16137,19 @@ std::string GenerateStruct_VkImageDrmFormatModifierExplicitCreateInfoEXT(std::os
 std::string GenerateStruct_VkImageDrmFormatModifierListCreateInfoEXT(std::ostream &out, const VkImageDrmFormatModifierListCreateInfoEXT* structInfo, Decoded_VkImageDrmFormatModifierListCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pdrm_format_modifiers_array = "pdrm_format_modifiers_array_" + std::to_string(consumer.GetNextId());
+    std::string pdrm_format_modifiers_array = "NULL";
     if (structInfo->drmFormatModifierCount > 0) {
         std::string pdrm_format_modifiers_values = toStringJoin(structInfo->pDrmFormatModifiers,
                                                                 structInfo->pDrmFormatModifiers + structInfo->drmFormatModifierCount,
                                                                 [](uint64_t current) { return std::to_string(current); },
                                                                 ", ");
-        if (structInfo->drmFormatModifierCount == 1) {
-            pdrm_format_modifiers_array = "&" + pdrm_format_modifiers_values;
-        } else if (structInfo->drmFormatModifierCount > 1) {
-            out << "\t\t" << "uint64_t " << pdrm_format_modifiers_array << "[] = {" << pdrm_format_modifiers_values << "};" << std::endl;
-        }
+        pdrm_format_modifiers_array = "pDrmFormatModifiers_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pdrm_format_modifiers_array << "[] = {" << pdrm_format_modifiers_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->drmFormatModifierCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pdrm_format_modifiers_array << " }" << ",";
+    struct_body << "\t\t\t" << pdrm_format_modifiers_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "imageDrmFormatModifierListCreateInfoEXT");
     out << "\t\t" << "VkImageDrmFormatModifierListCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -17336,23 +17297,20 @@ std::string GenerateStruct_VkSwapchainTimeDomainPropertiesEXT(std::ostream &out,
         ptime_domains_array = "pTimeDomains_" + std::to_string(consumer.GetNextId());
         out << "\t\t" << "VkTimeDomainKHR " << ptime_domains_array << "[] = {" << ptime_domains_values << "};" << std::endl;
     }
-    std::string ptime_domain_ids_array = "ptime_domain_ids_array_" + std::to_string(consumer.GetNextId());
+    std::string ptime_domain_ids_array = "NULL";
     if (structInfo->timeDomainCount > 0) {
         std::string ptime_domain_ids_values = toStringJoin(structInfo->pTimeDomainIds,
                                                            structInfo->pTimeDomainIds + structInfo->timeDomainCount,
                                                            [](uint64_t current) { return std::to_string(current); },
                                                            ", ");
-        if (structInfo->timeDomainCount == 1) {
-            ptime_domain_ids_array = "&" + ptime_domain_ids_values;
-        } else if (structInfo->timeDomainCount > 1) {
-            out << "\t\t" << "uint64_t " << ptime_domain_ids_array << "[] = {" << ptime_domain_ids_values << "};" << std::endl;
-        }
+        ptime_domain_ids_array = "pTimeDomainIds_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << ptime_domain_ids_array << "[] = {" << ptime_domain_ids_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->timeDomainCount << "," << std::endl;
     struct_body << "\t\t\t" << ptime_domains_array << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << ptime_domain_ids_array << " }" << ",";
+    struct_body << "\t\t\t" << ptime_domain_ids_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "swapchainTimeDomainPropertiesEXT");
     out << "\t\t" << "VkSwapchainTimeDomainPropertiesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -17672,34 +17630,28 @@ std::string GenerateStruct_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT(std
 std::string GenerateStruct_VkPhysicalDeviceMemoryBudgetPropertiesEXT(std::ostream &out, const VkPhysicalDeviceMemoryBudgetPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string heap_budget_array = "heap_budget_array_" + std::to_string(consumer.GetNextId());
+    std::string heap_budget_array = "NULL";
     if (VK_MAX_MEMORY_HEAPS > 0) {
         std::string heap_budget_values = toStringJoin(structInfo->heapBudget,
                                                       structInfo->heapBudget + VK_MAX_MEMORY_HEAPS,
                                                       [](VkDeviceSize current) { return std::to_string(current); },
                                                       ", ");
-        if (VK_MAX_MEMORY_HEAPS == 1) {
-            heap_budget_array = "&" + heap_budget_values;
-        } else if (VK_MAX_MEMORY_HEAPS > 1) {
-            out << "\t\t" << "VkDeviceSize " << heap_budget_array << "[] = {" << heap_budget_values << "};" << std::endl;
-        }
+        heap_budget_array = "heapBudget_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkDeviceSize " << heap_budget_array << "[] = {" << heap_budget_values << "};" << std::endl;
     }
-    std::string heap_usage_array = "heap_usage_array_" + std::to_string(consumer.GetNextId());
+    std::string heap_usage_array = "NULL";
     if (VK_MAX_MEMORY_HEAPS > 0) {
         std::string heap_usage_values = toStringJoin(structInfo->heapUsage,
                                                      structInfo->heapUsage + VK_MAX_MEMORY_HEAPS,
                                                      [](VkDeviceSize current) { return std::to_string(current); },
                                                      ", ");
-        if (VK_MAX_MEMORY_HEAPS == 1) {
-            heap_usage_array = "&" + heap_usage_values;
-        } else if (VK_MAX_MEMORY_HEAPS > 1) {
-            out << "\t\t" << "VkDeviceSize " << heap_usage_array << "[] = {" << heap_usage_values << "};" << std::endl;
-        }
+        heap_usage_array = "heapUsage_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkDeviceSize " << heap_usage_array << "[] = {" << heap_usage_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << heap_budget_array << " }" << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << heap_usage_array << " }" << ",";
+    struct_body << "\t\t\t" << heap_budget_array << "," << std::endl;
+    struct_body << "\t\t\t" << heap_usage_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMemoryBudgetPropertiesEXT");
     out << "\t\t" << "VkPhysicalDeviceMemoryBudgetPropertiesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -21970,48 +21922,39 @@ std::string GenerateStruct_VkTensorCaptureDescriptorDataInfoARM(std::ostream &ou
 std::string GenerateStruct_VkTensorCopyARM(std::ostream &out, const VkTensorCopyARM* structInfo, Decoded_VkTensorCopyARM* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string psrc_offset_array = "psrc_offset_array_" + std::to_string(consumer.GetNextId());
+    std::string psrc_offset_array = "NULL";
     if (structInfo->dimensionCount > 0) {
         std::string psrc_offset_values = toStringJoin(structInfo->pSrcOffset,
                                                       structInfo->pSrcOffset + structInfo->dimensionCount,
                                                       [](uint64_t current) { return std::to_string(current); },
                                                       ", ");
-        if (structInfo->dimensionCount == 1) {
-            psrc_offset_array = "&" + psrc_offset_values;
-        } else if (structInfo->dimensionCount > 1) {
-            out << "\t\t" << "uint64_t " << psrc_offset_array << "[] = {" << psrc_offset_values << "};" << std::endl;
-        }
+        psrc_offset_array = "pSrcOffset_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << psrc_offset_array << "[] = {" << psrc_offset_values << "};" << std::endl;
     }
-    std::string pdst_offset_array = "pdst_offset_array_" + std::to_string(consumer.GetNextId());
+    std::string pdst_offset_array = "NULL";
     if (structInfo->dimensionCount > 0) {
         std::string pdst_offset_values = toStringJoin(structInfo->pDstOffset,
                                                       structInfo->pDstOffset + structInfo->dimensionCount,
                                                       [](uint64_t current) { return std::to_string(current); },
                                                       ", ");
-        if (structInfo->dimensionCount == 1) {
-            pdst_offset_array = "&" + pdst_offset_values;
-        } else if (structInfo->dimensionCount > 1) {
-            out << "\t\t" << "uint64_t " << pdst_offset_array << "[] = {" << pdst_offset_values << "};" << std::endl;
-        }
+        pdst_offset_array = "pDstOffset_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pdst_offset_array << "[] = {" << pdst_offset_values << "};" << std::endl;
     }
-    std::string pextent_array = "pextent_array_" + std::to_string(consumer.GetNextId());
+    std::string pextent_array = "NULL";
     if (structInfo->dimensionCount > 0) {
         std::string pextent_values = toStringJoin(structInfo->pExtent,
                                                   structInfo->pExtent + structInfo->dimensionCount,
                                                   [](uint64_t current) { return std::to_string(current); },
                                                   ", ");
-        if (structInfo->dimensionCount == 1) {
-            pextent_array = "&" + pextent_values;
-        } else if (structInfo->dimensionCount > 1) {
-            out << "\t\t" << "uint64_t " << pextent_array << "[] = {" << pextent_values << "};" << std::endl;
-        }
+        pextent_array = "pExtent_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint64_t " << pextent_array << "[] = {" << pextent_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dimensionCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << psrc_offset_array << " }" << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pdst_offset_array << " }" << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pextent_array << " }" << ",";
+    struct_body << "\t\t\t" << psrc_offset_array << "," << std::endl;
+    struct_body << "\t\t\t" << pdst_offset_array << "," << std::endl;
+    struct_body << "\t\t\t" << pextent_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "tensorCopyARM");
     out << "\t\t" << "VkTensorCopyARM " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -24241,22 +24184,19 @@ std::string GenerateStruct_VkStridedDeviceAddressNV(std::ostream &out, const VkS
 std::string GenerateStruct_VkWriteDescriptorSetPartitionedAccelerationStructureNV(std::ostream &out, const VkWriteDescriptorSetPartitionedAccelerationStructureNV* structInfo, Decoded_VkWriteDescriptorSetPartitionedAccelerationStructureNV* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pacceleration_structures_array = "pacceleration_structures_array_" + std::to_string(consumer.GetNextId());
+    std::string pacceleration_structures_array = "NULL";
     if (structInfo->accelerationStructureCount > 0) {
         std::string pacceleration_structures_values = toStringJoin(structInfo->pAccelerationStructures,
                                                                    structInfo->pAccelerationStructures + structInfo->accelerationStructureCount,
                                                                    [](VkDeviceAddress current) { return std::to_string(current); },
                                                                    ", ");
-        if (structInfo->accelerationStructureCount == 1) {
-            pacceleration_structures_array = "&" + pacceleration_structures_values;
-        } else if (structInfo->accelerationStructureCount > 1) {
-            out << "\t\t" << "VkDeviceAddress " << pacceleration_structures_array << "[] = {" << pacceleration_structures_values << "};" << std::endl;
-        }
+        pacceleration_structures_array = "pAccelerationStructures_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkDeviceAddress " << pacceleration_structures_array << "[] = {" << pacceleration_structures_values << "};" << std::endl;
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->accelerationStructureCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pacceleration_structures_array << " }" << ",";
+    struct_body << "\t\t\t" << pacceleration_structures_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "writeDescriptorSetPartitionedAccelerationStructureNV");
     out << "\t\t" << "VkWriteDescriptorSetPartitionedAccelerationStructureNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -25023,17 +24963,14 @@ std::string GenerateStruct_VkPhysicalDevicePerformanceCountersByRegionProperties
 std::string GenerateStruct_VkRenderPassPerformanceCountersByRegionBeginInfoARM(std::ostream &out, const VkRenderPassPerformanceCountersByRegionBeginInfoARM* structInfo, Decoded_VkRenderPassPerformanceCountersByRegionBeginInfoARM* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pcounter_addresses_array = "pcounter_addresses_array_" + std::to_string(consumer.GetNextId());
+    std::string pcounter_addresses_array = "NULL";
     if (structInfo->counterAddressCount > 0) {
         std::string pcounter_addresses_values = toStringJoin(structInfo->pCounterAddresses,
                                                              structInfo->pCounterAddresses + structInfo->counterAddressCount,
                                                              [](VkDeviceAddress current) { return std::to_string(current); },
                                                              ", ");
-        if (structInfo->counterAddressCount == 1) {
-            pcounter_addresses_array = "&" + pcounter_addresses_values;
-        } else if (structInfo->counterAddressCount > 1) {
-            out << "\t\t" << "VkDeviceAddress " << pcounter_addresses_array << "[] = {" << pcounter_addresses_values << "};" << std::endl;
-        }
+        pcounter_addresses_array = "pCounterAddresses_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkDeviceAddress " << pcounter_addresses_array << "[] = {" << pcounter_addresses_values << "};" << std::endl;
     }
     std::string pcounter_indices_array = "NULL";
     if (structInfo->pCounterIndices != NULL) {
@@ -25043,7 +24980,7 @@ std::string GenerateStruct_VkRenderPassPerformanceCountersByRegionBeginInfoARM(s
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->counterAddressCount << "," << std::endl;
-    struct_body << "\t\t\t" << "{ *" << pcounter_addresses_array << " }" << "," << std::endl;
+    struct_body << "\t\t\t" << pcounter_addresses_array << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->serializeRegions << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->counterIndexCount << "," << std::endl;
     struct_body << "\t\t\t" << pcounter_indices_array << ",";
