@@ -136,6 +136,7 @@ class ApiCaptureManager
 
     bool ScreenshotsEnabled() { return common_manager_->ScreenshotsEnabled(); }
     bool ShouldTriggerScreenshot() { return common_manager_->ShouldTriggerScreenshot(); }
+    bool IsScreenshotHotkeyPressed() { return common_manager_->IsScreenshotHotkeyPressed(); }
 
     void CheckContinueCaptureForWriteMode(uint32_t                                               current_boundary_count,
                                           std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)

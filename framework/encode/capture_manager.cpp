@@ -127,10 +127,11 @@ CommonCaptureManager::CommonCaptureManager() :
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
-    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false), skip_threads_with_invalid_data_(false)
+    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
+    previous_screenshot_hotkey_state_(false), disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false),
+    force_command_serialization_(false), queue_zero_only_(false), allow_pipeline_compile_required_(false),
+    quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0), write_assets_(false),
+    previous_write_assets_(false), skip_threads_with_invalid_data_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -417,6 +418,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     screenshot_format_    = trace_settings.screenshot_format;
     screenshot_indices_   = CalcScreenshotIndices(trace_settings.screenshot_ranges, trace_settings.screenshot_interval);
     screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
+    screenshot_key_       = trace_settings.screenshot_key;
     disable_dxr_          = trace_settings.disable_dxr;
     disable_meta_command_ = trace_settings.disable_meta_command;
     accel_struct_padding_ = trace_settings.accel_struct_padding;
@@ -828,6 +830,20 @@ bool CommonCaptureManager::IsTrimHotkeyPressed()
     bool hotkey_state      = keyboard_.GetKeyState(trim_key_);
     bool hotkey_pressed    = hotkey_state && !previous_hotkey_state_;
     previous_hotkey_state_ = hotkey_state;
+    return hotkey_pressed;
+}
+
+bool CommonCaptureManager::IsScreenshotHotkeyPressed()
+{
+    if (screenshot_key_.empty())
+    {
+        return false;
+    }
+
+    // Return true when GetKeyState() transitions from false to true
+    bool hotkey_state                 = keyboard_.GetKeyState(screenshot_key_);
+    bool hotkey_pressed               = hotkey_state && !previous_screenshot_hotkey_state_;
+    previous_screenshot_hotkey_state_ = hotkey_state;
     return hotkey_pressed;
 }
 
