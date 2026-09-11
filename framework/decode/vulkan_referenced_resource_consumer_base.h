@@ -233,6 +233,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                           format::HandleId                                         device,
                                           StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo);
 
+    void MarkFrameBoundaryResourcesAsUsed(const PNextNode* pnext);
+
     template <typename T>
     void Process_vkQueueSubmit2(StructPointerDecoder<T>* pSubmits)
     {
@@ -245,6 +247,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
             for (size_t i = 0; i < submit_count; ++i)
             {
+                MarkFrameBoundaryResourcesAsUsed(submits[i].pNext);
+
                 size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
                 const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
 
