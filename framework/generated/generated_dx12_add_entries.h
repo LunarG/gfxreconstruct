@@ -72,6 +72,7 @@ template <typename ParentWrapper>
 const std::unordered_map<IID, std::function<void(typename void**, format::ApiCallId, ParentWrapper*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryFunctionTable
 {
     { IID_ID3D12RootSignature, AddEntry<ID3D12RootSignature_Wrapper, ParentWrapper> },
+    { IID_ID3D12RootSignature1, AddEntry<ID3D12RootSignature_Wrapper, ParentWrapper> },
     { IID_ID3D12RootSignatureDeserializer, AddEntry<ID3D12RootSignatureDeserializer_Wrapper, ParentWrapper> },
     { IID_ID3D12VersionedRootSignatureDeserializer, AddEntry<ID3D12VersionedRootSignatureDeserializer_Wrapper, ParentWrapper> },
     { IID_ID3D12CommandAllocator, AddEntry<ID3D12CommandAllocator_Wrapper, ParentWrapper> },
@@ -124,11 +125,13 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Device12, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device13, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device14, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
+    { IID_ID3D12Device15, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12StateObjectDatabase, AddEntry<ID3D12StateObjectDatabase_Wrapper, ParentWrapper> },
     { IID_ID3D12VirtualizationGuestDevice, AddEntry<ID3D12VirtualizationGuestDevice_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools1, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools2, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
+    { IID_ID3D12RuntimeValidationControl, AddEntry<ID3D12RuntimeValidationControl_Wrapper, ParentWrapper> },
     { IID_ID3D12PageableTools, AddEntry<ID3D12PageableTools_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceTools, AddEntry<ID3D12DeviceTools_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceTools1, AddEntry<ID3D12DeviceTools_Wrapper, ParentWrapper> },
@@ -138,6 +141,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DeviceConfiguration, AddEntry<ID3D12DeviceConfiguration_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceConfiguration1, AddEntry<ID3D12DeviceConfiguration_Wrapper, ParentWrapper> },
     { IID_ID3D12StateObjectDatabaseFactory, AddEntry<ID3D12StateObjectDatabaseFactory_Wrapper, ParentWrapper> },
+    { IID_ID3D12ApplicationIdentity, AddEntry<ID3D12ApplicationIdentity_Wrapper, ParentWrapper> },
     { IID_ID3D12CommandList, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList1, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
@@ -152,6 +156,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12GraphicsCommandList10, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12DSRDeviceFactory, AddEntry<ID3D12DSRDeviceFactory_Wrapper, ParentWrapper> },
     { IID_ID3D12GBVDiagnostics, AddEntry<ID3D12GBVDiagnostics_Wrapper, ParentWrapper> },
+    { IID_ID3D12DeviceStatistics, AddEntry<ID3D12DeviceStatistics_Wrapper, ParentWrapper> },
     { IID_ID3D10Blob, AddEntry<ID3D10Blob_Wrapper, ParentWrapper> },
     { IID_ID3DDestructionNotifier, AddEntry<ID3DDestructionNotifier_Wrapper, ParentWrapper> },
     { IID_ID3D12Debug1, AddEntry<ID3D12Debug1_Wrapper, ParentWrapper> },
@@ -224,6 +229,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
 const std::unordered_map<IID, std::function<void(typename void**, format::ApiCallId, void*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryVoidFunctionTable
 {
     { IID_ID3D12RootSignature, AddEntry<ID3D12RootSignature_Wrapper> },
+    { IID_ID3D12RootSignature1, AddEntry<ID3D12RootSignature_Wrapper> },
     { IID_ID3D12RootSignatureDeserializer, AddEntry<ID3D12RootSignatureDeserializer_Wrapper> },
     { IID_ID3D12VersionedRootSignatureDeserializer, AddEntry<ID3D12VersionedRootSignatureDeserializer_Wrapper> },
     { IID_ID3D12CommandAllocator, AddEntry<ID3D12CommandAllocator_Wrapper> },
@@ -276,11 +282,13 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Device12, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device13, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device14, AddEntry<ID3D12Device_Wrapper> },
+    { IID_ID3D12Device15, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12StateObjectDatabase, AddEntry<ID3D12StateObjectDatabase_Wrapper> },
     { IID_ID3D12VirtualizationGuestDevice, AddEntry<ID3D12VirtualizationGuestDevice_Wrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper> },
     { IID_ID3D12Tools1, AddEntry<ID3D12Tools_Wrapper> },
     { IID_ID3D12Tools2, AddEntry<ID3D12Tools_Wrapper> },
+    { IID_ID3D12RuntimeValidationControl, AddEntry<ID3D12RuntimeValidationControl_Wrapper> },
     { IID_ID3D12PageableTools, AddEntry<ID3D12PageableTools_Wrapper> },
     { IID_ID3D12DeviceTools, AddEntry<ID3D12DeviceTools_Wrapper> },
     { IID_ID3D12DeviceTools1, AddEntry<ID3D12DeviceTools_Wrapper> },
@@ -290,6 +298,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DeviceConfiguration, AddEntry<ID3D12DeviceConfiguration_Wrapper> },
     { IID_ID3D12DeviceConfiguration1, AddEntry<ID3D12DeviceConfiguration_Wrapper> },
     { IID_ID3D12StateObjectDatabaseFactory, AddEntry<ID3D12StateObjectDatabaseFactory_Wrapper> },
+    { IID_ID3D12ApplicationIdentity, AddEntry<ID3D12ApplicationIdentity_Wrapper> },
     { IID_ID3D12CommandList, AddEntry<ID3D12CommandList_Wrapper> },
     { IID_ID3D12GraphicsCommandList, AddEntry<ID3D12CommandList_Wrapper> },
     { IID_ID3D12GraphicsCommandList1, AddEntry<ID3D12CommandList_Wrapper> },
@@ -304,6 +313,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12GraphicsCommandList10, AddEntry<ID3D12CommandList_Wrapper> },
     { IID_ID3D12DSRDeviceFactory, AddEntry<ID3D12DSRDeviceFactory_Wrapper> },
     { IID_ID3D12GBVDiagnostics, AddEntry<ID3D12GBVDiagnostics_Wrapper> },
+    { IID_ID3D12DeviceStatistics, AddEntry<ID3D12DeviceStatistics_Wrapper> },
     { IID_ID3D10Blob, AddEntry<ID3D10Blob_Wrapper> },
     { IID_ID3DDestructionNotifier, AddEntry<ID3DDestructionNotifier_Wrapper> },
     { IID_ID3D12Debug1, AddEntry<ID3D12Debug1_Wrapper> },
@@ -378,6 +388,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     GFXRECON_ASSERT(wrapper != nullptr);
     auto riid = wrapper->GetRiid();
     if(riid == IID_ID3D12RootSignature)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12RootSignature_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12RootSignature1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12RootSignature_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
@@ -642,6 +657,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12Device15)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12StateObjectDatabase)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12StateObjectDatabase_Wrapper*>(wrapper);
@@ -665,6 +685,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D12Tools2)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12Tools_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12RuntimeValidationControl)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12RuntimeValidationControl_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12PageableTools)
@@ -710,6 +735,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D12StateObjectDatabaseFactory)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12StateObjectDatabaseFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12ApplicationIdentity)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12ApplicationIdentity_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12CommandList)
@@ -780,6 +810,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D12GBVDiagnostics)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12GBVDiagnostics_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DeviceStatistics)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceStatistics_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D10Blob)

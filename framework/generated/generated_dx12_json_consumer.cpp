@@ -341,6 +341,37 @@ void Dx12JsonConsumer::Process_ID3D12DeviceChild_GetDevice(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12RootSignature1_GetSerializedSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        SIZE_T return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12RootSignature1", object_id, "GetSerializedSize");
+    method[format::kNameReturn] = return_value;
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12RootSignature1_GetSerializedData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pData,
+        SIZE_T Size)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12RootSignature1", object_id, "GetSerializedData");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pData"], pData);
+        args["Size"] = Size;
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -4838,6 +4869,233 @@ void Dx12JsonConsumer::Process_ID3D12Device14_CreateRootSignatureFromSubobjectIn
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12Device15_RegisterTrimNotificationCallback(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_REGISTER_TRIM_NOTIFICATION>* pData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "RegisterTrimNotificationCallback");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pData"], pData);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_UnregisterTrimNotificationCallback(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DWORD CallbackCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "UnregisterTrimNotificationCallback");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        args["CallbackCookie"] = CallbackCookie;
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateShaderResourceView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateShaderResourceView");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        HandleToJson(args["pResource"], pResource);
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateUnorderedAccessView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        format::HandleId pCounterResource,
+        StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateUnorderedAccessView");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        HandleToJson(args["pResource"], pResource);
+        HandleToJson(args["pCounterResource"], pCounterResource);
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateConstantBufferView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateConstantBufferView");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateSampler2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateSampler2");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateRenderTargetView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateRenderTargetView");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        HandleToJson(args["pResource"], pResource);
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateDepthStencilView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateDepthStencilView");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        HandleToJson(args["pResource"], pResource);
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pTargetedResource,
+        format::HandleId pFeedbackResource,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "TryCreateSamplerFeedbackUnorderedAccessView");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        HandleToJson(args["pTargetedResource"], pTargetedResource);
+        HandleToJson(args["pFeedbackResource"], pFeedbackResource);
+        FieldToJson(args["DestDescriptor"], DestDescriptor);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_CreateQueryHeap1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
+        D3D12_QUERY_HEAP_FLAGS Flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvHeap)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "CreateQueryHeap1");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc);
+        args["Flags"] = D3D12_QUERY_HEAP_FLAGS_t{ Flags };
+        FieldToJson(args["riid"], riid);
+        HandleToJson(args["ppvHeap"], ppvHeap);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device15_ResolveQueryData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pQueryHeap,
+        D3D12_QUERY_TYPE Type,
+        UINT StartIndex,
+        UINT NumQueries,
+        uint64_t pResolvedQueryData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device15", object_id, "ResolveQueryData");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        HandleToJson(args["pQueryHeap"], pQueryHeap);
+        args["Type"] = Type;
+        args["StartIndex"] = StartIndex;
+        args["NumQueries"] = NumQueries;
+        args["pResolvedQueryData"] = pResolvedQueryData;
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_SetApplicationDesc(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -5103,6 +5361,33 @@ void Dx12JsonConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
         HandleToJson(args["pAdapter"], pAdapter);
         HandleToJson(args["pBlob"], pBlob);
     }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL bDisable)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12RuntimeValidationControl", object_id, "DisableFailuresFromStricterValidationInAppLocalRuntime");
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        Bool32ToJson(args["bDisable"], bDisable);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12RuntimeValidationControl", object_id, "FailuresFromStricterValidationInAppLocalRuntimeDisabled");
+    Bool32ToJson(method[format::kNameReturn], return_value);
     writer_->WriteBlockEnd();
 }
 
@@ -5462,6 +5747,25 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabaseFactory_CreateStateObjec
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12ApplicationIdentity_SetApplicationIdentity(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC>* pDesc,
+        Decoded_GUID AppId)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ApplicationIdentity", object_id, "SetApplicationIdentity");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc);
+        FieldToJson(args["AppId"], AppId);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -5735,6 +6039,23 @@ void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GBVReserved1(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GBVReserved1");
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12DeviceStatistics_GetStateObjectStatistics(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_STATISTICS>* pStatistics)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceStatistics", object_id, "GetStateObjectStatistics");
+    HresultToJson(method[format::kNameReturn], return_value);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pStatistics"], pStatistics);
+    }
     writer_->WriteBlockEnd();
 }
 

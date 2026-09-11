@@ -692,6 +692,62 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12RootSignature1_GetSerializedSize(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    SIZE_T                                      return_value)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedSize>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        auto replay_result = reinterpret_cast<ID3D12RootSignature1*>(replay_object->object)->GetSerializedSize();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedSize>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12RootSignature1_GetSerializedData(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    PointerDecoder<uint8_t>*                    pData,
+    SIZE_T                                      Size)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pData,
+            Size);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(Size);
+        }
+        auto replay_result = reinterpret_cast<ID3D12RootSignature1*>(replay_object->object)->GetSerializedData(pData->GetOutputPointer(),
+                                                                                                               Size);
+        CheckReplayResult("ID3D12RootSignature1_GetSerializedData", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pData,
+            Size);
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,
@@ -9754,6 +9810,401 @@ void Dx12ReplayConsumer::Process_ID3D12Device14_CreateRootSignatureFromSubobject
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12Device15_RegisterTrimNotificationCallback(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_REGISTER_TRIM_NOTIFICATION>* pData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_RegisterTrimNotificationCallback>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pData);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->RegisterTrimNotificationCallback(pData->GetOutputPointer());
+        CheckReplayResult("ID3D12Device15_RegisterTrimNotificationCallback", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_RegisterTrimNotificationCallback>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pData);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_UnregisterTrimNotificationCallback(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    DWORD                                       CallbackCookie)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_UnregisterTrimNotificationCallback>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            CallbackCookie);
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->UnregisterTrimNotificationCallback(CallbackCookie);
+        CheckReplayResult("ID3D12Device15_UnregisterTrimNotificationCallback", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_UnregisterTrimNotificationCallback>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            CallbackCookie);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateShaderResourceView(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pResource,
+    StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pResource,
+            pDesc,
+            DestDescriptor);
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateShaderResourceView(in_pResource,
+                                                                                                                   pDesc->GetPointer(),
+                                                                                                                   *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateShaderResourceView", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pResource,
+            pDesc,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateUnorderedAccessView(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pResource,
+    format::HandleId                            pCounterResource,
+    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pResource,
+            pCounterResource,
+            pDesc,
+            DestDescriptor);
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        auto in_pCounterResource = MapObject<ID3D12Resource>(pCounterResource);
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateUnorderedAccessView(in_pResource,
+                                                                                                                    in_pCounterResource,
+                                                                                                                    pDesc->GetPointer(),
+                                                                                                                    *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateUnorderedAccessView", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pResource,
+            pCounterResource,
+            pDesc,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateConstantBufferView(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pDesc,
+            DestDescriptor);
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateConstantBufferView(pDesc->GetPointer(),
+                                                                                                                   *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateConstantBufferView", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pDesc,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateSampler2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pDesc,
+            DestDescriptor);
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateSampler2(pDesc->GetPointer(),
+                                                                                                         *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateSampler2", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pDesc,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateRenderTargetView(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pResource,
+    StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pResource,
+            pDesc,
+            DestDescriptor);
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateRenderTargetView(in_pResource,
+                                                                                                                 pDesc->GetPointer(),
+                                                                                                                 *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateRenderTargetView", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pResource,
+            pDesc,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateDepthStencilView(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pResource,
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pResource,
+            pDesc,
+            DestDescriptor);
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateDepthStencilView(in_pResource,
+                                                                                                                 pDesc->GetPointer(),
+                                                                                                                 *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateDepthStencilView", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pResource,
+            pDesc,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pTargetedResource,
+    format::HandleId                            pFeedbackResource,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pTargetedResource,
+            pFeedbackResource,
+            DestDescriptor);
+        auto in_pTargetedResource = MapObject<ID3D12Resource>(pTargetedResource);
+        auto in_pFeedbackResource = MapObject<ID3D12Resource>(pFeedbackResource);
+        MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->TryCreateSamplerFeedbackUnorderedAccessView(in_pTargetedResource,
+                                                                                                                                   in_pFeedbackResource,
+                                                                                                                                   *DestDescriptor.decoded_value);
+        CheckReplayResult("ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pTargetedResource,
+            pFeedbackResource,
+            DestDescriptor);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_CreateQueryHeap1(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
+    D3D12_QUERY_HEAP_FLAGS                      Flags,
+    Decoded_GUID                                riid,
+    HandlePointerDecoder<void*>*                ppvHeap)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_CreateQueryHeap1>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pDesc,
+            Flags,
+            riid,
+            ppvHeap);
+        if(!ppvHeap->IsNull()) ppvHeap->SetHandleLength(1);
+        auto out_p_ppvHeap    = ppvHeap->GetPointer();
+        auto out_hp_ppvHeap   = ppvHeap->GetHandlePointer();
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->CreateQueryHeap1(pDesc->GetPointer(),
+                                                                                                        Flags,
+                                                                                                        *riid.decoded_value,
+                                                                                                        out_hp_ppvHeap);
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device15_CreateQueryHeap1);
+        }
+        CheckReplayResult("ID3D12Device15_CreateQueryHeap1", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_CreateQueryHeap1>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pDesc,
+            Flags,
+            riid,
+            ppvHeap);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Device15_ResolveQueryData(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pQueryHeap,
+    D3D12_QUERY_TYPE                            Type,
+    UINT                                        StartIndex,
+    UINT                                        NumQueries,
+    uint64_t                                    pResolvedQueryData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pQueryHeap,
+            Type,
+            StartIndex,
+            NumQueries,
+            pResolvedQueryData);
+        auto in_pQueryHeap = MapObject<ID3D12QueryHeap>(pQueryHeap);
+        auto in_pResolvedQueryData = PreProcessExternalObject(pResolvedQueryData, format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData, "ID3D12Device15_ResolveQueryData");
+        auto replay_result = reinterpret_cast<ID3D12Device15*>(replay_object->object)->ResolveQueryData(in_pQueryHeap,
+                                                                                                        Type,
+                                                                                                        StartIndex,
+                                                                                                        NumQueries,
+                                                                                                        in_pResolvedQueryData);
+        CheckReplayResult("ID3D12Device15_ResolveQueryData", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pQueryHeap,
+            Type,
+            StartIndex,
+            NumQueries,
+            pResolvedQueryData);
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_SetApplicationDesc(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,
@@ -10216,6 +10667,50 @@ void Dx12ReplayConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
             replay_result,
             pAdapter,
             pBlob);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    BOOL                                        bDisable)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            bDisable);
+        reinterpret_cast<ID3D12RuntimeValidationControl*>(replay_object->object)->DisableFailuresFromStricterValidationInAppLocalRuntime(bDisable);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            bDisable);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    BOOL                                        return_value)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        auto replay_result = reinterpret_cast<ID3D12RuntimeValidationControl*>(replay_object->object)->FailuresFromStricterValidationInAppLocalRuntimeDisabled();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -10882,6 +11377,36 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabaseFactory_CreateStateObj
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12ApplicationIdentity_SetApplicationIdentity(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC>* pDesc,
+    Decoded_GUID                                AppId)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12ApplicationIdentity_SetApplicationIdentity>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pDesc,
+            AppId);
+        auto replay_result = reinterpret_cast<ID3D12ApplicationIdentity*>(replay_object->object)->SetApplicationIdentity(pDesc->GetPointer(),
+                                                                                                                         *AppId.decoded_value);
+        CheckReplayResult("ID3D12ApplicationIdentity_SetApplicationIdentity", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12ApplicationIdentity_SetApplicationIdentity>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pDesc,
+            AppId);
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,
@@ -11467,6 +11992,36 @@ void Dx12ReplayConsumer::Process_ID3D12GBVDiagnostics_GBVReserved1(
             this,
             call_info,
             replay_object);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DeviceStatistics_GetStateObjectStatistics(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_STATISTICS>* pStatistics)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12DeviceStatistics_GetStateObjectStatistics>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pStatistics);
+        if(!pStatistics->IsNull())
+        {
+            pStatistics->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12DeviceStatistics*>(replay_object->object)->GetStateObjectStatistics(pStatistics->GetOutputPointer());
+        CheckReplayResult("ID3D12DeviceStatistics_GetStateObjectStatistics", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceStatistics_GetStateObjectStatistics>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pStatistics);
     }
 }
 

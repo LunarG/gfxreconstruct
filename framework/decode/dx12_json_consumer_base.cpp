@@ -428,6 +428,16 @@ void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Hand
                                 static_cast<const Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(
                                     feature_meta_struct_data));
                     break;
+                case D3D12_FEATURE_BARRIER_LAYOUT:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_BARRIER_LAYOUT*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS22:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS22*>(feature_meta_struct_data));
+                    break;
                 default:
                     FieldToJson(args["pFeatureSupportData"], nullptr);
                     FieldToJson(args[format::kNameWarning],

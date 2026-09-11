@@ -543,6 +543,39 @@ void Encode_ID3D12DeviceChild_GetDevice(
     }
 }
 
+void Encode_ID3D12RootSignature1_GetSerializedSize(
+    ID3D12RootSignature1_Wrapper* wrapper,
+    SIZE_T return_value)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedSize, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeSizeTValue(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12RootSignature1_GetSerializedData(
+    ID3D12RootSignature1_Wrapper* wrapper,
+    HRESULT return_value,
+    void* pData,
+    SIZE_T Size)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12RootSignature1_GetSerializedData, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeVoidArray(pData, Size, omit_output_data);
+        encoder->EncodeSizeTValue(Size);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_BYTECODE& value)
 {
     encoder->EncodeVoidArray(value.pShaderBytecode, value.BytecodeLength);
@@ -906,6 +939,14 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
     encoder->EncodeInt32Value(value.ExtendedCommandInfoSupported);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS22& value)
+{
+    encoder->EncodeInt32Value(value.ShaderExecutionReorderingActuallyReorders);
+    encoder->EncodeInt32Value(value.CreateByteOffsetViewsSupported);
+    encoder->EncodeUInt32Value(value.Max1DDispatchSize);
+    encoder->EncodeUInt32Value(value.Max1DDispatchMeshSize);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_TIGHT_ALIGNMENT& value)
 {
     encoder->EncodeEnumValue(value.SupportTier);
@@ -1210,6 +1251,14 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION
     encoder->EncodeUInt64Value(value.Location);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUFFER_SRV_BYTE_OFFSET& value)
+{
+    encoder->EncodeUInt64Value(value.Offset);
+    encoder->EncodeUInt64Value(value.Size);
+    encoder->EncodeUInt32Value(value.StructureByteStride);
+    encoder->EncodeEnumValue(value.Flags);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CONSTANT_BUFFER_VIEW_DESC& value)
 {
     encoder->EncodeUInt64Value(value.BufferLocation);
@@ -1281,6 +1330,15 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX3D_UAV& value)
     encoder->EncodeUInt32Value(value.MipSlice);
     encoder->EncodeUInt32Value(value.FirstWSlice);
     encoder->EncodeUInt32Value(value.WSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUFFER_UAV_BYTE_OFFSET& value)
+{
+    encoder->EncodeUInt64Value(value.Offset);
+    encoder->EncodeUInt64Value(value.Size);
+    encoder->EncodeUInt32Value(value.StructureByteStride);
+    encoder->EncodeUInt64Value(value.CounterOffsetInBytes);
+    encoder->EncodeEnumValue(value.Flags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUFFER_RTV& value)
@@ -6228,6 +6286,13 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_CACHE_SESSION_DE
     encoder->EncodeUInt64Value(value.Version);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_BARRIER_LAYOUT& value)
+{
+    encoder->EncodeEnumValue(value.CommandListType);
+    encoder->EncodeEnumValue(value.Layout);
+    encoder->EncodeInt32Value(value.Supported);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_SUBRESOURCE_RANGE& value)
 {
     encoder->EncodeUInt32Value(value.IndexOrFirstMipLevel);
@@ -6608,6 +6673,269 @@ void Encode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_TRIM_NOTIFICATION& value)
+{
+    encoder->EncodeVoidPtr(value.pContext);
+    encoder->EncodeEnumValue(value.Flags);
+    encoder->EncodeUInt64Value(value.NumBytesToTrim);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_REGISTER_TRIM_NOTIFICATION& value)
+{
+    encoder->EncodeFunctionPtr(value.pfnCallback);
+    encoder->EncodeVoidPtr(value.pContext);
+    encoder->EncodeUInt32Value(value.CallbackCookie);
+}
+
+void Encode_ID3D12Device15_RegisterTrimNotificationCallback(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_REGISTER_TRIM_NOTIFICATION* pData)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_RegisterTrimNotificationCallback, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pData, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12Device15_UnregisterTrimNotificationCallback(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    DWORD CallbackCookie)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_UnregisterTrimNotificationCallback, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeUInt32Value(CallbackCookie);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateShaderResourceView(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource);
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateUnorderedAccessView(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    ID3D12Resource* pCounterResource,
+    const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource);
+        encoder->EncodeObjectValue(pCounterResource);
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateConstantBufferView(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateSampler2(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_SAMPLER_DESC2* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateRenderTargetView(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource);
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateDepthStencilView(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource);
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pTargetedResource,
+    ID3D12Resource* pFeedbackResource,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pTargetedResource);
+        encoder->EncodeObjectValue(pFeedbackResource);
+        EncodeStruct(encoder, DestDescriptor);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper, return_value);
+    }
+}
+
+void Encode_ID3D12Device15_CreateQueryHeap1(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_QUERY_HEAP_DESC* pDesc,
+    D3D12_QUERY_HEAP_FLAGS Flags,
+    REFIID riid,
+    void** ppvHeap)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_CreateQueryHeap1, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pDesc);
+        encoder->EncodeEnumValue(Flags);
+        EncodeStruct(encoder, riid);
+        encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
+    }
+}
+
+void Encode_ID3D12Device15_ResolveQueryData(
+    ID3D12Device15_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12QueryHeap* pQueryHeap,
+    D3D12_QUERY_TYPE Type,
+    UINT StartIndex,
+    UINT NumQueries,
+    void* pResolvedQueryData)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device15_ResolveQueryData, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pQueryHeap);
+        encoder->EncodeEnumValue(Type);
+        encoder->EncodeUInt32Value(StartIndex);
+        encoder->EncodeUInt32Value(NumQueries);
+        encoder->EncodeVoidPtr(pResolvedQueryData);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_BY_KEY_DESC& value)
 {
     encoder->EncodeVoidArray(value.pKey, value.KeySize);
@@ -6898,6 +7226,30 @@ void Encode_ID3D12Tools2_SetApplicationSpecificDriverState(
         }
         encoder->EncodeObjectValue(pAdapter);
         encoder->EncodeObjectValue(pBlob);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(
+    ID3D12RuntimeValidationControl_Wrapper* wrapper,
+    BOOL bDisable)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeInt32Value(bDisable);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(
+    ID3D12RuntimeValidationControl_Wrapper* wrapper,
+    BOOL return_value)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled, wrapper->GetCaptureId());
+    if(encoder)
+    {
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -7314,6 +7666,27 @@ void Encode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(
     }
 }
 
+void Encode_ID3D12ApplicationIdentity_SetApplicationIdentity(
+    ID3D12ApplicationIdentity_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_APPLICATION_DESC* pDesc,
+    REFGUID AppId)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12ApplicationIdentity_SetApplicationIdentity, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pDesc);
+        EncodeStruct(encoder, AppId);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
     ID3D12GraphicsCommandList5_Wrapper* wrapper,
     D3D12_SHADING_RATE baseShadingRate,
@@ -7576,6 +7949,40 @@ void Encode_ID3D12GBVDiagnostics_GBVReserved1(
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved1, wrapper->GetCaptureId());
     if(encoder)
     {
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_CREATE_STATE_OBJECT_STATISTICS& value)
+{
+    encoder->EncodeUInt32Value(value.NumCreated);
+    encoder->EncodeUInt32Value(value.NumPSDBCacheMissed);
+    encoder->EncodeUInt32Value(value.NumTotalCacheMissed);
+    encoder->EncodeUInt32Value(value.NumCacheUnknown);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_STATISTICS& value)
+{
+    encoder->EncodeInt32Value(value.DefaultPSDBRegistered);
+    EncodeStruct(encoder, value.PipelineStateObjectStatistics);
+    EncodeStruct(encoder, value.StateObjectStatistics);
+}
+
+void Encode_ID3D12DeviceStatistics_GetStateObjectStatistics(
+    ID3D12DeviceStatistics_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_STATE_OBJECT_STATISTICS* pStatistics)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceStatistics_GetStateObjectStatistics, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pStatistics, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }

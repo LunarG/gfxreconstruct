@@ -414,6 +414,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             end_call_args = '{}'.format(descriptor_creation_param_name)
             if class_name:
                 end_call_args += ', wrapper'
+            if is_result:
+                end_call_args += ", return_value"
         elif is_command_list_call:
             begin_call_type = 'Tracked'
             end_call_type = 'CommandList'

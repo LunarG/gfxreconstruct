@@ -89,20 +89,22 @@ struct Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC
     Decoded_D3D12_TEXCUBE_SRV*                           TextureCube{ nullptr };
     Decoded_D3D12_TEXCUBE_ARRAY_SRV*                     TextureCubeArray{ nullptr };
     Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV* RaytracingAccelerationStructure{ nullptr };
+    Decoded_D3D12_BUFFER_SRV_BYTE_OFFSET*                BufferByteOffset{ nullptr };
 };
 
 struct Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC
 {
     using struct_type = D3D12_UNORDERED_ACCESS_VIEW_DESC;
-    D3D12_UNORDERED_ACCESS_VIEW_DESC* decoded_value{ nullptr };
-    Decoded_D3D12_BUFFER_UAV*         Buffer{ nullptr };
-    Decoded_D3D12_TEX1D_UAV*          Texture1D{ nullptr };
-    Decoded_D3D12_TEX1D_ARRAY_UAV*    Texture1DArray{ nullptr };
-    Decoded_D3D12_TEX2D_UAV*          Texture2D{ nullptr };
-    Decoded_D3D12_TEX2D_ARRAY_UAV*    Texture2DArray{ nullptr };
-    Decoded_D3D12_TEX2DMS_UAV*        Texture2DMS{ nullptr };
-    Decoded_D3D12_TEX2DMS_ARRAY_UAV*  Texture2DMSArray{ nullptr };
-    Decoded_D3D12_TEX3D_UAV*          Texture3D{ nullptr };
+    D3D12_UNORDERED_ACCESS_VIEW_DESC*     decoded_value{ nullptr };
+    Decoded_D3D12_BUFFER_UAV*             Buffer{ nullptr };
+    Decoded_D3D12_TEX1D_UAV*              Texture1D{ nullptr };
+    Decoded_D3D12_TEX1D_ARRAY_UAV*        Texture1DArray{ nullptr };
+    Decoded_D3D12_TEX2D_UAV*              Texture2D{ nullptr };
+    Decoded_D3D12_TEX2D_ARRAY_UAV*        Texture2DArray{ nullptr };
+    Decoded_D3D12_TEX2DMS_UAV*            Texture2DMS{ nullptr };
+    Decoded_D3D12_TEX2DMS_ARRAY_UAV*      Texture2DMSArray{ nullptr };
+    Decoded_D3D12_BUFFER_UAV_BYTE_OFFSET* BufferByteOffset{ nullptr };
+    Decoded_D3D12_TEX3D_UAV*              Texture3D{ nullptr };
 };
 
 struct Decoded_D3D12_RENDER_TARGET_VIEW_DESC
