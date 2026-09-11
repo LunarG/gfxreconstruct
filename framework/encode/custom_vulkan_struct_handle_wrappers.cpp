@@ -76,6 +76,7 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
                 value->pImageInfo = UnwrapDescriptorImageInfoStructArrayHandles(
                     value->descriptorType, value->pImageInfo, value->descriptorCount, unwrap_memory);
                 break;
