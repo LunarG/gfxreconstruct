@@ -129,20 +129,32 @@ bool FileTransformer::Process()
 
     if (!tool_.empty())
     {
+        // Quote a value as a JSON string, escaping the characters that would otherwise break the string (e.g. the
+        // backslashes of a Windows path).
+        auto quote = [](const std::string& value) {
+            std::string quoted = "\"";
+            for (const char c : value)
+            {
+                if ((c == '"') || (c == '\\'))
+                {
+                    quoted += '\\';
+                }
+                quoted += c;
+            }
+            quoted += '"';
+            return quoted;
+        };
+
         std::string data = "";
         data += "{\n";
-        data += "  \"input\": " + input_filename_ + ",\n";
-        data += "  \"output\": " + output_filename_ + ",\n";
-        data += "  \"tool\": " + tool_ + "\n";
+        data += "  \"input\": " + quote(input_filename_) + ",\n";
+        data += "  \"output\": " + quote(output_filename_) + ",\n";
+        data += "  \"tool\": " + quote(tool_) + "\n";
         data += "}";
         const size_t data_length = data.size();
 
-        format::AnnotationHeader annotation;
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = format::kJson;
-        GFXRECON_NARROWING_ASSIGN(annotation.label_length, label_length);
-        annotation.data_length       = data_length;
+        const format::AnnotationHeader annotation =
+            format::MakeAnnotationHeader(format::kJson, label_length, data_length);
         if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
             !WriteBytes(data.c_str(), data_length))
         {

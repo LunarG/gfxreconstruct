@@ -2313,8 +2313,7 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
 
     for (vulkan_wrappers::BufferViewWrapper* view_wrapper : buffer_wrapper->buffer_views)
     {
-        view_wrapper->buffer    = nullptr;
-        view_wrapper->buffer_id = format::kNullHandleId;
+        view_wrapper->buffer = nullptr;
     }
 }
 
@@ -2373,8 +2372,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
 
     for (vulkan_wrappers::ImageViewWrapper* view_wrapper : wrapper->image_views)
     {
-        view_wrapper->image    = nullptr;
-        view_wrapper->image_id = format::kNullHandleId;
+        view_wrapper->image = nullptr;
     }
 }
 

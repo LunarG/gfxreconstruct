@@ -56,7 +56,7 @@ The tool's output is an ordered list of JSON structures, or a single JSON struct
 
 ```json
 {"header":{"source-path":"..\\captures\\vkcube_frames_1_through_20_20240321T112609.gfxr","gfxrecon-version":"1.0.3-dev (dev:52a52d3+dx12)","vulkan-version":"1.3.280"}}
-{"index":1,"annotation":{"type":"kJson","label":"operation","data":"{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-03-21T15:26:09Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:52a52d3+dx12...
+{"index":1,"annotation":{"type":"kJson","label":"operation","data":{"tool":"capture","timestamp":"2024-03-21T15:26:09Z","gfxrecon-version":"1.0.3-dev (dev:52a52d3+dx12)","vulkan-version":"1.3.280"}}}
 {"index":2,"function":{"name":"vkCreateInstance","thread":1,"return":"VK_SUCCESS","args":{"pCreateInfo":...{"sType":"VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO","flags":"0x00000001","pApplicationInfo":{"sTyp...
 {"index":3,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":null}}}
 {"index":4,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":[2,3]}}}
@@ -95,13 +95,23 @@ This annotation contains the version of the GFXReconstruct source and Vulkan hea
 used to build the capture layer that was active during application capture.  In more
 straightforward terms, this is the version of GFXReconstruct that created the `.gfxr` file.
 
+An annotation block has a `"type"`, a `"label"` and a `"data"` field. When the type is
+`"kJson"` the `"data"` field holds the annotation's payload as a JSON value, so that its
+contents can be inspected directly. For any other type, and for a `"kJson"` payload that
+does not parse as JSON, the `"data"` field holds the payload as a string.
+
 ```json
 {
   "index": 1,
   "annotation": {
     "type": "kJson",
     "label": "operation",
-    "data": "{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-03-21T15:26:09Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:52a52d3+dx12)\",\n    \"vulkan-version\": \"1.3.280\"\n}"
+    "data": {
+      "tool": "capture",
+      "timestamp": "2024-03-21T15:26:09Z",
+      "gfxrecon-version": "1.0.3-dev (dev:52a52d3+dx12)",
+      "vulkan-version": "1.3.280"
+    }
   }
 }
 ```

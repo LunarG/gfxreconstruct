@@ -313,6 +313,15 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
 
+    // The members of VkBufferViewCreateInfo used to describe the view if its creation call is omitted at state write.
+    struct CreateInfo
+    {
+        VkBufferViewCreateFlags flags{ 0 };
+        VkFormat                format{ VK_FORMAT_UNDEFINED };
+        VkDeviceSize            offset{ 0 };
+        VkDeviceSize            range{ 0 };
+    } create_info;
+
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
@@ -321,6 +330,16 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
     format::HandleId device_id{ format::kNullHandleId };
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
+
+    // The members of VkImageViewCreateInfo used to describe the view if its creation call is omitted at state write.
+    struct CreateInfo
+    {
+        VkImageViewCreateFlags  flags{ 0 };
+        VkImageViewType         view_type{ VK_IMAGE_VIEW_TYPE_2D };
+        VkFormat                format{ VK_FORMAT_UNDEFINED };
+        VkComponentMapping      components{};
+        VkImageSubresourceRange subresource_range{};
+    } create_info;
 
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 
@@ -339,6 +358,17 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 
     // Track handles of image attachments for processing render pass layout transitions.
     std::vector<ImageWrapper*> attachments;
+
+    // The members of VkFramebufferCreateInfo used to describe the framebuffer if its creation call is omitted at state
+    // write.
+    struct CreateInfo
+    {
+        VkFramebufferCreateFlags flags{ 0 };
+        uint32_t                 attachment_count{ 0 };
+        uint32_t                 width{ 0 };
+        uint32_t                 height{ 0 };
+        uint32_t                 layers{ 0 };
+    } create_info;
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
