@@ -28,7 +28,9 @@ fi
 
 case "$1" in
     "" | -*)
-        exec "$CTEST" --test-dir "$TEST_BUILD_DIR" $CONFIG_ARGS --output-on-failure "$@"
+        # ctest also writes a JUnit file next to the captures, for CI reports.
+        exec "$CTEST" --test-dir "$TEST_BUILD_DIR" $CONFIG_ARGS --output-on-failure \
+            --output-junit "$PWD/ctest-results.xml" "$@"
         ;;
     *)
         TEST_DIR="$PWD"

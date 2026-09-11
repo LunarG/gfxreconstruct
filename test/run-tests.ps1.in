@@ -40,7 +40,8 @@ if ($ctest_config) {
 }
 
 if ($args.Count -eq 0 -or $args[0].StartsWith("-")) {
-    & $ctest --test-dir $test_build_dir @config_args --output-on-failure @args
+    # ctest also writes a JUnit file next to the captures, for CI reports.
+    & $ctest --test-dir $test_build_dir @config_args --output-on-failure --output-junit "$pwd\ctest-results.xml" @args
     exit $LASTEXITCODE
 } else {
     $test_dir = "$pwd"
