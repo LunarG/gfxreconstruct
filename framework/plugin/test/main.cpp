@@ -33,6 +33,8 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
     GfxrReplayEventHeader         last_event_header     = {};
     GfxrReplayQueueSubmitEndEvent last_submit_end_event = {};
     GfxrReplayFrameEndEvent       last_frame_end_event  = {};
+    uint32_t                      submit_begin_count    = 0;
+    uint32_t                      submit_end_count      = 0;
 
   protected:
     void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override
@@ -41,6 +43,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayQueueSubmitBeginEvent));
         last_event_header = event.header;
+        ++submit_begin_count;
     }
 
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override
@@ -50,6 +53,7 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayQueueSubmitEndEvent));
         last_event_header     = event.header;
         last_submit_end_event = event;
+        ++submit_end_count;
     }
 
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override
@@ -370,4 +374,25 @@ TEST_CASE("ReplayEventPluginLoader - read load", "[plugin]")
     plugin->QueueSubmitBegin(0);
     plugin->QueueSubmitEnd(0, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
     plugin->FrameEnd();
+}
+
+TEST_CASE("ReplayEventSink - submits outside a frame are not emitted", "[plugin]")
+{
+    TestReplayEventSink event_sink;
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+
+    uint64_t setup_submit = event_sink.QueueSubmitBegin(0);
+    REQUIRE(setup_submit == GFXR_REPLAY_INVALID_SUBMIT_INDEX);
+    event_sink.QueueSubmitEnd(setup_submit, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    REQUIRE(event_sink.submit_begin_count == 0);
+    REQUIRE(event_sink.submit_end_count == 0);
+
+    event_sink.FrameBegin(0);
+    uint64_t first_submit = event_sink.QueueSubmitBegin(0);
+    REQUIRE(first_submit == 0);
+    event_sink.QueueSubmitEnd(first_submit, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    event_sink.FrameEnd();
+    REQUIRE(event_sink.submit_begin_count == 1);
+    REQUIRE(event_sink.last_frame_end_event.first_submit_index == 0);
+    REQUIRE(event_sink.last_frame_end_event.last_submit_index == 0);
 }

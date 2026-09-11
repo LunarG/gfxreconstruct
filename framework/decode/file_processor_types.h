@@ -59,11 +59,12 @@ enum class ProcessBlockState : int32_t
     // Negative values indicate terminal states. Do not call ProcessBlocks again after receiving these.
     //
     // Returned when ProcessBlocks ...
-    kFrameBoundary = 1,  // encountered a frame boundary
-    kContinue      = 0,  // never returned by ProcessBlocks. Denotes placeholder/noop ProcessBlocksResult.
-    kEndProcessing = -1, // completed processing (block limit reached or decoder complete)
-    kError         = -2, // encountered an error
-    kEndOfFile     = -3, // clean EOF on the root capture file
+    kPreFrameBoundary = 2,  // finished processing pre-frame blocks
+    kFrameBoundary    = 1,  // encountered a frame boundary
+    kContinue         = 0,  // never returned by ProcessBlocks. Denotes placeholder/noop ProcessBlocksResult.
+    kEndProcessing    = -1, // completed processing (block limit reached or decoder complete)
+    kError            = -2, // encountered an error
+    kEndOfFile        = -3, // clean EOF on the root capture file
 };
 
 // Returns true if processing should continue (non-negative state values are non-terminal).

@@ -58,7 +58,11 @@ GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType typ
 
 uint64_t ReplayEventSink::QueueSubmitBegin(format::HandleId queue_id)
 {
-    GFXRECON_ASSERT(frame_active_);
+    // Submits outside a frame belong to state setup. Plugins do not see them.
+    if (!frame_active_)
+    {
+        return GFXR_REPLAY_INVALID_SUBMIT_INDEX;
+    }
 
     GfxrReplayQueueSubmitBeginEvent event = {};
     event.header                          = CreateEventHeader(GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN);
@@ -82,6 +86,11 @@ void ReplayEventSink::QueueSubmitEnd(uint64_t                              submi
                                      int32_t                               result,
                                      GfxrReplayQueueSubmitCompletionSource completion_source)
 {
+    if (submit_index == GFXR_REPLAY_INVALID_SUBMIT_INDEX)
+    {
+        return;
+    }
+
     GFXRECON_ASSERT(frame_active_);
 
     GfxrReplayQueueSubmitEndEvent event = {};
