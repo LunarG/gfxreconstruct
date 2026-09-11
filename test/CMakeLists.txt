@@ -58,6 +58,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/sparse-resources.cpp
         test_cases/triangle-extra-device.cpp
         test_cases/json-normalizer.cpp
+        test_cases/reruns.cpp
         verify-gfxr.cpp)
 
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
@@ -79,10 +80,13 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     # wait until ctest runs (PRE_TEST) and not happen at build time, when the install directory
     # does not exist yet. Every case gets the "smoke" label. Later labels select tests by driver
     # and by cost. TEST_LIST names the variable that holds the discovered cases at ctest time.
+    # NO_PRETTY_VALUES keeps the name that a parameterized test gives its parameter, such as
+    # "Serialized.CorrectGFXR/triangle", instead of the quoted parameter value.
     gtest_discover_tests(gfxrecon-testapp-runner
         WORKING_DIRECTORY ${GFXRECON_INSTALL_TESTDIR}
         DISCOVERY_MODE PRE_TEST
         DISCOVERY_TIMEOUT 60
+        NO_PRETTY_VALUES
         TEST_LIST GFXRECON_TESTAPP_TESTS
         PROPERTIES
             LABELS "smoke"

@@ -414,6 +414,34 @@ void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigge
     }
 }
 
+void verify_gfxr_serialized(const char* test_name)
+{
+    EnvironmentVariables env_vars;
+    env_vars.SetEnv("GFXRECON_FORCE_COMMAND_SERIALIZATION", "true");
+    verify_gfxr(test_name);
+}
+
+void verify_no_capture(const char* test_name)
+{
+    EnvironmentVariables env_vars;
+
+    Paths paths{ test_name, nullptr, false };
+
+    bool working_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
+
+    remove_previous_outputs({ paths.capture_path });
+
+    // The launcher is named gfxrecon-test-launcher, so this name never matches.
+    env_vars.SetEnv("GFXRECON_CAPTURE_PROCESS_NAME", "gfxrecon-no-such-process");
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    int result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
+                         << paths.working_directory;
+    ASSERT_FALSE(std::filesystem::exists(paths.capture_path))
+        << "capture file was produced with a process name that does not match: " << paths.capture_path;
+}
+
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
 {
     EnvironmentVariables env_vars;

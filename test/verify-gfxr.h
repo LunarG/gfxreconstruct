@@ -39,6 +39,22 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
 void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr, bool trigger_trimming = false);
 
 /**
+ * Run verify_gfxr with GFXRECON_FORCE_COMMAND_SERIALIZATION=true. The layer then takes one lock around
+ * every call. The capture must equal the same known good as the plain run.
+ *
+ * @param test_name - the name of the test app to launch
+ */
+void verify_gfxr_serialized(const char* test_name);
+
+/**
+ * Run an application with GFXRECON_CAPTURE_PROCESS_NAME set to a name that does not match the
+ * launcher. The layer must load, stay passive, and write no capture file.
+ *
+ * @param test_name - the name of the test app to launch
+ */
+void verify_no_capture(const char* test_name);
+
+/**
  * Run an application with capture enabled, then replay the resulting gfxr with gfxrecon-replay, asserting that the
  * replay process exits successfully.
  *
