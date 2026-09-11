@@ -82,6 +82,8 @@ Test apps are built as part of the default build CMAKE build process. In order t
 
 ## **Test App Verification**
 
+[test/README.md](test/README.md) describes the test layout, the labels, and the known-good files.
+
 To run the test cases, build and install the project.
 Then run `ctest --test-dir <build>/test`, or run the test script from the 'test' install directory.
 CMake gives every test case the Vulkan loader environment, so plain `ctest` works.
