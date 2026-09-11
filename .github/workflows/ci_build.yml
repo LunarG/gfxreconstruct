@@ -123,8 +123,10 @@ jobs:
     - name: Run test app test cases
       id: test_apps
       run: |
+        # No sudo. The loader only ignores VK_LAYER_PATH and VK_DRIVER_FILES when the effective
+        # user differs from the real user, and the tests need neither root nor a capability.
         cd ${{matrix.config.build_dir}}/linux/x64/output/test
-        sudo -n ./run-tests.sh
+        ./run-tests.sh
     - name: Report test results
       # The run-tests script makes ctest write this JUnit file. The summary goes to the job page
       # and needs no extra permissions, so it also works for a pull request from a fork.
