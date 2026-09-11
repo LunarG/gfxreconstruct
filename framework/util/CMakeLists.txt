@@ -149,6 +149,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_wayland_viewporter.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_wayland_fractional_scale_v1.h>
 )
 
 

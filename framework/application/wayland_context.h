@@ -59,9 +59,15 @@ class WaylandContext : public WsiContext
 
     struct wl_shell* GetShell() const { return shell_; }
 
-    struct xdg_wm_base* GetXdgWmBase() const { return xdg_wm_base_; }
+    util::XdgWmBase* GetXdgWmBase() const { return xdg_wm_base_; }
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
+
+    // Both are optional: a compositor that does not advertise them leaves these null and the
+    // window falls back to integer wl_output scaling. See WaylandWindow::UpdateViewportDestination.
+    util::WpViewporter* GetViewporter() const { return viewporter_; }
+
+    util::WpFractionalScaleManagerV1* GetFractionalScaleManager() const { return fractional_scale_manager_; }
 
     const OutputInfo& GetOutputInfo(const struct wl_output* wl_output) { return output_info_map_[wl_output]; }
 
@@ -133,7 +139,7 @@ class WaylandContext : public WsiContext
     static void HandleOutputDone(void* data, struct wl_output* wl_output);
     static void HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor);
 
-    static void HandleXdgWmBasePing(void* data, struct xdg_wm_base* xdg_wm_base, uint32_t serial);
+    static void HandleXdgWmBasePing(void* data, util::XdgWmBase* xdg_wm_base, uint32_t serial);
 
     typedef std::unordered_map<struct wl_surface*, WaylandWindow*>  WaylandWindowMap;
     typedef std::unordered_map<const struct wl_output*, OutputInfo> OutputInfoMap;
@@ -143,11 +149,13 @@ class WaylandContext : public WsiContext
     static struct wl_seat_listener     seat_listener_;
     static struct wl_registry_listener registry_listener_;
     static struct wl_output_listener   output_listener_;
-    static struct xdg_wm_base_listener xdg_wm_base_listener_;
+    static util::XdgWmBaseListener     xdg_wm_base_listener_;
     struct wl_display*                 display_{};
     struct wl_shell*                   shell_{};
-    struct xdg_wm_base*                xdg_wm_base_{};
+    util::XdgWmBase*                   xdg_wm_base_{};
     struct wl_compositor*              compositor_{};
+    util::WpViewporter*                viewporter_{};
+    util::WpFractionalScaleManagerV1*  fractional_scale_manager_{};
     struct wl_registry*                registry_{};
     struct wl_seat*                    seat_{};
     struct wl_pointer*                 pointer_{};
