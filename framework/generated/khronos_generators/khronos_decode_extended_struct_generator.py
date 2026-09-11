@@ -41,6 +41,7 @@ class KhronosDecodeExtendedStructGenerator():
             file=self.outFile
         )
         write('#include "decode/decode_allocator.h"', file=self.outFile)
+
         write(
             '#include "decode/{}_{}_node.h"'.format(
                 lower_api_name,

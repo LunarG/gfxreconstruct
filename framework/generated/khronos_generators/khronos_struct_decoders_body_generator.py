@@ -48,6 +48,12 @@ class KhronosStructDecodersBodyGenerator():
             if struct in self.all_struct_aliases or struct in self.all_union_aliases:
                 continue
 
+            # A structure whose decoder comes from somewhere else keeps its generated decoded wrapper but gets no
+            # body here, because DecodeStruct has one definition. Blacklisting would be the wrong tool: it also
+            # removes the wrapper, the encoder, the handle mappers and the JSON output.
+            if self.skip_struct_decoder(struct):
+                continue
+
             body = '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
                 struct
@@ -66,6 +72,10 @@ class KhronosStructDecodersBodyGenerator():
             body += '}'
 
             write(body, file=self.outFile)
+
+    def skip_struct_decoder(self, struct):
+        """Whether another generator owns this structure's DecodeStruct body. Overridden per API."""
+        return False
 
     def make_decode_struct_body(self, name, values):
         """Generate C++ code for the decoder method body."""
