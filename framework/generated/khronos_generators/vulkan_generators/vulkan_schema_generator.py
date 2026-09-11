@@ -95,7 +95,11 @@ def is_schema_driven(generator, struct):
 # structure at a time, each migrated against its retained procedural body. The list is private to this predicate;
 # the encoder header and body generators iterate the filtered structure names through it, the way the decode
 # generators do through is_schema_driven, so when Encode inverts this body changes and no generator does.
-_SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset(('VkExtent2D', ))
+_SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
+    'VkExtent2D',
+    'VkPipelineCacheHeaderVersionOne',
+    'VkTransformMatrixKHR',
+))
 
 
 def is_schema_driven_encode(generator, struct):

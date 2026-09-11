@@ -166,7 +166,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionOne& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkEventCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferViewCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleCreateInfo& value);
@@ -851,7 +850,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindAccelerationStructureMe
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerationStructureNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMemoryRequirementsInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPropertiesNV& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkTransformMatrixKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAabbPositionsKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureInstanceKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& value);
@@ -1395,7 +1393,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // The structures the schema drives. encode/vulkan_encode_struct.h includes this header and declares the
 // constrained EncodeStruct over this list beside the prototypes.
 using SchemaDrivenStructs = util::TypeList<
-    VkExtent2D
+    VkExtent2D,
+    VkPipelineCacheHeaderVersionOne,
+    VkTransformMatrixKHR
 >;
 
 GFXRECON_END_NAMESPACE(encode)

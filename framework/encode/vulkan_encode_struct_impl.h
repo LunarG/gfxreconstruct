@@ -49,6 +49,18 @@ struct DescriptorFor<VkExtent2D>
     using type = schema::api_type::vulkan::VkExtent2D;
 };
 
+template <>
+struct DescriptorFor<VkPipelineCacheHeaderVersionOne>
+{
+    using type = schema::api_type::vulkan::VkPipelineCacheHeaderVersionOne;
+};
+
+template <>
+struct DescriptorFor<VkTransformMatrixKHR>
+{
+    using type = schema::api_type::vulkan::VkTransformMatrixKHR;
+};
+
 template <typename Struct>
 concept HasDescriptor = requires
 {

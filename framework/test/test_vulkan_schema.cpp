@@ -286,37 +286,147 @@ TEST_CASE("Schema EncodeStruct matches scalar-value wire bytes", "[schema][encod
     // Migration candidate: its concrete public overload bridges to the generic EncodeStruct field walk.
     VkExtent2D migrated{ 0x12345678u, 0x90abcdefu };
 
-    encode::ParameterBuffer migrated_buffer;
+    encode::ParameterBuffer  migrated_buffer;
     encode::ParameterEncoder migrated_encoder(&migrated_buffer);
     encode::EncodeStruct(&migrated_encoder, migrated);
 
-    encode::ParameterBuffer migrated_oracle_buffer;
+    encode::ParameterBuffer  migrated_oracle_buffer;
     encode::ParameterEncoder migrated_oracle(&migrated_oracle_buffer);
     migrated_oracle.EncodeUInt32Value(migrated.width);
     migrated_oracle.EncodeUInt32Value(migrated.height);
 
     REQUIRE(migrated_buffer.GetDataSize() == migrated_oracle_buffer.GetDataSize());
-    CHECK(std::memcmp(migrated_buffer.GetData(), migrated_oracle_buffer.GetData(), migrated_buffer.GetDataSize()) ==
-          0);
+    CHECK(std::memcmp(migrated_buffer.GetData(), migrated_oracle_buffer.GetData(), migrated_buffer.GetDataSize()) == 0);
 
     // Comparison candidate: its generated procedural body remains unchanged and exercises the same UInt32/value
     // idiom once more. A separate primitive oracle makes the comparison independent of either implementation.
     VkExtent3D comparison{ 0x10203040u, 0x50607080u, 0x90a0b0c0u };
 
-    encode::ParameterBuffer comparison_buffer;
+    encode::ParameterBuffer  comparison_buffer;
     encode::ParameterEncoder comparison_encoder(&comparison_buffer);
     encode::EncodeStruct(&comparison_encoder, comparison);
 
-    encode::ParameterBuffer comparison_oracle_buffer;
+    encode::ParameterBuffer  comparison_oracle_buffer;
     encode::ParameterEncoder comparison_oracle(&comparison_oracle_buffer);
     comparison_oracle.EncodeUInt32Value(comparison.width);
     comparison_oracle.EncodeUInt32Value(comparison.height);
     comparison_oracle.EncodeUInt32Value(comparison.depth);
 
     REQUIRE(comparison_buffer.GetDataSize() == comparison_oracle_buffer.GetDataSize());
-    CHECK(std::memcmp(comparison_buffer.GetData(),
-                      comparison_oracle_buffer.GetData(),
-                      comparison_buffer.GetDataSize()) == 0);
+    CHECK(std::memcmp(
+              comparison_buffer.GetData(), comparison_oracle_buffer.GetData(), comparison_buffer.GetDataSize()) == 0);
+}
+
+TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema][encode]")
+{
+    // Two migrated structures, one per rank, against primitive oracles; two retained partners exercise the same
+    // idiom through their procedural bodies. Values are asymmetric so a transposed, truncated or reordered run lands
+    // on different bytes.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    // Rank one, migrated: four scalars, one of them an enum, then a byte array of VK_UUID_SIZE.
+    VkPipelineCacheHeaderVersionOne header{};
+    header.headerSize    = 0x00000020u;
+    header.headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
+    header.vendorID      = 0x000010deu;
+    header.deviceID      = 0x00002684u;
+    for (size_t i = 0; i < VK_UUID_SIZE; ++i)
+    {
+        header.pipelineCacheUUID[i] = static_cast<uint8_t>(0xa0 + i);
+    }
+
+    encode::ParameterBuffer  header_buffer;
+    encode::ParameterEncoder header_encoder(&header_buffer);
+    encode::EncodeStruct(&header_encoder, header);
+
+    encode::ParameterBuffer  header_oracle_buffer;
+    encode::ParameterEncoder header_oracle(&header_oracle_buffer);
+    header_oracle.EncodeUInt32Value(header.headerSize);
+    header_oracle.EncodeEnumValue(header.headerVersion);
+    header_oracle.EncodeUInt32Value(header.vendorID);
+    header_oracle.EncodeUInt32Value(header.deviceID);
+    header_oracle.EncodeUInt8Array(header.pipelineCacheUUID, VK_UUID_SIZE);
+
+    CHECK(same_bytes(header_buffer, header_oracle_buffer));
+
+    // Rank two, migrated: a 3x4 float matrix and nothing else. The oracle is the 2DMatrix entry point, so this also
+    // pins that a matrix is one flat run of the extent product.
+    VkTransformMatrixKHR matrix{};
+    for (size_t row = 0; row < 3; ++row)
+    {
+        for (size_t column = 0; column < 4; ++column)
+        {
+            matrix.matrix[row][column] = static_cast<float>(row * 10 + column) + 0.5f;
+        }
+    }
+
+    encode::ParameterBuffer  matrix_buffer;
+    encode::ParameterEncoder matrix_encoder(&matrix_buffer);
+    encode::EncodeStruct(&matrix_encoder, matrix);
+
+    encode::ParameterBuffer  matrix_oracle_buffer;
+    encode::ParameterEncoder matrix_oracle(&matrix_oracle_buffer);
+    matrix_oracle.EncodeFloat2DMatrix(matrix.matrix, 3, 4);
+
+    CHECK(same_bytes(matrix_buffer, matrix_oracle_buffer));
+
+    // Rank one, retained partner: the same header shape with a uint32_t array.
+    VkPipelineCacheHeaderVersionDataGraphQCOM graph_header{};
+    graph_header.headerSize    = 0x00000030u;
+    graph_header.headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
+    graph_header.cacheVersion  = 0x00000007u;
+    for (size_t i = 0; i < VK_DATA_GRAPH_MODEL_TOOLCHAIN_VERSION_LENGTH_QCOM; ++i)
+    {
+        graph_header.toolchainVersion[i] = static_cast<uint32_t>(0x01000000u * (i + 1) + i);
+    }
+
+    encode::ParameterBuffer  graph_buffer;
+    encode::ParameterEncoder graph_encoder(&graph_buffer);
+    encode::EncodeStruct(&graph_encoder, graph_header);
+
+    encode::ParameterBuffer  graph_oracle_buffer;
+    encode::ParameterEncoder graph_oracle(&graph_oracle_buffer);
+    graph_oracle.EncodeUInt32Value(graph_header.headerSize);
+    graph_oracle.EncodeEnumValue(graph_header.headerVersion);
+    graph_oracle.EncodeEnumValue(graph_header.cacheType);
+    graph_oracle.EncodeUInt32Value(graph_header.cacheVersion);
+    graph_oracle.EncodeUInt32Array(graph_header.toolchainVersion, VK_DATA_GRAPH_MODEL_TOOLCHAIN_VERSION_LENGTH_QCOM);
+
+    CHECK(same_bytes(graph_buffer, graph_oracle_buffer));
+
+    // Rank two, retained partner: two scalars and two byte matrices.
+    StdVideoH264ScalingLists lists{};
+    lists.scaling_list_present_mask       = 0x0123u;
+    lists.use_default_scaling_matrix_mask = 0x4567u;
+    for (size_t list = 0; list < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS; ++list)
+    {
+        for (size_t element = 0; element < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS; ++element)
+        {
+            lists.ScalingList4x4[list][element] = static_cast<uint8_t>(list * 16 + element);
+        }
+        for (size_t element = 0; element < STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS; ++element)
+        {
+            lists.ScalingList8x8[list][element] = static_cast<uint8_t>(0x80 + list * 64 + element);
+        }
+    }
+
+    encode::ParameterBuffer  lists_buffer;
+    encode::ParameterEncoder lists_encoder(&lists_buffer);
+    encode::EncodeStruct(&lists_encoder, lists);
+
+    encode::ParameterBuffer  lists_oracle_buffer;
+    encode::ParameterEncoder lists_oracle(&lists_oracle_buffer);
+    lists_oracle.EncodeUInt16Value(lists.scaling_list_present_mask);
+    lists_oracle.EncodeUInt16Value(lists.use_default_scaling_matrix_mask);
+    lists_oracle.EncodeUInt82DMatrix(
+        lists.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS);
+    lists_oracle.EncodeUInt82DMatrix(
+        lists.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS);
+
+    CHECK(same_bytes(lists_buffer, lists_oracle_buffer));
 }
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")

@@ -113,6 +113,12 @@ class ParameterEncoder
     template <format::HasEncodeType Kind, typename T>
     void Encode(T value)                                                                                              { EncodeValue(static_cast<format::EncodeTypeFor<Kind>>(value)); }
 
+    // Encode a run of values recorded as one logical kind. Each named array entry point above fixes a wire type;
+    // this reaches the same body from the kind, converting elements only when the element and wire widths differ,
+    // which is what EncodeArrayConverted already decides. Structure members never omit data or address.
+    template <format::HasEncodeType Kind, typename T>
+    void EncodeArray(const T* arr, size_t len)                                                                        { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len); }
+
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeUInt16Ptr(const uint16_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }
