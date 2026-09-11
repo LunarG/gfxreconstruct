@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -577,6 +577,28 @@ void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId de
 
     resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_copy_size);
 
+    // Give the batch heap the same memory budget the per-resource staging path uses,
+    // so a large batch-heap allocation is only attempted when it fits; otherwise staging
+    // falls back to committed buffers.
+    auto device_info = GetObjectInfo(device_id);
+    if ((device_info != nullptr) && (device_info->extra_info != nullptr))
+    {
+        auto extra_device_info = GetExtraInfo<D3D12DeviceInfo>(device_info);
+        if (extra_device_info != nullptr)
+        {
+            resource_data_util_->SetBatchHeapMemoryLimits(extra_device_info->adapter3,
+                                                          static_cast<double>(options_.memory_usage) / 100.0,
+                                                          extra_device_info->is_uma);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Device extra info unavailable for device %" PRIu64
+                                 "; batch-heap staging will not honor the "
+                                 "configured memory-usage budget.",
+                                 device_id);
+        }
+    }
+
     // Wait for any pending reserved resource tile mapping updates to complete.
     for (auto command_queue : trim_state_tile_update_queues_)
     {
@@ -641,18 +663,32 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
                                                  temp_subresource_layouts,
                                                  required_data_size);
 
-        const double max_mem_usage = static_cast<double>(options_.memory_usage) / 100.0;
-        if (!graphics::dx12::IsMemoryAvailable(
-                required_data_size, extra_device_info->adapter3, max_mem_usage, extra_device_info->is_uma))
+        resource_init_info.staging_resource = resource_data_util_->GetBatchStagingBuffer(required_data_size);
+        if (resource_init_info.staging_resource == nullptr)
         {
-            // If neither system memory or GPU memory are able to accommodate next resource,
-            // execute the Copy() calls and release temp buffer to free memory
+            // The batch heap couldn't provide a placed staging buffer (e.g., full, needs grow, or heap
+            // allocation/placement failed): flush the pending copies (this executes + waits and releases every placed
+            // staging buffer), reset the bump cursor, then retry.
             ApplyBatchedResourceInitInfo(resource_init_infos_);
-        }
+            resource_data_util_->ResetBatchHeap();
 
-        // Prepare Staging buffer for next resource
-        resource_init_info.staging_resource = resource_data_util_->CreateStagingBuffer(
-            graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
+            resource_init_info.staging_resource = resource_data_util_->GetBatchStagingBuffer(required_data_size);
+            if (resource_init_info.staging_resource == nullptr)
+            {
+                // Oversized single resource (> heap cap) or placement failure: use a dedicated committed buffer.
+                // The batch was just flushed above, but the reusable batch heap is still resident. If GPU/system
+                // memory can't accommodate this large committed allocation alongside it, release the batch heap
+                // first so the committed staging buffer has room.
+                const double max_mem_usage = static_cast<double>(options_.memory_usage) / 100.0;
+                if (!graphics::dx12::IsMemoryAvailable(
+                        required_data_size, extra_device_info->adapter3, max_mem_usage, extra_device_info->is_uma))
+                {
+                    resource_data_util_->ReleaseBatchHeap();
+                }
+                resource_init_info.staging_resource = resource_data_util_->CreateStagingBuffer(
+                    graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
+            }
+        }
         SetResourceInitInfoState(resource_init_info, command_header, data);
 
         // Only for buffer resources (which contain 1 subresource), map any resource values contained in the data.
@@ -3945,7 +3981,6 @@ IDXGIAdapter* Dx12ReplayConsumerBase::GetAdapter()
 
     return adapter_found;
 }
-
 
 // Helper to initialize the resource's D3D12ResourceInfo and set its is_reserved_resource = true.
 static void SetIsReservedResource(HandlePointerDecoder<void*>* resource)
