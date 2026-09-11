@@ -228,6 +228,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                             // We're on the last argument, so add this to the invalid list.
                             invalid_values_present_.push_back(current_argument);
                             is_invalid_ = true;
+                            GFXRECON_LOG_FATAL("Invalid command-line setting \'%s\'", current_argument.c_str());
                         }
                         else
                         {
