@@ -23,6 +23,48 @@
 # ^^^^^
 #
 # The ``LZ4_ROOT`` value may be set to tell this module where to look.
+if(TARGET LZ4::LZ4)
+    set(LZ4_FOUND TRUE)
+    return()
+endif()
+
+option(GFXRECON_COMPRESSION_FROM_SOURCE
+       "Build LZ4, zstd, and zlib from pinned upstream sources instead of searching for installed libraries"
+       ON)
+
+set(GFXRECON_LZ4_REPOSITORY "https://github.com/lz4/lz4.git")
+set(GFXRECON_LZ4_VERSION    "1.10.0")
+set(GFXRECON_LZ4_TAG        "ebb370ca83af193212df4dcbadcc5d87bc0de2f0")
+
+if(GFXRECON_COMPRESSION_FROM_SOURCE)
+    include(FetchContent)
+
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+    set(LZ4_BUILD_CLI OFF)
+
+    message(STATUS "Building LZ4 ${GFXRECON_LZ4_VERSION} from source (${GFXRECON_LZ4_REPOSITORY})")
+    FetchContent_Declare(lz4
+                         GIT_REPOSITORY ${GFXRECON_LZ4_REPOSITORY}
+                         GIT_TAG        ${GFXRECON_LZ4_TAG}
+                         SOURCE_SUBDIR  build/cmake)
+    FetchContent_MakeAvailable(lz4)
+
+    if(NOT TARGET lz4_static)
+        message(FATAL_ERROR
+                "LZ4 was fetched but the expected 'lz4_static' target was not created. The upstream "
+                "CMake configuration may have changed; see cmake/FindLZ4.cmake.")
+    endif()
+
+    add_library(LZ4::LZ4 ALIAS lz4_static)
+
+    set(LZ4_FOUND TRUE)
+    set(LZ4_VERSION "${GFXRECON_LZ4_VERSION}")
+    set(LZ4_LIBRARIES LZ4::LZ4)
+    set(LZ4_INCLUDE_DIRS "${lz4_SOURCE_DIR}/lib")
+
+    return()
+endif()
 
 set(_LZ4_SEARCH_PATH)
 
