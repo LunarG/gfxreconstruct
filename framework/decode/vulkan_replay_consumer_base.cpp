@@ -4868,7 +4868,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     VulkanSubmitJobPlan plan;
 
-    if (options_.isolate_render_passes)
+    if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
     {
         auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
         plan.Push(0,
@@ -5147,7 +5147,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     VulkanSubmitJobPlan plan;
 
-    if (options_.isolate_render_passes)
+    if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
     {
         auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
         plan.Push(0,
@@ -11237,7 +11237,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
                 resource_dumper_->ResetCommandBuffer(cb_info->handle);
             }
 
-            if (options_.isolate_render_passes)
+            if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
             {
                 GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
             }

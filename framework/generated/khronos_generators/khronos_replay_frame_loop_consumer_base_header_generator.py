@@ -35,7 +35,9 @@ class KhronosFrameLoopConsumerBaseHeaderGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
-                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
+                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED + 
+                 self.REPLAY_FRAME_LOOP_COMMAND_BUFFER_STATE_OVERRIDES) and
+                 "vkCmd" != command[0:5])
 
     def write_class_setup(self, class_name, constructor_args):
         write(
