@@ -895,9 +895,7 @@ Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*              
     return result;
 }
 
-static constexpr uint64_t kBatchHeapDefaultCapacity = 256ull * 1024 * 1024;                       // 256 MiB
-static constexpr uint64_t kBatchHeapMaxCapacity     = 1024ull * 1024 * 1024;                      // 1 GiB
-static constexpr uint64_t kBatchPlacementAlign      = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT; // 64 KiB
+static constexpr uint64_t kBatchHeapMaxCapacity = 2048ull * 1024 * 1024; // 2 GiB
 
 HRESULT Dx12ResourceDataUtil::EnsureBatchHeap(uint64_t min_capacity)
 {
@@ -907,28 +905,19 @@ HRESULT Dx12ResourceDataUtil::EnsureBatchHeap(uint64_t min_capacity)
         return S_OK;
     }
 
-    // Choose a bounded capacity: at least the default and the largest single resource seen (min_buffer_size_),
-    // at least the immediate request, capped at the max. Rounded up to placement alignment.
-    uint64_t capacity = std::max(kBatchHeapDefaultCapacity, min_buffer_size_);
-    capacity          = std::max(capacity, min_capacity);
-    capacity          = std::min(capacity, kBatchHeapMaxCapacity);
-    capacity          = util::platform::AlignValue<kBatchPlacementAlign>(capacity);
-
     // Don't attempt a large heap allocation that the GPU/system memory budget can't accommodate. Check before
     // touching any existing heap so a rejected grow leaves the current heap usable; the caller falls back to
     // per-resource committed staging buffers. Skipped when no adapter was supplied (budget unknown).
     if ((batch_heap_adapter_ != nullptr) &&
-        !dx12::IsMemoryAvailable(capacity, batch_heap_adapter_, batch_heap_max_mem_usage_, batch_heap_is_uma_))
+        !dx12::IsMemoryAvailable(
+            kBatchHeapMaxCapacity, batch_heap_adapter_, batch_heap_max_mem_usage_, batch_heap_is_uma_))
     {
         GFXRECON_LOG_DEBUG("Insufficient memory budget for a %" PRIu64
                            " MiB batched-staging UPLOAD heap; using committed staging buffers.",
-                           capacity / (1024 * 1024));
+                           kBatchHeapMaxCapacity / (1024 * 1024));
         return E_OUTOFMEMORY;
     }
 
-    // Growing/recreating is only safe when no placed buffer is live. GetBatchStagingBuffer enforces this by
-    // returning nullptr (forcing a flush + ResetBatchHeap) before it grows a heap with outstanding buffers, so
-    // by the time we destroy the old heap the bump cursor must be 0 and nothing aliases it.
     GFXRECON_ASSERT(batch_heap_offset_ == 0);
     batch_upload_heap_   = nullptr;
     batch_heap_capacity_ = 0;
@@ -942,7 +931,7 @@ HRESULT Dx12ResourceDataUtil::EnsureBatchHeap(uint64_t min_capacity)
     props.VisibleNodeMask       = 1;
 
     D3D12_HEAP_DESC heap_desc = {};
-    heap_desc.SizeInBytes     = capacity;
+    heap_desc.SizeInBytes     = kBatchHeapMaxCapacity;
     heap_desc.Properties      = props;
     heap_desc.Alignment       = 0; // => 64 KiB default
     heap_desc.Flags           = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
@@ -950,13 +939,13 @@ HRESULT Dx12ResourceDataUtil::EnsureBatchHeap(uint64_t min_capacity)
     HRESULT result = device_->CreateHeap(&heap_desc, IID_PPV_ARGS(&batch_upload_heap_));
     if (SUCCEEDED(result))
     {
-        batch_heap_capacity_ = capacity;
+        batch_heap_capacity_ = kBatchHeapMaxCapacity;
     }
     else
     {
         GFXRECON_LOG_WARNING("Failed to create a %" PRIu64 " MiB batched-staging UPLOAD heap (0x%08lx); falling back "
                              "to committed staging buffers.",
-                             capacity / (1024 * 1024),
+                             kBatchHeapMaxCapacity / (1024 * 1024),
                              static_cast<unsigned long>(result));
         batch_upload_heap_   = nullptr;
         batch_heap_capacity_ = 0;
@@ -977,22 +966,13 @@ dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetBatchStagingBuffer(uint64_t 
         return nullptr;
     }
 
-    // If the request needs a larger heap than the current one, EnsureBatchHeap would destroy and recreate it.
-    // That is only safe when no placed buffer is live. When buffers from this batch are still outstanding
-    // (offset > 0), signal the caller to flush + ResetBatchHeap() first, then retry the placement on the grown
-    // heap. (In practice the heap is seeded to the capture's largest resource, so this rarely fires.)
-    const bool needs_grow = (batch_upload_heap_ == nullptr) || (batch_heap_capacity_ < required_buffer_size);
-    if (needs_grow && (batch_heap_offset_ > 0))
-    {
-        return nullptr;
-    }
-
     if (FAILED(EnsureBatchHeap(required_buffer_size)))
     {
         return nullptr;
     }
 
-    const uint64_t aligned_offset = util::platform::AlignValue<kBatchPlacementAlign>(batch_heap_offset_);
+    const uint64_t aligned_offset =
+        util::platform::AlignValue<D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT>(batch_heap_offset_);
     if (aligned_offset + required_buffer_size > batch_heap_capacity_)
     {
         // Heap is full for this batch. Signal the caller to flush + ResetBatchHeap() + retry.
