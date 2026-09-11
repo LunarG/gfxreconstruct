@@ -27,6 +27,10 @@
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
+
+#include <cinttypes>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -77,6 +81,12 @@ class PointerDecoderBase
     // sub-range (e.g. a single element) for one call, and are responsible for restoring the
     // original value afterward if the array's backing storage is reused.
     void SetLength(size_t len) { len_ = len; }
+
+    // For a fixed-extent array whose registry 'len' names a sibling count member (e.g.
+    // VkPhysicalDeviceMemoryProperties::memoryTypes with memoryTypeCount), records the count decoded from the
+    // enclosing struct so the decoded array length can be checked against it.  Captures written before the count
+    // was honored hold the full capacity, which is also accepted; see CheckExpectedLength().
+    void SetExpectedLength(size_t len) { expected_len_ = len; }
 
     static bool PeekAttributesAndType(const uint8_t* buffer,
                                       size_t         buffer_size,
@@ -161,10 +171,34 @@ class PointerDecoderBase
         return bytes_read;
     }
 
+  public:
+    // Reports a decoded array length for a fixed-extent array that matches neither the count member recorded with
+    // SetExpectedLength() nor the array capacity.  Neither value is trusted over the other: the count comes from the
+    // capture stream as well, and older captures legitimately hold the full capacity regardless of the count.
+    // A length above the capacity is left to the owning decoder's truncation warning.
+    // Public so that decoders composed of a PointerDecoder (HandlePointerDecoder) can apply it to their member.
+    void CheckExpectedLength(const char* decoder_name, size_t capacity) const
+    {
+        if (expected_len_ && (len_ != *expected_len_) && (len_ < capacity))
+        {
+            GFXRECON_LOG_WARNING(
+                "%s decoder received an array of %" PRIuPTR
+                " elements for a fixed-extent array, which matches neither the associated count (%" PRIuPTR
+                ") nor the array capacity (%" PRIuPTR ")",
+                decoder_name,
+                len_,
+                *expected_len_,
+                capacity);
+        }
+    }
+
   private:
     size_t   len_;
     uint64_t address_;
     uint32_t attrib_;
+
+    // Count member associated with a fixed-extent array; see SetExpectedLength().
+    std::optional<size_t> expected_len_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
