@@ -27,6 +27,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
@@ -76,13 +77,21 @@ class ScreenshotHandler : public ScreenshotHandlerBase
   private:
     struct CopyResource
     {
-        VkCommandPool                         command_pool{ VK_NULL_HANDLE };
-        VulkanResourceAllocator*              allocator{ nullptr };
-        VkDeviceSize                          buffer_size{ 0 };
-        VkDeviceMemory                        buffer_memory{ VK_NULL_HANDLE };
-        VkBuffer                              buffer{ VK_NULL_HANDLE };
-        VulkanResourceAllocator::MemoryData   buffer_memory_data{ 0 };
-        VulkanResourceAllocator::ResourceData buffer_data{ 0 };
+        CopyResource(VkCommandPool                              command_pool_handle,
+                     VkDevice                                   device,
+                     VulkanResourceAllocator*                   alloc,
+                     const graphics::VulkanInjectedDeviceCalls& injected_calls) :
+            command_pool(command_pool_handle),
+            allocator(alloc), buffer(device, alloc, injected_calls), buffer_pool(device, alloc, injected_calls, true)
+        {}
+
+        VkCommandPool            command_pool{ VK_NULL_HANDLE };
+        VulkanResourceAllocator* allocator{ nullptr };
+        VkDeviceSize             buffer_size{ 0 };
+
+        TemporaryBuffer     buffer;
+        TemporaryBufferPool buffer_pool;
+
         VkDeviceMemory                        convert_image_memory{ VK_NULL_HANDLE };
         VkImage                               convert_image{ VK_NULL_HANDLE };
         VulkanResourceAllocator::MemoryData   convert_image_memory_data{ 0 };
@@ -92,7 +101,6 @@ class ScreenshotHandler : public ScreenshotHandlerBase
         uint32_t                              height{ 0 };
         bool                                  flip_x{ false };
         bool                                  flip_y{ false };
-        VkMemoryPropertyFlags                 memory_property_flags{ 0 };
     };
 
     typedef std::unordered_map<VkDevice, CopyResource> CommandPools;

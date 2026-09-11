@@ -31,6 +31,7 @@
 #include "decode/vulkan_replay_frame_loop_consumer.h"
 
 #include <algorithm>
+#include <limits>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -478,8 +479,14 @@ VulkanReplayFrameLoopConsumer::BufferTracking& VulkanReplayFrameLoopConsumer::Ge
         VulkanPhysicalDeviceInfo* phys_info = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
         GFXRECON_ASSERT(phys_info != nullptr);
 
+        const bool have_replay_properties =
+            (phys_info->replay_device_info != nullptr) && phys_info->replay_device_info->memory_properties.has_value();
+        const VkPhysicalDeviceMemoryProperties& memory_properties =
+            have_replay_properties ? phys_info->replay_device_info->memory_properties.value()
+                                   : phys_info->capture_memory_properties;
+
         auto result = per_device_buffer_tracking_.try_emplace(
-            device, device, device_table, object_table, *device_info, *phys_info);
+            device, device, device_table, object_table, *device_info, memory_properties);
         it = result.first;
         GFXRECON_ASSERT(result.second);
     }
@@ -539,7 +546,6 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
     GFXRECON_ASSERT(device_info != nullptr);
 
     std::vector<const VulkanBufferInfo*> pending;
-    VkDeviceSize                         total_bytes = 0;
     for (format::HandleId buffer_id : buffer_ids)
     {
         if (shadow_buffers_.contains(buffer_id))
@@ -554,7 +560,6 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         }
 
         pending.push_back(buffer_info);
-        total_bytes += util::aligned_value(buffer_info->size, kShadowBufferAlignment);
     }
 
     if (pending.empty())
@@ -568,23 +573,61 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         return;
     }
 
-    shadow_pool_.Reserve(total_bytes);
+    // Create a shadow VkBuffer for each capture buffer and add it to the pool queue
+    constexpr VkBufferUsageFlags kShadowUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const VulkanBufferInfo* buffer_info : pending)
+    {
+        auto [entry, inserted] = shadow_buffers_.try_emplace(
+            buffer_info->capture_id, device_info->handle, device_info->allocator.get(), device_table_);
+        if (!inserted)
+        {
+            continue;
+        }
+
+        if ((entry->second.Create(buffer_info->size, kShadowUsage) != VK_SUCCESS) || !shadow_pool_.Add(entry->second))
+        {
+            shadow_buffers_.erase(entry);
+        }
+    }
+
+    const VkDeviceSize total_bytes = shadow_pool_.GetRequiredSize();
+
+    const uint32_t type_bits = shadow_pool_.GetMemoryTypeBits();
+
+    uint32_t memory_type_index =
+        graphics::GetMemoryTypeIndex(memory_properties_, type_bits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (memory_type_index == std::numeric_limits<uint32_t>::max())
+    {
+        memory_type_index = graphics::GetMemoryTypeIndex(memory_properties_, type_bits, 0);
+    }
+
+    shadow_pool_.Allocate(memory_type_index);
 
     VkDeviceSize shadowed_bytes = 0;
     uint32_t     copy_count     = 0;
 
     for (const VulkanBufferInfo* buffer_info : pending)
     {
-        const TemporaryBuffer shadow = shadow_pool_.CreateBuffer(buffer_info->size, kShadowBufferAlignment);
-        if (shadow.IsValid())
+        auto entry = shadow_buffers_.find(buffer_info->capture_id);
+        if (entry == shadow_buffers_.end())
         {
-            VkBufferCopy region = { 0, shadow.offset, shadow.size };
-            device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
-
-            shadow_buffers_[buffer_info->capture_id] = shadow;
-            shadowed_bytes += util::aligned_value(buffer_info->size, kShadowBufferAlignment);
-            ++copy_count;
+            continue;
         }
+
+        const TemporaryBuffer& shadow = entry->second;
+        if (!shadow.IsBound())
+        {
+            // Allocate() drops the buffers it could not bind, so no pool pointer is left behind.
+            shadow_buffers_.erase(entry);
+            continue;
+        }
+
+        VkBufferCopy region = { 0, 0, shadow.size };
+        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
+
+        shadowed_bytes += shadow.requirements.size;
+        ++copy_count;
     }
 
     if (copy_count < pending.size())
@@ -627,7 +670,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore()
             continue;
         }
 
-        VkBufferCopy region = { shadow.offset, 0, shadow.size };
+        VkBufferCopy region = { 0, 0, shadow.size };
         device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, shadow.buffer, buffer_info->handle, 1, &region);
         ++restore_count;
     }

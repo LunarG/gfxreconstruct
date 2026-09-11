@@ -181,29 +181,28 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     /// writes made to the buffer during the loop can be undone before each repetition.
     struct BufferTracking
     {
-        BufferTracking(format::HandleId                   device_id,
-                       const graphics::VulkanDeviceTable& device_table,
-                       CommonObjectInfoTable&             object_table,
-                       const VulkanDeviceInfo&            device_info,
-                       const VulkanPhysicalDeviceInfo&    physical_device_info) :
+        BufferTracking(format::HandleId                        device_id,
+                       const graphics::VulkanDeviceTable&      device_table,
+                       CommonObjectInfoTable&                  object_table,
+                       const VulkanDeviceInfo&                 device_info,
+                       const VkPhysicalDeviceMemoryProperties& memory_properties) :
             device_id_(device_id),
-            device_table_(device_table), object_table_(object_table),
-            shadow_pool_(device_info, physical_device_info, device_table)
+            device_table_(device_table), object_table_(object_table), memory_properties_(memory_properties),
+            shadow_pool_(device_info.handle, device_info.allocator.get(), device_table)
         {}
-
-        static constexpr VkDeviceSize kShadowBufferAlignment = 4;
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
 
-        format::HandleId                   device_id_;
-        const graphics::VulkanDeviceTable& device_table_;
-        CommonObjectInfoTable&             object_table_;
+        format::HandleId                       device_id_;
+        const graphics::VulkanDeviceTable&     device_table_;
+        CommonObjectInfoTable&                 object_table_;
+        const VkPhysicalDeviceMemoryProperties memory_properties_;
 
-        /// Backing storage for every shadow copy on this device.
-        TemporaryBufferPool                                   shadow_pool_;
         std::unordered_map<format::HandleId, TemporaryBuffer> shadow_buffers_;
+
+        TemporaryBufferPool shadow_pool_;
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);

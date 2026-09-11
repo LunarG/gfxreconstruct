@@ -132,11 +132,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
 
         if (result == VK_SUCCESS)
         {
-            CopyResource copy_resource = {};
-            copy_resource.command_pool = command_pool;
-            copy_resource.allocator    = allocator;
-
-            auto pair           = copy_resources_.emplace(device, std::move(copy_resource));
+            auto pair           = copy_resources_.try_emplace(device, command_pool, device, allocator, injected_calls);
             copy_resource_entry = pair.first;
         }
         else
@@ -344,7 +340,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                 injected->CmdCopyImageToBuffer(command_buffer,
                                                copy_image,
                                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                               copy_resource.buffer,
+                                               copy_resource.buffer.buffer,
                                                1,
                                                &copy_region);
 
@@ -410,25 +406,26 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
 
                 if (result == VK_SUCCESS)
                 {
-                    void* data = nullptr;
-                    result     = allocator->MapResourceMemoryDirect(
-                        copy_resource.buffer_size, 0, &data, copy_resource.buffer_data);
+                    // The readback buffer stays mapped for its lifetime.
+                    void* data = copy_resource.buffer.mapped_data;
+                    result     = (data != nullptr) ? VK_SUCCESS : VK_ERROR_MEMORY_MAP_FAILED;
+
+                    if ((result == VK_SUCCESS) &&
+                        ((copy_resource.buffer.memory_property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) !=
+                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+                    {
+                        VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
+                        invalidate_range.pNext               = nullptr;
+                        invalidate_range.memory              = copy_resource.buffer.memory;
+                        invalidate_range.offset              = 0;
+                        invalidate_range.size = VK_WHOLE_SIZE;
+
+                        result = allocator->InvalidateMappedMemoryRangesDirect(
+                            1, &invalidate_range, &copy_resource.buffer.memory_data);
+                    }
 
                     if (result == VK_SUCCESS)
                     {
-                        if ((copy_resource.memory_property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) !=
-                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-                        {
-                            VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
-                            invalidate_range.pNext               = nullptr;
-                            invalidate_range.memory              = copy_resource.buffer_memory;
-                            invalidate_range.offset              = 0;
-                            invalidate_range.size                = copy_resource.buffer_size;
-
-                            allocator->InvalidateMappedMemoryRangesDirect(
-                                1, &invalidate_range, &copy_resource.buffer_memory_data);
-                        }
-
                         void*  write_data  = data;
                         size_t pixel_count = static_cast<size_t>(copy_width) * copy_height;
 
@@ -501,12 +498,10 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                         }
 
                         WriteImageFile(filename_prefix, screenshot_format_, final_width, final_height, write_data);
-
-                        allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
                     }
                     else
                     {
-                        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to map resource memory");
+                        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to read back the copy buffer");
                     }
                 }
                 else
@@ -652,56 +647,34 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
 
     auto allocator = copy_resource->allocator;
 
-    VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-    create_info.pNext                 = nullptr;
-    create_info.flags                 = 0;
-    create_info.size                  = buffer_size;
-    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    create_info.queueFamilyIndexCount = 0;
-    create_info.pQueueFamilyIndices   = nullptr;
-
-    VkResult result =
-        allocator->CreateBufferDirect(&create_info, nullptr, &copy_resource->buffer, &copy_resource->buffer_data);
+    VkResult result = copy_resource->buffer.Create(buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
 
     if (result == VK_SUCCESS)
     {
-        VkMemoryRequirements memory_requirements;
-        injected->GetBufferMemoryRequirements(device, copy_resource->buffer, &memory_requirements);
+        copy_resource->buffer_pool.Add(copy_resource->buffer);
 
-        uint32_t memory_type_index =
-            graphics::GetMemoryTypeIndex(memory_properties,
-                                         memory_requirements.memoryTypeBits,
-                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+        const uint32_t type_bits = copy_resource->buffer_pool.GetMemoryTypeBits();
 
+        uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
+            memory_properties, type_bits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
         if (memory_type_index == std::numeric_limits<uint32_t>::max())
         {
-            /* fallback to coherent */
             memory_type_index = graphics::GetMemoryTypeIndex(memory_properties,
-                                                             memory_requirements.memoryTypeBits,
+                                                             type_bits,
                                                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                                  VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         }
 
-        assert(memory_type_index != std::numeric_limits<uint32_t>::max());
-
-        VkMemoryAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        allocate_info.pNext                = nullptr;
-        allocate_info.allocationSize       = memory_requirements.size;
-        allocate_info.memoryTypeIndex      = memory_type_index;
-
-        result = allocator->AllocateMemoryDirect(
-            &allocate_info, nullptr, &copy_resource->buffer_memory, &copy_resource->buffer_memory_data);
-    }
-
-    if (result == VK_SUCCESS)
-    {
-        result = allocator->BindBufferMemoryDirect(copy_resource->buffer,
-                                                   copy_resource->buffer_memory,
-                                                   0,
-                                                   copy_resource->buffer_data,
-                                                   copy_resource->buffer_memory_data,
-                                                   &copy_resource->memory_property_flags);
+        if (memory_type_index != std::numeric_limits<uint32_t>::max())
+        {
+            result = copy_resource->buffer_pool.Allocate(memory_type_index);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Screenshot could not be created: no host-visible memory type accepts the readback "
+                               "buffer");
+            result = VK_ERROR_OUT_OF_DEVICE_MEMORY;
+        }
     }
 
     if ((result == VK_SUCCESS) &&
@@ -783,21 +756,9 @@ void ScreenshotHandler::DestroyCopyResource(VkDevice device, CopyResource* copy_
 {
     if (copy_resource != nullptr)
     {
-        if (copy_resource->buffer != VK_NULL_HANDLE)
-        {
-            copy_resource->allocator->DestroyBufferDirect(copy_resource->buffer, nullptr, copy_resource->buffer_data);
-            copy_resource->buffer      = VK_NULL_HANDLE;
-            copy_resource->buffer_data = 0;
-        }
-
-        if (copy_resource->buffer_memory != VK_NULL_HANDLE)
-        {
-            copy_resource->allocator->FreeMemoryDirect(
-                copy_resource->buffer_memory, nullptr, copy_resource->buffer_memory_data);
-            copy_resource->buffer_memory         = VK_NULL_HANDLE;
-            copy_resource->buffer_memory_data    = 0;
-            copy_resource->memory_property_flags = 0;
-        }
+        // The pool releases the memory and clears the buffer's binding before the buffer goes away.
+        copy_resource->buffer_pool.Destroy();
+        copy_resource->buffer.Destroy();
 
         if (copy_resource->convert_image != VK_NULL_HANDLE)
         {

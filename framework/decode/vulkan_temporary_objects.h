@@ -23,7 +23,6 @@
 #ifndef GFXRECON_DECODE_VULKAN_TEMPORARY_OBJECTS_H
 #define GFXRECON_DECODE_VULKAN_TEMPORARY_OBJECTS_H
 
-#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -33,10 +32,13 @@
 #include "util/logging.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+struct VulkanDeviceInfo;
 
 // Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one
 struct TemporaryFence
@@ -134,14 +136,7 @@ struct TemporaryCommandBuffer
         TemporaryCommandBuffer(dev_info, graphics::VulkanInjectedDeviceCalls(&dev_table))
     {}
 
-    ~TemporaryCommandBuffer()
-    {
-        if (command_pool != VK_NULL_HANDLE)
-        {
-            auto injected = device_table.Open();
-            injected->DestroyCommandPool(device_info.handle, command_pool, nullptr);
-        }
-    };
+    ~TemporaryCommandBuffer();
 
     VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp, uint32_t queue_index = 0);
 
@@ -179,122 +174,109 @@ struct TemporaryQueryPool
 
 struct TemporaryBuffer
 {
-    VkBuffer     buffer{ VK_NULL_HANDLE };
-    VkDeviceSize offset{ 0 };
-    VkDeviceSize size{ 0 };
-
-    bool IsValid() const { return (buffer != VK_NULL_HANDLE) && (size != 0); }
-};
-
-struct TemporaryBufferBlock
-{
-    static constexpr VkBufferUsageFlags kDefaultUsage =
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-
-    static constexpr VkDeviceSize kDefaultAlignment = 256;
-
-    TemporaryBufferBlock(const VulkanDeviceInfo&                    dev_info,
-                         const VulkanPhysicalDeviceInfo&            phys_dev_info,
-                         const graphics::VulkanInjectedDeviceCalls& injected_calls,
-                         VkBufferUsageFlags                         usage = kDefaultUsage,
-                         VkMemoryPropertyFlags memory_properties          = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) :
-        buffer_usage(usage),
-        requested_memory_properties(memory_properties), device_info(dev_info), physical_device_info(phys_dev_info),
-        device_table(injected_calls)
+    TemporaryBuffer(VkDevice                                   dev,
+                    VulkanResourceAllocator*                   alloc,
+                    const graphics::VulkanInjectedDeviceCalls& injected_calls) :
+        device(dev),
+        allocator(alloc), device_table(injected_calls)
     {}
 
-    TemporaryBufferBlock(const VulkanDeviceInfo&            dev_info,
-                         const VulkanPhysicalDeviceInfo&    phys_dev_info,
-                         const graphics::VulkanDeviceTable& dev_table,
-                         VkBufferUsageFlags                 usage             = kDefaultUsage,
-                         VkMemoryPropertyFlags              memory_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) :
-        TemporaryBufferBlock(
-            dev_info, phys_dev_info, graphics::VulkanInjectedDeviceCalls(&dev_table), usage, memory_properties)
+    TemporaryBuffer(VkDevice dev, VulkanResourceAllocator* alloc, const graphics::VulkanDeviceTable& dev_table) :
+        TemporaryBuffer(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table))
     {}
 
-    ~TemporaryBufferBlock() { Destroy(); }
+    TemporaryBuffer(const TemporaryBuffer&)            = delete;
+    TemporaryBuffer& operator=(const TemporaryBuffer&) = delete;
 
-    // Allocates the block.
-    VkResult Create(VkDeviceSize block_bytes);
+    ~TemporaryBuffer() { Destroy(); }
 
-    // Releases the block. Every TemporaryBuffer handed out becomes stale.
+    VkResult Create(VkDeviceSize buffer_size, VkBufferUsageFlags usage);
+
     void Destroy();
 
-    // Carves size bytes out of the block.
-    TemporaryBuffer CreateBuffer(VkDeviceSize size, VkDeviceSize alignment = kDefaultAlignment);
+    bool IsBound() const { return (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE); }
 
     VkBuffer                              buffer{ VK_NULL_HANDLE };
-    VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+    VkDeviceSize                          size{ 0 }; // Requested size
+    VkMemoryRequirements                  requirements{};
     VulkanResourceAllocator::ResourceData resource_data{ 0 };
-    VulkanResourceAllocator::MemoryData   memory_data{ 0 };
 
-    VkDeviceSize size{ 0 };
-    VkDeviceSize used{ 0 };
+    // Member populated by TemporaryBufferPool::Allocate()
+    VkDeviceMemory                      memory{ VK_NULL_HANDLE };
+    VulkanResourceAllocator::MemoryData memory_data{ 0 };
+    VkDeviceSize                        memory_offset{ 0 };
+    VkMemoryPropertyFlags               memory_property_flags{ 0 };
 
+    // Set only for a buffer that is alone in a host-visible block
     uint8_t* mapped_data{ nullptr };
 
-    VkMemoryPropertyFlags memory_property_flags{ 0 };
-
-    VkBufferUsageFlags    buffer_usage;
-    VkMemoryPropertyFlags requested_memory_properties;
-
-    const VulkanDeviceInfo&             device_info;
-    const VulkanPhysicalDeviceInfo&     physical_device_info;
+    VkDevice                            device{ VK_NULL_HANDLE };
+    VulkanResourceAllocator*            allocator{ nullptr };
     graphics::VulkanInjectedDeviceCalls device_table;
 };
 
-// Collection of TemporaryBufferBlocks
 struct TemporaryBufferPool
 {
-    // Preferred size for a new block. Both maxMemoryAllocationSize and maxBufferSize are only
-    // guaranteed to be 1 GiB.
+    // Preferred maximum size for a single allocation.  Both maxMemoryAllocationSize and maxBufferSize
+    // are only guaranteed to be 1 GiB.
     static constexpr VkDeviceSize kDefaultMaxBlockSize = 256ull * 1024 * 1024;
 
-    TemporaryBufferPool(const VulkanDeviceInfo&                    dev_info,
-                        const VulkanPhysicalDeviceInfo&            phys_dev_info,
+    TemporaryBufferPool(VkDevice                                   dev,
+                        VulkanResourceAllocator*                   alloc,
                         const graphics::VulkanInjectedDeviceCalls& injected_calls,
-                        VkBufferUsageFlags                         usage = TemporaryBufferBlock::kDefaultUsage,
-                        VkMemoryPropertyFlags memory_properties          = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        VkDeviceSize          max_block_bytes            = kDefaultMaxBlockSize) :
-        buffer_usage(usage),
-        requested_memory_properties(memory_properties), max_block_size(max_block_bytes), device_info(dev_info),
-        physical_device_info(phys_dev_info), device_table(injected_calls)
+                        bool                                       map_memory      = false,
+                        VkDeviceSize                               max_block_bytes = kDefaultMaxBlockSize) :
+        map_host_visible(map_memory),
+        max_block_size(max_block_bytes), device(dev), allocator(alloc), device_table(injected_calls)
     {}
 
-    TemporaryBufferPool(const VulkanDeviceInfo&            dev_info,
-                        const VulkanPhysicalDeviceInfo&    phys_dev_info,
+    TemporaryBufferPool(VkDevice                           dev,
+                        VulkanResourceAllocator*           alloc,
                         const graphics::VulkanDeviceTable& dev_table,
-                        VkBufferUsageFlags                 usage             = TemporaryBufferBlock::kDefaultUsage,
-                        VkMemoryPropertyFlags              memory_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        VkDeviceSize                       max_block_bytes   = kDefaultMaxBlockSize) :
-        TemporaryBufferPool(dev_info,
-                            phys_dev_info,
-                            graphics::VulkanInjectedDeviceCalls(&dev_table),
-                            usage,
-                            memory_properties,
-                            max_block_bytes)
+                        bool                               map_memory      = false,
+                        VkDeviceSize                       max_block_bytes = kDefaultMaxBlockSize) :
+        TemporaryBufferPool(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table), map_memory, max_block_bytes)
     {}
 
-    // Hints at the total number of bytes still expected to be requested.
-    void Reserve(VkDeviceSize total_bytes) { expected_bytes = total_bytes; }
+    TemporaryBufferPool(const TemporaryBufferPool&)            = delete;
+    TemporaryBufferPool& operator=(const TemporaryBufferPool&) = delete;
 
-    TemporaryBuffer CreateBuffer(VkDeviceSize size, VkDeviceSize alignment = TemporaryBufferBlock::kDefaultAlignment);
+    ~TemporaryBufferPool() { Destroy(); }
 
-    VkResult AddBlock(VkDeviceSize block_bytes);
+    // Queues a created, unbound buffer for the next Allocate().
+    bool Add(TemporaryBuffer& buffer);
+
+    uint32_t GetMemoryTypeBits() const;
+
+    VkDeviceSize GetRequiredSize() const;
+
+    // Allocates blocks of VkDeviceMemory and binds queued buffers to them.
+    VkResult Allocate(uint32_t memory_type_index);
 
     void Destroy();
 
-    std::vector<std::unique_ptr<TemporaryBufferBlock>> blocks;
+    // A single VkDeviceMemory allocation holding one or more bound buffers.
+    struct BufferBlock
+    {
+        VkDeviceMemory                      memory{ VK_NULL_HANDLE };
+        VulkanResourceAllocator::MemoryData memory_data{ 0 };
+        VkDeviceSize                        size{ 0 };
+        VkDeviceSize                        used{ 0 };
+        VkMemoryPropertyFlags               memory_property_flags{ 0 };
+    };
 
-    VkBufferUsageFlags    buffer_usage;
-    VkMemoryPropertyFlags requested_memory_properties;
-    VkDeviceSize          max_block_size;
+    // Allocated blocks of memory
+    std::vector<BufferBlock> blocks;
 
-    VkDeviceSize expected_bytes{ 0 };
-    bool         exhausted{ false };
+    std::vector<TemporaryBuffer*> pending;
+    std::vector<TemporaryBuffer*> bound;
 
-    const VulkanDeviceInfo&             device_info;
-    const VulkanPhysicalDeviceInfo&     physical_device_info;
+    bool map_host_visible{ false };
+
+    VkDeviceSize max_block_size{ kDefaultMaxBlockSize };
+
+    VkDevice                            device{ VK_NULL_HANDLE };
+    VulkanResourceAllocator*            allocator{ nullptr };
     graphics::VulkanInjectedDeviceCalls device_table;
 };
 

@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_RESOURCE_INITIALIZER_H
 
 #include "decode/vulkan_resource_allocator.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
@@ -183,25 +184,24 @@ class VulkanResourceInitializer
     // Map queue family index to command pool, command buffer, and queue objects for command processing.
     typedef std::unordered_map<uint32_t, CommandExecObjects> CommandExecObjectMap;
 
-    VkDevice                              device_;
-    CommandExecObjectMap                  command_exec_objects_;
-    VkDeviceMemory                        staging_memory_;
-    VulkanResourceAllocator::MemoryData   staging_memory_data_;
-    VkBuffer                              staging_buffer_;
-    VulkanResourceAllocator::ResourceData staging_buffer_data_;
-    size_t                                staging_buffer_offset_;
-    size_t                                staging_buffer_size_;
-    size_t                                staging_buffer_alignment_;
-    uint8_t*                              staging_buffer_mapped_ptr_;
-    VkSampler                             draw_sampler_;
-    VkDescriptorPool                      draw_pool_;
-    VkDescriptorSetLayout                 draw_set_layout_;
-    VkDescriptorSet                       draw_set_;
-    VkFence                               fence_             = VK_NULL_HANDLE;
-    uint32_t                              num_queue_submits_ = 0;
-    VkPhysicalDeviceMemoryProperties      memory_properties_{};
-    bool                                  have_shader_stencil_write_;
-    VulkanResourceAllocator*              resource_allocator_;
+    VkDevice             device_;
+    CommandExecObjectMap command_exec_objects_;
+    // staging_buffer_ is declared before staging_pool_ so that the pool, which holds a pointer to
+    // the buffer, is destroyed first.
+    TemporaryBuffer                  staging_buffer_;
+    TemporaryBufferPool              staging_pool_;
+    size_t                           staging_buffer_offset_;
+    size_t                           staging_buffer_size_;
+    size_t                           staging_buffer_alignment_;
+    VkSampler                        draw_sampler_;
+    VkDescriptorPool                 draw_pool_;
+    VkDescriptorSetLayout            draw_set_layout_;
+    VkDescriptorSet                  draw_set_;
+    VkFence                          fence_             = VK_NULL_HANDLE;
+    uint32_t                         num_queue_submits_ = 0;
+    VkPhysicalDeviceMemoryProperties memory_properties_{};
+    bool                             have_shader_stencil_write_;
+    VulkanResourceAllocator*         resource_allocator_;
     // Every device call this class makes is replay-injected, i.e. has no
     // corresponding block in the capture file.
     graphics::VulkanInjectedDeviceCalls injected_calls_;

@@ -45,10 +45,10 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      VulkanResourceAllocator*                resource_allocator,
                                                      const graphics::VulkanInjectedDeviceCalls& injected_calls) :
     device_(device_info->handle),
-    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
-    staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), staging_buffer_size_(0),
-    draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
-    draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
+    staging_buffer_(device_info->handle, resource_allocator, injected_calls),
+    staging_pool_(device_info->handle, resource_allocator, injected_calls, true), staging_buffer_offset_(0),
+    staging_buffer_size_(0), draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE),
+    draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
     have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
     injected_calls_(injected_calls), device_info_(device_info)
 {
@@ -165,9 +165,9 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
             result                         = BeginCommandBuffer(queue_family_index, &command_buffer);
             if (result == VK_SUCCESS)
             {
-                GFXRECON_ASSERT(staging_buffer_mapped_ptr_ != nullptr);
+                GFXRECON_ASSERT(staging_buffer_.mapped_data != nullptr);
                 util::platform::MemoryCopy(
-                    staging_buffer_mapped_ptr_ + staging_buffer_offset_, data_size, data, data_size);
+                    staging_buffer_.mapped_data + staging_buffer_offset_, data_size, data, data_size);
 
                 offsetted_regions_copy_.resize(region_count);
 
@@ -184,7 +184,7 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
 
                 injected.InsertLabel(command_buffer, "Initialize buffer");
                 injected->CmdCopyBuffer(
-                    command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
+                    command_buffer, staging_buffer_.buffer, buffer, region_count, offsetted_regions_copy_.data());
 
                 // Advance staging buffer offset
                 GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= staging_buffer_size_);
@@ -232,13 +232,13 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             FlushStagingBuffer();
             result = FlushCommandBuffer(queue_family_index);
 
-            GFXRECON_ASSERT(staging_buffer_mapped_ptr_ != nullptr);
-            util::platform::MemoryCopy(staging_buffer_mapped_ptr_, data_size, data, data_size);
+            GFXRECON_ASSERT(staging_buffer_.mapped_data != nullptr);
+            util::platform::MemoryCopy(staging_buffer_.mapped_data, data_size, data, data_size);
 
             if (result == VK_SUCCESS)
             {
                 result = PixelShaderImageCopy(queue_family_index,
-                                              staging_buffer_,
+                                              staging_buffer_.buffer,
                                               image,
                                               type,
                                               format,
@@ -280,8 +280,9 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             }
 
             // Transfer the binary payload to the staging buffer
-            GFXRECON_ASSERT(staging_buffer_mapped_ptr_ != nullptr);
-            util::platform::MemoryCopy(staging_buffer_mapped_ptr_ + staging_buffer_offset_, data_size, data, data_size);
+            GFXRECON_ASSERT(staging_buffer_.mapped_data != nullptr);
+            util::platform::MemoryCopy(
+                staging_buffer_.mapped_data + staging_buffer_offset_, data_size, data, data_size);
 
             offsetted_level_copies_.resize(level_count);
 
@@ -307,7 +308,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             }
 
             result = BufferToImageCopy(queue_family_index,
-                                       staging_buffer_,
+                                       staging_buffer_.buffer,
                                        image,
                                        format,
                                        aspect,
@@ -1019,104 +1020,61 @@ void VulkanResourceInitializer::DestroyFramebufferResources(VkImageView view, Vk
 
 VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 {
-    auto injected = injected_calls_.Open();
-
     VkResult result = VK_SUCCESS;
 
     // increase size if necessary, but we expect this is not necessary
     GFXRECON_ASSERT(size <= staging_buffer_size_);
     size = std::max<VkDeviceSize>(util::aligned_value(size, staging_buffer_alignment_), staging_buffer_size_);
 
-    if (staging_buffer_ == VK_NULL_HANDLE || size > staging_buffer_size_)
+    if (staging_buffer_.buffer == VK_NULL_HANDLE || size > staging_buffer_size_)
     {
-        if (staging_buffer_ != VK_NULL_HANDLE)
+        if (staging_buffer_.buffer != VK_NULL_HANDLE)
         {
             FlushRemainingResourcesInit();
             ReleaseStagingBuffer();
         }
 
-        VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        create_info.pNext                 = nullptr;
-        create_info.flags                 = 0;
-        create_info.size                  = std::max<VkDeviceSize>(size, staging_buffer_size_);
-        create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        create_info.queueFamilyIndexCount = 0;
-        create_info.pQueueFamilyIndices   = nullptr;
+        const VkDeviceSize block_bytes = std::max<VkDeviceSize>(size, staging_buffer_size_);
 
-        result =
-            resource_allocator_->CreateBufferDirect(&create_info, nullptr, &staging_buffer_, &staging_buffer_data_);
-
+        result = staging_buffer_.Create(block_bytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         if (result == VK_SUCCESS)
         {
-            VkMemoryRequirements memory_requirements;
-            injected->GetBufferMemoryRequirements(device_, staging_buffer_, &memory_requirements);
+            staging_pool_.Add(staging_buffer_);
 
-            auto memory_type_index =
-                GetMemoryTypeIndex(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            // HOST_COHERENT is deliberately not requested; FlushStagingBuffer() covers non-coherent
+            // memory.
+            const std::optional<uint32_t> memory_type_index =
+                GetMemoryTypeIndex(staging_pool_.GetMemoryTypeBits(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-            GFXRECON_ASSERT(memory_type_index);
-
-            VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-            alloc_info.pNext                = nullptr;
-            alloc_info.allocationSize       = memory_requirements.size;
-            alloc_info.memoryTypeIndex      = *memory_type_index;
-
-            // Allocate the memory for the buffer.
-            result = resource_allocator_->AllocateMemoryDirect(
-                &alloc_info, nullptr, &staging_memory_, &staging_memory_data_);
-
-            if (result == VK_SUCCESS)
+            if (memory_type_index)
             {
-                VkMemoryPropertyFlags flags;
-                result = resource_allocator_->BindBufferMemoryDirect(
-                    staging_buffer_, staging_memory_, 0, staging_buffer_data_, staging_memory_data_, &flags);
-            }
-
-            if (result == VK_SUCCESS)
-            {
-                staging_buffer_size_ = size;
-
-                // Map staging buffer
-                result =
-                    resource_allocator_->MapResourceMemoryDirect(staging_buffer_size_,
-                                                                 0,
-                                                                 reinterpret_cast<void**>(&staging_buffer_mapped_ptr_),
-                                                                 staging_buffer_data_);
+                result = staging_pool_.Allocate(*memory_type_index);
             }
             else
             {
-                resource_allocator_->DestroyBufferDirect(staging_buffer_, nullptr, staging_buffer_data_);
-
-                if (staging_memory_ != VK_NULL_HANDLE)
-                {
-                    resource_allocator_->FreeMemoryDirect(staging_memory_, nullptr, staging_memory_data_);
-                }
+                GFXRECON_LOG_ERROR("%s() found no host-visible memory type for the staging buffer", __func__);
+                result = VK_ERROR_OUT_OF_DEVICE_MEMORY;
             }
         }
+
+        if (result == VK_SUCCESS)
+        {
+            staging_buffer_size_ = block_bytes;
+        }
+        else
+        {
+            ReleaseStagingBuffer();
+        }
     }
+
     return result;
 }
 
 void VulkanResourceInitializer::ReleaseStagingBuffer()
 {
-    if (staging_buffer_mapped_ptr_ != nullptr)
-    {
-        resource_allocator_->UnmapResourceMemoryDirect(staging_buffer_data_);
-        staging_buffer_mapped_ptr_ = nullptr;
-    }
-
-    if (staging_buffer_ != VK_NULL_HANDLE)
-    {
-        resource_allocator_->DestroyBufferDirect(staging_buffer_, nullptr, staging_buffer_data_);
-        staging_buffer_ = VK_NULL_HANDLE;
-    }
-
-    if (staging_memory_ != VK_NULL_HANDLE)
-    {
-        resource_allocator_->FreeMemoryDirect(staging_memory_, nullptr, staging_memory_data_);
-        staging_memory_ = VK_NULL_HANDLE;
-    }
+    // The pool releases the memory and clears the buffer's binding before the buffer goes away.
+    staging_pool_.Destroy();
+    staging_buffer_.Destroy();
 }
 
 void VulkanResourceInitializer::UpdateDrawDescriptorSet(VkDescriptorSet set, VkImageView view, VkSampler sampler)
@@ -1588,18 +1546,23 @@ VkResult VulkanResourceInitializer::FlushRemainingResourcesInit()
 
 void VulkanResourceInitializer::FlushStagingBuffer()
 {
-    GFXRECON_ASSERT(staging_memory_ != VK_NULL_HANDLE || staging_buffer_offset_ == 0);
+    GFXRECON_ASSERT(staging_buffer_.memory != VK_NULL_HANDLE || staging_buffer_offset_ == 0);
 
-    if (staging_memory_ != VK_NULL_HANDLE)
+    if (staging_buffer_.memory != VK_NULL_HANDLE)
     {
-        VkMappedMemoryRange memory_range;
-        memory_range.sType  = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        memory_range.pNext  = nullptr;
-        memory_range.memory = staging_memory_;
-        memory_range.offset = 0;
-        memory_range.size   = std::min<VkDeviceSize>(
+        const VkDeviceSize flush_bytes = std::min<VkDeviceSize>(
             staging_buffer_size_, util::aligned_value(staging_buffer_offset_, staging_buffer_alignment_));
-        resource_allocator_->FlushMappedMemoryRangesDirect(1, &memory_range, &staging_memory_data_);
+
+        if (flush_bytes != 0)
+        {
+            VkMappedMemoryRange memory_range;
+            memory_range.sType  = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+            memory_range.pNext  = nullptr;
+            memory_range.memory = staging_buffer_.memory;
+            memory_range.offset = 0;
+            memory_range.size   = flush_bytes;
+            resource_allocator_->FlushMappedMemoryRangesDirect(1, &memory_range, &staging_buffer_.memory_data);
+        }
 
         staging_buffer_offset_ = 0;
     }
