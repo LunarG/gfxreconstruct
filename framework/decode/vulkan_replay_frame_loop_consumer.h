@@ -25,6 +25,7 @@
 
 #include "util/defines.h"
 #include "decode/vulkan_replay_consumer_base.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 
@@ -180,35 +181,29 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     /// writes made to the buffer during the loop can be undone before each repetition.
     struct BufferTracking
     {
-        BufferTracking(format::HandleId                         device_id,
-                       const graphics::VulkanDeviceTable&       device_table,
-                       CommonObjectInfoTable&                   object_table,
-                       std::shared_ptr<VulkanResourceAllocator> allocator,
-                       const VkPhysicalDeviceMemoryProperties*  memory_properties) :
+        BufferTracking(format::HandleId                   device_id,
+                       const graphics::VulkanDeviceTable& device_table,
+                       CommonObjectInfoTable&             object_table,
+                       const VulkanDeviceInfo&            device_info,
+                       const VulkanPhysicalDeviceInfo&    physical_device_info) :
             device_id_(device_id),
-            device_table_(device_table), object_table_(object_table), allocator_(allocator),
-            memory_properties_(memory_properties)
+            device_table_(device_table), object_table_(object_table),
+            shadow_pool_(device_info, physical_device_info, device_table)
         {}
 
-        struct ShadowBuffer
-        {
-            VkBuffer                              buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory                        memory{ VK_NULL_HANDLE };
-            VkDeviceSize                          size{ 0 };
-            VulkanResourceAllocator::ResourceData alloc_data{ 0 };
-            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
-        };
+        static constexpr VkDeviceSize kShadowBufferAlignment = 4;
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
 
-        format::HandleId                                   device_id_;
-        const graphics::VulkanDeviceTable&                 device_table_;
-        CommonObjectInfoTable&                             object_table_;
-        std::shared_ptr<VulkanResourceAllocator>           allocator_;
-        const VkPhysicalDeviceMemoryProperties*            memory_properties_;
-        std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+        format::HandleId                   device_id_;
+        const graphics::VulkanDeviceTable& device_table_;
+        CommonObjectInfoTable&             object_table_;
+
+        /// Backing storage for every shadow copy on this device.
+        TemporaryBufferPool                                   shadow_pool_;
+        std::unordered_map<format::HandleId, TemporaryBuffer> shadow_buffers_;
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
