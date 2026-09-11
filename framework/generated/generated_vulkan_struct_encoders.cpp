@@ -1092,9 +1092,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLimits& value
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties& value)
 {
     encoder->EncodeUInt32Value(value.memoryTypeCount);
-    EncodeStructArray(encoder, value.memoryTypes, value.memoryTypeCount);
+    const size_t memoryTypes_count = ParameterEncoder::ClampStaticArrayLength(value.memoryTypeCount, VK_MAX_MEMORY_TYPES, "VkPhysicalDeviceMemoryProperties::memoryTypes");
+    EncodeStructArray(encoder, value.memoryTypes, memoryTypes_count);
     encoder->EncodeUInt32Value(value.memoryHeapCount);
-    EncodeStructArray(encoder, value.memoryHeaps, value.memoryHeapCount);
+    const size_t memoryHeaps_count = ParameterEncoder::ClampStaticArrayLength(value.memoryHeapCount, VK_MAX_MEMORY_HEAPS, "VkPhysicalDeviceMemoryProperties::memoryHeaps");
+    EncodeStructArray(encoder, value.memoryHeaps, memoryHeaps_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSparseProperties& value)
@@ -2076,7 +2078,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperti
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::PhysicalDeviceWrapper>(value.physicalDevices, value.physicalDeviceCount);
+    const size_t physicalDevices_count = ParameterEncoder::ClampStaticArrayLength(value.physicalDeviceCount, VK_MAX_DEVICE_GROUP_SIZE, "VkPhysicalDeviceGroupProperties::physicalDevices");
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::PhysicalDeviceWrapper>(value.physicalDevices, physicalDevices_count);
     encoder->EncodeUInt32Value(value.subsetAllocation);
 }
 
@@ -3805,7 +3808,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyGlobalPriorityPr
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.priorityCount);
-    encoder->EncodeEnumArray(value.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE);
+    const size_t priorities_count = ParameterEncoder::ClampStaticArrayLength(value.priorityCount, VK_MAX_GLOBAL_PRIORITY_SIZE, "VkQueueFamilyGlobalPriorityProperties::priorities");
+    encoder->EncodeEnumArray(value.priorities, priorities_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint8Features& value)
@@ -10535,7 +10539,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleIdentifierEXT& 
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.identifierSize);
-    encoder->EncodeUInt8Array(value.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT);
+    const size_t identifier_count = ParameterEncoder::ClampStaticArrayLength(value.identifierSize, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, "VkShaderModuleIdentifierEXT::identifier");
+    encoder->EncodeUInt8Array(value.identifier, identifier_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceOpticalFlowFeaturesNV& value)

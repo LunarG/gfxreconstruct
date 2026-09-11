@@ -33,6 +33,8 @@
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 
+#include <algorithm>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -8412,7 +8414,8 @@ std::string GenerateStruct_VkQueueFamilyGlobalPriorityProperties(std::ostream &o
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->priorityCount << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const VkQueueGlobalPriority*>(&structInfo->priorities[0]), VK_MAX_GLOBAL_PRIORITY_SIZE) << ",";
+    const uint32_t priorities_count = std::min<uint32_t>(structInfo->priorityCount, VK_MAX_GLOBAL_PRIORITY_SIZE);
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const VkQueueGlobalPriority*>(&structInfo->priorities[0]), priorities_count) << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "queueFamilyGlobalPriorityProperties");
     out << "\t\t" << "VkQueueFamilyGlobalPriorityProperties " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -22284,7 +22287,8 @@ std::string GenerateStruct_VkShaderModuleIdentifierEXT(std::ostream &out, const 
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->identifierSize << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->identifier[0]), VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT) << ",";
+    const uint32_t identifier_count = std::min<uint32_t>(structInfo->identifierSize, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT);
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->identifier[0]), identifier_count) << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "shaderModuleIdentifierEXT");
     out << "\t\t" << "VkShaderModuleIdentifierEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;

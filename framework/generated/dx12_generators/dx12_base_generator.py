@@ -1265,19 +1265,6 @@ class Dx12BaseGenerator():
             return True
         return False
 
-    def get_static_array_len(self, name, params, capacity):
-        """Determine the length value of a static array (get_array_len() returns the total capacity, not the actual length)."""
-        # The XML registry does not provide a direct method for determining if a parameter provides the length
-        # of a static array, but the parameter naming follows a pattern of array name = 'values' and length
-        # name = 'value_count'.  We will search the parameter list for a length parameter using this pattern.
-        length_name = name[:-1] + 'Count'
-        for param in params:
-            if length_name == noneStr(param.find('name').text):
-                return length_name
-
-        # Not all static arrays have an associated length parameter. These will use capacity as length.
-        return capacity
-
     def is_struct_black_listed(self, typename):
         """Determines if a struct with the specified typename is blacklisted."""
         if typename in self.STRUCT_BLACKLIST:

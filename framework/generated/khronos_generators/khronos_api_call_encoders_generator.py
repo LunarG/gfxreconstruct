@@ -76,6 +76,9 @@ class KhronosApiCallEncodersGenerator():
         indent += ' ' * self.INDENT_SIZE
 
         for value in values:
+            preamble = self.make_counted_static_array_preamble(name, value)
+            if preamble:
+                body += indent + '{}\n'.format(preamble)
             method_call = self.make_encoder_method_call(
                 name, value, values, '', omit_output_param
             )

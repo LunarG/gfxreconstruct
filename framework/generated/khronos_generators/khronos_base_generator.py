@@ -1120,38 +1120,17 @@ class KhronosBaseGenerator(OutputGenerator):
                     # strings.  We strip the null-terminated substring from the 'len' field and only return the parameter specifying the string count.
                     result = len.split(',')[0]
             else:
-                paramname = param.find('name')
-                # If there is an enum inside "[...]", return the enum
-                if (paramname.tail is not None) and ('[' in paramname.tail):
-                    result = None
-                    paramenumsizes = param.findall('enum')
-                    for paramenumsize in paramenumsizes:
-                        # If there is more than one we'll pick the last one. But current vk.xml file doesn't have an instance with more than one.
-                        result = paramenumsize.text
-                else:
-                    result = len
+                # A static array (a bracketed extent after the name) may also carry a 'len' attribute naming
+                # the sibling that holds the number of meaningful elements, e.g.
+                #   <member len="memoryTypeCount">VkMemoryType memoryTypes[VK_MAX_MEMORY_TYPES]
+                # In that case the registry's 'len' is the array length; the bracketed capacity is
+                # reported separately by the caller (see array_capacity).
+                result = len
             if result:
                 result = str(result).replace('::', '->')
-        else:
-            # Check for a static array
-            paramname = param.find('name')
-            if (paramname.tail is not None) and ('[' in paramname.tail):
-                paramenumsizes = param.findall('enum')
-                if paramenumsizes:
-                    first = True
-                    for paramenumsize in paramenumsizes:
-                        if first:
-                            first = False
-                            result = paramenumsize.text
-                        else:
-                            result +=', '
-                            result += paramenumsize.text
-                else:
-                    paramsizes = paramname.tail[1:-1].split('][')
-                    sizetokens = []
-                    for paramsize in paramsizes:
-                        sizetokens.append(paramsize)
-                    result = ', '.join(sizetokens)
+        elif self.is_static_array(param):
+            # A static array with no 'len': every element is meaningful, so the length is the capacity.
+            result = self.get_static_array_capacity(param)
         return result
 
     def is_static_array(self, param):
@@ -1161,18 +1140,16 @@ class KhronosBaseGenerator(OutputGenerator):
             return True
         return False
 
-    def get_static_array_len(self, name, params, capacity):
-        """Determine the length value of a static array (get_array_len() returns the total capacity, not the actual length)."""
-        # The XML registry does not provide a direct method for determining if a parameter provides the length
-        # of a static array, but the parameter naming follows a pattern of array name = 'values' and length
-        # name = 'value_count'.  We will search the parameter list for a length parameter using this pattern.
-        length_name = name[:-1] + 'Count'
-        for param in params:
-            if length_name == noneStr(param.find('name').text):
-                return length_name
-
-        # Not all static arrays have an associated length parameter. These will use capacity as length.
-        return capacity
+    def get_static_array_capacity(self, param):
+        """Retrieve the bracketed capacity of a static array, ignoring any 'len' attribute."""
+        result = None
+        paramname = param.find('name')
+        paramenumsizes = param.findall('enum')
+        if paramenumsizes:
+            result = ', '.join(paramenumsize.text for paramenumsize in paramenumsizes)
+        else:
+            result = ', '.join(paramname.tail[1:-1].split(']['))
+        return result
 
     def needs_length_cast_to_size_t(self, type):
         api_data = self.get_api_data()
@@ -1771,13 +1748,12 @@ class KhronosBaseGenerator(OutputGenerator):
             else:
                 array_length = self.get_array_len(param)
 
-            # Get array length for HandlesInfo structs e.g. VkPipelineBinaryHandlesInfoKHR
+            # For a static array, array_length is the registry 'len' (the number of meaningful elements,
+            # e.g. memoryTypeCount) when the registry states one and the bracketed capacity otherwise, while
+            # array_capacity is always the bracketed capacity (e.g. VK_MAX_MEMORY_TYPES).
             array_capacity = None
             if self.is_static_array(param):
-                array_capacity = array_length
-                array_length = self.get_static_array_len(
-                    name, params, array_capacity
-                )
+                array_capacity = self.get_static_array_capacity(param)
 
             array_dimension = 0
             if array_length:
@@ -2350,6 +2326,18 @@ class KhronosBaseGenerator(OutputGenerator):
                     return values
         return None
 
+    def is_counted_static_array(self, value):
+        """Check for a static array whose registry 'len' names a sibling count member (e.g. memoryTypes[VK_MAX_MEMORY_TYPES] with len="memoryTypeCount")."""
+        return bool(value.array_capacity) and (value.array_length_value is not None)
+
+    def is_decoded_before(self, struct_name, first, second):
+        """Check that struct member 'first' is declared, and so decoded, before member 'second'."""
+        members = self.all_struct_members.get(struct_name)
+        if not members:
+            return False
+        names = [member.name for member in members]
+        return (first.name in names) and (second.name in names) and (names.index(first.name) < names.index(second.name))
+
     def make_array_length_expression(self, value, prefix=''):
         """Generate an expression for the length of a given array value."""
         length_expr = value.array_length
@@ -2372,6 +2360,24 @@ class KhronosBaseGenerator(OutputGenerator):
                 length_value.name, prefix + length_value.name
             )
         return length_expr
+
+    def make_counted_static_array_length_var(self, value):
+        """Name of the local holding the clamped element count of a counted static array."""
+        return '{}_count'.format(value.name)
+
+    def make_counted_static_array_preamble(self, name, value, prefix=''):
+        """Generate the declaration of the clamped element count for a counted static array, or None otherwise.
+
+        The count is runtime data; the clamp keeps it from indexing past the fixed-extent array it describes.
+        Callers emit this line ahead of the encoder call produced by make_encoder_method_call().
+        """
+        if not self.is_counted_static_array(value):
+            return None
+        return 'const size_t {} = ParameterEncoder::ClampStaticArrayLength({}, {}, "{}::{}");'.format(
+            self.make_counted_static_array_length_var(value),
+            self.make_array_length_expression(value, prefix),
+            value.array_capacity, name, value.name
+        )
 
     def make_array2d_length_expression(self, value, values, prefix=''):
         length_exprs = value.array_length.split(',')
@@ -2471,7 +2477,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 args.append(self.make_array_length_expression(value, prefix))
             else:
                 method_call += 'Array'
-                args.append(self.make_array_length_expression(value, prefix))
+                if self.is_counted_static_array(value):
+                    # Declared by make_counted_static_array_preamble(), which callers emit first.
+                    args.append(self.make_counted_static_array_length_var(value))
+                else:
+                    args.append(self.make_array_length_expression(value, prefix))
         elif is_struct:
             if value.is_pointer:
                 method_call += 'Ptr'
