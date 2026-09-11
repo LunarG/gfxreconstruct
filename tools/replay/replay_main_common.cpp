@@ -105,6 +105,20 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
         return false;
     }
 
+    if (arg_parser.IsArgumentSet(kSkipIndexArgument))
+    {
+        const auto& value = arg_parser.GetArgumentValue(kSkipIndexArgument);
+        if (value.empty())
+        {
+            GFXRECON_LOG_WARNING("Ignoring empty \"%s\" option value", kSkipIndexArgument);
+        }
+        else
+        {
+            file_processor_out->SetSkipBlockIndices(
+                util::GetUintRanges(value.c_str(), kSkipIndexArgument, false, true));
+        }
+    }
+
     bool        has_mfr                            = false;
     bool        requires_pre_processing            = false;
     bool        quit_after_frame                   = false;

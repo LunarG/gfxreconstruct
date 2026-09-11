@@ -108,6 +108,10 @@ class FileProcessor
     // Safe to call even after Initialize() re-creates the BlockProcessor.
     void SetBlocksToSkip(const std::unordered_set<uint64_t>& blocks_to_skip);
 
+    // Skip API calls and metadata in inclusive, zero-based ranges; preserve structural markers.
+    // Must be called before InitializeFrameProcessing().
+    void SetSkipBlockIndices(const std::vector<util::UintRange>& ranges);
+
     // In async mode, skip completion is reported only after dispatch reaches this
     // in-band marker. This means the consumer has observed the stream past all
     // skipped blocks, not merely that the process thread has read and omitted them.
@@ -193,6 +197,7 @@ class FileProcessor
     // Stored at FileProcessor level so they survive a BlockProcessor re-creation in Initialize().
     // Transferred to BlockProcessor in InitializeFrameProcessing().
     std::unordered_set<uint64_t> pending_blocks_to_skip_;
+    std::vector<util::UintRange> skip_block_indices_;
 
     // Cached copies of capture-file metadata set during Initialize() from block_processor_.
     // Remain valid after block_processor_ transfers to AsyncProcessor.
