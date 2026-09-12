@@ -94,6 +94,70 @@ VulkanRebindAllocator::VulkanRebindAllocator() :
     capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}
 {}
 
+void VulkanRebindAllocator::DefaultVmaBackend::GetImageMemoryRequirements(VmaAllocator          allocator,
+                                                                          VkImage               image,
+                                                                          VkMemoryRequirements& memory_requirements,
+                                                                          bool& requires_dedicated_allocation,
+                                                                          bool& prefers_dedicated_allocation)
+{
+    allocator->GetImageMemoryRequirements(
+        image, memory_requirements, requires_dedicated_allocation, prefers_dedicated_allocation);
+}
+
+VkResult VulkanRebindAllocator::DefaultVmaBackend::CreateBuffer(VmaAllocator                   allocator,
+                                                                const VkBufferCreateInfo*      create_info,
+                                                                const VmaAllocationCreateInfo* allocation_create_info,
+                                                                VkBuffer*                      buffer,
+                                                                VmaAllocation*                 allocation,
+                                                                VmaAllocationInfo*             allocation_info)
+{
+    return vmaCreateBuffer(allocator, create_info, allocation_create_info, buffer, allocation, allocation_info);
+}
+
+VkResult
+VulkanRebindAllocator::DefaultVmaBackend::AllocateMemoryForImage(VmaAllocator                   allocator,
+                                                                 VkImage                        image,
+                                                                 const VmaAllocationCreateInfo* allocation_create_info,
+                                                                 VmaAllocation*                 allocation,
+                                                                 VmaAllocationInfo*             allocation_info)
+{
+    return vmaAllocateMemoryForImage(allocator, image, allocation_create_info, allocation, allocation_info);
+}
+
+VkResult VulkanRebindAllocator::DefaultVmaBackend::AllocateMemory(VmaAllocator                   allocator,
+                                                                  const VkMemoryRequirements*    memory_requirements,
+                                                                  const VmaAllocationCreateInfo* allocation_create_info,
+                                                                  VmaAllocation*                 allocation,
+                                                                  VmaAllocationInfo*             allocation_info)
+{
+    return vmaAllocateMemory(allocator, memory_requirements, allocation_create_info, allocation, allocation_info);
+}
+
+void VulkanRebindAllocator::DefaultVmaBackend::FreeMemory(VmaAllocator allocator, VmaAllocation allocation)
+{
+    vmaFreeMemory(allocator, allocation);
+}
+
+VkResult VulkanRebindAllocator::DefaultVmaBackend::MapMemory(VmaAllocator  allocator,
+                                                             VmaAllocation allocation,
+                                                             void**        mapped_pointer)
+{
+    return vmaMapMemory(allocator, allocation, mapped_pointer);
+}
+
+void VulkanRebindAllocator::DefaultVmaBackend::FlushAllocation(VmaAllocator  allocator,
+                                                               VmaAllocation allocation,
+                                                               VkDeviceSize  offset,
+                                                               VkDeviceSize  size)
+{
+    vmaFlushAllocation(allocator, allocation, offset, size);
+}
+
+void VulkanRebindAllocator::DefaultVmaBackend::UnmapMemory(VmaAllocator allocator, VmaAllocation allocation)
+{
+    vmaUnmapMemory(allocator, allocation);
+}
+
 std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_memory)
 {
     std::lock_guard guard(block_mutexes_guard_);
@@ -1156,8 +1220,9 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     VkMemoryRequirements replay_req                    = {};
     bool                 requires_dedicated_allocation = false;
     bool                 prefers_dedicated_allocation  = false;
-    allocator_->GetImageMemoryRequirements(
-        image, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
+    // Route the replay requirement query through the backend so unit tests can validate this policy in isolation.
+    vma_backend_->GetImageMemoryRequirements(
+        allocator_, image, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
 
     VmaAllocationCreateInfo create_info{};
     create_info.flags = 0;
@@ -1212,10 +1277,9 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
-    // Mark vma's api calls as synthesized
     util::MarkInjectedCommandsHelper injected;
-    auto                             result =
-        vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
+    auto                             result = vma_backend_->AllocateMemoryForImage(
+        allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
 
     if (result >= 0)
     {
@@ -2048,27 +2112,28 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
             VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
         staging_alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 
-        result = vmaCreateBuffer(allocator_,
-                                 &staging_buf_create_info,
-                                 &staging_alloc_create_info,
-                                 &staging_resources.staging_buf,
-                                 &staging_resources.staging_alloc,
-                                 &staging_alloc_info);
+        result = vma_backend_->CreateBuffer(allocator_,
+                                            &staging_buf_create_info,
+                                            &staging_alloc_create_info,
+                                            &staging_resources.staging_buf,
+                                            &staging_resources.staging_alloc,
+                                            &staging_alloc_info);
     }
 
     void* copy_mapped_pointer{ bound_memory_info->mapped_pointer };
 
     if (result == VK_SUCCESS)
     {
-        result = vmaMapMemory(allocator_, staging_resources.staging_alloc, &bound_memory_info->mapped_pointer);
+        result =
+            vma_backend_->MapMemory(allocator_, staging_resources.staging_alloc, &bound_memory_info->mapped_pointer);
     }
 
     if (result == VK_SUCCESS)
     {
         WriteBoundResourceDirect(resource_alloc_info, bound_memory_info, src_offset, 0, data_size, data);
         bound_memory_info->mapped_pointer = copy_mapped_pointer;
-        vmaFlushAllocation(allocator_, staging_resources.staging_alloc, 0, VK_WHOLE_SIZE);
-        vmaUnmapMemory(allocator_, staging_resources.staging_alloc);
+        vma_backend_->FlushAllocation(allocator_, staging_resources.staging_alloc, 0, VK_WHOLE_SIZE);
+        vma_backend_->UnmapMemory(allocator_, staging_resources.staging_alloc);
 
         VkCommandBufferBeginInfo cmd_buf_begin_info = {};
         cmd_buf_begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -3093,7 +3158,7 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
                 {
                     vmaUnmapMemory(allocator_, mem_info->allocation);
                 }
-                vmaFreeMemory(allocator_, mem_info->allocation);
+                vma_backend_->FreeMemory(allocator_, mem_info->allocation);
             }
 
             for (auto entry = mem_alc_info->vma_mem_infos.begin(); entry != mem_alc_info->vma_mem_infos.end();)
@@ -3862,15 +3927,16 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
 {
     struct PendingBinding
     {
-        VmaAllocator                     allocator = VK_NULL_HANDLE;
+        VmaAllocator                     allocator   = VK_NULL_HANDLE;
+        VmaBackend*                      vma_backend = nullptr;
         std::unique_ptr<MemoryAllocInfo> memory_alloc_info;
         VmaMemoryInfo                    memory_info{};
 
         ~PendingBinding()
         {
-            if ((allocator != VK_NULL_HANDLE) && (memory_info.allocation != VK_NULL_HANDLE))
+            if (memory_info.allocation != VK_NULL_HANDLE)
             {
-                vmaFreeMemory(allocator, memory_info.allocation);
+                vma_backend->FreeMemory(allocator, memory_info.allocation);
             }
         }
     };
@@ -3977,6 +4043,7 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
 
             auto pending_binding                                = std::make_unique<PendingBinding>();
             pending_binding->allocator                          = allocator_;
+            pending_binding->vma_backend                        = vma_backend_;
             pending_binding->memory_alloc_info                  = std::make_unique<MemoryAllocInfo>();
             pending_binding->memory_alloc_info->allocation_size = memory_requirements.memoryRequirements.size;
             pending_binding->memory_alloc_info->is_free         = true;
@@ -3987,11 +4054,12 @@ VkResult VulkanRebindAllocator::InitializeDataGraphPipelineSessionMemory(VkDataG
             memory_info.alc_create_info                    = allocation_create_info;
             memory_info.offset_from_original_device_memory = 0;
 
-            result = vmaAllocateMemory(allocator_,
-                                       &memory_requirements.memoryRequirements,
-                                       &allocation_create_info,
-                                       &memory_info.allocation,
-                                       &memory_info.allocation_info);
+            util::MarkInjectedCommandsHelper injected;
+            result = vma_backend_->AllocateMemory(allocator_,
+                                                  &memory_requirements.memoryRequirements,
+                                                  &allocation_create_info,
+                                                  &memory_info.allocation,
+                                                  &memory_info.allocation_info);
             if (result != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR(
