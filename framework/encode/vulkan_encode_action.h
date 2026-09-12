@@ -58,8 +58,8 @@ class EncodeStructAction
 
     // A fixed-extent array of scalars, of one or two dimensions. Every named fixed-array entry point, the 2DMatrix
     // family included, is one EncodeArray over a flat pointer and a length, so a matrix is a run of the extent
-    // product and the two ranks share a body. The extents come from the API member's declared type, as they do on
-    // the decode side, so the schema needs no extent for this.
+    // product and the two ranks share a body. The extents are read from the API member's declared type, as they are
+    // on the decode side; the Field records the same extents and the static_assert below holds the two to agree.
     template <typename Field, typename Storage>
     requires schema::ScalarKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, const Storage& storage)
@@ -69,6 +69,8 @@ class EncodeStructAction
 
         static_assert(std::is_array_v<ArrayType>,
                       "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
+                      "A StaticArray field's recorded extents must equal the extents the API type declares");
         static_assert(std::rank_v<ArrayType> <= 2, "The encoder writes fixed arrays of one and two dimensions only");
 
         constexpr size_t count =

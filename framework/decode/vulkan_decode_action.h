@@ -199,6 +199,8 @@ class DecodeStructAction
 
         static_assert(std::is_array_v<ArrayType>,
                       "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
+                      "A StaticArray field's recorded extents must equal the extents the API type declares");
         static_assert(std::rank_v<ArrayType> == 1, "A fixed-extent string is one dimensional");
 
         field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
@@ -230,11 +232,10 @@ class DecodeStructAction
     // straight into it, so unlike every other overload nothing is assigned to the decoded value afterwards: it is
     // already the target.
     //
-    // The extents come from the API member's declared type, not from the schema. The schema records a usable
-    // extent only for a one-dimensional array; for a multidimensional one it records the dimension count and a
-    // joined length expression, which is a string. std::extent_v recovers both dimensions from the C++
-    // declaration the member trait already names, so the two cases need no separate treatment here and the
-    // schema needs no extent at all for this.
+    // The extents are read from the API member's declared type, which the member trait already names, so the one
+    // and two dimensional cases need no separate treatment here. The Field records the same extents, and the
+    // static_assert below holds the two to agree, so either source would serve; the declared type is the one the
+    // compiler laid the storage out from.
     template <typename Field, typename Storage>
     requires schema::ScalarKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
         schema::Addressable<typename Storage::struct_type, Field>
@@ -246,6 +247,8 @@ class DecodeStructAction
 
         static_assert(std::is_array_v<ArrayType>,
                       "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
+                      "A StaticArray field's recorded extents must equal the extents the API type declares");
 
         // The bound is PointerDecoder's, not the registry's. It supplies SetExternalMemory for one and two
         // dimensions and no more, so a rank the registry might one day add would otherwise fail as an unviable
@@ -306,6 +309,8 @@ class DecodeStructAction
 
         static_assert(std::is_array_v<ArrayType>,
                       "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
+                      "A StaticArray field's recorded extents must equal the extents the API type declares");
         static_assert(std::rank_v<ArrayType> == 1, "A fixed-extent array of structures is one dimensional");
 
         field_ref = DecodeAllocator::Allocate<Decoder>();
@@ -338,6 +343,8 @@ class DecodeStructAction
 
         static_assert(std::is_array_v<ArrayType>,
                       "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
+                      "A StaticArray field's recorded extents must equal the extents the API type declares");
         static_assert(std::rank_v<ArrayType> == 1, "A fixed-extent array of handles is one dimensional");
 
         field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);

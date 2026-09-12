@@ -80,6 +80,33 @@ struct VoidReturn
 
 GFXRECON_END_NAMESPACE(field_shape)
 
+// The Field descriptor vocabulary. Every Field descriptor the schema generator emits is a struct of the members below
+// and no others; the members present depend on the field's shape and kind. A descriptor states what one use site
+// is, never what an operation does with it, so nothing here names an operation, a wire type or a storage type.
+//
+//   api_type          Every field. The API type descriptor; its kind and element_type answer every type question, and
+//                     the kind concepts below select on it.
+//   shape             Every field. One of the field_shape tags above; the shape concepts below select on it.
+//   field_name        Every field. The registry's member or parameter name, for diagnostics. It is not `name`,
+//                     because Vulkan declares members called name and a member cannot share the name of its class.
+//   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
+//                     reads it that way so that no other descriptor has to state it.
+//   pointer_count     Pointer and PointerArray. The declared star count, one or two.
+//   count_field       PointerArray or StaticArray whose registry length is exactly one sibling member: that sibling's
+//                     Field descriptor, so a cross-field read can be constrained on it.
+//   length_expression PointerArray or StaticArray whose registry length is anything else: the registry text as
+//                     written, for example a computed length or the comma-joined extents of a matrix. Not read by
+//                     any operation; a length no Action can evaluate is recorded here rather than dropped.
+//   extents           StaticArray. The declared extents in declaration order, so extents[i] is
+//                     std::extent_v<Member, i> and the rank is the array's length. The schema states them so a
+//                     field is fully described without a storage type; an Action with storage in hand may read the
+//                     declared type instead, and asserts the two agree with DeclaredExtentsMatch below.
+//   selector_field    A GenericHandle field only: the sibling Field whose value names the handle type the integer
+//                     stands for, so an operation can dispatch on it.
+//
+// Storage facts, which member of which type holds a field, are MemberPointer specializations and never descriptor
+// members. Type facts, kind, element_type, capture_wrapper_type, are on the api_type and are not restated.
+
 // The API's own C++ type for one element of a field that names this descriptor. It is not the declared type of any
 // field: the shape supplies the packaging, so a pointer-array field naming this descriptor is declared as a pointer
 // to this type.
@@ -93,6 +120,24 @@ using FieldElementType = ElementType<typename Field::api_type>;
 // format/format.h, so a change to the capture format touches that header and no schema content.
 template <typename Field>
 using FieldEncodeType = format::EncodeTypeFor<typename Field::api_type::kind>;
+
+// Whether the extents a StaticArray Field records equal the extents of an array type, in rank and in every
+// dimension. An Action with the declared member type in hand asserts this where it reads the array, so a schema that
+// drifts from the API header fails in every build and not only in the one that compiles the generated checks file.
+template <typename ArrayType, typename Field, typename Indices = std::make_index_sequence<std::rank_v<ArrayType>>>
+struct DeclaredExtentsMatch;
+
+template <typename ArrayType, typename Field, size_t... I>
+struct DeclaredExtentsMatch<ArrayType, Field, std::index_sequence<I...>>
+{
+    // The rank test guards the fold: a recorded list shorter than the declared rank is a mismatch, not an
+    // out-of-bounds read, because a constant && does not evaluate its right operand once the left is false.
+    static constexpr bool rank_matches = std::rank_v<ArrayType> == std::extent_v<decltype(Field::extents)>;
+    static constexpr bool value        = rank_matches && ((std::extent_v<ArrayType, I> == Field::extents[I]) && ...);
+};
+
+template <typename ArrayType, typename Field>
+inline constexpr bool DeclaredExtentsMatchV = DeclaredExtentsMatch<ArrayType, Field>::value;
 
 // Member traits. The primary template stays undefined, so an absent specialization makes the access concepts fail
 // rather than producing a hard error.

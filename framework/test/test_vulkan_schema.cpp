@@ -652,11 +652,10 @@ TEST_CASE("A field walk decodes a fixed-extent array in place, extents from the 
 {
     using namespace gfxrecon::decode;
 
-    // VkTransformMatrixKHR is one field, float matrix[3][4], and it is the case the schema cannot describe: for a
-    // multidimensional array the generator records array_dimension and a comma-joined length expression, which is
-    // a string, and no extent value at all. The overload takes both extents from std::extent_v on the API member's
-    // declared type instead, which the member trait already names, so the one and two dimensional cases need no
-    // separate treatment.
+    // VkTransformMatrixKHR is one field, float matrix[3][4]. The Field records extents {3, 4}, and the overload
+    // takes both extents from std::extent_v on the API member's declared type, which the member trait already
+    // names, so the one and two dimensional cases need no separate treatment. The generated checks file asserts
+    // the recorded and declared extents agree.
     //
     // This is also the only shape so far that writes nothing to the decoded value at the end. The decoder is
     // pointed at the decoded value's own storage, so decoding fills the native array directly.

@@ -721,6 +721,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         return length
 
+    def get_static_array_extents(self, value):
+        """The declared extents of a fixed-extent array member, in declaration order, as the registry spells them."""
+        return [part.strip() for part in value.array_capacity.split(',')]
+
     def make_field_definition(self, value, members, generic_handles):
         """One Field descriptor. It names its API type descriptor and its shape, and restates no type fact."""
         shape = self.get_field_shape(value)
@@ -761,18 +765,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
 
         if shape == 'StaticArray':
-            if value.array_dimension and value.array_dimension > 1:
-                parts.append(
-                    'static constexpr size_t array_dimension = {};'.format(
-                        value.array_dimension
-                    )
+            # The declared extents in declaration order, so extents[i] is std::extent_v<Member, i>. The registry
+            # spells them as it spells the declaration, constant names included, and the checks file asserts
+            # each against the declared member type.
+            parts.append(
+                'static constexpr size_t extents[] = {{{}}};'.format(
+                    ', '.join(self.get_static_array_extents(value))
                 )
-            else:
-                parts.append(
-                    'static constexpr size_t extent = {};'.format(
-                        value.array_capacity
-                    )
-                )
+            )
 
         # The descriptor member is field_name rather than name, because Vulkan declares members called 'name' and a
         # member cannot share the name of its enclosing class.
@@ -1107,6 +1107,36 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 ),
                 file=self.outFile
             )
+
+        self.newline()
+        write('// Cross-source: the extents a StaticArray Field records against the extents of the member the API', file=self.outFile)
+        write('// declares. The schema states them so a field is fully described without a storage type; the', file=self.outFile)
+        write('// declaration is what the compiler lays out. A header revision that changed one fails here. Structures', file=self.outFile)
+        write('// only: a command parameter declared as an array decays to a pointer in the signature, so the three', file=self.outFile)
+        write('// such parameters have no declared extents to check against.', file=self.outFile)
+
+        for struct in self.schema_structs:
+            for value in self.all_struct_members[struct]:
+                if self.get_field_shape(value) != 'StaticArray':
+                    continue
+
+                member = 'decltype({}::{})'.format(struct, value.name)
+                field = 'schema::{}'.format(self.get_field_path(struct, value.name))
+
+                write(
+                    'static_assert(std::rank_v<{member}> == std::extent_v<decltype({field}::extents)>);'.format(
+                        member=member, field=field
+                    ),
+                    file=self.outFile
+                )
+
+                for index in range(len(self.get_static_array_extents(value))):
+                    write(
+                        'static_assert(std::extent_v<{member}, {index}> == {field}::extents[{index}]);'.format(
+                            member=member, index=index, field=field
+                        ),
+                        file=self.outFile
+                    )
 
         self.newline()
         write('// A descriptor states a kind and the kind states the wire type, in format/format.h. A descriptor', file=self.outFile)
