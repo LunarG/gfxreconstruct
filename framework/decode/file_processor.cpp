@@ -68,7 +68,7 @@ void FileProcessor::SetSkipBlockIndices(const std::vector<util::UintRange>& rang
     GFXRECON_ASSERT(!frame_processing_initialized_);
     if (!frame_processing_initialized_)
     {
-        skip_block_indices_ = ranges;
+        pending_skip_block_indices_ = ranges;
     }
 }
 
@@ -85,7 +85,7 @@ bool FileProcessor::InitializeFrameProcessing(const FrameProcessingParams& param
 
     frame_processing_initialized_ = true;
 
-    block_processor_->SetSkipBlockIndices(std::move(skip_block_indices_));
+    block_processor_->SetSkipBlockIndices(std::move(pending_skip_block_indices_));
 
     // Transfer pending skip-blocks from FileProcessor to BlockProcessor.
     // Stored here so they survive any BlockProcessor replacement in Initialize().

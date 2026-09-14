@@ -197,7 +197,7 @@ class FileProcessor
     // Stored at FileProcessor level so they survive a BlockProcessor re-creation in Initialize().
     // Transferred to BlockProcessor in InitializeFrameProcessing().
     std::unordered_set<uint64_t> pending_blocks_to_skip_;
-    std::vector<util::UintRange> skip_block_indices_;
+    std::vector<util::UintRange> pending_skip_block_indices_;
 
     // Cached copies of capture-file metadata set during Initialize() from block_processor_.
     // Remain valid after block_processor_ transfers to AsyncProcessor.

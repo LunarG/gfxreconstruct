@@ -135,13 +135,19 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
     file_processor::ProcessBlockState process_state = file_processor::ProcessBlockState::kContinue;
     file_processor::ProcessVisitor    process_visitor(*this);
 
-    const bool skip_block = block_skip_ && (*block_skip_)(block_index_);
-    const bool skip_index = skip_block_ranges_(block_index_, block_buffer.Header().type);
-    if (skip_index)
+    bool skip_block = block_skip_ && (*block_skip_)(block_index_);
+    if (!skip_block)
     {
-        GFXRECON_LOG_INFO("Skipping block index %" PRIu64 " (type=%u)", block_index_, block_buffer.Header().type);
+        const auto base_type = format::RemoveCompressedBlockBit(block_buffer.Header().type);
+        skip_block           = ((base_type == format::kFunctionCallBlock) || (base_type == format::kMethodCallBlock) ||
+                      (base_type == format::kMetaDataBlock)) &&
+                     skip_block_ranges_.Contains(block_index_);
+        if (skip_block)
+        {
+            GFXRECON_LOG_INFO("Skipping block index %" PRIu64 " (type=%u)", block_index_, block_buffer.Header().type);
+        }
     }
-    if (!skip_block && !skip_index)
+    if (!skip_block)
     {
         block_parser.SetBlockIndex(block_index_);
         block_parser.SetFrameNumber(frame_number_);
