@@ -39,7 +39,10 @@ template <typename CreateInfo>
 ResourceAliasingCreateInfo Encode(format::ResourceAliasingResourceType type, const CreateInfo& create_info)
 {
     util::MemoryOutputStream stream;
-    ParameterEncoder         encoder(&stream);
+
+    // NOTE: we need to omit addresses, so the output is deterministic. The nested pointers need it too,
+    // so it is set on the encoder rather than on the call below.
+    ParameterEncoder encoder(&stream, true);
 
     // Encoded as a pointer, so the consumer reads it back with the generated StructPointerDecoder.
     EncodeStructPtr(&encoder, &create_info);
