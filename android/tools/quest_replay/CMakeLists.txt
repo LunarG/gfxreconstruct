@@ -54,7 +54,6 @@ add_library(gfxrecon-quest-replay
 
 target_include_directories(gfxrecon-quest-replay
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/tools
                                ${GFXRECON_SOURCE_DIR}
                                ${CMAKE_BINARY_DIR})
