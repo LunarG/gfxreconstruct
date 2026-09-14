@@ -232,10 +232,6 @@ if (TARGET ZLIB::ZLIB)
                                    GFXRECON_ENABLE_ZLIB_COMPRESSION
                                    GFXRECON_ENABLE_PNG_SCREENSHOT)
 
-    if (WIN32 AND NOT GFXRECON_COMPRESSION_FROM_SOURCE)
-        target_compile_definitions(gfxrecon_util PUBLIC ZLIB_WINAPI)
-    endif()
-
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 
     target_include_directories(gfxrecon_util

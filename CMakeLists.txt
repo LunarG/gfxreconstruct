@@ -208,7 +208,7 @@ if (MSVC)
 
     message(STATUS "GFXR_ARM_WINDOWS_BUILD: " ${GFXR_ARM_WINDOWS_BUILD})
 
-    # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
+    # Default to using the precompiled binaries for VisualStudio builds.
     set(PRECOMPILED_ARCH "64")
     if (CMAKE_SIZEOF_VOID_P EQUAL 4)
         set(PRECOMPILED_ARCH "32")
@@ -326,17 +326,7 @@ if (WIN32)
     find_package(Detours)
 endif () # WIN32
 
-option(LZ4_OPTIONAL "Allow building without LZ4-compression" OFF)
 find_package(LZ4)
-
-if (NOT LZ4_FOUND)
-    if (LZ4_OPTIONAL)
-        message(STATUS "LZ4 library not found, but declared optional. LZ4 support is disabled.")
-    else ()
-        message(FATAL_ERROR "LZ4 library not found. Please install LZ4 or allow building without it by setting LZ4_OPTIONAL to ON.")
-    endif ()# LZ4_OPTIONAL
-endif ()# NOT LZ4_FOUND
-
 find_package(ZSTD)
 
 # Find and use nlohmann_json
