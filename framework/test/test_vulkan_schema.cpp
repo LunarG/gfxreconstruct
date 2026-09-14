@@ -531,6 +531,59 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
     }
 }
 
+TEST_CASE("Schema EncodeStruct matches scalar-pointer wire bytes", "[schema][encode]")
+{
+    // One migrated structure whose only field beyond sType and pNext is a pointer to one scalar, encoded with the
+    // pointer null and with it set; one retained partner takes the same entry point twice through its procedural
+    // body, one pointer down each path. The value behind the pointer is a negative enum so a sign or width slip
+    // lands on different bytes.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    VkResult result = VK_ERROR_OUT_OF_HOST_MEMORY;
+
+    for (VkResult* pointer : { static_cast<VkResult*>(nullptr), &result })
+    {
+        VkBindMemoryStatus status{ VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS, nullptr, pointer };
+
+        encode::ParameterBuffer  status_buffer;
+        encode::ParameterEncoder status_encoder(&status_buffer);
+        encode::EncodeStruct(&status_encoder, status);
+
+        encode::ParameterBuffer  status_oracle_buffer;
+        encode::ParameterEncoder status_oracle(&status_oracle_buffer);
+        status_oracle.EncodeEnumValue(status.sType);
+        encode::EncodePNextStruct(&status_oracle, status.pNext);
+        status_oracle.EncodeEnumPtr(status.pResult);
+
+        CHECK(same_bytes(status_buffer, status_oracle_buffer));
+    }
+
+    // Retained partner: a counted run keeps it on its procedural body, and its two scalar pointers go one each way.
+    uint32_t depth_index = 0x0badf00du;
+
+    VkRenderingInputAttachmentIndexInfo indices{
+        VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO, nullptr, 0u, nullptr, &depth_index, nullptr
+    };
+
+    encode::ParameterBuffer  indices_buffer;
+    encode::ParameterEncoder indices_encoder(&indices_buffer);
+    encode::EncodeStruct(&indices_encoder, indices);
+
+    encode::ParameterBuffer  indices_oracle_buffer;
+    encode::ParameterEncoder indices_oracle(&indices_oracle_buffer);
+    indices_oracle.EncodeEnumValue(indices.sType);
+    encode::EncodePNextStruct(&indices_oracle, indices.pNext);
+    indices_oracle.EncodeUInt32Value(indices.colorAttachmentCount);
+    indices_oracle.EncodeUInt32Array(indices.pColorAttachmentInputIndices, indices.colorAttachmentCount);
+    indices_oracle.EncodeUInt32Ptr(indices.pDepthInputAttachmentIndex);
+    indices_oracle.EncodeUInt32Ptr(indices.pStencilInputAttachmentIndex);
+
+    CHECK(same_bytes(indices_buffer, indices_oracle_buffer));
+}
+
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
     NativeCallStore store{};

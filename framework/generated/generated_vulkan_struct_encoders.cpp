@@ -3877,13 +3877,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance6P
     encoder->EncodeUInt32Value(value.fragmentShadingRateClampCombinerInputs);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBindMemoryStatus& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumPtr(value.pResult);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeatures& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -12476,6 +12469,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 }
 
 // The schema drives these encoders. This is the only translation unit that compiles the walk.
+template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMemoryStatus&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);

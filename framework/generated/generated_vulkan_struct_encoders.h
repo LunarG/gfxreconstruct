@@ -400,7 +400,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceImageSubresourceInfo&
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferUsageFlags2CreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance6Features& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance6Properties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBindMemoryStatus& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfo& value);
@@ -1391,6 +1390,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // The structures the schema drives. encode/vulkan_encode_struct.h includes this header and declares the
 // constrained EncodeStruct over this list beside the prototypes.
 using SchemaDrivenStructs = util::TypeList<
+    VkBindMemoryStatus,
     VkExtent2D,
     VkPipelineCacheHeaderVersionOne,
     VkPipelineCreateInfoKHR,

@@ -44,6 +44,12 @@ template <typename Struct>
 struct DescriptorFor;
 
 template <>
+struct DescriptorFor<VkBindMemoryStatus>
+{
+    using type = schema::api_type::vulkan::VkBindMemoryStatus;
+};
+
+template <>
 struct DescriptorFor<VkExtent2D>
 {
     using type = schema::api_type::vulkan::VkExtent2D;

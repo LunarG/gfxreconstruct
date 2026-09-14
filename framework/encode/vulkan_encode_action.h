@@ -93,10 +93,10 @@ class EncodeStructAction
     // the spec then usually says the pointer is null, driver-written memory may hold garbage there, and vendors
     // chain unregistered structures anyway. Both walks resolve each node's type at run time from its sType.
     template <typename Field, typename Storage>
-    requires schema::ExtensionChainField<Field> && schema::Addressable<Storage, Field>
+    requires schema::ExtensionChainField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
-        const void* chain = schema::GetRef(storage, field);
+        const void* chain = schema::Get(storage, field);
 
         if constexpr (Field::has_extensions)
         {
@@ -106,6 +106,17 @@ class EncodeStructAction
         {
             EncodePNextStructIfValid(encoder_, chain);
         }
+    }
+
+    // A pointer to one scalar. The member holds the pointer, and the pointer is what the encoder needs, so it is
+    // read as a value like any other; nothing here takes the member's address.
+    template <typename Field, typename Storage>
+    requires schema::ScalarKindField<Field> && schema::PointerField<Field> && schema::HasMember<Storage, Field>
+    void Apply(Field field, const Storage& storage)
+    {
+        static_assert(Field::pointer_count == 1, "A pointer to one scalar has one level of indirection");
+
+        encoder_->template EncodePointer<typename Field::api_type::kind>(schema::Get(storage, field));
     }
 
   private:

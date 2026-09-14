@@ -96,6 +96,7 @@ def is_schema_driven(generator, struct):
 # the encoder header and body generators iterate the filtered structure names through it, the way the decode
 # generators do through is_schema_driven, so when Encode inverts this body changes and no generator does.
 _SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
+    'VkBindMemoryStatus',
     'VkExtent2D',
     'VkPipelineCacheHeaderVersionOne',
     'VkPipelineCreateInfoKHR',
