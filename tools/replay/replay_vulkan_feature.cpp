@@ -112,6 +112,8 @@ const char kReplayEventPluginPath[]                 = "--replay-event-plugin-pat
 const char kReplayEventPluginParams[]               = "--replay-event-plugin-params";
 const char kIsolateRenderPasses[]                   = "--isolate-render-passes";
 const char kSerializeComputeAndTransfer[]           = "--serialize-compute-and-transfer";
+const char kOmitNullHardwareBuffersShortOption[]    = "--onhb";
+const char kOmitNullHardwareBuffersLongOption[]     = "--omit-null-hardware-buffers";
 
 const char kMemoryTranslationNone[]    = "none";
 const char kMemoryTranslationRemap[]   = "remap";
@@ -388,9 +390,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
 
-    GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
-    replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
-
     if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
     {
         replay_options.present_override_image_name = override_name;
@@ -500,6 +499,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.serialize_compute_and_transfer = arg_parser.IsOptionSet(kSerializeComputeAndTransfer);
 
     replay_options.screenshot_apply_prerotation = arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument);
+
+    replay_options.omit_null_hardware_buffers = arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption);
 
     return replay_options;
 }
@@ -714,6 +715,11 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                  "debug, info, warning, and error. The default is warning." },
                true,
                kDebugMessageSeverityArgument },
+             { "",
+               { "Skip calls to `vkGetAndroidHardwareBufferPropertiesANDROID` when the provided Android",
+                 "AHardwareBuffer is NULL at replay time (for example when it could not be recreated)." },
+               false,
+               AliasNames(kOmitNullHardwareBuffersShortOption, kOmitNullHardwareBuffersLongOption) },
              // This entry has no description, so it stays out of the usage text.
              { "", {}, false, kSerializeComputeAndTransfer } };
 }

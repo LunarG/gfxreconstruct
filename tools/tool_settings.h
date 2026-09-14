@@ -66,8 +66,6 @@ const char kRemoveUnsupportedOption[]            = "--remove-unsupported";
 const char kValidateOption[]                     = "--validate";
 const char kDebugDeviceLostOption[]              = "--debug-device-lost";
 const char kCreateDummyAllocationsOption[]       = "--create-dummy-allocations";
-const char kOmitNullHardwareBuffersLongOption[]  = "--omit-null-hardware-buffers";
-const char kOmitNullHardwareBuffersShortOption[] = "--onhb";
 const char kScreenshotAllOption[]                = "--screenshot-all";
 const char kScreenshotRangeArgument[]            = "--screenshots";
 const char kScreenshotIntervalArgument[]         = "--screenshot-interval";
@@ -491,7 +489,7 @@ static std::optional<std::array<float, 2>> GetScreenshotScale(const gfxrecon::ut
             }
             else
             {
-                // single value provided — apply uniformly
+                // single value provided - apply uniformly
                 scale[1] = scale[0];
             }
             return scale;
@@ -826,12 +824,6 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
         options.remove_unsupported_features = true;
     }
 
-    if (arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption) ||
-        arg_parser.IsOptionSet(kOmitNullHardwareBuffersShortOption))
-    {
-        options.omit_null_hardware_buffers = true;
-    }
-
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {
         options.quit_after_measurement_frame_range = true;
@@ -912,6 +904,9 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     options.screenshot_format      = GetScreenshotFormat(arg_parser);
     options.screenshot_dir         = GetScreenshotDir(arg_parser);
     options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+
+    GetScreenshotSize(arg_parser, options.screenshot_width, options.screenshot_height);
+    options.screenshot_scale = GetScreenshotScale(arg_parser);
 }
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

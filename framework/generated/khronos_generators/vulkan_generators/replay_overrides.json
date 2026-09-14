@@ -156,6 +156,7 @@
     "vkCreateComputePipelines": "OverrideCreateComputePipelines",
     "vkDestroyShaderModule": "OverrideDestroyShaderModule",
     "vkDestroyPipeline": "OverrideDestroyPipeline",
+    "vkDestroyPipelineLayout": "OverrideDestroyPipelineLayout",
     "vkDestroyRenderPass": "OverrideDestroyRenderPass",
     "vkCreateVideoSessionKHR": "OverrideCreateVideoSessionKHR",
     "vkDestroyVideoSessionKHR": "OverrideDestroyVideoSessionKHR",

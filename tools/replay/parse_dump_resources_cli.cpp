@@ -87,6 +87,29 @@ static bool AreIndicesSorted(const std::vector<uint64_t>& indices)
 
 static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& vulkan_replay_options)
 {
+    // Each per-command array is indexed by BeginCommandBuffer list position, so an array that is
+    // present must provide one row per BeginCommandBuffer entry (rows may be empty).
+    const size_t n_bcb_rows = vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.size();
+
+    const std::pair<const char*, size_t> row_counts[] = {
+        { "Draw", vulkan_replay_options.Draw_Indices.size() },
+        { "RenderPass", vulkan_replay_options.RenderPass_Indices.size() },
+        { "Dispatch", vulkan_replay_options.Dispatch_Indices.size() },
+        { "TraceRays", vulkan_replay_options.TraceRays_Indices.size() },
+        { "ExecuteCommands", vulkan_replay_options.ExecuteCommands_Indices.size() },
+        { "Transfer", vulkan_replay_options.Transfer_Indices.size() },
+    };
+
+    for (const auto& [name, count] : row_counts)
+    {
+        if (count != 0 && count != n_bcb_rows)
+        {
+            GFXRECON_LOG_ERROR(
+                "Malformed VDR input json: %s has %zu entries but BeginCommandBuffer has %zu", name, count, n_bcb_rows);
+            return true;
+        }
+    }
+
     // Indices should be provided sorted
     if (vulkan_replay_options.Draw_Indices.size())
     {
@@ -159,6 +182,46 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
                 GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources parameters");
                 GFXRECON_LOG_ERROR("TraceRays indices are not sorted")
                 return true;
+            }
+        }
+    }
+
+    // Verify that all BCB indices in the ExecuteCommands lists exist in the BeginCommandBufferQueueSubmit
+    for (size_t i = 0; i < vulkan_replay_options.ExecuteCommands_Indices.size(); ++i)
+    {
+        const auto& execute_commands = vulkan_replay_options.ExecuteCommands_Indices[i];
+        if (execute_commands.empty())
+        {
+            continue;
+        }
+
+        if (i >= vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.size())
+        {
+            GFXRECON_LOG_ERROR("Malformed VDR input json: ExecuteCommands entry %zu has no corresponding "
+                               "BeginCommandBuffer entry",
+                               i);
+            return true;
+        }
+
+        const decode::Index qs_index = vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices[i].second;
+        for (const auto& execute_command : execute_commands)
+        {
+            for (const auto& secondary_bcb : execute_command.second)
+            {
+                if (!std::any_of(vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.begin(),
+                                 vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.end(),
+                                 [secondary_bcb, qs_index](const decode::BeginCmdBufQueueSubmitPair& entry) {
+                                     return entry.first == secondary_bcb && entry.second == qs_index;
+                                 }))
+                {
+                    GFXRECON_LOG_ERROR("Malformed VDR input json: BeginCommandBuffer index %" PRIu64
+                                       " referenced in ExecuteCommands is not paired with QueueSubmit index %" PRIu64
+                                       " (the QueueSubmit of the primary that executes it) in the BeginCommandBuffer "
+                                       "list",
+                                       secondary_bcb,
+                                       qs_index);
+                    return true;
+                }
             }
         }
     }

@@ -28,10 +28,16 @@
 #include "vulkan/vulkan.h"
 
 #include <cstdint>
+#include <iterator>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+inline constexpr VkImageAspectFlagBits kLayoutMapAspects[] = {
+    VK_IMAGE_ASPECT_COLOR_BIT,   VK_IMAGE_ASPECT_DEPTH_BIT,   VK_IMAGE_ASPECT_STENCIL_BIT,
+    VK_IMAGE_ASPECT_PLANE_0_BIT, VK_IMAGE_ASPECT_PLANE_1_BIT, VK_IMAGE_ASPECT_PLANE_2_BIT
+};
 
 // Maps every subresource of a single VkImage to the VkImageLayout it is currently in.
 //
@@ -64,7 +70,7 @@ class ImageLayoutMap
 
   private:
     // Highest slot supported for aspect.
-    static constexpr uint32_t kAspectSlotCount = 6;
+    static constexpr uint32_t kAspectSlotCount = static_cast<uint32_t>(std::size(kLayoutMapAspects));
 
     [[nodiscard]] static VkImageAspectFlags GetAspectFromIndex(uint32_t aspect_index);
 

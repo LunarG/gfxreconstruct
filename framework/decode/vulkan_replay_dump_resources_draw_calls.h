@@ -34,9 +34,12 @@
 #include "graphics/vulkan_injected_calls.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
@@ -137,8 +140,6 @@ class DrawCallsDumpingContext
 
     bool ShouldHandleRenderPass(uint64_t index) const;
 
-    bool ShouldHandleExecuteCommands(uint64_t index) const;
-
     void BindDescriptorSets(VkPipelineBindPoint                                pipeline_bind_point,
                             uint32_t                                           first_set,
                             const std::vector<const VulkanDescriptorSetInfo*>& descriptor_sets_infos,
@@ -157,12 +158,8 @@ class DrawCallsDumpingContext
                                 const graphics::VulkanInstanceTable*       inst_table,
                                 const VkCommandBufferBeginInfo*            begin_info);
 
-    VkResult CloneRenderPass(const VkRenderPassCreateInfo* original_render_pass_ci);
-
-    VkResult CloneRenderPass2(const VulkanRenderPassInfo*    render_pass_info,
-                              const VkRenderPassCreateInfo2* original_render_pass_ci);
-
-    VkResult BeginRenderPass(const VulkanRenderPassInfo*  render_pass_info,
+    VkResult BeginRenderPass(uint64_t                     block_index,
+                             const VulkanRenderPassInfo*  render_pass_info,
                              const VulkanFramebufferInfo* framebuffer_info,
                              const VkRenderPassBeginInfo* renderpass_begin_info,
                              VkSubpassContents            contents);
@@ -174,8 +171,7 @@ class DrawCallsDumpingContext
     void BeginRendering(const std::vector<VulkanImageInfo*>& color_attachments,
                         const std::vector<VkImageLayout>&    color_attachment_layouts,
                         VulkanImageInfo*                     depth_attachment,
-                        VkImageLayout                        depth_attachment_layout,
-                        const VkRect2D&                      render_area);
+                        VkImageLayout                        depth_attachment_layout);
 
     void EndRendering();
 
@@ -231,15 +227,23 @@ class DrawCallsDumpingContext
 
     const std::vector<VkCommandBuffer>& GetCommandBuffers() const { return command_buffers_; }
 
+    VkCommandBuffer GetOriginalCommandBuffer() const
+    {
+        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
+    }
+
     void AssignSecondary(uint64_t execute_commands_index, std::shared_ptr<DrawCallsDumpingContext> secondary_context);
 
-    uint32_t RecaclulateCommandBuffers();
+    std::vector<std::shared_ptr<DrawCallsDumpingContext>> SecondariesToExecute(uint64_t execute_commands_index) const;
+
+    void ReorderSecondaries(Index                                                        execute_commands_index,
+                            const std::vector<std::shared_ptr<DrawCallsDumpingContext>>& execution_order);
+
+    uint32_t RecalculateCommandBuffers();
 
     void UpdateSecondaries(DrawCallsDumpingContext& secondary_context,
                            Index                    execute_cmd_index,
                            Index                    command_buffer_execute_index);
-
-    void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
 
   private:
     DrawCallParams* InsertNewDrawParameters(
@@ -276,15 +280,6 @@ class DrawCallsDumpingContext
                                                                 uint32_t                stride,
                                                                 DrawCallType            drawcall_type);
 
-    void SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
-                          VulkanImageInfo*                     depth_att_img,
-                          bool                                 new_renderpass);
-
-    void SetRenderArea(const VkRect2D& new_render_area);
-
-    using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
-    RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
-
     // If options_.dump_resources_before is true, it means that we have two command buffer clones for each draw
     // This function converts the provided command buffer index into an absolute one (divided by 2 in the case of
     // dump_resources_before is true) so it can be used to index arrays that don't double their sizes in case of
@@ -309,65 +304,127 @@ class DrawCallsDumpingContext
 
     VkResult FetchDrawIndirectParams(DrawCallParams& dc_params);
 
-    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallParams& dc_params);
+    struct DrawCallSlot;
+    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallSlot& slot);
 
     VulkanCommandBufferInfo*     original_command_buffer_info_;
     decode::Index                bcb_index_;
     decode::Index                qs_index_;
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
-    CommandIndices               dc_indices_;
+
+    struct RenderPassContext;
+
+    // One entry per dump slot, in finalization order: the draw call block index that finalizes
+    // the slot and, for draws merged from a secondary, the block index of the vkCmdExecuteCommands
+    // that executes them (UNDEFINED_INDEX for the primary's own draws).
+    //
+    // The render pass correlation lives here rather than in DrawCallParams because a DrawCallParams
+    // object is shared between every execution of the same secondary draw call (see UpdateSecondaries),
+    // whereas each execution gets its own slot and may happen inside a different render pass or subpass.
+    struct DrawCallSlot
+    {
+        Index dc_index;
+        Index execute_index;
+
+        // The render pass context this slot's draw call was recorded in and the subpass ordinal within it.
+        // Captured in FinalizeCommandBuffer while the render pass is active. For draw calls recorded in a
+        // secondary command buffer that inherits the primary's render pass (RENDER_PASS_CONTINUE), it is
+        // filled in from the primary at vkCmdExecuteCommands time.
+        std::shared_ptr<RenderPassContext> render_pass_context;
+        uint64_t                           subpass{ 0 };
+    };
+    std::vector<DrawCallSlot> dc_slots_;
+
     RenderPassIndices            RP_indices_;
     CommandImageSubresource      dc_subresources_;
-    const VulkanRenderPassInfo*  active_renderpass_;
-    const VulkanFramebufferInfo* active_framebuffer_;
     const VulkanPipelineInfo*    bound_gr_pipeline_;
-    uint32_t                     current_renderpass_;
-    uint32_t                     current_subpass_;
     VulkanDumpResourcesDelegate& delegate_;
     const VulkanReplayOptions&   options_;
     const util::Compressor*      compressor_;
-    bool                         secondary_with_dynamic_rendering_;
 
     // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
+    // This must be an ordered map: RecalculateCommandBuffers merges secondary draw call indices in iteration
+    // order, which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
+    std::map<Index, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
 
     enum RenderPassType
     {
-        kNone,
         kRenderPass,
         kDynamicRendering
     };
 
-    RenderPassType current_render_pass_type_;
-
-    std::vector<std::vector<VkRenderPass>> render_pass_clones_;
-
-    struct RenderPassAttachmentLayouts
+    struct RenderPassContext
     {
-        bool                       is_dynamic{ false };
-        std::vector<VkImageLayout> color_attachment_layouts;
-        VkImageLayout              depth_attachment_layout{ VK_IMAGE_LAYOUT_GENERAL };
+        RenderPassContext() = delete;
+
+        // Render pass
+        RenderPassContext(const VulkanRenderPassInfo*     rp,
+                          const VulkanFramebufferInfo*    fb,
+                          DumpResourcesCommandBufferLevel level) :
+            type(RenderPassType::kRenderPass),
+            renderpass_info(rp), framebuffer_info(fb), cmd_buf_level(level)
+        {
+            GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
+        }
+
+        // Dynamic rendering
+        RenderPassContext(const std::vector<VulkanImageInfo*>& color_attachments,
+                          const std::vector<VkImageLayout>&    color_attachment_layouts,
+                          VulkanImageInfo*                     depth_attachment,
+                          VkImageLayout                        depth_attachment_layout,
+                          DumpResourcesCommandBufferLevel      level) :
+            type(RenderPassType::kDynamicRendering),
+            renderpass_info(nullptr), framebuffer_info(nullptr), cmd_buf_level(level)
+        {
+            GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
+
+            auto& new_render_targets                    = render_targets.emplace_back();
+            new_render_targets.color_att_imgs           = color_attachments;
+            new_render_targets.color_attachment_layouts = color_attachment_layouts;
+            new_render_targets.depth_att_img            = depth_attachment;
+            new_render_targets.depth_attachment_layout  = depth_attachment_layout;
+        }
+
+        // Contexts are shared through shared_ptr (render_pass_contexts_ and DrawCallSlot::render_pass_context)
+        // and own their cloned VkRenderPass handles, which Release() destroys exactly once.
+        RenderPassContext(const RenderPassContext&)            = delete;
+        RenderPassContext& operator=(const RenderPassContext&) = delete;
+
+        // Render targets context for each subpass
+        struct RenderTargets
+        {
+            RenderTargets() : depth_att_img(nullptr), depth_attachment_layout(VK_IMAGE_LAYOUT_UNDEFINED) {}
+
+            std::vector<VulkanImageInfo*> color_att_imgs;
+            std::vector<VkImageLayout>    color_attachment_layouts;
+
+            VulkanImageInfo* depth_att_img;
+            VkImageLayout    depth_attachment_layout;
+        };
+
+        RenderPassType                  type;
+        DumpResourcesCommandBufferLevel cmd_buf_level;
+        const VulkanRenderPassInfo*     renderpass_info;
+        const VulkanFramebufferInfo*    framebuffer_info;
+
+        // Position of this render pass within the owning context, used to label dumped resources
+        uint64_t ordinal{ 0 };
+
+        // One entry per subpass
+        std::vector<RenderTargets> render_targets;
+
+        // Also one entry per subpass. For each subpass we create a new render pass
+        std::vector<VkRenderPass> render_pass_clones;
     };
 
-    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> rendering_attachment_layouts_;
+    // One entry per render pass, in replay order. Held through shared_ptr so that each DrawCallParams can point
+    // at the context its draw call was recorded in.
+    std::vector<std::shared_ptr<RenderPassContext>> render_pass_contexts_;
 
-  public:
-    struct RenderTargets
-    {
-        RenderTargets() : depth_att_img(nullptr) {}
-
-        std::vector<VulkanImageInfo*> color_att_imgs;
-        VulkanImageInfo*              depth_att_img;
-    };
-
-  private:
-    // render_targets is basically a 2d array (vector of vectors). It is indexed like render_targets[rp][sp]
-    // where rp specifies the render pass and sp the subpass.
-    std::vector<std::vector<RenderTargets>> render_targets_;
-
-    // Render area is constant between subpasses so this array will be single dimension array
-    std::vector<VkRect2D> render_area_;
+    // True while a render pass (or dynamic rendering) instance begun by this context is active. Used by
+    // FinalizeCommandBuffer to decide whether a CmdEndRenderPass/CmdEndRendering must be recorded.
+    bool inside_renderpass_;
 
     // One entry per descriptor set
     BoundDescriptorSets bound_descriptor_sets_gr_;
@@ -778,8 +835,8 @@ class DrawCallsDumpingContext
     DrawCallParameters draw_call_params_;
 
     DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
-    CommandIndices&       GetDrawCallIndices() { return dc_indices_; }
-    const CommandIndices& GetDrawCallIndices() const { return dc_indices_; }
+    std::vector<DrawCallSlot>&       GetDrawCallSlots() { return dc_slots_; }
+    const std::vector<DrawCallSlot>& GetDrawCallSlots() const { return dc_slots_; }
 
     struct
     {
@@ -802,7 +859,8 @@ class DrawCallsDumpingContext
         std::map<DescriptorLocation, const DumpedAccelerationStructure&> acceleration_structures;
     };
 
-    std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
+    // Keyed by the render pass context a draw call was recorded in (nullptr for uncorrelated draw calls)
+    std::unordered_map<const RenderPassContext*, RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
 
     VkCommandBuffer                 aux_command_buffer_;
     VkFence                         aux_fence_;
@@ -822,6 +880,24 @@ class DrawCallsDumpingContext
                                            const BoundIndexBuffer&       index_buffer,
                                            const VertexInputState&       dynamic_vertex_input_state_,
                                            const BoundDescriptorSets&    descriptor_sets);
+
+    void TransitionRenderTargetLayouts(const RenderPassContext& renderpass_context);
+
+    template <typename CreateInfoType>
+    void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*       render_pass_info,
+                                                const CreateInfoType*             ci,
+                                                const VulkanFramebufferInfo*      framebuffer_info,
+                                                uint32_t                          subpass,
+                                                RenderPassContext::RenderTargets& render_targets);
+
+    VkResult CloneRenderPass(RenderPassContext& renderpass_context);
+
+    VkResult CloneRenderPass2(RenderPassContext& renderpass_context);
+
+    // Common tail of CloneRenderPass/CloneRenderPass2: parse the first subpass' attachments and update the
+    // tracked image layouts in the original command buffer info.
+    template <typename CreateInfoType>
+    void FinalizeRenderPassClone(RenderPassContext& renderpass_context, const CreateInfoType* create_info);
 
     void SnapshotState(DrawCallParams& dc_params);
 

@@ -231,7 +231,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
 
     if (!options.screenshot_ranges.empty())
     {
-        InitializeScreenshotHandler();
+        screenshot_controller_ = std::make_unique<ScreenshotController>(options);
     }
 
     switch (options.swapchain_option)
@@ -347,11 +347,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     object_info_table_->VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) {
         assert(info != nullptr);
         VkDevice device = info->handle;
-
-        if (screenshot_handler_ != nullptr)
-        {
-            screenshot_handler_->DestroyDeviceResources(device, GetInjectedDeviceCalls(device));
-        }
     });
 
     object_cleanup::FreeAllLiveObjects(
@@ -398,6 +393,8 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = true;
 
+    application_->GetReplayEventSink()->StateSetupBegin();
+
     // If a trace file has the state begin marker, it must be a trim trace file.
     replaying_trimmed_capture_ = true;
 }
@@ -415,6 +412,8 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         resource_dumper_->ProcessStateEndMarker();
     }
+
+    application_->GetReplayEventSink()->StateSetupEnd();
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
@@ -2588,43 +2587,6 @@ void VulkanReplayConsumerBase::SetSwapchainWindowSize(const Decoded_VkSwapchainC
     }
 }
 
-void VulkanReplayConsumerBase::InitializeScreenshotHandler()
-{
-    screenshot_file_prefix_ = options_.screenshot_file_prefix;
-
-    if (screenshot_file_prefix_.empty())
-    {
-        screenshot_file_prefix_ = kDefaultScreenshotFilePrefix;
-    }
-
-    if (!options_.screenshot_dir.empty())
-    {
-        if (util::filepath::Exists(options_.screenshot_dir))
-        {
-            if (!util::filepath::IsDirectory(options_.screenshot_dir))
-            {
-                GFXRECON_WRITE_CONSOLE("Error while creating directory %s: Already exists as file",
-                                       options_.screenshot_dir.c_str());
-                exit(-1);
-            }
-        }
-        else
-        {
-            int32_t result = gfxrecon::util::platform::MakeDirectory(options_.screenshot_dir.c_str());
-            if (result < 0)
-            {
-                GFXRECON_WRITE_CONSOLE("Error while creating directory %s: Could not open",
-                                       options_.screenshot_dir.c_str());
-                exit(-1);
-            }
-        }
-        screenshot_file_prefix_ = util::filepath::Join(options_.screenshot_dir, screenshot_file_prefix_);
-    }
-
-    screenshot_handler_ = std::make_unique<ScreenshotHandler>(
-        options_.screenshot_format, options_.screenshot_ranges, options_.screenshot_interval);
-}
-
 void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const
 {
     if (meta_info != nullptr && meta_info->decoded_value != nullptr && !meta_info->pSwapchains.IsNull())
@@ -2649,16 +2611,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 VkPhysicalDeviceMemoryProperties memory_properties;
                 instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
 
-                std::string filename_prefix = screenshot_file_prefix_;
-
-                if (present_info->swapchainCount > 1)
-                {
-                    filename_prefix += "_swapchain_";
-                    filename_prefix += std::to_string(i);
-                }
-
-                filename_prefix += "_frame_";
-                filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
+                const std::string filename_prefix =
+                    screenshot_controller_->FilenameFor(i, present_info->swapchainCount);
 
                 VkFormat      image_format = swapchain_info->format;
                 VkImageLayout image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -2684,46 +2638,57 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     }
                 }
 
-                // NOTE: optional scale takes precedence over explicit screenshot width/height
-                auto screenshot_scale = options_.screenshot_scale;
-                if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
+                ScreenshotRequest request;
+                request.width       = image_width;
+                request.height      = image_height;
+                request.layer_count = num_layers;
+                request.scale       = screenshot_controller_->ResolveScale(image_width, image_height);
+                if (screenshot_controller_->ApplyPreRotation())
                 {
-                    screenshot_scale = {
-                        static_cast<float>(options_.screenshot_width) / static_cast<float>(image_width),
-                        static_cast<float>(options_.screenshot_height) / static_cast<float>(image_height)
-                    };
+                    request.rotation = RotationForSurfaceTransform(swapchain_info->pre_transform);
                 }
 
-                for (uint32_t layer = 0; layer < num_layers; ++layer)
+                VulkanScreenshotSource::Image source_image;
+                source_image.handle        = image;
+                source_image.format        = image_format;
+                source_image.layer_layouts = { image_layout };
+                if (override_img_info != nullptr)
                 {
-                    // WriteImage barriers only the layer it copies, so it has to transition from that layer's layout.
-                    VkImageLayout layer_layout = image_layout;
-                    if (override_img_info != nullptr)
+                    // The defaults are correct for a presentable image: a single-sample 2D image with optimal
+                    // tiling on the first queue family.  An override image is not one, thus it gives its own
+                    // values.
+                    source_image.type               = override_img_info->type;
+                    source_image.tiling             = override_img_info->tiling;
+                    source_image.sample_count       = override_img_info->sample_count;
+                    source_image.queue_family_index = override_img_info->queue_family_index;
+
+                    // The read-back barriers each layer from the layout of that layer, thus an image that
+                    // tracks a layout for each of them gives all of those layouts.
+                    source_image.layer_layouts.clear();
+                    for (uint32_t layer = 0; layer < num_layers; ++layer)
                     {
                         const VkImageLayout tracked_layout =
                             override_img_info->subresource_layouts.GetSubresourceLayout(
                                 VK_IMAGE_ASPECT_COLOR_BIT, 0, layer);
-                        layer_layout = (tracked_layout != VK_IMAGE_LAYOUT_UNDEFINED)
-                                           ? tracked_layout
-                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+                        source_image.layer_layouts.push_back(tracked_layout != VK_IMAGE_LAYOUT_UNDEFINED
+                                                                 ? tracked_layout
+                                                                 : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL);
                     }
-
-                    screenshot_handler_->WriteImage(
-                        num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer) : filename_prefix,
-                        device_info,
-                        GetInjectedDeviceCalls(device_info->handle),
-                        memory_properties,
-                        device_info->allocator.get(),
-                        image,
-                        image_format,
-                        image_width,
-                        image_height,
-                        layer,
-                        screenshot_scale,
-                        layer_layout,
-                        options_.screenshot_apply_prerotation ? swapchain_info->pre_transform
-                                                              : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
                 }
+
+                VulkanScreenshotSource source(device_info,
+                                              GetInjectedDeviceCalls(device_info->handle),
+                                              instance_table,
+                                              memory_properties,
+                                              source_image);
+
+                // One read for every layer, thus one queue submit and one wait for the frame.
+                source.Readback(request, [&](uint32_t layer, const CpuImage& cpu_image) {
+                    screenshot_controller_->Finish(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
+                                                                  : filename_prefix,
+                                                   cpu_image,
+                                                   request.rotation);
+                });
             }
         }
     }
@@ -2735,7 +2700,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     if (command_buffer_info->is_frame_boundary)
     {
-        if (screenshot_handler_->IsScreenshotFrame())
+        if (screenshot_controller_->IsScreenshotFrame())
         {
             VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
 
@@ -2767,9 +2732,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                         continue;
                     }
 
-                    std::string filename_prefix = screenshot_file_prefix_;
-                    filename_prefix += "_frame_";
-                    filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
+                    std::string filename_prefix = screenshot_controller_->FilenameFor();
 
                     if (command_buffer_info->frame_buffer_ids.size() > 0)
                     {
@@ -2783,34 +2746,37 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                         filename_prefix += std::to_string(j);
                     }
 
-                    // NOTE: optional scale takes precedence over explicit screenshot width/height
-                    auto screenshot_scale = options_.screenshot_scale;
-                    if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
-                    {
-                        screenshot_scale = { static_cast<float>(options_.screenshot_width) /
-                                                 static_cast<float>(image_info->extent.width),
-                                             static_cast<float>(options_.screenshot_height) /
-                                                 static_cast<float>(image_info->extent.height) };
-                    }
+                    ScreenshotRequest request;
+                    request.width  = image_info->extent.width;
+                    request.height = image_info->extent.height;
+                    request.scale =
+                        screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
 
-                    screenshot_handler_->WriteImage(
-                        filename_prefix,
-                        device_info,
-                        GetInjectedDeviceCalls(device_info->handle),
-                        memory_properties,
-                        device_info->allocator.get(),
-                        image_info->handle,
-                        image_info->format,
-                        image_info->extent.width,
-                        image_info->extent.height,
-                        0,
-                        screenshot_scale,
-                        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0),
-                        VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR);
+                    const VkImageLayout image_layout =
+                        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+
+                    VulkanScreenshotSource::Image source_image;
+                    source_image.handle             = image_info->handle;
+                    source_image.format             = image_info->format;
+                    source_image.type               = image_info->type;
+                    source_image.tiling             = image_info->tiling;
+                    source_image.sample_count       = image_info->sample_count;
+                    source_image.layer_layouts      = { image_layout };
+                    source_image.queue_family_index = image_info->queue_family_index;
+
+                    VulkanScreenshotSource source(device_info,
+                                                  GetInjectedDeviceCalls(device_info->handle),
+                                                  GetInstanceTable(device_info->parent),
+                                                  memory_properties,
+                                                  source_image);
+
+                    source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
+                        screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
+                    });
                 }
             }
         }
-        screenshot_handler_->EndFrame();
+        screenshot_controller_->EndFrame();
         return true;
     }
     return false;
@@ -2835,12 +2801,11 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
         instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
     }
 
-    if (screenshot_handler_->IsScreenshotFrame())
+    if (screenshot_controller_->IsScreenshotFrame())
     {
         for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
         {
-            std::string filename_prefix =
-                screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+            std::string filename_prefix = screenshot_controller_->FilenameFor();
 
             if (frame_boundary->pImages.GetLength() > 1)
             {
@@ -2850,33 +2815,36 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
             const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
             const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
 
-            // NOTE: optional scale takes precedence over explicit screenshot width/height
-            auto screenshot_scale = options_.screenshot_scale;
-            if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
-            {
-                screenshot_scale = {
-                    static_cast<float>(options_.screenshot_width) / static_cast<float>(image_info->extent.width),
-                    static_cast<float>(options_.screenshot_height) / static_cast<float>(image_info->extent.height)
-                };
-            }
+            ScreenshotRequest request;
+            request.width  = image_info->extent.width;
+            request.height = image_info->extent.height;
+            request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
 
-            screenshot_handler_->WriteImage(
-                filename_prefix,
-                device_info,
-                GetInjectedDeviceCalls(device_info->handle),
-                memory_properties,
-                device_info->allocator.get(),
-                image_info->handle,
-                image_info->format,
-                image_info->extent.width,
-                image_info->extent.height,
-                0,
-                screenshot_scale,
-                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+            const VkImageLayout image_layout =
+                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+
+            VulkanScreenshotSource::Image source_image;
+            source_image.handle             = image_info->handle;
+            source_image.format             = image_info->format;
+            source_image.type               = image_info->type;
+            source_image.tiling             = image_info->tiling;
+            source_image.sample_count       = image_info->sample_count;
+            source_image.layer_layouts      = { image_layout };
+            source_image.queue_family_index = image_info->queue_family_index;
+
+            VulkanScreenshotSource source(device_info,
+                                          GetInjectedDeviceCalls(device_info->handle),
+                                          GetInstanceTable(device_info->parent),
+                                          memory_properties,
+                                          source_image);
+
+            source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
+                screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
+            });
         }
     }
 
-    screenshot_handler_->EndFrame();
+    screenshot_controller_->EndFrame();
 
     return true;
 }
@@ -3904,11 +3872,6 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
     {
         device                  = device_info->handle;
         const auto device_table = GetInjectedDeviceCalls(device);
-
-        if (screenshot_handler_ != nullptr)
-        {
-            screenshot_handler_->DestroyDeviceResources(device, device_table);
-        }
 
         // free replacer internal vulkan-resources for the device
         device_address_replacers_.erase(device_info);
@@ -5107,7 +5070,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         }
     }
 
-    if (screenshot_handler_ != nullptr)
+    if (screenshot_controller_ != nullptr)
     {
         for (uint32_t i = 0; i < submitCount; ++i)
         {
@@ -5400,7 +5363,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     // Check whether any of the submitted command buffers are frame boundaries.
-    if (screenshot_handler_ != nullptr)
+    if (screenshot_controller_ != nullptr)
     {
         for (uint32_t i = 0; i < submitCount; ++i)
         {
@@ -8555,13 +8518,12 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
         size_t               info_size   = graphics::vulkan_struct_deep_copy(info, 1, nullptr);
         std::vector<uint8_t> info_copy(info_size);
         graphics::vulkan_struct_deep_copy(info, 1, info_copy.data());
-        auto& async_handle_asset         = async_tracked_handles_[pipeline_id];
-        async_handle_asset.post_build_fn = [this,
-                                            device = device_info->handle,
-                                            pipeline_id,
-                                            func,
-                                            info_copy = std::move(info_copy),
-                                            original_result]() mutable {
+        async_tracked_handles_[pipeline_id].post_build_fn = [this,
+                                                             device = device_info->handle,
+                                                             pipeline_id,
+                                                             func,
+                                                             info_copy = std::move(info_copy),
+                                                             original_result]() mutable {
             auto* info = reinterpret_cast<VkDebugUtilsObjectNameInfoEXT*>(info_copy.data());
 
             // correct referenced handle in info. this would sync, but task is already done
@@ -8791,7 +8753,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-        if (screenshot_handler_ != nullptr || options_.dumping_resources)
+        if (screenshot_controller_ != nullptr || options_.dumping_resources)
         {
             // Screenshots and/or dump resources are active, so ensure that swapchain images can be used as a transfer
             // source.
@@ -9223,7 +9185,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
             }
 
             // Store image handles for screenshot generation.
-            if ((screenshot_handler_ != nullptr) && (swapchain_info->images.size() < count))
+            if ((screenshot_controller_ != nullptr) && (swapchain_info->images.size() < count))
             {
                 if (!swapchain_info->images.empty())
                 {
@@ -9548,7 +9510,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         }
     };
 
-    if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
+    if ((screenshot_controller_ != nullptr) && (screenshot_controller_->IsScreenshotFrame()))
     {
         auto meta_info = pPresentInfo->GetMetaStructPointer();
         assert((meta_info != nullptr) && !meta_info->pSwapchains.IsNull());
@@ -9907,9 +9869,9 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         }
     }
 
-    if (screenshot_handler_ != nullptr)
+    if (screenshot_controller_ != nullptr)
     {
-        screenshot_handler_->EndFrame();
+        screenshot_controller_->EndFrame();
     }
 
     return result;
@@ -12145,12 +12107,11 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 {
     GFXRECON_ASSERT(device_info != nullptr);
 
-    if (screenshot_handler_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
+    if (screenshot_controller_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
-        if (screenshot_handler_->IsScreenshotFrame() && image_info != nullptr)
+        if (screenshot_controller_->IsScreenshotFrame() && image_info != nullptr)
         {
-            const std::string filename_prefix =
-                screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+            const std::string filename_prefix = screenshot_controller_->FilenameFor();
 
             auto instance_table = GetInstanceTable(device_info->parent);
             GFXRECON_ASSERT(instance_table != nullptr);
@@ -12158,32 +12119,35 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
             VkPhysicalDeviceMemoryProperties memory_properties;
             instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
 
-            // NOTE: optional scale takes precedence over explicit screenshot width/height
-            auto screenshot_scale = options_.screenshot_scale;
-            if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
-            {
-                screenshot_scale = {
-                    static_cast<float>(options_.screenshot_width) / static_cast<float>(image_info->extent.width),
-                    static_cast<float>(options_.screenshot_height) / static_cast<float>(image_info->extent.height)
-                };
-            }
+            ScreenshotRequest request;
+            request.width  = image_info->extent.width;
+            request.height = image_info->extent.height;
+            request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
 
-            screenshot_handler_->WriteImage(
-                filename_prefix,
-                device_info,
-                GetInjectedDeviceCalls(device_info->handle),
-                memory_properties,
-                device_info->allocator.get(),
-                image_info->handle,
-                image_info->format,
-                image_info->extent.width,
-                image_info->extent.height,
-                0,
-                screenshot_scale,
-                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0));
+            const VkImageLayout image_layout =
+                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+
+            VulkanScreenshotSource::Image source_image;
+            source_image.handle             = image_info->handle;
+            source_image.format             = image_info->format;
+            source_image.type               = image_info->type;
+            source_image.tiling             = image_info->tiling;
+            source_image.sample_count       = image_info->sample_count;
+            source_image.layer_layouts      = { image_layout };
+            source_image.queue_family_index = image_info->queue_family_index;
+
+            VulkanScreenshotSource source(device_info,
+                                          GetInjectedDeviceCalls(device_info->handle),
+                                          GetInstanceTable(device_info->parent),
+                                          memory_properties,
+                                          source_image);
+
+            source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
+                screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
+            });
         }
 
-        screenshot_handler_->EndFrame();
+        screenshot_controller_->EndFrame();
     }
 
     bool presented_ad_hoc = false;
@@ -13596,70 +13560,69 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     return replay_result;
 }
 
+void VulkanReplayConsumerBase::DestroyAssociatedPipelineCache(const VulkanDeviceInfo* device_info, VkPipeline pipeline)
+{
+    if (pipeline == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
+    auto itCorresp = pipeline_cache_correspondances_.find(pipeline);
+    if (itCorresp != pipeline_cache_correspondances_.end())
+    {
+        format::HandleId id = itCorresp->second;
+        pipeline_cache_correspondances_.erase(itCorresp);
+
+        // For batched pipeline creations or shared pipeline caches, multiple pipelines
+        // reference the same pipeline cache ID. Do not destroy the driver cache until the last pipeline is destroyed.
+        bool sameIdFound = false;
+        for (const auto& elt : pipeline_cache_correspondances_)
+        {
+            if (elt.second == id)
+            {
+                sameIdFound = true;
+                break;
+            }
+        }
+
+        // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
+        if (!sameIdFound)
+        {
+            auto itTracked = tracked_pipeline_caches_.find(id);
+            GFXRECON_ASSERT(itTracked != tracked_pipeline_caches_.end());
+            GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
+            GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
+
+            if (save_pipeline_caches_to_file)
+            {
+                SavePipelineCache(id, itTracked->second);
+            }
+            auto device_table = GetInjectedDeviceCalls(device_info->handle);
+            auto injected     = device_table.Open();
+            injected->DestroyPipelineCache(itTracked->second.device_info->handle, itTracked->second.vk_cache, nullptr);
+            tracked_pipeline_caches_.erase(itTracked);
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     PFN_vkDestroyPipeline                                      func,
     const VulkanDeviceInfo*                                    device_info,
     const VulkanPipelineInfo*                                  pipeline_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    GFXRECON_ASSERT(device_info != nullptr);
-    VkDevice                     in_device     = device_info->handle;
-    VkPipeline                   in_pipeline   = VK_NULL_HANDLE;
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    DestroyTrackedHandle(func, device_info, pipeline_info, pAllocator, [this, device_info](VkPipeline p) {
+        DestroyAssociatedPipelineCache(device_info, p);
+    });
+}
 
-    if (pipeline_info != nullptr)
-    {
-        in_pipeline =
-            MapHandle<VulkanPipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
-
-        if (IsUsedByAsyncTask(pipeline_info->capture_id))
-        {
-            // schedule deletion
-            DestroyAsyncHandle(pipeline_info->capture_id, [func, in_device, in_pipeline, in_pAllocator]() {
-                func(in_device, in_pipeline, in_pAllocator);
-            });
-            return;
-        }
-
-        // Check if the pipeline has been created with a specially created pipeline cache
-        auto itCorresp = pipeline_cache_correspondances_.find(pipeline_info->handle);
-        if (itCorresp != pipeline_cache_correspondances_.end())
-        {
-            format::HandleId id = itCorresp->second;
-            pipeline_cache_correspondances_.erase(itCorresp);
-
-            // Find if other pipelines have been created with the same pipeline cache
-            bool sameIdFound = false;
-            for (const auto& elt : pipeline_cache_correspondances_)
-            {
-                if (elt.second == id)
-                {
-                    sameIdFound = true;
-                    break;
-                }
-            }
-
-            // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
-            if (!sameIdFound)
-            {
-                auto itTracked = tracked_pipeline_caches_.find(id);
-                GFXRECON_ASSERT(itTracked != tracked_pipeline_caches_.end());
-                GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
-                GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
-
-                if (save_pipeline_caches_to_file)
-                {
-                    SavePipelineCache(id, itTracked->second);
-                }
-                auto device_table = GetInjectedDeviceCalls(device_info->handle);
-                auto injected     = device_table.Open();
-                injected->DestroyPipelineCache(
-                    itTracked->second.device_info->handle, itTracked->second.vk_cache, nullptr);
-                tracked_pipeline_caches_.erase(itTracked);
-            }
-        }
-    }
-    func(in_device, in_pipeline, in_pAllocator);
+void VulkanReplayConsumerBase::OverrideDestroyPipelineLayout(
+    PFN_vkDestroyPipelineLayout                                func,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanPipelineLayoutInfo*                                  pipeline_layout_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    DestroyTrackedHandle(func, device_info, pipeline_layout_info, pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
@@ -13668,24 +13631,7 @@ void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
     VulkanRenderPassInfo*                                      renderpass_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice                     in_device     = device_info->handle;
-    VkRenderPass                 in_renderpass = VK_NULL_HANDLE;
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-
-    if (renderpass_info != nullptr)
-    {
-        in_renderpass = renderpass_info->handle;
-
-        if (IsUsedByAsyncTask(renderpass_info->capture_id))
-        {
-            // schedule deletion
-            DestroyAsyncHandle(renderpass_info->capture_id, [func, in_device, in_renderpass, in_pAllocator]() {
-                func(in_device, in_renderpass, in_pAllocator);
-            });
-            return;
-        }
-    }
-    func(in_device, in_renderpass, in_pAllocator);
+    DestroyTrackedHandle(func, device_info, renderpass_info, pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
@@ -13694,24 +13640,7 @@ void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
     VulkanShaderModuleInfo*                                    shader_module_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice                     in_device        = device_info->handle;
-    VkShaderModule               in_shader_module = VK_NULL_HANDLE;
-    const VkAllocationCallbacks* in_pAllocator    = GetAllocationCallbacks(pAllocator);
-
-    if (shader_module_info != nullptr)
-    {
-        in_shader_module = shader_module_info->handle;
-
-        if (IsUsedByAsyncTask(shader_module_info->capture_id))
-        {
-            // schedule deletion
-            DestroyAsyncHandle(shader_module_info->capture_id, [func, in_device, in_shader_module, in_pAllocator]() {
-                func(in_device, in_shader_module, in_pAllocator);
-            });
-            return;
-        }
-    }
-    func(in_device, in_shader_module, in_pAllocator);
+    DestroyTrackedHandle(func, device_info, shader_module_info, pAllocator);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingGOOGLE(
@@ -13873,7 +13802,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
     }
-    TrackAsyncHandles(handle_deps, sync_fn);
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -13885,6 +13814,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                  call_info,
                  in_pAllocator,
                  createInfoCount,
+                 async_task_id,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
                  pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
@@ -13909,16 +13839,18 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                                 pipeline_cache,
                                 cache_pipeline_id,
                                 replay_result,
-                                pipeline_handles = out_pipelines.data(),
-                                num_pipelines    = out_pipelines.size(),
-                                handle_deps      = std::move(handle_deps)] {
+                                pipeline_handles = out_pipelines,
+                                async_task_id,
+                                handle_deps = std::move(handle_deps)]() mutable {
             // asynchronous operation is done. clear tracked handles, call deferred deletes
-            ClearAsyncHandles(handle_deps);
+            ClearAsyncHandles(async_task_id, handle_deps);
 
             // if a pipeline cache was created, track it to know when to destroy it/save it to file
             if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
             {
-                TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, pipeline_handles, num_pipelines);
+                // Copy pipeline_handles: the result vector is freed once every info in the batch has synced its future.
+                TrackNewPipelineCache(
+                    device_info, cache_pipeline_id, pipeline_cache, pipeline_handles.data(), pipeline_handles.size());
             }
         });
         return { replay_result, std::move(out_pipelines) };
@@ -13997,7 +13929,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
     }
-    TrackAsyncHandles(handle_deps, sync_fn);
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -14009,6 +13941,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                  call_info,
                  in_pAllocator,
                  createInfoCount,
+                 async_task_id,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
                  pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
@@ -14026,16 +13959,18 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                                 pipeline_cache,
                                 cache_pipeline_id,
                                 replay_result,
-                                pipeline_handles = out_pipelines.data(),
-                                num_pipelines    = out_pipelines.size(),
-                                handle_deps      = std::move(handle_deps)] {
+                                pipeline_handles = out_pipelines,
+                                async_task_id,
+                                handle_deps = std::move(handle_deps)]() mutable {
             // asynchronous operation is done. clear tracked handles, call deferred deletes
-            ClearAsyncHandles(handle_deps);
+            ClearAsyncHandles(async_task_id, handle_deps);
 
             // if a pipeline cache was created, track it to know when to destroy it/save it to file
             if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
             {
-                TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, pipeline_handles, num_pipelines);
+                // Copy pipeline_handles: the result vector is freed once every info in the batch has synced its future.
+                TrackNewPipelineCache(
+                    device_info, cache_pipeline_id, pipeline_cache, pipeline_handles.data(), pipeline_handles.size());
             }
         });
         return { replay_result, std::move(out_pipelines) };
@@ -14074,7 +14009,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
             MapHandle<VulkanShaderEXTInfo>(parent_id, &VulkanObjectInfoTable::GetVkShaderEXTInfo);
         };
     }
-    TrackAsyncHandles(handle_deps, sync_fn);
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
 
     // assemble array of info-structs
     std::vector<VulkanShaderEXTInfo*> shader_ext_infos(pShaders->GetLength());
@@ -14094,6 +14029,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                  in_pAllocator,
                  use_address_replacement,
                  createInfoCount,
+                 async_task_id,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
                  shaders          = std::move(shaders),
@@ -14126,39 +14062,63 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
         }
 
         // schedule dependency-clear on main-thread
-        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
+        MainThreadQueue().post([this, async_task_id, handle_deps = std::move(handle_deps)] {
+            ClearAsyncHandles(async_task_id, handle_deps);
+        });
         return { replay_result, std::move(out_shaders) };
     };
     return task;
 }
 
-void VulkanReplayConsumerBase::TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
-                                                 const std::function<void()>&                sync_fn)
+bool VulkanReplayConsumerBase::IsUsedByAsyncTask(format::HandleId handle) const
 {
-    for (const auto& handle : async_handles)
-    {
-        // check to avoid overwriting existing handle-destructors
-        if (async_tracked_handles_.count(handle) == 0)
-        {
-            async_tracked_handles_[handle] = { sync_fn, {} };
-        }
-    }
+    auto it = async_tracked_handles_.find(handle);
+    return it != async_tracked_handles_.end() && !it->second.async_task_ids.empty();
 }
 
-void VulkanReplayConsumerBase::ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
+uint64_t VulkanReplayConsumerBase::TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                                                     const std::function<void()>&                sync_fn)
 {
+    uint64_t async_task_id = next_async_task_id_++;
+    if (sync_fn)
+    {
+        async_task_sync_fns_[async_task_id] = sync_fn;
+    }
+
     for (const auto& handle : async_handles)
     {
+        if (handle != format::kNullHandleId)
+        {
+            async_tracked_handles_[handle].async_task_ids.insert(async_task_id);
+        }
+    }
+    return async_task_id;
+}
+
+void VulkanReplayConsumerBase::ClearAsyncHandles(uint64_t                                    async_task_id,
+                                                 const std::unordered_set<format::HandleId>& async_handles)
+{
+    async_task_sync_fns_.erase(async_task_id);
+
+    for (const auto& handle : async_handles)
+    {
+        if (handle == format::kNullHandleId)
+        {
+            continue;
+        }
+
         auto it = async_tracked_handles_.find(handle);
         if (it != async_tracked_handles_.end())
         {
-            const auto& [tracked_handle, handle_asset] = *it;
-
-            if (handle_asset.post_build_fn)
+            it->second.async_task_ids.erase(async_task_id);
+            if (it->second.async_task_ids.empty())
             {
-                handle_asset.post_build_fn();
+                if (it->second.post_build_fn)
+                {
+                    it->second.post_build_fn();
+                }
+                async_tracked_handles_.erase(it);
             }
-            async_tracked_handles_.erase(it);
         }
     }
 }
@@ -14169,29 +14129,69 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
 
     if (it != async_tracked_handles_.end())
     {
-        async_tracked_handle_asset_t& handle_asset = it->second;
-
-        if constexpr (async_defer_deletion_)
+        // Snapshot the set of active async task IDs referencing this handle
+        auto task_ids = it->second.async_task_ids;
+        for (uint64_t tid : task_ids)
         {
-            handle_asset.post_build_fn = std::move(destroy_fn);
+            auto sync_it = async_task_sync_fns_.find(tid);
+            if (sync_it != async_task_sync_fns_.end() && sync_it->second)
+            {
+                sync_it->second();
+            }
         }
-        else
+
+        // Synchronizing tasks above signals completion, but post-creation tasks (TrackNewPipelineCache,
+        // ClearAsyncHandles) were dispatched to MainThreadQueue(). Draining the queue guarantees that
+        // pipeline-to-cache correspondences are registered before destroy_fn() executes.
+        main_thread_queue_.poll();
+
+        // Every synced task has drained and erased its IDs by now.
+        GFXRECON_ASSERT(async_tracked_handles_.find(handle) == async_tracked_handles_.end());
+
+        if (destroy_fn)
         {
-            if (handle_asset.sync_fn)
-            {
-                handle_asset.sync_fn();
-            }
-            if (handle_asset.post_build_fn)
-            {
-                handle_asset.post_build_fn();
-            }
-            if (destroy_fn)
-            {
-                destroy_fn();
-            }
-            async_tracked_handles_.erase(it);
+            destroy_fn();
         }
     }
+}
+
+template <typename InfoType, typename DestroyFunc, typename PreDestroyHook>
+void VulkanReplayConsumerBase::DestroyTrackedHandle(
+    DestroyFunc                                                func,
+    const VulkanDeviceInfo*                                    device_info,
+    const InfoType*                                            object_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    PreDestroyHook                                             pre_destroy_hook)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    VkDevice                      in_device     = device_info->handle;
+    typename InfoType::HandleType in_handle     = VK_NULL_HANDLE;
+    const VkAllocationCallbacks*  in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    if (object_info != nullptr)
+    {
+        in_handle = object_info->handle;
+
+        if (IsUsedByAsyncTask(object_info->capture_id))
+        {
+            auto capture_id = object_info->capture_id;
+            DestroyAsyncHandle(capture_id, [func, in_device, in_handle, in_pAllocator, pre_destroy_hook]() {
+                if constexpr (!std::is_same_v<PreDestroyHook, std::nullptr_t>)
+                {
+                    pre_destroy_hook(in_handle);
+                }
+                func(in_device, in_handle, in_pAllocator);
+            });
+            return;
+        }
+
+        if constexpr (!std::is_same_v<PreDestroyHook, std::nullptr_t>)
+        {
+            pre_destroy_hook(in_handle);
+        }
+    }
+
+    func(in_device, in_handle, in_pAllocator);
 }
 
 void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
