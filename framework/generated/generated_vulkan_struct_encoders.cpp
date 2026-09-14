@@ -1300,18 +1300,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolCreateInfo& value)
     encoder->EncodeFlagsValue(value.pipelineStatistics);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferCreateInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeUInt64Value(value.size);
-    encoder->EncodeFlagsValue(value.usage);
-    encoder->EncodeEnumValue(value.sharingMode);
-    encoder->EncodeUInt32Value(value.queueFamilyIndexCount);
-    encoder->EncodeUInt32Array(value.pQueueFamilyIndices, value.queueFamilyIndexCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCreateInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1507,15 +1495,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleCreateInfo& val
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeSizeTValue(value.codeSize);
     encoder->EncodeUInt32Array(value.pCode, value.codeSize / 4);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheCreateInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeSizeTValue(value.initialDataSize);
-    encoder->EncodeVoidArray(value.pInitialData, value.initialDataSize);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationMapEntry& value)
@@ -12470,7 +12449,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 
 // The schema drives these encoders. This is the only translation unit that compiles the walk.
 template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMemoryStatus&);
+template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBufferCreateInfo&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
+template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
 template void EncodeStruct<VkSubpassEndInfo>(ParameterEncoder*, const VkSubpassEndInfo&);

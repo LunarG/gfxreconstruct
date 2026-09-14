@@ -584,6 +584,141 @@ TEST_CASE("Schema EncodeStruct matches scalar-pointer wire bytes", "[schema][enc
     CHECK(same_bytes(indices_buffer, indices_oracle_buffer));
 }
 
+TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema][encode]")
+{
+    // One migrated structure whose run is a counted byte run, OpaqueBytes with a size_t count, encoded with the run
+    // null and empty and with it populated; its retained twin takes the same entry point through its procedural
+    // body. The count is read from the sibling Field, the first cross-field read in either Action, so the populated
+    // case uses an odd length that no default or extent could supply.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    const uint8_t bytes[] = { 0xde, 0xad, 0xbe, 0xef, 0x01, 0x02, 0x03 };
+
+    struct Run
+    {
+        const void* data;
+        size_t      size;
+    };
+
+    for (const Run& run : { Run{ nullptr, 0 }, Run{ bytes, sizeof(bytes) } })
+    {
+        VkPipelineCacheCreateInfo cache{ VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+                                         nullptr,
+                                         VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT,
+                                         run.size,
+                                         run.data };
+
+        encode::ParameterBuffer  cache_buffer;
+        encode::ParameterEncoder cache_encoder(&cache_buffer);
+        encode::EncodeStruct(&cache_encoder, cache);
+
+        encode::ParameterBuffer  cache_oracle_buffer;
+        encode::ParameterEncoder cache_oracle(&cache_oracle_buffer);
+        cache_oracle.EncodeEnumValue(cache.sType);
+        encode::EncodePNextStructIfValid(&cache_oracle, cache.pNext);
+        cache_oracle.EncodeFlagsValue(cache.flags);
+        cache_oracle.EncodeSizeTValue(cache.initialDataSize);
+        cache_oracle.EncodeVoidArray(cache.pInitialData, cache.initialDataSize);
+
+        CHECK(same_bytes(cache_buffer, cache_oracle_buffer));
+
+        // Retained twin: the same five fields under another sType, through its procedural body.
+        VkValidationCacheCreateInfoEXT validation{
+            VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT, nullptr, 0u, run.size, run.data
+        };
+
+        encode::ParameterBuffer  validation_buffer;
+        encode::ParameterEncoder validation_encoder(&validation_buffer);
+        encode::EncodeStruct(&validation_encoder, validation);
+
+        encode::ParameterBuffer  validation_oracle_buffer;
+        encode::ParameterEncoder validation_oracle(&validation_oracle_buffer);
+        validation_oracle.EncodeEnumValue(validation.sType);
+        encode::EncodePNextStructIfValid(&validation_oracle, validation.pNext);
+        validation_oracle.EncodeFlagsValue(validation.flags);
+        validation_oracle.EncodeSizeTValue(validation.initialDataSize);
+        validation_oracle.EncodeVoidArray(validation.pInitialData, validation.initialDataSize);
+
+        CHECK(same_bytes(validation_buffer, validation_oracle_buffer));
+    }
+
+    // Migrated, a typed run: uint32_t elements under a uint32_t count, so the element pointer casts to itself and
+    // the run goes through the same converting body the UInt32Array entry point uses. Exclusive sharing with no
+    // indices, then concurrent sharing with three.
+    const uint32_t families[] = { 0u, 2u, 5u };
+
+    struct Sharing
+    {
+        VkSharingMode   mode;
+        uint32_t        count;
+        const uint32_t* indices;
+    };
+
+    for (const Sharing& sharing :
+         { Sharing{ VK_SHARING_MODE_EXCLUSIVE, 0u, nullptr }, Sharing{ VK_SHARING_MODE_CONCURRENT, 3u, families } })
+    {
+        VkBufferCreateInfo buffer{ VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+                                   nullptr,
+                                   VK_BUFFER_CREATE_SPARSE_BINDING_BIT,
+                                   0x0000000123456789ull,
+                                   VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                   sharing.mode,
+                                   sharing.count,
+                                   sharing.indices };
+
+        encode::ParameterBuffer  buffer_buffer;
+        encode::ParameterEncoder buffer_encoder(&buffer_buffer);
+        encode::EncodeStruct(&buffer_encoder, buffer);
+
+        encode::ParameterBuffer  buffer_oracle_buffer;
+        encode::ParameterEncoder buffer_oracle(&buffer_oracle_buffer);
+        buffer_oracle.EncodeEnumValue(buffer.sType);
+        encode::EncodePNextStruct(&buffer_oracle, buffer.pNext);
+        buffer_oracle.EncodeFlagsValue(buffer.flags);
+        buffer_oracle.EncodeUInt64Value(buffer.size);
+        buffer_oracle.EncodeFlagsValue(buffer.usage);
+        buffer_oracle.EncodeEnumValue(buffer.sharingMode);
+        buffer_oracle.EncodeUInt32Value(buffer.queueFamilyIndexCount);
+        buffer_oracle.EncodeUInt32Array(buffer.pQueueFamilyIndices, buffer.queueFamilyIndexCount);
+
+        CHECK(same_bytes(buffer_buffer, buffer_oracle_buffer));
+    }
+
+    // Retained partner: three counted runs in one structure, one of them signed, through its procedural body.
+    const uint32_t view_masks[]        = { 0x3u, 0x5u };
+    const int32_t  view_offsets[]      = { -1 };
+    const uint32_t correlation_masks[] = { 0x6u, 0x1u };
+
+    VkRenderPassMultiviewCreateInfo multiview{ VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO,
+                                               nullptr,
+                                               2u,
+                                               view_masks,
+                                               1u,
+                                               view_offsets,
+                                               2u,
+                                               correlation_masks };
+
+    encode::ParameterBuffer  multiview_buffer;
+    encode::ParameterEncoder multiview_encoder(&multiview_buffer);
+    encode::EncodeStruct(&multiview_encoder, multiview);
+
+    encode::ParameterBuffer  multiview_oracle_buffer;
+    encode::ParameterEncoder multiview_oracle(&multiview_oracle_buffer);
+    multiview_oracle.EncodeEnumValue(multiview.sType);
+    encode::EncodePNextStruct(&multiview_oracle, multiview.pNext);
+    multiview_oracle.EncodeUInt32Value(multiview.subpassCount);
+    multiview_oracle.EncodeUInt32Array(multiview.pViewMasks, multiview.subpassCount);
+    multiview_oracle.EncodeUInt32Value(multiview.dependencyCount);
+    multiview_oracle.EncodeInt32Array(multiview.pViewOffsets, multiview.dependencyCount);
+    multiview_oracle.EncodeUInt32Value(multiview.correlationMaskCount);
+    multiview_oracle.EncodeUInt32Array(multiview.pCorrelationMasks, multiview.correlationMaskCount);
+
+    CHECK(same_bytes(multiview_buffer, multiview_oracle_buffer));
+}
+
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
     NativeCallStore store{};

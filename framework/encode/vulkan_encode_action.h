@@ -119,6 +119,21 @@ class EncodeStructAction
         encoder_->template EncodePointer<typename Field::api_type::kind>(schema::Get(storage, field));
     }
 
+    // An array of scalars, with a sibling member that holds the count. The member holds the pointer, and the pointer is
+    // what the encoder needs, so it is read as a value like any other; nothing here takes the member's address.
+    template <typename Field, typename Storage>
+    requires schema::ScalarKindField<Field> && schema::PointerArrayField<Field> && schema::HasMember<Storage, Field> &&
+        schema::HasCountField<Storage, Field>
+    void Apply(Field field, const Storage& storage)
+    {
+        using CountField = schema::FieldCountField<Field>;
+        using ArrayType  = schema::FieldElementType<Field>;
+
+        auto             count = schema::Get(storage, CountField{});
+        const ArrayType* array = static_cast<const ArrayType*>(schema::Get(storage, field));
+        encoder_->template EncodeArray<typename Field::api_type::kind>(array, GFXRECON_NARROWING_CAST(size_t, count));
+    }
+
   private:
     ParameterEncoder* encoder_;
 };

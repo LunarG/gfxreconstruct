@@ -50,9 +50,21 @@ struct DescriptorFor<VkBindMemoryStatus>
 };
 
 template <>
+struct DescriptorFor<VkBufferCreateInfo>
+{
+    using type = schema::api_type::vulkan::VkBufferCreateInfo;
+};
+
+template <>
 struct DescriptorFor<VkExtent2D>
 {
     using type = schema::api_type::vulkan::VkExtent2D;
+};
+
+template <>
+struct DescriptorFor<VkPipelineCacheCreateInfo>
+{
+    using type = schema::api_type::vulkan::VkPipelineCacheCreateInfo;
 };
 
 template <>

@@ -148,7 +148,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindSparseInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFenceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkComponentMapping& value);
@@ -169,7 +168,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& va
 void EncodeStruct(ParameterEncoder* encoder, const VkEventCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferViewCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationMapEntry& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineShaderStageCreateInfo& value);
@@ -1391,7 +1389,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // constrained EncodeStruct over this list beside the prototypes.
 using SchemaDrivenStructs = util::TypeList<
     VkBindMemoryStatus,
+    VkBufferCreateInfo,
     VkExtent2D,
+    VkPipelineCacheCreateInfo,
     VkPipelineCacheHeaderVersionOne,
     VkPipelineCreateInfoKHR,
     VkSubpassEndInfo,
