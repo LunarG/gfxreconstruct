@@ -52,7 +52,11 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class ParameterEncoder
 {
   public:
-    ParameterEncoder(util::OutputStream* stream) : output_stream_(stream) {}
+    // omit_addresses drops every pointer address, for a producer whose addresses are its own rather than
+    // the captured application's.
+    ParameterEncoder(util::OutputStream* stream, bool omit_addresses = false) :
+        output_stream_(stream), omit_addresses_(omit_addresses)
+    {}
 
     ~ParameterEncoder() {}
 
@@ -378,7 +382,7 @@ class ParameterEncoder
         }
         else
         {
-            if (!omit_addr)
+            if (!omit_addr && !omit_addresses_)
             {
                 pointer_attrib |= format::PointerAttributes::kHasAddress;
             }
@@ -895,6 +899,7 @@ class ParameterEncoder
 
   private:
     util::OutputStream* output_stream_;
+    bool                omit_addresses_{ false };
 };
 
 // Specialize when the stride of value isn't the sizeof(T)
