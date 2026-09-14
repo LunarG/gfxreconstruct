@@ -3,10 +3,11 @@
 #
 # Build zlib from a pinned upstream source revision.
 #
-# IMPORTED Targets
-# ^^^^^^^^^^^^^^^^
+# Targets
+# ^^^^^^^
 #
-# This module defines :prop_tgt:`IMPORTED` target ``ZLIB::ZLIB``.
+# This module defines ``ZLIB::ZLIB``.  On Android it is an IMPORTED INTERFACE
+# target that links the zlib supplied by the NDK.
 #
 # Result Variables
 # ^^^^^^^^^^^^^^^^

@@ -3,10 +3,10 @@
 #
 # Build Zstandard from a pinned upstream source revision.
 #
-# IMPORTED Targets
-# ^^^^^^^^^^^^^^^^
+# Targets
+# ^^^^^^^
 #
-# This module defines :prop_tgt:`IMPORTED` target ``ZSTD::ZSTD``.
+# This module defines ``ZSTD::ZSTD`` as an ALIAS for the ``libzstd_static`` target.
 #
 # Result Variables
 # ^^^^^^^^^^^^^^^^

@@ -3,10 +3,10 @@
 #
 # Build LZ4 from a pinned upstream source revision.
 #
-# IMPORTED Targets
-# ^^^^^^^^^^^^^^^^
+# Targets
+# ^^^^^^^
 #
-# This module defines :prop_tgt:`IMPORTED` target ``LZ4::LZ4``.
+# This module defines ``LZ4::LZ4`` as an ALIAS for the ``lz4_static`` target.
 #
 # Result Variables
 # ^^^^^^^^^^^^^^^^
