@@ -2168,8 +2168,11 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
 
     if (vk_result == VK_SUCCESS)
     {
+        // VK_SUCCESS with allocationSize == 0 is a valid result.  Some implementations (e.g. the Android emulator's
+        // gralloc) report zero for AHardwareBuffers created without CPU usage flags even though the buffer is fully
+        // usable by the GPU.  The AHB creation must still be recorded so that replay can recreate the buffer; the
+        // size is only needed to snapshot the contents of CPU-readable buffers.
         const size_t ahb_size = properties.allocationSize;
-        assert(ahb_size);
 
         CommonProcessHardwareBuffer(thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr);
     }
