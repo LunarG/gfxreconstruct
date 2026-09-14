@@ -103,16 +103,17 @@ const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThan
     "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
 };
 
-// LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
-const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeThanCapture = {
+// LUT of allowed differing Vulkan return-types caused by replay-timing (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedByReplayTiming = { { VK_TIMEOUT, VK_SUCCESS },
+                                                                                    { VK_NOT_READY, VK_SUCCESS },
+                                                                                    { VK_EVENT_RESET, VK_EVENT_SET } };
 
-    { VK_TIMEOUT, VK_SUCCESS },
-    { VK_NOT_READY, VK_SUCCESS },
+// LUT of allowed differing Vulkan return-types caused by the replay-environment (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedByReplayEnvironment = {
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
     { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
     { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
-    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS },
-    { VK_EVENT_RESET, VK_EVENT_SET }
+    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -1656,12 +1657,19 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
+        // a poll or wait landing on the other side is caused by replay-timing alone, nothing to report
+        if (const auto it = kResultValuesAllowedByReplayTiming.find(original);
+            it != kResultValuesAllowedByReplayTiming.end() && replay == it->second)
+        {
+            return;
+        }
+
         // check allow-listed functions
         bool accept_return_code = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
         // check allow-listed capture/replay VkResult-values
-        if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
-            it != kResultValuesAllowedDifferentCodeThanCapture.end())
+        if (const auto it = kResultValuesAllowedByReplayEnvironment.find(original);
+            it != kResultValuesAllowedByReplayEnvironment.end())
         {
             accept_return_code = accept_return_code || replay == it->second;
         }
