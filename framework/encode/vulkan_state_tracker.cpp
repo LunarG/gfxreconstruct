@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ranges>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -2132,10 +2133,14 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceWrapper* wrapper)
 
     // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
     // destroyed.
-    std::unique_lock<std::mutex> lock(state_table_mutex_);
-    for (const auto& entry : wrapper->child_queues)
+    std::unique_lock<std::mutex> state_table_lock(state_table_mutex_);
+    std::unique_lock<std::mutex> device_queues_lock(wrapper->queues_map_mutex);
+    for (const auto& family_queues : wrapper->child_queues | std::views::values)
     {
-        state_table_.RemoveWrapper(entry);
+        for (const auto& queue_wrapper : family_queues | std::views::values)
+        {
+            state_table_.RemoveWrapper(queue_wrapper);
+        }
     }
 }
 

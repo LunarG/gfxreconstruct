@@ -37,6 +37,8 @@
 #include <algorithm>
 #include <iterator>
 #include <cassert>
+#include <mutex>
+#include <ranges>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -316,12 +318,18 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
 
     // Filter duplicate physical device retrieval.
     QueueWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_queues)
     {
-        if (entry->handle == (*handle))
+        std::lock_guard<std::mutex> child_queues_lock(parent_wrapper->queues_map_mutex);
+        for (auto& family_queues : parent_wrapper->child_queues | std::views::values)
         {
-            wrapper = entry;
-            break;
+            for (const auto& [queue_index, queue_wrapper] : family_queues)
+            {
+                if (queue_wrapper->handle == (*handle))
+                {
+                    wrapper = queue_wrapper;
+                    break;
+                }
+            }
         }
     }
 
@@ -331,7 +339,6 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
 
         wrapper                  = GetWrapper<QueueWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
-        parent_wrapper->child_queues.push_back(wrapper);
     }
 }
 
@@ -564,12 +571,15 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetWrapper<DeviceWrapper>(handle);
-
-        for (auto queue_wrapper : wrapper->child_queues)
+        auto                        wrapper = GetWrapper<DeviceWrapper>(handle);
+        std::lock_guard<std::mutex> child_queues_lock(wrapper->queues_map_mutex);
+        for (const auto& queue_families : wrapper->child_queues | std::views::values)
         {
-            RemoveWrapper<QueueWrapper>(queue_wrapper);
-            delete queue_wrapper;
+            for (const auto& queue_wrapper : queue_families | std::views::values)
+            {
+                RemoveWrapper<QueueWrapper>(queue_wrapper);
+                delete queue_wrapper;
+            }
         }
 
         RemoveWrapper<DeviceWrapper>(wrapper);

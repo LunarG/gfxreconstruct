@@ -21,6 +21,12 @@
         "vkGetPhysicalDeviceProperties2": "manager->OverrideGetPhysicalDeviceProperties2",
         "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2",
         "vkAllocateCommandBuffers": "manager->OverrideAllocateCommandBuffers",
-        "vkCreateTensorARM": "manager->OverrideCreateTensorARM"
+        "vkCreateTensorARM": "manager->OverrideCreateTensorARM",
+        "vkQueueSubmit": "manager->OverrideQueueSubmit",
+        "vkQueueSubmit2": "manager->OverrideQueueSubmit2",
+        "vkQueueSubmit2KHR": "manager->OverrideQueueSubmit2KHR",
+        "vkQueuePresentKHR": "manager->OverrideQueuePresentKHR",
+        "vkQueueWaitIdle": "manager->OverrideQueueWaitIdle",
+        "vkDeviceWaitIdle": "manager->OverrideDeviceWaitIdle"
     }
 }

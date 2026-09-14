@@ -33,13 +33,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void CommonProcessHardwareBuffer(format::ThreadId                      thread_id,
-                                 const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                 format::HandleId                      memory_id,
-                                 AHardwareBuffer*                      hardware_buffer,
-                                 size_t                                allocation_size,
-                                 VulkanCaptureManager*                 vulkan_capture_manager,
-                                 VulkanStateWriter*                    vulkan_state_writer);
+void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
+                                 vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                 format::HandleId                memory_id,
+                                 AHardwareBuffer*                hardware_buffer,
+                                 size_t                          allocation_size,
+                                 VulkanCaptureManager*           vulkan_capture_manager,
+                                 VulkanStateWriter*              vulkan_state_writer);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -43,8 +43,10 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -167,13 +169,13 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 struct QueueWrapper : public HandleWrapper<VkQueue>
 {
     graphics::VulkanDeviceTable* layer_table_ref{ nullptr };
+    std::mutex                   queue_mutex;
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     graphics::VulkanDeviceTable layer_table;
     PhysicalDeviceWrapper*      physical_device{ nullptr };
-    std::vector<QueueWrapper*>  child_queues;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
@@ -181,7 +183,8 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
     graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
 
-    std::vector<uint32_t> queue_family_indices;
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, QueueWrapper*>> child_queues;
+    std::mutex                                                                queues_map_mutex;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
