@@ -30,9 +30,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-AliasingGroupLayout
-ComputeAliasingGroupLayout(const std::vector<VulkanResourceAllocator::AliasingGroupMember>& members,
-                           VkDeviceSize                                                     minimum_alignment)
+AliasingGroupLayout ComputeAliasingGroupLayout(const std::vector<VulkanResourceAllocator::AliasingGroupMember>& members,
+                                               VkDeviceSize minimum_alignment)
 {
     AliasingGroupLayout layout;
     if (members.empty())
