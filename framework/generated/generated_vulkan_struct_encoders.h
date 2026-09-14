@@ -320,7 +320,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentReference2& value
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescription2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDependency2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassBeginInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassEndInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescriptionDepthStencilResolve& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthStencilResolveProperties& value);
@@ -610,7 +609,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDevicePipelineBinaryInterna
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeyKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkReleaseCapturedPipelineDataInfoKHR& value);
@@ -1395,6 +1393,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 using SchemaDrivenStructs = util::TypeList<
     VkExtent2D,
     VkPipelineCacheHeaderVersionOne,
+    VkPipelineCreateInfoKHR,
+    VkSubpassEndInfo,
     VkTransformMatrixKHR
 >;
 

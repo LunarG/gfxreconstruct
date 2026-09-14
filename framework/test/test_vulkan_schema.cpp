@@ -429,6 +429,108 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema]
     CHECK(same_bytes(lists_buffer, lists_oracle_buffer));
 }
 
+TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][encode]")
+{
+    // Two migrated structures that are sType and pNext and nothing else, one per pNext policy, so the comparison
+    // isolates the choice the Field's has_extensions makes; two retained partners exercise each policy through their
+    // procedural bodies. Each is encoded with a null chain and with a one-node chain, against an oracle that calls
+    // the same pNext entry point the procedural body did.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto encode_via_schema = [](const auto& value, encode::ParameterBuffer& buffer) {
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+    };
+
+    // One registered extension of VkSubpassEndInfo, and the one registered extension of VkAttachmentReference2. The
+    // two probed partners take the stencil-layout node as well: the walk resolves a node by its sType alone and
+    // never asks whether the registry allows it on this owner, so any recognized node shows the probe followed the
+    // pointer.
+    VkRenderPassFragmentDensityMapOffsetEndInfoEXT offsets{};
+    offsets.sType = VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT;
+
+    VkAttachmentReferenceStencilLayout stencil{};
+    stencil.sType         = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT;
+    stencil.stencilLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL;
+
+    // Migrated, has_extensions: the chain is walked trusting the pointer.
+    for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&offsets) })
+    {
+        VkSubpassEndInfo end{ VK_STRUCTURE_TYPE_SUBPASS_END_INFO, chain };
+
+        encode::ParameterBuffer end_buffer;
+        encode_via_schema(end, end_buffer);
+
+        encode::ParameterBuffer  end_oracle_buffer;
+        encode::ParameterEncoder end_oracle(&end_oracle_buffer);
+        end_oracle.EncodeEnumValue(end.sType);
+        encode::EncodePNextStruct(&end_oracle, end.pNext);
+
+        CHECK(same_bytes(end_buffer, end_oracle_buffer));
+    }
+
+    // Migrated, no registered extensions: the pointer is probed before the chain is walked. The registry has
+    // nothing declared for VkPipelineCreateInfoKHR, though the spec text requires a pipeline create-info node here,
+    // so this is also the case where the registry fact and the spec's prose disagree and the probe covers the gap.
+    for (void* chain : { static_cast<void*>(nullptr), static_cast<void*>(&stencil) })
+    {
+        VkPipelineCreateInfoKHR create{ VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR, chain };
+
+        encode::ParameterBuffer create_buffer;
+        encode_via_schema(create, create_buffer);
+
+        encode::ParameterBuffer  create_oracle_buffer;
+        encode::ParameterEncoder create_oracle(&create_oracle_buffer);
+        create_oracle.EncodeEnumValue(create.sType);
+        encode::EncodePNextStructIfValid(&create_oracle, create.pNext);
+
+        CHECK(same_bytes(create_buffer, create_oracle_buffer));
+    }
+
+    // Retained partner, has_extensions, with three scalars after the chain so the chain's length on the wire is
+    // seen to leave the fields behind it in place.
+    for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&stencil) })
+    {
+        VkAttachmentReference2 reference{ VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
+                                          chain,
+                                          7u,
+                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                          VK_IMAGE_ASPECT_COLOR_BIT };
+
+        encode::ParameterBuffer reference_buffer;
+        encode_via_schema(reference, reference_buffer);
+
+        encode::ParameterBuffer  reference_oracle_buffer;
+        encode::ParameterEncoder reference_oracle(&reference_oracle_buffer);
+        reference_oracle.EncodeEnumValue(reference.sType);
+        encode::EncodePNextStruct(&reference_oracle, reference.pNext);
+        reference_oracle.EncodeUInt32Value(reference.attachment);
+        reference_oracle.EncodeEnumValue(reference.layout);
+        reference_oracle.EncodeFlagsValue(reference.aspectMask);
+
+        CHECK(same_bytes(reference_buffer, reference_oracle_buffer));
+    }
+
+    // Retained partner, no registered extensions.
+    for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&stencil) })
+    {
+        VkPerTileBeginInfoQCOM begin{ VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM, chain };
+
+        encode::ParameterBuffer begin_buffer;
+        encode_via_schema(begin, begin_buffer);
+
+        encode::ParameterBuffer  begin_oracle_buffer;
+        encode::ParameterEncoder begin_oracle(&begin_oracle_buffer);
+        begin_oracle.EncodeEnumValue(begin.sType);
+        encode::EncodePNextStructIfValid(&begin_oracle, begin.pNext);
+
+        CHECK(same_bytes(begin_buffer, begin_oracle_buffer));
+    }
+}
+
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
     NativeCallStore store{};

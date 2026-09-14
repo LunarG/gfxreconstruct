@@ -103,6 +103,12 @@ GFXRECON_END_NAMESPACE(field_shape)
 //                     declared type instead, and asserts the two agree with DeclaredExtentsMatch below.
 //   selector_field    A GenericHandle field only: the sibling Field whose value names the handle type the integer
 //                     stands for, so an operation can dispatch on it.
+//   has_extensions    ExtensionChain. Whether the registry declares the owning structure on either side of
+//                     structextends: extended by some structure, or itself an extension of one. This is the
+//                     registry's fact, not the spec's. The spec usually states the false case as "pNext must be
+//                     NULL", but a registry entry can disagree with the spec's text: VkPipelineCreateInfoKHR
+//                     requires a create-info node and declares none. The schema records the fact and nothing
+//                     more; whether to trust, probe or ignore the pointer is the Action's policy, not the Field's.
 //
 // Storage facts, which member of which type holds a field, are MemberPointer specializations and never descriptor
 // members. Type facts, kind, element_type, capture_wrapper_type, are on the api_type and are not restated.

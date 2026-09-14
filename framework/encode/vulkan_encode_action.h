@@ -28,6 +28,7 @@
 #define GFXRECON_ENCODE_VULKAN_ENCODE_ACTION_H
 
 #include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
 #include "schema/field.h"
 
 // This operation reads native Vulkan structures. Keep the complete generated member-binding population beside the
@@ -83,6 +84,27 @@ class EncodeStructAction
         else
         {
             encoder_->template EncodeArray<typename Field::api_type::kind>(&array_ref[0], count);
+        }
+    }
+
+    // The extension chain. The Field records the registry fact, whether anything is declared to chain onto the
+    // owner, and this overload applies the capture policy the procedural bodies applied: a chain the registry
+    // provides for is walked trusting the pointer, and a chain the registry has nothing for is probed first, since
+    // the spec then usually says the pointer is null, driver-written memory may hold garbage there, and vendors
+    // chain unregistered structures anyway. Both walks resolve each node's type at run time from its sType.
+    template <typename Field, typename Storage>
+    requires schema::ExtensionChainField<Field> && schema::Addressable<Storage, Field>
+    void Apply(Field field, const Storage& storage)
+    {
+        const void* chain = schema::GetRef(storage, field);
+
+        if constexpr (Field::has_extensions)
+        {
+            EncodePNextStruct(encoder_, chain);
+        }
+        else
+        {
+            EncodePNextStructIfValid(encoder_, chain);
         }
     }
 

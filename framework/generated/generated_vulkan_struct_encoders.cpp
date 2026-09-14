@@ -3025,12 +3025,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSubpassBeginInfo& value)
     encoder->EncodeEnumValue(value.contents);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassEndInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5749,12 +5743,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKH
     encoder->EncodeUInt32Value(value.binaryCount);
     EncodeStructArray(encoder, value.pPipelineBinaryKeys, value.binaryCount);
     EncodeStructArray(encoder, value.pPipelineBinaryData, value.binaryCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value)
@@ -12490,6 +12478,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // The schema drives these encoders. This is the only translation unit that compiles the walk.
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
+template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
+template void EncodeStruct<VkSubpassEndInfo>(ParameterEncoder*, const VkSubpassEndInfo&);
 template void EncodeStruct<VkTransformMatrixKHR>(ParameterEncoder*, const VkTransformMatrixKHR&);
 
 GFXRECON_END_NAMESPACE(encode)

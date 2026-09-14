@@ -98,6 +98,8 @@ def is_schema_driven(generator, struct):
 _SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
     'VkExtent2D',
     'VkPipelineCacheHeaderVersionOne',
+    'VkPipelineCreateInfoKHR',
+    'VkSubpassEndInfo',
     'VkTransformMatrixKHR',
 ))
 
@@ -725,7 +727,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """The declared extents of a fixed-extent array member, in declaration order, as the registry spells them."""
         return [part.strip() for part in value.array_capacity.split(',')]
 
-    def make_field_definition(self, value, members, generic_handles):
+    def make_field_definition(self, value, members, generic_handles, owner):
         """One Field descriptor. It names its API type descriptor and its shape, and restates no type fact."""
         shape = self.get_field_shape(value)
         selector = generic_handles.get(value.name)
@@ -746,6 +748,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         if selector is not None:
             parts.append('using selector_field = {};'.format(selector))
+
+        if shape == 'ExtensionChain':
+            # Whether the registry declares the owner on either side of structextends. The base generator names the
+            # complement after the spec's usual consequence, "pNext must be NULL"; the schema records the registry
+            # fact, which the spec's text does not always match (VkPipelineCreateInfoKHR requires a node).
+            parts.append(
+                'static constexpr bool has_extensions = {};'.format(
+                    'false' if self.must_extended_struct_be_null(owner) else 'true'
+                )
+            )
 
         count_field = self.get_count_field(value, members)
 
@@ -828,7 +840,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for value in members:
             write(
-                self.make_field_definition(value, members, generic_handles),
+                self.make_field_definition(value, members, generic_handles, owner),
                 file=self.outFile
             )
 

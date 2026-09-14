@@ -56,6 +56,18 @@ struct DescriptorFor<VkPipelineCacheHeaderVersionOne>
 };
 
 template <>
+struct DescriptorFor<VkPipelineCreateInfoKHR>
+{
+    using type = schema::api_type::vulkan::VkPipelineCreateInfoKHR;
+};
+
+template <>
+struct DescriptorFor<VkSubpassEndInfo>
+{
+    using type = schema::api_type::vulkan::VkSubpassEndInfo;
+};
+
+template <>
 struct DescriptorFor<VkTransformMatrixKHR>
 {
     using type = schema::api_type::vulkan::VkTransformMatrixKHR;
