@@ -22,7 +22,10 @@
 
 #include "optimize_vulkan_feature.h"
 
+#if defined(GFXRECON_ENABLE_VULKAN)
+// The modifier writes its block through gfxrecon_encode, we need to apply the same guard here
 #include "vulkan_aliasing_group_modifier.h"
+#endif
 #include "vulkan_file_optimizer.h"
 #include "decode/file_processor.h"
 #include "generated/generated_vulkan_referenced_block_consumer.h"
@@ -90,10 +93,12 @@ bool OptimizeVulkanFeature::ScanInput(const std::string&                    inpu
     // Modifiers are constructed here, then dropped again if the scan finds nothing for them to do.
     VulkanFileOptimizer::Modifiers candidates;
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     if (!args.IsOptionSet(kNoAliasingMetadata))
     {
         candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>());
     }
+#endif
 
     decode::FileProcessor file_processor;
     if (!file_processor.Initialize(input_filename))
