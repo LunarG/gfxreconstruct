@@ -57,16 +57,14 @@ class OptimizeVulkanFeature : public OptimizeFeature
                   const util::ArgumentParser& args) override;
 
   private:
-    // Pass 1: collect handles that were never referenced in a command buffer submission.
-    static bool GetUnreferencedResources(const std::string&                    input_filename,
-                                         std::unordered_set<format::HandleId>& unreferenced_ids);
+    // Pass 1: collect handles that were never referenced in a command buffer submission, and let each
+    // modifier collect the state it needs.  Modifiers that found no work are dropped.
+    static bool ScanInput(const std::string&                    input_filename,
+                          const util::ArgumentParser&           args,
+                          std::unordered_set<format::HandleId>& unreferenced_ids,
+                          VulkanFileOptimizer::Modifiers&       modifiers);
 
-    // Pass 2: let each modifier collect the state it needs, and keep the ones that found work.
-    static bool ScanForModifiers(const std::string&              input_filename,
-                                 const util::ArgumentParser&     args,
-                                 VulkanFileOptimizer::Modifiers& modifiers);
-
-    // Passes 3-4: determine unreferenced block indices, then write the optimized output file.
+    // Passes 2-3: determine unreferenced block indices, then write the optimized output file.
     bool WriteOptimizedFile(const std::string&                          input_filename,
                             const std::string&                          output_filename,
                             const std::unordered_set<format::HandleId>& unreferenced_ids,

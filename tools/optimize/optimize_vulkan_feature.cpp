@@ -82,9 +82,19 @@ bool OptimizeVulkanFeature::ShouldRun(const util::ArgumentParser& args) const
     return WasDetected();
 }
 
-bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&                    input_filename,
-                                                     std::unordered_set<format::HandleId>& unreferenced_ids)
+bool OptimizeVulkanFeature::ScanInput(const std::string&                    input_filename,
+                                      const util::ArgumentParser&           args,
+                                      std::unordered_set<format::HandleId>& unreferenced_ids,
+                                      VulkanFileOptimizer::Modifiers&       modifiers)
 {
+    // Modifiers are constructed here, then dropped again if the scan finds nothing for them to do.
+    VulkanFileOptimizer::Modifiers candidates;
+
+    if (!args.IsOptionSet(kNoAliasingMetadata))
+    {
+        candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>());
+    }
+
     decode::FileProcessor file_processor;
     if (!file_processor.Initialize(input_filename))
     {
@@ -94,6 +104,10 @@ bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&         
     decode::VulkanDecoder                    decoder;
     decode::VulkanReferencedResourceConsumer resref_consumer;
     decoder.AddConsumer(&resref_consumer);
+    for (auto& candidate : candidates)
+    {
+        decoder.AddConsumer(candidate.get());
+    }
     file_processor.AddDecoder(&decoder);
     file_processor.ProcessAllFrames();
 
@@ -111,45 +125,6 @@ bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&         
     }
 
     resref_consumer.GetReferencedHandleIds(nullptr, &unreferenced_ids);
-    return true;
-}
-
-bool OptimizeVulkanFeature::ScanForModifiers(const std::string&              input_filename,
-                                             const util::ArgumentParser&     args,
-                                             VulkanFileOptimizer::Modifiers& modifiers)
-{
-    // Modifiers are constructed here, then dropped again if the scan finds nothing for them to do.
-    VulkanFileOptimizer::Modifiers candidates;
-
-    if (!args.IsOptionSet(kNoAliasingMetadata))
-    {
-        candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>());
-    }
-
-    if (candidates.empty())
-    {
-        return true;
-    }
-
-    decode::FileProcessor file_processor;
-    if (!file_processor.Initialize(input_filename))
-    {
-        return false;
-    }
-
-    decode::VulkanDecoder decoder;
-    for (auto& candidate : candidates)
-    {
-        decoder.AddConsumer(candidate.get());
-    }
-    file_processor.AddDecoder(&decoder);
-    file_processor.ProcessAllFrames();
-
-    if (file_processor.GetErrorState() != decode::BlockIOError::kErrorNone)
-    {
-        GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-        return false;
-    }
 
     for (auto& candidate : candidates)
     {
@@ -223,13 +198,8 @@ bool OptimizeVulkanFeature::Optimize(const std::string&          input_filename,
     GFXRECON_WRITE_CONSOLE("Scanning Vulkan file %s for optimizations.", input_filename.c_str());
 
     std::unordered_set<format::HandleId> unreferenced_ids;
-    if (!GetUnreferencedResources(input_filename, unreferenced_ids))
-    {
-        return false;
-    }
-
-    VulkanFileOptimizer::Modifiers modifiers;
-    if (!ScanForModifiers(input_filename, args, modifiers))
+    VulkanFileOptimizer::Modifiers       modifiers;
+    if (!ScanInput(input_filename, args, unreferenced_ids, modifiers))
     {
         return false;
     }
