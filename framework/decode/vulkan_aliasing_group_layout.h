@@ -57,9 +57,8 @@ struct AliasingGroupLayout
  * @param   minimum_alignment  alignment the allocation must have whatever the members ask for
  * @return  the layout.
  */
-AliasingGroupLayout
-ComputeAliasingGroupLayout(const std::vector<VulkanResourceAllocator::AliasingGroupMember>& members,
-                           VkDeviceSize                                                     minimum_alignment);
+AliasingGroupLayout ComputeAliasingGroupLayout(const std::vector<VulkanResourceAllocator::AliasingGroupMember>& members,
+                                               VkDeviceSize minimum_alignment);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
