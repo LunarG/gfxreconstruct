@@ -42,8 +42,8 @@ target_sources(gfxrecon-optimize
                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_file_optimizer.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_groups.h
                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_groups.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_modifier.h
-                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_modifier.cpp
+                   $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_modifier.h>
+                   $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_modifier.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/optimize_dx12_feature.h>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/optimize_dx12_feature.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.h>
