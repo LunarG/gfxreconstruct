@@ -339,6 +339,9 @@ jobs:
         sudo mkdir -p /Users/test
         sudo chown -R test:staff /Users/test
         sudo chmod -R g+w .
+        # ctest writes its log and the test discovery file into the build tree, so the test
+        # user needs write access there as well as in the install directory.
+        sudo chmod -R g+w "$(pwd)/../../cmake_output/test"
         sudo su - test -c "cd $WORKING_PATH && VULKAN_LIBRARY_PATH=$(pwd)/VulkanSDK/1.3.304.0/macOS/lib/libvulkan.dylib ./run-tests_macos.sh"
     - name: Report test results
       # The run-tests script makes ctest write this JUnit file. The summary goes to the job page
