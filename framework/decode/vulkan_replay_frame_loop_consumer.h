@@ -193,15 +193,35 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         struct ShadowBuffer
         {
             VkBuffer                              buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory                        memory{ VK_NULL_HANDLE };
             VkDeviceSize                          size{ 0 };
             VulkanResourceAllocator::ResourceData alloc_data{ 0 };
-            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+        };
+
+        // Allocations that shadow buffers are suballocated from.
+        struct MemoryBlock
+        {
+            VkDeviceMemory                      memory{ VK_NULL_HANDLE };
+            VulkanResourceAllocator::MemoryData mem_data{ 0 };
+            VkDeviceSize                        size{ 0 };
+            VkDeviceSize                        next_offset{ 0 };
+        };
+
+        /// A shadow buffer that has been created, but not yet suballocated from a memory block.
+        struct PendingShadowBuffer
+        {
+            format::HandleId     buffer_id{ format::kNullHandleId };
+            ShadowBuffer         shadow;
+            VkMemoryRequirements requirements{};
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
+
+        size_t AddMemoryBlock(uint32_t memory_type_index, VkDeviceSize preferred_size, VkDeviceSize minimum_size);
+
+        /// The largest block that may be allocated from `memory_type_index`.
+        VkDeviceSize MaxBlockSize(uint32_t memory_type_index) const;
 
         format::HandleId                                   device_id_;
         const graphics::VulkanDeviceTable&                 device_table_;
@@ -209,6 +229,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         std::shared_ptr<VulkanResourceAllocator>           allocator_;
         const VkPhysicalDeviceMemoryProperties*            memory_properties_;
         std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+        std::vector<MemoryBlock>                           memory_blocks_;
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
