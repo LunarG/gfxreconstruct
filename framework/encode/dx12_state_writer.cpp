@@ -76,17 +76,15 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
 
     // DXGI objects
-    StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
-    StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIFactoryMedia_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIDecodeSwapChain_Wrapper>(state_table);
+    // Factories obtained through GetParent depend on their source adapters, which require the root factories.
+    WriteDxgiFactoryState(state_table, false);
+    WriteDxgiFactoryMediaState(state_table, false);
     StandardCreateWrite<IDXGIAdapter_Wrapper>(state_table);
     StandardCreateWrite<IDXGIDevice_Wrapper>(state_table);
     StandardCreateWrite<IDXGIDisplayControl_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIKeyedMutex_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIOutput_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
+    WriteDxgiOutputState(state_table, false);
+    WriteDxgiFactoryState(state_table, true);
+    WriteDxgiFactoryMediaState(state_table, true);
 
 #ifdef GFXRECON_AGS_SUPPORT
     // AGS calls
@@ -117,6 +115,9 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<IDXGISwapChainMedia_Wrapper>(state_table);
     StandardCreateWrite<ID3D12SwapChainAssistant_Wrapper>(state_table);
 
+    WriteDxgiOutputState(state_table, true);
+    StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
+
     // Fences
     WriteFenceState(state_table);
 
@@ -138,6 +139,14 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     std::unordered_map<format::HandleId, uint64_t>                          max_resource_sizes;
     WriteResourceCreationState(state_table, resource_snapshots, max_resource_sizes);
     WriteDescriptorState(state_table);
+
+    // DXGI resource interfaces may reference D3D12 resources or swap chain buffers, which must already exist.
+    StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIKeyedMutex_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
+
+    // Decode swap chains require their command queue, resource and output to exist first.
+    StandardCreateWrite<IDXGIDecodeSwapChain_Wrapper>(state_table);
 
     // The resource snapshots must be written after the descriptors in order to support resource value mapping for
     // optimized DXR replay.
@@ -1479,6 +1488,96 @@ bool Dx12StateWriter::CheckResourceObject(const ID3D12ResourceInfo* resource_inf
         default:
             return true;
     }
+}
+
+void Dx12StateWriter::WriteDxgiFactoryState(const Dx12StateTable& state_table, bool get_parent_derived)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const IDXGIFactory_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+
+        const bool from_get_parent = (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGIObject_GetParent);
+        if (from_get_parent != get_parent_derived)
+        {
+            return;
+        }
+
+        // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+        // all reference the same parameter buffer.
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
+}
+
+void Dx12StateWriter::WriteDxgiOutputState(const Dx12StateTable& state_table, bool from_swapchain)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const IDXGIOutput_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+
+        // Swap chain outputs must follow their source swap chains. The call ID also identifies outputs whose source
+        // swap chain was released before the trim range.
+        const bool from_swapchain_object =
+            (wrapper_info->create_object_id != format::kNullHandleId) &&
+            (state_table.GetIDXGISwapChain_Wrapper(wrapper_info->create_object_id) != nullptr);
+        const bool from_swapchain_call =
+            (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput) ||
+            (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState) ||
+            (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput);
+        if ((from_swapchain_object || from_swapchain_call) != from_swapchain)
+        {
+            return;
+        }
+
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
+}
+
+bool Dx12StateWriter::IsGetParentFactoryChild(const Dx12StateTable& state_table, const DxWrapperInfo& child_info) const
+{
+    auto factory_wrapper = state_table.GetIDXGIFactory_Wrapper(child_info.create_object_id);
+    auto factory_info =
+        (factory_wrapper != nullptr) ? factory_wrapper->GetObjectInfo().get() : child_info.create_object_info.get();
+    // Without factory metadata, no derived-factory dependency is known, so preserve the original early ordering.
+    return (factory_info != nullptr) &&
+           (factory_info->create_call_id == format::ApiCallId::ApiCall_IDXGIObject_GetParent);
+}
+
+void Dx12StateWriter::WriteDxgiFactoryMediaState(const Dx12StateTable& state_table, bool get_parent_derived)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const IDXGIFactoryMedia_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        if (IsGetParentFactoryChild(state_table, *wrapper_info) != get_parent_derived)
+        {
+            return;
+        }
+
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
 }
 
 void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
