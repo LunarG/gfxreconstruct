@@ -305,8 +305,9 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         if (vk_result == VK_SUCCESS)
             vk_result = device_table->GetAndroidHardwareBufferPropertiesANDROID(device, hardware_buffer, &properties);
 
-        const size_t ahb_size = properties.allocationSize;
-        GFXRECON_ASSERT(ahb_size > 0);
+        // properties.allocationSize may legitimately be zero for a GPU-only AHB (see
+        // VulkanCaptureManager::ProcessHardwareBuffer).  It is passed to vkAllocateMemory unchanged below, which is
+        // what an AHB import requires, so no assumption is made about its value here.
 
         VkExternalFormatANDROID external_format = {};
         external_format.sType                   = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
