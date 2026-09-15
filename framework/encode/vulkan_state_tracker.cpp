@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "decode/vulkan_object_info.h"
+#include "encode/vulkan_capture_common.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -2226,7 +2227,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                                                         *buffer.bind_device->physical_device->layer_table_ref,
                                                         buffer.bind_device->property_feature_info,
                                                         buffer.bind_device->version_extension_info,
-                                                        buffer.bind_device->physical_device->memory_properties);
+                                                        buffer.bind_device->physical_device->memory_properties,
+                                                        MakeQueueLockFn(buffer.bind_device));
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                         resource_util->second.ReadFromBufferResource(
@@ -2281,7 +2283,8 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                                                 *buffer.bind_device->physical_device->layer_table_ref,
                                                 buffer.bind_device->property_feature_info,
                                                 buffer.bind_device->version_extension_info,
-                                                buffer.bind_device->physical_device->memory_properties);
+                                                buffer.bind_device->physical_device->memory_properties,
+                                                MakeQueueLockFn(buffer.bind_device));
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                 resource_util->second.ReadFromBufferResource(

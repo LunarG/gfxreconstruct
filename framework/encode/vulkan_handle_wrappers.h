@@ -184,7 +184,11 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
 
     std::unordered_map<uint32_t, std::unordered_map<uint32_t, QueueWrapper*>> child_queues;
-    std::mutex                                                                queues_map_mutex;
+    mutable std::mutex                                                        queues_map_mutex;
+
+    // Serializes capture-internal submissions to queues the application has not retrieved and that therefore
+    // have no QueueWrapper (and no queue_mutex) of their own.
+    mutable std::mutex untracked_queues_mutex;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>

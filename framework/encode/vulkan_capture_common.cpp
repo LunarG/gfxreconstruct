@@ -20,6 +20,7 @@
  ** DEALINGS IN THE SOFTWARE.
  */
 
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan_capture_common.h"
@@ -27,6 +28,8 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "util/to_string.h"
+
+#include <mutex>
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -1175,9 +1178,12 @@ void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
             return;
         }
 
-        queue_wrapper->queue_mutex.lock();
-        vk_result = device_table->QueueSubmit(queue_wrapper->handle, 1, &submit_info, readback_resources.fence);
-        queue_wrapper->queue_mutex.unlock();
+        {
+            // Host access to the queue must be externally synchronized with the application's own queue calls.
+            std::lock_guard<std::mutex> queue_lock(queue_wrapper->queue_mutex);
+            vk_result = device_table->QueueSubmit(queue_wrapper->handle, 1, &submit_info, readback_resources.fence);
+        }
+
         if (vk_result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
@@ -1248,6 +1254,24 @@ void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
     GFXRECON_UNREFERENCED_PARAMETER(vulkan_capture_manager);
     GFXRECON_UNREFERENCED_PARAMETER(vulkan_state_writer);
 #endif
+}
+
+graphics::VulkanResourcesUtil::QueueLockFn MakeQueueLockFn(const vulkan_wrappers::DeviceWrapper* device_wrapper)
+{
+    GFXRECON_ASSERT(device_wrapper != nullptr);
+
+    return [device_wrapper](VkQueue queue) -> std::unique_lock<std::mutex> {
+        // FindQueueWrapper releases queues_map_mutex before queue_mutex is taken. This is the same order used by
+        // OverrideDeviceWaitIdle and no code path takes queues_map_mutex while holding a queue_mutex.
+        auto* queue_wrapper = vulkan_wrappers::FindQueueWrapper(device_wrapper, queue);
+        if (queue_wrapper != nullptr)
+        {
+            return std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+        }
+
+        // The application never retrieved this queue, so only capture-internal readbacks can reach it.
+        return std::unique_lock<std::mutex>(device_wrapper->untracked_queues_mutex);
+    };
 }
 
 GFXRECON_END_NAMESPACE(encode)
