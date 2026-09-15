@@ -4658,37 +4658,29 @@ VkResult VulkanCaptureManager::OverrideQueueWaitIdle(VkQueue queue)
 VkResult VulkanCaptureManager::OverrideDeviceWaitIdle(VkDevice device)
 {
     // Host access to all VkQueue objects created from device that are not created with
-    // VK_DEVICE_QUEUE_CREATE_INTERNALLY_SYNCHRONIZED_BIT_KHR must be externally synchronized
+    // VK_DEVICE_QUEUE_CREATE_INTERNALLY_SYNCHRONIZED_BIT_KHR must be externally synchronized.
+    // Lock every queue the application has retrieved, plus the mutex that serializes capture-internal submissions to
+    // queues it has not retrieved, for the duration of the down-chain call.
     auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    device_wrapper->queues_map_mutex.lock();
-    for (const auto& family_queues : device_wrapper->child_queues | std::views::values)
+
+    std::vector<std::unique_lock<std::mutex>> queue_locks;
+    if (device_wrapper != nullptr)
     {
-        for (const auto& queue_wrapper : family_queues | std::views::values)
+        std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
+        for (const auto& family_queues : device_wrapper->child_queues | std::views::values)
         {
-            if (queue_wrapper != nullptr)
+            for (auto* queue_wrapper : family_queues | std::views::values)
             {
-                queue_wrapper->queue_mutex.lock();
+                if (queue_wrapper != nullptr)
+                {
+                    queue_locks.emplace_back(queue_wrapper->queue_mutex);
+                }
             }
         }
+        queue_locks.emplace_back(device_wrapper->untracked_queues_mutex);
     }
-    device_wrapper->queues_map_mutex.unlock();
 
-    VkResult res = vulkan_wrappers::GetDeviceTable(device)->DeviceWaitIdle(device);
-
-    device_wrapper->queues_map_mutex.lock();
-    for (const auto& family_queues : device_wrapper->child_queues | std::views::values)
-    {
-        for (const auto& queue_wrapper : family_queues | std::views::values)
-        {
-            if (queue_wrapper != nullptr)
-            {
-                queue_wrapper->queue_mutex.unlock();
-            }
-        }
-    }
-    device_wrapper->queues_map_mutex.unlock();
-
-    return res;
+    return vulkan_wrappers::GetDeviceTable(device)->DeviceWaitIdle(device);
 }
 
 VkResult VulkanCaptureManager::OverrideQueueBindSparse(VkQueue                 queue,

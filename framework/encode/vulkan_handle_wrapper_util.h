@@ -578,17 +578,19 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto                        wrapper = GetWrapper<DeviceWrapper>(handle);
-        std::lock_guard<std::mutex> child_queues_lock(wrapper->queues_map_mutex);
-        for (const auto& queue_families : wrapper->child_queues | std::views::values)
+        auto wrapper = GetWrapper<DeviceWrapper>(handle);
         {
-            for (const auto& queue_wrapper : queue_families | std::views::values)
+            std::lock_guard<std::mutex> child_queues_lock(wrapper->queues_map_mutex);
+            for (const auto& queue_families : wrapper->child_queues | std::views::values)
             {
-                RemoveWrapper<QueueWrapper>(queue_wrapper);
-                delete queue_wrapper;
+                for (const auto& queue_wrapper : queue_families | std::views::values)
+                {
+                    RemoveWrapper<QueueWrapper>(queue_wrapper);
+                    delete queue_wrapper;
+                }
             }
+            wrapper->child_queues.clear();
         }
-
         RemoveWrapper<DeviceWrapper>(wrapper);
         delete wrapper;
     }
