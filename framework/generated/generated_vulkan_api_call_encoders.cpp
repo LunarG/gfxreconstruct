@@ -1186,10 +1186,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueBindSparse(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(manager, queue, bindInfoCount, pBindInfo, fence);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkBindSparseInfo* pBindInfo_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pBindInfo, bindInfoCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueBindSparse(queue, bindInfoCount, pBindInfo_unwrapped, fence);
+    VkResult result = manager->OverrideQueueBindSparse(queue, bindInfoCount, pBindInfo, fence);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueBindSparse);
     if (encoder)
