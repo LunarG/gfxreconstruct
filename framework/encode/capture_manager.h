@@ -450,10 +450,6 @@ class CommonCaptureManager
     {
         return capture_mode_;
     }
-    void SetCaptureMode(CaptureMode new_mode)
-    {
-        capture_mode_ = new_mode;
-    }
     bool GetDebugLayerSetting() const
     {
         return debug_layer_;
