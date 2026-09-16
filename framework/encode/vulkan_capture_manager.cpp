@@ -4543,7 +4543,7 @@ void VulkanCaptureManager::PostProcess_vkGetDeviceQueue(VkDevice device,
         auto* queue_wrapper  = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(*pQueue);
 
         std::lock_guard<std::mutex> lock(device_wrapper->queues_map_mutex);
-        device_wrapper->child_queues[queueFamilyIndex][queueIndex] = queue_wrapper;
+        device_wrapper->child_queues[*pQueue] = { queueFamilyIndex, queueIndex, queue_wrapper };
     }
 }
 
@@ -4557,7 +4557,7 @@ void VulkanCaptureManager::PostProcess_vkGetDeviceQueue2(VkDevice               
         auto* queue_wrapper  = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(*pQueue);
 
         std::lock_guard<std::mutex> lock(device_wrapper->queues_map_mutex);
-        device_wrapper->child_queues[pQueueInfo->queueFamilyIndex][pQueueInfo->queueIndex] = queue_wrapper;
+        device_wrapper->child_queues[*pQueue] = { pQueueInfo->queueFamilyIndex, pQueueInfo->queueIndex, queue_wrapper };
     }
 }
 
@@ -4667,14 +4667,11 @@ VkResult VulkanCaptureManager::OverrideDeviceWaitIdle(VkDevice device)
     if (device_wrapper != nullptr)
     {
         std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
-        for (const auto& family_queues : device_wrapper->child_queues | std::views::values)
+        for (const auto& queue : device_wrapper->child_queues | std::views::values)
         {
-            for (auto* queue_wrapper : family_queues | std::views::values)
+            if (queue.wrapper != nullptr)
             {
-                if (queue_wrapper != nullptr)
-                {
-                    queue_locks.emplace_back(queue_wrapper->queue_mutex);
-                }
+                queue_locks.emplace_back(queue.wrapper->queue_mutex);
             }
         }
         queue_locks.emplace_back(device_wrapper->untracked_queues_mutex);
@@ -4698,7 +4695,7 @@ VkResult VulkanCaptureManager::OverrideQueueBindSparse(VkQueue                 q
 
     auto                    handle_unwrap_memory = GetHandleUnwrapMemory();
     const VkBindSparseInfo* pBindInfo_unwrapped =
-        vulkan_wrappers::UnwrapStructPtrHandles(pBindInfo, handle_unwrap_memory);
+        vulkan_wrappers::UnwrapStructArrayHandles(pBindInfo, bindInfoCount, handle_unwrap_memory);
 
     VkResult res =
         vulkan_wrappers::GetDeviceTable(queue)->QueueBindSparse(queue, bindInfoCount, pBindInfo_unwrapped, fence);

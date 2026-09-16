@@ -33,6 +33,7 @@
 #include "generated/generated_vulkan_state_table.h"
 #include "util/defines.h"
 #include "graphics/vulkan_util.h"
+#include "util/logging.h"
 
 #include <algorithm>
 #include <iterator>
@@ -304,27 +305,6 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrap
     memory_wrapper->parent_device = GetWrapper<DeviceWrapper>(device);
 }
 
-// Returns the wrapper of the queue the application retrieved for this driver (unwrapped) handle, or nullptr if
-// the application never retrieved it.
-inline QueueWrapper* FindQueueWrapper(const DeviceWrapper* device_wrapper, VkQueue handle)
-{
-    assert(device_wrapper != nullptr);
-
-    std::lock_guard<std::mutex> child_queues_lock(device_wrapper->queues_map_mutex);
-    for (const auto& family_queues : device_wrapper->child_queues | std::views::values)
-    {
-        for (QueueWrapper* queue_wrapper : family_queues | std::views::values)
-        {
-            if ((queue_wrapper != nullptr) && (queue_wrapper->handle == handle))
-            {
-                return queue_wrapper;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
 template <>
 inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     VkDevice parent,
@@ -338,7 +318,17 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     auto parent_wrapper = GetWrapper<DeviceWrapper>(parent);
 
     // Filter duplicate queue retrieval.
-    QueueWrapper* wrapper = FindQueueWrapper(parent_wrapper, *handle);
+    QueueWrapper* wrapper = nullptr;
+    {
+        std::lock_guard<std::mutex> child_queues_lock(parent_wrapper->queues_map_mutex);
+        for (const auto& queue : parent_wrapper->child_queues | std::views::values)
+        {
+            if ((queue.wrapper != nullptr) && (queue.wrapper->handle == (*handle)))
+            {
+                wrapper = queue.wrapper;
+            }
+        }
+    }
 
     if (wrapper == nullptr)
     {
@@ -581,13 +571,10 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
         auto wrapper = GetWrapper<DeviceWrapper>(handle);
         {
             std::lock_guard<std::mutex> child_queues_lock(wrapper->queues_map_mutex);
-            for (const auto& queue_families : wrapper->child_queues | std::views::values)
+            for (const auto& queue : wrapper->child_queues | std::views::values)
             {
-                for (const auto& queue_wrapper : queue_families | std::views::values)
-                {
-                    RemoveWrapper<QueueWrapper>(queue_wrapper);
-                    delete queue_wrapper;
-                }
+                RemoveWrapper<QueueWrapper>(queue.wrapper);
+                delete queue.wrapper;
             }
             wrapper->child_queues.clear();
         }

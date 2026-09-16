@@ -2136,12 +2136,9 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceWrapper* wrapper)
     // destroyed.
     std::unique_lock<std::mutex> state_table_lock(state_table_mutex_);
     std::unique_lock<std::mutex> device_queues_lock(wrapper->queues_map_mutex);
-    for (const auto& family_queues : wrapper->child_queues | std::views::values)
+    for (const auto& queue : wrapper->child_queues | std::views::values)
     {
-        for (const auto& queue_wrapper : family_queues | std::views::values)
-        {
-            state_table_.RemoveWrapper(queue_wrapper);
-        }
+        state_table_.RemoveWrapper(queue.wrapper);
     }
 }
 

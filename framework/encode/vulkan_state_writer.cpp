@@ -518,19 +518,15 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
             const auto device_queues_entry = entry.first->child_queues.begin();
             if (device_queues_entry != entry.first->child_queues.end())
             {
-                const auto family_queues_entry = device_queues_entry->second.begin();
-                if (family_queues_entry != device_queues_entry->second.end())
-                {
-                    const vulkan_wrappers::QueueWrapper* queue_wrapper = family_queues_entry->second;
-                    WriteCommandExecution(queue_wrapper->handle_id,
-                                          0,
-                                          nullptr,
-                                          static_cast<uint32_t>(entry.second.size()),
-                                          entry.second.data(),
-                                          0,
-                                          nullptr,
-                                          nullptr);
-                }
+                const auto& queue = device_queues_entry->second;
+                WriteCommandExecution(queue.wrapper->handle_id,
+                                      0,
+                                      nullptr,
+                                      static_cast<uint32_t>(entry.second.size()),
+                                      entry.second.data(),
+                                      0,
+                                      nullptr,
+                                      nullptr);
             }
         }
     }
@@ -3331,8 +3327,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                             *device_wrapper->physical_device->layer_table_ref,
                                                             device_wrapper->property_feature_info,
                                                             device_wrapper->version_extension_info,
-                                                            device_wrapper->physical_device->memory_properties,
-                                                            MakeQueueLockFn(device_wrapper));
+                                                            device_wrapper->physical_device->memory_properties);
 
                 // Sparse images require staging copy for the following process because dumping image data with mapping
                 // memory needs binding the entire image to a single memory range. Sparse image opaque binding allows
@@ -3476,8 +3471,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                                                     *device_wrapper->physical_device->layer_table_ref,
                                                     device_wrapper->property_feature_info,
                                                     device_wrapper->version_extension_info,
-                                                    device_wrapper->physical_device->memory_properties,
-                                                    MakeQueueLockFn(device_wrapper));
+                                                    device_wrapper->physical_device->memory_properties);
 
         if (max_staging_copy_size > 0)
         {

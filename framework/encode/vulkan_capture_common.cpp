@@ -401,21 +401,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
         vulkan_wrappers::QueueWrapper* queue_wrapper = nullptr;
         {
             std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
-            for (const auto& [qfi, family_queues] : device_wrapper->child_queues)
+            for (const auto& queue : device_wrapper->child_queues | std::views::values)
             {
-                for (const auto& queue : family_queues | std::views::values)
+                GFXRECON_ASSERT(queue_family_properties.size() > queue.family_index);
+                if ((queue_family_properties[queue.family_index].queueFlags & VK_QUEUE_COMPUTE_BIT) ==
+                    VK_QUEUE_COMPUTE_BIT)
                 {
-                    GFXRECON_ASSERT(queue_family_properties.size() > qfi);
-                    if ((queue_family_properties[qfi].queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
-                    {
-                        queue_family_index = qfi;
-                        queue_wrapper      = queue;
-                        break;
-                    }
-                }
-
-                if (queue_wrapper != nullptr)
-                {
+                    queue_family_index = queue.family_index;
+                    queue_wrapper      = queue.wrapper;
                     break;
                 }
             }
@@ -1261,9 +1254,7 @@ graphics::VulkanResourcesUtil::QueueLockFn MakeQueueLockFn(const vulkan_wrappers
     GFXRECON_ASSERT(device_wrapper != nullptr);
 
     return [device_wrapper](VkQueue queue) -> std::unique_lock<std::mutex> {
-        // FindQueueWrapper releases queues_map_mutex before queue_mutex is taken. This is the same order used by
-        // OverrideDeviceWaitIdle and no code path takes queues_map_mutex while holding a queue_mutex.
-        auto* queue_wrapper = vulkan_wrappers::FindQueueWrapper(device_wrapper, queue);
+        auto* queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
         if (queue_wrapper != nullptr)
         {
             return std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);

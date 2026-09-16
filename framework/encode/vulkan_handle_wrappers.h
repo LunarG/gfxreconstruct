@@ -183,8 +183,16 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
     graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
 
-    std::unordered_map<uint32_t, std::unordered_map<uint32_t, QueueWrapper*>> child_queues;
-    mutable std::mutex                                                        queues_map_mutex;
+    struct ChildQueue
+    {
+        uint32_t      family_index;
+        uint32_t      queue_index;
+        QueueWrapper* wrapper;
+    };
+
+    // One entry for queue retrieved with vkGetDeviceQueue and vkGetDeviceQueue2
+    std::unordered_map<VkQueue, ChildQueue> child_queues;
+    mutable std::mutex                      queues_map_mutex;
 
     // Serializes capture-internal submissions to queues the application has not retrieved and that therefore
     // have no QueueWrapper (and no queue_mutex) of their own.
