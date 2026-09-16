@@ -137,16 +137,14 @@ class ApiCaptureManager
     bool ScreenshotsEnabled() { return common_manager_->ScreenshotsEnabled(); }
     bool ShouldTriggerScreenshot() { return common_manager_->ShouldTriggerScreenshot(); }
 
-    void CheckContinueCaptureForWriteMode(uint32_t                                               current_boundary_count,
-                                          std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    void CheckContinueCaptureForWriteMode(uint32_t current_boundary_count)
     {
-        common_manager_->CheckContinueCaptureForWriteMode(api_family_, current_boundary_count, current_lock);
+        common_manager_->CheckContinueCaptureForWriteMode(api_family_, current_boundary_count);
     }
 
-    void CheckStartCaptureForTrackMode(uint32_t                                               current_boundary_count,
-                                       std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    void CheckStartCaptureForTrackMode(uint32_t current_boundary_count)
     {
-        common_manager_->CheckStartCaptureForTrackMode(api_family_, current_boundary_count, current_lock);
+        common_manager_->CheckStartCaptureForTrackMode(api_family_, current_boundary_count);
     }
 
     bool IsTrimHotkeyPressed() { return common_manager_->IsTrimHotkeyPressed(); }
