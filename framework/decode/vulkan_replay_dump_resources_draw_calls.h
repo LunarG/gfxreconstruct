@@ -168,12 +168,16 @@ class DrawCallsDumpingContext
 
     void EndRenderPass();
 
-    void BeginRendering(const std::vector<VulkanImageInfo*>& color_attachments,
+    void BeginRendering(uint64_t                             block_index,
+                        const VkRenderingInfo*               rendering_info,
+                        const std::vector<VulkanImageInfo*>& color_attachments,
                         const std::vector<VkImageLayout>&    color_attachment_layouts,
                         VulkanImageInfo*                     depth_attachment,
                         VkImageLayout                        depth_attachment_layout);
 
     void EndRendering();
+
+    void EndRendering(PFN_vkCmdEndRendering2KHR func, const VkRenderingEndInfoKHR* rendering_end_info);
 
     void RecordCmdBeginRendering(VkCommandBuffer command_buffer, const VkRenderingInfo* rendering_info) const;
 
@@ -209,6 +213,10 @@ class DrawCallsDumpingContext
 
     // The clones a work command is recorded into: only the current one while chaining, else the active range.
     uint32_t GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+
+    // The clones that have the active render pass instance begun: while chaining, the stored range of an
+    // instance this context began, or the current clone for one it only forwards; else the active range.
+    uint32_t GetRenderPassCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
     bool IsChaining() const { return chaining_; }
 
@@ -290,6 +298,12 @@ class DrawCallsDumpingContext
     // dump_resources_before is true) so it can be used to index arrays that don't double their sizes in case of
     // dump_resources_before is true.
     size_t CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
+
+    // The block index window (lo, hi] of the stream that the given clone records while chaining.
+    void GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const;
+
+    // The block index range of the render pass instance the given block index belongs to
+    const std::vector<Index>* FindRenderPassBlockRange(uint64_t block_index) const;
 
     void DestroyMutableResourceBackups();
 
@@ -421,6 +435,14 @@ class DrawCallsDumpingContext
 
         // Also one entry per subpass. For each subpass we create a new render pass
         std::vector<VkRenderPass> render_pass_clones;
+
+        // LOAD variant of render_pass_clones, used by a clone that resumes this render pass instead of
+        // starting it. Only created while chaining.
+        std::vector<VkRenderPass> render_pass_load_clones;
+
+        // Half-open range of clones that have this instance begun, as command buffer indices.
+        size_t first_clone{ 0 };
+        size_t last_clone{ 0 };
     };
 
     // One entry per render pass, in replay order. Held through shared_ptr so that each DrawCallParams can point

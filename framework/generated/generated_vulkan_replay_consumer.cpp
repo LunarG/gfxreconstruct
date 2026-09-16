@@ -3284,7 +3284,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocations(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocations(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pLocationInfo);
+        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocations(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pLocationInfo);
     }
 }
 
@@ -3300,7 +3300,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingInputAttachmentIndices(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndices(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pInputAttachmentIndexInfo);
+        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndices(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pInputAttachmentIndexInfo);
     }
 }
 
@@ -4902,7 +4902,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocationsKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pLocationInfo);
+        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocationsKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pLocationInfo);
     }
 }
 
@@ -4918,7 +4918,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pInputAttachmentIndexInfo);
+        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pInputAttachmentIndexInfo);
     }
 }
 
@@ -6155,7 +6155,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering2KHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRendering2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pRenderingEndInfo);
+        resource_dumper_->Process_vkCmdEndRendering2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pRenderingEndInfo);
     }
 }
 
@@ -10752,7 +10752,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering2EXT(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRendering2EXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pRenderingEndInfo);
+        resource_dumper_->Process_vkCmdEndRendering2EXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pRenderingEndInfo);
     }
 }
 
