@@ -544,10 +544,10 @@ size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t   
                                                                      VkDeviceSize preferred_size,
                                                                      VkDeviceSize minimum_size)
 {
-    const VkDeviceSize desired_size   = std::max(preferred_size, minimum_size);
-    const VkDeviceSize capped_size    = std::min(desired_size, MaxBlockSize(memory_type_index));
+    GFXRECON_ASSERT(minimum_size <= MaxBlockSize(memory_type_index));
 
-    const VkDeviceSize block_size = std::max(capped_size, minimum_size);
+    const VkDeviceSize desired_size = std::max(preferred_size, minimum_size);
+    const VkDeviceSize block_size   = std::min(desired_size, MaxBlockSize(memory_type_index));
 
     MemoryBlock block;
 
@@ -643,6 +643,18 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             }
         }
         GFXRECON_ASSERT((pending.requirements.memoryTypeBits & (1u << memory_type_index)) != 0);
+
+        if (pending.requirements.size > MaxBlockSize(memory_type_index))
+        {
+            GFXRECON_LOG_WARNING("Shadow buffer for buffer %" PRIu64 " requires %" PRIu64
+                                 " bytes, more than the largest block that can be allocated from memory type %u; its "
+                                 "contents will not be restored across loop repetitions.",
+                                 buffer_id,
+                                 pending.requirements.size,
+                                 memory_type_index);
+            allocator_->DestroyBufferDirect(pending.shadow.buffer, nullptr, pending.shadow.alloc_data);
+            continue;
+        }
 
         // The padding that aligning each suballocation adds is part of what a block has to hold.
         remaining_size += util::aligned_value(pending.requirements.size, pending.requirements.alignment);
