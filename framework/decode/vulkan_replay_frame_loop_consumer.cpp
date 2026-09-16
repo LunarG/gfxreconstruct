@@ -530,11 +530,6 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device)
     it->second.Restore();
 }
 
-// Spec required minimum for maxMEmoryAllocationSize.
-constexpr VkDeviceSize kMaxMemoryBlockSize = 1024ull * 1024ull * 1024ull;
-
-constexpr size_t kInvalidBlockIndex = std::numeric_limits<size_t>::max();
-
 VkDeviceSize VulkanReplayFrameLoopConsumer::BufferTracking::MaxBlockSize(uint32_t memory_type_index) const
 {
     GFXRECON_ASSERT(memory_type_index < memory_properties_->memoryTypeCount);

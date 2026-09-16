@@ -28,6 +28,8 @@
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 
+#include <limits>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -217,6 +219,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
+
+        // Spec required minimum for maxMemoryAllocationSize.
+        static constexpr VkDeviceSize kMaxMemoryBlockSize = 1024ull * 1024ull * 1024ull;
+
+        static constexpr size_t kInvalidBlockIndex = std::numeric_limits<size_t>::max();
 
         size_t AddMemoryBlock(uint32_t memory_type_index, VkDeviceSize preferred_size, VkDeviceSize minimum_size);
 
