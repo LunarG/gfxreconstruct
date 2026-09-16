@@ -67,7 +67,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
-    inside_renderpass_(false)
+    inside_renderpass_(false), chaining_(false)
 {
     if (draw_indices != nullptr)
     {
@@ -375,7 +375,7 @@ void DrawCallsDumpingContext::CmdDraw(const ApiCallInfo& call_info,
     }
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
+    GetWorkCommandBuffers(first, last);
     for (CommandBufferIterator it = first; it < last; ++it)
     {
         func(*it, vertex_count, instance_count, first_vertex, first_instance);
@@ -415,7 +415,7 @@ void DrawCallsDumpingContext::CmdDrawIndexed(const ApiCallInfo&   call_info,
     }
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
+    GetWorkCommandBuffers(first, last);
     for (CommandBufferIterator it = first; it < last; ++it)
     {
         func(*it, index_count, instance_count, first_index, vertex_offset, first_instance);
@@ -453,7 +453,7 @@ void DrawCallsDumpingContext::CmdDrawIndirect(const ApiCallInfo&      call_info,
     }
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
+    GetWorkCommandBuffers(first, last);
     for (CommandBufferIterator it = first; it < last; ++it)
     {
         func(*it, buffer_info->handle, offset, draw_count, stride);
@@ -490,7 +490,7 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirect(const ApiCallInfo&         
     }
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
+    GetWorkCommandBuffers(first, last);
     for (CommandBufferIterator it = first; it < last; ++it)
     {
         func(*it, buffer_info->handle, offset, draw_count, stride);
@@ -537,7 +537,7 @@ void DrawCallsDumpingContext::CmdDrawIndirectCount(const ApiCallInfo&           
     }
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
+    GetWorkCommandBuffers(first, last);
     for (CommandBufferIterator it = first; it < last; ++it)
     {
         func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
@@ -584,7 +584,7 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirectCount(const ApiCallInfo&    
     }
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
+    GetWorkCommandBuffers(first, last);
     for (CommandBufferIterator it = first; it < last; ++it)
     {
         func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
@@ -3650,6 +3650,19 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
     GFXRECON_ASSERT(current_cb_index_ <= command_buffers_.size());
     first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
     last  = command_buffers_.end();
+    return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
+}
+
+uint32_t DrawCallsDumpingContext::GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const
+{
+    if (!chaining_)
+    {
+        return GetDrawCallActiveCommandBuffers(first, last);
+    }
+
+    GFXRECON_ASSERT(current_cb_index_ <= command_buffers_.size());
+    first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
+    last  = (current_cb_index_ < command_buffers_.size()) ? first + 1 : first;
     return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
 }
 

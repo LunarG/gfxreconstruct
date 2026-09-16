@@ -836,22 +836,6 @@ class VulkanReplayDumpResourcesBase
     }
 
     template <typename Callback>
-    void ForEachDrawCallCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
-    {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(original_command_buffer);
-        for (const auto& dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                callback(*it);
-            }
-        }
-    }
-
-    template <typename Callback>
     void ForEachDispatchTraceRaysCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
     {
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =

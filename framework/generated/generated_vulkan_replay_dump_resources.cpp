@@ -144,7 +144,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdateBuffer(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, dstBuffer, dstOffset, dataSize, pData);
@@ -183,7 +183,7 @@ void VulkanReplayDumpResources::Process_vkCmdFillBuffer(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, dstBuffer, dstOffset, size, data);
@@ -227,7 +227,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
@@ -400,7 +400,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearColorImage(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, image, imageLayout, pColor, rangeCount, pRanges);
@@ -468,7 +468,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, event, stageMask);
@@ -505,7 +505,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, event, stageMask);
@@ -550,7 +550,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
@@ -1087,7 +1087,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearDepthStencilImage(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, image, imageLayout, pDepthStencil, rangeCount, pRanges);
@@ -1126,7 +1126,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearAttachments(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, attachmentCount, pAttachments, rectCount, pRects);
@@ -1167,7 +1167,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
@@ -1286,7 +1286,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBase(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
@@ -1404,7 +1404,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDependencyInfo);
@@ -1517,7 +1517,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, event, pDependencyInfo);
@@ -1554,7 +1554,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, event, stageMask);
@@ -1592,7 +1592,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, eventCount, pEvents, pDependencyInfos);
@@ -1643,7 +1643,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pResolveImageInfo);
@@ -2540,7 +2540,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginVideoCodingKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pBeginInfo);
@@ -2576,7 +2576,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndVideoCodingKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pEndCodingInfo);
@@ -2612,7 +2612,7 @@ void VulkanReplayDumpResources::Process_vkCmdControlVideoCodingKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCodingControlInfo);
@@ -2648,7 +2648,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecodeVideoKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDecodeInfo);
@@ -2752,7 +2752,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBaseKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
@@ -3036,7 +3036,7 @@ void VulkanReplayDumpResources::Process_vkCmdEncodeVideoKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pEncodeInfo);
@@ -3073,7 +3073,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, event, pDependencyInfo);
@@ -3110,7 +3110,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, event, stageMask);
@@ -3148,7 +3148,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, eventCount, pEvents, pDependencyInfos);
@@ -3184,7 +3184,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDependencyInfo);
@@ -3310,7 +3310,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirect2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3346,7 +3346,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirect2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3382,7 +3382,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchIndirect2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3418,7 +3418,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCopyMemoryInfo);
@@ -3454,7 +3454,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToImageKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCopyMemoryInfo);
@@ -3490,7 +3490,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImageToMemoryKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCopyMemoryInfo);
@@ -3529,7 +3529,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdateMemoryKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDstRange, dstFlags, dataSize, pData);
@@ -3567,7 +3567,7 @@ void VulkanReplayDumpResources::Process_vkCmdFillMemoryKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDstRange, dstFlags, data);
@@ -3622,7 +3622,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCount2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3658,7 +3658,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCount2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3694,7 +3694,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRendering2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pConditionalRenderingBegin);
@@ -3770,7 +3770,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginTransformFeedback2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, firstCounterRange, counterRangeCount, pCounterInfos);
@@ -3808,7 +3808,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndTransformFeedback2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, firstCounterRange, counterRangeCount, pCounterInfos);
@@ -3848,7 +3848,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectByteCount2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, instanceCount, firstInstance, pCounterInfo, counterOffset, vertexStride);
@@ -3884,7 +3884,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirect2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3920,7 +3920,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCount2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -3956,7 +3956,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteMarkerToMemoryAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -4067,7 +4067,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pResolveImageInfo);
@@ -4343,7 +4343,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryIndirectKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCopyMemoryIndirectInfo);
@@ -4379,7 +4379,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToImageIndirectKHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCopyMemoryToImageIndirectInfo);
@@ -4415,7 +4415,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2KHR(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pRenderingEndInfo);
@@ -4451,7 +4451,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pMarkerInfo);
@@ -4486,7 +4486,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerEndEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it);
@@ -4522,7 +4522,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerInsertEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pMarkerInfo);
@@ -4601,7 +4601,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginTransformFeedbackEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
@@ -4640,7 +4640,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndTransformFeedbackEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
@@ -4714,7 +4714,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectByteCountEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
@@ -4788,7 +4788,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRenderingEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pConditionalRenderingBegin);
@@ -4823,7 +4823,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndConditionalRenderingEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it);
@@ -5007,7 +5007,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginDebugUtilsLabelEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pLabelInfo);
@@ -5042,7 +5042,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndDebugUtilsLabelEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it);
@@ -5078,7 +5078,7 @@ void VulkanReplayDumpResources::Process_vkCmdInsertDebugUtilsLabelEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pLabelInfo);
@@ -5115,7 +5115,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginGpaSessionAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, gpaSession);
@@ -5152,7 +5152,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndGpaSessionAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, gpaSession);
@@ -5191,7 +5191,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginGpaSampleAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, gpaSession, pGpaSampleBeginInfo, pSampleID);
@@ -5228,7 +5228,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndGpaSampleAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, gpaSession, sampleID);
@@ -5264,7 +5264,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyGpaSessionResultsAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, gpaSession);
@@ -5456,7 +5456,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructureNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
@@ -5494,7 +5494,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, dst, src, mode);
@@ -5543,7 +5543,7 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
@@ -5600,7 +5600,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarkerAMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pipelineStage, dstBuffer, dstOffset, marker);
@@ -5639,7 +5639,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarker2AMD(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, stage, dstBuffer, dstOffset, marker);
@@ -5676,7 +5676,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, taskCount, firstTask);
@@ -5715,7 +5715,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, buffer, offset, drawCount, stride);
@@ -5756,7 +5756,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
@@ -5868,7 +5868,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCheckpointNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCheckpointMarker);
@@ -5905,7 +5905,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceMarkerINTEL(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pMarkerInfo);
@@ -5942,7 +5942,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceStreamMarkerINTEL(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pMarkerInfo);
@@ -5979,7 +5979,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceOverrideINTEL(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pOverrideInfo);
@@ -6473,7 +6473,7 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pGeneratedCommandsInfo);
@@ -6510,7 +6510,7 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, isPreprocessed, pGeneratedCommandsInfo);
@@ -6620,7 +6620,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchTileQCOM(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDispatchTileInfo);
@@ -6656,7 +6656,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginPerTileExecutionQCOM(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pPerTileBeginInfo);
@@ -6692,7 +6692,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndPerTileExecutionQCOM(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pPerTileEndInfo);
@@ -7156,7 +7156,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
@@ -7197,7 +7197,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiIndexedEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
@@ -7234,7 +7234,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildMicromapsEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, infoCount, pInfos);
@@ -7270,7 +7270,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -7306,7 +7306,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapToMemoryEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -7342,7 +7342,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToMicromapEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -7398,7 +7398,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterHUAWEI(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, groupCountX, groupCountY, groupCountZ);
@@ -7435,7 +7435,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterIndirectHUAWEI(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, buffer, offset);
@@ -7508,7 +7508,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdatePipelineIndirectBufferNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pipelineBindPoint, pipeline);
@@ -8672,7 +8672,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyTensorARM(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pCopyTensorInfo);
@@ -8709,7 +8709,7 @@ void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, session, pExecuteInfo);
@@ -8821,7 +8821,7 @@ void VulkanReplayDumpResources::Process_vkCmdConvertCooperativeVectorMatrixNV(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, infoCount, pInfos);
@@ -8858,7 +8858,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchDataGraphARM(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, session, pInfo);
@@ -8966,7 +8966,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecompressMemoryEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pDecompressMemoryInfoEXT);
@@ -9006,7 +9006,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecompressMemoryIndirectCountEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, decompressionMethod, indirectCommandsAddress, indirectCommandsCountAddress, maxDecompressionCount, stride);
@@ -9042,7 +9042,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildPartitionedAccelerationStructu
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pBuildInfo);
@@ -9079,7 +9079,7 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pGeneratedCommandsInfo, stateCommandBuffer);
@@ -9116,7 +9116,7 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, isPreprocessed, pGeneratedCommandsInfo);
@@ -9152,7 +9152,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2EXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pRenderingEndInfo);
@@ -9188,7 +9188,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginCustomResolveEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pBeginCustomResolveInfo);
@@ -9317,7 +9317,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructuresIndirect
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
@@ -9368,7 +9368,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureToMemoryKH
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -9404,7 +9404,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToAccelerationStructureKH
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, pInfo);
@@ -9534,7 +9534,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, groupCountX, groupCountY, groupCountZ);
@@ -9573,7 +9573,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, buffer, offset, drawCount, stride);
@@ -9614,7 +9614,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountEXT(
             for (auto dc_context : dc_contexts)
             {
                 CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                dc_context->GetWorkCommandBuffers(first, last);
                 for (CommandBufferIterator it = first; it < last; ++it)
                 {
                     func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
