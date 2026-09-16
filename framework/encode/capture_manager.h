@@ -136,6 +136,38 @@ class CommonCaptureManager
     // This method returns the composite with the apropos Lock initialized
     ApiCallLock AcquireCallLock() const;
 
+    // Suppress capture for a call into an external runtime.
+    //
+    // An OpenXR entry point in this layer calls the OpenXR runtime. The runtime can call the Vulkan
+    // entry points of this layer on the same thread before it returns. Those Vulkan calls are
+    // internal to the runtime. The capture must not record them, because replay reproduces them
+    // from the OpenXR call.
+    //
+    // A scope object increments a thread-local depth counter for the duration of the runtime call.
+    // The Begin*CallCapture functions and the frame and queue-submit hooks return early while the
+    // depth of the current thread is above zero. The counter is thread-local, so a runtime call on
+    // one thread never stops the capture of calls on another thread.
+    //
+    // The counter only affects tracking and writing. Handle wrapping is not affected.
+    class ScopedReentrantCaptureSuppression
+    {
+      public:
+        ScopedReentrantCaptureSuppression() { ++reentrant_suppression_depth_; }
+        ~ScopedReentrantCaptureSuppression()
+        {
+            GFXRECON_ASSERT(reentrant_suppression_depth_ > 0);
+            --reentrant_suppression_depth_;
+        }
+
+        ScopedReentrantCaptureSuppression(const ScopedReentrantCaptureSuppression&)            = delete;
+        ScopedReentrantCaptureSuppression(ScopedReentrantCaptureSuppression&&)                 = delete;
+        ScopedReentrantCaptureSuppression& operator=(const ScopedReentrantCaptureSuppression&) = delete;
+        ScopedReentrantCaptureSuppression& operator=(ScopedReentrantCaptureSuppression&&)      = delete;
+    };
+
+    // Returns true when the current thread is inside a ScopedReentrantCaptureSuppression.
+    static bool IsReentrantCaptureSuppressed() { return reentrant_suppression_depth_ > 0; }
+
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
         auto thread_data = GetThreadData();
@@ -146,7 +178,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id)
     {
-        if (capture_mode_ != kModeDisabled)
+        if ((capture_mode_ != kModeDisabled) && !IsReentrantCaptureSuppressed())
         {
             return InitApiCallCapture(call_id);
         }
@@ -156,7 +188,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id)
     {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        if (((capture_mode_ & kModeWrite) == kModeWrite) && !IsReentrantCaptureSuppressed())
         {
 #if ENABLE_OPENXR_SUPPORT
             if (IsCaptureSkippingCurrentThread())
@@ -210,7 +242,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginTrackedMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
-        if (capture_mode_ != kModeDisabled)
+        if ((capture_mode_ != kModeDisabled) && !IsReentrantCaptureSuppressed())
         {
             return InitMethodCallCapture(call_id, object_id);
         }
@@ -220,7 +252,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        if (((capture_mode_ & kModeWrite) == kModeWrite) && !IsReentrantCaptureSuppressed())
         {
             return InitMethodCallCapture(call_id, object_id);
         }
@@ -586,6 +618,7 @@ class CommonCaptureManager
     static std::mutex                                     instance_lock_;
     static CommonCaptureManager*                          singleton_;
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
+    static thread_local uint32_t                          reentrant_suppression_depth_;
     static ApiCallMutexT                                  api_call_mutex_;
     static bool                                           initialize_log_;
     static std::atomic<format::HandleId>                  default_unique_id_counter_;

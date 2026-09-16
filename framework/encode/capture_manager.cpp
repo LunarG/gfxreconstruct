@@ -59,6 +59,7 @@ const size_t   kFileStreamBufferSize = 256 * 1024;
 CommonCaptureManager*                          CommonCaptureManager::singleton_;
 std::mutex                                     CommonCaptureManager::instance_lock_;
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
+thread_local uint32_t                          CommonCaptureManager::reentrant_suppression_depth_ = 0;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 bool                                           CommonCaptureManager::initialize_log_ = true;
 std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
@@ -1111,6 +1112,12 @@ void CommonCaptureManager::WriteFrameMarker(format::MarkerType marker_type)
 
 void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
 {
+    if (IsReentrantCaptureSuppressed())
+    {
+        // The present call came from the runtime. It is not a frame boundary of the application.
+        return;
+    }
+
     // Write an end-of-frame marker to the capture file.
     WriteFrameMarker(format::MarkerType::kEndMarker);
 
@@ -1148,6 +1155,11 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_
 
 void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
 {
+    if (IsReentrantCaptureSuppressed())
+    {
+        // The queue submit came from the runtime. It is not a trim boundary of the application.
+        return;
+    }
 
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
     {
@@ -1162,6 +1174,12 @@ void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family, std::s
 void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId              api_family,
                                            std::shared_lock<ApiCallMutexT>& current_lock)
 {
+    if (IsReentrantCaptureSuppressed())
+    {
+        // The queue submit came from the runtime. It is not a trim boundary of the application.
+        return;
+    }
+
     // 0-based
     ++queue_submit_count_;
 
