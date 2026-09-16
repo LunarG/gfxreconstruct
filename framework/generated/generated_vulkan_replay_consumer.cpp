@@ -5990,6 +5990,11 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsKHR(
     const ApiCallInfo&                          call_info,
     args::GetCalibratedTimestampsKHR&           args)
 {
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetCalibratedTimestampsKHR for offscreen.");
+        return;
+    }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = args.pTimestampInfos.GetPointer();
     MapStructArrayHandles(args.pTimestampInfos.GetMetaStructPointer(), args.pTimestampInfos.GetLength(), GetObjectInfoTable());
@@ -7580,6 +7585,11 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsEXT(
     const ApiCallInfo&                          call_info,
     args::GetCalibratedTimestampsEXT&           args)
 {
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetCalibratedTimestampsEXT for offscreen.");
+        return;
+    }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = args.pTimestampInfos.GetPointer();
     MapStructArrayHandles(args.pTimestampInfos.GetMetaStructPointer(), args.pTimestampInfos.GetLength(), GetObjectInfoTable());
