@@ -118,6 +118,12 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
     track_dump_resources_.fence_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
     track_dump_resources_.fence_signal_value = initial_fence_value;
 
+    D3D12_COMMAND_QUEUE_DESC copy_queue_desc = {};
+    copy_queue_desc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    device->CreateCommandQueue(&copy_queue_desc, IID_PPV_ARGS(&track_dump_resources_.copy_queue));
+    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_ready_fence));
+    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_complete_fence));
+
     if (user_delegate_ != nullptr)
     {
         active_delegate_ = user_delegate_;
@@ -1897,11 +1903,6 @@ void Dx12DumpResources::CopyDrawCallResource(DxObjectInfo*                      
                 GFXRECON_LOG_ERROR("Failed to create command list for dump resources.");
             }
         }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to get device for dump resource copy.");
-            return;
-        }
     }
 
     // Determine whether to read the full subresource or just part of it.
@@ -1952,15 +1953,6 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
     ID3D12CommandQueue* copy_queue = draw_call_queue;
     if (use_dedicated_copy_queue)
     {
-        if (track_dump_resources_.copy_queue == nullptr)
-        {
-            auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(draw_call_queue);
-            D3D12_COMMAND_QUEUE_DESC copy_queue_desc = {};
-            copy_queue_desc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
-            device->CreateCommandQueue(&copy_queue_desc, IID_PPV_ARGS(&track_dump_resources_.copy_queue));
-            device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_ready_fence));
-            device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_complete_fence));
-        }
         copy_queue = track_dump_resources_.copy_queue;
     }
     if (copy_resource_data->is_cpu_accessible)
@@ -2081,6 +2073,7 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     {
         GFXRECON_LOG_FATAL(
             "Invalid fence value (UINT64_MAX). Device may have been removed. GFXR is unable to continue.");
+        return;
     }
     if (completed_value < fence_wait_value)
     {
