@@ -207,6 +207,11 @@ class DrawCallsDumpingContext
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
+    // The clones a work command is recorded into: only the current one while chaining, else the active range.
+    uint32_t GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+
+    bool IsChaining() const { return chaining_; }
+
     VkResult DumpDrawCalls(VkQueue              queue,
                            const VkSubmitInfo2& submit_info,
                            Index                submit_info_index,
@@ -425,6 +430,9 @@ class DrawCallsDumpingContext
     // True while a render pass (or dynamic rendering) instance begun by this context is active. Used by
     // FinalizeCommandBuffer to decide whether a CmdEndRenderPass/CmdEndRendering must be recorded.
     bool inside_renderpass_;
+
+    // True when each command is recorded into one clone only and render pass instances are resumed with LOAD.
+    bool chaining_;
 
     // One entry per descriptor set
     BoundDescriptorSets bound_descriptor_sets_gr_;
