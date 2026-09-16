@@ -137,7 +137,7 @@ struct TrackDumpResources
     std::array<graphics::dx12::CommandSet, 3> split_bundle_command_sets;
 
     graphics::dx12::ID3D12FenceComPtr fence;
-    HANDLE                            fence_event{ nullptr };
+    HANDLE                            fence_event;
     uint64_t                          fence_signal_value{ 1 };
     graphics::dx12::ID3D12CommandQueueComPtr copy_queue;
     graphics::dx12::ID3D12FenceComPtr        copy_ready_fence;
