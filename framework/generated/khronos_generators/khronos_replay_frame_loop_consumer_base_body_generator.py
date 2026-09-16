@@ -57,6 +57,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                 (self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES +
+                 self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
 
@@ -266,6 +267,33 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        // This resource has been allocated BEFORE the loop range.\n'
             body += '        // Since it might still be in use during the loop range, ONLY free it in the last iteration.\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '    }\n'
+            body += '    // If this resource binds to memory, remove it from bound memory set\n'
+            body += '    boundMemory.erase(' + values[-2].prefixed_name + ');\n'
+
+        elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY:
+
+            body += '    if (!getFrameLoopInfo().IsLooping())\n'
+            body += '    {\n'
+            body += '        // Pass through if not looping\n'
+            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '    }\n'
+            body += '    else\n'
+            body += '    {\n'
+            body += '        // We need to bind the memory if the object hasn\'t been bound\n'
+            body += '        // or if it\'s being bound to a different memory\n'
+            body += '        bool need_bind = !boundMemory.contains(' + values[-3].prefixed_name + ');\n'
+            body += '        if (!need_bind)\n'
+            body += '        {\n'
+            body += '            format::HandleId old_memory = boundMemory[' + values[-3].prefixed_name + '];\n'
+            body += '            need_bind = old_memory != ' + values[-2].prefixed_name + ';\n'
+            body += '        }\n'
+            body += '\n'
+            body += '        if (need_bind)\n'
+            body += '        {\n'
+            body += '            ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '            boundMemory[' + values[-3].prefixed_name + '] = ' + values[-2].prefixed_name + ';\n'
+            body += '        }\n'
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED:
