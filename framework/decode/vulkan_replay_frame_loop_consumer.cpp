@@ -603,7 +603,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
     // Create a shadow buffer for every buffer to copy and estimate how much memory they need.
     std::vector<PendingShadowBuffer> pending_shadows;
     uint32_t                         memory_type_index = std::numeric_limits<uint32_t>::max();
-    VkDeviceSize                     remaining_size    = 0;
+    VkDeviceSize                     unbound_size    = 0;
 
     for (format::HandleId buffer_id : buffer_ids)
     {
@@ -676,7 +676,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         }
 
         // The padding that aligning each suballocation adds is part of what a block has to hold.
-        remaining_size += util::aligned_value(pending.requirements.size, pending.requirements.alignment);
+        unbound_size += util::aligned_value(pending.requirements.size, pending.requirements.alignment);
         pending_shadows.push_back(pending);
     }
 
@@ -704,13 +704,13 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
 
         if (block_index == kInvalidBlockIndex)
         {
-            block_index = AddMemoryBlock(memory_type_index, remaining_size, pending.requirements.size);
+            block_index = AddMemoryBlock(memory_type_index, unbound_size, pending.requirements.size);
 
             if (block_index == kInvalidBlockIndex)
             {
                 GFXRECON_LOG_WARNING("Failed to allocate %" PRIu64 " bytes of shadow memory from memory type %u; the "
                                      "contents of %zu buffers will not be restored across loop repetitions.",
-                                     remaining_size,
+                                     unbound_size,
                                      memory_type_index,
                                      pending_shadows.size() - i);
 
@@ -739,8 +739,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         }
 
         block.next_offset = offset + pending.requirements.size;
-        remaining_size -=
-            std::min(remaining_size, util::aligned_value(pending.requirements.size, pending.requirements.alignment));
+        unbound_size -=
+            std::min(unbound_size, util::aligned_value(pending.requirements.size, pending.requirements.alignment));
 
         const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(pending.buffer_id);
         GFXRECON_ASSERT(buffer_info != nullptr);
