@@ -1173,15 +1173,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value)
     encoder->EncodeVulkanHandleArray<vulkan_wrappers::SemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkMappedMemoryRange& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceMemoryWrapper>(value.memory);
-    encoder->EncodeUInt64Value(value.offset);
-    encoder->EncodeUInt64Value(value.size);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1426,19 +1417,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy& value)
     EncodeStruct(encoder, value.dstSubresource);
     EncodeStruct(encoder, value.dstOffset);
     EncodeStruct(encoder, value.extent);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.srcAccessMask);
-    encoder->EncodeFlagsValue(value.dstAccessMask);
-    encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
-    encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferWrapper>(value.buffer);
-    encoder->EncodeUInt64Value(value.offset);
-    encoder->EncodeUInt64Value(value.size);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value)
@@ -12415,9 +12393,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // The schema drives these encoders. This is the only translation unit that compiles the walk.
 template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMemoryStatus&);
 template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBufferCreateInfo&);
+template void EncodeStruct<VkBufferMemoryBarrier>(ParameterEncoder*, const VkBufferMemoryBarrier&);
 template void EncodeStruct<VkDebugUtilsMessengerCreateInfoEXT>(ParameterEncoder*, const VkDebugUtilsMessengerCreateInfoEXT&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
+template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
 template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);

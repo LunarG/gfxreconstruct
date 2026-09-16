@@ -133,7 +133,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtensionProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMappedMemoryRange& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRequirements& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource& value);
@@ -161,7 +160,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresourceLayers& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferImageCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& value);
@@ -1386,9 +1384,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 using SchemaDrivenStructs = util::TypeList<
     VkBindMemoryStatus,
     VkBufferCreateInfo,
+    VkBufferMemoryBarrier,
     VkDebugUtilsMessengerCreateInfoEXT,
     VkExtent2D,
     VkImportMemoryWin32HandleInfoNV,
+    VkMappedMemoryRange,
     VkPipelineCacheCreateInfo,
     VkPipelineCacheHeaderVersionOne,
     VkPipelineCreateInfoKHR,

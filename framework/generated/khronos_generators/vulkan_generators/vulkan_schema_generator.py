@@ -98,9 +98,11 @@ def is_schema_driven(generator, struct):
 _SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
     'VkBindMemoryStatus',
     'VkBufferCreateInfo',
+    'VkBufferMemoryBarrier',
     'VkDebugUtilsMessengerCreateInfoEXT',
     'VkExtent2D',
     'VkImportMemoryWin32HandleInfoNV',
+    'VkMappedMemoryRange',
     'VkPipelineCacheCreateInfo',
     'VkPipelineCacheHeaderVersionOne',
     'VkPipelineCreateInfoKHR',

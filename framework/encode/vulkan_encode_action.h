@@ -29,6 +29,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_encode_capture_wrappers.h"
 #include "schema/field.h"
 
 // This operation reads native Vulkan structures. Keep the complete generated member-binding population beside the
@@ -133,6 +134,16 @@ class EncodeStructAction
         auto             count = schema::Get(storage, CountField{});
         const ArrayType* array = static_cast<const ArrayType*>(schema::Get(storage, field));
         encoder_->template EncodeArray<typename Field::api_type::kind>(array, GFXRECON_NARROWING_CAST(size_t, count));
+    }
+
+    // A single wrapped handle.
+    template <typename Field, typename Storage>
+    requires schema::HandleKindField<Field> && schema::ValueShapedField<Field> && schema::HasMember<Storage, Field> &&
+        HasCaptureWrapper<typename Field::api_type>
+    void Apply(Field field, const Storage& storage)
+    {
+        using Wrapper = CaptureWrapperFor<typename Field::api_type>::type;
+        encoder_->template EncodeVulkanHandleValue<Wrapper>(schema::Get(storage, field));
     }
 
   private:

@@ -39,6 +39,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_encode_struct.h"
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/struct_pointer_encoder.h"
 #include "util/logging.h"
 
@@ -722,6 +723,27 @@ TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema]
 namespace
 {
 
+// A handle id source for wrappers the tests register themselves.
+gfxrecon::format::HandleId TestHandleId()
+{
+    static gfxrecon::format::HandleId next = 0x1000;
+    return next++;
+}
+
+// A non-dispatchable handle from a chosen value. A pointer on a 64-bit target and a 64-bit integer elsewhere.
+template <typename Handle>
+Handle FakeHandle(uint64_t value)
+{
+    if constexpr (std::is_pointer_v<Handle>)
+    {
+        return reinterpret_cast<Handle>(static_cast<uintptr_t>(value));
+    }
+    else
+    {
+        return static_cast<Handle>(value);
+    }
+}
+
 // A callback with the API's calling convention, so its address converts to the PFN type on every platform.
 VKAPI_ATTR VkBool32 VKAPI_CALL TestDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
                                                       VkDebugUtilsMessageTypeFlagsEXT,
@@ -843,6 +865,115 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
             oracle.EncodeVoidPtr(checkpoint.pCheckpointMarker);
         }));
     }
+}
+
+TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][encode]")
+{
+    // Two migrated structures, one handle each of the two wrapper types the pilot maps, one per chain walk; two
+    // retained partners, one carrying both handles. A handle encodes as the id of the wrapper the state handle table
+    // holds for it, so the test registers wrappers for chosen handle values and destroys them after, and also encodes
+    // the null handle, which is the null id with no lookup. An unregistered non-null handle would encode as the null
+    // id with a warning; that case is not taken, since both sides would make the same lookup and prove nothing.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkBuffer       buffer = FakeHandle<VkBuffer>(0x0b0fu);
+    VkDeviceMemory memory = FakeHandle<VkDeviceMemory>(0x0d0eu);
+    CreateWrappedNonDispatchHandle<BufferWrapper>(&buffer, TestHandleId);
+    CreateWrappedNonDispatchHandle<DeviceMemoryWrapper>(&memory, TestHandleId);
+    REQUIRE(GetWrappedId<BufferWrapper>(buffer) != format::kNullHandleId);
+    REQUIRE(GetWrappedId<DeviceMemoryWrapper>(memory) != format::kNullHandleId);
+
+    struct Handles
+    {
+        VkBuffer       buffer;
+        VkDeviceMemory memory;
+    };
+
+    for (const Handles& handles : { Handles{ VK_NULL_HANDLE, VK_NULL_HANDLE }, Handles{ buffer, memory } })
+    {
+        // Migrated: a device memory handle under the probed chain walk.
+        VkMappedMemoryRange range{ VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, handles.memory, 0x100u, 0x200u };
+
+        CHECK(matches(range, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(range.sType);
+            encode::EncodePNextStructIfValid(&oracle, range.pNext);
+            oracle.EncodeVulkanHandleValue<DeviceMemoryWrapper>(range.memory);
+            oracle.EncodeUInt64Value(range.offset);
+            oracle.EncodeUInt64Value(range.size);
+        }));
+
+        // Migrated: the design's canonical example, a buffer handle among six scalars, trusted chain walk.
+        VkBufferMemoryBarrier barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                       nullptr,
+                                       VK_ACCESS_TRANSFER_WRITE_BIT,
+                                       VK_ACCESS_SHADER_READ_BIT,
+                                       1u,
+                                       2u,
+                                       handles.buffer,
+                                       0x10u,
+                                       VK_WHOLE_SIZE };
+
+        CHECK(matches(barrier, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(barrier.sType);
+            encode::EncodePNextStruct(&oracle, barrier.pNext);
+            oracle.EncodeFlagsValue(barrier.srcAccessMask);
+            oracle.EncodeFlagsValue(barrier.dstAccessMask);
+            oracle.EncodeUInt32Value(barrier.srcQueueFamilyIndex);
+            oracle.EncodeUInt32Value(barrier.dstQueueFamilyIndex);
+            oracle.EncodeVulkanHandleValue<BufferWrapper>(barrier.buffer);
+            oracle.EncodeUInt64Value(barrier.offset);
+            oracle.EncodeUInt64Value(barrier.size);
+        }));
+
+        // Retained partners: both handles in one body, and a buffer handle among scalars and an enum.
+        VkBindBufferMemoryInfo bind{
+            VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO, nullptr, handles.buffer, handles.memory, 0x40u
+        };
+
+        CHECK(matches(bind, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(bind.sType);
+            encode::EncodePNextStruct(&oracle, bind.pNext);
+            oracle.EncodeVulkanHandleValue<BufferWrapper>(bind.buffer);
+            oracle.EncodeVulkanHandleValue<DeviceMemoryWrapper>(bind.memory);
+            oracle.EncodeUInt64Value(bind.memoryOffset);
+        }));
+
+        VkBufferViewCreateInfo view{
+            VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO, nullptr, 0u, handles.buffer, VK_FORMAT_R32_UINT, 0x20u, 0x80u
+        };
+
+        CHECK(matches(view, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(view.sType);
+            encode::EncodePNextStruct(&oracle, view.pNext);
+            oracle.EncodeFlagsValue(view.flags);
+            oracle.EncodeVulkanHandleValue<BufferWrapper>(view.buffer);
+            oracle.EncodeEnumValue(view.format);
+            oracle.EncodeUInt64Value(view.offset);
+            oracle.EncodeUInt64Value(view.range);
+        }));
+    }
+
+    DestroyWrappedHandle<BufferWrapper>(buffer);
+    DestroyWrappedHandle<DeviceMemoryWrapper>(memory);
 }
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
