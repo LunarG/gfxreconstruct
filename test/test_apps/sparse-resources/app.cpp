@@ -701,6 +701,10 @@ bool App::frame(const int frame_num)
             // Upload image data after bind
             if (upload_data)
             {
+                // Touch the whole block, so the recorded dirty range does not depend on the page
+                // size. See STAGING_WRITE_BLOCK.
+                memset(staging_buffer_ptr_, 0, STAGING_WRITE_BLOCK);
+
                 // Write uniform data to staging buffer for sparse bound uniform buffer
                 {
                     float* rot_ptr = (float*)staging_buffer_ptr_;
