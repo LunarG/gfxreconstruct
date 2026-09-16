@@ -544,8 +544,10 @@ size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t   
                                                                      VkDeviceSize preferred_size,
                                                                      VkDeviceSize minimum_size)
 {
-    VkDeviceSize block_size = std::min(std::max(preferred_size, minimum_size), MaxBlockSize(memory_type_index));
-    block_size              = std::max(block_size, minimum_size);
+    const VkDeviceSize desired_size   = std::max(preferred_size, minimum_size);
+    const VkDeviceSize capped_size    = std::min(desired_size, MaxBlockSize(memory_type_index));
+
+    const VkDeviceSize block_size = std::max(capped_size, minimum_size);
 
     MemoryBlock block;
 
