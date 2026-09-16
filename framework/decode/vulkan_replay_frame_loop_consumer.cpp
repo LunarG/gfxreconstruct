@@ -530,37 +530,55 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceBuffers(format::HandleId device)
     it->second.Restore();
 }
 
-VkDeviceSize VulkanReplayFrameLoopConsumer::BufferTracking::MaxBlockSize(uint32_t memory_type_index) const
+VkDeviceSize
+VulkanReplayFrameLoopConsumer::BufferTracking::MaxBlockSize(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                                            uint32_t                                memory_type_index)
 {
-    GFXRECON_ASSERT(memory_type_index < memory_properties_->memoryTypeCount);
+    GFXRECON_ASSERT(memory_type_index < memory_properties.memoryTypeCount);
 
     // An allocation can never be larger than the heap that it comes from.
-    const uint32_t heap_index = memory_properties_->memoryTypes[memory_type_index].heapIndex;
+    const uint32_t heap_index = memory_properties.memoryTypes[memory_type_index].heapIndex;
 
-    return std::min(kMaxMemoryBlockSize, memory_properties_->memoryHeaps[heap_index].size);
+    return std::min(kMaxMemoryBlockSize, memory_properties.memoryHeaps[heap_index].size);
+}
+
+bool VulkanReplayFrameLoopConsumer::BufferTracking::MemoryBlock::Allocate(
+    VulkanResourceAllocator&                allocator,
+    const VkPhysicalDeviceMemoryProperties& memory_properties,
+    uint32_t                                memory_type_index,
+    VkDeviceSize                            preferred_size,
+    VkDeviceSize                            minimum_size)
+{
+    const VkDeviceSize max_size = MaxBlockSize(memory_properties, memory_type_index);
+    GFXRECON_ASSERT(minimum_size <= max_size);
+
+    const VkDeviceSize desired_size    = std::max(preferred_size, minimum_size);
+    const VkDeviceSize allocation_size = std::min(desired_size, max_size);
+
+    VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+    alloc_info.allocationSize       = allocation_size;
+    alloc_info.memoryTypeIndex      = memory_type_index;
+
+    if (allocator.AllocateMemoryDirect(&alloc_info, nullptr, &memory, &mem_data) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    size = allocation_size;
+
+    return true;
 }
 
 size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t     memory_type_index,
                                                                      VkDeviceSize preferred_size,
                                                                      VkDeviceSize minimum_size)
 {
-    GFXRECON_ASSERT(minimum_size <= MaxBlockSize(memory_type_index));
-
-    const VkDeviceSize desired_size = std::max(preferred_size, minimum_size);
-    const VkDeviceSize block_size   = std::min(desired_size, MaxBlockSize(memory_type_index));
-
     MemoryBlock block;
-
-    VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-    alloc_info.allocationSize       = block_size;
-    alloc_info.memoryTypeIndex      = memory_type_index;
-
-    if (allocator_->AllocateMemoryDirect(&alloc_info, nullptr, &block.memory, &block.mem_data) != VK_SUCCESS)
+    if (!block.Allocate(*allocator_, *memory_properties_, memory_type_index, preferred_size, minimum_size))
     {
         return kInvalidBlockIndex;
     }
 
-    block.size = block_size;
     memory_blocks_.push_back(block);
 
     return memory_blocks_.size() - 1;
@@ -644,7 +662,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         }
         GFXRECON_ASSERT((pending.requirements.memoryTypeBits & (1u << memory_type_index)) != 0);
 
-        if (pending.requirements.size > MaxBlockSize(memory_type_index))
+        if (pending.requirements.size > MaxBlockSize(*memory_properties_, memory_type_index))
         {
             GFXRECON_LOG_WARNING("Shadow buffer for buffer %" PRIu64 " requires %" PRIu64
                                  " bytes, more than the largest block that can be allocated from memory type %u; its "

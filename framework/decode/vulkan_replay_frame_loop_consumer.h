@@ -206,6 +206,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             VulkanResourceAllocator::MemoryData mem_data{ 0 };
             VkDeviceSize                        size{ 0 };
             VkDeviceSize                        next_offset{ 0 };
+
+            bool Allocate(VulkanResourceAllocator&                allocator,
+                          const VkPhysicalDeviceMemoryProperties& memory_properties,
+                          uint32_t                                memory_type_index,
+                          VkDeviceSize                            preferred_size,
+                          VkDeviceSize                            minimum_size);
         };
 
         /// A shadow buffer that has been created, but not yet suballocated from a memory block.
@@ -228,7 +234,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         size_t AddMemoryBlock(uint32_t memory_type_index, VkDeviceSize preferred_size, VkDeviceSize minimum_size);
 
         /// The largest block that may be allocated from `memory_type_index`.
-        VkDeviceSize MaxBlockSize(uint32_t memory_type_index) const;
+        static VkDeviceSize MaxBlockSize(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                         uint32_t                                memory_type_index);
 
         format::HandleId                                   device_id_;
         const graphics::VulkanDeviceTable&                 device_table_;
