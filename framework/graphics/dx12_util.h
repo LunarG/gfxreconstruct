@@ -37,14 +37,18 @@
 #include "format/platform_types.h"
 #include "format/format.h"
 
+#include <wrl/client.h>
+
 #if defined(_WIN32)
 #include <comdef.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <dxgidebug.h>
 #endif
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <functional>
 
 #if defined(GFXRECON_DXC_SUPPORT)
 #include <d3d12shader.h>
@@ -65,10 +69,17 @@ typedef _com_ptr_t<_com_IIID<IDXGIAdapter2, &__uuidof(IDXGIAdapter2)>>     IDXGI
 typedef _com_ptr_t<_com_IIID<IDXGIAdapter3, &__uuidof(IDXGIAdapter3)>>     IDXGIAdapter3ComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGIFactory, &__uuidof(IDXGIFactory)>>       IDXGIFactoryComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGIFactory1, &__uuidof(IDXGIFactory1)>>     IDXGIFactory1ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory4, &__uuidof(IDXGIFactory4)>>     IDXGIFactory4ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIDebug1, &__uuidof(IDXGIDebug1)>>         IDXGIDebug1ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>>                     ID3D12DeviceComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device1, &__uuidof(ID3D12Device1)>>                   ID3D12Device1ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device4, &__uuidof(ID3D12Device4)>>                   ID3D12Device4ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device5, &__uuidof(ID3D12Device5)>>                   ID3D12Device5ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device8, &__uuidof(ID3D12Device8)>>                   ID3D12Device8ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device10, &__uuidof(ID3D12Device10)>>                 ID3D12Device10ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device12, &__uuidof(ID3D12Device12)>>                 ID3D12Device12ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>>                       ID3D12FenceComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Resource, &__uuidof(ID3D12Resource)>>                 ID3D12ResourceComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12PipelineState, &__uuidof(ID3D12PipelineState)>>       ID3D12PipelineStateComPtr;
@@ -195,10 +206,11 @@ HRESULT MapSubresource(ID3D12Resource*    resource,
 // Waits for the given queue to complete all pending tasks.
 HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence* fence = nullptr, uint64_t fence_value = 0);
 
-// Utility function to analyze DRED output.
-// This function is meant to be called when device gets removed, to get extended debug information.
-// For it to work, gfxrecon-replay must be launched with: --debug-device-lost
-void AnalyzeDeviceRemoved(ID3D12Device* device);
+// Analyze D3D12 Device Removed Extended Data after a device removal: logs a concise fault summary and
+// writes the full report to gfxrecon_dred.json. Requires replay launched with --debug-device-lost.
+// resolve_capture_id maps a replay-side ID3D12 object pointer to its capture handle id (matching the
+// "handle" fields in a gfxrecon JSONL export); may be empty. Defined in dx12_dred_analyzer.cpp.
+void AnalyzeDeviceRemoved(ID3D12Device* device, const std::function<uint64_t(const void*)>& resolve_capture_id = {});
 
 ID3D12ResourceComPtr CreateBufferResource(ID3D12Device*         device,
                                           uint64_t              size,
