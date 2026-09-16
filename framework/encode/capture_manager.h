@@ -661,7 +661,10 @@ class CommonCaptureManager
     size_t                                  trim_current_range_;
     uint32_t                                current_frame_;
     uint32_t                                queue_submit_count_;
-    CaptureMode                             capture_mode_;
+    // The trim logic changes the capture mode from the thread that reaches a frame or queue-submit
+    // boundary. Every API entry point reads the mode. The member is atomic so that these reads
+    // and writes are not a data race.
+    std::atomic<CaptureMode>                capture_mode_;
     bool                                    previous_hotkey_state_;
     CaptureSettings::RuntimeTriggerState    previous_runtime_trigger_state_;
     bool                                    debug_layer_;
