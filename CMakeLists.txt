@@ -455,6 +455,10 @@ target_compile_options(vulkan_memory_allocator INTERFACE
 )
 target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
 
+if(MSVC)
+    add_subdirectory(external/D3D12MemoryAllocator)
+endif()
+
 # SPIRV-Reflect included as submodule -> libspirv-reflect-static.a
 set(SPIRV_REFLECT_EXAMPLES OFF)
 set(SPIRV_REFLECT_EXECUTABLE OFF)

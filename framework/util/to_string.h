@@ -94,6 +94,20 @@ std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
 /// @brief Convert an annotation to its string representation.
 std::string AnnotationTypeToString(const format::AnnotationType& type);
 
+#if defined(D3D12_SUPPORT)
+inline std::string GUIDToString(const GUID& obj)
+{
+    std::ostringstream strStrm;
+    strStrm << std::hex << std::setfill('0') << std::setw(8) << obj.Data1 << '-' << std::setw(4) << obj.Data2 << '-'
+            << std::setw(4) << obj.Data3 << '-' << std::setw(2) << static_cast<int>(obj.Data4[0]) << std::setw(2)
+            << static_cast<int>(obj.Data4[1]) << '-' << std::setw(2) << static_cast<int>(obj.Data4[2]) << std::setw(2)
+            << static_cast<int>(obj.Data4[3]) << std::setw(2) << static_cast<int>(obj.Data4[4]) << std::setw(2)
+            << static_cast<int>(obj.Data4[5]) << std::setw(2) << static_cast<int>(obj.Data4[6]) << std::setw(2)
+            << static_cast<int>(obj.Data4[7]);
+    return strStrm.str();
+}
+#endif
+
 /// @deprecated Use the nlohmann JSON library instead.
 /// @brief  A template ToString to take care of simple POD cases like the many
 /// types of integers.

@@ -185,6 +185,11 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_experimental_resource_value_tracker.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_allocator.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_default_allocator.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_default_allocator.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_rebind_allocator.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_rebind_allocator.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_json_consumer_base.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_json_consumer_base.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.h>
@@ -399,6 +404,7 @@ if (WIN32)
                                    ${GFXRECON_SOURCE_DIR}/framework
                                    ${GFXRECON_SOURCE_DIR}/external
                                    ${GFXRECON_SOURCE_DIR}/external/precompiled/win64/include/
+                                   ${GFXRECON_SOURCE_DIR}/external/D3D12MemoryAllocator/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     else()
         target_include_directories(gfxrecon_decode
@@ -407,6 +413,7 @@ if (WIN32)
                                    ${GFXRECON_SOURCE_DIR}/framework
                                    ${GFXRECON_SOURCE_DIR}/external
                                    ${GFXRECON_SOURCE_DIR}/external/precompiled/win32/include/
+                                   ${GFXRECON_SOURCE_DIR}/external/D3D12MemoryAllocator/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     endif()
 elseif(APPLE)
@@ -478,6 +485,7 @@ target_link_libraries(gfxrecon_decode
                         spirv-reflect-static
                         nlohmann_json::nlohmann_json
                         $<$<AND:$<BOOL:${OPENXR_SUPPORT_ENABLED}>,$<NOT:$<BOOL:${ANDROID}>>>:OpenXR::openxr_loader>
+                        $<$<BOOL:${D3D12_SUPPORT}>:D3D12MemoryAllocator>
                         $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
