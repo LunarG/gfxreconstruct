@@ -221,6 +221,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             format::HandleId     buffer_id{ format::kNullHandleId };
             ShadowBuffer         shadow;
             VkMemoryRequirements requirements{};
+
+            /// Copys buffer with matching `buffer_id` into shadow
+            void CopyBuffer(const graphics::VulkanDeviceTable& device_table,
+                            CommonObjectInfoTable&             object_table,
+                            VkCommandBuffer                    command_buffer) const;
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);

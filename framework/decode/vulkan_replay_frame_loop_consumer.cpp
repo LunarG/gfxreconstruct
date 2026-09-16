@@ -579,6 +579,18 @@ VkResult VulkanReplayFrameLoopConsumer::BufferTracking::MemoryBlock::Bind(Vulkan
     return result;
 }
 
+void VulkanReplayFrameLoopConsumer::BufferTracking::PendingShadowBuffer::CopyBuffer(
+    const graphics::VulkanDeviceTable& device_table,
+    CommonObjectInfoTable&             object_table,
+    VkCommandBuffer                    command_buffer) const
+{
+    const VulkanBufferInfo* buffer_info = object_table.GetVkBufferInfo(buffer_id);
+    GFXRECON_ASSERT(buffer_info != nullptr);
+
+    const VkBufferCopy region = { 0, 0, shadow.size };
+    device_table.CmdCopyBuffer(command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
+}
+
 size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t     memory_type_index,
                                                                      VkDeviceSize preferred_size,
                                                                      VkDeviceSize minimum_size)
@@ -751,12 +763,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         unbound_size -=
             std::min(unbound_size, util::aligned_value(pending.requirements.size, pending.requirements.alignment));
 
-        const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(pending.buffer_id);
-        GFXRECON_ASSERT(buffer_info != nullptr);
-
-        VkBufferCopy region = { 0, 0, pending.shadow.size };
-        device_table_.CmdCopyBuffer(
-            temp_cmd_buff.command_buffer, buffer_info->handle, pending.shadow.buffer, 1, &region);
+        pending.CopyBuffer(device_table_, object_table_, temp_cmd_buff.command_buffer);
 
         shadow_buffers_[pending.buffer_id] = pending.shadow;
         ++copy_count;
