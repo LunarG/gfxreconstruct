@@ -27,19 +27,25 @@
 #include "vulkan/vulkan.h"
 #include "format/format.h"
 #include "format/platform_types.h"
+#include "graphics/vulkan_resources_util.h"
 #include "vulkan_capture_manager.h"
 #include "vulkan_state_writer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void CommonProcessHardwareBuffer(format::ThreadId                      thread_id,
-                                 const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                 format::HandleId                      memory_id,
-                                 AHardwareBuffer*                      hardware_buffer,
-                                 size_t                                allocation_size,
-                                 VulkanCaptureManager*                 vulkan_capture_manager,
-                                 VulkanStateWriter*                    vulkan_state_writer);
+void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
+                                 vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                 format::HandleId                memory_id,
+                                 AHardwareBuffer*                hardware_buffer,
+                                 size_t                          allocation_size,
+                                 VulkanCaptureManager*           vulkan_capture_manager,
+                                 VulkanStateWriter*              vulkan_state_writer);
+
+// Builds the queue lock hook for a graphics::VulkanResourcesUtil operating on device_wrapper, so that the
+// synthesized queue submissions it makes are externally synchronized with application's queues and with other
+// capture-internal readbacks.
+graphics::VulkanResourcesUtil::QueueLockFn MakeQueueLockFn(const vulkan_wrappers::DeviceWrapper* device_wrapper);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

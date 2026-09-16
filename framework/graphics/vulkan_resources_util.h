@@ -35,6 +35,7 @@
 #include <functional>
 #include <limits>
 #include <map>
+#include <mutex>
 #include <optional>
 #include <span>
 #include <vulkan/vulkan_core.h>
@@ -45,6 +46,12 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class VulkanResourcesUtil
 {
   public:
+    // Optional hook called around every vkQueueSubmit this class issues. Host access to a VkQueue must be
+    // externally synchronized; when the queue is shared with an application (capture layer) the owner of the
+    // queue returns a lock that is held only for the duration of the submit. An empty function, or an empty
+    // lock returned from it, disables locking. Replay is single threaded and installs nothing.
+    using QueueLockFn = std::function<std::unique_lock<std::mutex>(VkQueue queue)>;
+
     VulkanResourcesUtil() = delete;
 
     VulkanResourcesUtil(VkDevice                                               device,
@@ -53,7 +60,8 @@ class VulkanResourcesUtil
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
                         const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
-                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {},
+                        QueueLockFn                                            queue_lock_fn     = {});
 
     VulkanResourcesUtil(VkDevice                                               device,
                         VkPhysicalDevice                                       physical_device,
@@ -61,7 +69,8 @@ class VulkanResourcesUtil
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
                         const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
-                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {},
+                        QueueLockFn                                            queue_lock_fn     = {});
 
     ~VulkanResourcesUtil();
 
@@ -458,6 +467,9 @@ class VulkanResourcesUtil
 
     // Effective device version and enabled device extensions, for selecting core vs extension entry point flavors.
     const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info_;
+
+    // Optional external synchronization for the queues this class submits to. See QueueLockFn.
+    QueueLockFn queue_lock_fn_;
 
     struct command_assets_t
     {

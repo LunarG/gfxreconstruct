@@ -43,8 +43,10 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -167,13 +169,13 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 struct QueueWrapper : public HandleWrapper<VkQueue>
 {
     graphics::VulkanDeviceTable* layer_table_ref{ nullptr };
+    std::mutex                   queue_mutex;
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     graphics::VulkanDeviceTable layer_table;
     PhysicalDeviceWrapper*      physical_device{ nullptr };
-    std::vector<QueueWrapper*>  child_queues;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
@@ -181,7 +183,20 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
     graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
 
-    std::vector<uint32_t> queue_family_indices;
+    struct ChildQueue
+    {
+        uint32_t      family_index;
+        uint32_t      queue_index;
+        QueueWrapper* wrapper;
+    };
+
+    // One entry for queue retrieved with vkGetDeviceQueue and vkGetDeviceQueue2
+    std::unordered_map<VkQueue, ChildQueue> child_queues;
+    mutable std::mutex                      queues_map_mutex;
+
+    // Serializes capture-internal submissions to queues the application has not retrieved and that therefore
+    // have no QueueWrapper (and no queue_mutex) of their own.
+    mutable std::mutex untracked_queues_mutex;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>

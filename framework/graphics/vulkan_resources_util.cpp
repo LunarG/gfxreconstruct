@@ -933,14 +933,16 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
-                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
+                                         QueueLockFn                                            queue_lock_fn) :
     VulkanResourcesUtil(device,
                         physical_device,
                         graphics::VulkanInjectedDeviceCalls(&device_table),
                         instance_table,
                         physical_device_features_info,
                         device_version_extension_info,
-                        memory_properties)
+                        memory_properties,
+                        std::move(queue_lock_fn))
 {}
 
 VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
@@ -949,11 +951,12 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
-                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
+                                         QueueLockFn                                            queue_lock_fn) :
     device_(device),
     device_table_(injected_device_calls), physical_device_(physical_device), instance_table_(instance_table),
     memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info),
-    device_version_extension_info_(device_version_extension_info)
+    device_version_extension_info_(device_version_extension_info), queue_lock_fn_(std::move(queue_lock_fn))
 
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -1814,7 +1817,17 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
         return result;
     }
 
-    result = injected->QueueSubmit(queue, 1, &submit_info, fence);
+    {
+        // Host access to the queue must be externally synchronized; the owner of the queue may hand out a lock.
+        std::unique_lock<std::mutex> queue_lock;
+        if (queue_lock_fn_)
+        {
+            queue_lock = queue_lock_fn_(queue);
+        }
+
+        result = injected->QueueSubmit(queue, 1, &submit_info, fence);
+    }
+
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to submit command buffer for execution while taking a resource memory snapshot");

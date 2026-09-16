@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "decode/vulkan_object_info.h"
+#include "encode/vulkan_capture_common.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -43,6 +44,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ranges>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -2132,10 +2134,11 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceWrapper* wrapper)
 
     // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
     // destroyed.
-    std::unique_lock<std::mutex> lock(state_table_mutex_);
-    for (const auto& entry : wrapper->child_queues)
+    std::unique_lock<std::mutex> state_table_lock(state_table_mutex_);
+    std::unique_lock<std::mutex> device_queues_lock(wrapper->queues_map_mutex);
+    for (const auto& queue : wrapper->child_queues | std::views::values)
     {
-        state_table_.RemoveWrapper(entry);
+        state_table_.RemoveWrapper(queue.wrapper);
     }
 }
 
@@ -2221,7 +2224,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                                                         *buffer.bind_device->physical_device->layer_table_ref,
                                                         buffer.bind_device->property_feature_info,
                                                         buffer.bind_device->version_extension_info,
-                                                        buffer.bind_device->physical_device->memory_properties);
+                                                        buffer.bind_device->physical_device->memory_properties,
+                                                        MakeQueueLockFn(buffer.bind_device));
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                         resource_util->second.ReadFromBufferResource(
@@ -2276,7 +2280,8 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                                                 *buffer.bind_device->physical_device->layer_table_ref,
                                                 buffer.bind_device->property_feature_info,
                                                 buffer.bind_device->version_extension_info,
-                                                buffer.bind_device->physical_device->memory_properties);
+                                                buffer.bind_device->physical_device->memory_properties,
+                                                MakeQueueLockFn(buffer.bind_device));
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                 resource_util->second.ReadFromBufferResource(
