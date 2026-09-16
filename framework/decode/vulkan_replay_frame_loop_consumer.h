@@ -207,11 +207,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             VkDeviceSize                        size{ 0 };
             VkDeviceSize                        next_offset{ 0 };
 
-            bool Allocate(VulkanResourceAllocator&                allocator,
-                          const VkPhysicalDeviceMemoryProperties& memory_properties,
-                          uint32_t                                memory_type_index,
-                          VkDeviceSize                            preferred_size,
-                          VkDeviceSize                            minimum_size);
+            bool Allocate(VulkanResourceAllocator& allocator, uint32_t memory_type_index, VkDeviceSize allocation_size);
+
+            /// Suballocates memory from this block and binds `shadow` to it.
+            VkResult Bind(VulkanResourceAllocator&    allocator,
+                          const ShadowBuffer&         shadow,
+                          const VkMemoryRequirements& requirements);
         };
 
         /// A shadow buffer that has been created, but not yet suballocated from a memory block.
