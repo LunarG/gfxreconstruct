@@ -129,6 +129,11 @@
     "vkDestroyShaderEXT"
   ],
 
+  "resourceBindMemory": [
+    "vkBindBufferMemory",
+    "vkBindImageMemory"
+  ],
+
   "comment" : "These resource allocation entry points are not yet fully",
   "comment" : "implemented.  We currently generate simple code that calls",
   "comment" : "the replay consumer when we are either not looping or we are",
@@ -136,15 +141,13 @@
   "resourceAllocateNotFullyImplemented":
   [
     "vkAllocateCommandBuffers",
-    "vkBindAccelerationStructureMemoryKHR",
-    "vkBindAccelerationStructureMemoryNV",
-    "vkBindBufferMemory",
     "vkBindBufferMemory2",
     "vkBindBufferMemory2KHR",
-    "vkBindDataGraphPipelineSessionMemoryARM",
-    "vkBindImageMemory",
     "vkBindImageMemory2",
     "vkBindImageMemory2KHR",
+    "vkBindAccelerationStructureMemoryKHR",
+    "vkBindAccelerationStructureMemoryNV",
+    "vkBindDataGraphPipelineSessionMemoryARM",
     "vkBindOpticalFlowSessionImageNV",
     "vkBindTensorMemoryARM",
     "vkBindVideoSessionMemoryKHR",
