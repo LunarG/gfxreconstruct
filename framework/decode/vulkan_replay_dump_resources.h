@@ -427,6 +427,23 @@ class VulkanReplayDumpResourcesBase
                                     PFN_vkCmdEndRenderingKHR func,
                                     VkCommandBuffer          commandBuffer);
 
+    void OverrideCmdEndRendering2KHR(const ApiCallInfo&                                   call_info,
+                                     PFN_vkCmdEndRendering2KHR                            func,
+                                     VkCommandBuffer                                      commandBuffer,
+                                     StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo);
+
+    void OverrideCmdSetRenderingAttachmentLocations(
+        const ApiCallInfo&                                               call_info,
+        PFN_vkCmdSetRenderingAttachmentLocations                         func,
+        VkCommandBuffer                                                  commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo);
+
+    void OverrideCmdSetRenderingInputAttachmentIndices(
+        const ApiCallInfo&                                                 call_info,
+        PFN_vkCmdSetRenderingInputAttachmentIndices                        func,
+        VkCommandBuffer                                                    commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo);
+
     void
     OverrideEndCommandBuffer(const ApiCallInfo& call_info, PFN_vkEndCommandBuffer func, VkCommandBuffer commandBuffer);
 

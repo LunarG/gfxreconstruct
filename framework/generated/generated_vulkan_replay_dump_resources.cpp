@@ -2455,35 +2455,13 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocations(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingAttachmentLocationInfo*    pLocationInfo)
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        if (!dc_contexts.empty() || !dr_contexts.empty())
-        {
-            auto injected = device_table.Open();
-            const auto func = injected->CmdSetRenderingAttachmentLocations;
-            for (auto dc_context : dc_contexts)
-            {
-                CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pLocationInfo);
-                }
-            }
-
-            for (auto dr_context : dr_contexts)
-            {
-                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-                {
-                    func(dispatch_rays_command_buffer, pLocationInfo);
-                }
-            }
-        }
+        auto injected = device_table.Open();
+        const auto func = injected->CmdSetRenderingAttachmentLocations;
+        OverrideCmdSetRenderingAttachmentLocations(call_info, func, commandBuffer, pLocationInfo);
     }
 }
 
@@ -2491,35 +2469,13 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndices(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo)
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        if (!dc_contexts.empty() || !dr_contexts.empty())
-        {
-            auto injected = device_table.Open();
-            const auto func = injected->CmdSetRenderingInputAttachmentIndices;
-            for (auto dc_context : dc_contexts)
-            {
-                CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pInputAttachmentIndexInfo);
-                }
-            }
-
-            for (auto dr_context : dr_contexts)
-            {
-                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-                {
-                    func(dispatch_rays_command_buffer, pInputAttachmentIndexInfo);
-                }
-            }
-        }
+        auto injected = device_table.Open();
+        const auto func = injected->CmdSetRenderingInputAttachmentIndices;
+        OverrideCmdSetRenderingInputAttachmentIndices(call_info, func, commandBuffer, pInputAttachmentIndexInfo);
     }
 }
 
@@ -2951,35 +2907,13 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocationsKHR(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingAttachmentLocationInfo*    pLocationInfo)
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        if (!dc_contexts.empty() || !dr_contexts.empty())
-        {
-            auto injected = device_table.Open();
-            const auto func = injected->CmdSetRenderingAttachmentLocationsKHR;
-            for (auto dc_context : dc_contexts)
-            {
-                CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pLocationInfo);
-                }
-            }
-
-            for (auto dr_context : dr_contexts)
-            {
-                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-                {
-                    func(dispatch_rays_command_buffer, pLocationInfo);
-                }
-            }
-        }
+        auto injected = device_table.Open();
+        const auto func = injected->CmdSetRenderingAttachmentLocationsKHR;
+        OverrideCmdSetRenderingAttachmentLocations(call_info, func, commandBuffer, pLocationInfo);
     }
 }
 
@@ -2987,35 +2921,13 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesK
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo)
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        if (!dc_contexts.empty() || !dr_contexts.empty())
-        {
-            auto injected = device_table.Open();
-            const auto func = injected->CmdSetRenderingInputAttachmentIndicesKHR;
-            for (auto dc_context : dc_contexts)
-            {
-                CommandBufferIterator first, last;
-                dc_context->GetDrawCallActiveCommandBuffers(first, last);
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pInputAttachmentIndexInfo);
-                }
-            }
-
-            for (auto dr_context : dr_contexts)
-            {
-                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-                {
-                    func(dispatch_rays_command_buffer, pInputAttachmentIndexInfo);
-                }
-            }
-        }
+        auto injected = device_table.Open();
+        const auto func = injected->CmdSetRenderingInputAttachmentIndicesKHR;
+        OverrideCmdSetRenderingInputAttachmentIndices(call_info, func, commandBuffer, pInputAttachmentIndexInfo);
     }
 }
 
@@ -4402,35 +4314,13 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2KHR(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingEndInfoKHR*                pRenderingEndInfo)
+    StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        if (!dc_contexts.empty() || !dr_contexts.empty())
-        {
-            auto injected = device_table.Open();
-            const auto func = injected->CmdEndRendering2KHR;
-            for (auto dc_context : dc_contexts)
-            {
-                CommandBufferIterator first, last;
-                dc_context->GetWorkCommandBuffers(first, last);
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pRenderingEndInfo);
-                }
-            }
-
-            for (auto dr_context : dr_contexts)
-            {
-                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-                {
-                    func(dispatch_rays_command_buffer, pRenderingEndInfo);
-                }
-            }
-        }
+        auto injected = device_table.Open();
+        const auto func = injected->CmdEndRendering2KHR;
+        OverrideCmdEndRendering2KHR(call_info, func, commandBuffer, pRenderingEndInfo);
     }
 }
 
@@ -9139,35 +9029,13 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2EXT(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingEndInfoKHR*                pRenderingEndInfo)
+    StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        if (!dc_contexts.empty() || !dr_contexts.empty())
-        {
-            auto injected = device_table.Open();
-            const auto func = injected->CmdEndRendering2EXT;
-            for (auto dc_context : dc_contexts)
-            {
-                CommandBufferIterator first, last;
-                dc_context->GetWorkCommandBuffers(first, last);
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pRenderingEndInfo);
-                }
-            }
-
-            for (auto dr_context : dr_contexts)
-            {
-                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-                {
-                    func(dispatch_rays_command_buffer, pRenderingEndInfo);
-                }
-            }
-        }
+        auto injected = device_table.Open();
+        const auto func = injected->CmdEndRendering2EXT;
+        OverrideCmdEndRendering2KHR(call_info, func, commandBuffer, pRenderingEndInfo);
     }
 }
 
