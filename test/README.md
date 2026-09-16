@@ -115,6 +115,15 @@ The known-good file is a capture of the app on the mock ICD.
    An app renders 10 frames unless a comment says why it needs more.
    The whole `known_good/` directory stays under 5 MB.
 
+A known-good file holds on every platform only if the app never derives a value from the
+OS page size.
+Two things in the capture layer depend on it.
+The layer aligns the memory requirements that the app receives to the page size, so the mock
+reports every requirement in 64 KiB units and that alignment changes nothing.
+The layer records dirty mapped memory in whole pages, so an app must write mapped memory in
+whole 64 KiB blocks at 64 KiB offsets.
+A page is 4 KiB on Linux x86 and 16 KiB on Apple Silicon.
+
 ## Keep the tests honest
 
 Two habits catch a test that passes for the wrong reason.
