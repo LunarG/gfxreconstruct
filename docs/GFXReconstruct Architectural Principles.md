@@ -24,6 +24,7 @@
 - [Backward Compatibility (major revision)](#backward-compatibility-within-a-major-revision)
   - [Format](#format)
   - [Interface](#interface)
+  - [Plugin ABI](#plugin-abi)
   - [Compatibility](#compatibility)
   - [Invocation](#invocation)
   - [Convert-JSON](#convert-json)
@@ -222,6 +223,20 @@ Existing function signatures should not be removed or altered for functions in �
 * to\_string.h
 
 Changes to functionality will be managed (in decreasing order of preference) by (A) versioning the class (e.g. “VulkanConsumer2”), or (B) versioning the method/function (e.g. “Dx12ConsumerBase::Process\_DriverInfo2”).
+
+## PLUGIN-ABI
+
+**Replay will continue to load plugin binaries that customers built with an older public header.**
+
+The public plugin ABI in `framework/plugin/public/gfxr/replay_event_plugin.h` is a binary contract, not a source contract.  A customer builds a replay event plugin one time and gives replay a shared library.  When the customer updates GFXReconstruct and does not rebuild the plugin, that library must keep its behavior.
+
+This commitment is stronger than [INTERFACE](#interface).  INTERFACE limits compatibility to source code.  PLUGIN-ABI applies to the binary layout of the public structs, to the numbers of the enumerants, and to the names of the factory symbols.
+
+A change that only adds data increases `GFXR_REPLAY_PLUGIN_ABI_VERSION` by one.  Replay and the plugin negotiate one version at load time.  Replay then emits only the events that this version contains.  A plugin that a customer built with an older header receives the same event stream as before.
+
+A change that breaks the contract adds a new versioned plugin struct and a new versioned factory symbol, for example `gfxrCreateReplayPluginV2`.  The older declarations stay in the header, and the loader keeps a path for them.  This is the same preference order as INTERFACE: add a versioned struct first, then a versioned function.
+
+[Replay Event Plugins](./PLUGIN_replay_event.md#abi-versioning-and-compatibility) gives the full rules and the procedure to add an event type.
 
 ## DEFAULTS
 

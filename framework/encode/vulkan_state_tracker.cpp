@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "decode/vulkan_object_info.h"
+#include "encode/vulkan_capture_common.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -43,6 +44,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ranges>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -387,7 +389,7 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
     auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
-    wrapper->bind_device    = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->device         = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
@@ -411,7 +413,7 @@ void VulkanStateTracker::TrackTensorMemoryBinding(
     GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (tensor != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
     auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorARMWrapper>(tensor);
-    wrapper->bind_device    = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->device         = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
@@ -438,7 +440,7 @@ void VulkanStateTracker::TrackDataGraphPipelineSessionMemoryBinding(VkDevice    
     GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (session != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
     auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(session);
-    wrapper->bind_device    = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->device         = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
@@ -545,7 +547,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     buffer.capture_address    = target_buffer_wrapper->address;
                     buffer.handle             = target_buffer_wrapper->handle;
                     buffer.handle_id          = target_buffer_wrapper->handle_id;
-                    buffer.bind_device        = target_buffer_wrapper->bind_device;
+                    buffer.bind_device        = target_buffer_wrapper->device;
                     buffer.queue_family_index = target_buffer_wrapper->queue_family_index;
                     buffer.created_size       = target_buffer_wrapper->size;
                     buffer.usage              = target_buffer_wrapper->usage;
@@ -658,7 +660,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
     auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
-    wrapper->bind_device    = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->device         = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
@@ -2132,10 +2134,11 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceWrapper* wrapper)
 
     // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
     // destroyed.
-    std::unique_lock<std::mutex> lock(state_table_mutex_);
-    for (const auto& entry : wrapper->child_queues)
+    std::unique_lock<std::mutex> state_table_lock(state_table_mutex_);
+    std::unique_lock<std::mutex> device_queues_lock(wrapper->queues_map_mutex);
+    for (const auto& queue : wrapper->child_queues | std::views::values)
     {
-        state_table_.RemoveWrapper(entry);
+        state_table_.RemoveWrapper(queue.wrapper);
     }
 }
 
@@ -2220,7 +2223,9 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                                                         buffer.bind_device->layer_table,
                                                         *buffer.bind_device->physical_device->layer_table_ref,
                                                         buffer.bind_device->property_feature_info,
-                                                        buffer.bind_device->physical_device->memory_properties);
+                                                        buffer.bind_device->version_extension_info,
+                                                        buffer.bind_device->physical_device->memory_properties,
+                                                        MakeQueueLockFn(buffer.bind_device));
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                         resource_util->second.ReadFromBufferResource(
@@ -2246,7 +2251,7 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
 
     if (buffer_wrapper != nullptr && buffer_wrapper->device != nullptr)
     {
-        device_address_trackers_[buffer_wrapper->device].RemoveBuffer(buffer_wrapper);
+        device_address_trackers_[buffer_wrapper->device->handle].RemoveBuffer(buffer_wrapper);
     }
 
     state_table_.VisitWrappers([this, buffer_wrapper](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
@@ -2274,7 +2279,9 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                                                 buffer.bind_device->layer_table,
                                                 *buffer.bind_device->physical_device->layer_table_ref,
                                                 buffer.bind_device->property_feature_info,
-                                                buffer.bind_device->physical_device->memory_properties);
+                                                buffer.bind_device->version_extension_info,
+                                                buffer.bind_device->physical_device->memory_properties,
+                                                MakeQueueLockFn(buffer.bind_device));
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                 resource_util->second.ReadFromBufferResource(

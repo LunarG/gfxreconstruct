@@ -927,50 +927,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                         uint32_t                     bindInfoCount,
                                         const VkBindImageMemoryInfo* pBindInfos);
 
-    void PostProcess_vkCreateBuffer(VkResult                     result,
-                                    VkDevice                     device,
-                                    const VkBufferCreateInfo*    pCreateInfo,
-                                    const VkAllocationCallbacks* pAllocator,
-                                    VkBuffer*                    pBuffer)
-    {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pCreateInfo != nullptr))
-        {
-            GFXRECON_ASSERT(state_tracker_ != nullptr);
-
-            auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
-
-            if (buffer_wrapper->is_sparse_buffer)
-            {
-                // We will need to set the bind_device for handling sparse buffers. There will be no subsequent
-                // vkBindBufferMemory, vkBindBufferMemory2 or vkBindBufferMemory2KHR calls for sparse buffer, so we
-                // assign bind_device to the device that created the buffer.
-                buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-            }
-        }
-    }
-
-    void PostProcess_vkCreateImage(VkResult                     result,
-                                   VkDevice                     device,
-                                   const VkImageCreateInfo*     pCreateInfo,
-                                   const VkAllocationCallbacks* pAllocator,
-                                   VkImage*                     pImage)
-    {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pCreateInfo != nullptr))
-        {
-            GFXRECON_ASSERT(state_tracker_ != nullptr);
-
-            auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
-
-            if (image_wrapper->is_sparse_image)
-            {
-                // We will need to set the bind_device for handling sparse images. There will be no subsequent
-                // vkBindImageMemory, vkBindImageMemory2, or vkBindImageMemory2KHR calls for sparse image, so we assign
-                // bind_device to the device that created the image.
-                image_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-            }
-        }
-    }
-
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
                                           VkSubpassContents)
@@ -1735,6 +1691,25 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                  VkDevice                            device,
                                                  const VkDebugUtilsObjectTagInfoEXT* pTagInfo);
 
+    void PostProcess_vkGetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue);
+
+    void PostProcess_vkGetDeviceQueue2(VkDevice device, const VkDeviceQueueInfo2* pQueueInfo, VkQueue* pQueue);
+
+    VkResult OverrideQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
+
+    VkResult OverrideQueueSubmit2(VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence);
+
+    VkResult OverrideQueueSubmit2KHR(VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence);
+
+    VkResult OverrideQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo);
+
+    VkResult OverrideQueueWaitIdle(VkQueue queue);
+
+    VkResult OverrideDeviceWaitIdle(VkDevice device);
+
+    VkResult
+    OverrideQueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence fence);
+
 #if ENABLE_OPENXR_SUPPORT
     void PostProcess_vkCreateFence(VkResult                     result,
                                    VkDevice                     device,
@@ -1926,6 +1901,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     bool CheckPNextChainForFrameBoundary(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
                                          const VkBaseInStructure*                               current);
+
+    VkResult HandleQueueSubmit2(
+        VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence, PFN_vkQueueSubmit2 func);
 
   private:
     void QueueSubmitWriteFillMemoryCmd();

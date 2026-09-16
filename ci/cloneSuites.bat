@@ -31,21 +31,21 @@ if not defined TEST_SUITE_BRANCH (
 
 git init ci-gfxr-suites
 cd ci-gfxr-suites
-git remote add origin %TEST_SUITE_REPO%
+git remote add origin "%TEST_SUITE_REPO%"
 git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" & :: Allows git to pull from hashes in forks of the repo that are submitted as PRs
 
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter "blob:none"
 git sparse-checkout init --cone
-git sparse-checkout set %GFXRECON_TRACE_SUBDIR%
+git sparse-checkout set "%GFXRECON_TRACE_SUBDIR%"
 
 set /a clonetestloop=0
 :fetch_suites
-git fetch --depth 1 --filter=blob:none --verbose origin %TEST_SUITE_BRANCH%
+git fetch --depth 1 --filter=blob:none --verbose origin "%TEST_SUITE_BRANCH%"
 if %errorlevel% equ 0 goto :fetch_suites_done
 set /a clonetestloop+=1
 if %clonetestloop% gtr 3 (
-    echo tried to fetch %TEST_SUITE_REPO% too many times, giving up
+    echo tried to fetch "%TEST_SUITE_REPO%" too many times, giving up
     exit 1
 )
 waitfor forever /t 60 2>nul

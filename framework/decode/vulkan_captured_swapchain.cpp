@@ -486,7 +486,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                             image_barrier.image                       = image;
                             image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
 
-                            result = injected.BeginCommandBuffer(transition_command, &begin_info);
+                            result = injected.BeginCommandBuffer(transition_command, &begin_info, __func__);
 
                             if (result == VK_SUCCESS)
                             {
@@ -689,7 +689,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                         image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
                         present_info.pImageIndices                = &image_index;
 
-                        result = injected.BeginCommandBuffer(command, &begin_info);
+                        result = injected.BeginCommandBuffer(command, &begin_info, __func__);
                     }
 
                     if (result == VK_SUCCESS)
@@ -794,7 +794,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                                 image_barrier.newLayout = image_layout;
                                 image_barrier.image     = image;
 
-                                result = injected.BeginCommandBuffer(command, &begin_info);
+                                result = injected.BeginCommandBuffer(command, &begin_info, __func__);
 
                                 if (result == VK_SUCCESS)
                                 {

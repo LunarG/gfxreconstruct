@@ -25,7 +25,7 @@
 
 #include "decode/vulkan_virtual_swapchain.h"
 
-#include "decode/screenshot_handler.h"
+#include "decode/vulkan_screenshot_handler.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

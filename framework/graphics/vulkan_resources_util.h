@@ -28,12 +28,16 @@
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_injected_calls.h"
 
+#include <array>
 #include <vector>
 #include <functional>
 #include <limits>
 #include <map>
+#include <mutex>
 #include <optional>
+#include <span>
 #include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -42,6 +46,12 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class VulkanResourcesUtil
 {
   public:
+    // Optional hook called around every vkQueueSubmit this class issues. Host access to a VkQueue must be
+    // externally synchronized; when the queue is shared with an application (capture layer) the owner of the
+    // queue returns a lock that is held only for the duration of the submit. An empty function, or an empty
+    // lock returned from it, disables locking. Replay is single threaded and installs nothing.
+    using QueueLockFn = std::function<std::unique_lock<std::mutex>(VkQueue queue)>;
+
     VulkanResourcesUtil() = delete;
 
     VulkanResourcesUtil(VkDevice                                               device,
@@ -49,7 +59,18 @@ class VulkanResourcesUtil
                         const VulkanDeviceTable&                               device_table,
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
-                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {},
+                        QueueLockFn                                            queue_lock_fn     = {});
+
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanInjectedDeviceCalls&                       injected_device_calls,
+                        const VulkanInstanceTable&                             instance_table,
+                        const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
+                        const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {},
+                        QueueLockFn                                            queue_lock_fn     = {});
 
     ~VulkanResourcesUtil();
 
@@ -88,7 +109,49 @@ class VulkanResourcesUtil
                                                    std::vector<uint64_t>& subresource_offsets,
                                                    std::vector<uint64_t>& subresource_sizes);
 
-    //! aggregate type to group information about an image-resource
+    // Where one layer of one mip level sits in the host memory of an image-resource
+    struct SubresourceLocation
+    {
+        uint64_t offset = 0; // in bytes from the start of the resource
+        uint64_t size   = 0; // bytes of the layer
+    };
+
+    // Finds one layer of one mip level in the host memory that ReadImageResources writes for a
+    // resource that does not dump resources.  That memory holds one entry for each mip level, and
+    // an entry holds all of the layers of its level, so a layer has no entry of its own.  The
+    // size of a layer is also not the size of the level divided by the number of layers, because
+    // the size of a level holds the bytes that align the level after it as well.
+    //
+    // A dump-resources read needs no such calculation.  There each level and each layer has an
+    // entry of its own from GetImageSubresourceSizesDumpResources.
+    //
+    // The parameters are those of the data that came back, so a read that converts the format or
+    // scales the extent gives the format and the extent it converted or scaled to.  A 3D image has
+    // one layer, and the size of that layer is the size of the full level.
+    //
+    // The returned size is 0 when the level or the layer is outside the image.
+    SubresourceLocation GetImageLayerLocationOptimal(VkFormat              format,
+                                                     const VkExtent3D&     extent,
+                                                     uint32_t              mip_levels,
+                                                     uint32_t              array_layers,
+                                                     VkImageTiling         tiling,
+                                                     VkImageAspectFlagBits aspect,
+                                                     uint32_t              level,
+                                                     uint32_t              layer);
+
+    // The bytes of one layer of one mip level inside the data of an image-resource, or an empty
+    // span when GetImageLayerLocationOptimal does not find the layer inside the data.
+    std::span<const uint8_t> GetImageLayerData(std::span<const uint8_t> resource_data,
+                                               VkFormat                 format,
+                                               const VkExtent3D&        extent,
+                                               uint32_t                 mip_levels,
+                                               uint32_t                 array_layers,
+                                               VkImageTiling            tiling,
+                                               VkImageAspectFlagBits    aspect,
+                                               uint32_t                 level,
+                                               uint32_t                 layer);
+
+    // aggregate type to group information about an image-resource
     struct ImageResource
     {
         format::HandleId   handle_id          = format::kNullHandleId;
@@ -105,19 +168,27 @@ class VulkanResourcesUtil
         bool               external_format    = false;
         VkDeviceSize       size               = 0;
 
-        //! optionally provide resource_size
+        // optionally provide resource_size
         VkDeviceSize resource_size = 0;
 
-        //! optionally provide sizes of sub-resources (mipmap-levels)
+        // optionally provide sizes of sub-resources (mipmap-levels)
         const std::vector<VkDeviceSize>* level_sizes = nullptr;
 
         VkImageAspectFlagBits aspect         = VK_IMAGE_ASPECT_NONE;
         bool                  dump_resources = false;
-        float                 scale          = 1.0f;
         VkFormat              dst_format     = VK_FORMAT_UNDEFINED;
+
+        // A factor for width and one for height.  A negative factor mirrors that axis.
+        std::array<float, 2> scale = { 1.0f, 1.0f };
+
+        // The first layer to read.  ReadImageResources reads levels [0, level_count)
+        // of the layers [base_layer, base_layer + layer_count), and writes them to
+        // host memory one level at a time, each level holding all of its layers:
+        // M(0)L(0) ... M(0)L(n-1), M(1)L(0) ... M(1)L(n-1), and so on.
+        uint32_t base_layer = 0;
     };
 
-    //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
+    // signature for a callback-function, providing an ImageResource and a corresponding data-pointer
     using ReadImageResourcesCallbackFn =
         std::function<void(const ImageResource& img_resource, const void* data, size_t num_bytes)>;
 
@@ -160,7 +231,7 @@ class VulkanResourcesUtil
         uint32_t         queue_family_index = 0;
     };
 
-    //! signature for a callback-function, providing a BufferResource and a corresponding data-pointer
+    // signature for a callback-function, providing a BufferResource and a corresponding data-pointer
     using ReadBufferResourcesCallbackFn = std::function<void(const BufferResource& buffer_resource, const void* data)>;
 
     /**
@@ -181,12 +252,12 @@ class VulkanResourcesUtil
                          VkFormat       dst_format,
                          VkImageTiling* dst_image_tiling = nullptr) const;
 
-    bool IsScalingSupported(VkFormat          src_format,
-                            VkImageTiling     src_image_tiling,
-                            VkFormat          dst_format,
-                            VkImageType       type,
-                            const VkExtent3D& extent,
-                            float             scale) const;
+    bool IsScalingSupported(VkFormat                    src_format,
+                            VkImageTiling               src_image_tiling,
+                            VkFormat                    dst_format,
+                            VkImageType                 type,
+                            const VkExtent3D&           extent,
+                            const std::array<float, 2>& scale) const;
 
     struct blit_image_params_t
     {
@@ -281,17 +352,24 @@ class VulkanResourcesUtil
     void     DestroyStagingTensor();
     void     DestroyStagingTensorMemory();
 
+    // A layer range keeps the barrier off the layers that the caller does not read.  The layers
+    // of one image can hold different layouts, thus a barrier over all of them can name a layout
+    // that a layer is not in, which makes the contents of that layer undefined.
     void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
                                           VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect);
+                                          VkImageAspectFlags aspect,
+                                          uint32_t           base_layer  = 0,
+                                          uint32_t           layer_count = VK_REMAINING_ARRAY_LAYERS);
 
     void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
                                             VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect);
+                                            VkImageAspectFlags aspect,
+                                            uint32_t           base_layer  = 0,
+                                            uint32_t           layer_count = VK_REMAINING_ARRAY_LAYERS);
 
     void CopyImageToBuffer(VkCommandBuffer              command_buffer,
                            VkImage                      image,
@@ -304,7 +382,8 @@ class VulkanResourcesUtil
                            uint32_t                     array_layers,
                            VkImageAspectFlags           aspect,
                            const std::vector<uint64_t>& sizes,
-                           bool                         is_dump_resources);
+                           bool                         is_dump_resources,
+                           uint32_t                     base_layer = 0);
 
     void CopyBuffer(VkCommandBuffer command_buffer,
                     VkBuffer        source_buffer,
@@ -344,21 +423,22 @@ class VulkanResourcesUtil
 
     VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, VkQueue queue);
 
-    VkResult BlitImage(VkCommandBuffer       command_buffer,
-                       VkImage               image,
-                       VkFormat              format,
-                       VkFormat              dst_format,
-                       VkImageType           type,
-                       VkImageTiling         tiling,
-                       const VkExtent3D&     extent,
-                       const VkExtent3D&     scaled_extent,
-                       uint32_t              mip_levels,
-                       uint32_t              array_layers,
-                       VkImageAspectFlagBits aspect,
-                       uint32_t              queue_family_index,
-                       float                 scale,
-                       VkImage&              scaled_image,
-                       VkDeviceMemory&       scaled_image_mem);
+    VkResult BlitImage(VkCommandBuffer             command_buffer,
+                       VkImage                     image,
+                       VkFormat                    format,
+                       VkFormat                    dst_format,
+                       VkImageType                 type,
+                       VkImageTiling               tiling,
+                       const VkExtent3D&           extent,
+                       const VkExtent3D&           scaled_extent,
+                       uint32_t                    mip_levels,
+                       uint32_t                    array_layers,
+                       VkImageAspectFlagBits       aspect,
+                       uint32_t                    queue_family_index,
+                       const std::array<float, 2>& scale,
+                       uint32_t                    src_base_layer,
+                       VkImage&                    scaled_image,
+                       VkDeviceMemory&             scaled_image_mem);
 
     void BlitHelper(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params) const;
 
@@ -374,16 +454,22 @@ class VulkanResourcesUtil
         StagingMemoryContext mem;
     };
 
-    VkDevice                   device_;
-    const VulkanDeviceTable&   device_table_;
-    VkPhysicalDevice           physical_device_;
-    const VulkanInstanceTable& instance_table_;
+    VkDevice                        device_;
+    const VulkanInjectedDeviceCalls device_table_;
+    VkPhysicalDevice                physical_device_;
+    const VulkanInstanceTable&      instance_table_;
 
     // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
 
     // Required to check available physical device features
     const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info_;
+
+    // Effective device version and enabled device extensions, for selecting core vs extension entry point flavors.
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info_;
+
+    // Optional external synchronization for the queues this class submits to. See QueueLockFn.
+    QueueLockFn queue_lock_fn_;
 
     struct command_assets_t
     {

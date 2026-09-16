@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_dump_resources_transfer.h"
 #include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 
@@ -42,7 +43,7 @@ struct VulkanDelegateDumpDrawCallContext
 {
     VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                     t,
                                       const graphics::VulkanInstanceTable*           it,
-                                      const graphics::VulkanDeviceTable*             dt,
+                                      const graphics::VulkanInjectedDeviceCalls&     dt,
                                       const DrawCallsDumpingContext::DrawCallParams* dc_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(dc_params)
@@ -52,7 +53,7 @@ struct VulkanDelegateDumpDrawCallContext
 
     VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                             t,
                                       const graphics::VulkanInstanceTable*                   it,
-                                      const graphics::VulkanDeviceTable*                     dt,
+                                      const graphics::VulkanInjectedDeviceCalls&             dt,
                                       const DispatchTraceRaysDumpingContext::DispatchParams* disp_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(disp_params)
@@ -62,7 +63,7 @@ struct VulkanDelegateDumpDrawCallContext
 
     VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                              t,
                                       const graphics::VulkanInstanceTable*                    it,
-                                      const graphics::VulkanDeviceTable*                      dt,
+                                      const graphics::VulkanInjectedDeviceCalls&              dt,
                                       const DispatchTraceRaysDumpingContext::TraceRaysParams* tr_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(tr_params)
@@ -72,7 +73,7 @@ struct VulkanDelegateDumpDrawCallContext
 
     VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                    t,
                                       const graphics::VulkanInstanceTable*          it,
-                                      const graphics::VulkanDeviceTable*            dt,
+                                      const graphics::VulkanInjectedDeviceCalls&    dt,
                                       const TransferDumpingContext::TransferParams* tr_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(tr_params)
@@ -82,7 +83,7 @@ struct VulkanDelegateDumpDrawCallContext
 
     DumpResourcesPipelineStage           command_type;
     const graphics::VulkanInstanceTable* instance_table;
-    const graphics::VulkanDeviceTable*   device_table;
+    graphics::VulkanInjectedDeviceCalls  device_table;
 
     std::variant<const DrawCallsDumpingContext::DrawCallParams*,
                  const DispatchTraceRaysDumpingContext::DispatchParams*,
@@ -142,16 +143,16 @@ struct VulkanDelegateDumpResourceContext
 {
     VulkanDelegateDumpResourceContext() = delete;
 
-    VulkanDelegateDumpResourceContext(const graphics::VulkanInstanceTable* it,
-                                      const graphics::VulkanDeviceTable*   dt,
-                                      const util::Compressor*              c  = nullptr,
-                                      bool                                 bc = false) :
+    VulkanDelegateDumpResourceContext(const graphics::VulkanInstanceTable*       it,
+                                      const graphics::VulkanInjectedDeviceCalls& dt,
+                                      const util::Compressor*                    c  = nullptr,
+                                      bool                                       bc = false) :
         instance_table(it),
         device_table(dt), compressor(c), before_command(bc), dumped_resource(nullptr)
     {}
 
     const graphics::VulkanInstanceTable* instance_table;
-    const graphics::VulkanDeviceTable*   device_table;
+    graphics::VulkanInjectedDeviceCalls  device_table;
 
     const util::Compressor* compressor;
     bool                    before_command;

@@ -29,6 +29,9 @@
 
 #include "vulkan/vulkan.h"
 
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <map>
 
 #if VK_USE_64_BIT_PTR_DEFINES == 1
@@ -116,17 +119,22 @@ static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t l
 }
 
 /**
- * @brief   Scales a VkExtent3D with the provided scaling factor. Does not scale depth.
+ * @brief   Scales width and height by a factor for each, and keeps the depth.
+ *
+ * A negative factor mirrors that axis, thus the size uses the size of the
+ * factor only.  This is the form a screenshot asks for, where the sign of
+ * --screenshot-scale selects a flip.  A caller with one factor for both axes
+ * gives that factor twice.
  *
  * @param[in]   extent    The VkExtent3D to scale
- * @param[in]   scale     The scaling factor
+ * @param[in]   scale     The scaling factor for width and for height
  * @return  The scaled VkExtent3D
  */
-static constexpr VkExtent3D ScaleExtent3DNoDepth(const VkExtent3D& extent, float scale)
+static constexpr VkExtent3D ScaleExtent3DNoDepth(const VkExtent3D& extent, const std::array<float, 2>& scale)
 {
     const VkExtent3D scaled_extent =
-        VkExtent3D{ static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.width) * scale)),
-                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.height) * scale)),
+        VkExtent3D{ static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.width) * std::abs(scale[0]))),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.height) * std::abs(scale[1]))),
                     extent.depth };
 
     return scaled_extent;
@@ -171,6 +179,14 @@ uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
  * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
  */
 uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
+
+/**
+ * @brief   Find a graphics or compute queue family index from queue families.
+ *
+ * @param[in]   families    The enabled queue family flags
+ * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
+ */
+uint32_t FindGraphicsOrComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
 
 /**
  * @brief   Map shader-stage flags to corresponding pipeline bind points.

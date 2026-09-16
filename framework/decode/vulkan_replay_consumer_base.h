@@ -27,7 +27,7 @@
 
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
-#include "decode/screenshot_handler.h"
+#include "decode/vulkan_screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_decoder_base.h"
 #include "decode/vulkan_device_address_tracker.h"
@@ -453,18 +453,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     //! track arbitrary handles that are currently used by asynchronous operations
-    void TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
-                           const std::function<void()>&                sync_fn);
+    uint64_t TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                               const std::function<void()>&                sync_fn);
 
-    //! clear handles that are currently used by asynchronous operations,
-    //! invoke stored deletion-functions
-    void ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles);
+    //! Clear handle references for the given async task, and invoke deferred post-build
+    //! callbacks once all referencing tasks have finished.
+    void ClearAsyncHandles(uint64_t async_task_id, const std::unordered_set<format::HandleId>& async_handles);
 
     //! schedules deletion of already tracked handles
+    //! synchronizes all active async tasks referencing the handle and invokes the destroy function
     void DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn);
 
     //! return true if this handle is currently being tracked (was passed to 'TrackAsyncHandles' earlier)
-    bool IsUsedByAsyncTask(uint64_t handle) const { return async_tracked_handles_.count(handle) > 0; }
+    bool IsUsedByAsyncTask(format::HandleId handle) const;
 
     //! returns true if asynchronous operations should be used at all
     bool UseAsyncOperations() { return options_.num_pipeline_creation_jobs != 0; }
@@ -693,6 +694,41 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const VulkanDeviceInfo* device_info,
                                     const VulkanFenceInfo*  fence_info);
 
+    VkResult OverrideGetEventStatus(PFN_vkGetEventStatus    func,
+                                    VkResult                original_result,
+                                    const VulkanDeviceInfo* device_info,
+                                    const VulkanEventInfo*  event_info);
+
+    VkResult OverrideSetEvent(PFN_vkSetEvent          func,
+                              VkResult                original_result,
+                              const VulkanDeviceInfo* device_info,
+                              VulkanEventInfo*        event_info);
+
+    VkResult OverrideResetEvent(PFN_vkResetEvent        func,
+                                VkResult                original_result,
+                                const VulkanDeviceInfo* device_info,
+                                VulkanEventInfo*        event_info);
+
+    void OverrideCmdSetEvent(PFN_vkCmdSetEvent        func,
+                             VulkanCommandBufferInfo* command_buffer_info,
+                             VulkanEventInfo*         event_info,
+                             VkPipelineStageFlags     stageMask);
+
+    void OverrideCmdResetEvent(PFN_vkCmdResetEvent      func,
+                               VulkanCommandBufferInfo* command_buffer_info,
+                               VulkanEventInfo*         event_info,
+                               VkPipelineStageFlags     stageMask);
+
+    void OverrideCmdSetEvent2(PFN_vkCmdSetEvent2                              func,
+                              VulkanCommandBufferInfo*                        command_buffer_info,
+                              VulkanEventInfo*                                event_info,
+                              StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
+
+    void OverrideCmdResetEvent2(PFN_vkCmdResetEvent2     func,
+                                VulkanCommandBufferInfo* command_buffer_info,
+                                VulkanEventInfo*         event_info,
+                                VkPipelineStageFlags2    stageMask);
+
     VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
                                          VkResult                   original_result,
                                          const VulkanDeviceInfo*    device_info,
@@ -703,6 +739,41 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          PointerDecoder<uint8_t>*   pData,
                                          VkDeviceSize               stride,
                                          VkQueryResultFlags         flags);
+
+    void OverrideCmdEndQuery(PFN_vkCmdEndQuery        func,
+                             VulkanCommandBufferInfo* command_buffer_info,
+                             VulkanQueryPoolInfo*     query_pool_info,
+                             uint32_t                 query);
+
+    void OverrideCmdEndQueryIndexedEXT(PFN_vkCmdEndQueryIndexedEXT func,
+                                       VulkanCommandBufferInfo*    command_buffer_info,
+                                       VulkanQueryPoolInfo*        query_pool_info,
+                                       uint32_t                    query,
+                                       uint32_t                    index);
+
+    void OverrideCmdWriteTimestamp(PFN_vkCmdWriteTimestamp  func,
+                                   VulkanCommandBufferInfo* command_buffer_info,
+                                   VkPipelineStageFlagBits  pipelineStage,
+                                   VulkanQueryPoolInfo*     query_pool_info,
+                                   uint32_t                 query);
+
+    void OverrideCmdWriteTimestamp2(PFN_vkCmdWriteTimestamp2 func,
+                                    VulkanCommandBufferInfo* command_buffer_info,
+                                    VkPipelineStageFlags2    stage,
+                                    VulkanQueryPoolInfo*     query_pool_info,
+                                    uint32_t                 query);
+
+    void OverrideCmdResetQueryPool(PFN_vkCmdResetQueryPool  func,
+                                   VulkanCommandBufferInfo* command_buffer_info,
+                                   VulkanQueryPoolInfo*     query_pool_info,
+                                   uint32_t                 firstQuery,
+                                   uint32_t                 queryCount);
+
+    void OverrideResetQueryPool(PFN_vkResetQueryPool    func,
+                                const VulkanDeviceInfo* device_info,
+                                VulkanQueryPoolInfo*    query_pool_info,
+                                uint32_t                firstQuery,
+                                uint32_t                queryCount);
 
     VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
                                  uint64_t                                    index,
@@ -983,6 +1054,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void OverrideCmdPipelineBarrier2KHR(PFN_vkCmdPipelineBarrier2                       func,
                                         VulkanCommandBufferInfo*                        command_buffer_info,
                                         StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
+
+    void OverrideCmdWaitEvents(PFN_vkCmdWaitEvents                                        func,
+                               VulkanCommandBufferInfo*                                   command_buffer_info,
+                               uint32_t                                                   eventCount,
+                               HandlePointerDecoder<VkEvent>*                             pEvents,
+                               VkPipelineStageFlags                                       srcStageMask,
+                               VkPipelineStageFlags                                       dstStageMask,
+                               uint32_t                                                   memoryBarrierCount,
+                               const StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
+                               uint32_t                                                   bufferMemoryBarrierCount,
+                               const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+                               uint32_t                                                   imageMemoryBarrierCount,
+                               const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers);
+
+    void OverrideCmdWaitEvents2(PFN_vkCmdWaitEvents2                                  func,
+                                VulkanCommandBufferInfo*                              command_buffer_info,
+                                uint32_t                                              eventCount,
+                                HandlePointerDecoder<VkEvent>*                        pEvents,
+                                const StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos);
 
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
@@ -1352,6 +1442,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ClearCommandBufferInfo(VulkanCommandBufferInfo* command_buffer_info);
 
+    // apply a command-buffer's recorded set/reset event ops to the tracked VulkanEventInfo::latched_set
+    void ApplyRecordedEventOps(const VulkanCommandBufferInfo* command_buffer_info);
+
+    // apply a command-buffer's recorded query ops to the tracked VulkanQueryPoolInfo availability
+    void ApplyRecordedQueryOps(const VulkanCommandBufferInfo* command_buffer_info);
+
     VkResult OverrideBeginCommandBuffer(PFN_vkBeginCommandBuffer                                func,
                                         uint64_t                                                index,
                                         VkResult                                                original_result,
@@ -1434,7 +1530,28 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const VulkanRenderPassInfo*                          render_pass_info,
         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder);
 
-    void ApplyRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
+    void UpdateTrackedRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
+
+    void UpdateTrackedImageViewLayout(VulkanCommandBufferInfo* command_buffer_info,
+                                      format::HandleId         image_view_id,
+                                      VkImageLayout            layout);
+
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*            command_buffer_info,
+                                          uint32_t                            imageMemoryBarrierCount,
+                                          const Decoded_VkImageMemoryBarrier* image_memory_barriers_meta,
+                                          const VkImageMemoryBarrier*         image_memory_barriers);
+
+    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*             command_buffer_info,
+                                          uint32_t                             imageMemoryBarrierCount,
+                                          const Decoded_VkImageMemoryBarrier2* image_memory_barriers_meta,
+                                          const VkImageMemoryBarrier2*         image_memory_barriers);
+
+    void UpdateTrackedAttachmentLayout(VulkanCommandBufferInfo*                 command_buffer_info,
+                                       const VkRenderingAttachmentInfo*         attachment,
+                                       const Decoded_VkRenderingAttachmentInfo* attachment_meta);
+
+    void UpdateTrackedRenderingLayouts(VulkanCommandBufferInfo*                       command_buffer_info,
+                                       StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder);
 
     void OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass func, VulkanCommandBufferInfo* command_buffer_info);
 
@@ -1539,6 +1656,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  const VulkanDeviceInfo*                                    device_info,
                                  const VulkanPipelineInfo*                                  pipeline_info,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideDestroyPipelineLayout(PFN_vkDestroyPipelineLayout                                func,
+                                       const VulkanDeviceInfo*                                    device_info,
+                                       VulkanPipelineLayoutInfo*                                  pipeline_layout_info,
+                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     void OverrideDestroyRenderPass(PFN_vkDestroyRenderPass                                    func,
                                    const VulkanDeviceInfo*                                    device_info,
@@ -1928,9 +2050,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
-    void InitializeScreenshotHandler();
-
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
+
+    /**
+     * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
+     *
+     * Layout tracking is recorded per command buffer at record time. This makes the tracked layouts visible on the
+     * image infos once the command buffer has actually been submitted.
+     *
+     * @param   command_buffer_info The submitted command buffer to propagate layouts from.
+     */
+    void PropagateImageLayouts(const VulkanCommandBufferInfo* command_buffer_info);
 
     bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info);
     bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info, const PNextNode* pnext);
@@ -2063,6 +2193,33 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     template <typename CreateInfo>
     static void RemoveFailOnCompileRequiredFlags(CreateInfo* create_infos, uint32_t create_info_count);
 
+    /**
+     * @brief   DestroyTrackedHandle handles synchronous or deferred destruction of Vulkan handles
+     *          (e.g., VkPipeline, VkPipelineLayout, VkRenderPass, VkShaderModule) tracked across replay.
+     *
+     * If the handle is referenced by active asynchronous tasks (e.g. concurrent pipeline compilation),
+     * destruction is deferred via DestroyAsyncHandle until all referencing tasks complete. Otherwise,
+     * it is destroyed immediately.
+     *
+     * An optional PreDestroyHook can be provided to execute cleanup (such as destroying associated pipeline caches)
+     * immediately before driver destruction.
+     *
+     * @tparam  InfoType            Object info wrapper struct (e.g., VulkanPipelineInfo)
+     * @tparam  DestroyFunc         Vulkan API destroy function pointer type
+     * @tparam  PreDestroyHook      Optional callable invoked with the resolved handle prior to driver destruction
+     * @param   func                Vulkan API destroy function (e.g., vkDestroyPipeline)
+     * @param   device_info         VulkanDeviceInfo struct for the owning logical device
+     * @param   object_info         Object info struct containing the handle and capture ID
+     * @param   pAllocator          Optional Vulkan allocation callbacks
+     * @param   pre_destroy_hook    Optional callback invoked before calling func
+     */
+    template <typename InfoType, typename DestroyFunc, typename PreDestroyHook = std::nullptr_t>
+    void DestroyTrackedHandle(DestroyFunc                                                func,
+                              const VulkanDeviceInfo*                                    device_info,
+                              const InfoType*                                            object_info,
+                              const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                              PreDestroyHook                                             pre_destroy_hook = nullptr);
+
   private:
     util::platform::LibraryHandle                                            loader_handle_;
     PFN_vkGetInstanceProcAddr                                                get_instance_proc_addr_;
@@ -2079,9 +2236,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     SwapchainImageTracker                                                    swapchain_image_tracker_;
     HardwareBufferMap                                                        hardware_buffers_;
     HardwareBufferMemoryMap                                                  hardware_buffer_memory_info_;
-    std::unique_ptr<ScreenshotHandler>                                       screenshot_handler_;
+    std::unique_ptr<ScreenshotController>                                    screenshot_controller_;
     std::unique_ptr<VulkanSwapchain>                                         swapchain_;
-    std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
     VulkanDecoder*                                                           decoder_ = nullptr;
 
@@ -2094,25 +2250,37 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
 
-    //! async_tracked_handle_asset_t groups assets used by tracked async-dependencies
-    struct async_tracked_handle_asset_t
-    {
-        //! function to synchronize (blocking wait) with parent asynchronous-task
-        std::function<void()> sync_fn;
+    //! Asynchronous task and handle tracking:
+    //! Multiple background compilation tasks can concurrently reference shared handles
+    //! (e.g. VkPipelineLayout, VkRenderPass, VkShaderModule). Handles track the set of
+    //! active async task IDs referencing them to maintain reference counts and allow
+    //! synchronizing all referencing tasks prior to handle destruction.
+    uint64_t                                            next_async_task_id_{ 1 };
+    std::unordered_map<uint64_t, std::function<void()>> async_task_sync_fns_;
 
-        //! function used to defer deletion of a tracked async-dependency
+    //! Tracks active asynchronous tasks and deferred operations for a Vulkan handle
+    struct AsyncTrackedHandle
+    {
+        //! Active async task IDs referencing this handle
+        std::unordered_set<uint64_t> async_task_ids;
+
+        //! Deferred action invoked on the main thread after all referencing async tasks complete
         std::function<void()> post_build_fn;
     };
-    //! stores handles used/referenced by currently running async tasks
-    std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;
 
-    //! decide whether to sync/wait or defer deletion of handles used by currently running async tasks
-    static constexpr bool async_defer_deletion_ = false;
+    //! Maps a tracked handle ID to its active referencing async tasks and optional post-build callback.
+    std::unordered_map<format::HandleId, AsyncTrackedHandle> async_tracked_handles_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
     // data), so we ignore those semaphores when they are encountered.
     bool have_imported_semaphores_;
+
+    // set once any vkCmdSetEvent/vkCmdResetEvent is recorded, gating the submit-time event-state walk
+    bool track_event_state_ = false;
+
+    // set once any device query op is recorded, gating the submit-time query-availability walk
+    bool track_query_state_ = false;
 
     // Used to track if any shadow sync objects are active to avoid checking if not needed.
     // SHadowed objects are ignored when they would have been unsignaled (waited on).
@@ -2176,6 +2344,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           VkPipelineCache         pipelineCache,
                                           VkPipeline*             pipelines,
                                           size_t                  pipelineCount);
+    void            DestroyAssociatedPipelineCache(const VulkanDeviceInfo* device_info, VkPipeline pipeline);
 
     const bool save_pipeline_caches_to_file;
     const bool load_pipeline_caches_from_file;

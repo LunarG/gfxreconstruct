@@ -565,7 +565,7 @@ VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice              
         return result;
     }
 
-    result = injected.BeginCommandBuffer(command_buffer, &begin_info);
+    result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed starting internal command buffer %d for "
@@ -1028,7 +1028,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
             {
                 return result;
             }
-            result = injected.BeginCommandBuffer(command_buffer, &begin_info);
+            result = injected.BeginCommandBuffer(command_buffer, &begin_info, __func__);
             if (result != VK_SUCCESS)
             {
                 return result;
@@ -1429,8 +1429,12 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // create a copy-util, used for image-transitions and blits (leave out memory-properties, no allocation needed)
-        ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
-            device, device_info->parent, *injected.GetTable(), *instance_table, device_info->property_feature_info);
+        ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(device,
+                                                                             device_info->parent,
+                                                                             *injected.GetTable(),
+                                                                             *instance_table,
+                                                                             device_info->property_feature_info,
+                                                                             device_info->version_extension_info);
     }
 
     // derive output-size and orientation from provided scale
@@ -1702,7 +1706,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
 
-        result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info);
+        result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info, __func__);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -1776,9 +1780,10 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             }
         }
 
-        auto src_layout = image_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
-                              ? image_info->current_layout
-                              : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        const VkImageLayout current_layout =
+            image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+        auto src_layout =
+            (current_layout != VK_IMAGE_LAYOUT_UNDEFINED) ? current_layout : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         graphics::VulkanResourcesUtil::blit_image_params_t blit_params = {};
         blit_params.src_img                                            = image;

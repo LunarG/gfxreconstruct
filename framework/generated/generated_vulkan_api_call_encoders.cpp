@@ -546,10 +546,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, shared_api_call_lock, queue, submitCount, pSubmits, fence);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkSubmitInfo* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueSubmit(queue, submitCount, pSubmits_unwrapped, fence);
+    VkResult result = manager->OverrideQueueSubmit(queue, submitCount, pSubmits, fence);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueSubmit);
     if (encoder)
@@ -587,7 +584,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueWaitIdle(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(manager, queue);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueWaitIdle(queue);
+    VkResult result = manager->OverrideQueueWaitIdle(queue);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueWaitIdle);
     if (encoder)
@@ -622,7 +619,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(manager, device);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->DeviceWaitIdle(device);
+    VkResult result = manager->OverrideDeviceWaitIdle(device);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkDeviceWaitIdle);
     if (encoder)
@@ -1189,10 +1186,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueBindSparse(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(manager, queue, bindInfoCount, pBindInfo, fence);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkBindSparseInfo* pBindInfo_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pBindInfo, bindInfoCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueBindSparse(queue, bindInfoCount, pBindInfo_unwrapped, fence);
+    VkResult result = manager->OverrideQueueBindSparse(queue, bindInfoCount, pBindInfo, fence);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueBindSparse);
     if (encoder)
@@ -7347,10 +7341,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2>::Dispatch(manager, shared_api_call_lock, queue, submitCount, pSubmits, fence);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkSubmitInfo2* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueSubmit2(queue, submitCount, pSubmits_unwrapped, fence);
+    VkResult result = manager->OverrideQueueSubmit2(queue, submitCount, pSubmits, fence);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueSubmit2);
     if (encoder)
@@ -9544,10 +9535,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, queue, pPresentInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkPresentInfoKHR* pPresentInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pPresentInfo, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueuePresentKHR(queue, pPresentInfo_unwrapped);
+    VkResult result = manager->OverrideQueuePresentKHR(queue, pPresentInfo);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueuePresentKHR);
     if (encoder)
@@ -14823,10 +14811,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2KHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(manager, shared_api_call_lock, queue, submitCount, pSubmits, fence);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkSubmitInfo2* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueSubmit2KHR(queue, submitCount, pSubmits_unwrapped, fence);
+    VkResult result = manager->OverrideQueueSubmit2KHR(queue, submitCount, pSubmits, fence);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueSubmit2KHR);
     if (encoder)
@@ -30145,6 +30130,56 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetComputeOccupancyPriorityNV(commandBuffer, pParameters_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV>::Dispatch(manager, commandBuffer, pParameters);
+
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
+    VkPhysicalDevice                            physicalDevice,
+    const VkPhysicalDeviceCooperativeMatrixInfo2EXT* pCooperativeMatrixInfo,
+    uint32_t*                                   pPropertyCount,
+    VkCooperativeMatrixProperties2EXT*          pProperties)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT>::Dispatch(manager, physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkPhysicalDeviceCooperativeMatrixInfo2EXT* pCooperativeMatrixInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCooperativeMatrixInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceCooperativeMatrixProperties2EXT(physicalDevice, pCooperativeMatrixInfo_unwrapped, pPropertyCount, pProperties);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+        EncodeStructPtr(encoder, pCooperativeMatrixInfo);
+        encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
+        EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT>::Dispatch(manager, result, physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties);
+
+    return result;
 
 }
 

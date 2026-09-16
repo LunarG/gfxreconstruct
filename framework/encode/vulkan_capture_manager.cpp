@@ -24,7 +24,9 @@
 
 #include "encode/vulkan_handle_wrappers.h"
 #include "vulkan/vulkan_core.h"
+#include <cstddef>
 #include <cstdint>
+#include <mutex>
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "encode/struct_pointer_encoder.h"
@@ -48,6 +50,7 @@
 #include "util/platform.h"
 
 #include <cassert>
+#include <ranges>
 #include <unordered_set>
 
 #if defined(__linux__) && !defined(__ANDROID__)
@@ -821,18 +824,20 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         // Track state of physical device properties and features at device creation
         wrapper->property_feature_info = property_feature_info;
 
+        // Track the effective device version and enabled extensions for selecting core vs extension entry point
+        // flavors.
+        VkPhysicalDeviceProperties physical_device_properties{};
+        instance_table->GetPhysicalDeviceProperties(physicalDevice, &physical_device_properties);
+        wrapper->version_extension_info.api_version =
+            std::min(physical_device_wrapper->parent_info.api_version, physical_device_properties.apiVersion);
+        wrapper->version_extension_info.enabled_extensions.assign(modified_extensions.begin(),
+                                                                  modified_extensions.end());
+
         if (!IsCaptureModeTrack())
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
             // to ensure it is available.
             wrapper->physical_device = physical_device_wrapper;
-        }
-
-        wrapper->queue_family_indices.resize(pCreateInfo_unwrapped->queueCreateInfoCount);
-        for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
-        {
-            const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
-            wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
     }
 
@@ -852,10 +857,9 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                                     const VkAllocationCallbacks* pAllocator,
                                                     VkBuffer*                    pBuffer)
 {
-    VkResult result           = VK_SUCCESS;
-    auto     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice device_unwrapped = device_wrapper->handle;
-    auto     device_table     = vulkan_wrappers::GetDeviceTable(device);
+    VkResult result         = VK_SUCCESS;
+    auto     device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    auto     device_table   = vulkan_wrappers::GetDeviceTable(device);
 
     // we need to deep-copy, potentially contains VkBufferUsageFlags2CreateInfoKHR in pNext-chain
     std::unique_ptr<uint8_t[]> struct_storage;
@@ -911,7 +915,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
     }
 
     // create buffer with augmented create- and usage-flags
-    result = device_table->CreateBuffer(device_unwrapped, modified_create_info, pAllocator, pBuffer);
+    result = device_table->CreateBuffer(device, modified_create_info, pAllocator, pBuffer);
 
     if ((result == VK_SUCCESS) && (pBuffer != nullptr))
     {
@@ -922,7 +926,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
         auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
         GFXRECON_ASSERT(buffer_wrapper);
-        buffer_wrapper->device         = device;
+        buffer_wrapper->device         = device_wrapper;
         buffer_wrapper->size           = modified_create_info->size;
         buffer_wrapper->usage          = pCreateInfo->usage;
         buffer_wrapper->modified_flags = modified_create_info->flags;
@@ -939,11 +943,11 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
             if (device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
-                opaque_address = device_table->GetBufferOpaqueCaptureAddress(device_unwrapped, &info);
+                opaque_address = device_table->GetBufferOpaqueCaptureAddress(device, &info);
             }
             else
             {
-                opaque_address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
+                opaque_address = device_table->GetBufferOpaqueCaptureAddressKHR(device, &info);
             }
             WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, opaque_address);
 
@@ -964,7 +968,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
             };
             descriptor_data_info_ext.buffer = buffer_wrapper->handle;
             VkResult get_data_result        = device_table->GetBufferOpaqueCaptureDescriptorDataEXT(
-                device_unwrapped, &descriptor_data_info_ext, opaque_data.data());
+                device, &descriptor_data_info_ext, opaque_data.data());
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
             WriteSetOpaqueCaptureDescriptorData(
@@ -1054,7 +1058,7 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
 
         auto* image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
         GFXRECON_ASSERT(image_wrapper);
-        image_wrapper->bind_device = device_wrapper;
+        image_wrapper->device = device_wrapper;
 
         // These are required to generate a fill command in case external memory is bound to this image
         image_wrapper->image_type     = modified_create_info.imageType;
@@ -2160,8 +2164,11 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
 
     if (vk_result == VK_SUCCESS)
     {
+        // VK_SUCCESS with allocationSize == 0 is a valid result.  Some implementations (e.g. the Android emulator's
+        // gralloc) report zero for AHardwareBuffers created without CPU usage flags even though the buffer is fully
+        // usable by the GPU.  The AHB creation must still be recorded so that replay can recreate the buffer; the
+        // size is only needed to snapshot the contents of CPU-readable buffers.
         const size_t ahb_size = properties.allocationSize;
-        assert(ahb_size);
 
         CommonProcessHardwareBuffer(thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr);
     }
@@ -2279,7 +2286,9 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
-                                                device_wrapper->physical_device->memory_properties);
+                                                device_wrapper->version_extension_info,
+                                                device_wrapper->physical_device->memory_properties,
+                                                MakeQueueLockFn(device_wrapper));
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
     if (result == VK_SUCCESS)
@@ -2313,7 +2322,9 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
-                                                device_wrapper->physical_device->memory_properties);
+                                                device_wrapper->version_extension_info,
+                                                device_wrapper->physical_device->memory_properties,
+                                                MakeQueueLockFn(device_wrapper));
 
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::GetFormatAspects(image_wrapper->format, &aspects);
@@ -4522,6 +4533,177 @@ void VulkanCaptureManager::PostProcess_vkTransitionImageLayout(VkResult         
             state_tracker_->TrackTransitionImageLayout(transitionCount, pTransitions);
         }
     }
+}
+
+void VulkanCaptureManager::PostProcess_vkGetDeviceQueue(VkDevice device,
+                                                        uint32_t queueFamilyIndex,
+                                                        uint32_t queueIndex,
+                                                        VkQueue* pQueue)
+{
+    if (pQueue != nullptr && *pQueue != VK_NULL_HANDLE && device != VK_NULL_HANDLE)
+    {
+        auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+        auto* queue_wrapper  = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(*pQueue);
+
+        std::lock_guard<std::mutex> lock(device_wrapper->queues_map_mutex);
+        device_wrapper->child_queues[*pQueue] = { queueFamilyIndex, queueIndex, queue_wrapper };
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkGetDeviceQueue2(VkDevice                  device,
+                                                         const VkDeviceQueueInfo2* pQueueInfo,
+                                                         VkQueue*                  pQueue)
+{
+    if (pQueue != nullptr && *pQueue != VK_NULL_HANDLE && device != VK_NULL_HANDLE && pQueueInfo != nullptr)
+    {
+        auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+        auto* queue_wrapper  = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(*pQueue);
+
+        std::lock_guard<std::mutex> lock(device_wrapper->queues_map_mutex);
+        device_wrapper->child_queues[*pQueue] = { pQueueInfo->queueFamilyIndex, pQueueInfo->queueIndex, queue_wrapper };
+    }
+}
+
+VkResult VulkanCaptureManager::OverrideQueueSubmit(VkQueue             queue,
+                                                   uint32_t            submitCount,
+                                                   const VkSubmitInfo* pSubmits,
+                                                   VkFence             fence)
+{
+    auto                handle_unwrap_memory = GetHandleUnwrapMemory();
+    const VkSubmitInfo* pSubmits_unwrapped =
+        vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
+
+    // Host access to the queue must be externally synchronized. The lock is held only around the down-chain call.
+    auto*                        queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+    std::unique_lock<std::mutex> queue_lock;
+    if (queue_wrapper != nullptr)
+    {
+        queue_lock = std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+    }
+
+    VkResult res = vulkan_wrappers::GetDeviceTable(queue)->QueueSubmit(queue, submitCount, pSubmits_unwrapped, fence);
+
+    return res;
+}
+
+VkResult VulkanCaptureManager::OverrideQueueSubmit2(VkQueue              queue,
+                                                    uint32_t             submitCount,
+                                                    const VkSubmitInfo2* pSubmits,
+                                                    VkFence              fence)
+{
+    return HandleQueueSubmit2(
+        queue, submitCount, pSubmits, fence, vulkan_wrappers::GetDeviceTable(queue)->QueueSubmit2);
+}
+
+VkResult VulkanCaptureManager::OverrideQueueSubmit2KHR(VkQueue              queue,
+                                                       uint32_t             submitCount,
+                                                       const VkSubmitInfo2* pSubmits,
+                                                       VkFence              fence)
+{
+    const auto* device_table = vulkan_wrappers::GetDeviceTable(queue);
+    return HandleQueueSubmit2(queue, submitCount, pSubmits, fence, device_table->QueueSubmit2KHR);
+}
+
+VkResult VulkanCaptureManager::HandleQueueSubmit2(
+    VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence, PFN_vkQueueSubmit2 func)
+{
+    auto                 handle_unwrap_memory = GetHandleUnwrapMemory();
+    const VkSubmitInfo2* pSubmits_unwrapped =
+        vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
+
+    // Host access to the queue must be externally synchronized. The lock is held only around the down-chain call.
+    auto*                        queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+    std::unique_lock<std::mutex> queue_lock;
+    if (queue_wrapper != nullptr)
+    {
+        queue_lock = std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+    }
+
+    VkResult res = func(queue, submitCount, pSubmits_unwrapped, fence);
+
+    return res;
+}
+
+VkResult VulkanCaptureManager::OverrideQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
+{
+    auto                    handle_unwrap_memory = GetHandleUnwrapMemory();
+    const VkPresentInfoKHR* pPresentInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructPtrHandles(pPresentInfo, handle_unwrap_memory);
+
+    // Host access to the queue must be externally synchronized. The lock is held only around the down-chain call.
+    auto*                        queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+    std::unique_lock<std::mutex> queue_lock;
+    if (queue_wrapper != nullptr)
+    {
+        queue_lock = std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+    }
+
+    VkResult res = vulkan_wrappers::GetDeviceTable(queue)->QueuePresentKHR(queue, pPresentInfo_unwrapped);
+
+    return res;
+}
+
+VkResult VulkanCaptureManager::OverrideQueueWaitIdle(VkQueue queue)
+{
+    // Host access to the queue must be externally synchronized. The lock is held only around the down-chain call.
+    auto*                        queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+    std::unique_lock<std::mutex> queue_lock;
+    if (queue_wrapper != nullptr)
+    {
+        queue_lock = std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+    }
+
+    VkResult res = vulkan_wrappers::GetDeviceTable(queue)->QueueWaitIdle(queue);
+
+    return res;
+}
+
+VkResult VulkanCaptureManager::OverrideDeviceWaitIdle(VkDevice device)
+{
+    // Host access to all VkQueue objects created from device that are not created with
+    // VK_DEVICE_QUEUE_CREATE_INTERNALLY_SYNCHRONIZED_BIT_KHR must be externally synchronized.
+    // Lock every queue the application has retrieved, plus the mutex that serializes capture-internal submissions to
+    // queues it has not retrieved, for the duration of the down-chain call.
+    auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+
+    std::vector<std::unique_lock<std::mutex>> queue_locks;
+    if (device_wrapper != nullptr)
+    {
+        std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
+        for (const auto& queue : device_wrapper->child_queues | std::views::values)
+        {
+            if (queue.wrapper != nullptr)
+            {
+                queue_locks.emplace_back(queue.wrapper->queue_mutex);
+            }
+        }
+        queue_locks.emplace_back(device_wrapper->untracked_queues_mutex);
+    }
+
+    return vulkan_wrappers::GetDeviceTable(device)->DeviceWaitIdle(device);
+}
+
+VkResult VulkanCaptureManager::OverrideQueueBindSparse(VkQueue                 queue,
+                                                       uint32_t                bindInfoCount,
+                                                       const VkBindSparseInfo* pBindInfo,
+                                                       VkFence                 fence)
+{
+    // Host access to the queue must be externally synchronized. The lock is held only around the down-chain call.
+    auto*                        queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+    std::unique_lock<std::mutex> queue_lock;
+    if (queue_wrapper != nullptr)
+    {
+        queue_lock = std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+    }
+
+    auto                    handle_unwrap_memory = GetHandleUnwrapMemory();
+    const VkBindSparseInfo* pBindInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructArrayHandles(pBindInfo, bindInfoCount, handle_unwrap_memory);
+
+    VkResult res =
+        vulkan_wrappers::GetDeviceTable(queue)->QueueBindSparse(queue, bindInfoCount, pBindInfo_unwrapped, fence);
+
+    return res;
 }
 
 GFXRECON_END_NAMESPACE(encode)

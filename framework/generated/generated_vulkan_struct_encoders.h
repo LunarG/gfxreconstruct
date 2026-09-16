@@ -1350,6 +1350,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCache
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkComputeOccupancyPriorityParametersNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixProperties2EXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixInfo2EXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE& value);
@@ -1359,7 +1362,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphNeur
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineNeuralStatisticsCreateInfoARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageTilingControlFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageTilingControlCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);
