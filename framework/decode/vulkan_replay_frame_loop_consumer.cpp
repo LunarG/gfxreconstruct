@@ -644,6 +644,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         // The shadow buffers are all created with the same flags and usage, and should use the same memory type index.
         if (memory_type_index == std::numeric_limits<uint32_t>::max())
         {
+            // Prefer device local memory as the buffers we are shadowing are likely also device local.
             memory_type_index = graphics::GetMemoryTypeIndex(
                 *memory_properties_, pending.requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
             if (memory_type_index == std::numeric_limits<uint32_t>::max())
