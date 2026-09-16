@@ -223,6 +223,7 @@ if (${RUN_TESTS})
         ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/test/test_reentrant_capture_suppression.cpp
         ${CMAKE_CURRENT_LIST_DIR}/test/test_trim_state_lock.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/test/test_avoid_api_call_lock.cpp
         ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_encode_test PRIVATE gfxrecon_encode)
     if (MSVC)

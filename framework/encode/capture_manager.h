@@ -349,6 +349,7 @@ class CommonCaptureManager
     {
         return iunknown_wrapping_;
     }
+    // Returns the nested-call counter of the current thread. See avoid_api_call_lock_.
     int64_t& AvoidApiCallLock()
     {
         return avoid_api_call_lock_;
@@ -716,9 +717,12 @@ class CommonCaptureManager
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
     bool                                    skip_threads_with_invalid_data_;
-    static int64_t avoid_api_call_lock_; // A original function could call sub wrapped functions. If the
-                                         // force_command_serialization is enabled, the sub wrapped functions could
-                                         // cause deadlock. The sub wrapped functions shouldn't be locked.
+    // A wrapped function that holds the API call lock can call other wrapped functions on the same
+    // thread. Those nested calls must not take the lock again. When force_command_serialization is
+    // enabled, the outer call holds the exclusive lock, and a nested lock would deadlock. The
+    // counter is above zero while a thread is inside such a nested call. It is thread-local, so a
+    // nested call on one thread does not remove the lock from the calls of other threads.
+    static thread_local int64_t avoid_api_call_lock_;
 
     struct
     {
