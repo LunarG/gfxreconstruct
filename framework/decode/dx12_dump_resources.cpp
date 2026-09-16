@@ -614,6 +614,10 @@ std::vector<uint32_t> GetDescSubIndices(uint32_t first_mip_slice,
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -846,6 +850,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -916,6 +924,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -986,6 +998,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& 
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHDepthStencilViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
