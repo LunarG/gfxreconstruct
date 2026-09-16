@@ -43,53 +43,27 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 template <typename Struct>
 struct DescriptorFor;
 
-template <>
-struct DescriptorFor<VkBindMemoryStatus>
-{
-    using type = schema::api_type::vulkan::VkBindMemoryStatus;
-};
+// One row per migrated structure while the list is hand-written. At inversion the schema generator emits the
+// specializations and this macro retires with the list.
+#define GFXRECON_VULKAN_DESCRIPTOR_FOR(Struct)         \
+    template <>                                        \
+    struct DescriptorFor<Struct>                       \
+    {                                                  \
+        using type = schema::api_type::vulkan::Struct; \
+    }
 
-template <>
-struct DescriptorFor<VkBufferCreateInfo>
-{
-    using type = schema::api_type::vulkan::VkBufferCreateInfo;
-};
-
-template <>
-struct DescriptorFor<VkExtent2D>
-{
-    using type = schema::api_type::vulkan::VkExtent2D;
-};
-
-template <>
-struct DescriptorFor<VkPipelineCacheCreateInfo>
-{
-    using type = schema::api_type::vulkan::VkPipelineCacheCreateInfo;
-};
-
-template <>
-struct DescriptorFor<VkPipelineCacheHeaderVersionOne>
-{
-    using type = schema::api_type::vulkan::VkPipelineCacheHeaderVersionOne;
-};
-
-template <>
-struct DescriptorFor<VkPipelineCreateInfoKHR>
-{
-    using type = schema::api_type::vulkan::VkPipelineCreateInfoKHR;
-};
-
-template <>
-struct DescriptorFor<VkSubpassEndInfo>
-{
-    using type = schema::api_type::vulkan::VkSubpassEndInfo;
-};
-
-template <>
-struct DescriptorFor<VkTransformMatrixKHR>
-{
-    using type = schema::api_type::vulkan::VkTransformMatrixKHR;
-};
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkBindMemoryStatus);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkBufferCreateInfo);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkDebugUtilsMessengerCreateInfoEXT);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkExtent2D);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkImportMemoryWin32HandleInfoNV);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkPipelineCacheCreateInfo);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkPipelineCacheHeaderVersionOne);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkPipelineCreateInfoKHR);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkSubpassEndInfo);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkSurfaceFullScreenExclusiveWin32InfoEXT);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkTransformMatrixKHR);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkWin32SurfaceCreateInfoKHR);
 
 template <typename Struct>
 concept HasDescriptor = requires

@@ -4325,15 +4325,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR
     encoder->EncodeVoidPtr(value.window);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeVoidPtr(value.hinstance);
-    encoder->EncodeVoidPtr(value.hwnd);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyQueryResultStatusPropertiesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6888,14 +6879,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryAllocateInfoNV&
     encoder->EncodeFlagsValue(value.handleTypes);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoNV& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.handleType);
-    encoder->EncodeVoidPtr(value.handle);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7221,17 +7204,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallback
     EncodeStructArray(encoder, value.pCmdBufLabels, value.cmdBufLabelCount);
     encoder->EncodeUInt32Value(value.objectCount);
     EncodeStructArray(encoder, value.pObjects, value.objectCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeFlagsValue(value.messageSeverity);
-    encoder->EncodeFlagsValue(value.messageType);
-    encoder->EncodeFunctionPtr(value.pfnUserCallback);
-    encoder->EncodeVoidPtr(value.pUserData);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
@@ -8427,13 +8399,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesFullScre
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.fullScreenExclusiveSupported);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveWin32InfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVoidPtr(value.hmonitor);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkHeadlessSurfaceCreateInfoEXT& value)
@@ -12450,12 +12415,16 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // The schema drives these encoders. This is the only translation unit that compiles the walk.
 template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMemoryStatus&);
 template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBufferCreateInfo&);
+template void EncodeStruct<VkDebugUtilsMessengerCreateInfoEXT>(ParameterEncoder*, const VkDebugUtilsMessengerCreateInfoEXT&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
+template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
 template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
 template void EncodeStruct<VkSubpassEndInfo>(ParameterEncoder*, const VkSubpassEndInfo&);
+template void EncodeStruct<VkSurfaceFullScreenExclusiveWin32InfoEXT>(ParameterEncoder*, const VkSurfaceFullScreenExclusiveWin32InfoEXT&);
 template void EncodeStruct<VkTransformMatrixKHR>(ParameterEncoder*, const VkTransformMatrixKHR&);
+template void EncodeStruct<VkWin32SurfaceCreateInfoKHR>(ParameterEncoder*, const VkWin32SurfaceCreateInfoKHR&);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

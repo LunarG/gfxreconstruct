@@ -51,7 +51,8 @@ class EncodeStructAction
     // A value-shaped scalar. Read through Get, which serves an ordinary member and a bitfield alike, so one overload
     // covers both.
     template <typename Field, typename Storage>
-    requires schema::ScalarField<Field> && schema::HasMember<Storage, Field>
+    requires schema::GeneralScalarKindField<Field> && schema::ValueShapedField<Field> &&
+        schema::HasMember<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
         encoder_->template Encode<typename Field::api_type::kind>(schema::Get(storage, field));

@@ -719,6 +719,132 @@ TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema]
     CHECK(same_bytes(multiview_buffer, multiview_oracle_buffer));
 }
 
+namespace
+{
+
+// A callback with the API's calling convention, so its address converts to the PFN type on every platform.
+VKAPI_ATTR VkBool32 VKAPI_CALL TestDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                      VkDebugUtilsMessageTypeFlagsEXT,
+                                                      const VkDebugUtilsMessengerCallbackDataEXT*,
+                                                      void*)
+{
+    return VK_FALSE;
+}
+
+} // namespace
+
+TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][encode]")
+{
+    // Four migrated structures cover the address kind's forms: two typed platform handles, a lone platform handle,
+    // a platform HANDLE beside a flags value, and a function pointer beside a void pointer. Two retained partners
+    // take a void pointer through their procedural bodies. The encoder records the pointer and nothing behind it,
+    // so a chosen integer reinterpreted as each handle type stands in for a real window, monitor or allocation;
+    // the platform handle types are the platform's on Windows and void pointers everywhere else.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    // The non-null value fits a 32-bit pointer, so the list-initialization narrows on no target.
+    for (uintptr_t address : { uintptr_t{ 0 }, uintptr_t{ 0x7ff6a1b0u } })
+    {
+        // Migrated: two typed platform handles, under the probed chain walk.
+        VkWin32SurfaceCreateInfoKHR surface{ VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+                                             nullptr,
+                                             0u,
+                                             reinterpret_cast<HINSTANCE>(address),
+                                             reinterpret_cast<HWND>(address + 0x10) };
+
+        CHECK(matches(surface, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(surface.sType);
+            encode::EncodePNextStructIfValid(&oracle, surface.pNext);
+            oracle.EncodeFlagsValue(surface.flags);
+            oracle.EncodeVoidPtr(surface.hinstance);
+            oracle.EncodeVoidPtr(surface.hwnd);
+        }));
+
+        // Migrated: one platform handle and nothing else.
+        VkSurfaceFullScreenExclusiveWin32InfoEXT exclusive{
+            VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT, nullptr, reinterpret_cast<HMONITOR>(address)
+        };
+
+        CHECK(matches(exclusive, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(exclusive.sType);
+            encode::EncodePNextStruct(&oracle, exclusive.pNext);
+            oracle.EncodeVoidPtr(exclusive.hmonitor);
+        }));
+
+        // Migrated: a HANDLE beside a flags value.
+        VkImportMemoryWin32HandleInfoNV import_handle{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV,
+                                                       nullptr,
+                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV,
+                                                       reinterpret_cast<HANDLE>(address) };
+
+        CHECK(matches(import_handle, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(import_handle.sType);
+            encode::EncodePNextStruct(&oracle, import_handle.pNext);
+            oracle.EncodeFlagsValue(import_handle.handleType);
+            oracle.EncodeVoidPtr(import_handle.handle);
+        }));
+
+        // Migrated: a function pointer and a void pointer, the two named entry points the address kind replaces.
+        VkDebugUtilsMessengerCreateInfoEXT messenger{ VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                                                      nullptr,
+                                                      0u,
+                                                      VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                                                      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT,
+                                                      address != 0 ? &TestDebugUtilsCallback : nullptr,
+                                                      reinterpret_cast<void*>(address) };
+
+        CHECK(matches(messenger, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(messenger.sType);
+            encode::EncodePNextStruct(&oracle, messenger.pNext);
+            oracle.EncodeFlagsValue(messenger.flags);
+            oracle.EncodeFlagsValue(messenger.messageSeverity);
+            oracle.EncodeFlagsValue(messenger.messageType);
+            oracle.EncodeFunctionPtr(messenger.pfnUserCallback);
+            oracle.EncodeVoidPtr(messenger.pUserData);
+        }));
+
+        // Retained partners: a void pointer through each procedural body, one per chain walk.
+        VkImportMemoryHostPointerInfoEXT host_pointer{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT,
+                                                       nullptr,
+                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
+                                                       reinterpret_cast<void*>(address) };
+
+        CHECK(matches(host_pointer, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(host_pointer.sType);
+            encode::EncodePNextStruct(&oracle, host_pointer.pNext);
+            oracle.EncodeEnumValue(host_pointer.handleType);
+            oracle.EncodeVoidPtr(host_pointer.pHostPointer);
+        }));
+
+        VkCheckpointDataNV checkpoint{ VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV,
+                                       nullptr,
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                       reinterpret_cast<void*>(address) };
+
+        CHECK(matches(checkpoint, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(checkpoint.sType);
+            encode::EncodePNextStructIfValid(&oracle, checkpoint.pNext);
+            oracle.EncodeEnumValue(checkpoint.stage);
+            oracle.EncodeVoidPtr(checkpoint.pCheckpointMarker);
+        }));
+    }
+}
+
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
     NativeCallStore store{};

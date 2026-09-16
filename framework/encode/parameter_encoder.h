@@ -111,7 +111,7 @@ class ParameterEncoder
     // Encode a value using the wire representation selected by its logical schema kind. Operation code that holds
     // a Field can use this without restating the kind-to-wire-type mapping encoded in format::kind.
     template <format::HasEncodeType Kind, typename T>
-    void Encode(T value)                                                                                              { EncodeValue(static_cast<format::EncodeTypeFor<Kind>>(value)); }
+    void Encode(T value)                                                                                              { EncodeValue(TypeCast<format::EncodeTypeFor<Kind>>(value)); }
 
     // Encode a run of values, or a pointer to one value, recorded as one logical kind. Each named entry point above
     // fixes a wire type; these reach the same converting bodies from the kind, which write the wire type's bytes for

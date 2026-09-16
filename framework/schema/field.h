@@ -262,6 +262,13 @@ concept AddressField = std::same_as<typename Field::api_type::kind, format::kind
 template <typename Field>
 concept IdentifierKindField = HandleKindField<Field> || AddressField<Field>;
 
+// A scalar in the general sense that the member's own bits are the value recorded, in the kind's wire type. That
+// is the scalar family and the address kind, which format.h keeps off that family because the decoder treats an
+// address as an identifier; for encode the distinction does not arise. A handle is not one, since it records the
+// wrapper's id.
+template <typename Field>
+concept GeneralScalarKindField = ScalarKindField<Field> || AddressField<Field>;
+
 template <typename Field>
 concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;
 
