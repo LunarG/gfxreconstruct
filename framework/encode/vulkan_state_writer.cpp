@@ -136,7 +136,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     ++blocks_written_;
 
     // Instance, device, and queue creation.
-    StandardCreateWrite<vulkan_wrappers::InstanceWrapper>(state_table);
+    WriteInstanceState(state_table);
     WritePhysicalDeviceState(state_table);
     WriteDeviceState(state_table);
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
@@ -255,6 +255,24 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     return blocks_written_;
     // clang-format on
+}
+
+void VulkanStateWriter::WriteInstanceState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::InstanceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            // The direct driver blocks must come directly before the vkCreateInstance block, as in a full
+            // capture.
+            WriteSetDirectDriverInfoCommands(wrapper);
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            processed.insert(wrapper->create_parameters.get());
+        }
+    });
 }
 
 void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_table)
@@ -4551,6 +4569,27 @@ void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surf
     output_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
 
     ++blocks_written_;
+}
+
+void VulkanStateWriter::WriteSetDirectDriverInfoCommands(const vulkan_wrappers::InstanceWrapper* instance_wrapper)
+{
+    for (const DirectDriverRecord& record : instance_wrapper->direct_drivers)
+    {
+        format::SetDirectDriverInfoCommand command = {};
+        FillSetDirectDriverInfoCommand(record, thread_data_->thread_id_, &command);
+
+        output_stream_->Write(&command, sizeof(command));
+        if (!record.module_path.empty())
+        {
+            output_stream_->Write(record.module_path.data(), record.module_path.size());
+        }
+        if (!record.symbol_name.empty())
+        {
+            output_stream_->Write(record.symbol_name.data(), record.symbol_name.size());
+        }
+
+        ++blocks_written_;
+    }
 }
 
 void VulkanStateWriter::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
