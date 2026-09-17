@@ -60,6 +60,7 @@ from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, Dec
 
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
+from vulkan_native_call_consumer_generator import VulkanNativeCallConsumerGenerator, VulkanNativeCallConsumerGeneratorOptions
 from vulkan_replay_frame_loop_consumer_base_header_generator import VulkanFrameLoopConsumerBaseHeaderGenerator, VulkanFrameLoopConsumerBaseHeaderGeneratorOptions
 from vulkan_cpp_consumer_body_generator import VulkanCppConsumerBodyGenerator,VulkanCppConsumerBodyGeneratorOptions
 from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerator, VulkanCppConsumerHeaderGeneratorOptions
@@ -424,6 +425,36 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_native_call_consumer.h'] = [
+        VulkanNativeCallConsumerGenerator,
+        VulkanNativeCallConsumerGeneratorOptions(
+            header=True,
+            filename='generated_vulkan_native_call_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=True,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_native_call_consumer.cpp'] = [
+        VulkanNativeCallConsumerGenerator,
+        VulkanNativeCallConsumerGeneratorOptions(
+            header=False,
+            filename='generated_vulkan_native_call_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=True,
             extra_headers=extra_headers
         )
     ]
