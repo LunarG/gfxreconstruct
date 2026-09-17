@@ -49,6 +49,24 @@ class VulkanResourceAllocator
     typedef uintptr_t ResourceData;
     typedef uintptr_t MemoryData;
 
+    /// One member of an aliasing group, with the replay memory requirements the consumer queried for it.
+    struct AliasingGroupMember
+    {
+        format::HandleId     resource_id{ format::kNullHandleId };
+        VkDeviceSize         bind_offset{ 0 };
+        VkMemoryRequirements requirements{};
+        bool                 requires_dedicated_allocation{ false };
+        bool                 prefers_dedicated_allocation{ false };
+    };
+
+    /// A set of resources that aliased one another inside one captured device memory object.
+    struct AliasingGroup
+    {
+        format::HandleId                 memory_id{ format::kNullHandleId };
+        uint32_t                         group_id{ 0 };
+        std::vector<AliasingGroupMember> members;
+    };
+
   public:
     struct Functions
     {
@@ -415,6 +433,19 @@ class VulkanResourceAllocator
 
     virtual bool SupportsOpaqueDeviceAddresses() = 0;
     virtual bool SupportBindVideoSessionMemory() = 0;
+
+    /**
+     * @brief   SetResourceAliasingGroups hands over the aliasing groups a resource aliasing groups
+     *          meta-data block described, resolved to replay memory requirements.
+     *
+     * Allocators that place resources exactly as captured have nothing to do with them.
+     *
+     * @param   groups  the groups, which replace any previously set for this allocator.
+     */
+    virtual void SetResourceAliasingGroups(const std::vector<AliasingGroup>& groups)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(groups);
+    }
 
     virtual VkResult CreateDataGraphPipelineSession(const VkDataGraphPipelineSessionCreateInfoARM* create_info,
                                                     const VkAllocationCallbacks*                   allocation_callbacks,

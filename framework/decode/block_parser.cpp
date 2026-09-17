@@ -1597,6 +1597,28 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             return MakeIncompressibleParsedBlock(block_buffer, payload);
         }
     }
+    else if (meta_data_type == format::MetaDataType::kResourceAliasingGroupsCommand)
+    {
+        // The payload carries create-infos written by the generated struct encoders, so it is handed to the
+        // Vulkan decoder undecoded and walked there.
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
+        success                                      = parameter_data.size() == parameter_buffer_size;
+
+        if (success)
+        {
+            // This command does not support compression.
+            auto* payload = Emplace<ResourceAliasingGroupsArgs>(
+                meta_data_id, reinterpret_cast<const uint8_t*>(parameter_data.data()), parameter_buffer_size);
+            //  NOTE: references block buffer
+            return MakeIncompressibleParsedBlock(block_buffer, payload);
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read resource aliasing groups meta-data block");
+        }
+    }
     else if (meta_data_type == format::MetaDataType::kExecuteBlocksFromFile)
     {
         format::ExecuteBlocksFromFile exec_from_file;

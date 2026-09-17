@@ -26,6 +26,8 @@
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/value_decoder.h"
+#include "decode/vulkan_resource_aliasing_groups.h"
+#include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -632,6 +634,147 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaC
     {
         consumer->ProcessVulkanWriteAccelerationStructuresPropertiesCommand(
             device_id, query_type, acceleration_structure_id);
+    }
+}
+
+void VulkanDecoderBase::DispatchResourceAliasingGroupsCommand(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    // A malformed block is dropped whole: replay then places the resources with the per-bind detection in
+    // VulkanRebindAllocator, which is what a capture without this block gets.
+    size_t offset = 0;
+
+    auto read = [&](void* destination, size_t size) {
+        if ((buffer_size - offset) < size)
+        {
+            return false;
+        }
+        util::platform::MemoryCopy(destination, size, parameter_buffer + offset, size);
+        offset += size;
+        return true;
+    };
+
+    format::ResourceAliasingGroupsCommandHeader header{};
+    if (!read(&header.thread_id, sizeof(header.thread_id)) || !read(&header.device_id, sizeof(header.device_id)) ||
+        !read(&header.layout_version, sizeof(header.layout_version)) ||
+        !read(&header.group_count, sizeof(header.group_count)))
+    {
+        GFXRECON_LOG_WARNING("Ignoring a truncated resource aliasing groups meta-data block.");
+        return;
+    }
+
+    if (header.layout_version != format::kResourceAliasingGroupsLayoutVersion)
+    {
+        GFXRECON_LOG_WARNING("Ignoring a resource aliasing groups meta-data block with layout version %u, this "
+                             "build reads version %u.",
+                             header.layout_version,
+                             format::kResourceAliasingGroupsLayoutVersion);
+        return;
+    }
+
+    std::vector<ResourceAliasingGroup> groups;
+    groups.reserve(header.group_count);
+
+    for (uint32_t group_index = 0; group_index < header.group_count; ++group_index)
+    {
+        format::ResourceAliasingGroupHeader group_header{};
+        if (!read(&group_header, sizeof(group_header)))
+        {
+            GFXRECON_LOG_WARNING("Ignoring a truncated resource aliasing groups meta-data block.");
+            return;
+        }
+
+        ResourceAliasingGroup group;
+        group.memory_id = group_header.memory_id;
+        group.group_id  = group_header.group_id;
+        group.members.reserve(group_header.member_count);
+
+        for (uint32_t member_index = 0; member_index < group_header.member_count; ++member_index)
+        {
+            format::ResourceAliasingMemberHeader member_header{};
+            if (!read(&member_header, sizeof(member_header)))
+            {
+                GFXRECON_LOG_WARNING("Ignoring a truncated resource aliasing groups meta-data block.");
+                return;
+            }
+
+            ResourceAliasingMember member;
+            member.resource_id = member_header.resource_id;
+            member.bind_offset = member_header.bind_offset;
+
+            switch (static_cast<format::ResourceAliasingResourceType>(member_header.resource_type))
+            {
+                case format::ResourceAliasingResourceType::kBuffer:
+                    member.create_info.emplace<StructPointerDecoder<Decoded_VkBufferCreateInfo>>();
+                    break;
+                case format::ResourceAliasingResourceType::kImage:
+                    member.create_info.emplace<StructPointerDecoder<Decoded_VkImageCreateInfo>>();
+                    break;
+                case format::ResourceAliasingResourceType::kTensor:
+                    member.create_info.emplace<StructPointerDecoder<Decoded_VkTensorCreateInfoARM>>();
+                    break;
+                default:
+                    GFXRECON_LOG_WARNING("Ignoring a resource aliasing groups meta-data block with unknown resource "
+                                         "type %u for resource %" PRIu64 ".",
+                                         member_header.resource_type,
+                                         member_header.resource_id);
+                    return;
+            }
+
+            bool has_create_info = false;
+
+            for (uint32_t property_index = 0; property_index < member_header.property_count; ++property_index)
+            {
+                format::ResourceAliasingPropertyHeader property_header{};
+                if (!read(&property_header, sizeof(property_header)) ||
+                    ((buffer_size - offset) < property_header.property_size))
+                {
+                    GFXRECON_LOG_WARNING("Ignoring a truncated resource aliasing groups meta-data block.");
+                    return;
+                }
+
+                if (static_cast<format::ResourceAliasingPropertyId>(property_header.property_id) ==
+                    format::ResourceAliasingPropertyId::kCreateInfo)
+                {
+                    const size_t decoded_size = std::visit(
+                        [&](auto& create_info_decoder) {
+                            return create_info_decoder.Decode(parameter_buffer + offset, property_header.property_size);
+                        },
+                        member.create_info);
+
+                    if (decoded_size != property_header.property_size)
+                    {
+                        GFXRECON_LOG_WARNING("Ignoring a resource aliasing groups meta-data block whose create-info "
+                                             "for resource %" PRIu64 " decoded %" PRIuPTR " of %u bytes.",
+                                             member_header.resource_id,
+                                             decoded_size,
+                                             property_header.property_size);
+                        return;
+                    }
+                    has_create_info = true;
+                }
+                // An unknown property is skipped by its length, which is what lets a reader of this layout
+                // version read a block that carries properties added later.
+
+                offset += property_header.property_size;
+            }
+
+            if (!has_create_info)
+            {
+                GFXRECON_LOG_WARNING("Ignoring a resource aliasing groups meta-data block with no create-info for "
+                                     "resource %" PRIu64 ".",
+                                     member_header.resource_id);
+                return;
+            }
+
+            group.members.emplace_back(std::move(member));
+        }
+
+        groups.emplace_back(std::move(group));
+    }
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessResourceAliasingGroupsCommand(header.device_id, groups);
     }
 }
 
