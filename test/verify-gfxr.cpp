@@ -4,6 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <stdlib.h>
 
 #include <util/logging.h>
@@ -36,6 +37,13 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
             if (key == "\"fd\"")
                 return false;
             if (key == "\"app_name\"")
+                return false;
+            // SetDirectDriverInfoCommand: these values differ between machines and builds.
+            if (key == "\"module_path\"")
+                return false;
+            if (key == "\"module_offset\"")
+                return false;
+            if (key == "\"capture_address\"")
                 return false;
             if (skip_next_buffer && key == "\"buffer\"")
             {
@@ -189,11 +197,13 @@ struct Paths
 class EnvironmentVariables
 {
   private:
-    std::unordered_map<std::string, std::string> env_vars;
+    std::unordered_map<std::string, std::string>                env_vars;
+    std::unordered_map<std::string, std::optional<std::string>> remembered_vars;
 
   public:
     ~EnvironmentVariables()
     {
+        RestoreAll();
         for (auto& env_var : env_vars)
         {
 #if defined(__linux__) || defined(__APPLE__)
@@ -217,6 +227,55 @@ class EnvironmentVariables
 #error "Unsupported platform"
 #endif
         env_vars.insert(std::pair(env_name, env_var));
+    }
+
+    // Set a variable and remember its earlier value. RestoreEnv() or the destructor puts the earlier value back.
+    void SetEnvAndRemember(const char* env_name, const char* env_var)
+    {
+        if (remembered_vars.find(env_name) == remembered_vars.end())
+        {
+            const char* previous      = std::getenv(env_name);
+            remembered_vars[env_name] = (previous != nullptr) ? std::optional<std::string>(previous) : std::nullopt;
+        }
+#if defined(__linux__) || defined(__APPLE__)
+        ASSERT_EQ(setenv(env_name, env_var, 1), 0) << "set env var: " << env_name << ": " << env_var << " failed.";
+#elif defined(_WIN32)
+        ASSERT_EQ(_putenv_s(env_name, env_var), 0) << "set env var: " << env_name << ": " << env_var << " failed.";
+#else
+#error "Unsupported platform"
+#endif
+    }
+
+    void RestoreEnv(const char* env_name)
+    {
+        auto entry = remembered_vars.find(env_name);
+        if (entry == remembered_vars.end())
+        {
+            return;
+        }
+#if defined(__linux__) || defined(__APPLE__)
+        if (entry->second.has_value())
+        {
+            setenv(env_name, entry->second->c_str(), 1);
+        }
+        else
+        {
+            unsetenv(env_name);
+        }
+#elif defined(_WIN32)
+        _putenv_s(env_name, entry->second.has_value() ? entry->second->c_str() : "");
+#else
+#error "Unsupported platform"
+#endif
+        remembered_vars.erase(entry);
+    }
+
+    void RestoreAll()
+    {
+        while (!remembered_vars.empty())
+        {
+            RestoreEnv(remembered_vars.begin()->first.c_str());
+        }
     }
 
     void UnsetEnv(const char* env_name)
@@ -352,6 +411,13 @@ void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigge
 
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
 {
+    CaptureReplayOptions options;
+    options.replay_args = std::move(extra_replay_args);
+    capture_and_replay(test_name, options);
+}
+
+void capture_and_replay(const char* test_name, const CaptureReplayOptions& options)
+{
     EnvironmentVariables env_vars;
 
     Paths paths{ test_name, nullptr, false };
@@ -362,11 +428,21 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
 
     // Run the app with capture enabled to produce the gfxr to replay.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    for (const auto& [name, value] : options.capture_env)
+    {
+        env_vars.SetEnvAndRemember(name.c_str(), value.c_str());
+    }
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    env_vars.RestoreAll();
     ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
 
     ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+
+    if (options.before_replay)
+    {
+        options.before_replay();
+    }
 
     // The gfxreconstruct capture layer is still enabled in the environment, so point GFXRECON_CAPTURE_FILE at a
     // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
@@ -378,10 +454,24 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     // Replay the capture headless (offscreen swapchain) against the mock ICD, forwarding any extra arguments.
     // Asserts the replay tool exits successfully (no crash, assertion, or replay error).
     std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
-    replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
+    replay_args.insert(replay_args.end(), options.replay_args.begin(), options.replay_args.end());
     replay_args.push_back(paths.capture_path.string());
 
+    for (const auto& [name, value] : options.replay_env)
+    {
+        env_vars.SetEnvAndRemember(name.c_str(), value.c_str());
+    }
     result = run_command(paths.base_path, paths.replay_path, replay_args);
-    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
-                         << " in path " << paths.base_path;
+    env_vars.RestoreAll();
+
+    if (options.expect_replay_success)
+    {
+        ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
+                             << " in path " << paths.base_path;
+    }
+    else
+    {
+        ASSERT_NE(result, 0) << "replay command succeeded but the test expected an error: " << paths.replay_path
+                             << " for capture " << paths.capture_path << " in path " << paths.base_path;
+    }
 }
