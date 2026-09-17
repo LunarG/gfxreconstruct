@@ -30,6 +30,7 @@
 #include "decode/vulkan_screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_decoder_base.h"
+#include "decode/vulkan_direct_driver_resolver.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_frame_warm_up.h"
@@ -144,6 +145,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
+
+    virtual void ProcessSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                   std::string_view                          module_path,
+                                                   std::string_view                          symbol_name) override;
 
     void ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
                                                format::HandleId object_id,
@@ -266,6 +271,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // member functions and variables are referenced
     void ModifyCreateInstanceInfo(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
                                   CreateInstanceInfoState&                                  create_state);
+
+    // Handle VK_LUNARG_direct_driver_loading in the instance create info. Load the recorded driver libraries and
+    // write their entry points into the driver list, as the replay options direct. Fall back to removal when
+    // that is not possible. `available_extensions` is null when the replay loader could not be queried.
+    void ProcessDirectDriverLoading(CreateInstanceInfoState&                  create_state,
+                                    const std::vector<VkExtensionProperties>* available_extensions);
 
     // Remove VK_LUNARG_direct_driver_loading from the instance create info. The captured driver entry points
     // are addresses from the capture process and have no meaning at replay.
@@ -2310,6 +2321,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // faked extensions is a list of currently bypassed extensions.
     // goal is to allow replay when 'benign' extensions are missing during replay.
     std::vector<const char*> faked_extensions_;
+
+    // Direct driver records for the next vkCreateInstance, and the driver libraries that replay loaded for it.
+    // The libraries stay open until every instance is destroyed.
+    std::vector<DirectDriverInfo>              pending_direct_drivers_;
+    std::vector<util::platform::LibraryHandle> direct_driver_libraries_;
 
     // option to override swapchain-image via debug-name
     format::HandleId present_override_image_id_ = format::kNullHandleId;

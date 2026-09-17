@@ -368,6 +368,13 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     object_cleanup::FreeAllLiveInstances(
         object_info_table_, false, true, [this](const void* handle) { return GetInstanceTable(handle); });
 
+    // The loader called into these libraries through the instances that are now destroyed.
+    for (util::platform::LibraryHandle library : direct_driver_libraries_)
+    {
+        util::platform::CloseLibrary(library);
+    }
+    direct_driver_libraries_.clear();
+
     if (loader_handle_ != nullptr)
     {
         graphics::ReleaseLoader(loader_handle_);
@@ -949,6 +956,14 @@ void VulkanReplayConsumerBase::ProcessSetDevicePropertiesCommand(format::HandleI
                                    pipeline_cache_uuid,
                                    format::kUuidSize);
     }
+}
+
+void VulkanReplayConsumerBase::ProcessSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                                 std::string_view                          module_path,
+                                                                 std::string_view                          symbol_name)
+{
+    // The blocks come directly before the vkCreateInstance block that they describe.
+    pending_direct_drivers_.push_back({ header, std::string(module_path), std::string(symbol_name) });
 }
 
 void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
@@ -2921,12 +2936,12 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
-    RemoveDirectDriverLoading(create_state);
-
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
+        ProcessDirectDriverLoading(create_state, &available_extensions);
+
         // only set a wsi if there was one on the capture device
         bool surface_at_capture_time = !capture_surface_extensions.empty();
 
@@ -3126,6 +3141,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     {
         GFXRECON_LOG_WARNING("Failed to get instance extensions. Cannot perform sanity checks or filters for "
                              "extension availability.");
+        ProcessDirectDriverLoading(create_state, nullptr);
     }
 
     // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
@@ -3184,6 +3200,113 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         modified_create_info.enabledLayerCount   = static_cast<uint32_t>(modified_layers.size());
         modified_create_info.ppEnabledLayerNames = modified_layers.data();
     }
+}
+
+void VulkanReplayConsumerBase::ProcessDirectDriverLoading(
+    CreateInstanceInfoState& create_state, const std::vector<VkExtensionProperties>* available_extensions)
+{
+    // The records belong to this vkCreateInstance call only.
+    std::vector<DirectDriverInfo> records = std::move(pending_direct_drivers_);
+    pending_direct_drivers_.clear();
+
+    auto driver_list =
+        graphics::vulkan_struct_get_pnext<VkDirectDriverLoadingListLUNARG>(&create_state.modified_create_info);
+    if ((driver_list == nullptr) || (driver_list->pDrivers == nullptr) || (driver_list->driverCount == 0))
+    {
+        // Nothing to load. Remove a leftover extension name, if the application enabled one without a list.
+        RemoveDirectDriverLoading(create_state);
+        return;
+    }
+
+    using DirectDriverPolicy        = VulkanReplayOptions::DirectDriverPolicy;
+    const DirectDriverPolicy policy = options_.direct_driver_policy;
+
+    if (policy == DirectDriverPolicy::kStrip)
+    {
+        GFXRECON_LOG_INFO("The direct driver policy is \"strip\".");
+        RemoveDirectDriverLoading(create_state);
+        return;
+    }
+
+    if ((available_extensions != nullptr) && !graphics::feature_util::IsSupportedExtension(
+                                                 *available_extensions, VK_LUNARG_DIRECT_DRIVER_LOADING_EXTENSION_NAME))
+    {
+        if (policy == DirectDriverPolicy::kRequire)
+        {
+            GFXRECON_LOG_FATAL("The replay loader does not support VK_LUNARG_direct_driver_loading, and the direct "
+                               "driver policy is \"require\". Replay cannot continue.");
+            return;
+        }
+        GFXRECON_LOG_WARNING("The replay loader does not support VK_LUNARG_direct_driver_loading.");
+        RemoveDirectDriverLoading(create_state);
+        return;
+    }
+
+    // The decoded array is writable. The decoder owns it for the duration of this call.
+    auto drivers = const_cast<VkDirectDriverLoadingInfoLUNARG*>(driver_list->pDrivers);
+
+    const DirectDriverLoadOps ops            = GetDefaultDirectDriverLoadOps();
+    uint32_t                  resolved_count = 0;
+    std::vector<std::string>  failures;
+
+    for (uint32_t i = 0; i < driver_list->driverCount; ++i)
+    {
+        // A capture from before the records existed has no record. The resolver then needs an override path.
+        DirectDriverInfo        no_record;
+        const DirectDriverInfo* record = &no_record;
+        for (const DirectDriverInfo& candidate : records)
+        {
+            if (candidate.header.driver_index == i)
+            {
+                record = &candidate;
+                break;
+            }
+        }
+
+        const std::string override_path =
+            (i < options_.direct_driver_libraries.size()) ? options_.direct_driver_libraries[i] : std::string();
+
+        const DirectDriverResolveResult result = ResolveDirectDriver(*record, override_path, ops);
+        if (result.Succeeded())
+        {
+            // Compact the array so that the loader sees only the drivers that loaded.
+            drivers[resolved_count]                        = drivers[i];
+            drivers[resolved_count].pfnGetInstanceProcAddr = result.entry_point;
+            ++resolved_count;
+            direct_driver_libraries_.push_back(result.library);
+
+            GFXRECON_LOG_INFO("Direct driver %u of %u: loaded \"%s\" with entry point \"%s\".",
+                              i + 1,
+                              driver_list->driverCount,
+                              result.library_path.c_str(),
+                              result.symbol_name.c_str());
+        }
+        else
+        {
+            failures.push_back("Direct driver " + std::to_string(i + 1) + " of " +
+                               std::to_string(driver_list->driverCount) + ": " + result.message + ".");
+        }
+    }
+
+    for (const std::string& failure : failures)
+    {
+        GFXRECON_LOG_WARNING("%s", failure.c_str());
+    }
+
+    if (!failures.empty() && (policy == DirectDriverPolicy::kRequire))
+    {
+        GFXRECON_LOG_FATAL("A direct driver failed to load, and the direct driver policy is \"require\". Replay "
+                           "cannot continue.");
+        return;
+    }
+
+    if (resolved_count == 0)
+    {
+        RemoveDirectDriverLoading(create_state);
+        return;
+    }
+
+    driver_list->driverCount = resolved_count;
 }
 
 void VulkanReplayConsumerBase::RemoveDirectDriverLoading(CreateInstanceInfoState& create_state)
