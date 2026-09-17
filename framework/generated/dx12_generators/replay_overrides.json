@@ -36,10 +36,12 @@
       "CreateCommandSignature": "OverrideCreateCommandSignature",
       "CreateCommandList": "OverrideCreateCommandList",
       "CreateRootSignature": "OverrideCreateRootSignature",
+      "GetResourceTiling": "OverrideGetResourceTiling",
       "OpenSharedHandle": "OverrideOpenSharedHandle"
     },
     "ID3D12Device1": {
-      "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"
+      "CreatePipelineLibrary": "OverrideCreatePipelineLibrary",
+      "SetResidencyPriority": "OverrideSetResidencyPriority"
     },
     "ID3D12Device2": {
       "CreatePipelineState": "OverrideCreatePipelineState"
@@ -91,7 +93,9 @@
     "ID3D12CommandQueue": {
       "ExecuteCommandLists": "OverrideExecuteCommandLists",
       "Signal": "OverrideCommandQueueSignal",
-      "Wait": "OverrideCommandQueueWait"
+      "Wait": "OverrideCommandQueueWait",
+      "UpdateTileMappings": "OverrideUpdateTileMappings",
+      "CopyTileMappings": "OverrideCopyTileMappings"
     },
     "ID3D12Fence": {
       "GetCompletedValue": "OverrideGetCompletedValue",
@@ -100,13 +104,15 @@
     },
     "ID3D12PipelineLibrary": {
       "LoadComputePipeline": "OverrideLoadComputePipeline",
-      "LoadGraphicsPipeline": "OverrideLoadGraphicsPipeline"
+      "LoadGraphicsPipeline": "OverrideLoadGraphicsPipeline",
+      "Serialize": "OverrideSerialize"
     },
     "ID3D12PipelineLibrary1": {
       "LoadPipeline": "OverrideLoadPipeline"
     },
     "ID3D12StateObjectProperties": {
-      "GetShaderIdentifier": "OverrideGetShaderIdentifier"
+      "GetShaderIdentifier": "OverrideGetShaderIdentifier",
+      "SetPipelineStackSize": "OverrideSetPipelineStackSize"
     },
     "ID3D12GraphicsCommandList": {
       "CopyBufferRegion": "OverrideCopyBufferRegion",
@@ -116,7 +122,8 @@
       "CopyTextureRegion": "OverrideCopyTextureRegion",
       "IASetIndexBuffer": "OverrideIASetIndexBuffer",
       "IASetVertexBuffers": "OverrideIASetVertexBuffers",
-      "ExecuteBundle": "OverrideExecuteBundle"
+      "ExecuteBundle": "OverrideExecuteBundle",
+      "CopyTiles": "OverrideCopyTiles"
     },
     "ID3D12GraphicsCommandList4": {
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",
