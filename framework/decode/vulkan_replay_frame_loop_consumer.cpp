@@ -577,8 +577,15 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
     std::unordered_map<format::HandleId, std::vector<format::HandleId>> device_buffers;
-    table.VisitVkBufferInfo([&device_buffers](const VulkanBufferInfo* buffer_info) {
+    table.VisitVkBufferInfo([&table, &device_buffers](const VulkanBufferInfo* buffer_info) {
         if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
+        {
+            return;
+        }
+
+        // A buffer can outlive the device that created it in the object info table, in which case
+        // there is nothing left to record its contents with.
+        if (table.GetVkDeviceInfo(buffer_info->parent_id) == nullptr)
         {
             return;
         }
@@ -1597,6 +1604,11 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
     GetObjectInfoTable().VisitVkImageInfo(
         [this, &device_images, &device_restorable_images](const VulkanImageInfo* image_info) {
             if (image_info->handle == VK_NULL_HANDLE)
+            {
+                return;
+            }
+
+            if (GetObjectInfoTable().GetVkDeviceInfo(image_info->parent_id) == nullptr)
             {
                 return;
             }
