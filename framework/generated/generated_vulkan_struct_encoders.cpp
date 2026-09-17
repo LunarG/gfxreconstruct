@@ -27,11 +27,12 @@
 **
 */
 
-#include "generated/generated_vulkan_struct_encoders.h"
+#include "encode/vulkan_encode_struct.h"
 
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_encode_struct_impl.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -827,12 +828,6 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1ReferenceInf
     EncodeStructPtr(encoder, value.pExtensionHeader);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkExtent2D& value)
-{
-    encoder->EncodeUInt32Value(value.width);
-    encoder->EncodeUInt32Value(value.height);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkExtent3D& value)
 {
     encoder->EncodeUInt32Value(value.width);
@@ -1165,28 +1160,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value)
     encoder->EncodeString(value.description);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::SemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
-    encoder->EncodeFlagsArray(value.pWaitDstStageMask, value.waitSemaphoreCount);
-    encoder->EncodeUInt32Value(value.commandBufferCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::CommandBufferWrapper>(value.pCommandBuffers, value.commandBufferCount);
-    encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::SemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkMappedMemoryRange& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceMemoryWrapper>(value.memory);
-    encoder->EncodeUInt64Value(value.offset);
-    encoder->EncodeUInt64Value(value.size);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1303,18 +1276,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolCreateInfo& value)
     encoder->EncodeEnumValue(value.queryType);
     encoder->EncodeUInt32Value(value.queryCount);
     encoder->EncodeFlagsValue(value.pipelineStatistics);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferCreateInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeUInt64Value(value.size);
-    encoder->EncodeFlagsValue(value.usage);
-    encoder->EncodeEnumValue(value.sharingMode);
-    encoder->EncodeUInt32Value(value.queueFamilyIndexCount);
-    encoder->EncodeUInt32Array(value.pQueueFamilyIndices, value.queueFamilyIndexCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCreateInfo& value)
@@ -1445,19 +1406,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy& value)
     EncodeStruct(encoder, value.extent);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.srcAccessMask);
-    encoder->EncodeFlagsValue(value.dstAccessMask);
-    encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
-    encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferWrapper>(value.buffer);
-    encoder->EncodeUInt64Value(value.offset);
-    encoder->EncodeUInt64Value(value.size);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1487,15 +1435,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& va
     encoder->EncodeUInt32Value(value.z);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionOne& value)
-{
-    encoder->EncodeUInt32Value(value.headerSize);
-    encoder->EncodeEnumValue(value.headerVersion);
-    encoder->EncodeUInt32Value(value.vendorID);
-    encoder->EncodeUInt32Value(value.deviceID);
-    encoder->EncodeUInt8Array(value.pipelineCacheUUID, VK_UUID_SIZE);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkEventCreateInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1521,15 +1460,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleCreateInfo& val
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeSizeTValue(value.codeSize);
     encoder->EncodeUInt32Array(value.pCode, value.codeSize / 4);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheCreateInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeSizeTValue(value.initialDataSize);
-    encoder->EncodeVoidArray(value.pInitialData, value.initialDataSize);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationMapEntry& value)
@@ -3039,12 +2969,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSubpassBeginInfo& value)
     encoder->EncodeEnumValue(value.contents);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassEndInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3897,13 +3821,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance6P
     encoder->EncodeUInt32Value(value.fragmentShadingRateClampCombinerInputs);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBindMemoryStatus& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumPtr(value.pResult);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeatures& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -4371,15 +4288,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeVoidPtr(value.window);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeVoidPtr(value.hinstance);
-    encoder->EncodeVoidPtr(value.hwnd);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyQueryResultStatusPropertiesKHR& value)
@@ -5765,12 +5673,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKH
     EncodeStructArray(encoder, value.pPipelineBinaryData, value.binaryCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6942,14 +6844,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryAllocateInfoNV&
     encoder->EncodeFlagsValue(value.handleTypes);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoNV& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.handleType);
-    encoder->EncodeVoidPtr(value.handle);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7252,15 +7146,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
     encoder->EncodeFloatArray(value.color, 4);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(vulkan_wrappers::GetWrappedId(value.objectHandle, value.objectType));
-    encoder->EncodeString(value.pObjectName);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7275,17 +7160,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallback
     EncodeStructArray(encoder, value.pCmdBufLabels, value.cmdBufLabelCount);
     encoder->EncodeUInt32Value(value.objectCount);
     EncodeStructArray(encoder, value.pObjects, value.objectCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeFlagsValue(value.messageSeverity);
-    encoder->EncodeFlagsValue(value.messageType);
-    encoder->EncodeFunctionPtr(value.pfnUserCallback);
-    encoder->EncodeVoidPtr(value.pUserData);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
@@ -7853,11 +7727,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPro
     encoder->EncodeUInt64Value(value.maxInstanceCount);
     encoder->EncodeUInt64Value(value.maxTriangleCount);
     encoder->EncodeUInt32Value(value.maxDescriptorSetAccelerationStructures);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkTransformMatrixKHR& value)
-{
-    encoder->EncodeFloat2DMatrix(value.matrix, 3, 4);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAabbPositionsKHR& value)
@@ -8486,13 +8355,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesFullScre
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.fullScreenExclusiveSupported);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveWin32InfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVoidPtr(value.hmonitor);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkHeadlessSurfaceCreateInfoEXT& value)
@@ -12505,6 +12367,24 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
     encoder->EncodeUInt32Value(value.groupCountY);
     encoder->EncodeUInt32Value(value.groupCountZ);
 }
+
+// The schema drives these encoders. This is the only translation unit that compiles the walk.
+template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMemoryStatus&);
+template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBufferCreateInfo&);
+template void EncodeStruct<VkBufferMemoryBarrier>(ParameterEncoder*, const VkBufferMemoryBarrier&);
+template void EncodeStruct<VkDebugUtilsMessengerCreateInfoEXT>(ParameterEncoder*, const VkDebugUtilsMessengerCreateInfoEXT&);
+template void EncodeStruct<VkDebugUtilsObjectNameInfoEXT>(ParameterEncoder*, const VkDebugUtilsObjectNameInfoEXT&);
+template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
+template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
+template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
+template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
+template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
+template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
+template void EncodeStruct<VkSubmitInfo>(ParameterEncoder*, const VkSubmitInfo&);
+template void EncodeStruct<VkSubpassEndInfo>(ParameterEncoder*, const VkSubpassEndInfo&);
+template void EncodeStruct<VkSurfaceFullScreenExclusiveWin32InfoEXT>(ParameterEncoder*, const VkSurfaceFullScreenExclusiveWin32InfoEXT&);
+template void EncodeStruct<VkTransformMatrixKHR>(ParameterEncoder*, const VkTransformMatrixKHR&);
+template void EncodeStruct<VkWin32SurfaceCreateInfoKHR>(ParameterEncoder*, const VkWin32SurfaceCreateInfoKHR&);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

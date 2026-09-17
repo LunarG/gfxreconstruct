@@ -28,7 +28,7 @@
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
-#include "generated/generated_vulkan_struct_encoders.h"
+#include "encode/vulkan_encode_struct.h"
 #include "util/logging.h"
 
 #include "vulkan/vulkan.h"

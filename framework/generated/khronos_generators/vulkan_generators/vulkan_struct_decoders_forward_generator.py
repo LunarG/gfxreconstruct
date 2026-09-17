@@ -24,6 +24,7 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_forward_generator import KhronosStructDecodersForwardGenerator
+from vulkan_schema_generator import is_schema_driven
 
 
 class VulkanStructDecodersForwardGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -53,6 +54,7 @@ class VulkanStructDecodersForwardGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.append('util/defines.h')
+        self.begin_end_file_data.specific_headers.append('util/type_list.h')
         self.begin_end_file_data.system_headers.append('cstdint')
         self.begin_end_file_data.namespaces.extend((
             'gfxrecon',
@@ -76,11 +78,53 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
             diag_file=diag_file
         )
 
+    def skip_struct_decoder_prototype(self, struct):
+        """Method override. A schema-owned decoder is declared by the constrained template."""
+        return is_schema_driven(self, struct)
+
+    def write_schema_driven_declarations(self):
+        """The declaration side of the structures the schema drives.
+
+        These sit beside the prototypes they replace, and in the same file, because they are the same thing: a
+        caller needs one declaration per structure either way, and which kind it gets is the only difference. As
+        structures migrate, prototypes leave and exclusions leave with them, and no caller's includes change.
+
+        The list names what the schema does NOT drive, rather than what it does. Both spellings pick out the same
+        template, but this one is a handful of entries where the other was the whole population, and that matters
+        here: this header is included nearly everywhere, and every use of the concept expands the list as a fold,
+        so the list's length is multiplied by the number of call sites.
+
+        Custom decoders are not listed. They are declared in decode/custom_vulkan_struct_decoders.h as
+        non-template overloads, which beat this template wherever they are visible, and their wrappers are not
+        declared in this file at all.
+        """
+        excluded = sorted(
+            struct for struct in self.get_all_filtered_struct_names()
+            if not is_schema_driven(self, struct)
+        )
+
+        # VkBaseOutStructure keeps a generated body, written by hand above, so it belongs to this category too.
+        excluded.append('VkBaseOutStructure')
+
+        self.newline()
+        write('// The structures the schema does not drive: each keeps a generated body and a prototype above.', file=self.outFile)
+        write('// decode/vulkan_decode_struct.h includes this header and declares the constrained DecodeStruct over', file=self.outFile)
+        write('// this list beside the prototypes; it says why the list is an exclusion.', file=self.outFile)
+        write('using NonSchemaDrivenStructs = util::TypeList<', file=self.outFile)
+
+        for index, struct in enumerate(excluded):
+            comma = ',' if index + 1 < len(excluded) else ''
+            write('    Decoded_{}{}'.format(struct, comma), file=self.outFile)
+
+        write('>;', file=self.outFile)
+
     def endFile(self):
         """Method override."""
         KhronosStructDecodersForwardGenerator.write_struct_decoder_forward_prototypes(self)
         write('struct Decoded_VkBaseOutStructure;', file=self.outFile)
         write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper);', file=self.outFile)
+
+        self.write_schema_driven_declarations()
 
         self.newline()
 

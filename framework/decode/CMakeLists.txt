@@ -32,6 +32,7 @@ target_sources(gfxrecon_decode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_element_traits.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_payload.h
                     ${CMAKE_CURRENT_LIST_DIR}/async_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/async_processor.cpp
@@ -203,6 +204,9 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_pre_process_consumer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.cpp>
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_action.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_decode_struct_impl.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
@@ -317,6 +321,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decode_api_element_traits.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder_args.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
@@ -335,6 +340,12 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_command_members.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_struct_members.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_fields.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_native_struct_members.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_types.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
@@ -467,6 +478,7 @@ if (NOT ANDROID)
 endif()
 
 target_link_libraries(gfxrecon_decode
+                        gfxrecon_schema
                         gfxrecon_graphics
                         gfxrecon_format
                         gfxrecon_util

@@ -33,6 +33,7 @@
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
+#include "util/type_list.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
@@ -110,7 +111,6 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1PictureInfoF
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1PictureInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1ReferenceInfoFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeAV1ReferenceInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkExtent2D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtent3D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkOffset2D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkOffset3D& value);
@@ -132,8 +132,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceQueueCreateInfo& valu
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtensionProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMappedMemoryRange& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRequirements& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource& value);
@@ -148,7 +146,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindSparseInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFenceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkComponentMapping& value);
@@ -162,15 +159,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresourceLayers& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferImageCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionOne& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkEventCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferViewCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationMapEntry& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineShaderStageCreateInfo& value);
@@ -321,7 +315,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentReference2& value
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescription2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDependency2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassBeginInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassEndInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescriptionDepthStencilResolve& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthStencilResolveProperties& value);
@@ -402,7 +395,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceImageSubresourceInfo&
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferUsageFlags2CreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance6Features& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance6Properties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBindMemoryStatus& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfo& value);
@@ -454,7 +446,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkXlibSurfaceCreateInfoKHR& v
 void EncodeStruct(ParameterEncoder* encoder, const VkXcbSurfaceCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkWaylandSurfaceCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyQueryResultStatusPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyVideoPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoProfileInfoKHR& value);
@@ -611,7 +602,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDevicePipelineBinaryInterna
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeyKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkReleaseCapturedPipelineDataInfoKHR& value);
@@ -749,7 +739,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCornerSampled
 void EncodeStruct(ParameterEncoder* encoder, const VkExternalImageFormatPropertiesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryAllocateInfoNV& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireReleaseInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkValidationFlagsEXT& value);
@@ -786,9 +775,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRelaxedLineRa
 void EncodeStruct(ParameterEncoder* encoder, const VkIOSSurfaceCreateInfoMVK& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferPropertiesANDROID& value);
@@ -851,7 +838,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindAccelerationStructureMe
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerationStructureNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMemoryRequirementsInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPropertiesNV& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkTransformMatrixKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAabbPositionsKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureInstanceKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& value);
@@ -928,7 +914,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProvokingVert
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesFullScreenExclusiveEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveWin32InfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkHeadlessSurfaceCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& value);
@@ -1391,6 +1376,27 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayQueryFeatu
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectCommandEXT& value);
+
+// The structures the schema drives. encode/vulkan_encode_struct.h includes this header and declares the
+// constrained EncodeStruct over this list beside the prototypes.
+using SchemaDrivenStructs = util::TypeList<
+    VkBindMemoryStatus,
+    VkBufferCreateInfo,
+    VkBufferMemoryBarrier,
+    VkDebugUtilsMessengerCreateInfoEXT,
+    VkDebugUtilsObjectNameInfoEXT,
+    VkExtent2D,
+    VkImportMemoryWin32HandleInfoNV,
+    VkMappedMemoryRange,
+    VkPipelineCacheCreateInfo,
+    VkPipelineCacheHeaderVersionOne,
+    VkPipelineCreateInfoKHR,
+    VkSubmitInfo,
+    VkSubpassEndInfo,
+    VkSurfaceFullScreenExclusiveWin32InfoEXT,
+    VkTransformMatrixKHR,
+    VkWin32SurfaceCreateInfoKHR
+>;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
