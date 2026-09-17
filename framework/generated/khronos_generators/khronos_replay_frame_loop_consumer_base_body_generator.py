@@ -253,6 +253,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {\n'
             body += '        GFXRECON_ASSERT(!allocatedLoopResources.contains(' + values[-2].prefixed_name + '))\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '\n'
+            body += '        // If this resource binds to memory, remove it from bound memory set\n'
+            body += '        boundMemory.erase(' + values[-2].prefixed_name + ');\n'
             body += '    }\n'
             body += '    else if (allocatedLoopResources.contains(' + values[-2].prefixed_name + '))\n'
             body += '    {\n'
@@ -260,6 +263,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        // This resource has been allocated WITHIN the loop range.\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
             body += '        allocatedLoopResources.erase(' + values[-2].prefixed_name + ');\n'
+            body += '\n'
+            body += '        // If this resource binds to memory, remove it from bound memory set\n'
+            body += '        boundMemory.erase(' + values[-2].prefixed_name + ');\n'
             body += '    }\n'
             body += '    else if (getFrameLoopInfo().IsFinalIteration())\n'
             body += '    {\n'
@@ -267,9 +273,10 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        // This resource has been allocated BEFORE the loop range.\n'
             body += '        // Since it might still be in use during the loop range, ONLY free it in the last iteration.\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '\n'
+            body += '        // If this resource binds to memory, remove it from bound memory set\n'
+            body += '        boundMemory.erase(' + values[-2].prefixed_name + ');\n'
             body += '    }\n'
-            body += '    // If this resource binds to memory, remove it from bound memory set\n'
-            body += '    boundMemory.erase(' + values[-2].prefixed_name + ');\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY:
 

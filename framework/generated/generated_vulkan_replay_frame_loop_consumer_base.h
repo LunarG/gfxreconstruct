@@ -74,10 +74,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::AllocateMemory&                       args) override;
 
-    void Process_vkFreeMemory(
-        const ApiCallInfo&                          call_info,
-        args::FreeMemory&                           args) override;
-
     void Process_vkBindBufferMemory(
         const ApiCallInfo&                          call_info,
         args::BindBufferMemory&                     args) override;

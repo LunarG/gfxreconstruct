@@ -83,7 +83,6 @@
   "comment" : "These are entry points that free resources specified via a single handle",
   "resourceFreeSingleHandle":
   [
-    "vkFreeMemory",
     "vkDestroyBuffer",
     "vkDestroyBufferView",
     "vkDestroyCommandPool",
