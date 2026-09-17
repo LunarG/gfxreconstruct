@@ -38,9 +38,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -221,6 +223,9 @@ class DrawCallsDumpingContext
     bool IsChaining() const { return chaining_; }
 
     bool IsPrimary() const { return command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary; }
+
+    // Marks an attachment that no subpass of a render pass references
+    static constexpr uint32_t kNeverUsed = std::numeric_limits<uint32_t>::max();
 
     // Whether this context and every secondary it executes can chain. All of them must agree, because a
     // secondary's windows only line up with the primary's if both partition their stream the same way.
@@ -454,9 +459,10 @@ class DrawCallsDumpingContext
         // Also one entry per subpass. For each subpass we create a new render pass
         std::vector<VkRenderPass> render_pass_clones;
 
-        // LOAD variant of render_pass_clones, used by a clone that resumes this render pass instead of
-        // starting it. Only created while chaining.
-        std::vector<VkRenderPass> render_pass_load_clones;
+        // LOAD variants of render_pass_clones, used by a clone that resumes this render pass instead of
+        // starting it, keyed by the subpass the window resumes in and the subpass its target draw is in.
+        // Only created while chaining.
+        std::map<std::pair<uint32_t, uint32_t>, VkRenderPass> render_pass_load_clones;
 
         // Half-open range of clones that have this instance begun, as command buffer indices.
         size_t first_clone{ 0 };
