@@ -220,6 +220,24 @@ class DrawCallsDumpingContext
 
     bool IsChaining() const { return chaining_; }
 
+    bool IsPrimary() const { return command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary; }
+
+    // Whether this context and every secondary it executes can chain. All of them must agree, because a
+    // secondary's windows only line up with the primary's if both partition their stream the same way.
+    bool IsChainable() const;
+
+    // Decides chaining for this context and every secondary it executes. Call it once, after
+    // RecalculateCommandBuffers and before anything is recorded.
+    void SetChaining(bool chaining);
+
+    // The clones that hold a window. The tail clone, when there is one, follows them in command_buffers_.
+    size_t GetWindowCount() const { return command_buffers_.size() - (has_tail_clone_ ? 1 : 0); }
+
+    // The clone holding the work this context recorded after its last target draw, VK_NULL_HANDLE if it has none.
+    VkCommandBuffer GetTailCommandBuffer() const { return has_tail_clone_ ? command_buffers_.back() : VK_NULL_HANDLE; }
+
+    void EndCommandBuffer();
+
     VkResult DumpDrawCalls(VkQueue              queue,
                            const VkSubmitInfo2& submit_info,
                            Index                submit_info_index,
@@ -455,6 +473,10 @@ class DrawCallsDumpingContext
 
     // True when each command is recorded into one clone only and render pass instances are resumed with LOAD.
     bool chaining_;
+
+    // True when command_buffers_ ends in a tail clone: the work a chaining secondary records after its last
+    // target draw, which the target draws that follow it still need.
+    bool has_tail_clone_;
 
     // One entry per descriptor set
     BoundDescriptorSets bound_descriptor_sets_gr_;
