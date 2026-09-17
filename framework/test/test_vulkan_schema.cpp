@@ -1191,6 +1191,138 @@ TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire byte
     DestroyWrappedHandle<BufferWrapper>(buffer);
 }
 
+TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][encode]")
+{
+    // One migrated structure, a fixed string beside one scalar and nothing else, so a mismatch can only be the
+    // string; the retained partner carries two fixed strings around two scalars. The string is empty, short, and
+    // filled to the extent minus one, against the procedural body's pointer-form EncodeString. A fourth case fills
+    // the whole extent with no terminator: the procedural form would read past the array there, so it is compared
+    // against the bounded kind-keyed form the Action calls, which proves the bound holds rather than the bytes.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    auto fill = [](char* text, size_t extent, size_t length) {
+        for (size_t i = 0; i < extent; ++i)
+        {
+            text[i] = (i < length) ? static_cast<char>('a' + (i % 26)) : '\0';
+        }
+    };
+
+    for (size_t length : { size_t{ 0 }, size_t{ 11 }, size_t{ VK_MAX_EXTENSION_NAME_SIZE - 1 } })
+    {
+        VkExtensionProperties extension{};
+        fill(extension.extensionName, VK_MAX_EXTENSION_NAME_SIZE, length);
+        extension.specVersion = 0x00010203u;
+
+        CHECK(matches(extension, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeString(extension.extensionName);
+            oracle.EncodeUInt32Value(extension.specVersion);
+        }));
+
+        VkLayerProperties layer{};
+        fill(layer.layerName, VK_MAX_EXTENSION_NAME_SIZE, length);
+        layer.specVersion           = 0x00010203u;
+        layer.implementationVersion = 0x00000007u;
+        fill(layer.description, VK_MAX_DESCRIPTION_SIZE, length);
+
+        CHECK(matches(layer, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeString(layer.layerName);
+            oracle.EncodeUInt32Value(layer.specVersion);
+            oracle.EncodeUInt32Value(layer.implementationVersion);
+            oracle.EncodeString(layer.description);
+        }));
+    }
+
+    // No terminator anywhere in the array. The bounded form reports the extent as the length and reads no further.
+    VkExtensionProperties unterminated{};
+    fill(unterminated.extensionName, VK_MAX_EXTENSION_NAME_SIZE, VK_MAX_EXTENSION_NAME_SIZE);
+    unterminated.specVersion = 0x00010203u;
+
+    CHECK(matches(unterminated, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeString<format::kind::Char, VK_MAX_EXTENSION_NAME_SIZE>(unterminated.extensionName);
+        oracle.EncodeUInt32Value(unterminated.specVersion);
+    }));
+}
+
+TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][encode]")
+{
+    // One migrated structure with an LPCWSTR beside a HANDLE, and a retained partner adding a semaphore handle. The
+    // WChar kind's wire type is 16-bit units on every platform, converted element by element where wchar_t is
+    // wider, so the same bytes are expected on Windows and Linux. The name is null and set; the handle is a
+    // chosen value reinterpreted as HANDLE, void* off Windows.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    const wchar_t wide_name[] = L"schemaé";
+
+    for (LPCWSTR name : { static_cast<LPCWSTR>(nullptr), static_cast<LPCWSTR>(wide_name) })
+    {
+        // Migrated: enum, HANDLE, LPCWSTR, trusted chain walk.
+        VkImportMemoryWin32HandleInfoKHR import_memory{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR,
+                                                        nullptr,
+                                                        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT,
+                                                        reinterpret_cast<HANDLE>(uintptr_t{ 0x4a00u }),
+                                                        name };
+
+        CHECK(matches(import_memory, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(import_memory.sType);
+            encode::EncodePNextStruct(&oracle, import_memory.pNext);
+            oracle.EncodeEnumValue(import_memory.handleType);
+            oracle.EncodeVoidPtr(import_memory.handle);
+            oracle.EncodeWString(import_memory.name);
+        }));
+
+        // Retained partner: a null semaphore handle ahead of the same three, probed chain walk.
+        VkImportSemaphoreWin32HandleInfoKHR import_semaphore{ VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR,
+                                                              nullptr,
+                                                              VK_NULL_HANDLE,
+                                                              VK_SEMAPHORE_IMPORT_TEMPORARY_BIT,
+                                                              VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT,
+                                                              reinterpret_cast<HANDLE>(uintptr_t{ 0x4a10u }),
+                                                              name };
+
+        CHECK(matches(import_semaphore, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(import_semaphore.sType);
+            encode::EncodePNextStructIfValid(&oracle, import_semaphore.pNext);
+            oracle.EncodeVulkanHandleValue<SemaphoreWrapper>(import_semaphore.semaphore);
+            oracle.EncodeFlagsValue(import_semaphore.flags);
+            oracle.EncodeEnumValue(import_semaphore.handleType);
+            oracle.EncodeVoidPtr(import_semaphore.handle);
+            oracle.EncodeWString(import_semaphore.name);
+        }));
+    }
+}
+
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
     NativeCallStore store{};

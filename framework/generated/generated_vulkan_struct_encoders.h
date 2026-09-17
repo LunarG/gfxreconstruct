@@ -130,7 +130,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProperties& v
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceQueueCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkExtensionProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRequirements& value);
@@ -488,7 +487,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParam
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParametersCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264PictureInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264DpbSlotInfoKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryWin32HandlePropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetWin32HandleInfoKHR& value);
@@ -1385,7 +1383,9 @@ using SchemaDrivenStructs = util::TypeList<
     VkBufferMemoryBarrier,
     VkDebugUtilsMessengerCreateInfoEXT,
     VkDebugUtilsObjectNameInfoEXT,
+    VkExtensionProperties,
     VkExtent2D,
+    VkImportMemoryWin32HandleInfoKHR,
     VkImportMemoryWin32HandleInfoNV,
     VkMappedMemoryRange,
     VkPipelineCacheCreateInfo,

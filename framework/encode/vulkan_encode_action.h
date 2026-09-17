@@ -182,6 +182,24 @@ class EncodeStructAction
         encoder_->template EncodeString<typename Field::api_type::kind>(schema::Get(storage, field));
     }
 
+    // Field is a String or WString fixed length array. Must access field by reference. One-dimensional only.
+    template <typename Field, typename Storage>
+    requires schema::TextKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field>
+    void Apply(Field field, const Storage& storage)
+    {
+        const auto& string_ref = schema::GetRef(storage, field);
+        using ArrayType        = std::remove_cvref_t<decltype(string_ref)>;
+
+        static_assert(std::is_array_v<ArrayType>,
+                      "A StaticArray field must be declared as an array in the API type it belongs to");
+        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
+                      "A StaticArray field's recorded extents must equal the extents the API type declares");
+        static_assert(std::rank_v<ArrayType> == 1, "String arrays must be one-dimensional only");
+
+        constexpr size_t capacity = std::extent_v<ArrayType, 0>;
+        encoder_->template EncodeString<typename Field::api_type::kind, capacity>(&string_ref[0]);
+    }
+
   private:
     ParameterEncoder* encoder_;
 };

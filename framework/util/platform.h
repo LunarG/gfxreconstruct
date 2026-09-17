@@ -776,9 +776,19 @@ inline size_t StringLength(const char* s)
     return strlen(s);
 }
 
+inline size_t StringLength(const char* s, size_t capacity)
+{
+    return strnlen(s, capacity);
+}
+
 inline size_t StringLength(const wchar_t* s)
 {
     return wcslen(s);
+}
+
+inline size_t StringLength(const wchar_t* s, size_t capacity)
+{
+    return wcsnlen(s, capacity);
 }
 
 inline int32_t StringCompare(const char* string_1, const char* string_2)

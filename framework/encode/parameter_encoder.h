@@ -43,6 +43,7 @@
 
 #include <cstring>
 #include <cwchar>
+#include <limits>
 #include <memory>
 #include <type_traits>
 
@@ -215,11 +216,15 @@ class ParameterEncoder
 
     // Encode a string using the approriate wire representation and attributs selected by its logical schema kind.
     // Operation code that holds a Field can use this without restating the mappings encoded in format::kind.
-    template <format::IsTextKind Kind, typename T>
+    template <format::IsTextKind Kind, size_t Capacity, typename T>
     void EncodeString(const T* str, bool omit_data = false, bool omit_addr = false)                                   {
         using EncodeType = format::EncodeTypeFor<Kind>;
         constexpr auto attributes = Kind::text_attribute;
-        EncodeBasicString<T, EncodeType, attributes>(str, omit_data, omit_addr);
+        EncodeBasicString<T, EncodeType, attributes>(str, omit_data, omit_addr, Capacity);
+    }
+    template <format::IsTextKind Kind, typename T>
+    void EncodeString(const T* str, bool omit_data = false, bool omit_addr = false)                                   {
+        EncodeString<Kind, std::numeric_limits<size_t>::max(), T>(str, omit_data, omit_addr);
     }
 
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
@@ -861,7 +866,10 @@ class ParameterEncoder
     }
 
     template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
-    void EncodeBasicString(const CharT* str, bool omit_data, bool omit_addr)
+    void EncodeBasicString(const CharT* str,
+                           bool         omit_data,
+                           bool         omit_addr,
+                           size_t       capacity = std::numeric_limits<size_t>::max())
     {
         uint32_t pointer_attrib =
             EncodeAttrib | format::PointerAttributes::kIsSingle | GetPointerAttributeMask(str, omit_data, omit_addr);
@@ -876,7 +884,7 @@ class ParameterEncoder
             }
 
             // Always write the string length.
-            size_t len = util::platform::StringLength(str);
+            size_t len = util::platform::StringLength(str, capacity);
 
             EncodeSizeTValue(len);
 

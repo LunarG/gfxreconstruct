@@ -1146,12 +1146,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value)
     EncodeStructPtr(encoder, value.pEnabledFeatures);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkExtensionProperties& value)
-{
-    encoder->EncodeString(value.extensionName);
-    encoder->EncodeUInt32Value(value.specVersion);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value)
 {
     encoder->EncodeString(value.layerName);
@@ -4683,15 +4677,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264DpbSlotInfoK
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     EncodeStructPtr(encoder, value.pStdReferenceInfo);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.handleType);
-    encoder->EncodeVoidPtr(value.handle);
-    encoder->EncodeWString(value.name);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoKHR& value)
@@ -12374,7 +12359,9 @@ template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBuffer
 template void EncodeStruct<VkBufferMemoryBarrier>(ParameterEncoder*, const VkBufferMemoryBarrier&);
 template void EncodeStruct<VkDebugUtilsMessengerCreateInfoEXT>(ParameterEncoder*, const VkDebugUtilsMessengerCreateInfoEXT&);
 template void EncodeStruct<VkDebugUtilsObjectNameInfoEXT>(ParameterEncoder*, const VkDebugUtilsObjectNameInfoEXT&);
+template void EncodeStruct<VkExtensionProperties>(ParameterEncoder*, const VkExtensionProperties&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
+template void EncodeStruct<VkImportMemoryWin32HandleInfoKHR>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoKHR&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
 template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
 template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
