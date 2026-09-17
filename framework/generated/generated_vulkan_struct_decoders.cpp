@@ -2207,10 +2207,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryTypeCount));
     wrapper->memoryTypes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryType>>();
     wrapper->memoryTypes->SetExternalMemory(value->memoryTypes, VK_MAX_MEMORY_TYPES);
+    wrapper->memoryTypes->SetExpectedLength(value->memoryTypeCount);
     bytes_read += wrapper->memoryTypes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryHeapCount));
     wrapper->memoryHeaps = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryHeap>>();
     wrapper->memoryHeaps->SetExternalMemory(value->memoryHeaps, VK_MAX_MEMORY_HEAPS);
+    wrapper->memoryHeaps->SetExpectedLength(value->memoryHeapCount);
     bytes_read += wrapper->memoryHeaps->Decode((buffer + bytes_read), (buffer_size - bytes_read));
 
     return bytes_read;
@@ -4161,6 +4163,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->physicalDeviceCount));
     wrapper->physicalDevices.SetExternalMemory(value->physicalDevices, VK_MAX_DEVICE_GROUP_SIZE);
+    wrapper->physicalDevices.SetExpectedLength(value->physicalDeviceCount);
     bytes_read += wrapper->physicalDevices.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subsetAllocation));
 
@@ -7406,6 +7409,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkQueueFa
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->priorityCount));
     wrapper->priorities.SetExternalMemory(value->priorities, VK_MAX_GLOBAL_PRIORITY_SIZE);
+    wrapper->priorities.SetExpectedLength(value->priorityCount);
     bytes_read += wrapper->priorities.DecodeEnum((buffer + bytes_read), (buffer_size - bytes_read));
 
     return bytes_read;
@@ -21072,6 +21076,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkShaderM
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->identifierSize));
     wrapper->identifier.SetExternalMemory(value->identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT);
+    wrapper->identifier.SetExpectedLength(value->identifierSize);
     bytes_read += wrapper->identifier.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
 
     return bytes_read;
