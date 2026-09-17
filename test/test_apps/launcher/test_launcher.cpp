@@ -36,6 +36,9 @@
 #include <triangle_app.h>
 #include <triangle_extra_device_app.h>
 #include <deep_pnext_chain_app.h>
+#ifndef __ANDROID__
+#include <direct_driver_loading_app.h>
+#endif
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <ahb_app.h>
 #endif
@@ -80,6 +83,9 @@ static const char* kAppNames[] = {
     "triangle",
     "triangle-extra-device",
     "deep-pnext-chain",
+#ifndef __ANDROID__
+    "direct-driver-loading",
+#endif
 #ifdef __linux__
     "external-memory-fd-export",
     "external-memory-fd-import",
@@ -158,6 +164,12 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     {
         app = std::make_unique<gfxrecon::test_app::triangle_extra_device::App>();
     }
+#ifndef __ANDROID__
+    else if (app_name == "direct-driver-loading")
+    {
+        app = std::make_unique<gfxrecon::test_app::direct_driver_loading::App>();
+    }
+#endif
     else if (app_name == "host-image-copy")
     {
         app = std::make_unique<gfxrecon::test_app::host_image_copy::App>();
