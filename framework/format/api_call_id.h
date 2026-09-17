@@ -50,13 +50,16 @@ enum ApiFamilyId : uint16_t
     ApiFamily_D3D11On12 = 6,
     ApiFamily_OpenXR    = 7,
 
-    // Family IDs greater than ApiFamily_Reserve_Start are reserved for future use
-    ApiFamily_Reserve_Start = 128,
+    // Reserved by LunarG
+    ApiFamily_Reserved1 = 8,
+
+    // Family IDs >= 128 should be used for internal purposes only
+    ApiFamily_Experimental_Start = 128,
 };
 
 constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
 {
-    GFXRECON_ASSERT(family < ApiFamily_Reserve_Start);
+    GFXRECON_ASSERT(family < ApiFamily_Reserved1);
     return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
 }
 
