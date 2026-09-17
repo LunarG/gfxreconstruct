@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -487,6 +488,16 @@ struct SetEnvironmentVariablesArgs
 
     auto GetTuple() const { return std::tie(header, env_string); }
 };
+struct SetDirectDriverInfoArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    format::SetDirectDriverInfoCommand header;
+    std::string_view                   module_path;
+    std::string_view                   symbol_name;
+
+    auto GetTuple() const { return std::tie(header, module_path, symbol_name); }
+};
 struct VulkanAccelerationStructuresBuildMetaArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
@@ -794,6 +805,12 @@ struct DispatchTraits<SetEnvironmentVariablesArgs> : DispatchFlagTraits<SetEnvir
 };
 
 template <>
+struct DispatchTraits<SetDirectDriverInfoArgs> : DispatchFlagTraits<SetDirectDriverInfoArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchSetDirectDriverInfoCommand;
+};
+
+template <>
 struct DispatchTraits<VulkanAccelerationStructuresBuildMetaArgs>
     : DispatchFlagTraits<VulkanAccelerationStructuresBuildMetaArgs>
 {
@@ -905,6 +922,7 @@ using DispatchArgs = std::variant<std::monostate,
                                   ExecuteBlocksFromFileArgs*,
                                   SetTlasToBlasDependencyArgs*,
                                   SetEnvironmentVariablesArgs*,
+                                  SetDirectDriverInfoArgs*,
                                   VulkanAccelerationStructuresBuildMetaArgs*,
                                   VulkanAccelerationStructuresCopyMetaArgs*,
                                   VulkanAccelerationStructuresWritePropertiesMetaArgs*,

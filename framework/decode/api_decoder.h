@@ -32,6 +32,7 @@
 #include "vulkan/vulkan.h"
 
 #include <string>
+#include <string_view>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -238,6 +239,10 @@ class ApiDecoder
 
     virtual void DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
                                                         const char*                                   env_string){};
+
+    virtual void DispatchSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                    std::string_view                          module_path,
+                                                    std::string_view                          symbol_name){};
 
     virtual void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
                                                                       size_t         buffer_size){};
