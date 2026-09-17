@@ -259,12 +259,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         std::vector<const char*>           modified_extensions;
         VkInstanceCreateInfo               modified_create_info;
         VkDebugUtilsMessengerCreateInfoEXT messenger_create_info;
+        bool                               direct_driver_loading_removed{ false };
     };
     // create_state passed in by reference to conserve pointers to member variable
     // Not initialized in a CreateDeviceInfoState constructor as *many* VulkanReplayConsumerBase
     // member functions and variables are referenced
     void ModifyCreateInstanceInfo(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
                                   CreateInstanceInfoState&                                  create_state);
+
+    // Remove VK_LUNARG_direct_driver_loading from the instance create info. The captured driver entry points
+    // are addresses from the capture process and have no meaning at replay.
+    void RemoveDirectDriverLoading(CreateInstanceInfoState& create_state);
 
     void PostCreateInstanceUpdateState(VkInstance                  replay_instance,
                                        const VkInstanceCreateInfo& modified_create_info,

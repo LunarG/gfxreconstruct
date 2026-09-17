@@ -2921,6 +2921,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
+    RemoveDirectDriverLoading(create_state);
+
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
@@ -3184,6 +3186,49 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     }
 }
 
+void VulkanReplayConsumerBase::RemoveDirectDriverLoading(CreateInstanceInfoState& create_state)
+{
+    // The loader reads the driver list from the pNext chain. A list with null entry points makes the loader
+    // skip every entry. In exclusive mode that leaves the loader with no driver at all. Remove the list and
+    // the extension so the loader uses the drivers of the replay system.
+    uint32_t    driver_count = 0;
+    const char* mode_name    = nullptr;
+
+    VkDirectDriverLoadingListLUNARG* driver_list = nullptr;
+    while ((driver_list = graphics::vulkan_struct_remove_pnext<VkDirectDriverLoadingListLUNARG>(
+                &create_state.modified_create_info)) != nullptr)
+    {
+        driver_count += driver_list->driverCount;
+        mode_name = (driver_list->mode == VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG) ? "exclusive" : "inclusive";
+        create_state.direct_driver_loading_removed = true;
+    }
+
+    std::vector<const char*>& extensions = create_state.modified_extensions;
+    auto extension_iter = std::find_if(extensions.begin(), extensions.end(), [](const char* extension) {
+        return util::platform::StringCompare(extension, VK_LUNARG_DIRECT_DRIVER_LOADING_EXTENSION_NAME) == 0;
+    });
+
+    if (extension_iter != extensions.end())
+    {
+        extensions.erase(extension_iter);
+        create_state.direct_driver_loading_removed = true;
+    }
+
+    if (mode_name != nullptr)
+    {
+        GFXRECON_LOG_WARNING("The capture used VK_LUNARG_direct_driver_loading with %u driver(s) in %s mode. Replay "
+                             "cannot use the captured driver entry points. The driver list and the extension are "
+                             "removed, and replay will use the drivers of the replay system.",
+                             driver_count,
+                             mode_name);
+    }
+    else if (create_state.direct_driver_loading_removed)
+    {
+        GFXRECON_LOG_WARNING("The capture enabled VK_LUNARG_direct_driver_loading without a driver list. The "
+                             "extension is removed for replay.");
+    }
+}
+
 void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance            replay_instance,
                                                              const VkInstanceCreateInfo& modified_create_info,
                                                              VulkanInstanceInfo&         instance_info)
@@ -3239,6 +3284,13 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         // Try to create instance again
         result = create_instance_proc_(
             &create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+    }
+
+    if ((result == VK_ERROR_INCOMPATIBLE_DRIVER) && create_state.direct_driver_loading_removed)
+    {
+        GFXRECON_LOG_ERROR("No compatible driver was found after the VK_LUNARG_direct_driver_loading list was "
+                           "removed. Install a driver on the replay system, or point VK_DRIVER_FILES at the "
+                           "manifest of the driver that the capture used.");
     }
 
     if ((*replay_instance != VK_NULL_HANDLE) && (result == VK_SUCCESS))
