@@ -52,7 +52,9 @@ using unique_lock_t = std::unique_lock<mutex_t>;
 
 static mutex_t        global_lock;
 static uint64_t       global_unique_handle                   = 1;
-static const uint32_t SUPPORTED_LOADER_ICD_INTERFACE_VERSION = 5;
+// Version 7 lets the loader get the vk_icd* entry points through vk_icdGetInstanceProcAddr. A driver that the
+// application passes to the loader with VK_LUNARG_direct_driver_loading must support version 7 or later.
+static const uint32_t SUPPORTED_LOADER_ICD_INTERFACE_VERSION = 7;
 static uint32_t       loader_interface_version               = 0;
 static bool           negotiate_loader_icd_interface_called  = false;
 static void*          CreateDispObjHandle()

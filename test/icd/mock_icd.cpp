@@ -41,10 +41,27 @@ static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInst
 
 extern "C" {
 
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_icdGetPhysicalDeviceProcAddr(VkInstance instance, const char* pName);
+EXPORT VKAPI_ATTR VkResult VKAPI_CALL vk_icdNegotiateLoaderICDInterfaceVersion(uint32_t* pSupportedVersion);
+
 EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_icdGetInstanceProcAddr(VkInstance instance, const char* pName) {
     if (!vkmock::negotiate_loader_icd_interface_called) {
         vkmock::loader_interface_version = 1;
     }
+
+    // Loader interface version 7: the loader can ask for the vk_icd* entry points by name, instead of through
+    // the exports of the library. A driver given to the loader with VK_LUNARG_direct_driver_loading has no
+    // exports that the loader can see, so this path is the only one for it.
+    if (strcmp(pName, "vk_icdGetInstanceProcAddr") == 0) {
+        return reinterpret_cast<PFN_vkVoidFunction>(vk_icdGetInstanceProcAddr);
+    }
+    if (strcmp(pName, "vk_icdGetPhysicalDeviceProcAddr") == 0) {
+        return reinterpret_cast<PFN_vkVoidFunction>(vk_icdGetPhysicalDeviceProcAddr);
+    }
+    if (strcmp(pName, "vk_icdNegotiateLoaderICDInterfaceVersion") == 0) {
+        return reinterpret_cast<PFN_vkVoidFunction>(vk_icdNegotiateLoaderICDInterfaceVersion);
+    }
+
     return vkmock::GetInstanceProcAddr(instance, pName);
 }
 
