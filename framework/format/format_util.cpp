@@ -40,8 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(format)
 // Utilities for format validation.
 static bool VersionSupported(const FileHeader& header)
 {
-    auto file_version = GFXRECON_MAKE_FILE_VERSION(header.major_version, header.minor_version);
-    return file_version <= GFXRECON_CURRENT_FILE_VERSION;
+    return GetFileFormatVersion(header) <= GFXRECON_CURRENT_FILE_VERSION;
 }
 
 bool ValidateFileHeader(const FileHeader& header)
@@ -53,15 +52,23 @@ bool ValidateFileHeader(const FileHeader& header)
         GFXRECON_LOG_ERROR("Invalid file: File header does not contain the expected unrecognized four character code.");
         valid = false;
     }
-    else if (!VersionSupported(header))
+    else
     {
+        if ((header.major_version & kArmTraceFileVersionFlag) != 0)
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "This capture file was created by the Arm fork of GFXReconstruct. Ignoring the Arm trace flag.");
+        }
 
-        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%",
-                           header.major_version,
-                           header.minor_version,
-                           GFXRECON_CURRENT_FILE_MAJOR,
-                           GFXRECON_CURRENT_FILE_MINOR);
-        valid = false;
+        if (!VersionSupported(header))
+        {
+            GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%u",
+                               GetFileFormatMajorVersion(header),
+                               header.minor_version,
+                               GFXRECON_CURRENT_FILE_MAJOR,
+                               GFXRECON_CURRENT_FILE_MINOR);
+            valid = false;
+        }
     }
     return valid;
 }

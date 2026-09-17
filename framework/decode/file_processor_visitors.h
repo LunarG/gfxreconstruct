@@ -173,12 +173,12 @@ class DispatchVisitor
         constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
         for (auto decoder : config_.decoders)
         {
+            GFXRECON_ASSERT(block_index_ != ParsedBlock::kInvalidIndex);
+            decoder->SetCurrentBlockIndex(block_index_);
             if (DecoderSupportsDispatch(*decoder, *args))
             {
                 [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
                 SetDecoderApiCallId(*decoder, *args);
-                GFXRECON_ASSERT(block_index_ != ParsedBlock::kInvalidIndex);
-                decoder->SetCurrentBlockIndex(block_index_);
                 auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
                     (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
                 };

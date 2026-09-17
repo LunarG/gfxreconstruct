@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/GFXReconstructVulkanApiReaderTargets.cmake")
+
+check_required_components(GFXReconstructVulkanApiReader)
