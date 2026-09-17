@@ -30,6 +30,8 @@
 #include <inttypes.h>
 #include <sstream>
 #include <algorithm>
+#include <charconv>
+#include <cctype>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -67,7 +69,7 @@ GetUintRanges(const char* args, const char* option_name, bool check_overlap_rang
             }
 
             // Check that the value string only contains numbers.
-            size_t count = std::count_if(value.begin(), value.end(), ::isdigit);
+            size_t count = std::count_if(value.begin(), value.end(), [](unsigned char c) { return std::isdigit(c); });
             if (count == value.length())
             {
                 values.push_back(value);
@@ -82,6 +84,22 @@ GetUintRanges(const char* args, const char* option_name, bool check_overlap_rang
             }
         }
 
+        std::vector<uint32_t> uint_values;
+        for (const auto& value : values)
+        {
+            uint32_t   number = 0;
+            const auto result = std::from_chars(value.data(), value.data() + value.size(), number);
+            if (result.ec != std::errc{} || result.ptr != value.data() + value.size())
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s, which exceeds the uint32_t range",
+                                     range.c_str(),
+                                     option_name);
+                invalid = true;
+                break;
+            }
+            uint_values.push_back(number);
+        }
+
         if (!invalid)
         {
             UintRange uint_range;
@@ -90,7 +108,7 @@ GetUintRanges(const char* args, const char* option_name, bool check_overlap_rang
             {
                 if (std::count(range.begin(), range.end(), '-') == 0)
                 {
-                    uint_range.first = std::stoi(values[0]);
+                    uint_range.first = uint_values[0];
                     uint_range.last  = uint_range.first;
                 }
                 else
@@ -101,8 +119,8 @@ GetUintRanges(const char* args, const char* option_name, bool check_overlap_rang
             }
             else if (values.size() == 2)
             {
-                uint_range.first = std::stoi(values[0]);
-                uint_range.last  = std::stoi(values[1]);
+                uint_range.first = uint_values[0];
+                uint_range.last  = uint_values[1];
                 if (uint_range.first > uint_range.last)
                 {
                     GFXRECON_LOG_WARNING(
@@ -126,13 +144,13 @@ GetUintRanges(const char* args, const char* option_name, bool check_overlap_rang
                 continue;
             }
 
-            uint32_t next_allowed = 0;
+            uint64_t next_allowed = 0;
 
             // Check that range start is outside the bounds of the previous range.
             if (!ranges.empty())
             {
                 // The value of the next integer after the end of the last range.
-                next_allowed = ranges.back().last + 1;
+                next_allowed = static_cast<uint64_t>(ranges.back().last) + 1;
             }
 
             if (!check_overlap_range || uint_range.first >= next_allowed)

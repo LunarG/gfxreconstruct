@@ -92,6 +92,7 @@ const char kFilePerFrameOption[]                 = "--file-per-frame";
 const char kFrameRange[]                         = "--frame-range";
 const char kPrintBlockInfoAllOption[]            = "--pbi-all";
 const char kPrintBlockInfosArgument[]            = "--pbis";
+const char kSkipIndexArgument[]                  = "--skip-index";
 const char kNumPipelineCreationJobs[]            = "--pipeline-creation-jobs";
 const char kPreloadMeasurementRangeOption[]      = "--preload-measurement-range";
 const char kWaitBeforeFirstSubmit[]              = "--wait-before-first-submit";
