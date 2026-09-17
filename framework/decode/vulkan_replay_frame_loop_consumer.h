@@ -96,6 +96,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkDestroyDevice(const ApiCallInfo& call_info, args::DestroyDevice& args) override;
 
+    void Process_vkFreeMemory(const ApiCallInfo& call_info, args::FreeMemory& args) override;
+
     virtual void StartLooping() override;
 
     // Private declarations
