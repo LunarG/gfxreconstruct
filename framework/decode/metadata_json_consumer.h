@@ -296,6 +296,39 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
+    virtual void ProcessSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                   std::string_view                          module_path,
+                                                   std::string_view                          symbol_name) override
+    {
+        using namespace util;
+        auto& jdata = WriteMetaCommandStart("SetDirectDriverInfoCommand");
+        jdata["thread_id"]    = header.thread_id;
+        jdata["driver_index"] = header.driver_index;
+        jdata["driver_count"] = header.driver_count;
+        jdata["mode"] = static_cast<VkDirectDriverLoadingModeLUNARG>(header.mode);
+
+        // Write the flags as names, so that a reader does not have to decode a bit mask.
+        auto& flags = jdata["flags"] = nlohmann::ordered_json::array();
+        if (header.flags & format::kDirectDriverInfoModuleFound)
+        {
+            flags.push_back("module_found");
+        }
+        if (header.flags & format::kDirectDriverInfoSymbolFound)
+        {
+            flags.push_back("symbol_found");
+        }
+        if (header.flags & format::kDirectDriverInfoInExecutable)
+        {
+            flags.push_back("in_executable");
+        }
+
+        FieldToJson(jdata["capture_address"], to_hex_variable_width(header.capture_address));
+        FieldToJson(jdata["module_path"], module_path);
+        FieldToJson(jdata["module_offset"], to_hex_variable_width(header.module_offset));
+        FieldToJson(jdata["symbol_name"], symbol_name);
+        WriteBlockEnd();
+    }
+
     virtual void ProcessSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
                                                        const char* env_string) override
     {

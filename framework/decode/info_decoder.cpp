@@ -61,5 +61,15 @@ void InfoDecoder::DispatchSetEnvironmentVariablesCommand(const format::SetEnviro
     }
 }
 
+void InfoDecoder::DispatchSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                     std::string_view                          module_path,
+                                                     std::string_view                          symbol_name)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_SetDirectDriverInfoCommand(header, module_path, symbol_name);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
