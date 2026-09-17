@@ -869,6 +869,11 @@ struct Tag
 struct Scalar : Tag
 {};
 
+// Kinds sharing text access patterns derive from this.
+// Well formed Text kinds have a text_attribute and an encode_type
+struct Text : Tag
+{};
+
 // clang-format off
 struct Int8   : Scalar { using encode_type = Int8EncodeType; };
 struct Int16  : Scalar { using encode_type = Int16EncodeType; };
@@ -884,8 +889,8 @@ struct Double : Scalar { using encode_type = DoubleEncodeType; };
 // Text reaches an operation through a string decoder rather than a value or pointer one, so like a handle its
 // access pattern differs from a scalar's and it does not derive from Scalar. No API field is a single character
 // either: text is always an array, a pointer, or a run of pointers.
-struct Char  : Tag { using encode_type = CharEncodeType; constexpr static PointerAttributes text_attribute = PointerAttributes::kIsString; };
-struct WChar : Tag { using encode_type = WCharEncodeType; constexpr static PointerAttributes text_attribute = PointerAttributes::kIsWString; };
+struct Char  : Text { using encode_type = CharEncodeType; constexpr static PointerAttributes text_attribute = PointerAttributes::kIsString; };
+struct WChar : Text { using encode_type = WCharEncodeType; constexpr static PointerAttributes text_attribute = PointerAttributes::kIsWString; };
 struct SizeT         : Scalar { using encode_type = SizeTEncodeType; };
 struct Enum          : Scalar { using encode_type = EnumEncodeType; };
 struct Flags         : Scalar { using encode_type = FlagsEncodeType; };
@@ -922,6 +927,8 @@ GFXRECON_END_NAMESPACE(kind)
 
 template <typename Kind>
 concept IsKind = std::derived_from<Kind, kind::Tag>;
+template <typename Kind>
+concept IsScalarKind = std::derived_from<Kind, kind::Scalar>;
 
 // A kind with a wire form. Struct and Void are kinds and satisfy IsKind, but neither has bytes of its own, so an
 // operation that needs a width constrains on this and declines them by name rather than by a missing member.
@@ -931,9 +938,9 @@ concept HasEncodeType = IsKind<Kind> && requires
     typename Kind::encode_type;
 };
 
-// A string kind has a wire form and a text_attribute that names the character type
+// A text kind has a wire form and a text_attribute that names the character type
 template <typename Kind>
-concept StringKind = HasEncodeType<Kind> && requires
+concept IsTextKind = std::derived_from<Kind, kind::Text> && HasEncodeType<Kind> && requires
 {
     Kind::text_attribute;
 };

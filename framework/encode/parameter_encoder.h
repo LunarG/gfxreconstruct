@@ -215,7 +215,7 @@ class ParameterEncoder
 
     // Encode a string using the approriate wire representation and attributs selected by its logical schema kind.
     // Operation code that holds a Field can use this without restating the mappings encoded in format::kind.
-    template <format::StringKind Kind, typename T>
+    template <format::IsTextKind Kind, typename T>
     void EncodeString(const T* str, bool omit_data = false, bool omit_addr = false)                                   {
         using EncodeType = format::EncodeTypeFor<Kind>;
         constexpr auto attributes = Kind::text_attribute;
