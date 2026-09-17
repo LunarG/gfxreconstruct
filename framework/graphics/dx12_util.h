@@ -374,6 +374,8 @@ uint64_t GetSubresourceSizeTex2D(
 
 uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource);
 
+size_t GetResolveQueryDataSize(D3D12_QUERY_TYPE type, UINT num_queries);
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

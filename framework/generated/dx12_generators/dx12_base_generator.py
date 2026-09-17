@@ -249,7 +249,12 @@ class Dx12BaseGenerator():
             'pRenderTargetDescriptors',
             '(NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0)'
         ],
-        ['D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC', 'pOmmHistogram', 'NumOmmHistogramEntries']
+        ['D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC', 'pOmmHistogram', 'NumOmmHistogramEntries'],
+        [
+            'ID3D12Device15_ResolveQueryData',
+            'pResolvedQueryData',
+            'graphics::dx12::GetResolveQueryDataSize(Type, NumQueries)'
+        ]
     ]
 
     RETURN_ARRAY_SIZE_LIST = [
@@ -1171,7 +1176,7 @@ class Dx12BaseGenerator():
 
     def is_function_ptr(self, base_type):
         """Check for function pointer type."""
-        if (base_type[:4] == 'PFN_') or (base_type[-4:] == 'Func'):
+        if (base_type[:4] == 'PFN_') or ('_PFN_' in base_type) or (base_type[-4:] == 'Func'):
             return True
         return False
 
@@ -1508,6 +1513,8 @@ class Dx12BaseGenerator():
             for k in e[0]:
                 if type == k:
                     return e[1]
+        if self.is_function_ptr(type):
+            return 'Function'
         return type
 
     def is_callback(self, type):

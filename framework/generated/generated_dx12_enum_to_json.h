@@ -1507,6 +1507,24 @@ inline void to_json(nlohmann::ordered_json& jdata, const D3D12_SHADER_CACHE_CONT
     to_json(jdata, *pEnum);
 }
 
+inline void to_json(nlohmann::ordered_json& jdata, const D3D12_TRIM_NOTIFICATION_FLAGS value)
+{
+    to_json(jdata, gfxrecon::util::ToString(value));
+}
+inline void to_json(nlohmann::ordered_json& jdata, const D3D12_TRIM_NOTIFICATION_FLAGS* pEnum)
+{
+    to_json(jdata, *pEnum);
+}
+
+inline void to_json(nlohmann::ordered_json& jdata, const D3D12_QUERY_HEAP_FLAGS value)
+{
+    to_json(jdata, gfxrecon::util::ToString(value));
+}
+inline void to_json(nlohmann::ordered_json& jdata, const D3D12_QUERY_HEAP_FLAGS* pEnum)
+{
+    to_json(jdata, *pEnum);
+}
+
 inline void to_json(nlohmann::ordered_json& jdata, const D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS value)
 {
     to_json(jdata, gfxrecon::util::ToString(value));
@@ -2799,6 +2817,30 @@ inline void to_json(nlohmann::ordered_json& jdata, const D3D12_SHADER_CACHE_CONT
     else
     {
         jdata = gfxrecon::util::ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(static_cast<uint32_t>(flags));
+    }
+}
+enum class D3D12_TRIM_NOTIFICATION_FLAGS_t : std::underlying_type<D3D12_TRIM_NOTIFICATION_FLAGS>::type {};
+inline void to_json(nlohmann::ordered_json& jdata, const D3D12_TRIM_NOTIFICATION_FLAGS_t flags)
+{
+    if (!gfxrecon::util::JsonOptions::expand_flags)
+    {
+        jdata = gfxrecon::util::to_hex_fixed_width(static_cast<uint32_t>(flags));
+    }
+    else
+    {
+        jdata = gfxrecon::util::ToString_D3D12_TRIM_NOTIFICATION_FLAGS(static_cast<uint32_t>(flags));
+    }
+}
+enum class D3D12_QUERY_HEAP_FLAGS_t : std::underlying_type<D3D12_QUERY_HEAP_FLAGS>::type {};
+inline void to_json(nlohmann::ordered_json& jdata, const D3D12_QUERY_HEAP_FLAGS_t flags)
+{
+    if (!gfxrecon::util::JsonOptions::expand_flags)
+    {
+        jdata = gfxrecon::util::to_hex_fixed_width(static_cast<uint32_t>(flags));
+    }
+    else
+    {
+        jdata = gfxrecon::util::ToString_D3D12_QUERY_HEAP_FLAGS(static_cast<uint32_t>(flags));
     }
 }
 enum class D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS_t : std::underlying_type<D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS>::type {};

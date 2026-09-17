@@ -196,6 +196,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHA
             bytes_read += DecodeStruct(
                 (buffer + bytes_read), (buffer_size - bytes_read), wrapper->RaytracingAccelerationStructure);
             break;
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            wrapper->BufferByteOffset = DecodeAllocator::Allocate<Decoded_D3D12_BUFFER_SRV_BYTE_OFFSET>();
+            wrapper->BufferByteOffset->decoded_value = &(value->BufferByteOffset);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BufferByteOffset);
+            break;
     }
 
     return bytes_read;
@@ -253,6 +258,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_UNO
             wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D12_TEX3D_UAV>();
             wrapper->Texture3D->decoded_value = &(value->Texture3D);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            wrapper->BufferByteOffset = DecodeAllocator::Allocate<Decoded_D3D12_BUFFER_UAV_BYTE_OFFSET>();
+            wrapper->BufferByteOffset->decoded_value = &(value->BufferByteOffset);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BufferByteOffset);
             break;
     }
 
