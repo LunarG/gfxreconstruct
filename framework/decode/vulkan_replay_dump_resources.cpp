@@ -307,6 +307,16 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
             }
         }
     }
+
+    // Decide chaining last: every context and secondary assignment exists by now, the command buffer counts
+    // are final, and nothing has been recorded yet. Each primary decides for its whole family.
+    for (auto& [bcb_qs_pair, dc_context] : draw_call_contexts_)
+    {
+        if (dc_context->IsPrimary())
+        {
+            dc_context->SetChaining(dc_context->IsChainable());
+        }
+    }
 }
 
 VulkanReplayDumpResourcesBase::~VulkanReplayDumpResourcesBase()
@@ -2402,6 +2412,13 @@ void VulkanReplayDumpResourcesBase::OverrideEndCommandBuffer(const ApiCallInfo& 
 {
     if (IsRecording())
     {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(commandBuffer);
+        for (auto dc_context : dc_contexts)
+        {
+            dc_context->EndCommandBuffer();
+        }
+
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
             FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
@@ -2454,6 +2471,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                 secondaries_to_execute = execution_order;
             }
 
+            // While chaining, each secondary window runs once, in the primary window that follows it, so the
+            // primary needs neither the accumulator nor the fan-out into the primaries that come after.
+            const bool chaining = dc_primary_context->IsChaining();
+
             uint32_t                     finalized_primaries = 0;
             std::vector<VkCommandBuffer> accumulated_secondaries_command_buffers;
             for (uint32_t i = 0; (i < commandBufferCount); ++i)
@@ -2472,31 +2493,54 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                 {
                     const std::vector<VkCommandBuffer>& secondaries_command_buffers =
                         secondary_to_execute->get()->GetCommandBuffers();
-                    GFXRECON_ASSERT(secondaries_command_buffers.size() <=
-                                    primary_last - (primary_first + finalized_primaries));
-                    for (size_t scb = 0; scb < secondaries_command_buffers.size(); ++scb)
-                    {
-                        // Each primary should execute the command buffer from the previous
-                        // secondary contexts as well
-                        func(*(primary_first + finalized_primaries),
-                             GFXRECON_NARROWING_CAST(uint32_t, accumulated_secondaries_command_buffers.size()),
-                             accumulated_secondaries_command_buffers.data());
 
-                        func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
-                        ++finalized_primaries;
+                    if (chaining)
+                    {
+                        const size_t window_count = secondary_to_execute->get()->GetWindowCount();
+                        GFXRECON_ASSERT(window_count <= primary_last - (primary_first + finalized_primaries));
+                        for (size_t scb = 0; scb < window_count; ++scb)
+                        {
+                            func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
+                            ++finalized_primaries;
+                        }
+
+                        // The work the secondary recorded after its last target draw belongs to the window the
+                        // next target draw is in. There is no such window past the primary's last target draw,
+                        // and nothing needs that work any more either.
+                        const VkCommandBuffer tail = secondary_to_execute->get()->GetTailCommandBuffer();
+                        if (tail != VK_NULL_HANDLE && (primary_first + finalized_primaries) < primary_last)
+                        {
+                            func(*(primary_first + finalized_primaries), 1, &tail);
+                        }
                     }
-
-                    // Keep accumulating the command buffer from all secondary contexts
-                    accumulated_secondaries_command_buffers.insert(accumulated_secondaries_command_buffers.end(),
-                                                                   secondaries_command_buffers.begin(),
-                                                                   secondaries_command_buffers.end());
-
-                    // The other primaries need to execute this secondary as well
-                    for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
-                         primary_it < primary_last;
-                         ++primary_it)
+                    else
                     {
-                        func(*primary_it, 1, &pCommandBuffers[i]);
+                        GFXRECON_ASSERT(secondaries_command_buffers.size() <=
+                                        primary_last - (primary_first + finalized_primaries));
+                        for (size_t scb = 0; scb < secondaries_command_buffers.size(); ++scb)
+                        {
+                            // Each primary should execute the command buffer from the previous
+                            // secondary contexts as well
+                            func(*(primary_first + finalized_primaries),
+                                 GFXRECON_NARROWING_CAST(uint32_t, accumulated_secondaries_command_buffers.size()),
+                                 accumulated_secondaries_command_buffers.data());
+
+                            func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
+                            ++finalized_primaries;
+                        }
+
+                        // Keep accumulating the command buffer from all secondary contexts
+                        accumulated_secondaries_command_buffers.insert(accumulated_secondaries_command_buffers.end(),
+                                                                       secondaries_command_buffers.begin(),
+                                                                       secondaries_command_buffers.end());
+
+                        // The other primaries need to execute this secondary as well
+                        for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
+                             primary_it < primary_last;
+                             ++primary_it)
+                        {
+                            func(*primary_it, 1, &pCommandBuffers[i]);
+                        }
                     }
 
                     dc_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
@@ -2515,11 +2559,22 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                 {
                     // The command buffer either has no dumping context or its context belongs to a
                     // different vkCmdExecuteCommands call.
-                    for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
-                         primary_it < primary_last;
-                         ++primary_it)
+                    if (chaining)
                     {
-                        func(*primary_it, 1, &pCommandBuffers[i]);
+                        // Plain work, so it runs once, in the window it was recorded in
+                        if ((primary_first + finalized_primaries) < primary_last)
+                        {
+                            func(*(primary_first + finalized_primaries), 1, &pCommandBuffers[i]);
+                        }
+                    }
+                    else
+                    {
+                        for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
+                             primary_it < primary_last;
+                             ++primary_it)
+                        {
+                            func(*primary_it, 1, &pCommandBuffers[i]);
+                        }
                     }
                 }
             }
