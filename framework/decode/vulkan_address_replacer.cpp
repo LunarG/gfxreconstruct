@@ -142,14 +142,13 @@ struct replacer_params_bda_t
     uint32_t        num_handles    = 0;
 };
 
-decode::VulkanAddressReplacer::buffer_context_t::buffer_context_t(buffer_context_t&& other) noexcept :
-    buffer_context_t()
+decode::VulkanAddressReplacer::buffer_context_t::buffer_context_t(buffer_context_t&& other) noexcept
 {
     swap(other);
 }
 
 decode::VulkanAddressReplacer::buffer_context_t&
-decode::VulkanAddressReplacer::buffer_context_t::operator=(buffer_context_t other)
+decode::VulkanAddressReplacer::buffer_context_t::operator=(buffer_context_t&& other) noexcept
 {
     swap(other);
     return *this;
@@ -157,12 +156,10 @@ decode::VulkanAddressReplacer::buffer_context_t::operator=(buffer_context_t othe
 
 void decode::VulkanAddressReplacer::buffer_context_t::swap(buffer_context_t& other) noexcept
 {
-    std::swap(resource_allocator, other.resource_allocator);
-    std::swap(num_bytes, other.num_bytes);
+    std::swap(temp_buffer, other.temp_buffer);
     std::swap(device_memory, other.device_memory);
-    std::swap(buffer, other.buffer);
-    std::swap(allocator_data, other.allocator_data);
     std::swap(memory_data, other.memory_data);
+    std::swap(num_bytes, other.num_bytes);
     std::swap(device_address, other.device_address);
     std::swap(mapped_data, other.mapped_data);
     std::swap(name, other.name);
@@ -170,29 +167,25 @@ void decode::VulkanAddressReplacer::buffer_context_t::swap(buffer_context_t& oth
 
 decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
 {
-    if (resource_allocator != nullptr)
-    {
-        // allocator-internal Vulkan calls below are replay-injected; destruction can run outside
-        // any caller-provided scope (e.g. from member-destruction), so mark it here
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+    // TemporaryBuffer holds only the VkBuffer, so the allocation it was bound to is freed here.  The
+    // allocator-internal calls below all open their own replay-injected scope.
+    decode::VulkanResourceAllocator* allocator = temp_buffer.allocator;
 
-        if (buffer != VK_NULL_HANDLE)
+    if (allocator != nullptr)
+    {
+        if (mapped_data != nullptr)
         {
-            // unmap/destroy buffer
-            if (mapped_data != nullptr)
-            {
-                resource_allocator->UnmapResourceMemoryDirect(allocator_data);
-            }
-            resource_allocator->DestroyBufferDirect(buffer, nullptr, allocator_data);
+            allocator->UnmapResourceMemoryDirect(temp_buffer.resource_data);
+            mapped_data = nullptr;
         }
+
+        temp_buffer.Destroy();
+
         if (device_memory != VK_NULL_HANDLE)
         {
-            resource_allocator->FreeMemoryDirect(device_memory, nullptr, memory_data);
+            allocator->FreeMemoryDirect(device_memory, nullptr, memory_data);
+            device_memory = VK_NULL_HANDLE;
         }
-
-        resource_allocator = nullptr;
-        buffer             = VK_NULL_HANDLE;
-        device_memory      = VK_NULL_HANDLE;
     }
 }
 
@@ -2021,30 +2014,20 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     auto injected = device_table_->Open();
 
     // free previous resources
-    buffer_context                    = {};
-    buffer_context.resource_allocator = resource_allocator_;
+    buffer_context = {};
     GFXRECON_NARROWING_ASSIGN(buffer_context.num_bytes, num_bytes);
-    buffer_context.name = name;
+    buffer_context.name        = name;
+    buffer_context.temp_buffer = TemporaryBuffer(device_, resource_allocator_, *device_table_);
 
-    VkBufferCreateInfo buffer_create_info = {};
-    buffer_create_info.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buffer_create_info.usage =
+    const VkBufferUsageFlags buffer_usage =
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | usage_flags;
-    buffer_create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    buffer_create_info.queueFamilyIndexCount = 0;
-    buffer_create_info.size                  = num_bytes;
 
-    VkResult result = resource_allocator_->CreateBufferDirect(
-        &buffer_create_info, nullptr, &buffer_context.buffer, &buffer_context.allocator_data);
-    if (result != VK_SUCCESS)
+    if (buffer_context.temp_buffer.Create(num_bytes, buffer_usage) != VK_SUCCESS)
     {
         return false;
     }
 
-    VkMemoryRequirements memory_requirements;
-    injected->GetBufferMemoryRequirements(device_, buffer_context.buffer, &memory_requirements);
-
-    VkMemoryPropertyFlags memory_property_flags =
+    const VkMemoryPropertyFlags memory_property_flags =
         use_host_mem ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
                      : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
@@ -2058,30 +2041,32 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
 
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.allocationSize       = memory_requirements.size;
-    alloc_info.memoryTypeIndex      = memory_type_index;
-
     VkMemoryAllocateFlagsInfo alloc_flags_info = {};
     alloc_flags_info.sType                     = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
     alloc_flags_info.flags                     = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
-    alloc_info.pNext                           = &alloc_flags_info;
 
-    result = resource_allocator_->AllocateMemoryDirect(
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.pNext                = &alloc_flags_info;
+    alloc_info.allocationSize       = buffer_context.temp_buffer.requirements.size;
+    alloc_info.memoryTypeIndex      = memory_type_index;
+
+    VkResult result = resource_allocator_->AllocateMemoryDirect(
         &alloc_info, nullptr, &buffer_context.device_memory, &buffer_context.memory_data);
-
     if (result != VK_SUCCESS)
     {
+        buffer_context.device_memory = VK_NULL_HANDLE;
         return false;
     }
 
-    result = resource_allocator_->BindBufferMemory(buffer_context.buffer,
+    VkMemoryPropertyFlags bound_memory_property_flags = 0;
+
+    result = resource_allocator_->BindBufferMemory(buffer_context.temp_buffer.handle,
                                                    buffer_context.device_memory,
                                                    0,
-                                                   buffer_context.allocator_data,
+                                                   buffer_context.temp_buffer.resource_data,
                                                    buffer_context.memory_data,
-                                                   &memory_property_flags);
+                                                   &bound_memory_property_flags);
     if (result != VK_SUCCESS)
     {
         return false;
@@ -2090,7 +2075,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     // get device-address
     VkBufferDeviceAddressInfo address_info = {};
     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-    address_info.buffer                    = buffer_context.buffer;
+    address_info.buffer                    = buffer_context.temp_buffer.handle;
     buffer_context.device_address          = get_device_address_fn_(device_, &address_info);
     GFXRECON_ASSERT(buffer_context.device_address != 0);
 
@@ -2105,7 +2090,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         VkDebugUtilsObjectNameInfoEXT object_name_info = {};
         object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
         object_name_info.objectType                    = VK_OBJECT_TYPE_BUFFER;
-        object_name_info.objectHandle                  = VK_HANDLE_TO_UINT64(buffer_context.buffer);
+        object_name_info.objectHandle                  = VK_HANDLE_TO_UINT64(buffer_context.temp_buffer.handle);
         object_name_info.pObjectName                   = name.c_str();
         set_debug_utils_object_name_fn_(device_, &object_name_info);
     }
@@ -2114,10 +2099,13 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     {
         // map buffer
         result = resource_allocator_->MapResourceMemoryDirect(
-            VK_WHOLE_SIZE, 0, &buffer_context.mapped_data, buffer_context.allocator_data);
-        buffer_context.mapped_data = static_cast<uint8_t*>(buffer_context.mapped_data) + offset;
+            VK_WHOLE_SIZE, 0, &buffer_context.mapped_data, buffer_context.temp_buffer.resource_data);
         GFXRECON_ASSERT(result == VK_SUCCESS);
-        return result == VK_SUCCESS;
+        if (result != VK_SUCCESS)
+        {
+            return false;
+        }
+        buffer_context.mapped_data = static_cast<uint8_t*>(buffer_context.mapped_data) + offset;
     }
     return true;
 }
@@ -2269,7 +2257,7 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
 
     VkAccelerationStructureCreateInfoKHR as_create_info = {};
     as_create_info.sType                                = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    as_create_info.buffer                               = as_asset.storage.buffer;
+    as_create_info.buffer                               = as_asset.storage.temp_buffer.handle;
     as_create_info.size                                 = num_buffer_bytes;
     as_create_info.type                                 = type;
 
@@ -2469,7 +2457,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     // synchronize host-reads
     barrier(command_buffer_info->handle,
-            hashmap_control_block_bda_binary_.buffer,
+            hashmap_control_block_bda_binary_.temp_buffer.handle,
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
             VK_ACCESS_SHADER_WRITE_BIT,
             VK_PIPELINE_STAGE_HOST_BIT,
@@ -2518,7 +2506,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
 
     auto create_control_block = [this, hashmap_min_num_slots = hashmap_min_num_slots]() {
         // if that buffer already existed we read back some values
-        bool init_address_blacklist = hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE;
+        bool init_address_blacklist = hashmap_control_block_bda_binary_.temp_buffer.handle == VK_NULL_HANDLE;
 
         // init hashmap control-block
         if (!create_buffer(hashmap_control_block_bda_binary_,
@@ -2553,10 +2541,13 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
     };
 
     auto init_storage = [this, &injected, hashmap_elem_size = hashmap_elem_size](VkCommandBuffer command_buffer) {
-        injected->CmdFillBuffer(
-            command_buffer, hashmap_storage_bda_binary_.buffer, 0, hashmap_storage_bda_binary_.num_bytes, 0);
+        injected->CmdFillBuffer(command_buffer,
+                                hashmap_storage_bda_binary_.temp_buffer.handle,
+                                0,
+                                hashmap_storage_bda_binary_.num_bytes,
+                                0);
         barrier(command_buffer,
-                hashmap_storage_bda_binary_.buffer,
+                hashmap_storage_bda_binary_.temp_buffer.handle,
                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                 VK_ACCESS_TRANSFER_WRITE_BIT,
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
@@ -2568,7 +2559,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
     };
 
     // if that buffer already existed we read back some values
-    bool init_address_blacklist = hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE;
+    bool init_address_blacklist = hashmap_control_block_bda_binary_.temp_buffer.handle == VK_NULL_HANDLE;
 
     if (!create_control_block())
     {
@@ -2576,7 +2567,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
         return;
     }
 
-    auto prev_buffer = hashmap_storage_bda_binary_.buffer;
+    auto prev_buffer = hashmap_storage_bda_binary_.temp_buffer.handle;
 
     auto& hashmap_control_block = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
 
@@ -2607,7 +2598,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
     }
 
     // init hashmap storage
-    if (prev_buffer != hashmap_storage_bda_binary_.buffer)
+    if (prev_buffer != hashmap_storage_bda_binary_.temp_buffer.handle)
     {
         std::optional<QueueSubmitHelper> queue_submit_helper;
 
@@ -2632,8 +2623,8 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
         {
             // we need a bigger boat. this will require running a local rehashing-dispatch
             GFXRECON_ASSERT(previous_hashmap_control_block && previous_hashmap_storage_bda_binary);
-            GFXRECON_ASSERT(hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE &&
-                            hashmap_storage_bda_binary_.buffer == VK_NULL_HANDLE);
+            GFXRECON_ASSERT(hashmap_control_block_bda_binary_.temp_buffer.handle == VK_NULL_HANDLE &&
+                            hashmap_storage_bda_binary_.temp_buffer.handle == VK_NULL_HANDLE);
 
             // defer cleanup of previous control-block
             hashmap_control_block_bda_binary_prev_ = std::move(*previous_hashmap_control_block);
