@@ -5407,7 +5407,6 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
             if (pResource != format::kNullHandleId)
             {
                 auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
                 dump_resources_->GetDescriptorSubresourceIndices(srv_info, res_obj);
             }
         }
@@ -5448,7 +5447,6 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateUnorderedAccessView(
             if (pResource != format::kNullHandleId)
             {
                 auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
                 dump_resources_->GetDescriptorSubresourceIndices(uav_info, res_obj);
             }
         }
@@ -5485,7 +5483,6 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
             if (pResource != format::kNullHandleId)
             {
                 auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
                 dump_resources_->GetDescriptorSubresourceIndices(info, res_obj);
             }
         }
@@ -5522,7 +5519,6 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
             if (pResource != format::kNullHandleId)
             {
                 auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
                 dump_resources_->GetDescriptorSubresourceIndices(info, res_obj);
             }
         }
