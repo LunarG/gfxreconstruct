@@ -132,6 +132,10 @@ using FieldEncodeType = format::EncodeTypeFor<typename Field::api_type::kind>;
 template <typename Field>
 using FieldCountField = typename Field::count_field;
 
+// The generic handle object types selector field which names the actual handle type.
+template <typename Field>
+using FieldSelectorField = typename Field::selector_field;
+
 // Whether the extents a StaticArray Field records equal the extents of an array type, in rank and in every
 // dimension. An Action with the declared member type in hand asserts this where it reads the array, so a schema that
 // drifts from the API header fails in every build and not only in the one that compiles the generated checks file.
@@ -172,6 +176,9 @@ concept HasMember = requires
 {
     MemberPointer<std::remove_cv_t<Storage>, Field>::value;
 };
+
+template <typename Storage, typename Field>
+concept HasSelectorField = HasMember<Storage, FieldSelectorField<Field>>;
 
 template <typename Storage, typename Field>
 concept HasCountField = HasMember<Storage, FieldCountField<Field>>;

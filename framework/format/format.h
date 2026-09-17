@@ -97,94 +97,6 @@ static_assert(sizeof(HandleEncodeType) == 8);
 // an operation may record one as the other.
 static_assert(std::is_same_v<HandleId, HandleEncodeType>);
 
-// Logical value kinds.
-//
-// Each name above is already a kind -- DeviceSizeEncodeType says there is a kind called DeviceSize and states its
-// width. These tags make that vocabulary addressable, so an operation can dispatch on a kind and read the width
-// from the kind itself rather than restating the join.
-//
-// A kind is not the same question as a type. VkDeviceSize and uint64_t are the same width and the same bytes on the
-// wire; the kind is what lets a reader tell one from the other. That distinction is the reason these exist.
-GFXRECON_BEGIN_NAMESPACE(kind)
-
-// Every kind derives from this, so an operation can require a kind rather than accept any type that happens to
-// carry an encode_type. It is what stops Decode<uint32_t> -- the wire type passed where the kind belongs, which is
-// the mistake this vocabulary exists to prevent.
-struct Tag
-{};
-
-// Kinds sharing the scalar access pattern derive from this, so one concept can select the family while the exact
-// kind still selects the operation.
-struct Scalar : Tag
-{};
-
-// clang-format off
-struct Int8   : Scalar { using encode_type = Int8EncodeType; };
-struct Int16  : Scalar { using encode_type = Int16EncodeType; };
-struct Int32  : Scalar { using encode_type = Int32EncodeType; };
-struct Int64  : Scalar { using encode_type = Int64EncodeType; };
-struct UInt8  : Scalar { using encode_type = UInt8EncodeType; };
-struct UInt16 : Scalar { using encode_type = UInt16EncodeType; };
-struct UInt32 : Scalar { using encode_type = UInt32EncodeType; };
-struct UInt64 : Scalar { using encode_type = UInt64EncodeType; };
-struct Float  : Scalar { using encode_type = FloatEncodeType; };
-struct Double : Scalar { using encode_type = DoubleEncodeType; };
-
-// Text reaches an operation through a string decoder rather than a value or pointer one, so like a handle its
-// access pattern differs from a scalar's and it does not derive from Scalar. No API field is a single character
-// either: text is always an array, a pointer, or a run of pointers.
-struct Char  : Tag { using encode_type = CharEncodeType; };
-struct WChar : Tag { using encode_type = WCharEncodeType; };
-struct SizeT         : Scalar { using encode_type = SizeTEncodeType; };
-struct Enum          : Scalar { using encode_type = EnumEncodeType; };
-struct Flags         : Scalar { using encode_type = FlagsEncodeType; };
-struct Flags64       : Scalar { using encode_type = Flags64EncodeType; };
-struct SampleMask    : Scalar { using encode_type = SampleMaskEncodeType; };
-struct DeviceSize    : Scalar { using encode_type = DeviceSizeEncodeType; };
-struct DeviceAddress : Scalar { using encode_type = DeviceAddressEncodeType; };
-struct Format        : Scalar { using encode_type = FormatEncodeType; };
-
-// An opaque address recorded as a 64-bit value: a function pointer, or a pointer to a non-API object. Like a
-// handle, it records an identifier rather than the thing itself, so its access pattern differs from a scalar's and
-// it does not derive from Scalar.
-struct Address : Tag { using encode_type = AddressEncodeType; };
-
-// A handle records the capture-file identifier rather than the handle itself, so its access pattern differs from a
-// scalar's and it does not derive from Scalar.
-struct Handle : Tag { using encode_type = HandleEncodeType; };
-
-#if defined(D3D12_SUPPORT)
-struct D3D_FEATURE_LEVEL : Scalar { using encode_type = D3D_FEATURE_LEVELEncodeType; };
-#endif
-// clang-format on
-
-// No encode_type on purpose. An aggregate is expanded field by field and a void has no bytes of its own, so naming
-// a width for either would be a lie. Asking one of these for its encode_type is a substitution failure, which is
-// how an operation declines a kind it has no wire form for.
-struct Struct : Tag
-{};
-
-struct Void : Tag
-{};
-
-GFXRECON_END_NAMESPACE(kind)
-
-template <typename Kind>
-concept IsKind = std::derived_from<Kind, kind::Tag>;
-
-// A kind with a wire form. Struct and Void are kinds and satisfy IsKind, but neither has bytes of its own, so an
-// operation that needs a width constrains on this and declines them by name rather than by a missing member.
-template <typename Kind>
-concept HasEncodeType = IsKind<Kind> && requires
-{
-    typename Kind::encode_type;
-};
-
-// The wire type a kind is recorded as. Written this way so a dependent context reads EncodeTypeFor<K> rather than
-// typename K::encode_type; it adds nothing else.
-template <HasEncodeType Kind>
-using EncodeTypeFor = typename Kind::encode_type;
-
 const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
@@ -932,6 +844,104 @@ struct InitializeMetaCommand
 #undef size_t
 
 #pragma pack(pop)
+
+// The logical kinds follow the wire structures above because the text kinds name PointerAttributes. Everything from
+// here to the end of the namespace is the kind vocabulary; nothing above it depends on it.
+
+// Logical value kinds.
+//
+// Each name above is already a kind -- DeviceSizeEncodeType says there is a kind called DeviceSize and states its
+// width. These tags make that vocabulary addressable, so an operation can dispatch on a kind and read the width
+// from the kind itself rather than restating the join.
+//
+// A kind is not the same question as a type. VkDeviceSize and uint64_t are the same width and the same bytes on the
+// wire; the kind is what lets a reader tell one from the other. That distinction is the reason these exist.
+GFXRECON_BEGIN_NAMESPACE(kind)
+
+// Every kind derives from this, so an operation can require a kind rather than accept any type that happens to
+// carry an encode_type. It is what stops Decode<uint32_t> -- the wire type passed where the kind belongs, which is
+// the mistake this vocabulary exists to prevent.
+struct Tag
+{};
+
+// Kinds sharing the scalar access pattern derive from this, so one concept can select the family while the exact
+// kind still selects the operation.
+struct Scalar : Tag
+{};
+
+// clang-format off
+struct Int8   : Scalar { using encode_type = Int8EncodeType; };
+struct Int16  : Scalar { using encode_type = Int16EncodeType; };
+struct Int32  : Scalar { using encode_type = Int32EncodeType; };
+struct Int64  : Scalar { using encode_type = Int64EncodeType; };
+struct UInt8  : Scalar { using encode_type = UInt8EncodeType; };
+struct UInt16 : Scalar { using encode_type = UInt16EncodeType; };
+struct UInt32 : Scalar { using encode_type = UInt32EncodeType; };
+struct UInt64 : Scalar { using encode_type = UInt64EncodeType; };
+struct Float  : Scalar { using encode_type = FloatEncodeType; };
+struct Double : Scalar { using encode_type = DoubleEncodeType; };
+
+// Text reaches an operation through a string decoder rather than a value or pointer one, so like a handle its
+// access pattern differs from a scalar's and it does not derive from Scalar. No API field is a single character
+// either: text is always an array, a pointer, or a run of pointers.
+struct Char  : Tag { using encode_type = CharEncodeType; constexpr static PointerAttributes text_attribute = PointerAttributes::kIsString; };
+struct WChar : Tag { using encode_type = WCharEncodeType; constexpr static PointerAttributes text_attribute = PointerAttributes::kIsWString; };
+struct SizeT         : Scalar { using encode_type = SizeTEncodeType; };
+struct Enum          : Scalar { using encode_type = EnumEncodeType; };
+struct Flags         : Scalar { using encode_type = FlagsEncodeType; };
+struct Flags64       : Scalar { using encode_type = Flags64EncodeType; };
+struct SampleMask    : Scalar { using encode_type = SampleMaskEncodeType; };
+struct DeviceSize    : Scalar { using encode_type = DeviceSizeEncodeType; };
+struct DeviceAddress : Scalar { using encode_type = DeviceAddressEncodeType; };
+struct Format        : Scalar { using encode_type = FormatEncodeType; };
+
+// An opaque address recorded as a 64-bit value: a function pointer, or a pointer to a non-API object. Like a
+// handle, it records an identifier rather than the thing itself, so its access pattern differs from a scalar's and
+// it does not derive from Scalar.
+struct Address : Tag { using encode_type = AddressEncodeType; };
+
+// A handle records the capture-file identifier rather than the handle itself, so its access pattern differs from a
+// scalar's and it does not derive from Scalar.
+struct Handle : Tag { using encode_type = HandleEncodeType; };
+
+#if defined(D3D12_SUPPORT)
+struct D3D_FEATURE_LEVEL : Scalar { using encode_type = D3D_FEATURE_LEVELEncodeType; };
+#endif
+// clang-format on
+
+// No encode_type on purpose. An aggregate is expanded field by field and a void has no bytes of its own, so naming
+// a width for either would be a lie. Asking one of these for its encode_type is a substitution failure, which is
+// how an operation declines a kind it has no wire form for.
+struct Struct : Tag
+{};
+
+struct Void : Tag
+{};
+
+GFXRECON_END_NAMESPACE(kind)
+
+template <typename Kind>
+concept IsKind = std::derived_from<Kind, kind::Tag>;
+
+// A kind with a wire form. Struct and Void are kinds and satisfy IsKind, but neither has bytes of its own, so an
+// operation that needs a width constrains on this and declines them by name rather than by a missing member.
+template <typename Kind>
+concept HasEncodeType = IsKind<Kind> && requires
+{
+    typename Kind::encode_type;
+};
+
+// A string kind has a wire form and a text_attribute that names the character type
+template <typename Kind>
+concept StringKind = HasEncodeType<Kind> && requires
+{
+    Kind::text_attribute;
+};
+
+// The wire type a kind is recorded as. Written this way so a dependent context reads EncodeTypeFor<K> rather than
+// typename K::encode_type; it adds nothing else.
+template <HasEncodeType Kind>
+using EncodeTypeFor = typename Kind::encode_type;
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

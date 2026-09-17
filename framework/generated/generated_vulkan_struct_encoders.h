@@ -132,7 +132,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceQueueCreateInfo& valu
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtensionProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRequirements& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource& value);
@@ -776,7 +775,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRelaxedLineRa
 void EncodeStruct(ParameterEncoder* encoder, const VkIOSSurfaceCreateInfoMVK& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID& value);
@@ -1386,12 +1384,14 @@ using SchemaDrivenStructs = util::TypeList<
     VkBufferCreateInfo,
     VkBufferMemoryBarrier,
     VkDebugUtilsMessengerCreateInfoEXT,
+    VkDebugUtilsObjectNameInfoEXT,
     VkExtent2D,
     VkImportMemoryWin32HandleInfoNV,
     VkMappedMemoryRange,
     VkPipelineCacheCreateInfo,
     VkPipelineCacheHeaderVersionOne,
     VkPipelineCreateInfoKHR,
+    VkSubmitInfo,
     VkSubpassEndInfo,
     VkSurfaceFullScreenExclusiveWin32InfoEXT,
     VkTransformMatrixKHR,

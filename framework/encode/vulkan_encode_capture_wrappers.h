@@ -64,7 +64,9 @@ concept HasCaptureWrapper = requires
     }
 
 GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(VkBuffer, BufferWrapper);
+GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(VkCommandBuffer, CommandBufferWrapper);
 GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(VkDeviceMemory, DeviceMemoryWrapper);
+GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(VkSemaphore, SemaphoreWrapper);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

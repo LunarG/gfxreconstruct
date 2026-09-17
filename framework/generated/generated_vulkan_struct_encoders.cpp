@@ -1160,19 +1160,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value)
     encoder->EncodeString(value.description);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::SemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
-    encoder->EncodeFlagsArray(value.pWaitDstStageMask, value.waitSemaphoreCount);
-    encoder->EncodeUInt32Value(value.commandBufferCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::CommandBufferWrapper>(value.pCommandBuffers, value.commandBufferCount);
-    encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::SemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7159,15 +7146,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
     encoder->EncodeFloatArray(value.color, 4);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(vulkan_wrappers::GetWrappedId(value.objectHandle, value.objectType));
-    encoder->EncodeString(value.pObjectName);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -12395,12 +12373,14 @@ template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMe
 template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBufferCreateInfo&);
 template void EncodeStruct<VkBufferMemoryBarrier>(ParameterEncoder*, const VkBufferMemoryBarrier&);
 template void EncodeStruct<VkDebugUtilsMessengerCreateInfoEXT>(ParameterEncoder*, const VkDebugUtilsMessengerCreateInfoEXT&);
+template void EncodeStruct<VkDebugUtilsObjectNameInfoEXT>(ParameterEncoder*, const VkDebugUtilsObjectNameInfoEXT&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
 template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
 template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
+template void EncodeStruct<VkSubmitInfo>(ParameterEncoder*, const VkSubmitInfo&);
 template void EncodeStruct<VkSubpassEndInfo>(ParameterEncoder*, const VkSubpassEndInfo&);
 template void EncodeStruct<VkSurfaceFullScreenExclusiveWin32InfoEXT>(ParameterEncoder*, const VkSurfaceFullScreenExclusiveWin32InfoEXT&);
 template void EncodeStruct<VkTransformMatrixKHR>(ParameterEncoder*, const VkTransformMatrixKHR&);

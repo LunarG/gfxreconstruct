@@ -213,6 +213,15 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlags64Array(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArrayConverted<format::Flags64EncodeType>(arr, len, omit_data, omit_addr); }
 
+    // Encode a string using the approriate wire representation and attributs selected by its logical schema kind.
+    // Operation code that holds a Field can use this without restating the mappings encoded in format::kind.
+    template <format::StringKind Kind, typename T>
+    void EncodeString(const T* str, bool omit_data = false, bool omit_addr = false)                                   {
+        using EncodeType = format::EncodeTypeFor<Kind>;
+        constexpr auto attributes = Kind::text_attribute;
+        EncodeBasicString<T, EncodeType, attributes>(str, omit_data, omit_addr);
+    }
+
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
     void EncodeWString(const wchar_t* str, bool omit_data = false, bool omit_addr = false)                            { EncodeBasicString<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, omit_data, omit_addr); }
     void EncodeStringArray(const char* const* str, size_t len, bool omit_data = false, bool omit_addr = false)        { EncodeBasicStringArray<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, len, omit_data, omit_addr); }

@@ -976,6 +976,216 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][enc
     DestroyWrappedHandle<DeviceMemoryWrapper>(memory);
 }
 
+TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema][encode]")
+{
+    // One migrated structure with three handle runs of two wrapper types beside a flags run that shares a count
+    // with the first of them; two retained partners with a handle run beside scalar runs. Semaphores register as
+    // non-dispatchable wrappers with no parent. A command buffer is dispatchable: registration reads the dispatch
+    // key from the first word of the object the handle points at, so a local pointer slot stands in for the driver's
+    // object, and removal goes through the generic path because the command-buffer specialization assumes a pool.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkSemaphore semaphores[] = { FakeHandle<VkSemaphore>(0x5e01u), FakeHandle<VkSemaphore>(0x5e02u) };
+    for (VkSemaphore& semaphore : semaphores)
+    {
+        CreateWrappedNonDispatchHandle<SemaphoreWrapper>(&semaphore, TestHandleId);
+    }
+
+    void*           command_buffer_object = nullptr;
+    VkCommandBuffer command_buffer        = reinterpret_cast<VkCommandBuffer>(&command_buffer_object);
+    CreateWrappedDispatchHandle<DeviceWrapper, CommandBufferWrapper>(VK_NULL_HANDLE, &command_buffer, TestHandleId);
+    REQUIRE(GetWrappedId<CommandBufferWrapper>(command_buffer) != format::kNullHandleId);
+
+    const VkSemaphore          null_semaphores[] = { VK_NULL_HANDLE, VK_NULL_HANDLE };
+    const VkCommandBuffer      null_command[]    = { VK_NULL_HANDLE };
+    const VkCommandBuffer      one_command[]     = { command_buffer };
+    const VkPipelineStageFlags stage_masks[]     = { VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    const uint64_t             values[]          = { 7u, 9u };
+    const VkSwapchainKHR       null_swapchain[]  = { VK_NULL_HANDLE };
+    const uint32_t             image_index[]     = { 3u };
+    VkResult                   present_results[] = { VK_SUBOPTIMAL_KHR };
+
+    struct Handles
+    {
+        const VkSemaphore*     semaphores;
+        const VkCommandBuffer* command_buffers;
+    };
+
+    for (const Handles& handles : { Handles{ null_semaphores, null_command }, Handles{ semaphores, one_command } })
+    {
+        // Migrated: three handle runs, the first sharing waitSemaphoreCount with the flags run beside it.
+        VkSubmitInfo submit{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                             nullptr,
+                             2u,
+                             handles.semaphores,
+                             stage_masks,
+                             1u,
+                             handles.command_buffers,
+                             1u,
+                             handles.semaphores + 1 };
+
+        CHECK(matches(submit, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(submit.sType);
+            encode::EncodePNextStruct(&oracle, submit.pNext);
+            oracle.EncodeUInt32Value(submit.waitSemaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(submit.pWaitSemaphores, submit.waitSemaphoreCount);
+            oracle.EncodeFlagsArray(submit.pWaitDstStageMask, submit.waitSemaphoreCount);
+            oracle.EncodeUInt32Value(submit.commandBufferCount);
+            oracle.EncodeVulkanHandleArray<CommandBufferWrapper>(submit.pCommandBuffers, submit.commandBufferCount);
+            oracle.EncodeUInt32Value(submit.signalSemaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(submit.pSignalSemaphores, submit.signalSemaphoreCount);
+        }));
+
+        // Retained partner: a handle run beside a uint64 run under one count, probed chain walk.
+        VkSemaphoreWaitInfo wait{
+            VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, nullptr, VK_SEMAPHORE_WAIT_ANY_BIT, 2u, handles.semaphores, values
+        };
+
+        CHECK(matches(wait, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(wait.sType);
+            encode::EncodePNextStructIfValid(&oracle, wait.pNext);
+            oracle.EncodeFlagsValue(wait.flags);
+            oracle.EncodeUInt32Value(wait.semaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(wait.pSemaphores, wait.semaphoreCount);
+            oracle.EncodeUInt64Array(wait.pValues, wait.semaphoreCount);
+        }));
+
+        // Retained partner: two handle runs of different types beside a uint32 run and a VkResult run.
+        VkPresentInfoKHR present{ VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                                  nullptr,
+                                  1u,
+                                  handles.semaphores,
+                                  1u,
+                                  null_swapchain,
+                                  image_index,
+                                  present_results };
+
+        CHECK(matches(present, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(present.sType);
+            encode::EncodePNextStruct(&oracle, present.pNext);
+            oracle.EncodeUInt32Value(present.waitSemaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(present.pWaitSemaphores, present.waitSemaphoreCount);
+            oracle.EncodeUInt32Value(present.swapchainCount);
+            oracle.EncodeVulkanHandleArray<SwapchainKHRWrapper>(present.pSwapchains, present.swapchainCount);
+            oracle.EncodeUInt32Array(present.pImageIndices, present.swapchainCount);
+            oracle.EncodeEnumArray(present.pResults, present.swapchainCount);
+        }));
+    }
+
+    for (VkSemaphore semaphore : semaphores)
+    {
+        DestroyWrappedHandle<SemaphoreWrapper>(semaphore);
+    }
+
+    auto* command_buffer_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+    RemoveWrapper<CommandBufferWrapper>(command_buffer_wrapper);
+    delete command_buffer_wrapper;
+}
+
+TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire bytes", "[schema][encode]")
+{
+    // One migrated structure carrying both idioms: a generic handle, an integer whose object type a sibling enum
+    // names and which the encoder resolves to a wrapper id through that enum, and a pointer to text. The retained
+    // partner is the debug-marker twin, whose selector is the older VkDebugReportObjectTypeEXT enum and whose chain
+    // walk is the probed one. A registered buffer resolves to a real id; the null object resolves to the null id;
+    // the text is null, empty, and a short name.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkBuffer buffer = FakeHandle<VkBuffer>(0x0b0fu);
+    CreateWrappedNonDispatchHandle<BufferWrapper>(&buffer, TestHandleId);
+
+    // The generic handle member is the handle's bits widened to 64, which is how the API hands it over.
+    const uint64_t buffer_bits = [&]() -> uint64_t {
+        if constexpr (std::is_pointer_v<VkBuffer>)
+        {
+            return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(buffer));
+        }
+        else
+        {
+            return static_cast<uint64_t>(buffer);
+        }
+    }();
+    REQUIRE(GetWrappedId(buffer_bits, VK_OBJECT_TYPE_BUFFER) != format::kNullHandleId);
+
+    struct Case
+    {
+        uint64_t    object;
+        const char* name;
+    };
+
+    for (const Case& c : { Case{ 0u, nullptr }, Case{ buffer_bits, "" }, Case{ buffer_bits, "schema" } })
+    {
+        // Migrated: VkObjectType selector, trusted chain walk.
+        VkDebugUtilsObjectNameInfoEXT utils{
+            VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT, nullptr, VK_OBJECT_TYPE_BUFFER, c.object, c.name
+        };
+
+        CHECK(matches(utils, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(utils.sType);
+            encode::EncodePNextStruct(&oracle, utils.pNext);
+            oracle.EncodeEnumValue(utils.objectType);
+            oracle.EncodeUInt64Value(GetWrappedId(utils.objectHandle, utils.objectType));
+            oracle.EncodeString(utils.pObjectName);
+        }));
+
+        // Retained partner: VkDebugReportObjectTypeEXT selector, probed chain walk.
+        VkDebugMarkerObjectNameInfoEXT marker{ VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
+                                               nullptr,
+                                               VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
+                                               c.object,
+                                               c.name };
+
+        CHECK(matches(marker, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(marker.sType);
+            encode::EncodePNextStructIfValid(&oracle, marker.pNext);
+            oracle.EncodeEnumValue(marker.objectType);
+            oracle.EncodeUInt64Value(GetWrappedId(marker.object, marker.objectType));
+            oracle.EncodeString(marker.pObjectName);
+        }));
+    }
+
+    DestroyWrappedHandle<BufferWrapper>(buffer);
+}
+
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
     NativeCallStore store{};

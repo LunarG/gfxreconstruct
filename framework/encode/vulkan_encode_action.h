@@ -142,8 +142,44 @@ class EncodeStructAction
         HasCaptureWrapper<typename Field::api_type>
     void Apply(Field field, const Storage& storage)
     {
-        using Wrapper = CaptureWrapperFor<typename Field::api_type>::type;
+        using Wrapper = CaptureWrapperType<typename Field::api_type>;
         encoder_->template EncodeVulkanHandleValue<Wrapper>(schema::Get(storage, field));
+    }
+
+    // An array of handles, with a sibling member that holds the count. The member holds the pointer, and the pointer is
+    // what the encoder needs, so it is read as a value like any other; nothing here takes the member's address.
+    template <typename Field, typename Storage>
+    requires schema::HandleKindField<Field> && schema::PointerArrayField<Field> && schema::HasMember<Storage, Field> &&
+        schema::HasCountField<Storage, Field> && HasCaptureWrapper<typename Field::api_type>
+    void Apply(Field field, const Storage& storage)
+    {
+        using CountField = schema::FieldCountField<Field>;
+        using Wrapper    = CaptureWrapperType<typename Field::api_type>;
+
+        auto count = schema::Get(storage, CountField{});
+        encoder_->template EncodeVulkanHandleArray<Wrapper>(schema::Get(storage, field),
+                                                            GFXRECON_NARROWING_CAST(size_t, count));
+    }
+
+    // A generic handle scalar, with a sibling member that holds the handle type. The field and selector members are
+    // accessed by value.
+    template <typename Field, typename Storage>
+    requires schema::HandleField<Field> && schema::HasMember<Storage, Field> && schema::HasSelectorField<Storage, Field>
+    void Apply(Field field, const Storage& storage)
+    {
+        using SelectorField = schema::FieldSelectorField<Field>;
+        encoder_->Encode<typename Field::api_type::kind>(
+            vulkan_wrappers::GetWrappedId(schema::Get(storage, field), schema::Get(storage, SelectorField{})));
+    }
+
+    // Field is a String or WString, and the member holds a pointer to it. The encoder needs the pointer, so it is read
+    // by value.
+    template <typename Field, typename Storage>
+    requires schema::TextKindField<Field> && schema::PointerField<Field> && schema::HasMember<Storage, Field>
+    void Apply(Field field, const Storage& storage)
+    {
+        static_assert(Field::pointer_count == 1, "A pointer to one string has one level of indirection");
+        encoder_->template EncodeString<typename Field::api_type::kind>(schema::Get(storage, field));
     }
 
   private:
