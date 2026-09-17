@@ -21,10 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
-
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "decode/vulkan_rebind_allocator.h"
 #include "util/logging.h"
@@ -465,7 +463,7 @@ constexpr VkImageUsageFlags kLinearMixedUseImageUsage =
     VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
     VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
 
-TEST_CASE("GetImageMemoryUsage selects expected usage classes for representative image inputs", "[decode][rebind]")
+TEST(VulkanRebindAllocatorTest, GetImageMemoryUsageSelectsExpectedUsageClassesForRepresentativeImageInputs)
 {
     struct TestCase
     {
@@ -554,7 +552,7 @@ TEST_CASE("GetImageMemoryUsage selects expected usage classes for representative
 
     for (const auto& test_case : test_cases)
     {
-        INFO(test_case.name);
+        SCOPED_TRACE(test_case.name);
 
         const auto usage =
             gfxrecon::decode::VulkanRebindAllocatorTestAccess::GetImageMemoryUsage(fixture.allocator,
@@ -563,48 +561,47 @@ TEST_CASE("GetImageMemoryUsage selects expected usage classes for representative
                                                                                    test_case.capture_properties,
                                                                                    test_case.replay_requirements);
 
-        REQUIRE(usage == test_case.expected_usage);
+        EXPECT_TRUE(usage == test_case.expected_usage);
     }
 }
 
-TEST_CASE("AdjustMemoryUsage falls back when replay memory types cannot satisfy the requested class",
-          "[decode][rebind]")
+TEST(VulkanRebindAllocatorTest, AdjustMemoryUsageFallsBackToHostVisibleWhenDeviceLocalMemoryIsUnavailable)
 {
     ImageMemorySelectionFixture fixture;
 
-    SECTION("gpu-only falls back to host visible when no device-local type is allowed")
-    {
-        const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
-            fixture.allocator, VMA_MEMORY_USAGE_GPU_ONLY, MakeMemoryRequirements({ kHostVisibleTypeIndex }));
-        REQUIRE(usage == VMA_MEMORY_USAGE_CPU_TO_GPU);
-    }
-
-    SECTION("host-visible usage falls back to gpu-only when host-visible memory is unavailable")
-    {
-        const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
-            fixture.allocator, VMA_MEMORY_USAGE_CPU_TO_GPU, MakeMemoryRequirements({ kDeviceLocalTypeIndex }));
-        REQUIRE(usage == VMA_MEMORY_USAGE_GPU_ONLY);
-    }
-
-    SECTION("lazy usage survives only when a lazily allocated replay type is available")
-    {
-        const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
-            fixture.allocator, VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED, MakeMemoryRequirements({ kLazyTypeIndex }));
-        REQUIRE(usage == VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED);
-    }
-
-    SECTION("lazy usage falls back to gpu-only when no lazy replay type is allowed")
-    {
-        const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
-            fixture.allocator,
-            VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED,
-            MakeMemoryRequirements({ kDeviceLocalTypeIndex }));
-        REQUIRE(usage == VMA_MEMORY_USAGE_GPU_ONLY);
-    }
+    const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
+        fixture.allocator, VMA_MEMORY_USAGE_GPU_ONLY, MakeMemoryRequirements({ kHostVisibleTypeIndex }));
+    EXPECT_EQ(usage, VMA_MEMORY_USAGE_CPU_TO_GPU);
 }
 
-TEST_CASE("AllocateMemoryForImage forwards the selected VMA usage and tracks the resulting allocation",
-          "[decode][rebind]")
+TEST(VulkanRebindAllocatorTest, AdjustMemoryUsageFallsBackToGpuOnlyWhenHostVisibleMemoryIsUnavailable)
+{
+    ImageMemorySelectionFixture fixture;
+
+    const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
+        fixture.allocator, VMA_MEMORY_USAGE_CPU_TO_GPU, MakeMemoryRequirements({ kDeviceLocalTypeIndex }));
+    EXPECT_EQ(usage, VMA_MEMORY_USAGE_GPU_ONLY);
+}
+
+TEST(VulkanRebindAllocatorTest, AdjustMemoryUsagePreservesLazyUsageWhenLazyMemoryIsAvailable)
+{
+    ImageMemorySelectionFixture fixture;
+
+    const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
+        fixture.allocator, VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED, MakeMemoryRequirements({ kLazyTypeIndex }));
+    EXPECT_EQ(usage, VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED);
+}
+
+TEST(VulkanRebindAllocatorTest, AdjustMemoryUsageFallsBackToGpuOnlyWhenLazyMemoryIsUnavailable)
+{
+    ImageMemorySelectionFixture fixture;
+
+    const auto usage = gfxrecon::decode::VulkanRebindAllocatorTestAccess::AdjustMemoryUsage(
+        fixture.allocator, VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED, MakeMemoryRequirements({ kDeviceLocalTypeIndex }));
+    EXPECT_EQ(usage, VMA_MEMORY_USAGE_GPU_ONLY);
+}
+
+TEST(VulkanRebindAllocatorTest, AllocateMemoryForImageForwardsUsageAndTracksAllocation)
 {
     ImageMemorySelectionFixture                    fixture;
     ImageMemorySelectionFixture::ResourceAllocInfo resource_alloc_info =
@@ -656,25 +653,24 @@ TEST_CASE("AllocateMemoryForImage forwards the selected VMA usage and tracks the
                                                                                   memory_alloc_info,
                                                                                   &vma_mem_info);
 
-    REQUIRE(result == VK_SUCCESS);
-    REQUIRE(vma_mem_info != nullptr);
-    REQUIRE(captured_create_info.usage == VMA_MEMORY_USAGE_CPU_TO_GPU);
-    REQUIRE(captured_create_info.flags == 0);
-    REQUIRE(captured_create_info.requiredFlags == 0);
-    REQUIRE(captured_create_info.preferredFlags == 0);
-    REQUIRE(captured_create_info.memoryTypeBits == 0);
-    REQUIRE(captured_create_info.pool == VmaPool{});
-    REQUIRE(memory_alloc_info.vma_mem_infos.size() == 1);
-    REQUIRE(vma_mem_info->capture_mem_req.size == 96);
-    REQUIRE(vma_mem_info->replay_mem_req.size == replay_req.size);
-    REQUIRE(vma_mem_info->offset_from_original_device_memory == 24);
-    REQUIRE(vma_mem_info->requires_dedicated_allocation);
-    REQUIRE_FALSE(vma_mem_info->prefers_dedicated_allocation);
-    REQUIRE(vma_mem_info->allocation == allocation);
+    ASSERT_EQ(result, VK_SUCCESS);
+    ASSERT_NE(vma_mem_info, nullptr);
+    EXPECT_TRUE(captured_create_info.usage == VMA_MEMORY_USAGE_CPU_TO_GPU);
+    EXPECT_TRUE(captured_create_info.flags == 0);
+    EXPECT_TRUE(captured_create_info.requiredFlags == 0);
+    EXPECT_TRUE(captured_create_info.preferredFlags == 0);
+    EXPECT_TRUE(captured_create_info.memoryTypeBits == 0);
+    EXPECT_TRUE(captured_create_info.pool == VmaPool{});
+    EXPECT_TRUE(memory_alloc_info.vma_mem_infos.size() == 1);
+    EXPECT_TRUE(vma_mem_info->capture_mem_req.size == 96);
+    EXPECT_TRUE(vma_mem_info->replay_mem_req.size == replay_req.size);
+    EXPECT_TRUE(vma_mem_info->offset_from_original_device_memory == 24);
+    EXPECT_TRUE(vma_mem_info->requires_dedicated_allocation);
+    EXPECT_FALSE(vma_mem_info->prefers_dedicated_allocation);
+    EXPECT_TRUE(vma_mem_info->allocation == allocation);
 }
 
-TEST_CASE("AllocateMemoryForImage reuses a compatible cached VMA allocation before asking the backend",
-          "[decode][rebind]")
+TEST(VulkanRebindAllocatorTest, AllocateMemoryForImageReusesCompatibleCachedAllocation)
 {
     ImageMemorySelectionFixture                    fixture;
     ImageMemorySelectionFixture::ResourceAllocInfo resource_alloc_info =
@@ -727,13 +723,12 @@ TEST_CASE("AllocateMemoryForImage reuses a compatible cached VMA allocation befo
                                                                                   memory_alloc_info,
                                                                                   &vma_mem_info);
 
-    REQUIRE(result == VK_SUCCESS);
-    REQUIRE(vma_mem_info == cached_memory_info_ptr);
-    REQUIRE(memory_alloc_info.vma_mem_infos.size() == 1);
+    EXPECT_TRUE(result == VK_SUCCESS);
+    EXPECT_TRUE(vma_mem_info == cached_memory_info_ptr);
+    EXPECT_TRUE(memory_alloc_info.vma_mem_infos.size() == 1);
 }
 
-TEST_CASE("AllocateMemoryForImage keeps trace-like device-local host-visible optimal images on gpu-only memory",
-          "[decode][rebind]")
+TEST(VulkanRebindAllocatorTest, AllocateMemoryForImageKeepsHybridOptimalImagesOnGpuOnlyMemory)
 {
     ImageMemorySelectionFixture                    fixture;
     ImageMemorySelectionFixture::ResourceAllocInfo resource_alloc_info =
@@ -797,12 +792,12 @@ TEST_CASE("AllocateMemoryForImage keeps trace-like device-local host-visible opt
                                                                                   memory_alloc_info,
                                                                                   &vma_mem_info);
 
-    REQUIRE(result == VK_SUCCESS);
-    REQUIRE(vma_mem_info != nullptr);
-    REQUIRE(captured_create_info.usage == VMA_MEMORY_USAGE_GPU_ONLY);
+    EXPECT_TRUE(result == VK_SUCCESS);
+    EXPECT_TRUE(vma_mem_info != nullptr);
+    EXPECT_TRUE(captured_create_info.usage == VMA_MEMORY_USAGE_GPU_ONLY);
 }
 
-TEST_CASE("Data graph rebind synthesizes the replay session binding set", "[decode][rebind][data-graph]")
+TEST(VulkanRebindAllocatorTest, DataGraphRebindSynthesizesReplaySessionBindingSet)
 {
     using TestAccess = gfxrecon::decode::VulkanRebindAllocatorTestAccess;
 
@@ -842,7 +837,7 @@ TEST_CASE("Data graph rebind synthesizes the replay session binding set", "[deco
                             const VkDataGraphPipelineSessionBindPointRequirementsInfoARM*,
                             uint32_t*                                          requirement_count,
                             VkDataGraphPipelineSessionBindPointRequirementARM* requirements) {
-            REQUIRE(*requirement_count == 1);
+            EXPECT_TRUE(*requirement_count == 1);
             requirements[0].bindPoint     = VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM;
             requirements[0].bindPointType = VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM;
             requirements[0].numObjects    = 2;
@@ -853,8 +848,8 @@ TEST_CASE("Data graph rebind synthesizes the replay session binding set", "[deco
         .WillRepeatedly(Invoke([](VkDevice,
                                   const VkDataGraphPipelineSessionMemoryRequirementsInfoARM* info,
                                   VkMemoryRequirements2*                                     requirements) {
-            REQUIRE(info->bindPoint == VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM);
-            REQUIRE(info->objectIndex < 2);
+            EXPECT_TRUE(info->bindPoint == VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM);
+            EXPECT_TRUE(info->objectIndex < 2);
             requirements->memoryRequirements = MakeMemoryRequirements({ 0 }, 128, 32);
         }));
 
@@ -866,7 +861,7 @@ TEST_CASE("Data graph rebind synthesizes the replay session binding set", "[deco
                                    const VmaAllocationCreateInfo* create_info,
                                    VmaAllocation*                 out_allocation,
                                    VmaAllocationInfo*             allocation_info) {
-            REQUIRE(create_info->memoryTypeBits == 1);
+            EXPECT_TRUE(create_info->memoryTypeBits == 1);
             const bool first              = (allocation_index++ == 0);
             *out_allocation               = first ? allocation0 : allocation1;
             allocation_info->deviceMemory = first ? memory0 : memory1;
@@ -877,12 +872,12 @@ TEST_CASE("Data graph rebind synthesizes the replay session binding set", "[deco
         }));
     EXPECT_CALL(mock_vulkan_functions, BindDataGraphSessionMemory(device, 2, _))
         .WillOnce(Invoke([&](VkDevice, uint32_t, const VkBindDataGraphPipelineSessionMemoryInfoARM* bind_infos) {
-            REQUIRE(bind_infos[0].session == session);
-            REQUIRE(bind_infos[0].bindPoint == VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM);
-            REQUIRE(bind_infos[0].objectIndex == 0);
-            REQUIRE(bind_infos[0].memory == memory0);
-            REQUIRE(bind_infos[1].objectIndex == 1);
-            REQUIRE(bind_infos[1].memory == memory1);
+            EXPECT_TRUE(bind_infos[0].session == session);
+            EXPECT_TRUE(bind_infos[0].bindPoint == VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM);
+            EXPECT_TRUE(bind_infos[0].objectIndex == 0);
+            EXPECT_TRUE(bind_infos[0].memory == memory0);
+            EXPECT_TRUE(bind_infos[1].objectIndex == 1);
+            EXPECT_TRUE(bind_infos[1].memory == memory1);
             return VK_SUCCESS;
         }));
 
@@ -894,13 +889,13 @@ TEST_CASE("Data graph rebind synthesizes the replay session binding set", "[deco
     captured_bind.objectIndex = 0;
     captured_bind.memory      = MakeHandle<VkDeviceMemory>(0x9999);
 
-    REQUIRE(TestAccess::InitializeDataGraphSessionMemory(allocator, session, resource_alloc_info) == VK_SUCCESS);
+    ASSERT_EQ(TestAccess::InitializeDataGraphSessionMemory(allocator, session, resource_alloc_info), VK_SUCCESS);
 
     VkMemoryPropertyFlags memory_property_flags = 0x1234;
-    REQUIRE(allocator.BindDataGraphPipelineSessionMemory(1, &captured_bind, nullptr, nullptr, &memory_property_flags) ==
-            VK_SUCCESS);
-    REQUIRE(memory_property_flags == 0x1234);
-    REQUIRE(allocator.BindDataGraphPipelineSessionMemory(99, nullptr, nullptr, nullptr, nullptr) == VK_SUCCESS);
+    EXPECT_TRUE(allocator.BindDataGraphPipelineSessionMemory(
+                    1, &captured_bind, nullptr, nullptr, &memory_property_flags) == VK_SUCCESS);
+    EXPECT_TRUE(memory_property_flags == 0x1234);
+    EXPECT_TRUE(allocator.BindDataGraphPipelineSessionMemory(99, nullptr, nullptr, nullptr, nullptr) == VK_SUCCESS);
 
     EXPECT_CALL(mock_vma_backend, FreeMemory(_, allocation0));
     EXPECT_CALL(mock_vma_backend, FreeMemory(_, allocation1));
