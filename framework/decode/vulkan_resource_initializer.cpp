@@ -45,10 +45,10 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      VulkanResourceAllocator*                resource_allocator,
                                                      const graphics::VulkanInjectedDeviceCalls& injected_calls) :
     device_(device_info->handle),
-    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
-    staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), staging_buffer_size_(0),
-    draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
-    draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
+    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0),
+    staging_buffer_(device_info->handle, resource_allocator, injected_calls), staging_buffer_mapped_ptr_(nullptr),
+    staging_buffer_offset_(0), staging_buffer_size_(0), draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE),
+    draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
     have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
     injected_calls_(injected_calls), device_info_(device_info)
 {
@@ -184,7 +184,7 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
 
                 injected.InsertLabel(command_buffer, "Initialize buffer");
                 injected->CmdCopyBuffer(
-                    command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
+                    command_buffer, staging_buffer_.handle, buffer, region_count, offsetted_regions_copy_.data());
 
                 // Advance staging buffer offset
                 GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= staging_buffer_size_);
@@ -238,7 +238,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             if (result == VK_SUCCESS)
             {
                 result = PixelShaderImageCopy(queue_family_index,
-                                              staging_buffer_,
+                                              staging_buffer_.handle,
                                               image,
                                               type,
                                               format,
@@ -307,7 +307,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             }
 
             result = BufferToImageCopy(queue_family_index,
-                                       staging_buffer_,
+                                       staging_buffer_.handle,
                                        image,
                                        format,
                                        aspect,
@@ -1027,30 +1027,20 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
     GFXRECON_ASSERT(size <= staging_buffer_size_);
     size = std::max<VkDeviceSize>(util::aligned_value(size, staging_buffer_alignment_), staging_buffer_size_);
 
-    if (staging_buffer_ == VK_NULL_HANDLE || size > staging_buffer_size_)
+    if (staging_buffer_.handle == VK_NULL_HANDLE || size > staging_buffer_size_)
     {
-        if (staging_buffer_ != VK_NULL_HANDLE)
+        if (staging_buffer_.handle != VK_NULL_HANDLE)
         {
             FlushRemainingResourcesInit();
             ReleaseStagingBuffer();
         }
 
-        VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        create_info.pNext                 = nullptr;
-        create_info.flags                 = 0;
-        create_info.size                  = std::max<VkDeviceSize>(size, staging_buffer_size_);
-        create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        create_info.queueFamilyIndexCount = 0;
-        create_info.pQueueFamilyIndices   = nullptr;
-
-        result =
-            resource_allocator_->CreateBufferDirect(&create_info, nullptr, &staging_buffer_, &staging_buffer_data_);
+        result = staging_buffer_.Create(std::max<VkDeviceSize>(size, staging_buffer_size_),
+                                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
         if (result == VK_SUCCESS)
         {
-            VkMemoryRequirements memory_requirements;
-            injected->GetBufferMemoryRequirements(device_, staging_buffer_, &memory_requirements);
+            const VkMemoryRequirements& memory_requirements = staging_buffer_.requirements;
 
             auto memory_type_index =
                 GetMemoryTypeIndex(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -1069,8 +1059,12 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
             if (result == VK_SUCCESS)
             {
                 VkMemoryPropertyFlags flags;
-                result = resource_allocator_->BindBufferMemoryDirect(
-                    staging_buffer_, staging_memory_, 0, staging_buffer_data_, staging_memory_data_, &flags);
+                result = resource_allocator_->BindBufferMemoryDirect(staging_buffer_.handle,
+                                                                     staging_memory_,
+                                                                     0,
+                                                                     staging_buffer_.resource_data,
+                                                                     staging_memory_data_,
+                                                                     &flags);
             }
 
             if (result == VK_SUCCESS)
@@ -1082,15 +1076,16 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
                     resource_allocator_->MapResourceMemoryDirect(staging_buffer_size_,
                                                                  0,
                                                                  reinterpret_cast<void**>(&staging_buffer_mapped_ptr_),
-                                                                 staging_buffer_data_);
+                                                                 staging_buffer_.resource_data);
             }
             else
             {
-                resource_allocator_->DestroyBufferDirect(staging_buffer_, nullptr, staging_buffer_data_);
+                staging_buffer_.Destroy();
 
                 if (staging_memory_ != VK_NULL_HANDLE)
                 {
                     resource_allocator_->FreeMemoryDirect(staging_memory_, nullptr, staging_memory_data_);
+                    staging_memory_ = VK_NULL_HANDLE;
                 }
             }
         }
@@ -1102,15 +1097,12 @@ void VulkanResourceInitializer::ReleaseStagingBuffer()
 {
     if (staging_buffer_mapped_ptr_ != nullptr)
     {
-        resource_allocator_->UnmapResourceMemoryDirect(staging_buffer_data_);
+        resource_allocator_->UnmapResourceMemoryDirect(staging_buffer_.resource_data);
         staging_buffer_mapped_ptr_ = nullptr;
     }
 
-    if (staging_buffer_ != VK_NULL_HANDLE)
-    {
-        resource_allocator_->DestroyBufferDirect(staging_buffer_, nullptr, staging_buffer_data_);
-        staging_buffer_ = VK_NULL_HANDLE;
-    }
+    // The buffer has to go before the memory it is bound to.
+    staging_buffer_.Destroy();
 
     if (staging_memory_ != VK_NULL_HANDLE)
     {

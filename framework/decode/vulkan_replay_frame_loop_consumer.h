@@ -25,6 +25,7 @@
 
 #include "util/defines.h"
 #include "decode/vulkan_replay_consumer_base.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 
@@ -192,11 +193,14 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
         struct ShadowBuffer
         {
-            VkBuffer                              buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory                        memory{ VK_NULL_HANDLE };
-            VkDeviceSize                          size{ 0 };
-            VulkanResourceAllocator::ResourceData alloc_data{ 0 };
-            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+            ShadowBuffer(VkDevice dev, VulkanResourceAllocator* alloc, const graphics::VulkanDeviceTable& table) :
+                buffer(dev, alloc, table)
+            {}
+
+            TemporaryBuffer                     buffer;
+            VkDeviceMemory                      memory{ VK_NULL_HANDLE };
+            VkDeviceSize                        size{ 0 };
+            VulkanResourceAllocator::MemoryData mem_data{ 0 };
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);

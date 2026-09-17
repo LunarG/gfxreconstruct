@@ -29,6 +29,7 @@
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_semaphore_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
@@ -397,22 +398,24 @@ class VulkanAddressReplacer
   private:
     struct buffer_context_t
     {
-        decode::VulkanResourceAllocator*              resource_allocator = nullptr;
-        uint32_t                                      num_bytes          = 0;
-        VkDeviceMemory                                device_memory      = VK_NULL_HANDLE;
-        VkBuffer                                      buffer             = VK_NULL_HANDLE;
-        decode::VulkanResourceAllocator::ResourceData allocator_data{};
-        decode::VulkanResourceAllocator::MemoryData   memory_data{};
-        VkDeviceAddress                               device_address = 0;
-        void*                                         mapped_data    = nullptr;
-        std::string                                   name;
+        TemporaryBuffer                             temp_buffer;
+        VkDeviceMemory                              device_memory = VK_NULL_HANDLE;
+        decode::VulkanResourceAllocator::MemoryData memory_data{};
 
-        buffer_context_t()                        = default;
-        buffer_context_t(const buffer_context_t&) = delete;
+        uint32_t        num_bytes      = 0;
+        VkDeviceAddress device_address = 0;
+
+        // Points into the mapped allocation, shifted by the same amount device_address was aligned by
+        void*       mapped_data = nullptr;
+        std::string name;
+
+        buffer_context_t()                                   = default;
+        buffer_context_t(const buffer_context_t&)            = delete;
+        buffer_context_t& operator=(const buffer_context_t&) = delete;
         buffer_context_t(buffer_context_t&& other) noexcept;
+        buffer_context_t& operator=(buffer_context_t&& other) noexcept;
         ~buffer_context_t();
-        buffer_context_t& operator=(buffer_context_t other);
-        void              swap(buffer_context_t& other) noexcept;
+        void swap(buffer_context_t& other) noexcept;
     };
 
     struct pipeline_context_t

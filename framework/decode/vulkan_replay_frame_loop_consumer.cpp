@@ -559,15 +559,12 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             continue;
         }
 
-        VkBufferCreateInfo create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        create_info.size               = buffer_info->size;
-        create_info.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+        constexpr VkBufferUsageFlags kShadowUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        ShadowBuffer shadow;
+        ShadowBuffer shadow(device_info->handle, allocator_.get(), device_table_);
         shadow.size = buffer_info->size;
 
-        VkResult result = allocator_->CreateBufferDirect(&create_info, nullptr, &shadow.buffer, &shadow.alloc_data);
+        VkResult result = shadow.buffer.Create(buffer_info->size, kShadowUsage);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Failed to create shadow buffer for buffer %" PRIu64 " (size %" PRIu64
@@ -578,8 +575,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             continue;
         }
 
-        VkMemoryRequirements mem_reqs;
-        device_table_.GetBufferMemoryRequirements(device_info->handle, shadow.buffer, &mem_reqs);
+        const VkMemoryRequirements& mem_reqs = shadow.buffer.requirements;
 
         uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
             *memory_properties_, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -592,7 +588,6 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             GFXRECON_LOG_WARNING("No suitable memory type for shadow buffer for buffer %" PRIu64
                                  "; its contents will not be restored across loop repetitions.",
                                  buffer_id);
-            allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
             continue;
         }
 
@@ -609,28 +604,29 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
                                  buffer_id,
                                  mem_reqs.size,
                                  util::ToString(result).c_str());
-            allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
+            shadow.memory = VK_NULL_HANDLE;
             continue;
         }
 
         VkMemoryPropertyFlags bind_properties = 0;
         result                                = allocator_->BindBufferMemoryDirect(
-            shadow.buffer, shadow.memory, 0, shadow.alloc_data, shadow.mem_data, &bind_properties);
+            shadow.buffer.handle, shadow.memory, 0, shadow.buffer.resource_data, shadow.mem_data, &bind_properties);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Failed to bind shadow memory for buffer %" PRIu64
                                  " with %s; its contents will not be restored across loop repetitions.",
                                  buffer_id,
                                  util::ToString(result).c_str());
+            shadow.buffer.Destroy();
             allocator_->FreeMemoryDirect(shadow.memory, nullptr, shadow.mem_data);
-            allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
             continue;
         }
 
         VkBufferCopy region = { 0, 0, buffer_info->size };
-        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
+        device_table_.CmdCopyBuffer(
+            temp_cmd_buff.command_buffer, buffer_info->handle, shadow.buffer.handle, 1, &region);
 
-        shadow_buffers_[buffer_id] = shadow;
+        shadow_buffers_.emplace(buffer_id, std::move(shadow));
         ++copy_count;
     }
 
@@ -666,7 +662,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore()
         }
 
         VkBufferCopy region = { 0, 0, shadow.size };
-        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, shadow.buffer, buffer_info->handle, 1, &region);
+        device_table_.CmdCopyBuffer(
+            temp_cmd_buff.command_buffer, shadow.buffer.handle, buffer_info->handle, 1, &region);
         ++restore_count;
     }
 
@@ -683,10 +680,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::DestroyShadowBuffers()
     {
         for (auto& [buffer_id, shadow] : shadow_buffers_)
         {
-            if (shadow.buffer != VK_NULL_HANDLE)
-            {
-                allocator_->DestroyBufferDirect(shadow.buffer, nullptr, shadow.alloc_data);
-            }
+            shadow.buffer.Destroy();
+
             if (shadow.memory != VK_NULL_HANDLE)
             {
                 allocator_->FreeMemoryDirect(shadow.memory, nullptr, shadow.mem_data);
