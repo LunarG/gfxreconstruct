@@ -162,7 +162,7 @@ void DrawCallsDumpingContext::Release()
                 }
             }
 
-            for (VkRenderPass renderpass : rps->render_pass_load_clones)
+            for (const auto& [subpasses, renderpass] : rps->render_pass_load_clones)
             {
                 if (renderpass != VK_NULL_HANDLE)
                 {
@@ -2949,17 +2949,71 @@ static void FixAttachmentStoreOps(std::vector<AttachmentDescriptionType>& attach
     }
 }
 
-// Load what the window before this one stored. The attachments are in their original finalLayout at that point.
-template <typename AttachmentDescriptionType>
-static void FixAttachmentLoadOps(std::vector<AttachmentDescriptionType>& attachments)
+// The subpass each attachment is first used in, kNeverUsed for one that no subpass references. A render pass
+// performs an attachment's load operation when the subpass that first uses it begins.
+template <typename CreateInfoType>
+static std::vector<uint32_t> FirstUseSubpassPerAttachment(const CreateInfoType* create_info)
 {
-    for (auto& att : attachments)
-    {
-        att.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    std::vector<uint32_t> first_use(create_info->attachmentCount, DrawCallsDumpingContext::kNeverUsed);
 
-        if (vkuFormatHasStencil(att.format))
+    const auto use = [&first_use](uint32_t attachment, uint32_t subpass) {
+        if (attachment != VK_ATTACHMENT_UNUSED && attachment < first_use.size() && subpass < first_use[attachment])
         {
-            att.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            first_use[attachment] = subpass;
+        }
+    };
+
+    for (uint32_t sub = 0; sub < create_info->subpassCount; ++sub)
+    {
+        const auto& subpass = create_info->pSubpasses[sub];
+
+        for (uint32_t i = 0; i < subpass.colorAttachmentCount; ++i)
+        {
+            use(subpass.pColorAttachments[i].attachment, sub);
+
+            if (subpass.pResolveAttachments != nullptr)
+            {
+                use(subpass.pResolveAttachments[i].attachment, sub);
+            }
+        }
+
+        for (uint32_t i = 0; i < subpass.inputAttachmentCount; ++i)
+        {
+            use(subpass.pInputAttachments[i].attachment, sub);
+        }
+
+        if (subpass.pDepthStencilAttachment != nullptr)
+        {
+            use(subpass.pDepthStencilAttachment->attachment, sub);
+        }
+    }
+
+    return first_use;
+}
+
+// Load what the window before this one stored, for the attachments it could have written: the ones a subpass up
+// to resume_subpass uses. An attachment the window before never reached keeps the ops the application gave it,
+// so its clear still happens, in the window that first enters the subpass using it. The attachments are all in
+// their original finalLayout at a window boundary, used or not.
+template <typename AttachmentDescriptionType>
+static void FixAttachmentLoadOps(std::vector<AttachmentDescriptionType>& attachments,
+                                 const std::vector<uint32_t>&            first_use_subpass,
+                                 uint32_t                                resume_subpass)
+{
+    GFXRECON_ASSERT(attachments.size() == first_use_subpass.size());
+
+    for (size_t i = 0; i < attachments.size(); ++i)
+    {
+        auto& att = attachments[i];
+
+        if (first_use_subpass[i] <= resume_subpass)
+        {
+            att.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+
+            if (vkuFormatHasStencil(att.format))
+            {
+                att.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            }
         }
 
         att.initialLayout = att.finalLayout;
@@ -2995,12 +3049,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(RenderPassContext& renderpass_
 
     FixAttachmentStoreOps(modified_attachments);
 
-    std::vector<VkAttachmentDescription> load_attachments;
-    if (chaining_)
-    {
-        load_attachments = modified_attachments;
-        FixAttachmentLoadOps(load_attachments);
-    }
+    const std::vector<uint32_t> first_use_subpass = FirstUseSubpassPerAttachment(original_render_pass_ci);
 
     // Create new render passes. For each subpass in the original render pass a new render pass will be created.
     // Each new render pass will progressively contain an additional subpass until all subpasses of the original
@@ -3070,11 +3119,19 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(RenderPassContext& renderpass_
             return res;
         }
 
-        if (chaining_)
+        if (!chaining_)
         {
+            continue;
+        }
+
+        // One LOAD variant per subpass a window can resume this render pass in
+        for (uint32_t resume = 0; resume <= sub; ++resume)
+        {
+            std::vector<VkAttachmentDescription> load_attachments = modified_attachments;
+            FixAttachmentLoadOps(load_attachments, first_use_subpass, resume);
             ci.pAttachments = load_attachments.empty() ? nullptr : load_attachments.data();
 
-            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones.emplace_back();
+            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones[{ resume, sub }];
             res                            = injected->CreateRenderPass(device, &ci, nullptr, &load_render_pass);
             if (res != VK_SUCCESS)
             {
@@ -3100,12 +3157,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(RenderPassContext& renderpass
 
     FixAttachmentStoreOps(modified_attachments);
 
-    std::vector<VkAttachmentDescription2> load_attachments;
-    if (chaining_)
-    {
-        load_attachments = modified_attachments;
-        FixAttachmentLoadOps(load_attachments);
-    }
+    const std::vector<uint32_t> first_use_subpass = FirstUseSubpassPerAttachment(original_render_pass_ci);
 
     // Create new render passes. For each subpass in the original render pass a new render pass will be created.
     // Each new render pass will progressively contain an additional subpass until all subpasses of the original
@@ -3190,11 +3242,19 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(RenderPassContext& renderpass
             return res;
         }
 
-        if (chaining_)
+        if (!chaining_)
         {
+            continue;
+        }
+
+        // One LOAD variant per subpass a window can resume this render pass in
+        for (uint32_t resume = 0; resume <= sub; ++resume)
+        {
+            std::vector<VkAttachmentDescription2> load_attachments = modified_attachments;
+            FixAttachmentLoadOps(load_attachments, first_use_subpass, resume);
             ci.pAttachments = load_attachments.empty() ? nullptr : load_attachments.data();
 
-            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones.emplace_back();
+            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones[{ resume, sub }];
             if (renderpass_context.renderpass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
             {
                 res = injected->CreateRenderPass2(device, &ci, nullptr, &load_render_pass);
@@ -3310,11 +3370,22 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
             find_subpass(cmd_buf_idx, sp);
 
             // Only the window that contains the begin starts the render pass the way the application did. The
-            // others resume it and load what the window before them stored.
-            const auto& clones = (lo < pass_begin) ? new_render_pass_context->render_pass_clones
-                                                   : new_render_pass_context->render_pass_load_clones;
-            GFXRECON_ASSERT(sp < clones.size());
-            modified_renderpass_begin_info.renderPass = clones[sp];
+            // others resume it in the subpass the window before them ended in, and load what it stored.
+            if (lo < pass_begin)
+            {
+                GFXRECON_ASSERT(sp < new_render_pass_context->render_pass_clones.size());
+                modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
+            }
+            else
+            {
+                uint64_t resume_subpass = 0;
+                FindSubpassInRange(*block_range, lo, resume_subpass);
+
+                const auto load_clone = new_render_pass_context->render_pass_load_clones.find(
+                    { GFXRECON_NARROWING_CAST(uint32_t, resume_subpass), GFXRECON_NARROWING_CAST(uint32_t, sp) });
+                GFXRECON_ASSERT(load_clone != new_render_pass_context->render_pass_load_clones.end());
+                modified_renderpass_begin_info.renderPass = load_clone->second;
+            }
 
             if (!found_overlap)
             {
@@ -3984,14 +4055,12 @@ void DrawCallsDumpingContext::BeginRendering(uint64_t                           
 
 bool DrawCallsDumpingContext::IsChainable() const
 {
-    // A resuming clone covers one subpass range only, so a targeted multi-subpass render pass keeps the
-    // cumulative path. An empty range belongs to a secondary that inherits the primary's render pass.
-    const bool single_subpass =
-        std::all_of(RP_indices_.begin(), RP_indices_.end(), [](const std::vector<Index>& range) {
-            return range.empty() || range.size() == 2;
-        });
+    // A well-formed range has the render pass begin, one entry per subpass boundary and the end. An empty
+    // range belongs to a secondary that inherits the primary's render pass.
+    const bool well_formed = std::all_of(
+        RP_indices_.begin(), RP_indices_.end(), [](const std::vector<Index>& range) { return range.size() != 1; });
 
-    if (!single_subpass)
+    if (!well_formed)
     {
         return false;
     }
