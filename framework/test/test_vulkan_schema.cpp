@@ -744,6 +744,21 @@ Handle FakeHandle(uint64_t value)
     }
 }
 
+// A non-dispatchable handle's bits widened to 64, which is how the API hands a generic handle over. A function
+// template, so the branch that does not apply to the platform's handle representation is never instantiated.
+template <typename Handle>
+uint64_t HandleBits(Handle handle)
+{
+    if constexpr (std::is_pointer_v<Handle>)
+    {
+        return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
+    }
+    else
+    {
+        return static_cast<uint64_t>(handle);
+    }
+}
+
 // A callback with the API's calling convention, so its address converts to the PFN type on every platform.
 VKAPI_ATTR VkBool32 VKAPI_CALL TestDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
                                                       VkDebugUtilsMessageTypeFlagsEXT,
@@ -1133,17 +1148,7 @@ TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire byte
     VkBuffer buffer = FakeHandle<VkBuffer>(0x0b0fu);
     CreateWrappedNonDispatchHandle<BufferWrapper>(&buffer, TestHandleId);
 
-    // The generic handle member is the handle's bits widened to 64, which is how the API hands it over.
-    const uint64_t buffer_bits = [&]() -> uint64_t {
-        if constexpr (std::is_pointer_v<VkBuffer>)
-        {
-            return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(buffer));
-        }
-        else
-        {
-            return static_cast<uint64_t>(buffer);
-        }
-    }();
+    const uint64_t buffer_bits = HandleBits(buffer);
     REQUIRE(GetWrappedId(buffer_bits, VK_OBJECT_TYPE_BUFFER) != format::kNullHandleId);
 
     struct Case
