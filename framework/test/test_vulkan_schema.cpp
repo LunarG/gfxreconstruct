@@ -129,7 +129,7 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, for
 
 // Shape concepts select on exactly the logical kind and the use-site shape.
 static_assert(schema::HandleField<barrier_field::buffer>);
-static_assert(schema::StructField<cmd_field::pBufferMemoryBarriers>);
+static_assert(schema::StructKindField<cmd_field::pBufferMemoryBarriers>);
 static_assert(schema::PointerArrayField<cmd_field::pBufferMemoryBarriers>);
 static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::count_field, cmd_field::bufferMemoryBarrierCount>);
 static_assert(schema::ExtensionChainField<barrier_field::pNext>);

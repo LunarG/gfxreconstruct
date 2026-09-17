@@ -95,7 +95,7 @@ class DecodeStructAction
     {
         schema::FieldElementType<Field> value{};
 
-        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(Cursor(), Remaining(), &value);
+        bytes_read_ += ValueDecoder::Decode<schema::FieldKind<Field>>(Cursor(), Remaining(), &value);
 
         schema::Set(DecodedValueRef(storage), field, value);
     }
@@ -113,7 +113,7 @@ class DecodeStructAction
     {
         auto& field_ref = schema::GetRef(storage, field);
 
-        bytes_read_ += field_ref.template Decode<typename Field::api_type::kind>(Cursor(), Remaining());
+        bytes_read_ += field_ref.template Decode<schema::FieldKind<Field>>(Cursor(), Remaining());
 
         schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
     }
@@ -145,8 +145,8 @@ class DecodeStructAction
     {
         using Member = std::remove_cvref_t<decltype(schema::GetRef(DecodedValueRef(storage), field))>;
 
-        bytes_read_ += ValueDecoder::Decode<typename Field::api_type::kind>(
-            Cursor(), Remaining(), &schema::GetRef(storage, field));
+        bytes_read_ +=
+            ValueDecoder::Decode<schema::FieldKind<Field>>(Cursor(), Remaining(), &schema::GetRef(storage, field));
 
         schema::Set(DecodedValueRef(storage), field, Member{});
     }
@@ -215,7 +215,7 @@ class DecodeStructAction
     // The decoded type comes from the storage rather than from ApiElementTraits, because the wrapper's own member
     // already declares it, so nothing here names a trait; the call resolves at instantiation.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::ValueShapedField<Field> && schema::Addressable<Storage, Field> &&
+    requires schema::StructKindField<Field> && schema::ValueShapedField<Field> && schema::Addressable<Storage, Field> &&
         schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
@@ -265,7 +265,7 @@ class DecodeStructAction
             field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
         }
 
-        bytes_read_ += field_ref.template Decode<typename Field::api_type::kind>(Cursor(), Remaining());
+        bytes_read_ += field_ref.template Decode<schema::FieldKind<Field>>(Cursor(), Remaining());
     }
 
     // A pointer to a structure, or to a run of them. Both decode identically: StructPointerDecoder reads its own
@@ -278,8 +278,8 @@ class DecodeStructAction
     // structure case, once per element. Whether an element type is itself a field walk is that structure's
     // business.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::PointerShapedField<Field> && schema::Addressable<Storage, Field> &&
-        schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::StructKindField<Field> && schema::PointerShapedField<Field> &&
+        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
@@ -298,7 +298,7 @@ class DecodeStructAction
     //
     // Each element still descends through DecodeStruct, so this is legacy descent once per element.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+    requires schema::StructKindField<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
         schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {

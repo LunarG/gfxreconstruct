@@ -56,7 +56,7 @@ class EncodeStructAction
         schema::HasMember<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
-        encoder_->template Encode<typename Field::api_type::kind>(schema::Get(storage, field));
+        encoder_->template Encode<schema::FieldKind<Field>>(schema::Get(storage, field));
     }
 
     // A fixed-extent array of scalars, of one or two dimensions. Every named fixed-array entry point, the 2DMatrix
@@ -81,11 +81,11 @@ class EncodeStructAction
 
         if constexpr (std::rank_v<ArrayType> == 2)
         {
-            encoder_->template EncodeArray<typename Field::api_type::kind>(&array_ref[0][0], count);
+            encoder_->template EncodeArray<schema::FieldKind<Field>>(&array_ref[0][0], count);
         }
         else
         {
-            encoder_->template EncodeArray<typename Field::api_type::kind>(&array_ref[0], count);
+            encoder_->template EncodeArray<schema::FieldKind<Field>>(&array_ref[0], count);
         }
     }
 
@@ -118,7 +118,7 @@ class EncodeStructAction
     {
         static_assert(Field::pointer_count == 1, "A pointer to one scalar has one level of indirection");
 
-        encoder_->template EncodePointer<typename Field::api_type::kind>(schema::Get(storage, field));
+        encoder_->template EncodePointer<schema::FieldKind<Field>>(schema::Get(storage, field));
     }
 
     // An array of scalars, with a sibling member that holds the count. The member holds the pointer, and the pointer is
@@ -133,7 +133,7 @@ class EncodeStructAction
 
         auto             count = schema::Get(storage, CountField{});
         const ArrayType* array = static_cast<const ArrayType*>(schema::Get(storage, field));
-        encoder_->template EncodeArray<typename Field::api_type::kind>(array, GFXRECON_NARROWING_CAST(size_t, count));
+        encoder_->template EncodeArray<schema::FieldKind<Field>>(array, GFXRECON_NARROWING_CAST(size_t, count));
     }
 
     // A single wrapped handle.
@@ -168,7 +168,7 @@ class EncodeStructAction
     void Apply(Field field, const Storage& storage)
     {
         using SelectorField = schema::FieldSelectorField<Field>;
-        encoder_->Encode<typename Field::api_type::kind>(
+        encoder_->Encode<schema::FieldKind<Field>>(
             vulkan_wrappers::GetWrappedId(schema::Get(storage, field), schema::Get(storage, SelectorField{})));
     }
 
@@ -179,7 +179,7 @@ class EncodeStructAction
     void Apply(Field field, const Storage& storage)
     {
         static_assert(Field::pointer_count == 1, "A pointer to one string has one level of indirection");
-        encoder_->template EncodeString<typename Field::api_type::kind>(schema::Get(storage, field));
+        encoder_->template EncodeString<schema::FieldKind<Field>>(schema::Get(storage, field));
     }
 
     // Field is a String or WString fixed length array. Must access field by reference. One-dimensional only.
@@ -197,7 +197,7 @@ class EncodeStructAction
         static_assert(std::rank_v<ArrayType> == 1, "String arrays must be one-dimensional only");
 
         constexpr size_t capacity = std::extent_v<ArrayType, 0>;
-        encoder_->template EncodeString<typename Field::api_type::kind, capacity>(&string_ref[0]);
+        encoder_->template EncodeString<schema::FieldKind<Field>, capacity>(&string_ref[0]);
     }
 
   private:

@@ -930,6 +930,16 @@ concept IsKind = std::derived_from<Kind, kind::Tag>;
 template <typename Kind>
 concept IsScalarKind = std::derived_from<Kind, kind::Scalar>;
 
+// One predicate per kind or family, so a layer above asks which kind a field has without spelling the tag. The
+// single kinds are identity tests today; if one grows children, its predicate becomes a derived_from and no
+// consumer changes.
+template <typename Kind>
+concept IsHandleKind = std::same_as<Kind, kind::Handle>;
+template <typename Kind>
+concept IsStructKind = std::same_as<Kind, kind::Struct>;
+template <typename Kind>
+concept IsAddressKind = std::same_as<Kind, kind::Address>;
+
 // A kind with a wire form. Struct and Void are kinds and satisfy IsKind, but neither has bytes of its own, so an
 // operation that needs a width constrains on this and declines them by name rather than by a missing member.
 template <typename Kind>

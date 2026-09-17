@@ -122,10 +122,15 @@ using ElementType = typename ApiType::element_type;
 template <typename Field>
 using FieldElementType = ElementType<typename Field::api_type>;
 
+// The logical kind a Field's API type names. Every kind concept below asks format.h a question about this type
+// and never spells a kind tag itself.
+template <typename Field>
+using FieldKind = typename Field::api_type::kind;
+
 // The wire type a Field is recorded as. The join between a kind and its width is on the kind itself, in
 // format/format.h, so a change to the capture format touches that header and no schema content.
 template <typename Field>
-using FieldEncodeType = format::EncodeTypeFor<typename Field::api_type::kind>;
+using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
 
 // The count field for a PointerArray or StaticArray Field, if any. The sibling Field whose value names the array's
 // length
@@ -235,45 +240,45 @@ void Set(Storage& storage, Field field, ValueType&& value)
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
 
 template <typename Field>
-concept HandleKindField = std::same_as<typename Field::api_type::kind, format::kind::Handle>;
+concept HandleKindField = format::IsHandleKind<FieldKind<Field>>;
 
 template <typename Field>
 concept HandleField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // The kind alone, so a shape other than Value can select on it. ScalarField is the value-shaped case.
 template <typename Field>
-concept ScalarKindField = format::IsScalarKind<typename Field::api_type::kind>;
+concept ScalarKindField = format::IsScalarKind<FieldKind<Field>>;
 
 template <typename Field>
 concept ScalarField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // Text, of either width. The two kinds pick different decoder classes, and nothing else about them differs.
 template <typename Field>
-concept TextKindField = format::IsTextKind<typename Field::api_type::kind>;
+concept TextKindField = format::IsTextKind<FieldKind<Field>>;
 
-// StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
+// StructKindField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
 template <typename Field>
-concept StructField = std::same_as<typename Field::api_type::kind, format::kind::Struct>;
+concept StructKindField = format::IsStructKind<FieldKind<Field>>;
 
 // An opaque address: recorded as the value the capture saw rather than followed, so nothing is at the other end
 // to decode and the field is value-shaped whether or not the declaration writes a star.
 template <typename Field>
-concept AddressField = std::same_as<typename Field::api_type::kind, format::kind::Address>;
+concept AddressKindField = format::IsAddressKind<FieldKind<Field>>;
 
 // A kind that records an identifier rather than the thing itself: a handle's capture-file id, or the address the
 // capture saw. Nothing decodes into the API's own member for either; the identifier goes to the wrapper and the
 // member is nulled until replay resolves it. The two kinds share that pattern and nothing else, so one concept
 // names the pair.
 template <typename Field>
-concept IdentifierKindField = HandleKindField<Field> || AddressField<Field>;
+concept IdentifierKindField = HandleKindField<Field> || AddressKindField<Field>;
 
 // A scalar in the general sense that the member's own bits are the value recorded, in the kind's wire type. That
 // is the scalar family and the address kind, which format.h keeps off that family because the decoder treats an
 // address as an identifier; for encode the distinction does not arise. A handle is not one, since it records the
 // wrapper's id.
 template <typename Field>
-concept GeneralScalarKindField = ScalarKindField<Field> || AddressField<Field>;
+concept GeneralScalarKindField = ScalarKindField<Field> || AddressKindField<Field>;
 
 template <typename Field>
 concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;
