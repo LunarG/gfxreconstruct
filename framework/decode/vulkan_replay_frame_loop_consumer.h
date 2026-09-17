@@ -28,6 +28,10 @@
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 
+#include <limits>
+#include <memory>
+#include <utility>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -190,25 +194,98 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             memory_properties_(memory_properties)
         {}
 
+        /// A device local copy of one buffer's contents, taken at the start of the loop range and copied back
+        /// over the buffer before each repetition.  Its memory is suballocated from a `MemoryBlock`.
         struct ShadowBuffer
         {
+            ShadowBuffer() = default;
+
+            ~ShadowBuffer()
+            {
+                if (buffer != VK_NULL_HANDLE)
+                {
+                    GFXRECON_ASSERT(allocator != nullptr);
+                    allocator->DestroyBufferDirect(buffer, nullptr, alloc_data);
+                }
+            }
+
+            // A shadow buffer owns its handle, so it is held by pointer rather than copied.
+            ShadowBuffer(const ShadowBuffer&)            = delete;
+            ShadowBuffer& operator=(const ShadowBuffer&) = delete;
+
             VkBuffer                              buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory                        memory{ VK_NULL_HANDLE };
             VkDeviceSize                          size{ 0 };
             VulkanResourceAllocator::ResourceData alloc_data{ 0 };
-            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+            VulkanResourceAllocator*              allocator{ nullptr };
+        };
+
+        // Allocations that shadow buffers are suballocated from.
+        struct MemoryBlock
+        {
+            MemoryBlock() = default;
+
+            ~MemoryBlock()
+            {
+                if (memory != VK_NULL_HANDLE)
+                {
+                    GFXRECON_ASSERT(allocator != nullptr);
+                    allocator->FreeMemoryDirect(memory, nullptr, mem_data);
+                }
+            }
+
+            // A memory block owns its allocation, so it is held by pointer rather than copied.
+            MemoryBlock(const MemoryBlock&)            = delete;
+            MemoryBlock& operator=(const MemoryBlock&) = delete;
+
+            /// Allocates `allocation_size` bytes of `memory_type_index` for the block to suballocate from.
+            bool Allocate(VulkanResourceAllocator& allocator, uint32_t memory_type_index, VkDeviceSize allocation_size);
+
+            /// Suballocates memory from this block and binds `shadow` to it.
+            VkResult Bind(const ShadowBuffer& shadow, const VkMemoryRequirements& requirements);
+
+            VkDeviceMemory                      memory{ VK_NULL_HANDLE };
+            VulkanResourceAllocator::MemoryData mem_data{ 0 };
+            VkDeviceSize                        size{ 0 };
+            VkDeviceSize                        next_offset{ 0 };
+            VulkanResourceAllocator*            allocator{ nullptr };
+        };
+
+        /// A shadow buffer that has been created, but not yet suballocated from a memory block.
+        struct PendingShadowBuffer
+        {
+            format::HandleId              buffer_id{ format::kNullHandleId };
+            std::unique_ptr<ShadowBuffer> shadow;
+            VkMemoryRequirements          requirements{};
+
+            /// Copys buffer with matching `buffer_id` into shadow
+            void CopyBuffer(const graphics::VulkanDeviceTable& device_table,
+                            CommonObjectInfoTable&             object_table,
+                            VkCommandBuffer                    command_buffer) const;
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
 
-        format::HandleId                                   device_id_;
-        const graphics::VulkanDeviceTable&                 device_table_;
-        CommonObjectInfoTable&                             object_table_;
-        std::shared_ptr<VulkanResourceAllocator>           allocator_;
-        const VkPhysicalDeviceMemoryProperties*            memory_properties_;
-        std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+        // Spec required minimum for maxMemoryAllocationSize.
+        static constexpr VkDeviceSize kMaxMemoryBlockSize = 1024ull * 1024ull * 1024ull;
+
+        static constexpr size_t kInvalidBlockIndex = std::numeric_limits<size_t>::max();
+
+        size_t AddMemoryBlock(uint32_t memory_type_index, VkDeviceSize preferred_size, VkDeviceSize minimum_size);
+
+        /// The largest block that may be allocated from `memory_type_index`.
+        static VkDeviceSize MaxBlockSize(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                         uint32_t                                memory_type_index);
+
+        format::HandleId                          device_id_;
+        const graphics::VulkanDeviceTable&        device_table_;
+        CommonObjectInfoTable&                    object_table_;
+        std::shared_ptr<VulkanResourceAllocator>  allocator_;
+        const VkPhysicalDeviceMemoryProperties*   memory_properties_;
+        std::vector<std::unique_ptr<MemoryBlock>> memory_blocks_;
+
+        std::unordered_map<format::HandleId, std::unique_ptr<ShadowBuffer>> shadow_buffers_;
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
