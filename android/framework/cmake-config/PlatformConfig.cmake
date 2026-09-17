@@ -71,6 +71,9 @@ target_include_directories(project_version PUBLIC "${CMAKE_BINARY_DIR}")
 set(GFXRECON_ENABLE_VULKAN ON)
 add_definitions(-DGFXRECON_ENABLE_VULKAN)
 
+set(BUILD_ANDROID_APP ON)
+add_definitions(-DBUILD_ANDROID_APP)
+
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE
                                 _FILE_OFFSET_BITS=64

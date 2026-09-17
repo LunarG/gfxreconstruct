@@ -23,7 +23,7 @@
 #ifndef GFXRECON_REPLAY_MAIN_COMMON_H
 #define GFXRECON_REPLAY_MAIN_COMMON_H
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 struct android_app;
 #endif
 
