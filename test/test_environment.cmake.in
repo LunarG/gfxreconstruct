@@ -1,0 +1,9 @@
+# ctest reads this file after the discovery file for gfxrecon-testapp-runner. That file sets
+# GFXRECON_TESTAPP_TESTS to the list of discovered cases. Give every case the loader environment,
+# so a plain ctest run works without the run-tests script.
+#
+# CMake generates this file from test/test_environment.cmake.in. Edit the template, not this file.
+
+if (GFXRECON_TESTAPP_TESTS)
+    set_tests_properties(${GFXRECON_TESTAPP_TESTS} PROPERTIES ENVIRONMENT "@GFXRECON_TEST_ENVIRONMENT@")
+endif ()

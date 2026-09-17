@@ -8,58 +8,103 @@
 
 #include <util/logging.h>
 
+// Keys whose values differ between two captures of one app, or between two machines. The comparison
+// drops each of them wherever it appears.
+static const char* const kIgnoredKeys[] = {
+    "api_version",         // The version that the layer reports. It moves with every header update.
+    "apiVersion",          // The same value in VkApplicationInfo and VkPhysicalDeviceProperties.
+    "hinstance",           // Win32 handles differ per process.
+    "hwnd",                //
+    "pipelineCacheUUID",   // Driver identity.
+    "pipeline_cache_uuid", //
+    "ppData",              // Host pointers that vkMapMemory returns.
+    "fd",                  // File descriptors from an external memory export.
+    "app_name",            // The path of the launcher differs per machine.
+};
+
+// A key that starts with one of these names a function pointer, which differs per process.
+static const char* const kIgnoredKeyPrefixes[] = { "pfn" };
+
+// A top-level block that holds one of these keys is dropped whole. The header carries the source
+// path and the tool version. An annotation carries per-run text.
+static const char* const kIgnoredBlockKeys[] = { "header", "annotation" };
+
+// The Android hardware buffer import struct and the AHB properties query carry a "buffer" field that
+// is a host pointer. Only that "buffer" must go. The value that names the struct or the call arrives
+// first, and the "buffer" key arrives in a later event.
+static const char* const kAhbBufferMarkers[] = { "VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID",
+                                                 "vkGetAndroidHardwareBufferPropertiesANDROID" };
+
+static bool is_ignored_key(const std::string& key)
+{
+    for (const char* ignored : kIgnoredKeys)
+    {
+        if (key == ignored)
+        {
+            return true;
+        }
+    }
+    for (const char* prefix : kIgnoredKeyPrefixes)
+    {
+        if (key.rfind(prefix, 0) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
 {
+    // The marker value and the "buffer" key arrive in separate events. This flag carries the state
+    // between them, and the "buffer" key resets it.
     static bool skip_next_buffer = false;
 
     switch (event)
     {
         case nlohmann::json::parse_event_t::key:
         {
-            auto key = to_string(parsed);
-            if (key == "\"api_version\"")
+            const std::string key = parsed.get<std::string>();
+            if (is_ignored_key(key))
+            {
                 return false;
-            if (key == "\"apiVersion\"")
-                return false;
-            if (std::strncmp("\"pfn\"", key.c_str(), 4) == 0)
-                return false;
-            if (key == "\"hinstance\"")
-                return false;
-            if (key == "\"hwnd\"")
-                return false;
-            if (key == "\"pipelineCacheUUID\"")
-                return false;
-            if (key == "\"pipeline_cache_uuid\"")
-                return false;
-            if (key == "\"ppData\"")
-                return false;
-            if (key == "\"fd\"")
-                return false;
-            if (key == "\"app_name\"")
-                return false;
-            if (skip_next_buffer && key == "\"buffer\"")
+            }
+            if (skip_next_buffer && key == "buffer")
             {
                 skip_next_buffer = false;
                 return false;
             }
+            break;
         }
-        break;
         case nlohmann::json::parse_event_t::value:
         {
-            auto value = to_string(parsed);
-            if (value == "\"VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID\"" ||
-                value == "\"vkGetAndroidHardwareBufferPropertiesANDROID\"")
+            if (parsed.is_string())
             {
-                skip_next_buffer = true;
+                const std::string value = parsed.get<std::string>();
+                for (const char* marker : kAhbBufferMarkers)
+                {
+                    if (value == marker)
+                    {
+                        skip_next_buffer = true;
+                    }
+                }
             }
-        }
-        break;
-        case nlohmann::json::parse_event_t::object_end:
-            if (depth == 1 && parsed.contains("header"))
-                return false;
-            if (depth == 1 && parsed.contains("annotation"))
-                return false;
             break;
+        }
+        case nlohmann::json::parse_event_t::object_end:
+        {
+            if (depth == 1)
+            {
+                for (const char* block_key : kIgnoredBlockKeys)
+                {
+                    if (parsed.contains(block_key))
+                    {
+                        return false;
+                    }
+                }
+            }
+            break;
+        }
         default:
             break;
     }
@@ -255,6 +300,17 @@ int run_command(std::filesystem::path const& working_directory,
     return result;
 }
 
+// Remove the outputs of an earlier run. When they stay in place and the app writes no capture, the
+// convert step reads the old file and the case passes for the wrong reason.
+void remove_previous_outputs(std::initializer_list<std::filesystem::path> paths)
+{
+    for (const auto& path : paths)
+    {
+        std::error_code error;
+        std::filesystem::remove(path, error);
+    }
+}
+
 void run_in_background(const char* test_name)
 {
     Paths paths{ test_name, nullptr, false };
@@ -276,9 +332,14 @@ void run_trimming_app(const Paths& paths, const char* test_name, char const* tri
         env_vars.SetEnv("GFXRECON_CAPTURE_TRIGGER", "F12");
     }
 
+    remove_previous_outputs(
+        { paths.capture_trimming_path, paths.app_trimming_json_path, paths.known_good_trimming_json_path });
+
     auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.full_executable_path << " in path "
                          << paths.working_directory;
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_trimming_path))
+        << "trimmed capture file was not produced: " << paths.capture_trimming_path;
 
     env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
     env_vars.UnsetEnv("GFXRECON_CAPTURE_TRIGGER");
@@ -317,11 +378,14 @@ void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigge
     bool workind_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(workind_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
+    remove_previous_outputs({ paths.capture_path, paths.app_json_path, paths.known_good_json_path });
+
     // run app
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
 
     // convert actual gfxr
     result = run_command(paths.base_path, paths.convert_path, { paths.capture_path.string() });
@@ -350,6 +414,34 @@ void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigge
     }
 }
 
+void verify_gfxr_serialized(const char* test_name)
+{
+    EnvironmentVariables env_vars;
+    env_vars.SetEnv("GFXRECON_FORCE_COMMAND_SERIALIZATION", "true");
+    verify_gfxr(test_name);
+}
+
+void verify_no_capture(const char* test_name)
+{
+    EnvironmentVariables env_vars;
+
+    Paths paths{ test_name, nullptr, false };
+
+    bool working_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
+
+    remove_previous_outputs({ paths.capture_path });
+
+    // The launcher is named gfxrecon-test-launcher, so this name never matches.
+    env_vars.SetEnv("GFXRECON_CAPTURE_PROCESS_NAME", "gfxrecon-no-such-process");
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    int result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
+                         << paths.working_directory;
+    ASSERT_FALSE(std::filesystem::exists(paths.capture_path))
+        << "capture file was produced with a process name that does not match: " << paths.capture_path;
+}
+
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
 {
     EnvironmentVariables env_vars;
@@ -359,6 +451,10 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
 
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
+
+    std::filesystem::path replay_capture_path{ paths.base_path };
+    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    remove_previous_outputs({ paths.capture_path, replay_capture_path });
 
     // Run the app with capture enabled to produce the gfxr to replay.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
@@ -371,8 +467,6 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     // The gfxreconstruct capture layer is still enabled in the environment, so point GFXRECON_CAPTURE_FILE at a
     // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
     // input gfxr we are about to read.
-    std::filesystem::path replay_capture_path{ paths.base_path };
-    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
 
     // Replay the capture headless (offscreen swapchain) against the mock ICD, forwarding any extra arguments.
