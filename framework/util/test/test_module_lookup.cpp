@@ -70,7 +70,7 @@ std::string ToLower(std::string text)
     return text;
 }
 
-} // test_local
+} // namespace test_local
 
 TEST_CASE("module_lookup - executable path", "[module_lookup]")
 {
@@ -97,7 +97,7 @@ TEST_CASE("module_lookup - symbol in a system library", "[module_lookup]")
     LibraryHandle library = OpenLibrary(test_local::kSystemLibrary);
     REQUIRE(library != nullptr);
 
-    const void* address = GetProcAddress(library, test_local::kSystemSymbol);
+    const void* address = gfxrecon::util::platform::GetProcAddress(library, test_local::kSystemSymbol);
     REQUIRE(address != nullptr);
 
     ModuleAddressInfo info;
@@ -117,7 +117,7 @@ TEST_CASE("module_lookup - no candidate matches", "[module_lookup]")
     LibraryHandle library = OpenLibrary(test_local::kSystemLibrary);
     REQUIRE(library != nullptr);
 
-    const void* address = GetProcAddress(library, test_local::kSystemSymbol);
+    const void* address = gfxrecon::util::platform::GetProcAddress(library, test_local::kSystemSymbol);
     REQUIRE(address != nullptr);
 
     ModuleAddressInfo info;
