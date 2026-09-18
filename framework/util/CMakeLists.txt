@@ -80,6 +80,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/linear_hashmap.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/module_lookup.h
+                    ${CMAKE_CURRENT_LIST_DIR}/module_lookup.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/logging_common.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging_targets.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging_targets.cpp
@@ -283,6 +285,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_image_writer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_module_lookup.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>

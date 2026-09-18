@@ -1,0 +1,4 @@
+# The mock ICD is a copy from the Vulkan-Tools project and keeps the style of that project.
+# The check in CI formats changed lines with the style file that is nearest to the source file.
+DisableFormat: true
+SortIncludes: Never

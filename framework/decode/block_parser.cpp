@@ -1652,6 +1652,42 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to ViewRelativeLocation meta-data block");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetDirectDriverInfoCommand)
+    {
+        format::SetDirectDriverInfoCommand header;
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.driver_index);
+        success = success && block_buffer.Read(header.driver_count);
+        success = success && block_buffer.Read(header.mode);
+        success = success && block_buffer.Read(header.flags);
+        success = success && block_buffer.Read(header.capture_address);
+        success = success && block_buffer.Read(header.module_offset);
+        success = success && block_buffer.Read(header.module_path_length);
+        success = success && block_buffer.Read(header.symbol_name_length);
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read direct driver info block header");
+            return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+        }
+
+        // The module path and the symbol name follow the header, in that order and without terminators.
+        BlockBuffer::BlockSpan path_data   = block_buffer.ReadSpan(header.module_path_length);
+        BlockBuffer::BlockSpan symbol_data = block_buffer.ReadSpan(header.symbol_name_length);
+        success = (path_data.size() == header.module_path_length) && (symbol_data.size() == header.symbol_name_length);
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read direct driver info block data");
+            return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+        }
+
+        std::string_view module_path(reinterpret_cast<const char*>(path_data.data()), path_data.size());
+        std::string_view symbol_name(reinterpret_cast<const char*>(symbol_data.data()), symbol_data.size());
+
+        // This command does not support compression.
+        auto* payload = Emplace<SetDirectDriverInfoArgs>(meta_data_id, header, module_path, symbol_name);
+        //  NOTE: references block buffer
+        return MakeIncompressibleParsedBlock(block_buffer, payload);
+    }
     else if (meta_data_type == format::MetaDataType::kInitializeMetaCommand)
     {
         format::InitializeMetaCommand header;

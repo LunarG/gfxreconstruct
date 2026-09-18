@@ -46,6 +46,7 @@
 #include "graphics/vulkan_feature_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
+#include "util/module_lookup.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
 
@@ -289,6 +290,105 @@ void VulkanCaptureManager::WriteSetDevicePropertiesCommand(format::HandleId     
 
         CombineAndWriteToFile(
             { { &properties_cmd, sizeof(properties_cmd) }, { properties.deviceName, properties_cmd.device_name_len } });
+    }
+}
+
+void VulkanCaptureManager::RecordDirectDrivers(const VkInstanceCreateInfo*       create_info,
+                                               vulkan_wrappers::InstanceWrapper* instance_wrapper)
+{
+    GFXRECON_ASSERT((create_info != nullptr) && (instance_wrapper != nullptr));
+
+    instance_wrapper->direct_drivers.clear();
+
+    // The loader reads every VkDirectDriverLoadingListLUNARG in the chain. Record all of them.
+    for (auto node = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext); node != nullptr;
+         node      = node->pNext)
+    {
+        if (node->sType != VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG)
+        {
+            continue;
+        }
+
+        auto driver_list = reinterpret_cast<const VkDirectDriverLoadingListLUNARG*>(node);
+        if (driver_list->pDrivers == nullptr)
+        {
+            continue;
+        }
+
+        for (uint32_t i = 0; i < driver_list->driverCount; ++i)
+        {
+            DirectDriverRecord record;
+            record.driver_index = i;
+            record.driver_count = driver_list->driverCount;
+            record.mode         = static_cast<uint32_t>(driver_list->mode);
+
+            // A function pointer is not convertible to an object pointer directly. Go through an integer.
+            const auto address     = reinterpret_cast<uintptr_t>(driver_list->pDrivers[i].pfnGetInstanceProcAddr);
+            record.capture_address = static_cast<uint64_t>(address);
+
+            util::platform::ModuleAddressInfo module_info;
+            if (util::platform::GetModuleAddressInfo(
+                    reinterpret_cast<const void*>(address), kDirectDriverEntryPointNames, &module_info))
+            {
+                record.flags |= format::kDirectDriverInfoModuleFound;
+                record.module_path   = module_info.module_path;
+                record.module_offset = module_info.module_offset;
+
+                if (!module_info.symbol_name.empty())
+                {
+                    record.flags |= format::kDirectDriverInfoSymbolFound;
+                    record.symbol_name = module_info.symbol_name;
+                }
+
+                if (module_info.in_executable)
+                {
+                    record.flags |= format::kDirectDriverInfoInExecutable;
+                    GFXRECON_LOG_WARNING("VK_LUNARG_direct_driver_loading entry %u of %u points into the application "
+                                         "executable (%s). Replay cannot load this driver again.",
+                                         i,
+                                         driver_list->driverCount,
+                                         record.module_path.c_str());
+                }
+                else
+                {
+                    GFXRECON_LOG_INFO("VK_LUNARG_direct_driver_loading entry %u of %u: module \"%s\", symbol \"%s\"",
+                                      i,
+                                      driver_list->driverCount,
+                                      record.module_path.c_str(),
+                                      record.symbol_name.empty() ? "(none)" : record.symbol_name.c_str());
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("VK_LUNARG_direct_driver_loading entry %u of %u has an entry point that is not in "
+                                     "a loaded module. Replay cannot load this driver again.",
+                                     i,
+                                     driver_list->driverCount);
+            }
+
+            instance_wrapper->direct_drivers.push_back(std::move(record));
+        }
+    }
+}
+
+void VulkanCaptureManager::WriteSetDirectDriverInfoCommands(const vulkan_wrappers::InstanceWrapper* instance_wrapper)
+{
+    GFXRECON_ASSERT(instance_wrapper != nullptr);
+
+    if (IsCaptureModeWrite())
+    {
+        auto thread_data = GetThreadData();
+        GFXRECON_ASSERT(thread_data != nullptr);
+
+        for (const DirectDriverRecord& record : instance_wrapper->direct_drivers)
+        {
+            format::SetDirectDriverInfoCommand command = {};
+            FillSetDirectDriverInfoCommand(record, thread_data->thread_id_, &command);
+
+            CombineAndWriteToFile({ { &command, sizeof(command) },
+                                    { record.module_path.data(), record.module_path.size() },
+                                    { record.symbol_name.data(), record.symbol_name.size() } });
+        }
     }
 }
 
@@ -639,6 +739,13 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
         create_info_copy.ppEnabledExtensionNames = modified_extensions.data();
 
         result = vulkan_layer_table_.CreateInstance(&create_info_copy, pAllocator, pInstance);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        auto instance_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(*pInstance);
+        RecordDirectDrivers(pCreateInfo, instance_wrapper);
+        singleton_->WriteSetDirectDriverInfoCommands(instance_wrapper);
     }
 
     if ((result == VK_SUCCESS) && (pCreateInfo->pApplicationInfo != nullptr))

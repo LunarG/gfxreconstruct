@@ -128,6 +128,8 @@ class VulkanStateWriter
     typedef std::unordered_map<uint32_t, QueryActivationList> QueryActivationQueueFamilyTable;
 
   private:
+    void WriteInstanceState(const VulkanStateTable& state_table);
+
     void WritePhysicalDeviceState(const VulkanStateTable& state_table);
 
     void WriteDeviceState(const VulkanStateTable& state_table);
@@ -346,6 +348,8 @@ class VulkanStateWriter
                                uint32_t                      width,
                                uint32_t                      height,
                                VkSurfaceTransformFlagBitsKHR pre_transform);
+
+    void WriteSetDirectDriverInfoCommands(const vulkan_wrappers::InstanceWrapper* instance_wrapper);
 
     void WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
                                          const VkPhysicalDeviceProperties& properties);

@@ -205,6 +205,10 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
                                                         const char* env_string) override;
 
+    virtual void DispatchSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                    std::string_view                          module_path,
+                                                    std::string_view                          symbol_name) override;
+
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
     virtual void SetCurrentFrameNumber(uint64_t frame_number) override;
