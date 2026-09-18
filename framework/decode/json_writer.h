@@ -95,7 +95,9 @@ class JsonWriter : public AnnotationHandler
 
     uint32_t GetNumStreams() const { return num_streams_; }
 
-    /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
+    /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects. The value of a
+    /// kJson annotation is embedded as a JSON value; other values, and kJson values that fail to parse, are written as
+    /// strings.
     virtual void ProcessAnnotation(uint64_t               block_index,
                                    format::AnnotationType type,
                                    const std::string&     label,

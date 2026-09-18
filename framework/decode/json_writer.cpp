@@ -29,6 +29,8 @@
 #include "util/logging.h"
 #include "decode/api_decoder.h"
 
+#include <cinttypes>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -193,7 +195,33 @@ void JsonWriter::ProcessAnnotation(uint64_t               block_index,
     auto& annotation    = json_data["annotation"];
     annotation["type"]  = util::AnnotationTypeToString(type);
     annotation["label"] = label;
-    annotation["data"]  = data;
+
+    // A JSON payload is embedded as a JSON value so that its contents can be inspected in the output; any other
+    // payload, or a JSON payload that fails to parse, is written as a string.
+    bool embedded = false;
+    if (type == format::kJson)
+    {
+        auto parsed = nlohmann::ordered_json::parse(data, nullptr, false);
+        if (!parsed.is_discarded())
+        {
+            annotation["data"] = std::move(parsed);
+            embedded           = true;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Annotation at block %" PRIu64
+                                 " with label \"%s\" is marked as JSON but its payload could not be parsed; "
+                                 "writing it as a string",
+                                 block_index,
+                                 label.c_str());
+        }
+    }
+
+    if (!embedded)
+    {
+        annotation["data"] = data;
+    }
+
     WriteBlockEnd();
 }
 
