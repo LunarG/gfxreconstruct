@@ -6448,6 +6448,17 @@ void MapStructHandles(Decoded_VkResolveImageModeInfoKHR* wrapper, const CommonOb
     }
 }
 
+void MapStructHandles(Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -11563,17 +11574,6 @@ void MapStructHandles(Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* w
     }
 }
 
-void MapStructHandles(Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
 void MapStructHandles(Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -13342,6 +13342,50 @@ void MapStructHandles(Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV* w
     }
 }
 
+void MapStructHandles(Decoded_VkPhysicalDeviceInfoPropertiesINTEL* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -13801,6 +13845,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO:
         MapStructHandles(reinterpret_cast<Decoded_VkBufferCreateInfo*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
+        MapStructHandles(reinterpret_cast<Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
         MapStructHandles(reinterpret_cast<Decoded_VkBufferDeviceAddressCreateInfoEXT*>(wrapper), object_info_table);
@@ -14888,6 +14935,12 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures*>(wrapper), object_info_table);
         break;
@@ -15314,6 +15367,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceIndexTypeUint8Features*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceInfoPropertiesINTEL*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(wrapper), object_info_table);
         break;
@@ -15536,8 +15592,8 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(wrapper), object_info_table);
         break;
-    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
-        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(wrapper), object_info_table);
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM*>(wrapper), object_info_table);
