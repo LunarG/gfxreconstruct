@@ -1253,7 +1253,7 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][
     unterminated.specVersion = 0x00010203u;
 
     CHECK(matches(unterminated, [&](encode::ParameterEncoder& oracle) {
-        oracle.EncodeString<format::kind::Char, VK_MAX_EXTENSION_NAME_SIZE>(unterminated.extensionName);
+        oracle.EncodeString(format::kind::Char{}, unterminated.extensionName, VK_MAX_EXTENSION_NAME_SIZE);
         oracle.EncodeUInt32Value(unterminated.specVersion);
     }));
 }
@@ -1321,6 +1321,137 @@ TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][
             oracle.EncodeWString(import_semaphore.name);
         }));
     }
+}
+
+TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema][encode]")
+{
+    // Two migrated structures cover the four structure shapes. VkRenderingInfo carries a structure value, a counted
+    // run of structures and two structure pointers, every inner type procedural, so the walk descends without any
+    // inner port; VkImageBlit carries two structure values and two fixed-extent structure arrays. The retained
+    // partner VkSpecializationInfo puts a structure run beside an OpaqueBytes run. Inner handles are null and the
+    // clear value is a union the inner procedural body owns, so nothing here depends on the wrapper table.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkRenderingAttachmentInfo color[2]{};
+    for (uint32_t i = 0; i < 2; ++i)
+    {
+        color[i].sType                       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        color[i].imageLayout                 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        color[i].resolveMode                 = VK_RESOLVE_MODE_NONE;
+        color[i].resolveImageLayout          = VK_IMAGE_LAYOUT_UNDEFINED;
+        color[i].loadOp                      = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        color[i].storeOp                     = VK_ATTACHMENT_STORE_OP_STORE;
+        color[i].clearValue.color.float32[0] = 0.25f * static_cast<float>(i + 1);
+        color[i].clearValue.color.float32[3] = 1.0f;
+    }
+
+    VkRenderingAttachmentInfo depth{};
+    depth.sType                           = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    depth.imageLayout                     = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    depth.loadOp                          = VK_ATTACHMENT_LOAD_OP_LOAD;
+    depth.storeOp                         = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depth.clearValue.depthStencil.depth   = 0.5f;
+    depth.clearValue.depthStencil.stencil = 7u;
+
+    struct Attachments
+    {
+        uint32_t                         count;
+        const VkRenderingAttachmentInfo* colors;
+        const VkRenderingAttachmentInfo* depth;
+    };
+
+    // Migrated: a value (renderArea), a counted run (color attachments), two pointers, one null in each case.
+    for (const Attachments& a : { Attachments{ 0u, nullptr, nullptr }, Attachments{ 2u, color, &depth } })
+    {
+        VkRenderingInfo rendering{ VK_STRUCTURE_TYPE_RENDERING_INFO,
+                                   nullptr,
+                                   VK_RENDERING_SUSPENDING_BIT,
+                                   VkRect2D{ VkOffset2D{ 3, -4 }, VkExtent2D{ 640u, 480u } },
+                                   1u,
+                                   0x5u,
+                                   a.count,
+                                   a.colors,
+                                   a.depth,
+                                   nullptr };
+
+        CHECK(matches(rendering, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(rendering.sType);
+            encode::EncodePNextStruct(&oracle, rendering.pNext);
+            oracle.EncodeFlagsValue(rendering.flags);
+            encode::EncodeStruct(&oracle, rendering.renderArea);
+            oracle.EncodeUInt32Value(rendering.layerCount);
+            oracle.EncodeUInt32Value(rendering.viewMask);
+            oracle.EncodeUInt32Value(rendering.colorAttachmentCount);
+            encode::EncodeStructArray(&oracle, rendering.pColorAttachments, rendering.colorAttachmentCount);
+            encode::EncodeStructPtr(&oracle, rendering.pDepthAttachment);
+            encode::EncodeStructPtr(&oracle, rendering.pStencilAttachment);
+        }));
+    }
+
+    // Migrated: two structure values and two fixed-extent structure arrays, offsets asymmetric so a swapped or
+    // truncated array lands on different bytes.
+    VkImageBlit blit{ VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 1u, 2u, 3u },
+                      { VkOffset3D{ 0, 1, 2 }, VkOffset3D{ 16, 32, 1 } },
+                      VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 0u, 5u, 1u },
+                      { VkOffset3D{ 4, 8, 0 }, VkOffset3D{ 64, 128, 1 } } };
+
+    CHECK(matches(blit, [&](encode::ParameterEncoder& oracle) {
+        encode::EncodeStruct(&oracle, blit.srcSubresource);
+        encode::EncodeStructArray(&oracle, blit.srcOffsets, 2);
+        encode::EncodeStruct(&oracle, blit.dstSubresource);
+        encode::EncodeStructArray(&oracle, blit.dstOffsets, 2);
+    }));
+
+    // Retained partner: a structure run beside a byte run, through its procedural body.
+    const VkSpecializationMapEntry entries[] = { VkSpecializationMapEntry{ 0u, 0u, 4u },
+                                                 VkSpecializationMapEntry{ 1u, 4u, 1u } };
+    const uint8_t                  data[]    = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+
+    for (const VkSpecializationInfo& specialization :
+         { VkSpecializationInfo{ 0u, nullptr, 0u, nullptr }, VkSpecializationInfo{ 2u, entries, sizeof(data), data } })
+    {
+        CHECK(matches(specialization, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeUInt32Value(specialization.mapEntryCount);
+            encode::EncodeStructArray(&oracle, specialization.pMapEntries, specialization.mapEntryCount);
+            oracle.EncodeSizeTValue(specialization.dataSize);
+            oracle.EncodeVoidArray(specialization.pData, specialization.dataSize);
+        }));
+    }
+}
+
+TEST_CASE("Getter yields a Field's value in place or by copy", "[schema]")
+{
+    // An addressable member is referenced where it lives: the dereferenced Getter is the member itself. A bitfield
+    // has no address, so the Getter holds a copy read through the generated accessor and yields that.
+    using width = schema::field::vulkan::VkExtent2D::width;
+    static_assert(schema::Addressable<VkExtent2D, width>);
+
+    VkExtent2D extent{ 3u, 4u };
+    CHECK(&*schema::Getter<VkExtent2D, width>(extent, width{}) == &extent.width);
+    CHECK(*schema::Getter<VkExtent2D, width>(extent, width{}) == 3u);
+    CHECK(&*schema::Getter(extent, width{}) == &extent.width); // arguments deduced from the primary's constructor
+
+    using flag = schema::field::vulkan::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag;
+    static_assert(schema::NonAddressable<StdVideoH264SpsVuiFlags, flag>);
+
+    StdVideoH264SpsVuiFlags flags{};
+    flags.aspect_ratio_info_present_flag = 1u;
+    CHECK(*schema::Getter<StdVideoH264SpsVuiFlags, flag>(flags, flag{}) == 1u);
 }
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")

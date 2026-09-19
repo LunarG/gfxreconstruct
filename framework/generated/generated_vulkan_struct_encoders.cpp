@@ -1880,14 +1880,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearAttachment& value)
     EncodeStruct(encoder, value.clearValue);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkImageBlit& value)
-{
-    EncodeStruct(encoder, value.srcSubresource);
-    EncodeStructArray(encoder, value.srcOffsets, 2);
-    EncodeStruct(encoder, value.dstSubresource);
-    EncodeStructArray(encoder, value.dstOffsets, 2);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkImageResolve& value)
 {
     EncodeStruct(encoder, value.srcSubresource);
@@ -3599,20 +3591,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentInfo& va
     encoder->EncodeEnumValue(value.loadOp);
     encoder->EncodeEnumValue(value.storeOp);
     EncodeStruct(encoder, value.clearValue);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkRenderingInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    EncodeStruct(encoder, value.renderArea);
-    encoder->EncodeUInt32Value(value.layerCount);
-    encoder->EncodeUInt32Value(value.viewMask);
-    encoder->EncodeUInt32Value(value.colorAttachmentCount);
-    EncodeStructArray(encoder, value.pColorAttachments, value.colorAttachmentCount);
-    EncodeStructPtr(encoder, value.pDepthAttachment);
-    EncodeStructPtr(encoder, value.pStencilAttachment);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRenderingCreateInfo& value)
@@ -12361,12 +12339,14 @@ template void EncodeStruct<VkDebugUtilsMessengerCreateInfoEXT>(ParameterEncoder*
 template void EncodeStruct<VkDebugUtilsObjectNameInfoEXT>(ParameterEncoder*, const VkDebugUtilsObjectNameInfoEXT&);
 template void EncodeStruct<VkExtensionProperties>(ParameterEncoder*, const VkExtensionProperties&);
 template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
+template void EncodeStruct<VkImageBlit>(ParameterEncoder*, const VkImageBlit&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoKHR>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoKHR&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
 template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
 template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
+template void EncodeStruct<VkRenderingInfo>(ParameterEncoder*, const VkRenderingInfo&);
 template void EncodeStruct<VkSubmitInfo>(ParameterEncoder*, const VkSubmitInfo&);
 template void EncodeStruct<VkSubpassEndInfo>(ParameterEncoder*, const VkSubpassEndInfo&);
 template void EncodeStruct<VkSurfaceFullScreenExclusiveWin32InfoEXT>(ParameterEncoder*, const VkSurfaceFullScreenExclusiveWin32InfoEXT&);

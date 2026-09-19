@@ -112,15 +112,15 @@ class ParameterEncoder
     // Encode a value using the wire representation selected by its logical schema kind. Operation code that holds
     // a Field can use this without restating the kind-to-wire-type mapping encoded in format::kind.
     template <format::HasEncodeType Kind, typename T>
-    void Encode(T value)                                                                                              { EncodeValue(TypeCast<format::EncodeTypeFor<Kind>>(value)); }
+    void Encode(Kind, T value)                                                                                        { EncodeValue(TypeCast<format::EncodeTypeFor<Kind>>(value)); }
 
     // Encode a run of values, or a pointer to one value, recorded as one logical kind. Each named entry point above
     // fixes a wire type; these reach the same converting bodies from the kind, which write the wire type's bytes for
     // every kind whether or not a conversion was needed. Structure members never omit data or address.
     template <format::HasEncodeType Kind, typename T>
-    void EncodeArray(const T* arr, size_t len)                                                                        { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len); }
+    void EncodeArray(Kind, const T* arr, size_t len)                                                                  { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len); }
     template <format::HasEncodeType Kind, typename T>
-    void EncodePointer(const T* ptr)                                                                                  { EncodePointerConverted<format::EncodeTypeFor<Kind>>(ptr); }
+    void EncodePointer(Kind, const T* ptr)                                                                            { EncodePointerConverted<format::EncodeTypeFor<Kind>>(ptr); }
 
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
@@ -214,17 +214,14 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlags64Array(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArrayConverted<format::Flags64EncodeType>(arr, len, omit_data, omit_addr); }
 
-    // Encode a string using the approriate wire representation and attributs selected by its logical schema kind.
-    // Operation code that holds a Field can use this without restating the mappings encoded in format::kind.
-    template <format::IsTextKind Kind, size_t Capacity, typename T>
-    void EncodeString(const T* str, bool omit_data = false, bool omit_addr = false)                                   {
-        using EncodeType = format::EncodeTypeFor<Kind>;
-        constexpr auto attributes = Kind::text_attribute;
-        EncodeBasicString<T, EncodeType, attributes>(str, omit_data, omit_addr, Capacity);
-    }
+    // Encode a string in the wire representation and with the text attribute its logical kind selects. The kind is
+    // passed as a tag so it deduces like every other argument, and capacity bounds the length count for a
+    // fixed-extent array (findings DF-6); with no bound the count runs to the terminator as the named entry points
+    // below do. One signature, so an integer capacity can never be taken for the omit flags.
     template <format::IsTextKind Kind, typename T>
-    void EncodeString(const T* str, bool omit_data = false, bool omit_addr = false)                                   {
-        EncodeString<Kind, std::numeric_limits<size_t>::max(), T>(str, omit_data, omit_addr);
+    void EncodeString(Kind, const T* str, size_t capacity = std::numeric_limits<size_t>::max(), bool omit_data = false, bool omit_addr = false)
+    {
+        EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, omit_data, omit_addr, capacity);
     }
 
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }

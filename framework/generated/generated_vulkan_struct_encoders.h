@@ -204,7 +204,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo& value
 void EncodeStruct(ParameterEncoder* encoder, const VkClearDepthStencilValue& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearRect& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearAttachment& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageBlit& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageResolve& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassBeginInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindBufferMemoryInfo& value);
@@ -374,7 +373,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBlitImageInfo2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageResolve2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageInfo2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkRenderingInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRenderingCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceRenderingInfo& value);
@@ -1385,12 +1383,14 @@ using SchemaDrivenStructs = util::TypeList<
     VkDebugUtilsObjectNameInfoEXT,
     VkExtensionProperties,
     VkExtent2D,
+    VkImageBlit,
     VkImportMemoryWin32HandleInfoKHR,
     VkImportMemoryWin32HandleInfoNV,
     VkMappedMemoryRange,
     VkPipelineCacheCreateInfo,
     VkPipelineCacheHeaderVersionOne,
     VkPipelineCreateInfoKHR,
+    VkRenderingInfo,
     VkSubmitInfo,
     VkSubpassEndInfo,
     VkSurfaceFullScreenExclusiveWin32InfoEXT,

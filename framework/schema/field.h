@@ -137,7 +137,7 @@ using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
 template <typename Field>
 using FieldCountField = typename Field::count_field;
 
-// The generic handle object types selector field which names the actual handle type.
+// The sibling Field whose value names a generic handle's object type.
 template <typename Field>
 using FieldSelectorField = typename Field::selector_field;
 
@@ -222,6 +222,58 @@ requires HasMember<Storage, Field>
     }
 }
 
+// Uniform const read access to a Field's value for one expression, whatever the member's addressability: an
+// addressable member is referenced in place, a bitfield is copied through its accessor and the copy referenced.
+// Shaped for operations that only read storage, Encode, Copy and the like; a write-side twin for Decode, if the
+// decode Action is condensed the same way, is a later question. It never persists past the expression that
+// creates it, so it holds one reference in the addressable case and one value in the other, and yields through
+// operator*. The two partial specializations partition HasMember; the primary is reached only by a pair with no
+// member binding, and says so. Its constructor also exists so that Getter(storage, field) deduces its arguments the
+// ordinary way, since deduction reads the primary's constructors and not the specializations'.
+template <typename Storage, typename Field>
+class Getter
+{
+  public:
+    Getter(const Storage&, Field)
+    {
+        static_assert(HasMember<Storage, Field>, "Getter: this Field has no member binding in this Storage");
+    }
+};
+
+template <typename Storage, typename Field>
+requires Addressable<Storage, Field>
+class Getter<Storage, Field>
+{
+  public:
+    Getter(const Storage& storage, Field) : storage_(storage) {}
+
+    Getter(const Getter&)            = delete;
+    Getter& operator=(const Getter&) = delete;
+
+    [[nodiscard]] const auto& operator*() const { return GetRef(storage_, Field{}); }
+
+  private:
+    const Storage& storage_;
+};
+
+template <typename Storage, typename Field>
+requires NonAddressable<Storage, Field>
+class Getter<Storage, Field>
+{
+  public:
+    using Value = decltype(Get(std::declval<const Storage&>(), Field{}));
+
+    Getter(const Storage& storage, Field field) : copy_(Get(storage, field)) {}
+
+    Getter(const Getter&)            = delete;
+    Getter& operator=(const Getter&) = delete;
+
+    [[nodiscard]] const Value& operator*() const { return copy_; }
+
+  private:
+    Value copy_;
+};
+
 // Set expresses a write, and is the only write available for a non-addressable member.
 template <typename Storage, typename Field, typename ValueType>
 requires HasMember<Storage, Field>
@@ -297,6 +349,11 @@ concept PointerShapedField = PointerField<Field> || PointerArrayField<Field>;
 
 template <typename Field>
 concept StaticArrayField = std::same_as<typename Field::shape, field_shape::StaticArray>;
+
+// A run of elements, counted or fixed. The adapter's array entries take either, since both hand over a pointer and a
+// count; the Action reads them differently.
+template <typename Field>
+concept IsArrayField = StaticArrayField<Field> || PointerArrayField<Field>;
 
 template <typename Field>
 concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
