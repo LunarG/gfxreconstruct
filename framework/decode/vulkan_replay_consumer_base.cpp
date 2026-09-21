@@ -3583,13 +3583,19 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     }
 
     // we require vkGetDeviceBufferMemoryRequirements (Vulkan 1.3+ or VK_KHR_maintenance4)
-    const uint32_t effective_api_version = std::min(physical_device_info->parent_info.api_version,
-                                                    physical_device_info->replay_device_info->properties->apiVersion);
-    if (UseAddressReplacement(nullptr) && effective_api_version < VK_API_VERSION_1_3 &&
+    if (UseAddressReplacement(nullptr) &&
         graphics::feature_util::IsSupportedExtension(available_extensions, VK_KHR_MAINTENANCE_4_EXTENSION_NAME) &&
         !graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_MAINTENANCE_4_EXTENSION_NAME))
     {
-        modified_extensions.push_back(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+        // SelectPhysicalDevice has filled the replay properties by now.
+        const uint32_t effective_api_version =
+            std::min(physical_device_info->parent_info.api_version,
+                     physical_device_info->replay_device_info->properties->apiVersion);
+
+        if (effective_api_version < VK_API_VERSION_1_3)
+        {
+            modified_extensions.push_back(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+        }
     }
 
     // Enable device extensions required for resolving multisampled depth/stencil images
