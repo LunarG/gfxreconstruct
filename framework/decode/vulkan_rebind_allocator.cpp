@@ -878,6 +878,7 @@ VulkanRebindAllocator::VmaMemoryInfo*
 VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    resource_alloc_info,
                                                    MemoryAllocInfo&            memory_alloc_info,
                                                    VkDeviceSize                memory_offset,
+                                                   VkDeviceSize                footprint,
                                                    const VkMemoryRequirements& replay_req,
                                                    bool                        requires_dedicated_allocation,
                                                    bool                        prefers_dedicated_allocation,
@@ -991,6 +992,13 @@ VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    r
         return nullptr;
     }
 
+    // avoid unintended overlap due to larger memory-sizes during replay
+    if (footprint != 0 && OverlapsUnaliasedResource(
+                              memory_alloc_info, group->allocation, memory_offset, footprint, local, replay_req.size))
+    {
+        return nullptr;
+    }
+
     return group->allocation;
 }
 
@@ -1039,6 +1047,7 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     if (VmaMemoryInfo* grouped = FindAliasingGroupMemoryInfo(resource_alloc_info,
                                                              memory_alloc_info,
                                                              memory_offset,
+                                                             footprint,
                                                              replay_req,
                                                              requires_dedicated_allocation,
                                                              prefers_dedicated_allocation,
@@ -1388,6 +1397,7 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     if (VmaMemoryInfo* grouped = FindAliasingGroupMemoryInfo(resource_alloc_info,
                                                              memory_alloc_info,
                                                              memory_offset,
+                                                             footprint,
                                                              replay_req,
                                                              requires_dedicated_allocation,
                                                              prefers_dedicated_allocation,
@@ -4029,6 +4039,7 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     if (VmaMemoryInfo* grouped = FindAliasingGroupMemoryInfo(resource_alloc_info,
                                                              memory_alloc_info,
                                                              memory_offset,
+                                                             footprint,
                                                              replay_req,
                                                              requires_dedicated_allocation,
                                                              prefers_dedicated_allocation,

@@ -557,6 +557,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VmaMemoryInfo* FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    resource_alloc_info,
                                                MemoryAllocInfo&            memory_alloc_info,
                                                VkDeviceSize                memory_offset,
+                                               VkDeviceSize                footprint,
                                                const VkMemoryRequirements& replay_req,
                                                bool                        requires_dedicated_allocation,
                                                bool                        prefers_dedicated_allocation,
