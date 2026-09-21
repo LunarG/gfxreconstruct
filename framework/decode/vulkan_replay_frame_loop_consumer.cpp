@@ -583,12 +583,8 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
             return;
         }
 
-        // A buffer can outlive the device that created it in the object info table, in which case
-        // there is nothing left to record its contents with.
-        if (table.GetVkDeviceInfo(buffer_info->parent_id) == nullptr)
-        {
-            return;
-        }
+        // A buffer should never outlive the device that created it in the object info table.
+        GFXRECON_ASSERT(table.GetVkDeviceInfo(buffer_info->parent_id) != nullptr);
 
         // A buffer that was created but never bound to memory (vkBindBufferMemory never called, or
         // never succeeded) has no backing memory at all.
@@ -1608,10 +1604,8 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
                 return;
             }
 
-            if (GetObjectInfoTable().GetVkDeviceInfo(image_info->parent_id) == nullptr)
-            {
-                return;
-            }
+            // An image should never outlive the device that created it in the object info table.
+            GFXRECON_ASSERT(GetObjectInfoTable().GetVkDeviceInfo(image_info->parent_id) != nullptr);
 
             device_images[image_info->parent_id].push_back(image_info->capture_id);
 
