@@ -440,7 +440,7 @@ class VulkanResourceAllocator
      *
      * Allocators that place resources exactly as captured have nothing to do with them.
      *
-     * @param   groups  the groups, which replace any previously set for this allocator.
+     * @param   groups  the groups, added to any already set for this allocator.
      */
     virtual void SetResourceAliasingGroups(const std::vector<AliasingGroup>& groups)
     {
