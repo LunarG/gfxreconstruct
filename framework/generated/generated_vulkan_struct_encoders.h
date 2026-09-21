@@ -124,7 +124,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryHeap& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryType& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLimits& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSparseProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyProperties& value);
@@ -216,7 +215,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupSubmitInfo& valu
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2& value);
@@ -1387,6 +1385,8 @@ using SchemaDrivenStructs = util::TypeList<
     VkImportMemoryWin32HandleInfoKHR,
     VkImportMemoryWin32HandleInfoNV,
     VkMappedMemoryRange,
+    VkPhysicalDeviceGroupProperties,
+    VkPhysicalDeviceMemoryProperties,
     VkPipelineCacheCreateInfo,
     VkPipelineCacheHeaderVersionOne,
     VkPipelineCreateInfoKHR,

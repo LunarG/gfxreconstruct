@@ -38,6 +38,7 @@
 #include "decode/vulkan_decode_struct_impl.h"
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
+#include "encode/vulkan_encode_capture_wrappers.h"
 #include "encode/vulkan_encode_struct.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/struct_pointer_encoder.h"
@@ -1430,6 +1431,192 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
             encode::EncodeStructArray(&oracle, specialization.pMapEntries, specialization.mapEntryCount);
             oracle.EncodeSizeTValue(specialization.dataSize);
             oracle.EncodeVoidArray(specialization.pData, specialization.dataSize);
+        }));
+    }
+}
+
+TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "[schema][encode]")
+{
+    // Two migrated structures whose fixed-extent arrays carry a count sibling. The procedural bodies encode the
+    // count, not the extent, and the schema records the sibling as count_field, so the static-array overload reads
+    // it. VkPhysicalDeviceMemoryProperties holds two structure arrays; VkPhysicalDeviceGroupProperties holds the
+    // registry's one handle static array, the only exercise the handle array adapter entry's static-array half
+    // gets. Counts sit below the extents so a full-extent run lands on different bytes. The over-extent cases have
+    // no procedural oracle, since those bodies would read past the member; their oracle is the primitive sequence
+    // with the count written as the driver set it and the run clamped to the extent. Two retained partners:
+    // VkPhysicalDeviceMemoryProperties2 reaches a migrated body through a procedural parent, and
+    // VkQueueFamilyGlobalPriorityProperties has a count sibling the naming heuristic misses (DF-1), so its body
+    // still writes the full extent.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    namespace memory_field = schema::field::vulkan::VkPhysicalDeviceMemoryProperties;
+    namespace group_field  = schema::field::vulkan::VkPhysicalDeviceGroupProperties;
+    static_assert(schema::StaticArrayField<group_field::physicalDevices>);
+    static_assert(schema::HandleKindField<group_field::physicalDevices>);
+    static_assert(schema::HasCountField<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
+    static_assert(
+        std::is_same_v<schema::FieldCountField<group_field::physicalDevices>, group_field::physicalDeviceCount>);
+    static_assert(encode::HasCaptureWrapper<schema::api_type::vulkan::VkPhysicalDevice>);
+    static_assert(schema::StaticArrayField<memory_field::memoryTypes>);
+    static_assert(schema::StaticArrayField<memory_field::memoryHeaps>);
+    static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
+    static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
+    static_assert(std::is_same_v<schema::FieldCountField<memory_field::memoryTypes>, memory_field::memoryTypeCount>);
+    static_assert(std::is_same_v<schema::FieldCountField<memory_field::memoryHeaps>, memory_field::memoryHeapCount>);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    // Every element of both arrays is distinct, so a run of the wrong length or from the wrong array differs.
+    auto fill = [](VkPhysicalDeviceMemoryProperties& properties) {
+        for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; ++i)
+        {
+            properties.memoryTypes[i].propertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT << (i % 5u);
+            properties.memoryTypes[i].heapIndex     = i % VK_MAX_MEMORY_HEAPS;
+        }
+        for (uint32_t i = 0; i < VK_MAX_MEMORY_HEAPS; ++i)
+        {
+            properties.memoryHeaps[i].size  = 0x10000000ull * (i + 1) + i;
+            properties.memoryHeaps[i].flags = (i % 2u) ? VK_MEMORY_HEAP_DEVICE_LOCAL_BIT : 0u;
+        }
+    };
+
+    struct Counts
+    {
+        uint32_t types;
+        uint32_t heaps;
+    };
+
+    // Migrated: counts below the extents, zero counts, and counts equal to the extents.
+    for (const Counts& counts :
+         { Counts{ 3u, 2u }, Counts{ 0u, 0u }, Counts{ VK_MAX_MEMORY_TYPES, VK_MAX_MEMORY_HEAPS } })
+    {
+        VkPhysicalDeviceMemoryProperties properties{};
+        fill(properties);
+        properties.memoryTypeCount = counts.types;
+        properties.memoryHeapCount = counts.heaps;
+
+        CHECK(matches(properties, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeUInt32Value(properties.memoryTypeCount);
+            encode::EncodeStructArray(&oracle, properties.memoryTypes, properties.memoryTypeCount);
+            oracle.EncodeUInt32Value(properties.memoryHeapCount);
+            encode::EncodeStructArray(&oracle, properties.memoryHeaps, properties.memoryHeapCount);
+        }));
+    }
+
+    // Migrated, counts over the extents: the count is recorded as set, the run stops at the extent.
+    {
+        VkPhysicalDeviceMemoryProperties properties{};
+        fill(properties);
+        properties.memoryTypeCount = VK_MAX_MEMORY_TYPES + 5u;
+        properties.memoryHeapCount = VK_MAX_MEMORY_HEAPS + 1u;
+
+        CHECK(matches(properties, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeUInt32Value(properties.memoryTypeCount);
+            encode::EncodeStructArray(&oracle, properties.memoryTypes, VK_MAX_MEMORY_TYPES);
+            oracle.EncodeUInt32Value(properties.memoryHeapCount);
+            encode::EncodeStructArray(&oracle, properties.memoryHeaps, VK_MAX_MEMORY_HEAPS);
+        }));
+    }
+
+    // Retained partner: a procedural parent whose structure value is the migrated body.
+    {
+        VkPhysicalDeviceMemoryProperties2 properties2{};
+        properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+        fill(properties2.memoryProperties);
+        properties2.memoryProperties.memoryTypeCount = 4u;
+        properties2.memoryProperties.memoryHeapCount = 1u;
+
+        CHECK(matches(properties2, [&](encode::ParameterEncoder& oracle) {
+            const VkPhysicalDeviceMemoryProperties& inner = properties2.memoryProperties;
+            oracle.EncodeEnumValue(properties2.sType);
+            encode::EncodePNextStruct(&oracle, properties2.pNext);
+            oracle.EncodeUInt32Value(inner.memoryTypeCount);
+            encode::EncodeStructArray(&oracle, inner.memoryTypes, inner.memoryTypeCount);
+            oracle.EncodeUInt32Value(inner.memoryHeapCount);
+            encode::EncodeStructArray(&oracle, inner.memoryHeaps, inner.memoryHeapCount);
+        }));
+    }
+
+    // Migrated: the handle static array. Physical devices are dispatchable, so each registers from a local pointer
+    // slot with a null parent, as the command buffer does in the handle-run test, and is removed through the generic
+    // path. Elements past the count stay VK_NULL_HANDLE, so the over-extent run is two ids and thirty nulls.
+    void*            device_objects[2] = { nullptr, nullptr };
+    VkPhysicalDevice devices[2]        = { reinterpret_cast<VkPhysicalDevice>(&device_objects[0]),
+                                           reinterpret_cast<VkPhysicalDevice>(&device_objects[1]) };
+    for (VkPhysicalDevice& device : devices)
+    {
+        CreateWrappedDispatchHandle<InstanceWrapper, PhysicalDeviceWrapper>(VK_NULL_HANDLE, &device, TestHandleId);
+        REQUIRE(GetWrappedId<PhysicalDeviceWrapper>(device) != format::kNullHandleId);
+    }
+
+    struct GroupCase
+    {
+        uint32_t count;
+        uint32_t encoded;
+    };
+
+    for (const GroupCase& group_case : { GroupCase{ 2u, 2u },
+                                         GroupCase{ 0u, 0u },
+                                         GroupCase{ VK_MAX_DEVICE_GROUP_SIZE + 3u, VK_MAX_DEVICE_GROUP_SIZE } })
+    {
+        VkPhysicalDeviceGroupProperties group{};
+        group.sType               = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES;
+        group.physicalDeviceCount = group_case.count;
+        group.physicalDevices[0]  = devices[0];
+        group.physicalDevices[1]  = devices[1];
+        group.subsetAllocation    = VK_TRUE;
+
+        CHECK(matches(group, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(group.sType);
+            encode::EncodePNextStructIfValid(&oracle, group.pNext);
+            oracle.EncodeUInt32Value(group.physicalDeviceCount);
+            oracle.EncodeVulkanHandleArray<PhysicalDeviceWrapper>(group.physicalDevices, group_case.encoded);
+            oracle.EncodeUInt32Value(group.subsetAllocation);
+        }));
+    }
+
+    for (VkPhysicalDevice device : devices)
+    {
+        auto* wrapper = GetWrapper<PhysicalDeviceWrapper>(device);
+        RemoveWrapper<PhysicalDeviceWrapper>(wrapper);
+        delete wrapper;
+    }
+
+    // Retained partner: the count sibling is named priorityCount, which the heuristic does not find for
+    // priorities, so the procedural body writes every element of the extent.
+    {
+        VkQueueFamilyGlobalPriorityProperties priorities{};
+        priorities.sType         = VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES;
+        priorities.priorityCount = 2u;
+        for (uint32_t i = 0; i < VK_MAX_GLOBAL_PRIORITY_SIZE; ++i)
+        {
+            priorities.priorities[i] = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM;
+        }
+        priorities.priorities[0] = VK_QUEUE_GLOBAL_PRIORITY_LOW;
+        priorities.priorities[1] = VK_QUEUE_GLOBAL_PRIORITY_HIGH;
+
+        CHECK(matches(priorities, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(priorities.sType);
+            encode::EncodePNextStruct(&oracle, priorities.pNext);
+            oracle.EncodeUInt32Value(priorities.priorityCount);
+            oracle.EncodeEnumArray(priorities.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE);
         }));
     }
 }

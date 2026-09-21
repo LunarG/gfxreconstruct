@@ -107,6 +107,8 @@ _SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
     'VkImportMemoryWin32HandleInfoNV',
     'VkImportMemoryWin32HandleInfoKHR',
     'VkMappedMemoryRange',
+    'VkPhysicalDeviceGroupProperties',
+    'VkPhysicalDeviceMemoryProperties',
     'VkPipelineCacheCreateInfo',
     'VkPipelineCacheHeaderVersionOne',
     'VkPipelineCreateInfoKHR',

@@ -41,6 +41,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -182,9 +183,8 @@ class EncodeStructAction
     // the two ranks share a body. The extents are read from the API member's declared type, as they are on the decode
     // side; the Field records the same extents and the static_assert below holds the two to agree.
     //
-    // Known gap: a static array whose descriptor names a count_field is encoded by the procedural body to that count,
-    // not the extent, and this overload encodes the extent. Three such arrays exist; however, none are currently
-    // schema enabled. The count-aware read is the next step.
+    // If a count field is present the static extent is treated as the capacity, and count elements up to capacity are
+    // written.
     template <typename Field, typename Storage>
     requires schema::StaticArrayField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, const Storage& storage)
@@ -198,15 +198,24 @@ class EncodeStructAction
                       "A StaticArray field's recorded extents must equal the extents the API type declares");
         static_assert(std::rank_v<ArrayType> <= 2, "The encoder writes fixed arrays of one and two dimensions only");
 
-        constexpr size_t count =
-            std::extent_v<ArrayType, 0> * (std::rank_v<ArrayType> == 2 ? std::extent_v<ArrayType, 1> : 1);
+        size_t count = std::extent_v<ArrayType, 0> * (std::rank_v<ArrayType> == 2 ? std::extent_v<ArrayType, 1> : 1);
 
         if constexpr (std::rank_v<ArrayType> == 2)
         {
+            static_assert(!(schema::HasCountField<Storage, Field>),
+                          "A multi-dimensional fixed-extent array with a count field is not yet schema enabled");
             EncoderAdapter()(field, encoder_, &array_ref[0][0], count);
         }
         else
         {
+            if constexpr (schema::HasCountField<Storage, Field>)
+            {
+                using CountField = schema::FieldCountField<Field>;
+                // We don't need a NARROWING_CAST here because the count is a size_t, count_value is either less or
+                // ignored.
+                const auto count_value = *schema::Getter(storage, CountField{});
+                count                  = std::cmp_less(count_value, count) ? static_cast<size_t>(count_value) : count;
+            }
             EncoderAdapter()(field, encoder_, &array_ref[0], count);
         }
     }

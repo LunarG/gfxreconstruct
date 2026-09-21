@@ -1084,14 +1084,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLimits& value
     encoder->EncodeUInt64Value(value.nonCoherentAtomSize);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties& value)
-{
-    encoder->EncodeUInt32Value(value.memoryTypeCount);
-    EncodeStructArray(encoder, value.memoryTypes, value.memoryTypeCount);
-    encoder->EncodeUInt32Value(value.memoryHeapCount);
-    EncodeStructArray(encoder, value.memoryHeaps, value.memoryHeapCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSparseProperties& value)
 {
     encoder->EncodeUInt32Value(value.residencyStandard2DBlockShape);
@@ -1985,15 +1977,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupI
     encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
     encoder->EncodeUInt32Value(value.splitInstanceBindRegionCount);
     EncodeStructArray(encoder, value.pSplitInstanceBindRegions, value.splitInstanceBindRegionCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperties& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::PhysicalDeviceWrapper>(value.physicalDevices, value.physicalDeviceCount);
-    encoder->EncodeUInt32Value(value.subsetAllocation);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfo& value)
@@ -12343,6 +12326,8 @@ template void EncodeStruct<VkImageBlit>(ParameterEncoder*, const VkImageBlit&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoKHR>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoKHR&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
 template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
+template void EncodeStruct<VkPhysicalDeviceGroupProperties>(ParameterEncoder*, const VkPhysicalDeviceGroupProperties&);
+template void EncodeStruct<VkPhysicalDeviceMemoryProperties>(ParameterEncoder*, const VkPhysicalDeviceMemoryProperties&);
 template void EncodeStruct<VkPipelineCacheCreateInfo>(ParameterEncoder*, const VkPipelineCacheCreateInfo&);
 template void EncodeStruct<VkPipelineCacheHeaderVersionOne>(ParameterEncoder*, const VkPipelineCacheHeaderVersionOne&);
 template void EncodeStruct<VkPipelineCreateInfoKHR>(ParameterEncoder*, const VkPipelineCreateInfoKHR&);
