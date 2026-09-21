@@ -59,6 +59,12 @@ struct Pointer
 struct Array
 {};
 
+// An array of pointers, each to one element, with a sibling count field. The storage is count pointers and nothing
+// more; what the wire makes of each pointee is the adapter's decision by kind, a structure row of one or a
+// null-terminated string.
+struct PointerArray
+{};
+
 // A fixed-extent array declared in the storage type itself.
 struct StaticArray
 {};
@@ -91,9 +97,10 @@ GFXRECON_END_NAMESPACE(field_shape)
 //                     because Vulkan declares members called name and a member cannot share the name of its class.
 //   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
 //                     reads it that way so that no other descriptor has to state it.
-//   pointer_count     Pointer and Array. The declared star count, one or two.
-//   count_field       Array or StaticArray whose registry length is exactly one sibling member: that sibling's
-//                     Field descriptor, so a cross-field read can be constrained on it.
+//   pointer_count     Pointer, Array and PointerArray. The declared star count, one or two.
+//   count_field       Array, PointerArray or StaticArray whose registry length is exactly one sibling member, or a
+//                     sibling and the constant 1 for a PointerArray: that sibling's Field descriptor, so a cross-field
+//                     read can be constrained on it.
 //   length_expression Array or StaticArray whose registry length is anything else: the registry text as
 //                     written, for example a computed length or the comma-joined extents of a matrix. Not read by
 //                     any operation; a length no Action can evaluate is recorded here rather than dropped.
@@ -132,8 +139,8 @@ using FieldKind = typename Field::api_type::kind;
 template <typename Field>
 using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
 
-// The count field for an Array or StaticArray Field, if any. The sibling Field whose value names the array's
-// length
+// The count field for an Array, PointerArray or StaticArray Field, if any. The sibling Field whose value names the
+// array's length
 template <typename Field>
 using FieldCountField = typename Field::count_field;
 
@@ -340,11 +347,19 @@ concept PointerShapeField = std::same_as<typename Field::shape, field_shape::Poi
 template <typename Field>
 concept ArrayShapeField = std::same_as<typename Field::shape, field_shape::Array>;
 
-// Either pointer shape. A decoder that reads its own length from the wire cannot tell them apart -- a pointer to
-// one element is a run of one -- so an operation whose body does not consult the length constrains on this rather
-// than on the two shapes separately.
 template <typename Field>
-concept AnyPointerShapeField = PointerShapeField<Field> || ArrayShapeField<Field>;
+concept PointerArrayShapeField = std::same_as<typename Field::shape, field_shape::PointerArray>;
+
+// Any pointer shape. A decoder that reads its own length and depth from the wire cannot tell them apart -- a pointer
+// to one element is a run of one, and a run of pointers is one more level of the same -- so an operation whose body
+// does not consult the length constrains on this rather than on the shapes separately.
+template <typename Field>
+concept AnyPointerShapeField = PointerShapeField<Field> || ArrayShapeField<Field> || PointerArrayShapeField<Field>;
+
+// Either counted run: a pointer to a run of elements, or a run of pointers. Both read a sibling count and hand the
+// member's pointer value to an operation with it.
+template <typename Field>
+concept AnyCountedShapeField = ArrayShapeField<Field> || PointerArrayShapeField<Field>;
 
 template <typename Field>
 concept StaticArrayShapeField = std::same_as<typename Field::shape, field_shape::StaticArray>;

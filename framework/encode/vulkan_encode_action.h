@@ -133,6 +133,47 @@ struct EncoderAdapter
     {
         EncodeStructArray(encoder, array, count);
     }
+
+    // A run of pointers to structures. On the wire a pointer to one structure is a row of length one, so this is the
+    // two-dimensional structure array with every row of length 1. The 1 is the encoder's spelling of the shape, not a
+    // schema fact, which is why the descriptor carries no extent for it.
+    template <typename Field>
+    requires schema::StructKindField<Field> && schema::PointerArrayShapeField<Field>
+    void
+    operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* const* rows, size_t count) const
+    {
+        EncodeStructArray2D(encoder, rows, count, 1);
+    }
+
+    // Text kind: pointer, fixed text, run of strings. The kind carries the wire attribute and the character width, so
+    // each entry passes it as a tag. A fixed-extent string passes its extent as the strnlen bound (findings DF-6), and
+    // a run of strings is a run of null-terminated pointees, so no row length exists to pass.
+    template <typename Field>
+    requires schema::TextKindField<Field> && schema::PointerShapeField<Field>
+    void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* text) const
+    {
+        encoder->EncodeString(schema::FieldKind<Field>{}, text);
+    }
+
+    template <typename Field>
+    requires schema::TextKindField<Field> && schema::StaticArrayShapeField<Field>
+    void
+    operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* text, size_t capacity) const
+    {
+        static_assert(sizeof(Field::extents) / sizeof(Field::extents[0]) == 1,
+                      "A fixed-extent string has one dimension");
+        encoder->EncodeString(schema::FieldKind<Field>{}, text, capacity);
+    }
+
+    template <typename Field>
+    requires schema::TextKindField<Field> && schema::PointerArrayShapeField<Field>
+    void operator()(Field,
+                    ParameterEncoder*                             encoder,
+                    const schema::FieldElementType<Field>* const* strings,
+                    size_t                                        count) const
+    {
+        encoder->EncodeStringArray(schema::FieldKind<Field>{}, strings, count);
+    }
 };
 
 class EncodeStructAction
@@ -159,23 +200,34 @@ class EncodeStructAction
         EncoderAdapter()(field, encoder_, schema::Get(storage, field));
     }
 
-    // An array of elements, with a sibling member that holds the count. The member holds the pointer, and the pointer
-    // is what the encoder needs, so it is read as a value like any other; nothing here takes the member's address.
+    // A counted run, with a sibling member that holds the count: a pointer to a run of elements (Array), or a run of
+    // pointers each to one element (PointerArray). Either way the member holds a pointer, and the pointer is what the
+    // encoder needs, so it is read as a value like any other; nothing here takes the member's address.
     template <typename Field, typename Storage>
-    requires schema::ArrayShapeField<Field> && schema::HasMember<Storage, Field> &&
+    requires schema::AnyCountedShapeField<Field> && schema::HasMember<Storage, Field> &&
         schema::HasCountField<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
         using CountField = schema::FieldCountField<Field>;
-        using ArrayType  = schema::FieldElementType<Field>;
 
-        auto count = schema::Get(storage, CountField{});
+        const size_t count = GFXRECON_NARROWING_CAST(size_t, schema::Get(storage, CountField{}));
 
-        // We encode schema's element type, not the member's declared type. This is to support
-        // api_type::vulkan::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes it
-        // a run of uint8_t. For every other api_type run the cast is the identity.
-        const ArrayType* array = static_cast<const ArrayType*>(schema::Get(storage, field));
-        EncoderAdapter()(field, encoder_, array, GFXRECON_NARROWING_CAST(size_t, count));
+        if constexpr (schema::ArrayShapeField<Field>)
+        {
+            static_assert(Field::pointer_count == 1, "A pointer to a run has one level of indirection");
+            using ArrayType = schema::FieldElementType<Field>;
+
+            // We encode schema's element type, not the member's declared type. This is to support
+            // api_type::vulkan::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes
+            // it a run of uint8_t. For every other api_type run the cast is the identity.
+            const ArrayType* array = static_cast<const ArrayType*>(schema::Get(storage, field));
+            EncoderAdapter()(field, encoder_, array, count);
+        }
+        else
+        {
+            static_assert(Field::pointer_count == 2, "A run of pointers has two levels of indirection");
+            EncoderAdapter()(field, encoder_, schema::Get(storage, field), count);
+        }
     }
 
     // A fixed-extent array of elements, of one or two dimensions. Every named fixed-array entry point, the 2DMatrix
@@ -252,34 +304,6 @@ class EncodeStructAction
         encoder_->Encode(
             schema::FieldKind<Field>{},
             vulkan_wrappers::GetWrappedId(schema::Get(storage, field), schema::Get(storage, SelectorField{})));
-    }
-
-    // A pointer to one string, of either width. The member holds the pointer, and the pointer is what the encoder
-    // needs, so it is read as a value like any other.
-    template <typename Field, typename Storage>
-    requires schema::TextKindField<Field> && schema::PointerShapeField<Field> && schema::HasMember<Storage, Field>
-    void Apply(Field field, const Storage& storage)
-    {
-        static_assert(Field::pointer_count == 1, "A pointer to one string has one level of indirection");
-        encoder_->EncodeString(schema::FieldKind<Field>{}, schema::Get(storage, field));
-    }
-
-    // Field is a String or WString fixed length array. Must access field by reference. One-dimensional only.
-    template <typename Field, typename Storage>
-    requires schema::TextKindField<Field> && schema::StaticArrayShapeField<Field> && schema::Addressable<Storage, Field>
-    void Apply(Field field, const Storage& storage)
-    {
-        const auto& string_ref = schema::GetRef(storage, field);
-        using ArrayType        = std::remove_cvref_t<decltype(string_ref)>;
-
-        static_assert(std::is_array_v<ArrayType>,
-                      "A StaticArray field must be declared as an array in the API type it belongs to");
-        static_assert(schema::DeclaredExtentsMatchV<ArrayType, Field>,
-                      "A StaticArray field's recorded extents must equal the extents the API type declares");
-        static_assert(std::rank_v<ArrayType> == 1, "String arrays must be one-dimensional only");
-
-        constexpr size_t capacity = std::extent_v<ArrayType, 0>;
-        encoder_->EncodeString(schema::FieldKind<Field>{}, &string_ref[0], capacity);
     }
 
   private:

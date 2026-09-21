@@ -224,6 +224,14 @@ class ParameterEncoder
         EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, omit_data, omit_addr, capacity);
     }
 
+    // A run of strings, recorded as one text kind; the same tag form as EncodeString. Structure members never omit
+    // data or address.
+    template <format::IsTextKind Kind, typename T>
+    void EncodeStringArray(Kind, const T* const* strings, size_t len)
+    {
+        EncodeBasicStringArray<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(strings, len, false, false);
+    }
+
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
     void EncodeWString(const wchar_t* str, bool omit_data = false, bool omit_addr = false)                            { EncodeBasicString<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, omit_data, omit_addr); }
     void EncodeStringArray(const char* const* str, size_t len, bool omit_data = false, bool omit_addr = false)        { EncodeBasicStringArray<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, len, omit_data, omit_addr); }

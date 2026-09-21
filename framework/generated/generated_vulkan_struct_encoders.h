@@ -119,7 +119,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAllocationCallbacks& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkApplicationInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFormatProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageFormatProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkInstanceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryHeap& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryType& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFeatures& value);
@@ -693,7 +692,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2Fe
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2PropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapUsageKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryMicromapDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceOpacityMicromapFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceOpacityMicromapPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapTriangleKHR& value);
@@ -1374,6 +1372,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 // The structures the schema drives. encode/vulkan_encode_struct.h includes this header and declares the
 // constrained EncodeStruct over this list beside the prototypes.
 using SchemaDrivenStructs = util::TypeList<
+    VkAccelerationStructureGeometryMicromapDataKHR,
     VkBindMemoryStatus,
     VkBufferCreateInfo,
     VkBufferMemoryBarrier,
@@ -1384,6 +1383,7 @@ using SchemaDrivenStructs = util::TypeList<
     VkImageBlit,
     VkImportMemoryWin32HandleInfoKHR,
     VkImportMemoryWin32HandleInfoNV,
+    VkInstanceCreateInfo,
     VkMappedMemoryRange,
     VkPhysicalDeviceGroupProperties,
     VkPhysicalDeviceMemoryProperties,

@@ -50,7 +50,7 @@ Two Field descriptor properties differ from the design text, because the registr
 
     The name property is emitted as field_name. Vulkan declares members called 'name', and a class member cannot
     share the name of its enclosing class.
-    The shape vocabulary adds Pointer, StaticArray, and ExtensionChain to Value, Array, and VoidReturn. The
+    The shape vocabulary adds Pointer, StaticArray, PointerArray, and ExtensionChain to Value, Array, and VoidReturn. The
     design names field_shape::Value, field_shape::Array, and field_shape::VoidReturn, and it names an
     ExtensionChainShapeField concept, but it does not define the complete set.
 """
@@ -96,6 +96,7 @@ def is_schema_driven(generator, struct):
 # the encoder header and body generators iterate the filtered structure names through it, the way the decode
 # generators do through is_schema_driven, so when Encode inverts this body changes and no generator does.
 _SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
+    'VkAccelerationStructureGeometryMicromapDataKHR',
     'VkBindMemoryStatus',
     'VkBufferCreateInfo',
     'VkBufferMemoryBarrier',
@@ -106,6 +107,7 @@ _SCHEMA_DRIVEN_ENCODE_STRUCTS = frozenset((
     'VkImageBlit',
     'VkImportMemoryWin32HandleInfoNV',
     'VkImportMemoryWin32HandleInfoKHR',
+    'VkInstanceCreateInfo',
     'VkMappedMemoryRange',
     'VkPhysicalDeviceGroupProperties',
     'VkPhysicalDeviceMemoryProperties',
@@ -721,9 +723,25 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             return 'StaticArray'
 
         if value.is_pointer:
+            if value.is_array and self.is_pointer_array(value):
+                return 'PointerArray'
             return 'Array' if value.is_array else 'Pointer'
 
         return 'Value'
+
+    def is_pointer_array(self, value):
+        """An array of pointers, each to one element: two stars, and either a text element, whose registry length
+        'count,null-terminated' the base generator has already reduced to the count, or a length of the form 'count,1'.
+        A two-star run whose second length is anything else, or absent, is not one. The registry states only the outer
+        count for the two variable-row command parameters, and they stay Array."""
+        if value.pointer_count != 2:
+            return False
+
+        if value.base_type in ('char', 'wchar_t'):
+            return True
+
+        parts = [part.strip() for part in (value.array_length or '').split(',')]
+        return len(parts) == 2 and parts[1] == '1'
 
     def get_count_field(self, value, members):
         """The sibling Field that carries the element count, when the length is exactly one sibling name."""
@@ -731,6 +749,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         if not length or value.array_length_value is None:
             return None
+
+        if self.get_field_shape(value) == 'PointerArray':
+            # The row length is the shape's, not a count; only the sibling remains.
+            length = length.split(',')[0].strip()
 
         if length != value.array_length_value.name:
             return None
@@ -786,7 +808,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 format(value.array_length)
             )
 
-        if shape in ('Pointer', 'Array'):
+        if shape in ('Pointer', 'Array', 'PointerArray'):
             parts.append(
                 'static constexpr size_t pointer_count = {};'.format(
                     value.pointer_count

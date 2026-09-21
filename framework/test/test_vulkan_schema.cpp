@@ -1624,6 +1624,189 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
     }
 }
 
+TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][encode]")
+{
+    // The PointerArray shape: an array of count pointers, each to one element. The storage is the same for a run of
+    // strings and a run of structures, and the wire is not: the adapter's text entry writes a one-dimensional array
+    // of strings, its struct entry writes the two-dimensional structure array with every row of length one, which is
+    // the encoder's spelling of a pointer to one structure. Two migrated structures, one per kind: VkInstanceCreateInfo
+    // carries two string runs beside a structure pointer, and VkAccelerationStructureGeometryMicromapDataKHR carries
+    // a structure run and the pointer run over the same count beside address values. The retained partners
+    // VkDeviceCreateInfo and VkMicromapBuildInfoEXT carry the same runs through their procedural bodies; the latter
+    // also holds unions, which keep it off the list.
+    namespace instance_field = schema::field::vulkan::VkInstanceCreateInfo;
+    namespace micromap_field = schema::field::vulkan::VkAccelerationStructureGeometryMicromapDataKHR;
+
+    static_assert(schema::PointerArrayShapeField<instance_field::ppEnabledLayerNames>);
+    static_assert(schema::TextKindField<instance_field::ppEnabledLayerNames>);
+    static_assert(instance_field::ppEnabledLayerNames::pointer_count == 2);
+    static_assert(std::is_same_v<schema::FieldCountField<instance_field::ppEnabledExtensionNames>,
+                                 instance_field::enabledExtensionCount>);
+
+    static_assert(schema::PointerArrayShapeField<micromap_field::ppUsageCounts>);
+    static_assert(schema::StructKindField<micromap_field::ppUsageCounts>);
+    static_assert(micromap_field::ppUsageCounts::pointer_count == 2);
+    static_assert(
+        std::is_same_v<schema::FieldCountField<micromap_field::ppUsageCounts>, micromap_field::usageCountsCount>);
+    static_assert(schema::ArrayShapeField<micromap_field::pUsageCounts>);
+
+    // Both counted shapes are pointer shapes to the decoder, which reads depth and length from the wire.
+    static_assert(schema::AnyPointerShapeField<micromap_field::ppUsageCounts>);
+    static_assert(schema::AnyCountedShapeField<micromap_field::ppUsageCounts>);
+    static_assert(!schema::AnyArrayShapeField<micromap_field::ppUsageCounts>);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    const char* const layers[]     = { "VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_gfxreconstruct" };
+    const char* const extensions[] = { "VK_KHR_surface", "VK_KHR_win32_surface", "VK_EXT_debug_utils" };
+
+    VkApplicationInfo application{};
+    application.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    application.pApplicationName   = "schema";
+    application.applicationVersion = 0x00010002u;
+    application.pEngineName        = nullptr;
+    application.engineVersion      = 7u;
+    application.apiVersion         = VK_API_VERSION_1_3;
+
+    struct Names
+    {
+        uint32_t                 layer_count;
+        const char* const*       layers;
+        uint32_t                 extension_count;
+        const char* const*       extensions;
+        const VkApplicationInfo* application;
+    };
+
+    for (const Names& names :
+         { Names{ 0u, nullptr, 0u, nullptr, nullptr }, Names{ 2u, layers, 3u, extensions, &application } })
+    {
+        // Migrated: two string runs, kIsArray of strings on the wire.
+        VkInstanceCreateInfo instance{};
+        instance.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        instance.flags                   = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        instance.pApplicationInfo        = names.application;
+        instance.enabledLayerCount       = names.layer_count;
+        instance.ppEnabledLayerNames     = names.layers;
+        instance.enabledExtensionCount   = names.extension_count;
+        instance.ppEnabledExtensionNames = names.extensions;
+
+        CHECK(matches(instance, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(instance.sType);
+            encode::EncodePNextStruct(&oracle, instance.pNext);
+            oracle.EncodeFlagsValue(instance.flags);
+            encode::EncodeStructPtr(&oracle, instance.pApplicationInfo);
+            oracle.EncodeUInt32Value(instance.enabledLayerCount);
+            oracle.EncodeStringArray(instance.ppEnabledLayerNames, instance.enabledLayerCount);
+            oracle.EncodeUInt32Value(instance.enabledExtensionCount);
+            oracle.EncodeStringArray(instance.ppEnabledExtensionNames, instance.enabledExtensionCount);
+        }));
+
+        // Retained partner: the same two runs beside a structure run and a structure pointer.
+        VkDeviceCreateInfo device{};
+        device.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        device.enabledLayerCount       = names.layer_count;
+        device.ppEnabledLayerNames     = names.layers;
+        device.enabledExtensionCount   = names.extension_count;
+        device.ppEnabledExtensionNames = names.extensions;
+
+        CHECK(matches(device, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(device.sType);
+            encode::EncodePNextStruct(&oracle, device.pNext);
+            oracle.EncodeFlagsValue(device.flags);
+            oracle.EncodeUInt32Value(device.queueCreateInfoCount);
+            encode::EncodeStructArray(&oracle, device.pQueueCreateInfos, device.queueCreateInfoCount);
+            oracle.EncodeUInt32Value(device.enabledLayerCount);
+            oracle.EncodeStringArray(device.ppEnabledLayerNames, device.enabledLayerCount);
+            oracle.EncodeUInt32Value(device.enabledExtensionCount);
+            oracle.EncodeStringArray(device.ppEnabledExtensionNames, device.enabledExtensionCount);
+            encode::EncodeStructPtr(&oracle, device.pEnabledFeatures);
+        }));
+    }
+
+    // Two usage structures, addressed both as a run and as two pointers, so the run and the pointer run over one
+    // count encode the same elements through two wire shapes.
+    const VkMicromapUsageKHR        usages[] = { VkMicromapUsageKHR{ 4u, 1u, VK_OPACITY_MICROMAP_FORMAT_2_STATE_KHR },
+                                                 VkMicromapUsageKHR{ 9u, 3u, VK_OPACITY_MICROMAP_FORMAT_4_STATE_KHR } };
+    const VkMicromapUsageKHR* const usage_pointers[] = { &usages[1], &usages[0] };
+
+    struct Usages
+    {
+        uint32_t                         count;
+        const VkMicromapUsageKHR*        run;
+        const VkMicromapUsageKHR* const* pointers;
+    };
+
+    for (const Usages& u : { Usages{ 0u, nullptr, nullptr }, Usages{ 2u, usages, usage_pointers } })
+    {
+        // Migrated: a structure run and a run of pointers to structures, kIsArray2D with rows of one on the wire.
+        VkAccelerationStructureGeometryMicromapDataKHR micromap{};
+        micromap.sType               = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR;
+        micromap.usageCountsCount    = u.count;
+        micromap.pUsageCounts        = u.run;
+        micromap.ppUsageCounts       = u.pointers;
+        micromap.data                = 0x1000u;
+        micromap.triangleArray       = 0x2000u;
+        micromap.triangleArrayStride = 48u;
+
+        CHECK(matches(micromap, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(micromap.sType);
+            encode::EncodePNextStruct(&oracle, micromap.pNext);
+            oracle.EncodeUInt32Value(micromap.usageCountsCount);
+            encode::EncodeStructArray(&oracle, micromap.pUsageCounts, micromap.usageCountsCount);
+            encode::EncodeStructArray2D(&oracle, micromap.ppUsageCounts, micromap.usageCountsCount, 1);
+            oracle.EncodeUInt64Value(micromap.data);
+            oracle.EncodeUInt64Value(micromap.triangleArray);
+            oracle.EncodeUInt64Value(micromap.triangleArrayStride);
+        }));
+    }
+
+    // Retained partner: the EXT usage type through the same two runs, beside a null handle and three unions.
+    const VkMicromapUsageEXT ext_usages[] = { VkMicromapUsageEXT{ 4u, 1u, 0u }, VkMicromapUsageEXT{ 9u, 3u, 1u } };
+    const VkMicromapUsageEXT* const ext_usage_pointers[] = { &ext_usages[0], &ext_usages[1] };
+
+    VkMicromapBuildInfoEXT build{};
+    build.sType               = VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT;
+    build.type                = VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT;
+    build.mode                = VK_BUILD_MICROMAP_MODE_BUILD_EXT;
+    build.dstMicromap         = VK_NULL_HANDLE;
+    build.usageCountsCount    = 2u;
+    build.pUsageCounts        = ext_usages;
+    build.ppUsageCounts       = ext_usage_pointers;
+    build.data.deviceAddress  = 0x3000u;
+    build.triangleArrayStride = 16u;
+
+    CHECK(matches(build, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeEnumValue(build.sType);
+        encode::EncodePNextStructIfValid(&oracle, build.pNext);
+        oracle.EncodeEnumValue(build.type);
+        oracle.EncodeFlagsValue(build.flags);
+        oracle.EncodeEnumValue(build.mode);
+        oracle.EncodeVulkanHandleValue<encode::vulkan_wrappers::MicromapEXTWrapper>(build.dstMicromap);
+        oracle.EncodeUInt32Value(build.usageCountsCount);
+        encode::EncodeStructArray(&oracle, build.pUsageCounts, build.usageCountsCount);
+        encode::EncodeStructArray2D(&oracle, build.ppUsageCounts, build.usageCountsCount, 1);
+        encode::EncodeStruct(&oracle, build.data);
+        encode::EncodeStruct(&oracle, build.scratchData);
+        encode::EncodeStruct(&oracle, build.triangleArray);
+        oracle.EncodeUInt64Value(build.triangleArrayStride);
+    }));
+}
+
 TEST_CASE("Getter yields a Field's value in place or by copy", "[schema]")
 {
     // An addressable member is referenced where it lives: the dereferenced Getter is the member itself. A bitfield

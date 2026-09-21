@@ -52,6 +52,7 @@ struct DescriptorFor;
         using type = schema::api_type::vulkan::Struct; \
     }
 
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkAccelerationStructureGeometryMicromapDataKHR);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkBindMemoryStatus);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkBufferCreateInfo);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkBufferMemoryBarrier);
@@ -62,6 +63,7 @@ GFXRECON_VULKAN_DESCRIPTOR_FOR(VkExtent2D);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkImageBlit);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkImportMemoryWin32HandleInfoNV);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkImportMemoryWin32HandleInfoKHR);
+GFXRECON_VULKAN_DESCRIPTOR_FOR(VkInstanceCreateInfo);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkMappedMemoryRange);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkPhysicalDeviceGroupProperties);
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkPhysicalDeviceMemoryProperties);

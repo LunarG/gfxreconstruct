@@ -891,18 +891,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageFormatProperties& valu
     encoder->EncodeUInt64Value(value.maxResourceSize);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkInstanceCreateInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    EncodeStructPtr(encoder, value.pApplicationInfo);
-    encoder->EncodeUInt32Value(value.enabledLayerCount);
-    encoder->EncodeStringArray(value.ppEnabledLayerNames, value.enabledLayerCount);
-    encoder->EncodeUInt32Value(value.enabledExtensionCount);
-    encoder->EncodeStringArray(value.ppEnabledExtensionNames, value.enabledExtensionCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryHeap& value)
 {
     encoder->EncodeUInt64Value(value.size);
@@ -6459,18 +6447,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMicromapUsageKHR& value)
     encoder->EncodeUInt32Value(value.count);
     encoder->EncodeUInt32Value(value.subdivisionLevel);
     encoder->EncodeEnumValue(value.format);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryMicromapDataKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.usageCountsCount);
-    EncodeStructArray(encoder, value.pUsageCounts, value.usageCountsCount);
-    EncodeStructArray2D(encoder, value.ppUsageCounts, value.usageCountsCount, 1);
-    encoder->EncodeUInt64Value(value.data);
-    encoder->EncodeUInt64Value(value.triangleArray);
-    encoder->EncodeUInt64Value(value.triangleArrayStride);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceOpacityMicromapFeaturesKHR& value)
@@ -12315,6 +12291,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectComman
 }
 
 // The schema drives these encoders. This is the only translation unit that compiles the walk.
+template void EncodeStruct<VkAccelerationStructureGeometryMicromapDataKHR>(ParameterEncoder*, const VkAccelerationStructureGeometryMicromapDataKHR&);
 template void EncodeStruct<VkBindMemoryStatus>(ParameterEncoder*, const VkBindMemoryStatus&);
 template void EncodeStruct<VkBufferCreateInfo>(ParameterEncoder*, const VkBufferCreateInfo&);
 template void EncodeStruct<VkBufferMemoryBarrier>(ParameterEncoder*, const VkBufferMemoryBarrier&);
@@ -12325,6 +12302,7 @@ template void EncodeStruct<VkExtent2D>(ParameterEncoder*, const VkExtent2D&);
 template void EncodeStruct<VkImageBlit>(ParameterEncoder*, const VkImageBlit&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoKHR>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoKHR&);
 template void EncodeStruct<VkImportMemoryWin32HandleInfoNV>(ParameterEncoder*, const VkImportMemoryWin32HandleInfoNV&);
+template void EncodeStruct<VkInstanceCreateInfo>(ParameterEncoder*, const VkInstanceCreateInfo&);
 template void EncodeStruct<VkMappedMemoryRange>(ParameterEncoder*, const VkMappedMemoryRange&);
 template void EncodeStruct<VkPhysicalDeviceGroupProperties>(ParameterEncoder*, const VkPhysicalDeviceGroupProperties&);
 template void EncodeStruct<VkPhysicalDeviceMemoryProperties>(ParameterEncoder*, const VkPhysicalDeviceMemoryProperties&);
