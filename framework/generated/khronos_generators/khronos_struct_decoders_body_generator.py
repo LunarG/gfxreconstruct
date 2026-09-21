@@ -158,6 +158,12 @@ class KhronosStructDecodersBodyGenerator():
                             name=value.name,
                             arraylen=value.array_capacity
                         )
+                        if self.is_counted_static_array(value) and self.is_decoded_before(name, value.array_length_value, value):
+                            # The registry names a sibling count member (e.g. memoryTypeCount for memoryTypes) that
+                            # has already been decoded; let the pointer decoder check the array length against it.
+                            main_body += '    wrapper->{}{}SetExpectedLength(value->{});\n'.format(
+                                value.name, access_op, value.array_length_value.name
+                            )
 
                     if is_struct or is_string or is_handle_like:
                         main_body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
