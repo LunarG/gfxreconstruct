@@ -162,7 +162,7 @@ void DrawCallsDumpingContext::Release()
                 }
             }
 
-            for (const auto& [subpasses, renderpass] : rps->render_pass_load_clones)
+            for (const auto& renderpass : rps->render_pass_load_clones | std::views::values)
             {
                 if (renderpass != VK_NULL_HANDLE)
                 {
@@ -2991,10 +2991,10 @@ static std::vector<uint32_t> FirstUseSubpassPerAttachment(const CreateInfoType* 
     return first_use;
 }
 
-// Load what the window before this one stored, for the attachments it could have written: the ones a subpass up
-// to resume_subpass uses. An attachment the window before never reached keeps the ops the application gave it,
-// so its clear still happens, in the window that first enters the subpass using it. The attachments are all in
-// their original finalLayout at a window boundary, used or not.
+// load what the previous window stored, for attachments it 'could' have written in 'subpass -> resume_subpass'.
+// an attachment the previous window never reached keeps the original ops:
+// -> clear still happens, in the window that first enters the subpass using it.
+// -> attachments are in their original finalLayout at window boundaries, used or not.
 template <typename AttachmentDescriptionType>
 static void FixAttachmentLoadOps(std::vector<AttachmentDescriptionType>& attachments,
                                  const std::vector<uint32_t>&            first_use_subpass,
@@ -3935,6 +3935,8 @@ uint32_t DrawCallsDumpingContext::GetRenderPassCommandBuffers(CommandBufferItera
     return GFXRECON_NARROWING_CAST(uint32_t, begin);
 }
 
+namespace
+{
 // A VkRenderingInfo whose attachments store their results, and load them first when a window resumes the
 // instance. The copies are referenced by the info, so this must outlive the call it is passed to.
 class ChainedRenderingInfo
@@ -3990,6 +3992,7 @@ class ChainedRenderingInfo
     VkRenderingAttachmentInfo              depth_attachment_{};
     VkRenderingAttachmentInfo              stencil_attachment_{};
 };
+} // namespace
 
 void DrawCallsDumpingContext::BeginRendering(uint64_t                             block_index,
                                              const VkRenderingInfo*               rendering_info,
@@ -4057,15 +4060,15 @@ bool DrawCallsDumpingContext::IsChainable() const
 {
     // A well-formed range has the render pass begin, one entry per subpass boundary and the end. An empty
     // range belongs to a secondary that inherits the primary's render pass.
-    const bool well_formed = std::all_of(
-        RP_indices_.begin(), RP_indices_.end(), [](const std::vector<Index>& range) { return range.size() != 1; });
+    const bool well_formed =
+        std::ranges::all_of(RP_indices_, [](const std::vector<Index>& range) { return range.size() != 1; });
 
     if (!well_formed)
     {
         return false;
     }
 
-    for (const auto& [execute_commands_index, secondaries] : secondaries_)
+    for (const auto& secondaries : secondaries_ | std::views::values)
     {
         for (const auto& secondary_context : secondaries)
         {
@@ -4092,7 +4095,7 @@ void DrawCallsDumpingContext::SetChaining(bool chaining)
         has_tail_clone_ = true;
     }
 
-    for (const auto& [execute_commands_index, secondaries] : secondaries_)
+    for (const auto& secondaries : secondaries_ | std::views::values)
     {
         for (const auto& secondary_context : secondaries)
         {
