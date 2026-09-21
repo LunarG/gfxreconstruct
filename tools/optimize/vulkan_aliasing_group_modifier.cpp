@@ -26,6 +26,7 @@
 #include "util/logging.h"
 #include "util/memory_output_stream.h"
 
+#include <algorithm>
 #include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -442,8 +443,12 @@ bool VulkanAliasingGroupModifier::CanOptimize()
             candidate.resource_id = resource_id;
             candidate.memory_id   = resource.memory_id;
             candidate.bind_offset = resource.bind_offset;
-            candidate.footprint   = (resource.requirement_size != 0) ? resource.requirement_size : resource.create_size;
-            candidate.bind_index  = resource.bind_index;
+
+            // Same rule the replayer uses (e.g. page-guard tracking rounds recorded requirement to page
+            candidate.footprint     = resource.requirement_size != 0 && resource.create_size != 0
+                                          ? std::min(resource.requirement_size, resource.create_size)
+                                          : std::max(resource.requirement_size, resource.create_size);
+            candidate.bind_index    = resource.bind_index;
             candidate.destroy_index = resource.destroy_index;
             candidates_by_device[resource.device_id].push_back(candidate);
         }
