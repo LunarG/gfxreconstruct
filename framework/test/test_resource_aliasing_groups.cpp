@@ -35,6 +35,7 @@
 #include "vulkan/vulkan.h"
 
 #include <cstring>
+#include <limits>
 #include <vector>
 
 namespace
@@ -111,6 +112,10 @@ WrittenBlock WriteTwoGroups()
     block.bytes.assign(stream.GetData(), stream.GetData() + stream.GetDataSize());
     return block;
 }
+
+// The first group header follows the block header fields.
+constexpr size_t kFirstGroupOffset =
+    sizeof(gfxrecon::format::ThreadId) + sizeof(gfxrecon::format::HandleId) + sizeof(uint32_t) + sizeof(uint32_t);
 
 // The first member header follows the block header fields and the first group header.
 constexpr size_t kFirstMemberOffset = sizeof(gfxrecon::format::ThreadId) + sizeof(gfxrecon::format::HandleId) +
@@ -208,6 +213,47 @@ TEST_CASE("A resource aliasing groups block is dropped whole when it cannot be r
         const size_t   version_offset = sizeof(format::ThreadId) + sizeof(format::HandleId);
         const uint32_t next_version   = format::kResourceAliasingGroupsLayoutVersion + 1;
         std::memcpy(bytes.data() + version_offset, &next_version, sizeof(next_version));
+
+        decoder.DispatchResourceAliasingGroupsCommand(bytes.data(), bytes.size());
+        REQUIRE(recorder.call_count == 0);
+    }
+
+    decode::DecodeAllocator::End();
+}
+
+TEST_CASE("A resource aliasing groups block with impossible counts is dropped", "[optimize]")
+{
+    using namespace gfxrecon;
+
+    const WrittenBlock block = WriteTwoGroups();
+
+    AliasingGroupsRecorder recorder;
+    decode::VulkanDecoder  decoder;
+    decoder.AddConsumer(&recorder);
+
+    decode::DecodeAllocator::Begin();
+
+    SECTION("a group count no payload could hold")
+    {
+        std::vector<uint8_t> bytes(block.Payload(), block.Payload() + block.PayloadSize());
+
+        // group_count follows thread_id, device_id and layout_version in the payload.
+        const size_t   count_offset = sizeof(format::ThreadId) + sizeof(format::HandleId) + sizeof(uint32_t);
+        const uint32_t huge         = std::numeric_limits<uint32_t>::max();
+        std::memcpy(bytes.data() + count_offset, &huge, sizeof(huge));
+
+        decoder.DispatchResourceAliasingGroupsCommand(bytes.data(), bytes.size());
+        REQUIRE(recorder.call_count == 0);
+    }
+
+    SECTION("a member count no payload could hold")
+    {
+        std::vector<uint8_t> bytes(block.Payload(), block.Payload() + block.PayloadSize());
+
+        format::ResourceAliasingGroupHeader group_header{};
+        std::memcpy(&group_header, bytes.data() + kFirstGroupOffset, sizeof(group_header));
+        group_header.member_count = std::numeric_limits<uint32_t>::max();
+        std::memcpy(bytes.data() + kFirstGroupOffset, &group_header, sizeof(group_header));
 
         decoder.DispatchResourceAliasingGroupsCommand(bytes.data(), bytes.size());
         REQUIRE(recorder.call_count == 0);
