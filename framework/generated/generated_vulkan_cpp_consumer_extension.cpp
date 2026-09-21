@@ -3163,6 +3163,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR(out,
+                                                                       casted_struct,
+                                                                       decoded_struct,
+                                                                       consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMaintenance11FeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -6333,16 +6343,6 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT(out,
-                                                                       casted_struct,
-                                                                       decoded_struct,
-                                                                       consumer);
-
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
@@ -7430,6 +7430,46 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                 casted_struct,
                                                                 decoded_struct,
                                                                 consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceInfoPropertiesINTEL*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceInfoPropertiesINTEL*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceInfoPropertiesINTEL(out,
+                                                    casted_struct,
+                                                    decoded_struct,
+                                                    consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkBufferDeviceAddressAlignmentAllocateInfoVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkBufferDeviceAddressAlignmentAllocateInfoVALVE(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE(out,
+                                                                                    casted_struct,
+                                                                                    decoded_struct,
+                                                                                    consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE(out,
+                                                                                      casted_struct,
+                                                                                      decoded_struct,
+                                                                                      consumer);
 
                 break;
             }

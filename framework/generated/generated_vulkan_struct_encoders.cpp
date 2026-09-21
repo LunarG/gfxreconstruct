@@ -5753,7 +5753,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeyKHR& value
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.keySize);
-    encoder->EncodeUInt8Array(value.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR);
+    const size_t key_count = ParameterEncoder::ClampStaticArrayLength(value.keySize, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, "VkPipelineBinaryKeyKHR::key");
+    encoder->EncodeUInt8Array(value.key, key_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryDataKHR& value)
@@ -6700,6 +6701,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageModeInfoKHR& va
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.resolveMode);
     encoder->EncodeEnumValue(value.stencilResolveMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.pipelineLibraryGroupHandles);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance11FeaturesKHR& value)
@@ -10861,13 +10869,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBui
     encoder->EncodeUInt32Value(value.shaderWarpsPerCore);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.pipelineLibraryGroupHandles);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -12235,6 +12236,36 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataBa
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.privateDataBaseHandle);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInfoPropertiesINTEL& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.deviceIpVersionArch);
+    encoder->EncodeUInt32Value(value.deviceIpVersionRelease);
+    encoder->EncodeUInt32Value(value.deviceIpVersionRevision);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.bufferDeviceAddressAllocationAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxBufferDeviceAddressAllocationAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressAlignmentAllocateInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.alignment);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)
