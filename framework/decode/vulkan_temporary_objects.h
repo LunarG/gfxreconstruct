@@ -34,6 +34,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// forward declaration to avoid cyclic include:
+// vulkan_object_info.h -> vulkan_resource_initializer.h -> this header
 struct VulkanDeviceInfo;
 
 // Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one
@@ -188,12 +190,9 @@ struct TemporaryBuffer
     {}
 
     // TemporaryBuffer can be a member of structs that are used in containers, so ownership of the buffer has to
-    // transfer rather than be duplicated.
+    // transfer rather than be duplicated, so we won't call `vkDestroyBuffer` on an already destroyed buffer.
     TemporaryBuffer(const TemporaryBuffer&)            = delete;
     TemporaryBuffer& operator=(const TemporaryBuffer&) = delete;
-
-    // Moving lets a buffer live in a container that reallocates, and lets a default-constructed member be
-    // configured later by assigning a fully constructed buffer over it.
     TemporaryBuffer(TemporaryBuffer&& other) noexcept;
     TemporaryBuffer& operator=(TemporaryBuffer&& other) noexcept;
 
