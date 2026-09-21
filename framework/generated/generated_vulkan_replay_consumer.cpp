@@ -7725,11 +7725,10 @@ void VulkanReplayConsumer::Process_vkSetSwapchainPresentTimingQueueSizeEXT(
         GFXRECON_LOG_DEBUG("Skip vkSetSwapchainPresentTimingQueueSizeEXT for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(args.swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
-    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain)->surface_id)->surface_creation_skipped) { return; }
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_swapchain = GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain);
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetSwapchainPresentTimingQueueSizeEXT(in_device, in_swapchain, args.size);
+    VkResult replay_result = OverrideSetSwapchainPresentTimingQueueSizeEXT(GetDeviceTable(in_device->handle)->SetSwapchainPresentTimingQueueSizeEXT, args.result, in_device, in_swapchain, args.size);
     CheckResult("vkSetSwapchainPresentTimingQueueSizeEXT", args.result, replay_result, call_info);
 }
 
@@ -7782,13 +7781,13 @@ void VulkanReplayConsumer::Process_vkGetPastPresentationTimingEXT(
         GFXRECON_LOG_DEBUG("Skip vkGetPastPresentationTimingEXT for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkPastPresentationTimingInfoEXT* in_pPastPresentationTimingInfo = args.pPastPresentationTimingInfo.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructHandles(args.pPastPresentationTimingInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    VkPastPresentationTimingPropertiesEXT* out_pPastPresentationTimingProperties = args.pPastPresentationTimingProperties.IsNull() ? nullptr : args.pPastPresentationTimingProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
+    args.pPastPresentationTimingProperties.IsNull() ? nullptr : args.pPastPresentationTimingProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
     InitializeOutputStructPNext(&args.pPastPresentationTimingProperties);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetPastPresentationTimingEXT(in_device, in_pPastPresentationTimingInfo, out_pPastPresentationTimingProperties);
+    VkResult replay_result = OverrideGetPastPresentationTimingEXT(GetDeviceTable(in_device->handle)->GetPastPresentationTimingEXT, args.result, in_device, &args.pPastPresentationTimingInfo, &args.pPastPresentationTimingProperties);
     CheckResult("vkGetPastPresentationTimingEXT", args.result, replay_result, call_info);
 }
 
