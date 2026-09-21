@@ -24,6 +24,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "decode/decoder_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -225,6 +226,20 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
 {
     VkResult result = original_result;
 
+    // Offscreen presentation must still signal present fences.
+    std::vector<VkFence> present_fences;
+    if (const auto* present_fence_info =
+            graphics::vulkan_struct_get_pnext<VkSwapchainPresentFenceInfoEXT>(present_info))
+    {
+        for (uint32_t i = 0; i < present_fence_info->swapchainCount; ++i)
+        {
+            if (present_fence_info->pFences[i] != VK_NULL_HANDLE)
+            {
+                present_fences.push_back(present_fence_info->pFences[i]);
+            }
+        }
+    }
+
     std::vector<VkPipelineStageFlags> wait_stages(present_info->waitSemaphoreCount,
                                                   VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
 
@@ -256,15 +271,27 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
         submit_info.pNext = &frame_boundary_;
     }
 
-    if (swapchain_options_.offscreen_swapchain_frame_boundary || present_info->waitSemaphoreCount > 0)
+    if (swapchain_options_.offscreen_swapchain_frame_boundary || present_info->waitSemaphoreCount > 0 ||
+        !present_fences.empty())
     {
         auto injected = injected_calls_->Open();
-        result        = injected->QueueSubmit(queue_info->handle, 1, &submit_info, VK_NULL_HANDLE);
+        result        = injected->QueueSubmit(
+            queue_info->handle, 1, &submit_info, present_fences.empty() ? VK_NULL_HANDLE : present_fences.front());
 
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Offscreen swapchain failed to QueueSubmit on QueuePresentKHR for queue %" PRIu64,
                                queue_info->handle);
+        }
+
+        for (size_t i = 1; (i < present_fences.size()) && (result == VK_SUCCESS); ++i)
+        {
+            result = injected->QueueSubmit(queue_info->handle, 0, nullptr, present_fences[i]);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Offscreen swapchain failed to signal present fence on queue %" PRIu64,
+                                   queue_info->handle);
+            }
         }
     }
 
