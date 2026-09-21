@@ -175,18 +175,23 @@ struct TemporaryQueryPool
 // Wrapper for a VkBuffer injected by replay.
 struct TemporaryBuffer
 {
-    // An unconfigured buffer, to be move-assigned a configured one before use.  Create() rejects it until then.
+    // An empty buffer, to be move-assigned a created one before use.
     TemporaryBuffer() = default;
 
+    // Creates the buffer and queries the memory requirements the caller needs to allocate against.
+    // `handle` is left null when creation fails; the failure is logged here, so callers only have to check it.
     TemporaryBuffer(VkDevice                                   dev,
                     VulkanResourceAllocator*                   alloc,
-                    const graphics::VulkanInjectedDeviceCalls& injected_calls) :
-        device(dev),
-        allocator(alloc), device_table(injected_calls)
-    {}
+                    const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                    VkDeviceSize                               buffer_size,
+                    VkBufferUsageFlags                         usage);
 
-    TemporaryBuffer(VkDevice dev, VulkanResourceAllocator* alloc, const graphics::VulkanDeviceTable& dev_table) :
-        TemporaryBuffer(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table))
+    TemporaryBuffer(VkDevice                           dev,
+                    VulkanResourceAllocator*           alloc,
+                    const graphics::VulkanDeviceTable& dev_table,
+                    VkDeviceSize                       buffer_size,
+                    VkBufferUsageFlags                 usage) :
+        TemporaryBuffer(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table), buffer_size, usage)
     {}
 
     // TemporaryBuffer can be a member of structs that are used in containers, so ownership of the buffer has to
@@ -201,9 +206,7 @@ struct TemporaryBuffer
     // Destroys the buffer.  Any memory the caller bound to it has to outlive this and be freed afterwards.
     ~TemporaryBuffer() { Destroy(); }
 
-    // Creates the buffer and queries the memory requirements the caller needs to allocate against.
-    VkResult Create(VkDeviceSize buffer_size, VkBufferUsageFlags usage);
-
+    // Destroys the buffer, leaving this object empty.
     void Destroy();
 
     VkBuffer                              handle{ VK_NULL_HANDLE };

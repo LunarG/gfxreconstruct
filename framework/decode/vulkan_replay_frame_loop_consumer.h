@@ -193,8 +193,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
         struct ShadowBuffer
         {
-            ShadowBuffer(VkDevice dev, VulkanResourceAllocator* alloc, const graphics::VulkanDeviceTable& table) :
-                buffer(dev, alloc, table)
+            ShadowBuffer(VkDevice                           dev,
+                         VulkanResourceAllocator*           alloc,
+                         const graphics::VulkanDeviceTable& table,
+                         VkDeviceSize                       buffer_size,
+                         VkBufferUsageFlags                 usage) :
+                buffer(dev, alloc, table, buffer_size, usage),
+                size(buffer_size)
             {}
 
             TemporaryBuffer                     buffer;

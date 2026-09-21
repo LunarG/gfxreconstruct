@@ -2016,13 +2016,14 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     // free previous resources
     buffer_context = {};
     GFXRECON_NARROWING_ASSIGN(buffer_context.num_bytes, num_bytes);
-    buffer_context.name        = name;
-    buffer_context.temp_buffer = TemporaryBuffer(device_, resource_allocator_, *device_table_);
+    buffer_context.name = name;
 
     const VkBufferUsageFlags buffer_usage =
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | usage_flags;
 
-    if (buffer_context.temp_buffer.Create(num_bytes, buffer_usage) != VK_SUCCESS)
+    buffer_context.temp_buffer = TemporaryBuffer(device_, resource_allocator_, *device_table_, num_bytes, buffer_usage);
+
+    if (buffer_context.temp_buffer.handle == VK_NULL_HANDLE)
     {
         return false;
     }

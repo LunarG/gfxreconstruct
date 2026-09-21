@@ -224,26 +224,30 @@ VkResult TemporaryQueryPool::Create(uint32_t query_count)
     return res;
 }
 
-VkResult TemporaryBuffer::Create(VkDeviceSize buffer_size, VkBufferUsageFlags usage)
+TemporaryBuffer::TemporaryBuffer(VkDevice                                   dev,
+                                 VulkanResourceAllocator*                   alloc,
+                                 const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                                 VkDeviceSize                               buffer_size,
+                                 VkBufferUsageFlags                         usage) :
+    device(dev),
+    allocator(alloc), device_table(injected_calls)
 {
-    GFXRECON_ASSERT(handle == VK_NULL_HANDLE);
-
     if (device == VK_NULL_HANDLE)
     {
-        GFXRECON_LOG_ERROR("%s() called on an unconfigured buffer", __func__);
-        return VK_ERROR_INITIALIZATION_FAILED;
+        GFXRECON_LOG_ERROR("%s() called without a device", __func__);
+        return;
     }
 
     if (allocator == nullptr)
     {
         GFXRECON_LOG_ERROR("%s() called for a device without a resource allocator", __func__);
-        return VK_ERROR_INITIALIZATION_FAILED;
+        return;
     }
 
     if (buffer_size == 0)
     {
         GFXRECON_LOG_ERROR("%s() called with a size of zero", __func__);
-        return VK_ERROR_INITIALIZATION_FAILED;
+        return;
     }
 
     VkBufferCreateInfo buffer_create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -259,15 +263,13 @@ VkResult TemporaryBuffer::Create(VkDeviceSize buffer_size, VkBufferUsageFlags us
                            static_cast<uint64_t>(buffer_size),
                            util::ToString(res).c_str());
         Destroy();
-        return res;
+        return;
     }
 
     auto injected = device_table.Open();
     injected->GetBufferMemoryRequirements(device, handle, &requirements);
 
     size = buffer_size;
-
-    return VK_SUCCESS;
 }
 
 void TemporaryBuffer::Destroy()

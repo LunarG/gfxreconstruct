@@ -45,8 +45,7 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      VulkanResourceAllocator*                resource_allocator,
                                                      const graphics::VulkanInjectedDeviceCalls& injected_calls) :
     device_(device_info->handle),
-    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0),
-    staging_buffer_(device_info->handle, resource_allocator, injected_calls), staging_buffer_mapped_ptr_(nullptr),
+    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_mapped_ptr_(nullptr),
     staging_buffer_offset_(0), staging_buffer_size_(0), draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE),
     draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
     have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
@@ -1035,8 +1034,13 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
             ReleaseStagingBuffer();
         }
 
-        result = staging_buffer_.Create(std::max<VkDeviceSize>(size, staging_buffer_size_),
-                                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        staging_buffer_ = TemporaryBuffer(device_,
+                                          resource_allocator_,
+                                          injected_calls_,
+                                          std::max<VkDeviceSize>(size, staging_buffer_size_),
+                                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+
+        result = (staging_buffer_.handle != VK_NULL_HANDLE) ? VK_SUCCESS : VK_ERROR_INITIALIZATION_FAILED;
 
         if (result == VK_SUCCESS)
         {

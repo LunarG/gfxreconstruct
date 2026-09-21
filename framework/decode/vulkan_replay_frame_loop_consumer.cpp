@@ -561,17 +561,13 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
 
         constexpr VkBufferUsageFlags kShadowUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        ShadowBuffer shadow(device_info->handle, allocator_.get(), device_table_);
-        shadow.size = buffer_info->size;
-
-        VkResult result = shadow.buffer.Create(buffer_info->size, kShadowUsage);
-        if (result != VK_SUCCESS)
+        ShadowBuffer shadow(device_info->handle, allocator_.get(), device_table_, buffer_info->size, kShadowUsage);
+        if (shadow.buffer.handle == VK_NULL_HANDLE)
         {
             GFXRECON_LOG_WARNING("Failed to create shadow buffer for buffer %" PRIu64 " (size %" PRIu64
-                                 ") with %s; its contents will not be restored across loop repetitions.",
+                                 "); its contents will not be restored across loop repetitions.",
                                  buffer_id,
-                                 buffer_info->size,
-                                 util::ToString(result).c_str());
+                                 buffer_info->size);
             continue;
         }
 
@@ -595,7 +591,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         alloc_info.allocationSize       = mem_reqs.size;
         alloc_info.memoryTypeIndex      = memory_type_index;
 
-        result = allocator_->AllocateMemoryDirect(&alloc_info, nullptr, &shadow.memory, &shadow.mem_data);
+        VkResult result = allocator_->AllocateMemoryDirect(&alloc_info, nullptr, &shadow.memory, &shadow.mem_data);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Failed to allocate shadow memory for buffer %" PRIu64 " (size %" PRIu64
