@@ -29,6 +29,8 @@
 #include "decode/vulkan_resource_aliasing_groups.h"
 #include "util/platform.h"
 
+#include <algorithm>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -671,8 +673,10 @@ void VulkanDecoderBase::DispatchResourceAliasingGroupsCommand(const uint8_t* par
         return;
     }
 
+    // reserve from what the block can actually hold, not from a count a corrupt block controls
     std::vector<ResourceAliasingGroup> groups;
-    groups.reserve(header.group_count);
+    groups.reserve(
+        std::min<size_t>(header.group_count, (buffer_size - offset) / sizeof(format::ResourceAliasingGroupHeader)));
 
     for (uint32_t group_index = 0; group_index < header.group_count; ++group_index)
     {
@@ -686,7 +690,8 @@ void VulkanDecoderBase::DispatchResourceAliasingGroupsCommand(const uint8_t* par
         ResourceAliasingGroup group;
         group.memory_id = group_header.memory_id;
         group.group_id  = group_header.group_id;
-        group.members.reserve(group_header.member_count);
+        group.members.reserve(std::min<size_t>(group_header.member_count,
+                                               (buffer_size - offset) / sizeof(format::ResourceAliasingMemberHeader)));
 
         for (uint32_t member_index = 0; member_index < group_header.member_count; ++member_index)
         {
