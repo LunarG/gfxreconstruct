@@ -912,8 +912,22 @@ VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    r
         return nullptr;
     }
 
+    const VkDeviceSize local = memory_offset - group->base_offset;
+
+    if (local + replay_req.size > group->union_size)
+    {
+        GFXRECON_LOG_WARNING("Rebind aliasing: resource %" PRIu64 " at relative offset %" PRIu64 " (size %" PRIu64
+                             ") exceeds the %" PRIu64 " byte group block. taking the per-resource path for it.",
+                             resource_alloc_info.capture_id,
+                             local,
+                             replay_req.size,
+                             group->union_size);
+        return nullptr;
+    }
+
     // The shared block is created at the first bind of any member, sized for all of them.
-    if (group->allocation == nullptr)
+    const bool created_block = group->allocation == nullptr;
+    if (created_block)
     {
         VkMemoryRequirements group_req{};
         group_req.size           = group->union_size;
@@ -959,18 +973,18 @@ VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    r
 
     // Per-member guards against the block that now exists. A member that fails one of them falls back
     // on its own; the members already placed stay where they are.
-    const VkDeviceSize local = memory_offset - group->base_offset;
-
-    if (local + replay_req.size > group->allocation->replay_mem_req.size)
-    {
-        GFXRECON_LOG_WARNING("Rebind aliasing: resource %" PRIu64 " at relative offset %" PRIu64 " (size %" PRIu64
-                             ") exceeds the %" PRIu64 " byte group block. taking the per-resource path for it.",
-                             resource_alloc_info.capture_id,
-                             local,
-                             replay_req.size,
-                             group->allocation->replay_mem_req.size);
+    // Nothing frees a block no member took, so give back one created here.
+    auto reject = [&]() -> VmaMemoryInfo* {
+        if (created_block)
+        {
+            VmaMemoryInfo* block = group->allocation;
+            vmaFreeMemory(allocator_, block->allocation);
+            std::erase_if(memory_alloc_info.vma_mem_infos,
+                          [block](const std::unique_ptr<VmaMemoryInfo>& info) { return info.get() == block; });
+            group->allocation = nullptr;
+        }
         return nullptr;
-    }
+    };
 
     if ((replay_req.memoryTypeBits & (1u << group->allocation->allocation_info.memoryType)) == 0)
     {
@@ -978,7 +992,7 @@ VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    r
                              " at replay. taking the per-resource path for it.",
                              group->allocation->allocation_info.memoryType,
                              resource_alloc_info.capture_id);
-        return nullptr;
+        return reject();
     }
 
     const VkDeviceSize device_offset = group->allocation->allocation_info.offset + local;
@@ -989,14 +1003,14 @@ VulkanRebindAllocator::FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    r
                              device_offset,
                              replay_req.alignment,
                              resource_alloc_info.capture_id);
-        return nullptr;
+        return reject();
     }
 
     // avoid unintended overlap due to larger memory-sizes during replay
     if (footprint != 0 && OverlapsUnaliasedResource(
                               memory_alloc_info, group->allocation, memory_offset, footprint, local, replay_req.size))
     {
-        return nullptr;
+        return reject();
     }
 
     return group->allocation;
