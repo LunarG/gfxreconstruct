@@ -56,7 +56,7 @@ struct Pointer
 {};
 
 // A pointer to a run of elements, with a sibling count field.
-struct PointerArray
+struct Array
 {};
 
 // A fixed-extent array declared in the storage type itself.
@@ -91,10 +91,10 @@ GFXRECON_END_NAMESPACE(field_shape)
 //                     because Vulkan declares members called name and a member cannot share the name of its class.
 //   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
 //                     reads it that way so that no other descriptor has to state it.
-//   pointer_count     Pointer and PointerArray. The declared star count, one or two.
-//   count_field       PointerArray or StaticArray whose registry length is exactly one sibling member: that sibling's
+//   pointer_count     Pointer and Array. The declared star count, one or two.
+//   count_field       Array or StaticArray whose registry length is exactly one sibling member: that sibling's
 //                     Field descriptor, so a cross-field read can be constrained on it.
-//   length_expression PointerArray or StaticArray whose registry length is anything else: the registry text as
+//   length_expression Array or StaticArray whose registry length is anything else: the registry text as
 //                     written, for example a computed length or the comma-joined extents of a matrix. Not read by
 //                     any operation; a length no Action can evaluate is recorded here rather than dropped.
 //   extents           StaticArray. The declared extents in declaration order, so extents[i] is
@@ -132,7 +132,7 @@ using FieldKind = typename Field::api_type::kind;
 template <typename Field>
 using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
 
-// The count field for a PointerArray or StaticArray Field, if any. The sibling Field whose value names the array's
+// The count field for an Array or StaticArray Field, if any. The sibling Field whose value names the array's
 // length
 template <typename Field>
 using FieldCountField = typename Field::count_field;
@@ -222,14 +222,15 @@ requires HasMember<Storage, Field>
     }
 }
 
-// Uniform const read access to a Field's value for one expression, whatever the member's addressability: an
-// addressable member is referenced in place, a bitfield is copied through its accessor and the copy referenced.
-// Shaped for operations that only read storage, Encode, Copy and the like; a write-side twin for Decode, if the
-// decode Action is condensed the same way, is a later question. It never persists past the expression that
-// creates it, so it holds one reference in the addressable case and one value in the other, and yields through
-// operator*. The two partial specializations partition HasMember; the primary is reached only by a pair with no
-// member binding, and says so. Its constructor also exists so that Getter(storage, field) deduces its arguments the
-// ordinary way, since deduction reads the primary's constructors and not the specializations'.
+// Uniform const read access to a Field's value, whatever the member's addressability. operator* yields a reference
+// to the member where it is addressable, and the member's value where it is not: a non-addressable member is a
+// bitfield, so the value is an integer read through the generated accessor, and nothing is held or referenced.
+// Neither specialization returns a reference into the Getter, so a temporary Getter is as safe to dereference as a
+// named one. Shaped for operations that only read storage, Encode, Copy and the like; a write-side twin for Decode,
+// if the decode Action is condensed the same way, is a later question. The two partial specializations partition
+// HasMember; the primary is reached only by a pair with no member binding, and says so. Its constructor also exists
+// so that Getter(storage, field) deduces its arguments the ordinary way, since deduction reads the primary's
+// constructors and not the specializations'.
 template <typename Storage, typename Field>
 class Getter
 {
@@ -261,17 +262,15 @@ requires NonAddressable<Storage, Field>
 class Getter<Storage, Field>
 {
   public:
-    using Value = decltype(Get(std::declval<const Storage&>(), Field{}));
-
-    Getter(const Storage& storage, Field field) : copy_(Get(storage, field)) {}
+    Getter(const Storage& storage, Field) : storage_(storage) {}
 
     Getter(const Getter&)            = delete;
     Getter& operator=(const Getter&) = delete;
 
-    [[nodiscard]] const Value& operator*() const { return copy_; }
+    [[nodiscard]] auto operator*() const { return Get(storage_, Field{}); }
 
   private:
-    Value copy_;
+    const Storage& storage_;
 };
 
 // Set expresses a write, and is the only write available for a non-addressable member.
@@ -295,14 +294,14 @@ template <typename Field>
 concept HandleKindField = format::IsHandleKind<FieldKind<Field>>;
 
 template <typename Field>
-concept HandleField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
+concept HandleValueField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
-// The kind alone, so a shape other than Value can select on it. ScalarField is the value-shaped case.
+// The kind alone, so a shape other than Value can select on it. ScalarValueField is the value-shaped case.
 template <typename Field>
 concept ScalarKindField = format::IsScalarKind<FieldKind<Field>>;
 
 template <typename Field>
-concept ScalarField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
+concept ScalarValueField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // Text, of either width. The two kinds pick different decoder classes, and nothing else about them differs.
 template <typename Field>
@@ -333,33 +332,33 @@ template <typename Field>
 concept GeneralScalarKindField = ScalarKindField<Field> || AddressKindField<Field>;
 
 template <typename Field>
-concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;
+concept ValueShapeField = std::same_as<typename Field::shape, field_shape::Value>;
 
 template <typename Field>
-concept PointerField = std::same_as<typename Field::shape, field_shape::Pointer>;
+concept PointerShapeField = std::same_as<typename Field::shape, field_shape::Pointer>;
 
 template <typename Field>
-concept PointerArrayField = std::same_as<typename Field::shape, field_shape::PointerArray>;
+concept ArrayShapeField = std::same_as<typename Field::shape, field_shape::Array>;
 
 // Either pointer shape. A decoder that reads its own length from the wire cannot tell them apart -- a pointer to
 // one element is a run of one -- so an operation whose body does not consult the length constrains on this rather
 // than on the two shapes separately.
 template <typename Field>
-concept PointerShapedField = PointerField<Field> || PointerArrayField<Field>;
+concept AnyPointerShapeField = PointerShapeField<Field> || ArrayShapeField<Field>;
 
 template <typename Field>
-concept StaticArrayField = std::same_as<typename Field::shape, field_shape::StaticArray>;
+concept StaticArrayShapeField = std::same_as<typename Field::shape, field_shape::StaticArray>;
 
 // A run of elements, counted or fixed. The adapter's array entries take either, since both hand over a pointer and a
 // count; the Action reads them differently.
 template <typename Field>
-concept IsArrayField = StaticArrayField<Field> || PointerArrayField<Field>;
+concept AnyArrayShapeField = StaticArrayShapeField<Field> || ArrayShapeField<Field>;
 
 template <typename Field>
-concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
+concept ExtensionChainShapeField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
 
 template <typename Field>
-concept VoidReturnField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
+concept VoidReturnShapeField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
 
 // Storage concepts. These describe what a storage type holds for a Field, and stay independent of any one operation
 // family.

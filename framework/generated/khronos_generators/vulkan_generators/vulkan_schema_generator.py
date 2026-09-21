@@ -50,9 +50,9 @@ Two Field descriptor properties differ from the design text, because the registr
 
     The name property is emitted as field_name. Vulkan declares members called 'name', and a class member cannot
     share the name of its enclosing class.
-    The shape vocabulary adds Pointer, StaticArray, and ExtensionChain to Value, PointerArray, and VoidReturn. The
-    design names field_shape::Value, field_shape::PointerArray, and field_shape::VoidReturn, and it names an
-    ExtensionChainField concept, but it does not define the complete set.
+    The shape vocabulary adds Pointer, StaticArray, and ExtensionChain to Value, Array, and VoidReturn. The
+    design names field_shape::Value, field_shape::Array, and field_shape::VoidReturn, and it names an
+    ExtensionChainShapeField concept, but it does not define the complete set.
 """
 
 import sys
@@ -721,7 +721,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             return 'StaticArray'
 
         if value.is_pointer:
-            return 'PointerArray' if value.is_array else 'Pointer'
+            return 'Array' if value.is_array else 'Pointer'
 
         return 'Value'
 
@@ -780,13 +780,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         if count_field:
             parts.append('using count_field = {};'.format(count_field))
-        elif value.array_length and shape in ('PointerArray', 'StaticArray'):
+        elif value.array_length and shape in ('Array', 'StaticArray'):
             parts.append(
                 'static constexpr std::string_view length_expression = "{}";'.
                 format(value.array_length)
             )
 
-        if shape in ('Pointer', 'PointerArray'):
+        if shape in ('Pointer', 'Array'):
             parts.append(
                 'static constexpr size_t pointer_count = {};'.format(
                     value.pointer_count

@@ -75,7 +75,7 @@ static_assert(!schema::HasCommandSchema<Barrier>);
 // A void command still carries one Return Field, shaped VoidReturn, and its ReturnType is void.
 static_assert(std::is_same_v<schema::Return<Command>, cmd_field::result>);
 static_assert(std::is_same_v<schema::ReturnType<Command>, void>);
-static_assert(schema::VoidReturnField<cmd_field::result>);
+static_assert(schema::VoidReturnShapeField<cmd_field::result>);
 
 // The parameter partition keeps registry order and drops only the return Field.
 static_assert(std::is_same_v<schema::ParameterFields<Command>,
@@ -114,12 +114,12 @@ static_assert(
 static_assert(std::is_same_v<schema::api_type::vulkan::UInt32::kind, format::kind::UInt32>);
 static_assert(std::is_same_v<schema::api_type::vulkan::VkBool32::kind, format::kind::UInt32>);
 static_assert(std::is_same_v<schema::ElementType<schema::api_type::vulkan::UInt32>, uint32_t>);
-static_assert(schema::ScalarField<barrier_field::srcQueueFamilyIndex>);
+static_assert(schema::ScalarValueField<barrier_field::srcQueueFamilyIndex>);
 
 // Every scalar kind still selects the shared scalar access pattern.
-static_assert(schema::ScalarField<barrier_field::srcAccessMask>);
-static_assert(schema::ScalarField<barrier_field::offset>);
-static_assert(schema::ScalarField<barrier_field::sType>);
+static_assert(schema::ScalarValueField<barrier_field::srcAccessMask>);
+static_assert(schema::ScalarValueField<barrier_field::offset>);
+static_assert(schema::ScalarValueField<barrier_field::sType>);
 
 // The wire representation is reached through the encoding join, never through the descriptor.
 static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcAccessMask>, format::FlagsEncodeType>);
@@ -129,11 +129,11 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcQueueFami
 static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, format::HandleEncodeType>);
 
 // Shape concepts select on exactly the logical kind and the use-site shape.
-static_assert(schema::HandleField<barrier_field::buffer>);
+static_assert(schema::HandleValueField<barrier_field::buffer>);
 static_assert(schema::StructKindField<cmd_field::pBufferMemoryBarriers>);
-static_assert(schema::PointerArrayField<cmd_field::pBufferMemoryBarriers>);
+static_assert(schema::ArrayShapeField<cmd_field::pBufferMemoryBarriers>);
 static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::count_field, cmd_field::bufferMemoryBarrierCount>);
-static_assert(schema::ExtensionChainField<barrier_field::pNext>);
+static_assert(schema::ExtensionChainShapeField<barrier_field::pNext>);
 
 // One Field reaches a member of every storage type that holds it.
 static_assert(schema::Addressable<VkBufferMemoryBarrier, barrier_field::buffer>);
@@ -150,7 +150,7 @@ static_assert(!schema::HasMember<decode::Decoded_VkBufferMemoryBarrier, barrier_
 namespace debug_field = schema::field::vulkan::VkDebugUtilsObjectNameInfoEXT;
 static_assert(std::is_same_v<debug_field::objectHandle::api_type, schema::api_type::vulkan::GenericHandle>);
 static_assert(std::is_same_v<debug_field::objectHandle::selector_field, debug_field::objectType>);
-static_assert(schema::HandleField<debug_field::objectHandle>);
+static_assert(schema::HandleValueField<debug_field::objectHandle>);
 
 // A bitfield member keeps a mapping, but it is not addressable, so GetRef drops out of the overload set.
 static_assert(schema::HasMember<VkAccelerationStructureInstanceKHR,
@@ -171,15 +171,18 @@ struct CountingAction
     size_t others  = 0;
 
     template <typename Field, typename Storage>
-    requires schema::HandleField<Field>
+    requires schema::HandleValueField<Field>
     void Apply(Field, Storage&) { ++handles; }
 
     template <typename Field, typename Storage>
-    requires schema::ScalarField<Field>
+    requires schema::ScalarValueField<Field>
     void Apply(Field, Storage&) { ++scalars; }
 
     template <typename Field, typename Storage>
-    requires(!schema::HandleField<Field> && !schema::ScalarField<Field>) void Apply(Field, Storage&) { ++others; }
+    requires(!schema::HandleValueField<Field> && !schema::ScalarValueField<Field>) void Apply(Field, Storage&)
+    {
+        ++others;
+    }
 };
 
 // The positional invocation step expands to the call the driver path already makes.
@@ -1453,14 +1456,14 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 
     namespace memory_field = schema::field::vulkan::VkPhysicalDeviceMemoryProperties;
     namespace group_field  = schema::field::vulkan::VkPhysicalDeviceGroupProperties;
-    static_assert(schema::StaticArrayField<group_field::physicalDevices>);
+    static_assert(schema::StaticArrayShapeField<group_field::physicalDevices>);
     static_assert(schema::HandleKindField<group_field::physicalDevices>);
     static_assert(schema::HasCountField<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
     static_assert(
         std::is_same_v<schema::FieldCountField<group_field::physicalDevices>, group_field::physicalDeviceCount>);
     static_assert(encode::HasCaptureWrapper<schema::api_type::vulkan::VkPhysicalDevice>);
-    static_assert(schema::StaticArrayField<memory_field::memoryTypes>);
-    static_assert(schema::StaticArrayField<memory_field::memoryHeaps>);
+    static_assert(schema::StaticArrayShapeField<memory_field::memoryTypes>);
+    static_assert(schema::StaticArrayShapeField<memory_field::memoryHeaps>);
     static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
     static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
     static_assert(std::is_same_v<schema::FieldCountField<memory_field::memoryTypes>, memory_field::memoryTypeCount>);
@@ -1624,7 +1627,7 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 TEST_CASE("Getter yields a Field's value in place or by copy", "[schema]")
 {
     // An addressable member is referenced where it lives: the dereferenced Getter is the member itself. A bitfield
-    // has no address, so the Getter holds a copy read through the generated accessor and yields that.
+    // has no address, so the Getter reads it through the generated accessor and yields the value.
     using width = schema::field::vulkan::VkExtent2D::width;
     static_assert(schema::Addressable<VkExtent2D, width>);
 
@@ -1730,7 +1733,7 @@ TEST_CASE("A field walk decodes a scalar array into the wrapper and points the n
 {
     using namespace gfxrecon::decode;
 
-    // VkShaderModuleCreateInfo is the smallest structure carrying a PointerArray of scalars. Its pCode is
+    // VkShaderModuleCreateInfo is the smallest structure carrying an Array of scalars. Its pCode is
     // the case the scalar-array overload exists for: the run decodes into the wrapper's PointerDecoder and the
     // native pointer follows it, the same shape the extension chain already had.
     //
@@ -1792,7 +1795,7 @@ TEST_CASE("A field walk decodes an array of structures and descends into each el
 {
     using namespace gfxrecon::decode;
 
-    // VkSparseBufferMemoryBindInfo is the smallest structure carrying a PointerArray of structures, and it has no
+    // VkSparseBufferMemoryBindInfo is the smallest structure carrying an Array of structures, and it has no
     // sType and no pNext, which is worth having: the walk makes no assumption that a structure is extensible.
     //
     // Each element descends through the ordinary DecodeStruct entry point, which for VkSparseMemoryBind is a second
@@ -1924,7 +1927,7 @@ TEST_CASE("A field walk decodes a pointer to a structure through the same overlo
 
     // VkDeviceBufferMemoryRequirements carries a pointer to one VkBufferCreateInfo. No overload was added for it:
     // StructPointerDecoder reads its own length from the wire, so one structure is a run of one and the body is the
-    // array case unchanged. Only the constraint widened, from PointerArrayField to either pointer shape.
+    // array case unchanged. Only the constraint widened, from ArrayShapeField to either pointer shape.
     //
     // The element is a large extensible structure, so this descends into a substantial second walk rather than a
     // leaf -- including that element's own pNext.
