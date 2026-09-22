@@ -519,9 +519,10 @@ struct XCBApp {
     uint32_t height { 240 };
     xcb_connection_t *connection { nullptr };
     xcb_window_t window { 0 };
-    // Every window that the program made.  A capture can create more than one
-    // surface, and each window has to go at the end.
-    std::vector<xcb_window_t> windows;
+    // Every window that the program made, by the window handle in the capture.
+    // A capture can create more than one surface for one window.  Each captured
+    // window gets one window only, and each window has to go at the end.
+    std::unordered_map<xcb_window_t, xcb_window_t> windows;
 };
 
 extern XCBApp appdata;
@@ -552,7 +553,7 @@ XCBApp::~XCBApp()
         return;
     }
 
-    for (xcb_window_t open_window : windows) {
+    for (const auto& [captured_window, open_window] : windows) {
         xcb_destroy_window(connection, open_window);
     }
     windows.clear();
@@ -579,10 +580,16 @@ void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
     }
     xcb_connection_t *connection = appdata.connection;
 
-    // Take the window that came before off the screen.  This structure holds one
-    // window, so the program draws to the newest one only.
-    if (appdata.window != 0) {
-        xcb_unmap_window(connection, appdata.window);
+    createInfo->sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+    createInfo->connection = connection;
+
+    // Use the window again if the capture made a surface for it before.
+    const xcb_window_t captured_window = createInfo->window;
+    auto found_window = appdata.windows.find(captured_window);
+    if (found_window != appdata.windows.end()) {
+        appdata.window = found_window->second;
+        createInfo->window = appdata.window;
+        return;
     }
 
     // Get the first screen
@@ -610,10 +617,8 @@ void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
     xcb_flush(connection);
 
     appdata.window = window;
-    appdata.windows.push_back(window);
+    appdata.windows[captured_window] = window;
 
-    createInfo->sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    createInfo->connection = connection;
     createInfo->window = window;
 }
 
@@ -1303,8 +1308,10 @@ struct Win32App {
     GLFWwindow* window { nullptr };
     HINSTANCE hInstance { nullptr };
     HWND hWnd { nullptr };
-    // Every window that the program made.
-    std::vector<GLFWwindow*> windows;
+    // Every window that the program made, by the window handle in the capture.
+    // A capture can create more than one surface for one window.  Each captured
+    // window gets one window only.
+    std::unordered_map<HWND, GLFWwindow*> windows;
 };
 
 extern Win32App appdata;
@@ -1331,7 +1338,7 @@ extern size_t LoadBinaryData(const char* filename,
 static const char* sWin32OutputOverrideMethod = R"(
 Win32App::~Win32App()
 {
-    for (GLFWwindow* open_window : windows) {
+    for (const auto& [captured_window, open_window] : windows) {
         glfwDestroyWindow(open_window);
     }
     windows.clear();
@@ -1343,17 +1350,19 @@ Win32App::~Win32App()
 void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo,
                                          struct Win32App& appdata)
 {
-    // This structure holds one window, so hide the one that came before.
-    if (appdata.window != nullptr) {
-        glfwHideWindow(appdata.window);
+    // Use the window again if the capture made a surface for it before.
+    const HWND captured_window = createInfo->hwnd;
+    auto found_window = appdata.windows.find(captured_window);
+    if (found_window != appdata.windows.end()) {
+        appdata.window = found_window->second;
+    } else {
+        appdata.window = glfwCreateWindow(appdata.width,
+                                          appdata.height,
+                                          "Vulkan",
+                                          nullptr,
+                                          nullptr);
+        appdata.windows[captured_window] = appdata.window;
     }
-
-    appdata.window = glfwCreateWindow(appdata.width,
-                                      appdata.height,
-                                      "Vulkan",
-                                      nullptr,
-                                      nullptr);
-    appdata.windows.push_back(appdata.window);
     appdata.hWnd = glfwGetWin32Window(appdata.window);
     appdata.hInstance = GetModuleHandle(nullptr);
 
