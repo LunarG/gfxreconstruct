@@ -294,10 +294,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    ' + self.genCallReplayConsumer(return_type, name, values)
             body += '\n'
             body += '    // Record the buffers this command writes.\n'
-            body += '    if (getFrameLoopInfo().IsFirstIteration())\n'
-            body += '    {\n'
             body += self.make_buffer_write_tracking(name)
-            body += '    }\n'
 
         else:
             assert False, "Bad function name in make_replay_frame_loop_consumer_func_body"
@@ -314,20 +311,20 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
         for value, member in self.get_buffer_write_params(name):
             if member is None:
-                body += '        TrackBufferWrite(args.commandBuffer, args.{});\n'.format(value.name)
+                body += '    TrackBufferWrite(args.commandBuffer, args.{});\n'.format(value.name)
                 continue
 
             meta_struct = '{}_meta'.format(value.name)
             if value.name not in emitted_meta_structs:
-                body += '        const Decoded_{}* {} = args.{}.GetMetaStructPointer();\n'.format(
+                body += '    const Decoded_{}* {} = args.{}.GetMetaStructPointer();\n'.format(
                     value.base_type, meta_struct, value.name
                 )
                 emitted_meta_structs.append(value.name)
 
-            body += '        if ({} != nullptr)\n'.format(meta_struct)
-            body += '        {\n'
-            body += '            TrackBufferWrite(args.commandBuffer, {}->{});\n'.format(meta_struct, member)
-            body += '        }\n'
+            body += '    if ({} != nullptr)\n'.format(meta_struct)
+            body += '    {\n'
+            body += '        TrackBufferWrite(args.commandBuffer, {}->{});\n'.format(meta_struct, member)
+            body += '    }\n'
 
         return body
 

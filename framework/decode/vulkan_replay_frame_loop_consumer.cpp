@@ -529,6 +529,8 @@ void VulkanReplayFrameLoopConsumer::ShadowBufferWrites(const std::vector<format:
 
             device_buffers[buffer_info->parent_id].insert(buffer_id);
         }
+
+        command_buffer_modified_buffers_.erase(it);
     }
 
     for (const auto& [device_id, buffer_ids] : device_buffers)
@@ -556,9 +558,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(
         return;
     }
 
-    // Subsequent submits might submit the same command buffers. Since we map each command buffer
-    // to the modified buffers on that command buffer, some buffers might already be shadowed.
-    // Only shadow buffers that weren't already shadowed.
+    // A later submit can reach a buffer that an earlier one already shadowed, through a different
+    // command buffer that writes it too. Only shadow the ones that are not shadowed yet.
     std::vector<format::HandleId> unshadowed_buffer_ids;
     for (format::HandleId buffer_id : buffer_ids)
     {

@@ -652,10 +652,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer(
     VulkanReplayConsumer::Process_vkCmdCopyBuffer(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer(
@@ -665,10 +662,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer(
     VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdUpdateBuffer(
@@ -678,10 +672,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdUpdateBuffer(
     VulkanReplayConsumer::Process_vkCmdUpdateBuffer(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdFillBuffer(
@@ -691,10 +682,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdFillBuffer(
     VulkanReplayConsumer::Process_vkCmdFillBuffer(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResults(
@@ -704,10 +692,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResults(
     VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
@@ -1741,13 +1726,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer2(
     VulkanReplayConsumer::Process_vkCmdCopyBuffer2(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
+    const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
+    if (pCopyBufferInfo_meta != nullptr)
     {
-        const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
-        if (pCopyBufferInfo_meta != nullptr)
-        {
-            TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
-        }
+        TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
     }
 }
 
@@ -1758,13 +1740,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer2(
     VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
+    const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+    if (pCopyImageToBufferInfo_meta != nullptr)
     {
-        const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
-        if (pCopyImageToBufferInfo_meta != nullptr)
-        {
-            TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
-        }
+        TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
     }
 }
 
@@ -2577,13 +2556,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEncodeVideoKHR(
     VulkanReplayConsumer::Process_vkCmdEncodeVideoKHR(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
+    const Decoded_VkVideoEncodeInfoKHR* pEncodeInfo_meta = args.pEncodeInfo.GetMetaStructPointer();
+    if (pEncodeInfo_meta != nullptr)
     {
-        const Decoded_VkVideoEncodeInfoKHR* pEncodeInfo_meta = args.pEncodeInfo.GetMetaStructPointer();
-        if (pEncodeInfo_meta != nullptr)
-        {
-            TrackBufferWrite(args.commandBuffer, pEncodeInfo_meta->dstBuffer);
-        }
+        TrackBufferWrite(args.commandBuffer, pEncodeInfo_meta->dstBuffer);
     }
 }
 
@@ -2594,13 +2570,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer2KHR(
     VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
+    const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
+    if (pCopyBufferInfo_meta != nullptr)
     {
-        const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
-        if (pCopyBufferInfo_meta != nullptr)
-        {
-            TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
-        }
+        TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
     }
 }
 
@@ -2611,13 +2584,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer2KHR(
     VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2KHR(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
+    const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+    if (pCopyImageToBufferInfo_meta != nullptr)
     {
-        const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
-        if (pCopyImageToBufferInfo_meta != nullptr)
-        {
-            TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
-        }
+        TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
     }
 }
 
@@ -3161,10 +3131,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarkerAMD(
     VulkanReplayConsumer::Process_vkCmdWriteBufferMarkerAMD(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarker2AMD(
@@ -3174,10 +3141,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarker2AMD(
     VulkanReplayConsumer::Process_vkCmdWriteBufferMarker2AMD(call_info, args);
 
     // Record the buffers this command writes.
-    if (getFrameLoopInfo().IsFirstIteration())
-    {
-        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
-    }
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleasePerformanceConfigurationINTEL(
