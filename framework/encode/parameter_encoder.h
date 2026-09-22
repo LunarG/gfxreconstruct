@@ -116,11 +116,11 @@ class ParameterEncoder
 
     // Encode a run of values, or a pointer to one value, recorded as one logical kind. Each named entry point above
     // fixes a wire type; these reach the same converting bodies from the kind, which write the wire type's bytes for
-    // every kind whether or not a conversion was needed. Structure members never omit data or address.
+    // every kind whether or not a conversion was needed. The omit flags default as the named entry points' do.
     template <format::HasEncodeType Kind, typename T>
-    void EncodeArray(Kind, const T* arr, size_t len)                                                                  { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len); }
+    void EncodeArray(Kind, const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                  { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len, omit_data, omit_addr); }
     template <format::HasEncodeType Kind, typename T>
-    void EncodePointer(Kind, const T* ptr)                                                                            { EncodePointerConverted<format::EncodeTypeFor<Kind>>(ptr); }
+    void EncodePointer(Kind, const T* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::EncodeTypeFor<Kind>>(ptr, omit_data, omit_addr); }
 
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
@@ -224,12 +224,12 @@ class ParameterEncoder
         EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, omit_data, omit_addr, capacity);
     }
 
-    // A run of strings, recorded as one text kind; the same tag form as EncodeString. Structure members never omit
-    // data or address.
+    // A run of strings, recorded as one text kind; the same tag form as EncodeString, with the named entry point's
+    // defaulted omit flags.
     template <format::IsTextKind Kind, typename T>
-    void EncodeStringArray(Kind, const T* const* strings, size_t len)
+    void EncodeStringArray(Kind, const T* const* strings, size_t len, bool omit_data = false, bool omit_addr = false)
     {
-        EncodeBasicStringArray<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(strings, len, false, false);
+        EncodeBasicStringArray<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(strings, len, omit_data, omit_addr);
     }
 
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
