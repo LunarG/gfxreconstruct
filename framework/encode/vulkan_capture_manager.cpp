@@ -322,9 +322,8 @@ void VulkanCaptureManager::RecordDirectDrivers(const VkInstanceCreateInfo*      
             record.driver_count = driver_list->driverCount;
             record.mode         = static_cast<uint32_t>(driver_list->mode);
 
-            // A function pointer is not convertible to an object pointer directly. Go through an integer.
-            const auto address     = reinterpret_cast<uintptr_t>(driver_list->pDrivers[i].pfnGetInstanceProcAddr);
-            record.capture_address = static_cast<uint64_t>(address);
+            const auto address     = reinterpret_cast<const void*>(driver_list->pDrivers[i].pfnGetInstanceProcAddr);
+            record.capture_address = reinterpret_cast<uint64_t>(address);
 
             util::platform::ModuleAddressInfo module_info;
             if (util::platform::GetModuleAddressInfo(
