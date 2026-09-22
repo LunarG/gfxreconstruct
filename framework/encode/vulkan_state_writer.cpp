@@ -39,6 +39,7 @@
 #include <chrono>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <ranges>
 #include <unordered_map>
 
@@ -606,7 +607,7 @@ void VulkanStateWriter::WriteSamplerState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_table)
 {
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
 
     state_table.VisitWrappers([&](const vulkan_wrappers::FramebufferWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -644,7 +645,7 @@ void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_t
 {
     // TODO: Temporary ds layouts are potentially created and destroyed by both WritePipelineLayoutState and
     // WritePipelineState; track temporary creation across calls to avoid duplicate temporary allocations.
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
 
     // Perform temporary creations for dependencies that are no longer live, and create the pipeline layout.
     state_table.VisitWrappers([&](const vulkan_wrappers::PipelineLayoutWrapper* wrapper) {
@@ -740,12 +741,12 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     std::vector<util::MemoryOutputStream*> ray_tracing_pipelines_khr;
     std::vector<util::MemoryOutputStream*> data_graph_pipelines;
 
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_shaders;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_layouts;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_deferred_operations;
-    std::unordered_map<format::HandleId, format::HandleId>                temp_deferred_operation_join_command;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_shaders;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_deferred_operations;
+    std::map<format::HandleId, format::HandleId>                temp_deferred_operation_join_command;
 
     // First pass over pipeline table to sort pipelines by type and determine which dependencies need to be created
     // temporarily.
@@ -1056,7 +1057,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 {
     std::set<util::MemoryOutputStream*> processed;
 
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
 
     // First pass over descriptor set table to determine which dependencies need to be created temporarily.
     state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) {
@@ -1157,7 +1158,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
 
     std::set<util::MemoryOutputStream*> processed;
 
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
 
     // First pass over descriptor set table to determine which dependencies need to be created temporarily.
     state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) {
@@ -5084,7 +5085,7 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
 
 void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanStateTable& state_table)
 {
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_pipelines;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_pipelines;
 
     state_table.VisitWrappers([&](const vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr);
