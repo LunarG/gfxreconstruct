@@ -2445,22 +2445,23 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     }
 }
 
-void VulkanReplayConsumerBase::ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info)
+// Replay re-creates the debug messengers and callbacks that the application created with
+// vkCreateDebugUtilsMessengerEXT and vkCreateDebugReportCallbackEXT. Later calls use these handles, thus
+// replay must create them. The application callback is not in this process, thus these stubs replace it.
+// Do not use the gfxrecon logging callback here, because it shows all the messages that the application
+// asked for. The messenger that gfxrecon creates for itself continues to log.
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugReportCallback(
+    VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*, void*)
 {
-    assert(instance_info != nullptr);
+    return VK_FALSE;
+}
 
-    if (auto debug_report_info =
-            graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(instance_info->decoded_value))
-    {
-        debug_report_info->pfnCallback = DebugReportCallback;
-    }
-
-    if (auto debug_utils_info =
-            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(instance_info->decoded_value))
-    {
-        debug_utils_info->pfnUserCallback = DebugUtilsCallback;
-        debug_utils_info->pUserData       = this;
-    }
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                             VkDebugUtilsMessageTypeFlagsEXT,
+                                                             const VkDebugUtilsMessengerCallbackDataEXT*,
+                                                             void*)
+{
+    return VK_FALSE;
 }
 
 void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
@@ -2874,9 +2875,15 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     VkInstanceCreateInfo&     modified_create_info = create_state.modified_create_info;
     modified_create_info                           = *replay_create_info;
 
-    // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update the
-    // callback pointers.
-    ProcessCreateInstanceDebugCallbackInfo(pCreateInfo->GetMetaStructPointer());
+    // Remove the VkDebugReportCallbackCreateInfoEXT and VkDebugUtilsMessengerCreateInfoEXT structures of the
+    // application from the pNext chain. The application callbacks are not in this process. These callbacks are
+    // active only during vkCreateInstance and vkDestroyInstance, and no handle refers to them.
+    // Remove them from modified_create_info, not from the decoded structure. If the first structure in the chain is
+    // removed, only the pNext of modified_create_info gets the change.
+    while (graphics::vulkan_struct_remove_pnext<VkDebugReportCallbackCreateInfoEXT>(&modified_create_info) != nullptr)
+    {}
+    while (graphics::vulkan_struct_remove_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info) != nullptr)
+    {}
 
     // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are needed in
     // the replay application.
@@ -3027,8 +3034,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
         // We want to create a debug messenger unconditionally so that
         // debug messages from layers are displayed during replay.
-        // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
-        // in the pNext chain, those messengers will also be created.
         auto ext_debug_utils_it =
             std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
                 return util::platform::StringCompare(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, extension) == 0;
@@ -3038,17 +3043,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             if (ext_debug_utils_it == modified_extensions.end())
             {
                 modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-            }
-
-            // Set pfnUserCallback for all debug messengers down the pNext chain
-            VkDebugUtilsMessengerCreateInfoEXT* pnext_callback_info =
-                graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
-            while (pnext_callback_info != nullptr)
-            {
-                pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
-                pnext_callback_info->pUserData       = this;
-                pnext_callback_info =
-                    graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
             }
 
             create_state.messenger_create_info       = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
@@ -8403,7 +8397,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
     if (!pCreateInfo->IsNull())
     {
         modified_create_info             = (*pCreateInfo->GetPointer());
-        modified_create_info.pfnCallback = DebugReportCallback;
+        modified_create_info.pfnCallback = NoopDebugReportCallback;
+        modified_create_info.pUserData   = nullptr;
     }
     else
     {
@@ -8433,8 +8428,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
     if (!pCreateInfo->IsNull())
     {
         modified_create_info                 = (*pCreateInfo->GetPointer());
-        modified_create_info.pfnUserCallback = DebugUtilsCallback;
-        modified_create_info.pUserData       = this;
+        modified_create_info.pfnUserCallback = NoopDebugUtilsCallback;
+        modified_create_info.pUserData       = nullptr;
     }
     else
     {
