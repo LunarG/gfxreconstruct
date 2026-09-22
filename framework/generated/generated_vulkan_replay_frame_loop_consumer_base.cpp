@@ -645,6 +645,71 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBuffer&                        args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImageToBuffer&                 args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdUpdateBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdUpdateBuffer&                      args)
+{
+    VulkanReplayConsumer::Process_vkCmdUpdateBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdFillBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdFillBuffer&                        args)
+{
+    VulkanReplayConsumer::Process_vkCmdFillBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyQueryPoolResults&              args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
     const ApiCallInfo&                          call_info,
     args::CreateEvent&                          args)
@@ -1669,6 +1734,40 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer2(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBuffer2&                       args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer2(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
+        if (pCopyBufferInfo_meta != nullptr)
+        {
+            TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer2(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImageToBuffer2&                args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+        if (pCopyImageToBufferInfo_meta != nullptr)
+        {
+            TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
     const ApiCallInfo&                          call_info,
     args::MapMemory2&                           args)
@@ -2471,6 +2570,57 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     VulkanReplayConsumer::Process_vkUnmapMemory2KHR(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEncodeVideoKHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdEncodeVideoKHR&                    args)
+{
+    VulkanReplayConsumer::Process_vkCmdEncodeVideoKHR(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        const Decoded_VkVideoEncodeInfoKHR* pEncodeInfo_meta = args.pEncodeInfo.GetMetaStructPointer();
+        if (pEncodeInfo_meta != nullptr)
+        {
+            TrackBufferWrite(args.commandBuffer, pEncodeInfo_meta->dstBuffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBuffer2KHR&                    args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
+        if (pCopyBufferInfo_meta != nullptr)
+        {
+            TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImageToBuffer2KHR&             args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2KHR(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+        if (pCopyImageToBufferInfo_meta != nullptr)
+        {
+            TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     args::CreatePipelineBinariesKHR&            args)
@@ -3001,6 +3151,32 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         std::swap(meta_infos[0], meta_infos[i]);
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarkerAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteBufferMarkerAMD&              args)
+{
+    VulkanReplayConsumer::Process_vkCmdWriteBufferMarkerAMD(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarker2AMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteBufferMarker2AMD&             args)
+{
+    VulkanReplayConsumer::Process_vkCmdWriteBufferMarker2AMD(call_info, args);
+
+    // Record the buffers this command writes.
+    if (getFrameLoopInfo().IsLooping())
+    {
+        TrackBufferWrite(args.commandBuffer, args.dstBuffer);
     }
 }
 

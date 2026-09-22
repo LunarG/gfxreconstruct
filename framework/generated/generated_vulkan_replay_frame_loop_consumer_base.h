@@ -150,6 +150,26 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::FreeCommandBuffers&                   args) override;
 
+    void Process_vkCmdCopyBuffer(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBuffer&                        args) override;
+
+    void Process_vkCmdCopyImageToBuffer(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToBuffer&                 args) override;
+
+    void Process_vkCmdUpdateBuffer(
+        const ApiCallInfo&                          call_info,
+        args::CmdUpdateBuffer&                      args) override;
+
+    void Process_vkCmdFillBuffer(
+        const ApiCallInfo&                          call_info,
+        args::CmdFillBuffer&                        args) override;
+
+    void Process_vkCmdCopyQueryPoolResults(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyQueryPoolResults&              args) override;
+
     void Process_vkCreateEvent(
         const ApiCallInfo&                          call_info,
         args::CreateEvent&                          args) override;
@@ -277,6 +297,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkDestroyPrivateDataSlot(
         const ApiCallInfo&                          call_info,
         args::DestroyPrivateDataSlot&               args) override;
+
+    void Process_vkCmdCopyBuffer2(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBuffer2&                       args) override;
+
+    void Process_vkCmdCopyImageToBuffer2(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToBuffer2&                args) override;
 
     void Process_vkMapMemory2(
         const ApiCallInfo&                          call_info,
@@ -406,6 +434,18 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::UnmapMemory2KHR&                      args) override;
 
+    void Process_vkCmdEncodeVideoKHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdEncodeVideoKHR&                    args) override;
+
+    void Process_vkCmdCopyBuffer2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBuffer2KHR&                    args) override;
+
+    void Process_vkCmdCopyImageToBuffer2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToBuffer2KHR&             args) override;
+
     void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         args::CreatePipelineBinariesKHR&            args) override;
@@ -489,6 +529,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkCreateRayTracingPipelinesNV(
         const ApiCallInfo&                          call_info,
         args::CreateRayTracingPipelinesNV&          args) override;
+
+    void Process_vkCmdWriteBufferMarkerAMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteBufferMarkerAMD&              args) override;
+
+    void Process_vkCmdWriteBufferMarker2AMD(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteBufferMarker2AMD&             args) override;
 
     void Process_vkReleasePerformanceConfigurationINTEL(
         const ApiCallInfo&                          call_info,
