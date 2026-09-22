@@ -67,7 +67,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
-    inside_renderpass_(false), chaining_(false), has_tail_clone_(false)
+    inside_renderpass_(false), has_tail_clone_(false)
 {
     if (draw_indices != nullptr)
     {
@@ -3119,11 +3119,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(RenderPassContext& renderpass_
             return res;
         }
 
-        if (!chaining_)
-        {
-            continue;
-        }
-
         // One LOAD variant per subpass a window can resume this render pass in
         for (uint32_t resume = 0; resume <= sub; ++resume)
         {
@@ -3242,11 +3237,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(RenderPassContext& renderpass
             return res;
         }
 
-        if (!chaining_)
-        {
-            continue;
-        }
-
         // One LOAD variant per subpass a window can resume this render pass in
         for (uint32_t resume = 0; resume <= sub; ++resume)
         {
@@ -3333,8 +3323,8 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
 
     auto injected = device_table_.Open();
 
-    // While chaining, the render pass is begun in every clone whose window overlaps it, and those clones form a
-    // contiguous range.
+    // The render pass is begun in every clone whose window overlaps it, and those clones form a contiguous
+    // range.
     const uint64_t pass_begin    = block_range != nullptr ? block_range->front() : 0;
     const uint64_t pass_end      = block_range != nullptr ? block_range->back() : 0;
     bool           found_overlap = false;
@@ -3357,59 +3347,39 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
         uint64_t sp = 0;
-
-        if (chaining_)
+        uint64_t lo, hi;
+        GetCloneWindow(cmd_buf_idx, lo, hi);
+        if (lo >= pass_end || hi <= pass_begin)
         {
-            uint64_t lo, hi;
-            GetCloneWindow(cmd_buf_idx, lo, hi);
-            if (lo >= pass_end || hi <= pass_begin)
-            {
-                continue;
-            }
+            continue;
+        }
 
-            find_subpass(cmd_buf_idx, sp);
+        find_subpass(cmd_buf_idx, sp);
 
-            // Only the window that contains the begin starts the render pass the way the application did. The
-            // others resume it in the subpass the window before them ended in, and load what it stored.
-            if (lo < pass_begin)
-            {
-                GFXRECON_ASSERT(sp < new_render_pass_context->render_pass_clones.size());
-                modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
-            }
-            else
-            {
-                uint64_t resume_subpass = 0;
-                FindSubpassInRange(*block_range, lo, resume_subpass);
-
-                const auto load_clone = new_render_pass_context->render_pass_load_clones.find(
-                    { GFXRECON_NARROWING_CAST(uint32_t, resume_subpass), GFXRECON_NARROWING_CAST(uint32_t, sp) });
-                GFXRECON_ASSERT(load_clone != new_render_pass_context->render_pass_load_clones.end());
-                modified_renderpass_begin_info.renderPass = load_clone->second;
-            }
-
-            if (!found_overlap)
-            {
-                new_render_pass_context->first_clone = cmd_buf_idx;
-                found_overlap                        = true;
-            }
-            new_render_pass_context->last_clone = cmd_buf_idx + 1;
+        // Only the window that contains the begin starts the render pass the way the application did. The
+        // others resume it in the subpass the window before them ended in, and load what it stored.
+        if (lo < pass_begin)
+        {
+            GFXRECON_ASSERT(sp < new_render_pass_context->render_pass_clones.size());
+            modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
         }
         else
         {
-            // Draw calls inside this render pass get the newly created / modified render pass. All other draw
-            // calls (earlier or later render passes, or draws that cannot be correlated) get the original one.
-            const bool use_clone = find_subpass(cmd_buf_idx, sp);
+            uint64_t resume_subpass = 0;
+            FindSubpassInRange(*block_range, lo, resume_subpass);
 
-            GFXRECON_ASSERT(!use_clone || sp < new_render_pass_context->render_pass_clones.size());
-            if (use_clone && sp < new_render_pass_context->render_pass_clones.size())
-            {
-                modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
-            }
-            else
-            {
-                modified_renderpass_begin_info.renderPass = render_pass_info->handle;
-            }
+            const auto load_clone = new_render_pass_context->render_pass_load_clones.find(
+                { GFXRECON_NARROWING_CAST(uint32_t, resume_subpass), GFXRECON_NARROWING_CAST(uint32_t, sp) });
+            GFXRECON_ASSERT(load_clone != new_render_pass_context->render_pass_load_clones.end());
+            modified_renderpass_begin_info.renderPass = load_clone->second;
         }
+
+        if (!found_overlap)
+        {
+            new_render_pass_context->first_clone = cmd_buf_idx;
+            found_overlap                        = true;
+        }
+        new_render_pass_context->last_clone = cmd_buf_idx + 1;
 
         injected->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
     }
@@ -3899,11 +3869,6 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
 
 uint32_t DrawCallsDumpingContext::GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const
 {
-    if (!chaining_)
-    {
-        return GetDrawCallActiveCommandBuffers(first, last);
-    }
-
     GFXRECON_ASSERT(current_cb_index_ <= command_buffers_.size());
     first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
     last  = (current_cb_index_ < command_buffers_.size()) ? first + 1 : first;
@@ -3913,11 +3878,6 @@ uint32_t DrawCallsDumpingContext::GetWorkCommandBuffers(CommandBufferIterator& f
 uint32_t DrawCallsDumpingContext::GetRenderPassCommandBuffers(CommandBufferIterator& first,
                                                               CommandBufferIterator& last) const
 {
-    if (!chaining_)
-    {
-        return GetDrawCallActiveCommandBuffers(first, last);
-    }
-
     // An instance this context did not begin itself lives entirely inside the current clone's window
     if (!inside_renderpass_ || render_pass_contexts_.empty())
     {
@@ -4011,20 +3971,9 @@ void DrawCallsDumpingContext::BeginRendering(uint64_t                           
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
 
-    if (!chaining_)
-    {
-        for (auto it = first; it < last; ++it)
-        {
-            RecordCmdBeginRendering(*it, rendering_info);
-        }
-
-        inside_renderpass_ = true;
-        return;
-    }
-
-    // While chaining, the rendering instance is begun in every clone whose window overlaps it, and those clones
-    // form a contiguous range. Only the window that contains the begin starts the instance the way the
-    // application did, the others resume it and load what the window before them stored.
+    // The rendering instance is begun in every clone whose window overlaps it, and those clones form a
+    // contiguous range. Only the window that contains the begin starts the instance the way the application
+    // did, the others resume it and load what the window before them stored.
     const std::vector<Index>* block_range = FindRenderPassBlockRange(block_index);
     const uint64_t            pass_begin  = block_range != nullptr ? block_range->front() : 0;
     const uint64_t            pass_end    = block_range != nullptr ? block_range->back() : 0;
@@ -4056,40 +4005,12 @@ void DrawCallsDumpingContext::BeginRendering(uint64_t                           
     inside_renderpass_ = true;
 }
 
-bool DrawCallsDumpingContext::IsChainable() const
+void DrawCallsDumpingContext::AppendTailClones()
 {
-    // A well-formed range has the render pass begin, one entry per subpass boundary and the end. An empty
-    // range belongs to a secondary that inherits the primary's render pass.
-    const bool well_formed =
-        std::ranges::all_of(RP_indices_, [](const std::vector<Index>& range) { return range.size() != 1; });
-
-    if (!well_formed)
-    {
-        return false;
-    }
-
-    for (const auto& secondaries : secondaries_ | std::views::values)
-    {
-        for (const auto& secondary_context : secondaries)
-        {
-            if (!secondary_context->IsChainable())
-            {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-void DrawCallsDumpingContext::SetChaining(bool chaining)
-{
-    chaining_ = chaining;
-
     // The work a secondary records after its last target draw still feeds the target draws that follow it, so
     // it gets a clone of its own. The primary has no use for one: it is submitted after the clones and runs
     // everything itself.
-    if (chaining_ && !IsPrimary() && !has_tail_clone_)
+    if (!IsPrimary() && !has_tail_clone_)
     {
         command_buffers_.push_back(VK_NULL_HANDLE);
         has_tail_clone_ = true;
@@ -4099,7 +4020,7 @@ void DrawCallsDumpingContext::SetChaining(bool chaining)
     {
         for (const auto& secondary_context : secondaries)
         {
-            secondary_context->SetChaining(chaining);
+            secondary_context->AppendTailClones();
         }
     }
 }

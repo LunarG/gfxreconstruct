@@ -213,27 +213,21 @@ class DrawCallsDumpingContext
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
-    // The clones a work command is recorded into: only the current one while chaining, else the active range.
+    // The clone a work command is recorded into: the current one.
     uint32_t GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
-    // The clones that have the active render pass instance begun: while chaining, the stored range of an
-    // instance this context began, or the current clone for one it only forwards; else the active range.
+    // The clones that have the active render pass instance begun: the stored range of an instance this
+    // context began, or the current clone for one it only forwards.
     uint32_t GetRenderPassCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
-
-    bool IsChaining() const { return chaining_; }
 
     bool IsPrimary() const { return command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary; }
 
     // Marks an attachment that no subpass of a render pass references
     static constexpr uint32_t kNeverUsed = std::numeric_limits<uint32_t>::max();
 
-    // Whether this context and every secondary it executes can chain. All of them must agree, because a
-    // secondary's windows only line up with the primary's if both partition their stream the same way.
-    bool IsChainable() const;
-
-    // Decides chaining for this context and every secondary it executes. Call it once, after
+    // Gives every secondary this context executes its tail clone. Call it once, after
     // RecalculateCommandBuffers and before anything is recorded.
-    void SetChaining(bool chaining);
+    void AppendTailClones();
 
     // The clones that hold a window. The tail clone, when there is one, follows them in command_buffers_.
     size_t GetWindowCount() const { return command_buffers_.size() - (has_tail_clone_ ? 1 : 0); }
@@ -322,7 +316,7 @@ class DrawCallsDumpingContext
     // dump_resources_before is true.
     size_t CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
 
-    // The block index window (lo, hi] of the stream that the given clone records while chaining.
+    // The block index window (lo, hi] of the stream that the given clone records.
     void GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const;
 
     // The block index range of the render pass instance the given block index belongs to
@@ -461,7 +455,6 @@ class DrawCallsDumpingContext
 
         // LOAD variants of render_pass_clones, used by a clone that resumes this render pass instead of
         // starting it, keyed by the subpass the window resumes in and the subpass its target draw is in.
-        // Only created while chaining.
         std::map<std::pair<uint32_t, uint32_t>, VkRenderPass> render_pass_load_clones;
 
         // Half-open range of clones that have this instance begun, as command buffer indices.
@@ -477,11 +470,8 @@ class DrawCallsDumpingContext
     // FinalizeCommandBuffer to decide whether a CmdEndRenderPass/CmdEndRendering must be recorded.
     bool inside_renderpass_;
 
-    // True when each command is recorded into one clone only and render pass instances are resumed with LOAD.
-    bool chaining_;
-
-    // True when command_buffers_ ends in a tail clone: the work a chaining secondary records after its last
-    // target draw, which the target draws that follow it still need.
+    // True when command_buffers_ ends in a tail clone: the work a secondary records after its last target
+    // draw, which the target draws that follow it still need.
     bool has_tail_clone_;
 
     // One entry per descriptor set
