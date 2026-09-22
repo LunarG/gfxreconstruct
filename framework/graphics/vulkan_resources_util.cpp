@@ -1790,10 +1790,10 @@ static std::vector<VkDrmFormatModifierPropertiesEXT> GetDrmFormatModifierPropert
 }
 
 static bool IsDrmFormatModifiersSupported(const VulkanInstanceTable& instance_table,
-                                           VkPhysicalDevice           physical_device,
-                                           VkFormat                   format,
-                                           VkFormatFeatureFlags       feature_flags,
-                                           const VkImageCreateInfo*   create_info)
+                                          VkPhysicalDevice           physical_device,
+                                          VkFormat                   format,
+                                          VkFormatFeatureFlags       feature_flags,
+                                          const VkImageCreateInfo*   create_info)
 {
     const std::vector<uint64_t> modifiers = GetDrmFormatModifiers(create_info);
     if (modifiers.empty())
