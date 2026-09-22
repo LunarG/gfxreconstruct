@@ -438,7 +438,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& cal
                                                          create_info->format,
                                                          create_info->tiling,
                                                          VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
-                                                             VK_FORMAT_FEATURE_TRANSFER_DST_BIT))
+                                                             VK_FORMAT_FEATURE_TRANSFER_DST_BIT,
+                                                         create_info))
     {
         create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
