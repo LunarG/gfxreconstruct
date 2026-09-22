@@ -2443,21 +2443,50 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     }
 }
 
+// Debug messengers/callbacks the captured application created are re-created during replay, but the
+// application's callback does not exist in this process. Rather than routing them at our own logging
+// callback, which floods the console with whatever severities the application asked for, point them at
+// these stubs. The messenger gfxrecon creates for itself is unaffected and still logs.
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugReportCallback(VkDebugReportFlagsEXT,
+                                                              VkDebugReportObjectTypeEXT,
+                                                              uint64_t,
+                                                              size_t,
+                                                              int32_t,
+                                                              const char*,
+                                                              const char*,
+                                                              void*)
+{
+    return VK_FALSE;
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                             VkDebugUtilsMessageTypeFlagsEXT,
+                                                             const VkDebugUtilsMessengerCallbackDataEXT*,
+                                                             void*)
+{
+    return VK_FALSE;
+}
+
 void VulkanReplayConsumerBase::ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info)
 {
     assert(instance_info != nullptr);
 
-    if (auto debug_report_info =
-            graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(instance_info->decoded_value))
+    auto* debug_report_info =
+        graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(instance_info->decoded_value);
+    while (debug_report_info != nullptr)
     {
-        debug_report_info->pfnCallback = DebugReportCallback;
+        debug_report_info->pfnCallback = NoopDebugReportCallback;
+        debug_report_info->pUserData   = nullptr;
+        debug_report_info = graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(debug_report_info);
     }
 
-    if (auto debug_utils_info =
-            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(instance_info->decoded_value))
+    auto* debug_utils_info =
+        graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(instance_info->decoded_value);
+    while (debug_utils_info != nullptr)
     {
-        debug_utils_info->pfnUserCallback = DebugUtilsCallback;
-        debug_utils_info->pUserData       = this;
+        debug_utils_info->pfnUserCallback = NoopDebugUtilsCallback;
+        debug_utils_info->pUserData       = nullptr;
+        debug_utils_info = graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(debug_utils_info);
     }
 }
 
@@ -3043,8 +3072,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
             while (pnext_callback_info != nullptr)
             {
-                pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
-                pnext_callback_info->pUserData       = this;
+                pnext_callback_info->pfnUserCallback = NoopDebugUtilsCallback;
+                pnext_callback_info->pUserData       = nullptr;
                 pnext_callback_info =
                     graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
             }
@@ -8401,7 +8430,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
     if (!pCreateInfo->IsNull())
     {
         modified_create_info             = (*pCreateInfo->GetPointer());
-        modified_create_info.pfnCallback = DebugReportCallback;
+        modified_create_info.pfnCallback = NoopDebugReportCallback;
+        modified_create_info.pUserData   = nullptr;
     }
     else
     {
@@ -8431,8 +8461,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
     if (!pCreateInfo->IsNull())
     {
         modified_create_info                 = (*pCreateInfo->GetPointer());
-        modified_create_info.pfnUserCallback = DebugUtilsCallback;
-        modified_create_info.pUserData       = this;
+        modified_create_info.pfnUserCallback = NoopDebugUtilsCallback;
+        modified_create_info.pUserData       = nullptr;
+
+        auto* pnext_callback_info =
+            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
+        while (pnext_callback_info != nullptr)
+        {
+            pnext_callback_info->pfnUserCallback = NoopDebugUtilsCallback;
+            pnext_callback_info->pUserData       = nullptr;
+            pnext_callback_info =
+                graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
+        }
     }
     else
     {
