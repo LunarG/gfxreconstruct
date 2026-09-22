@@ -201,7 +201,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             VulkanResourceAllocator::MemoryData   mem_data{ 0 };
         };
 
-        void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
+        void RecordInitialState(const std::unordered_set<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
 

@@ -294,7 +294,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    ' + self.genCallReplayConsumer(return_type, name, values)
             body += '\n'
             body += '    // Record the buffers this command writes.\n'
-            body += '    if (getFrameLoopInfo().IsLooping())\n'
+            body += '    if (getFrameLoopInfo().IsFirstIteration())\n'
             body += '    {\n'
             body += self.make_buffer_write_tracking(name)
             body += '    }\n'
