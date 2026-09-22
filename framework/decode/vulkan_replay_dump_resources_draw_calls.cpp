@@ -1078,32 +1078,37 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
                                                 Index                submit_info_index,
                                                 Index                submit_info_cmd_buf_index)
 {
-    const size_t n_drawcalls = command_buffers_.size();
+    const size_t window_count = GetWindowCount();
+
+    // the tail clone holds work following the last target draw. it is submitted after the windows.
+    const VkCommandBuffer tail_command_buffer = GetTailCommandBuffer();
+    const size_t          submission_count    = window_count + (tail_command_buffer != VK_NULL_HANDLE ? 1 : 0);
 
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     GFXRECON_ASSERT(device_info);
 
     TemporaryFence submission_fence(device_info->handle, device_table_);
 
-    // Dump render targets
-    for (size_t cb = 0; cb < n_drawcalls; ++cb)
-    {
+    // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
+    // last one, so the application-visible synchronization is preserved across the split submissions.
+    const auto submit_clone = [&](VkCommandBuffer clone, size_t submission) -> VkResult {
         const VkCommandBufferSubmitInfo cb_info{
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffers_[cb], 0 /* deviceMask */
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, clone, 0 /* deviceMask */
         };
 
-        // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
-        // last clone, so the application-visible synchronization is preserved across the split submissions.
+        const bool first = (submission == 0);
+        const bool last  = (submission == (submission_count - 1));
+
         VkSubmitInfo2 si{};
         si.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
         si.pNext                    = submit_info.pNext;
         si.flags                    = submit_info.flags;
-        si.waitSemaphoreInfoCount   = !cb ? submit_info.waitSemaphoreInfoCount : 0;
-        si.pWaitSemaphoreInfos      = !cb ? submit_info.pWaitSemaphoreInfos : nullptr;
+        si.waitSemaphoreInfoCount   = first ? submit_info.waitSemaphoreInfoCount : 0;
+        si.pWaitSemaphoreInfos      = first ? submit_info.pWaitSemaphoreInfos : nullptr;
         si.commandBufferInfoCount   = 1;
         si.pCommandBufferInfos      = &cb_info;
-        si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
-        si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
+        si.signalSemaphoreInfoCount = last ? submit_info.signalSemaphoreInfoCount : 0;
+        si.pSignalSemaphoreInfos    = last ? submit_info.pSignalSemaphoreInfos : nullptr;
 
         VkResult res =
             SubmitInfo2OnQueue(device_table_, device_info->version_extension_info, queue, si, submission_fence.handle);
@@ -1122,7 +1127,13 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         }
 
         // Reset fence for next submission
-        res = submission_fence.Reset();
+        return submission_fence.Reset();
+    };
+
+    // Dump render targets
+    for (size_t cb = 0; cb < window_count; ++cb)
+    {
+        VkResult res = submit_clone(command_buffers_[cb], cb);
         if (res != VK_SUCCESS)
         {
             return res;
@@ -1242,6 +1253,15 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         {
             GFXRECON_LOG_ERROR("Reverting render target attachments layouts failed(%s)",
                                util::ToString<VkResult>(res).c_str())
+            return res;
+        }
+    }
+
+    if (tail_command_buffer != VK_NULL_HANDLE)
+    {
+        VkResult res = submit_clone(tail_command_buffer, submission_count - 1);
+        if (res != VK_SUCCESS)
+        {
             return res;
         }
     }
@@ -3329,13 +3349,19 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
     const uint64_t pass_end      = block_range != nullptr ? block_range->back() : 0;
     bool           found_overlap = false;
 
-    // The subpass a clone's slot sits in. Draws merged from a secondary command buffer are correlated through
+    // The subpass a clone's window ends in. Draws merged from a secondary command buffer are correlated through
     // the vkCmdExecuteCommands block that executed them, so each execution of the same secondary resolves to
-    // its own subpass. A tail clone has no slot and stays in subpass 0.
-    const auto find_subpass = [this, block_range](size_t cmd_buf_idx, uint64_t& sp) {
-        if (block_range == nullptr || cmd_buf_idx >= GetWindowCount())
+    // its own subpass. The tail clone reaches past the end of the pass, so it ends in the last subpass.
+    const auto find_subpass = [this, block_range, &new_render_pass_context](size_t cmd_buf_idx, uint64_t& sp) {
+        if (block_range == nullptr)
         {
             return false;
+        }
+
+        if (cmd_buf_idx >= GetWindowCount())
+        {
+            sp = new_render_pass_context->render_pass_clones.size() - 1;
+            return true;
         }
 
         const DrawCallSlot& slot = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_idx)];
@@ -4007,10 +4033,8 @@ void DrawCallsDumpingContext::BeginRendering(uint64_t                           
 
 void DrawCallsDumpingContext::AppendTailClones()
 {
-    // The work a secondary records after its last target draw still feeds the target draws that follow it, so
-    // it gets a clone of its own. The primary has no use for one: it is submitted after the clones and runs
-    // everything itself.
-    if (!IsPrimary() && !has_tail_clone_)
+    // clones are the only execution, so any work after last target draw gets a clone of its own.
+    if (!has_tail_clone_)
     {
         command_buffers_.push_back(VK_NULL_HANDLE);
         has_tail_clone_ = true;
