@@ -283,6 +283,9 @@ void TemporaryBuffer::Destroy()
     resource_data = 0;
     size          = 0;
     requirements  = {};
+    device        = VK_NULL_HANDLE;
+    allocator     = nullptr;
+    device_table  = graphics::VulkanInjectedDeviceCalls{};
 }
 
 TemporaryBuffer::TemporaryBuffer(TemporaryBuffer&& other) noexcept

@@ -191,7 +191,8 @@ struct TemporaryBuffer
         TemporaryBuffer(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table), buffer_size, usage)
     {}
 
-    // Ownership of the buffer has to transfer rather than be duplicated, so we won't call `vkDestroyBuffer` on an already destroyed buffer.
+    // Ownership of the buffer has to transfer rather than be duplicated, so we won't call `vkDestroyBuffer` on an
+    // already destroyed buffer.
     TemporaryBuffer(const TemporaryBuffer&)            = delete;
     TemporaryBuffer& operator=(const TemporaryBuffer&) = delete;
     TemporaryBuffer(TemporaryBuffer&& other) noexcept;
