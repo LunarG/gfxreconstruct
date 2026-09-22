@@ -656,7 +656,7 @@ void VulkanReplayFrameLoopConsumer::ShadowBufferWrites(const std::vector<format:
 {
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
-    std::unordered_map<format::HandleId, std::vector<format::HandleId>> device_buffers;
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> device_buffers;
     for (format::HandleId command_buffer_id : command_buffer_ids)
     {
         auto it = command_buffer_modified_buffers_.find(command_buffer_id);
@@ -687,7 +687,7 @@ void VulkanReplayFrameLoopConsumer::ShadowBufferWrites(const std::vector<format:
                 continue;
             }
 
-            device_buffers[buffer_info->parent_id].push_back(buffer_id);
+            device_buffers[buffer_info->parent_id].insert(buffer_id);
         }
     }
 
@@ -796,26 +796,26 @@ size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t   
     return memory_blocks_.size() - 1;
 }
 
-void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std::vector<format::HandleId>& buffer_ids)
+void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(
+    const std::unordered_set<format::HandleId>& buffer_ids)
 {
     if (allocator_ == nullptr || buffer_ids.empty())
     {
         return;
     }
 
-    // This is called for every submit while looping, and most of those submits replay command
-    // buffers whose writes were already shadowed. Check for that before paying for a temporary
-    // command pool and command buffer.
-    bool needs_shadow = false;
+    // Subsequent submits might submit the same command buffers. Since we map each command buffer
+    // to the modified buffers on that command buffer, some buffers might already be shadowed.
+    // Only shadow buffers that weren't already shadowed.
+    std::vector<format::HandleId> unshadowed_buffer_ids;
     for (format::HandleId buffer_id : buffer_ids)
     {
         if (!shadow_buffers_.contains(buffer_id))
         {
-            needs_shadow = true;
-            break;
+            unshadowed_buffer_ids.push_back(buffer_id);
         }
     }
-    if (!needs_shadow)
+    if (unshadowed_buffer_ids.empty())
     {
         return;
     }
@@ -834,13 +834,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
     uint32_t                         memory_type_index = std::numeric_limits<uint32_t>::max();
     VkDeviceSize                     unbound_size      = 0;
 
-    for (format::HandleId buffer_id : buffer_ids)
+    for (format::HandleId buffer_id : unshadowed_buffer_ids)
     {
-        if (shadow_buffers_.contains(buffer_id))
-        {
-            continue;
-        }
-
         const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(buffer_id);
         if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
         {
@@ -2275,7 +2270,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo&
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
     // Shadow before the submit runs, while the buffers it writes still hold their pre-write contents.
-    if (frame_loop_info_.IsLooping() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
     {
         std::vector<format::HandleId> command_buffer_ids;
         const auto                    submits = args.pSubmits.GetMetaStructPointer();
@@ -2310,7 +2305,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args)
 {
     // Shadow before the submit runs, while the buffers it writes still hold their pre-write contents.
-    if (frame_loop_info_.IsLooping() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
     {
         std::vector<format::HandleId> command_buffer_ids;
         const auto                    submits = args.pSubmits.GetMetaStructPointer();
@@ -2351,7 +2346,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args)
 {
     // Shadow before the submit runs, while the buffers it writes still hold their pre-write contents.
-    if (frame_loop_info_.IsLooping() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
     {
         std::vector<format::HandleId> command_buffer_ids;
         const auto                    submits = args.pSubmits.GetMetaStructPointer();
