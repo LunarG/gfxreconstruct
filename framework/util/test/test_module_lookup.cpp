@@ -70,7 +70,7 @@ std::string ToLower(std::string text)
     return text;
 }
 
-} // test_local
+} // namespace test_local
 
 TEST_CASE("module_lookup - executable path", "[module_lookup]")
 {

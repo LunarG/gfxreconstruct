@@ -301,11 +301,11 @@ class MetadataJsonConsumer : public Base
                                                    std::string_view                          symbol_name) override
     {
         using namespace util;
-        auto& jdata = WriteMetaCommandStart("SetDirectDriverInfoCommand");
+        auto& jdata           = WriteMetaCommandStart("SetDirectDriverInfoCommand");
         jdata["thread_id"]    = header.thread_id;
         jdata["driver_index"] = header.driver_index;
         jdata["driver_count"] = header.driver_count;
-        jdata["mode"] = static_cast<VkDirectDriverLoadingModeLUNARG>(header.mode);
+        jdata["mode"]         = static_cast<VkDirectDriverLoadingModeLUNARG>(header.mode);
 
         // Write the flags as names, so that a reader does not have to decode a bit mask.
         auto& flags = jdata["flags"] = nlohmann::ordered_json::array();
