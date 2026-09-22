@@ -852,8 +852,9 @@ class VulkanReplayDumpResourcesBase
         return (entry != contexts.end()) ? entry->second : nullptr;
     }
 
+    // every clone recording this command buffer's work. a command not routed here does not run at all.
     template <typename Callback>
-    void ForEachDispatchTraceRaysCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
+    void ForEachWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
     {
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
             FindDispatchTraceRaysContexts(original_command_buffer);
@@ -865,6 +866,34 @@ class VulkanReplayDumpResourcesBase
                 callback(dispatch_rays_command_buffer);
             }
         }
+
+        ForEachDrawCallWorkCommandBuffer(original_command_buffer, callback);
+    }
+
+    // draw call clone currently taking work, for each context on this command buffer.
+    template <typename Callback>
+    void ForEachDrawCallWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
+    {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (const auto& dc_context : dc_contexts)
+        {
+            CommandBufferIterator first, last;
+            dc_context->GetWorkCommandBuffers(first, last);
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                callback(*it);
+            }
+        }
+    }
+
+    // Transfer dumping records its snapshot copies into the stream where the command sits. With a draw call
+    // context the clones are the only execution, so the snapshots belong in the clone taking work.
+    VkCommandBuffer TransferRecordingCommandBuffer(VkCommandBuffer original_command_buffer)
+    {
+        VkCommandBuffer clone = VK_NULL_HANDLE;
+        ForEachDrawCallWorkCommandBuffer(original_command_buffer, [&clone](VkCommandBuffer cb) { clone = cb; });
+        return (clone != VK_NULL_HANDLE) ? clone : original_command_buffer;
     }
 
     // Transfer contexts search funcs

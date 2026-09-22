@@ -2138,7 +2138,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
             }
             else
             {
-                bool has_transfer_or_dispatch = false;
+                auto dc_context = FindDrawCallDumpingContext(command_buffer, qs_index);
 
                 // Look for transfer contexts (both primary and secondary) submitted in this queue submission.
                 for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
@@ -2147,9 +2147,13 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                     {
                         transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
                                                   transf_context);
-                        submit_cbs.push_back(VkCommandBufferSubmitInfo{
-                            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
-                        has_transfer_or_dispatch = true;
+
+                        // clones already run these commands when draws dump. avoid running them twice.
+                        if (dc_context == nullptr)
+                        {
+                            submit_cbs.push_back(VkCommandBufferSubmitInfo{
+                                VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
+                        }
                     }
                 }
 
@@ -2164,11 +2168,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                                                                     nullptr,
                                                                     dispatch_context->GetDispatchRaysCommandBuffer(),
                                                                     0 });
-                    has_transfer_or_dispatch = true;
                 }
 
                 // Handle Draw commands
-                if (auto dc_context = FindDrawCallDumpingContext(command_buffer, qs_index))
+                if (dc_context != nullptr)
                 {
                     // Submit previous command buffers from this VkSubmitInfo before dumping draw calls
                     if (!submit_cbs.empty())
@@ -2212,20 +2215,15 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                     modified_submit_info.pWaitSemaphoreInfos      = nullptr;
                     modified_submit_info.signalSemaphoreInfoCount = 0;
                     modified_submit_info.pSignalSemaphoreInfos    = nullptr;
-
-                    // Insert original command buffer in the vector for submission. If has_transfer_or_dispatch is true
-                    // then the command buffer has already been submitted
-                    if (!has_transfer_or_dispatch)
-                    {
-                        GFXRECON_ASSERT(submit_cbs.empty());
-                        submit_cbs.push_back(VkCommandBufferSubmitInfo{
-                            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
-                    }
                 }
             }
         }
 
-        if (!submit_cbs.empty())
+        // clones 'may' have contained all the work already.
+        // in that case an empty submission signals the application's fence.
+        const bool holds_application_fence = !create_temp_fence;
+
+        if (!submit_cbs.empty() || holds_application_fence)
         {
             modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
             modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
@@ -2757,8 +2755,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer(const ApiCallInfo&    
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyBuffer(
-            call_info, commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions->GetPointer(), before_command);
+        transf_context->HandleCmdCopyBuffer(call_info,
+                                            TransferRecordingCommandBuffer(commandBuffer),
+                                            srcBuffer,
+                                            dstBuffer,
+                                            regionCount,
+                                            pRegions->GetPointer(),
+                                            before_command);
     }
 }
 
@@ -2799,7 +2802,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer2(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyBuffer2(call_info, commandBuffer, pCopyBufferInfo, before_command);
+        transf_context->HandleCmdCopyBuffer2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyBufferInfo, before_command);
     }
 }
 
@@ -2840,7 +2844,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer2KHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyBuffer2(call_info, commandBuffer, pCopyBufferInfo, before_command);
+        transf_context->HandleCmdCopyBuffer2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyBufferInfo, before_command);
     }
 }
 
@@ -2891,7 +2896,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage(
     for (auto transf_context : transf_contexts)
     {
         transf_context->HandleCmdCopyBufferToImage(call_info,
-                                                   commandBuffer,
+                                                   TransferRecordingCommandBuffer(commandBuffer),
                                                    srcBuffer,
                                                    dstImage,
                                                    dstImageLayout,
@@ -2938,7 +2943,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage2(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyBufferToImage2(call_info, commandBuffer, pCopyBufferToImageInfo, before_command);
+        transf_context->HandleCmdCopyBufferToImage2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyBufferToImageInfo, before_command);
     }
 }
 
@@ -2979,7 +2985,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage2KHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyBufferToImage2(call_info, commandBuffer, pCopyBufferToImageInfo, before_command);
+        transf_context->HandleCmdCopyBufferToImage2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyBufferToImageInfo, before_command);
     }
 }
 
@@ -3037,7 +3044,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage(const ApiCallInfo&     
     for (auto transf_context : transf_contexts)
     {
         transf_context->HandleCmdCopyImage(call_info,
-                                           commandBuffer,
+                                           TransferRecordingCommandBuffer(commandBuffer),
                                            srcImage,
                                            srcImageLayout,
                                            dstImage,
@@ -3085,7 +3092,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage2(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyImage2(call_info, commandBuffer, pCopyImageInfo, before_command);
+        transf_context->HandleCmdCopyImage2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyImageInfo, before_command);
     }
 }
 
@@ -3126,7 +3134,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage2KHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyImage2(call_info, commandBuffer, pCopyImageInfo, before_command);
+        transf_context->HandleCmdCopyImage2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyImageInfo, before_command);
     }
 }
 
@@ -3177,7 +3186,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer(
     for (auto transf_context : transf_contexts)
     {
         transf_context->HandleCmdCopyImageToBuffer(call_info,
-                                                   commandBuffer,
+                                                   TransferRecordingCommandBuffer(commandBuffer),
                                                    srcImage,
                                                    srcImageLayout,
                                                    dstBuffer,
@@ -3224,7 +3233,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer2(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyImageToBuffer2(call_info, commandBuffer, pCopyImageToBufferInfo, before_command);
+        transf_context->HandleCmdCopyImageToBuffer2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyImageToBufferInfo, before_command);
     }
 }
 
@@ -3265,7 +3275,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer2KHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyImageToBuffer2(call_info, commandBuffer, pCopyImageToBufferInfo, before_command);
+        transf_context->HandleCmdCopyImageToBuffer2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pCopyImageToBufferInfo, before_command);
     }
 }
 
@@ -3326,7 +3337,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage(const ApiCallInfo&     
     for (auto transf_context : transf_contexts)
     {
         transf_context->HandleCmdBlitImage(call_info,
-                                           commandBuffer,
+                                           TransferRecordingCommandBuffer(commandBuffer),
                                            srcImage,
                                            srcImageLayout,
                                            dstImage,
@@ -3375,7 +3386,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage2(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdBlitImage2(call_info, commandBuffer, pBlitImageInfo, before_command);
+        transf_context->HandleCmdBlitImage2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pBlitImageInfo, before_command);
     }
 }
 
@@ -3416,7 +3428,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage2KHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdBlitImage2(call_info, commandBuffer, pBlitImageInfo, before_command);
+        transf_context->HandleCmdBlitImage2(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pBlitImageInfo, before_command);
     }
 }
 
@@ -3464,8 +3477,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdBuildAccelerationStructuresKHR(
-            call_info, commandBuffer, infoCount, pInfos, ppBuildRangeInfos, before_command);
+        transf_context->HandleCmdBuildAccelerationStructuresKHR(call_info,
+                                                                TransferRecordingCommandBuffer(commandBuffer),
+                                                                infoCount,
+                                                                pInfos,
+                                                                ppBuildRangeInfos,
+                                                                before_command);
     }
 }
 
@@ -3508,7 +3525,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyAccelerationStructureKHR(
     std::vector<std::shared_ptr<TransferDumpingContext>> transf_contexts = FindTransferContextCmdIndex(call_info.index);
     for (auto transf_context : transf_contexts)
     {
-        transf_context->HandleCmdCopyAccelerationStructureKHR(call_info, commandBuffer, pInfo, before_command);
+        transf_context->HandleCmdCopyAccelerationStructureKHR(
+            call_info, TransferRecordingCommandBuffer(commandBuffer), pInfo, before_command);
     }
 }
 
@@ -3540,7 +3558,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginQuery(const ApiCallInfo&    
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query, flags);
         });
     }
@@ -3554,7 +3572,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndQuery(const ApiCallInfo&      
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query);
         });
     }
@@ -3569,7 +3587,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdResetQueryPool(const ApiCallInfo&
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, firstQuery, queryCount);
         });
     }
@@ -3584,7 +3602,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp(const ApiCallInfo&
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, pipelineStage, queryPool->handle, query);
         });
     }
@@ -3603,7 +3621,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyQueryPoolResults(const ApiCal
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(
                 command_buffer, queryPool->handle, firstQuery, queryCount, dstBuffer->handle, dstOffset, stride, flags);
         });
@@ -3624,7 +3642,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyQueryPoolResultsToMemoryKHR(
     if (IsRecording())
     {
         const VkStridedDeviceAddressRangeKHR* dst_range = pDstRange->GetPointer();
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, firstQuery, queryCount, dst_range, dstFlags, queryResultFlags);
         });
     }
@@ -3639,7 +3657,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp2(const ApiCallInfo
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, stage, queryPool->handle, query);
         });
     }
@@ -3654,7 +3672,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp2KHR(const ApiCallI
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, stage, queryPool->handle, query);
         });
     }
@@ -3670,7 +3688,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginQueryIndexedEXT(const ApiCal
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query, flags, index);
         });
     }
@@ -3685,7 +3703,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndQueryIndexedEXT(const ApiCallI
 {
     if (IsRecording())
     {
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query, index);
         });
     }
@@ -3711,7 +3729,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteAccelerationStructuresProper
             acceleration_structures[i] = (as_info != nullptr) ? as_info->handle : VK_NULL_HANDLE;
         }
 
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer,
                  accelerationStructureCount,
                  acceleration_structures.data(),
@@ -3740,7 +3758,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteMicromapsPropertiesEXT(const
             micromaps[i] = (micromap_info != nullptr) ? micromap_info->handle : VK_NULL_HANDLE;
         }
 
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, micromapCount, micromaps.data(), queryType, queryPool->handle, firstQuery);
         });
     }
@@ -3766,7 +3784,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteAccelerationStructuresProper
             acceleration_structures[i] = (as_info != nullptr) ? as_info->handle : VK_NULL_HANDLE;
         }
 
-        ForEachDispatchTraceRaysCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer,
                  accelerationStructureCount,
                  acceleration_structures.data(),
