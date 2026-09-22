@@ -109,6 +109,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Private declarations
   private:
+    void TrackBufferWrite(format::HandleId commandBuffer, format::HandleId buffer) override;
+
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
     struct FenceTracking
@@ -302,10 +304,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
-    void            RecordBufferStates();
-    void            FixupDeviceBuffers(format::HandleId device);
-    void            ResetBufferTracking();
-    void            ResetBufferTracking(format::HandleId device);
+
+    void ShadowBufferWrites(const std::vector<format::HandleId>& command_buffer_ids);
+
+    void FixupDeviceBuffers(format::HandleId device);
+    void ResetBufferTracking();
+    void ResetBufferTracking(format::HandleId device);
 
     struct ImageTracking
     {
@@ -409,6 +413,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> restorable_images_;
 
     std::unordered_map<format::HandleId, ImageTracking> per_device_image_tracking_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_modified_buffers_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;
