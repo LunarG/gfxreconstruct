@@ -2447,14 +2447,8 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
 // application's callback does not exist in this process. Rather than routing them at our own logging
 // callback, which floods the console with whatever severities the application asked for, point them at
 // these stubs. The messenger gfxrecon creates for itself is unaffected and still logs.
-static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugReportCallback(VkDebugReportFlagsEXT,
-                                                              VkDebugReportObjectTypeEXT,
-                                                              uint64_t,
-                                                              size_t,
-                                                              int32_t,
-                                                              const char*,
-                                                              const char*,
-                                                              void*)
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugReportCallback(
+    VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*, void*)
 {
     return VK_FALSE;
 }
