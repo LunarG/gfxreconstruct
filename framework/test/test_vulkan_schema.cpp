@@ -1633,7 +1633,8 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     // carries two string runs beside a structure pointer, and VkAccelerationStructureGeometryMicromapDataKHR carries
     // a structure run and the pointer run over the same count beside address values. The retained partners
     // VkDeviceCreateInfo and VkMicromapBuildInfoEXT carry the same runs through their procedural bodies; the latter
-    // also holds unions, which keep it off the list.
+    // waits only on a MicromapEXTWrapper row, since its unions descend into their hand-written encoders like any
+    // structure value.
     namespace instance_field = schema::field::vulkan::VkInstanceCreateInfo;
     namespace micromap_field = schema::field::vulkan::VkAccelerationStructureGeometryMicromapDataKHR;
 

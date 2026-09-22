@@ -71,12 +71,15 @@ struct EncoderAdapter
         encoder->EncodePointer(schema::FieldKind<Field>{}, pointer);
     }
 
-    template <typename Field, typename SizeType>
+    template <typename Field, typename DeclaredType>
     requires schema::GeneralScalarKindField<Field> && schema::AnyArrayShapeField<Field>
-    void
-    operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* array, SizeType count) const
+    void operator()(Field, ParameterEncoder* encoder, const DeclaredType* array, size_t count) const
     {
-        encoder->EncodeArray(schema::FieldKind<Field>{}, array, GFXRECON_NARROWING_CAST(size_t, count));
+        // We encode the schema's element type, not the member's declared type. This is to support
+        // api_type::vulkan::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes it a
+        // run of uint8_t. For every other api_type run the two agree and the cast is the identity.
+        using ElementType = schema::FieldElementType<Field>;
+        encoder->EncodeArray(schema::FieldKind<Field>{}, static_cast<const ElementType*>(array), count);
     }
 
     // Handle kind: value, pointer, run. A handle is recorded as its capture wrapper's id, so each entry needs the
@@ -160,8 +163,7 @@ struct EncoderAdapter
     void
     operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* text, size_t capacity) const
     {
-        static_assert(sizeof(Field::extents) / sizeof(Field::extents[0]) == 1,
-                      "A fixed-extent string has one dimension");
+        static_assert(std::extent_v<decltype(Field::extents)> == 1, "A fixed-extent string has one dimension");
         encoder->EncodeString(schema::FieldKind<Field>{}, text, capacity);
     }
 
@@ -210,24 +212,11 @@ class EncodeStructAction
     {
         using CountField = schema::FieldCountField<Field>;
 
+        static_assert(Field::pointer_count == (schema::ArrayShapeField<Field> ? 1 : 2),
+                      "A pointer to a run has one level of indirection, a run of pointers two");
+
         const size_t count = GFXRECON_NARROWING_CAST(size_t, schema::Get(storage, CountField{}));
-
-        if constexpr (schema::ArrayShapeField<Field>)
-        {
-            static_assert(Field::pointer_count == 1, "A pointer to a run has one level of indirection");
-            using ArrayType = schema::FieldElementType<Field>;
-
-            // We encode schema's element type, not the member's declared type. This is to support
-            // api_type::vulkan::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes
-            // it a run of uint8_t. For every other api_type run the cast is the identity.
-            const ArrayType* array = static_cast<const ArrayType*>(schema::Get(storage, field));
-            EncoderAdapter()(field, encoder_, array, count);
-        }
-        else
-        {
-            static_assert(Field::pointer_count == 2, "A run of pointers has two levels of indirection");
-            EncoderAdapter()(field, encoder_, schema::Get(storage, field), count);
-        }
+        EncoderAdapter()(field, encoder_, schema::Get(storage, field), count);
     }
 
     // A fixed-extent array of elements, of one or two dimensions. Every named fixed-array entry point, the 2DMatrix
