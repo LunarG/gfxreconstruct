@@ -95,7 +95,8 @@ void ProbeSymbols(LibraryHandle                   module,
 {
     for (const char* name : candidate_symbols)
     {
-        if ((name != nullptr) && (GetProcAddress(module, name) == address))
+        // Qualify the call. On Windows, argument-dependent lookup on HMODULE also finds the Win32 GetProcAddress.
+        if ((name != nullptr) && (platform::GetProcAddress(module, name) == address))
         {
             info->symbol_name = name;
             return;
@@ -152,7 +153,7 @@ bool GetModuleAddressInfo(const void*                     address,
         return false;
     }
 
-    result.module_path   = GetModuleUtf8Filename(module);
+    result.module_path   = local_utils::GetModuleUtf8Filename(module);
     result.module_offset = reinterpret_cast<uintptr_t>(address) - reinterpret_cast<uintptr_t>(module);
     result.in_executable = (module == GetModuleHandleW(nullptr));
 
