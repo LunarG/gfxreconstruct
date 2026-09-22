@@ -175,11 +175,8 @@ struct TemporaryQueryPool
 // Wrapper for a VkBuffer injected by replay.
 struct TemporaryBuffer
 {
-    // An empty buffer, to be move-assigned a created one before use.
     TemporaryBuffer() = default;
 
-    // Creates the buffer and queries the memory requirements the caller needs to allocate against.
-    // `handle` is left null when creation fails; the failure is logged here, so callers only have to check it.
     TemporaryBuffer(VkDevice                                   dev,
                     VulkanResourceAllocator*                   alloc,
                     const graphics::VulkanInjectedDeviceCalls& injected_calls,
@@ -194,8 +191,7 @@ struct TemporaryBuffer
         TemporaryBuffer(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table), buffer_size, usage)
     {}
 
-    // TemporaryBuffer can be a member of structs that are used in containers, so ownership of the buffer has to
-    // transfer rather than be duplicated, so we won't call `vkDestroyBuffer` on an already destroyed buffer.
+    // Ownership of the buffer has to transfer rather than be duplicated, so we won't call `vkDestroyBuffer` on an already destroyed buffer.
     TemporaryBuffer(const TemporaryBuffer&)            = delete;
     TemporaryBuffer& operator=(const TemporaryBuffer&) = delete;
     TemporaryBuffer(TemporaryBuffer&& other) noexcept;
@@ -206,7 +202,6 @@ struct TemporaryBuffer
     // Destroys the buffer.  Any memory the caller bound to it has to outlive this and be freed afterwards.
     ~TemporaryBuffer() { Destroy(); }
 
-    // Destroys the buffer, leaving this object empty.
     void Destroy();
 
     VkBuffer                              handle{ VK_NULL_HANDLE };

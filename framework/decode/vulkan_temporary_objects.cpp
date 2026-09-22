@@ -285,8 +285,7 @@ void TemporaryBuffer::Destroy()
     requirements  = {};
 }
 
-TemporaryBuffer::TemporaryBuffer(TemporaryBuffer&& other) noexcept :
-    device(other.device), allocator(other.allocator), device_table(other.device_table)
+TemporaryBuffer::TemporaryBuffer(TemporaryBuffer&& other) noexcept
 {
     swap(other);
 }
@@ -295,11 +294,7 @@ TemporaryBuffer& TemporaryBuffer::operator=(TemporaryBuffer&& other) noexcept
 {
     if (this != &other)
     {
-        // Release what this buffer already holds, then take over what `other` holds.
         Destroy();
-        device       = other.device;
-        allocator    = other.allocator;
-        device_table = other.device_table;
         swap(other);
     }
     return *this;
@@ -311,6 +306,9 @@ void TemporaryBuffer::swap(TemporaryBuffer& other) noexcept
     std::swap(size, other.size);
     std::swap(requirements, other.requirements);
     std::swap(resource_data, other.resource_data);
+    std::swap(device, other.device);
+    std::swap(allocator, other.allocator);
+    std::swap(device_table, other.device_table);
 }
 
 GFXRECON_END_NAMESPACE(decode)
