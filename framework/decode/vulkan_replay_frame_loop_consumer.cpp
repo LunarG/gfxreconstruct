@@ -359,6 +359,76 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDevice(const ApiCallInfo& c
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkFreeMemory(const ApiCallInfo& call_info, args::FreeMemory& args)
+{
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if args.memory is in allocatedLoopResources
+
+    // Call Process_vkFreeMemory if:
+    //    We are not looping
+    //    We are looping and args.memory is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping())
+    {
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.memory))
+        VulkanReplayConsumer::Process_vkFreeMemory(call_info, args);
+
+        // Remove all boundMemory entries whose value equals args.memory
+        for (auto it = boundMemory.begin(); it != boundMemory.end();)
+        {
+            if (it->second == args.memory)
+            {
+                boundMemory.erase(it++);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+    else if (allocatedLoopResources.contains(args.memory))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkFreeMemory(call_info, args);
+        allocatedLoopResources.erase(args.memory);
+
+        // Remove all boundMemory entries whose value equals args.memory
+        for (auto it = boundMemory.begin(); it != boundMemory.end();)
+        {
+            if (it->second == args.memory)
+            {
+                boundMemory.erase(it++);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkFreeMemory(call_info, args);
+
+        // Remove all boundMemory entries whose value equals args.memory
+        for (auto it = boundMemory.begin(); it != boundMemory.end();)
+        {
+            if (it->second == args.memory)
+            {
+                boundMemory.erase(it++);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
