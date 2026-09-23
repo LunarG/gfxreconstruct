@@ -3331,16 +3331,17 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
     const uint64_t pass_end      = block_range != nullptr ? block_range->back() : 0;
     bool           found_overlap = false;
 
-    // The subpass a clone's window ends in. Draws merged from a secondary command buffer are correlated through
-    // the vkCmdExecuteCommands block that executed them, so each execution of the same secondary resolves to
-    // its own subpass. The tail clone reaches past the end of the pass, so it ends in the last subpass.
-    const auto find_subpass = [this, block_range, &new_render_pass_context](size_t cmd_buf_idx, uint64_t& sp) {
+    // Find the subpass that holds the clone's target draw.
+    // If the clone stops after this render pass, it runs the pass to its end, so use the last subpass.
+    // A draw from a secondary is located by the vkCmdExecuteCommands that ran it.
+    const auto find_subpass = [this, block_range, pass_end, &new_render_pass_context](
+                                  size_t cmd_buf_idx, uint64_t hi, uint64_t& sp) {
         if (block_range == nullptr)
         {
             return false;
         }
 
-        if (cmd_buf_idx >= GetWindowCount())
+        if (hi > pass_end)
         {
             sp = new_render_pass_context->render_pass_clones.size() - 1;
             return true;
@@ -3362,7 +3363,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
             continue;
         }
 
-        find_subpass(cmd_buf_idx, sp);
+        find_subpass(cmd_buf_idx, hi, sp);
 
         // Only the window that contains the begin starts the render pass the way the application did. The
         // others resume it in the subpass the window before them ended in, and load what it stored.
