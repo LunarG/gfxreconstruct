@@ -544,21 +544,35 @@ VulkanReplayFrameLoopConsumer::BufferTracking::MaxBlockSize(const VkPhysicalDevi
     return std::min(kMaxMemoryBlockSize, memory_properties.memoryHeaps[heap_index].size);
 }
 
-bool VulkanReplayFrameLoopConsumer::BufferTracking::MemoryBlock::Allocate(VulkanResourceAllocator& allocator,
-                                                                          uint32_t                 memory_type_index,
-                                                                          VkDeviceSize             allocation_size)
+VkResult VulkanReplayFrameLoopConsumer::BufferTracking::ShadowBuffer::Create()
 {
+    GFXRECON_ASSERT(allocator != nullptr);
+    GFXRECON_ASSERT(buffer == VK_NULL_HANDLE);
+
+    VkBufferCreateInfo create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    create_info.size               = size;
+    create_info.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+    return allocator->CreateBufferDirect(&create_info, nullptr, &buffer, &alloc_data);
+}
+
+bool VulkanReplayFrameLoopConsumer::BufferTracking::MemoryBlock::Allocate(uint32_t     memory_type_index,
+                                                                          VkDeviceSize allocation_size)
+{
+    GFXRECON_ASSERT(allocator != nullptr);
+    GFXRECON_ASSERT(memory == VK_NULL_HANDLE);
+
     VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
     alloc_info.allocationSize       = allocation_size;
     alloc_info.memoryTypeIndex      = memory_type_index;
 
-    if (allocator.AllocateMemoryDirect(&alloc_info, nullptr, &memory, &mem_data) != VK_SUCCESS)
+    if (allocator->AllocateMemoryDirect(&alloc_info, nullptr, &memory, &mem_data) != VK_SUCCESS)
     {
         return false;
     }
 
-    this->allocator = &allocator;
-    size            = allocation_size;
+    size = allocation_size;
 
     return true;
 }
@@ -591,8 +605,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::PendingShadowBuffer::CopyBuf
     const VulkanBufferInfo* buffer_info = object_table.GetVkBufferInfo(buffer_id);
     GFXRECON_ASSERT(buffer_info != nullptr);
 
-    const VkBufferCopy region = { 0, 0, shadow->size };
-    device_table.CmdCopyBuffer(command_buffer, buffer_info->handle, shadow->buffer, 1, &region);
+    const VkBufferCopy region = { 0, 0, shadow.size };
+    device_table.CmdCopyBuffer(command_buffer, buffer_info->handle, shadow.buffer, 1, &region);
 }
 
 size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t     memory_type_index,
@@ -605,8 +619,8 @@ size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t   
     const VkDeviceSize desired_size    = std::max(preferred_size, minimum_size);
     const VkDeviceSize allocation_size = std::min(desired_size, max_size);
 
-    auto block = std::make_unique<MemoryBlock>();
-    if (!block->Allocate(*allocator_, memory_type_index, allocation_size))
+    MemoryBlock block(*allocator_);
+    if (!block.Allocate(memory_type_index, allocation_size))
     {
         return kInvalidBlockIndex;
     }
@@ -650,19 +664,9 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             continue;
         }
 
-        VkBufferCreateInfo create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        create_info.size               = buffer_info->size;
-        create_info.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+        ShadowBuffer shadow(*allocator_, buffer_info->size);
 
-        PendingShadowBuffer pending;
-        pending.buffer_id         = buffer_id;
-        pending.shadow            = std::make_unique<ShadowBuffer>();
-        pending.shadow->size      = buffer_info->size;
-        pending.shadow->allocator = allocator_.get();
-
-        VkResult result =
-            allocator_->CreateBufferDirect(&create_info, nullptr, &pending.shadow->buffer, &pending.shadow->alloc_data);
+        VkResult result = shadow.Create();
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Failed to create shadow buffer for buffer %" PRIu64 " (size %" PRIu64
@@ -673,7 +677,9 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             continue;
         }
 
-        device_table_.GetBufferMemoryRequirements(device_info->handle, pending.shadow->buffer, &pending.requirements);
+        PendingShadowBuffer pending(buffer_id, std::move(shadow));
+
+        device_table_.GetBufferMemoryRequirements(device_info->handle, pending.shadow.buffer, &pending.requirements);
 
         // The shadow buffers are all created with the same flags and usage, and should use the same memory type index.
         if (memory_type_index == std::numeric_limits<uint32_t>::max())
@@ -725,7 +731,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
 
         if (block_index != kInvalidBlockIndex)
         {
-            const MemoryBlock& block  = *memory_blocks_[block_index];
+            const MemoryBlock& block  = memory_blocks_[block_index];
             const VkDeviceSize offset = util::aligned_value(block.next_offset, pending.requirements.alignment);
 
             if ((offset + pending.requirements.size) > block.size)
@@ -750,7 +756,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
             }
         }
 
-        VkResult result = memory_blocks_[block_index]->Bind(*pending.shadow, pending.requirements);
+        VkResult result = memory_blocks_[block_index].Bind(pending.shadow, pending.requirements);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Failed to bind shadow memory for buffer %" PRIu64
@@ -765,7 +771,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
 
         pending.CopyBuffer(device_table_, object_table_, temp_cmd_buff.command_buffer);
 
-        shadow_buffers_[pending.buffer_id] = std::move(pending.shadow);
+        shadow_buffers_.emplace(pending.buffer_id, std::move(pending.shadow));
         ++copy_count;
     }
 
@@ -805,8 +811,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::Restore()
             continue;
         }
 
-        VkBufferCopy region = { 0, 0, shadow->size };
-        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, shadow->buffer, buffer_info->handle, 1, &region);
+        VkBufferCopy region = { 0, 0, shadow.size };
+        device_table_.CmdCopyBuffer(temp_cmd_buff.command_buffer, shadow.buffer, buffer_info->handle, 1, &region);
         ++restore_count;
     }
 
