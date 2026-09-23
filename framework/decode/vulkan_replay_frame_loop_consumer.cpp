@@ -1605,6 +1605,12 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
                 return;
             }
 
+            // Table still holds stale entries after a `vkDestroySwapchainKHR`.
+            if (image_info->swapchain_id != format::kNullHandleId)
+            {
+                return;
+            }
+
             // An image should never outlive the device that created it in the object info table.
             GFXRECON_ASSERT(GetObjectInfoTable().GetVkDeviceInfo(image_info->parent_id) != nullptr);
 
