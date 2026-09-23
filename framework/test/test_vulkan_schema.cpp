@@ -58,13 +58,13 @@ namespace
 {
 using namespace gfxrecon;
 
-using Command = schema::command::vulkan::CmdPipelineBarrier;
+using Command = schema::vulkan::commands::CmdPipelineBarrier;
 
 // A structure keys its schema on its API type descriptor, the same key ApiElementTraits uses.
-using Barrier = schema::api_type::vulkan::VkBufferMemoryBarrier;
+using Barrier = schema::vulkan::api_types::VkBufferMemoryBarrier;
 
-namespace cmd_field     = schema::field::vulkan::CmdPipelineBarrier;
-namespace barrier_field = schema::field::vulkan::VkBufferMemoryBarrier;
+namespace cmd_field     = schema::vulkan::fields::CmdPipelineBarrier;
+namespace barrier_field = schema::vulkan::fields::VkBufferMemoryBarrier;
 
 // A command schema has exactly one return Field, and a structure schema has none.
 static_assert(schema::HasSchema<Command>);
@@ -91,29 +91,29 @@ static_assert(std::is_same_v<schema::ParameterFields<Command>,
                                             cmd_field::pImageMemoryBarriers>>);
 
 // A non-void command resolves its native return type from the same Return Field.
-static_assert(std::is_same_v<schema::ReturnType<schema::command::vulkan::CreateBuffer>, VkResult>);
+static_assert(std::is_same_v<schema::ReturnType<schema::vulkan::commands::CreateBuffer>, VkResult>);
 
 // A kind names the logical Encode and Decode operation for a registry type, and carries the wire
 // representation.
 static_assert(
-    std::is_same_v<schema::ElementType<schema::api_type::vulkan::VkPipelineStageFlags>, VkPipelineStageFlags>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkPipelineStageFlags::kind, format::kind::Flags>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkAccessFlags2::kind, format::kind::Flags64>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkResult::kind, format::kind::Enum>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkSampleMask::kind, format::kind::SampleMask>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkDeviceSize::kind, format::kind::DeviceSize>);
+    std::is_same_v<schema::ElementType<schema::vulkan::api_types::VkPipelineStageFlags>, VkPipelineStageFlags>);
+static_assert(std::is_same_v<schema::vulkan::api_types::VkPipelineStageFlags::kind, format::kind::Flags>);
+static_assert(std::is_same_v<schema::vulkan::api_types::VkAccessFlags2::kind, format::kind::Flags64>);
+static_assert(std::is_same_v<schema::vulkan::api_types::VkResult::kind, format::kind::Enum>);
+static_assert(std::is_same_v<schema::vulkan::api_types::VkSampleMask::kind, format::kind::SampleMask>);
+static_assert(std::is_same_v<schema::vulkan::api_types::VkDeviceSize::kind, format::kind::DeviceSize>);
 
 // Two registry names that share one C++ representation stay distinct, because the descriptor is the identity.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
 static_assert(
-    !std::is_same_v<schema::api_type::vulkan::VkAccessFlags2, schema::api_type::vulkan::VkPipelineStageFlags2>);
+    !std::is_same_v<schema::vulkan::api_types::VkAccessFlags2, schema::vulkan::api_types::VkPipelineStageFlags2>);
 
 // A kind is specific, so each one maps to the ParameterEncoder and ValueDecoder function that already exists for
 // it. That restates part of what element_type says, and the generator checks the agreement in the one loop that
 // assigns both.
-static_assert(std::is_same_v<schema::api_type::vulkan::UInt32::kind, format::kind::UInt32>);
-static_assert(std::is_same_v<schema::api_type::vulkan::VkBool32::kind, format::kind::UInt32>);
-static_assert(std::is_same_v<schema::ElementType<schema::api_type::vulkan::UInt32>, uint32_t>);
+static_assert(std::is_same_v<schema::vulkan::api_types::UInt32::kind, format::kind::UInt32>);
+static_assert(std::is_same_v<schema::vulkan::api_types::VkBool32::kind, format::kind::UInt32>);
+static_assert(std::is_same_v<schema::ElementType<schema::vulkan::api_types::UInt32>, uint32_t>);
 static_assert(schema::ScalarValueField<barrier_field::srcQueueFamilyIndex>);
 
 // Every scalar kind still selects the shared scalar access pattern.
@@ -147,16 +147,16 @@ static_assert(!schema::HasMember<decode::Decoded_VkBufferMemoryBarrier, barrier_
 
 // A field the API declares as a plain integer but GFXReconstruct maps as a handle names one shared descriptor and
 // its runtime selector, because no type-level fact can express it.
-namespace debug_field = schema::field::vulkan::VkDebugUtilsObjectNameInfoEXT;
-static_assert(std::is_same_v<debug_field::objectHandle::api_type, schema::api_type::vulkan::GenericHandle>);
+namespace debug_field = schema::vulkan::fields::VkDebugUtilsObjectNameInfoEXT;
+static_assert(std::is_same_v<debug_field::objectHandle::api_type, schema::vulkan::api_types::GenericHandle>);
 static_assert(std::is_same_v<debug_field::objectHandle::selector_field, debug_field::objectType>);
 static_assert(schema::HandleValueField<debug_field::objectHandle>);
 
 // A bitfield member keeps a mapping, but it is not addressable, so GetRef drops out of the overload set.
 static_assert(schema::HasMember<VkAccelerationStructureInstanceKHR,
-                                schema::field::vulkan::VkAccelerationStructureInstanceKHR::mask>);
+                                schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 static_assert(schema::NonAddressable<VkAccelerationStructureInstanceKHR,
-                                     schema::field::vulkan::VkAccelerationStructureInstanceKHR::mask>);
+                                     schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 
 // Decoded representation resolves through the traits key, which is the same key the schema uses.
 static_assert(std::is_same_v<decode::Decoded<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
@@ -1454,14 +1454,14 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 
     util::Log::Init(util::LoggingSeverity::kError);
 
-    namespace memory_field = schema::field::vulkan::VkPhysicalDeviceMemoryProperties;
-    namespace group_field  = schema::field::vulkan::VkPhysicalDeviceGroupProperties;
+    namespace memory_field = schema::vulkan::fields::VkPhysicalDeviceMemoryProperties;
+    namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
     static_assert(schema::StaticArrayShapeField<group_field::physicalDevices>);
     static_assert(schema::HandleKindField<group_field::physicalDevices>);
     static_assert(schema::HasCountField<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
     static_assert(
         std::is_same_v<schema::FieldCountField<group_field::physicalDevices>, group_field::physicalDeviceCount>);
-    static_assert(encode::HasCaptureWrapper<schema::api_type::vulkan::VkPhysicalDevice>);
+    static_assert(encode::HasCaptureWrapper<schema::vulkan::api_types::VkPhysicalDevice>);
     static_assert(schema::StaticArrayShapeField<memory_field::memoryTypes>);
     static_assert(schema::StaticArrayShapeField<memory_field::memoryHeaps>);
     static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
@@ -1635,8 +1635,8 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     // VkDeviceCreateInfo and VkMicromapBuildInfoEXT carry the same runs through their procedural bodies; the latter
     // waits only on a MicromapEXTWrapper row, since its unions descend into their hand-written encoders like any
     // structure value.
-    namespace instance_field = schema::field::vulkan::VkInstanceCreateInfo;
-    namespace micromap_field = schema::field::vulkan::VkAccelerationStructureGeometryMicromapDataKHR;
+    namespace instance_field = schema::vulkan::fields::VkInstanceCreateInfo;
+    namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
 
     static_assert(schema::PointerArrayShapeField<instance_field::ppEnabledLayerNames>);
     static_assert(schema::TextKindField<instance_field::ppEnabledLayerNames>);
@@ -1812,7 +1812,7 @@ TEST_CASE("Getter yields a Field's value in place or by copy", "[schema]")
 {
     // An addressable member is referenced where it lives: the dereferenced Getter is the member itself. A bitfield
     // has no address, so the Getter reads it through the generated accessor and yields the value.
-    using width = schema::field::vulkan::VkExtent2D::width;
+    using width = schema::vulkan::fields::VkExtent2D::width;
     static_assert(schema::Addressable<VkExtent2D, width>);
 
     VkExtent2D extent{ 3u, 4u };
@@ -1820,7 +1820,7 @@ TEST_CASE("Getter yields a Field's value in place or by copy", "[schema]")
     CHECK(*schema::Getter<VkExtent2D, width>(extent, width{}) == 3u);
     CHECK(&*schema::Getter(extent, width{}) == &extent.width); // arguments deduced from the primary's constructor
 
-    using flag = schema::field::vulkan::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag;
+    using flag = schema::vulkan::fields::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag;
     static_assert(schema::NonAddressable<StdVideoH264SpsVuiFlags, flag>);
 
     StdVideoH264SpsVuiFlags flags{};
@@ -2219,7 +2219,7 @@ TEST_CASE("A field walk keeps an opaque pointer in the wrapper and leaves the de
     // value and the decoded value's pointer is left null for replay to resolve through PreProcessExternalObject --
     // the same division a handle gets.
     //
-    // Its descriptor is api_type::vulkan::ExternalObject, whose kind is Address, so the schema states the wire
+    // Its descriptor is vulkan::api_types::ExternalObject, whose kind is Address, so the schema states the wire
     // form and the overload reads it from the kind like every other. The descriptor exists because the declared
     // type cannot state it: this is void*, and so is a counted run of bytes, and so is pNext.
     util::Log::Init(util::LoggingSeverity::kError);

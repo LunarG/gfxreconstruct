@@ -45,11 +45,11 @@ struct DescriptorFor;
 
 // One row per migrated structure while the list is hand-written. At inversion the schema generator emits the
 // specializations and this macro retires with the list.
-#define GFXRECON_VULKAN_DESCRIPTOR_FOR(Struct)         \
-    template <>                                        \
-    struct DescriptorFor<Struct>                       \
-    {                                                  \
-        using type = schema::api_type::vulkan::Struct; \
+#define GFXRECON_VULKAN_DESCRIPTOR_FOR(Struct)          \
+    template <>                                         \
+    struct DescriptorFor<Struct>                        \
+    {                                                   \
+        using type = schema::vulkan::api_types::Struct; \
     }
 
 GFXRECON_VULKAN_DESCRIPTOR_FOR(VkAccelerationStructureGeometryMicromapDataKHR);

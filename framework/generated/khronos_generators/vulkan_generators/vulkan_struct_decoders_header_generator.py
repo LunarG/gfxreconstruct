@@ -95,7 +95,7 @@ class VulkanStructDecodersHeaderGenerator(
         if self.is_struct_black_listed(struct):
             return ''
 
-        return '    using api_element = schema::api_type::vulkan::{};\n'.format(struct)
+        return '    using api_element = schema::vulkan::api_types::{};\n'.format(struct)
 
     def write_base_out_struct_definition(self):
         entries = self.get_base_out_structure_type_info_list()

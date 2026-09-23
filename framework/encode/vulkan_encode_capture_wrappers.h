@@ -54,13 +54,13 @@ concept HasCaptureWrapper = requires
 
 // One row per mapped handle type. The static_assert holds the row to the descriptor: the wrapper named must wrap
 // the handle type the descriptor describes.
-#define GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(Handle, Wrapper)                                                   \
-    template <>                                                                                                \
-    struct CaptureWrapperFor<schema::api_type::vulkan::Handle>                                                 \
-    {                                                                                                          \
-        using type = vulkan_wrappers::Wrapper;                                                                 \
-        static_assert(std::is_same_v<type::HandleType, schema::ElementType<schema::api_type::vulkan::Handle>>, \
-                      "The wrapper's handle type must be the descriptor's element type");                      \
+#define GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(Handle, Wrapper)                                                    \
+    template <>                                                                                                 \
+    struct CaptureWrapperFor<schema::vulkan::api_types::Handle>                                                 \
+    {                                                                                                           \
+        using type = vulkan_wrappers::Wrapper;                                                                  \
+        static_assert(std::is_same_v<type::HandleType, schema::ElementType<schema::vulkan::api_types::Handle>>, \
+                      "The wrapper's handle type must be the descriptor's element type");                       \
     }
 
 GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(VkBuffer, BufferWrapper);

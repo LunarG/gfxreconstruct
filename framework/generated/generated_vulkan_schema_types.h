@@ -58,8 +58,8 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 // API type descriptors. A descriptor carries the API's own type for one element and the logical kind
 // that names its Encode and Decode operation. It carries no wire representation type and no decoded
 // representation; each kind in format/format.h carries the wire type it is recorded as.
-GFXRECON_BEGIN_NAMESPACE(api_type)
 GFXRECON_BEGIN_NAMESPACE(vulkan)
+GFXRECON_BEGIN_NAMESPACE(api_types)
 struct Char { using element_type = char; using kind = format::kind::Char; };
 struct ExternalObject { using element_type = void*; using kind = format::kind::Address; };
 struct Float { using element_type = float; using kind = format::kind::Float; };
@@ -1913,12 +1913,12 @@ struct VkXlibSurfaceCreateFlagsKHR { using element_type = ::VkXlibSurfaceCreateF
 struct VkXlibSurfaceCreateInfoKHR { using element_type = ::VkXlibSurfaceCreateInfoKHR; using kind = format::kind::Struct; };
 struct Void { using element_type = void; using kind = format::kind::Void; };
 struct WChar { using element_type = wchar_t; using kind = format::kind::WChar; };
+GFXRECON_END_NAMESPACE(api_types)
 GFXRECON_END_NAMESPACE(vulkan)
-GFXRECON_END_NAMESPACE(api_type)
 
 // Command tags. A command tag is a schema key and a traits key. It carries no members of its own.
-GFXRECON_BEGIN_NAMESPACE(command)
 GFXRECON_BEGIN_NAMESPACE(vulkan)
+GFXRECON_BEGIN_NAMESPACE(commands)
 struct CreateInstance {};
 struct DestroyInstance {};
 struct EnumeratePhysicalDevices {};
@@ -2673,8 +2673,8 @@ struct CmdSetRayTracingPipelineStackSizeKHR {};
 struct CmdDrawMeshTasksEXT {};
 struct CmdDrawMeshTasksIndirectEXT {};
 struct CmdDrawMeshTasksIndirectCountEXT {};
+GFXRECON_END_NAMESPACE(commands)
 GFXRECON_END_NAMESPACE(vulkan)
-GFXRECON_END_NAMESPACE(command)
 
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)

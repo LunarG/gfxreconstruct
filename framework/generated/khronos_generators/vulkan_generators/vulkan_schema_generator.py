@@ -554,7 +554,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return self.DESCRIPTOR_NAME_FOR_TYPE.get(resolved, resolved)
 
     def get_descriptor_path(self, base_type):
-        return 'api_type::vulkan::{}'.format(self.get_descriptor_name(base_type))
+        """The descriptor's path from the schema namespace, for a line emitted at schema scope."""
+        return 'vulkan::api_types::{}'.format(self.get_descriptor_name(base_type))
+
+    def get_descriptor_reference(self, name):
+        """The descriptor's spelling from inside the API's own namespace, where a field descriptor is emitted: lookup
+        reaches schema::vulkan from schema::vulkan::fields::<owner>, so the API component is not written."""
+        return 'api_types::{}'.format(name)
 
     def get_generic_handles(self, owner, is_command, members):
         """Map member name to selector name for the fields GFXReconstruct treats as runtime-typed handles.
@@ -699,7 +705,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return VulkanBaseGenerator.make_args_struct_name(command)
 
     def get_field_namespace(self, element):
-        return 'field::vulkan::{}'.format(element)
+        return 'vulkan::fields::{}'.format(element)
 
     def get_field_path(self, element, field_name):
         return '{}::{}'.format(self.get_field_namespace(element), field_name)
@@ -772,13 +778,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         selector = generic_handles.get(value.name)
 
         if selector is not None:
-            descriptor = 'api_type::vulkan::{}'.format(self.GENERIC_HANDLE_DESCRIPTOR)
+            descriptor = self.get_descriptor_reference(self.GENERIC_HANDLE_DESCRIPTOR)
         elif self.is_external_object(value):
-            descriptor = 'api_type::vulkan::{}'.format(self.EXTERNAL_OBJECT_DESCRIPTOR)
+            descriptor = self.get_descriptor_reference(self.EXTERNAL_OBJECT_DESCRIPTOR)
         elif self.is_opaque_bytes(value):
-            descriptor = 'api_type::vulkan::{}'.format(self.OPAQUE_BYTES_DESCRIPTOR)
+            descriptor = self.get_descriptor_reference(self.OPAQUE_BYTES_DESCRIPTOR)
         else:
-            descriptor = self.get_descriptor_path(value.base_type)
+            descriptor = self.get_descriptor_reference(self.get_descriptor_name(value.base_type))
 
         parts = [
             'using api_type = {};'.format(descriptor),
@@ -841,7 +847,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         parts = [
             'using api_type = {};'.format(
-                self.get_descriptor_path(self.clean_return_type(return_type))
+                self.get_descriptor_reference(self.get_descriptor_name(self.clean_return_type(return_type)))
             ),
             'using shape = field_shape::{};'.format(
                 'VoidReturn' if is_void else 'Value'
@@ -958,8 +964,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             '// representation; each kind in format/format.h carries the wire type it is recorded as.',
             file=self.outFile
         )
-        write('GFXRECON_BEGIN_NAMESPACE(api_type)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(api_types)', file=self.outFile)
 
         for name in sorted(self.api_type_kinds):
             write(
@@ -969,8 +975,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 file=self.outFile
             )
 
+        write('GFXRECON_END_NAMESPACE(api_types)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(api_type)', file=self.outFile)
         self.newline()
 
     def write_command_tags(self):
@@ -978,8 +984,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             '// Command tags. A command tag is a schema key and a traits key. It carries no members of its own.',
             file=self.outFile
         )
-        write('GFXRECON_BEGIN_NAMESPACE(command)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(commands)', file=self.outFile)
 
         for command in self.schema_commands:
             write(
@@ -987,8 +993,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 file=self.outFile
             )
 
+        write('GFXRECON_END_NAMESPACE(commands)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(command)', file=self.outFile)
         self.newline()
 
     def write_field_descriptors(self):
@@ -996,8 +1002,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             '// Field descriptors. A Field names its API type and its shape at this use site.',
             file=self.outFile
         )
-        write('GFXRECON_BEGIN_NAMESPACE(field)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(fields)', file=self.outFile)
         self.newline()
 
         for struct in self.schema_structs:
@@ -1015,8 +1021,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 return_type=return_type
             )
 
+        write('GFXRECON_END_NAMESPACE(fields)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(field)', file=self.outFile)
         self.newline()
 
     def write_schemas(self):
@@ -1047,7 +1053,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             names.append(self.RETURN_FIELD_NAME)
             write(
                 self.make_schema_specialization(
-                    'command::vulkan::{}'.format(tag), tag, names
+                    'vulkan::commands::{}'.format(tag), tag, names
                 ),
                 file=self.outFile
             )
@@ -1066,7 +1072,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for struct in self.schema_structs:
             write(
-                'template <> struct ApiElementTraits<schema::api_type::vulkan::{name}> '
+                'template <> struct ApiElementTraits<schema::vulkan::api_types::{name}> '
                 '{{ using decoded_type = Decoded_{name}; }};'.format(name=struct),
                 file=self.outFile
             )
@@ -1082,7 +1088,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for command in self.schema_commands:
             tag = self.get_command_tag(command)
             write(
-                'template <> struct ApiElementTraits<schema::command::vulkan::{tag}> '
+                'template <> struct ApiElementTraits<schema::vulkan::commands::{tag}> '
                 '{{ using decoded_type = args::{tag}; '
                 'static constexpr format::ApiCallId call_id = format::ApiCallId::ApiCall_{command}; }};'.format(
                     tag=tag, command=command
@@ -1119,7 +1125,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// TypeListSole.', file=self.outFile)
 
         for command in self.schema_commands:
-            tag = 'schema::command::vulkan::{}'.format(self.get_command_tag(command))
+            tag = 'schema::vulkan::commands::{}'.format(self.get_command_tag(command))
             write('static_assert(schema::HasCommandSchema<{}>);'.format(tag), file=self.outFile)
 
         self.newline()
@@ -1202,8 +1208,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 continue
 
             write(
-                'static_assert(sizeof(schema::ElementType<schema::api_type::vulkan::{name}>) == '
-                'sizeof(format::EncodeTypeFor<schema::api_type::vulkan::{name}::kind>));'.format(name=name),
+                'static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::{name}>) == '
+                'sizeof(format::EncodeTypeFor<schema::vulkan::api_types::{name}::kind>));'.format(name=name),
                 file=self.outFile
             )
 

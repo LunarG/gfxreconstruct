@@ -76,7 +76,7 @@ struct EncoderAdapter
     void operator()(Field, ParameterEncoder* encoder, const DeclaredType* array, size_t count) const
     {
         // We encode the schema's element type, not the member's declared type. This is to support
-        // api_type::vulkan::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes it a
+        // vulkan::api_types::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes it a
         // run of uint8_t. For every other api_type run the two agree and the cast is the identity.
         using ElementType = schema::FieldElementType<Field>;
         encoder->EncodeArray(schema::FieldKind<Field>{}, static_cast<const ElementType*>(array), count);
