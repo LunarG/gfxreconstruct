@@ -41,6 +41,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <ranges>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -3403,9 +3404,8 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
 {
     CommandBufferIterator first, last;
     GetRenderPassCommandBuffers(first, last);
-    auto   injected    = device_table_.Open();
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    auto injected = device_table_.Open();
+    for (auto it = first; it < last; ++it)
     {
         injected->CmdNextSubpass(*it, contents);
     }
@@ -3471,9 +3471,8 @@ void DrawCallsDumpingContext::EndRenderPass()
 
     CommandBufferIterator first, last;
     GetRenderPassCommandBuffers(first, last);
-    auto   injected    = device_table_.Open();
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    auto injected = device_table_.Open();
+    for (auto it = first; it < last; ++it)
     {
         injected->CmdEndRenderPass(*it);
     }
@@ -3488,8 +3487,7 @@ void DrawCallsDumpingContext::EndRendering()
 
     CommandBufferIterator first, last;
     GetRenderPassCommandBuffers(first, last);
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    for (auto it = first; it < last; ++it)
     {
         RecordCmdEndRendering(*it);
     }
