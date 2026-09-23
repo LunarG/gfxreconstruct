@@ -1727,8 +1727,19 @@ size_t GetResolveQueryDataSize(D3D12_QUERY_TYPE type, UINT num_queries)
         case D3D12_QUERY_TYPE_OCCLUSION:
         case D3D12_QUERY_TYPE_BINARY_OCCLUSION:
         case D3D12_QUERY_TYPE_TIMESTAMP:
-        case D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS:
             element_size = sizeof(UINT64);
+            break;
+        case D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS:
+            // D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS is not listed as a supported type in the
+            // ID3D12Device::ResolveQueryData spec (CPU Timeline Query Resolution). Additionally, GFXR
+            // does not support the video decode API. Allocate based on the correct struct size anyway
+            // so that if the driver accepts the call the buffer is large enough; if the driver rejects
+            // it, CheckReplayResult will handle the HRESULT mismatch.
+            GFXRECON_LOG_WARNING_ONCE(
+                "GetResolveQueryDataSize: D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS is not listed as a "
+                "supported query type for ID3D12Device::ResolveQueryData (CPU-timeline resolution). "
+                "GFXR does not support the video decode API.");
+            element_size = sizeof(D3D12_QUERY_DATA_VIDEO_DECODE_STATISTICS);
             break;
         case D3D12_QUERY_TYPE_PIPELINE_STATISTICS:
             element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS);
