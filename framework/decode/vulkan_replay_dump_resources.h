@@ -828,6 +828,15 @@ class VulkanReplayDumpResourcesBase
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos,
         bool                                                                       before_command);
 
+    // The clones that take original_command_buffer's next work command, instead of or besides the original.
+    std::vector<VkCommandBuffer> GetWorkCommandBuffers(VkCommandBuffer original_command_buffer)
+    {
+        std::vector<VkCommandBuffer> command_buffers;
+        ForEachWorkCommandBuffer(original_command_buffer,
+                                 [&](VkCommandBuffer command_buffer) { command_buffers.push_back(command_buffer); });
+        return command_buffers;
+    }
+
     void
     OverrideCmdCopyAccelerationStructureKHR(const ApiCallInfo&                    call_info,
                                             PFN_vkCmdCopyAccelerationStructureKHR func,
