@@ -73,7 +73,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     add_executable(gfxrecon-testapp-runner ${GFXRECON_TESTCASES})
 
     add_dependencies(gfxrecon-testapp-runner gfxrecon-test-launcher VkICD_mock_icd gfxrecon-convert gfxrecon-replay VkLayer_gfxreconstruct)
-    target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${GFXRECON_TEST_APP_LIST_DIR})
     target_link_libraries(gfxrecon-testapp-runner
             gfxrecon_util
             GTest::gtest GTest::gtest_main)

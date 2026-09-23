@@ -5,7 +5,13 @@
 1. Create a new folder in the `test_apps` directory. Name the directory the same name as your test app.
 2. Add your code to the new folder
 3. Create a new `CMakeLists.txt` file in the new directory that builds your test app. For examples
-4. Include the new folder in the CMakeLists.txt file in the `test_apps` directory
+4. Add one entry for the app to `test/test_apps/TestAppList.cmake`.
+   That file is the one list of test apps.
+   CMake derives the directories, the launcher's names and libraries, and the reruns from it.
+   The app header must be `<ident>_app.h` and the class `gfxrecon::test_app::<ident>::App`.
+   An app that runs under several names or needs constructor arguments uses the `CUSTOM` kind
+   and adds its names and constructor calls to `test/test_apps/launcher/test_launcher.cpp` by hand.
+   `<ident>` is the app name with `-` replaced by `_`.
 
 See the *triangle* test app for examples.
 

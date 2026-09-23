@@ -22,6 +22,7 @@
 
 #include <gtest/gtest.h>
 
+#include "test_app_list.h"
 #include "verify-gfxr.h"
 
 #include <algorithm>
@@ -31,24 +32,14 @@
 // run does not: the passive path of every layer entry point when capture is off, and the
 // lock in every layer entry point when command serialization is on.
 
+// Both lists come from test/test_apps/TestAppList.cmake, so an app that gains a known-good file
+// joins the serialized rerun with one change there.
+#define GFXRECON_TEST_APP_NAME(ident, name) name,
 // Apps with a known-good capture. The serialized rerun compares against it.
-static const char* const kCaptureApps[] = {
-    "acquired-image",        "ahb",
-    "debug-utils",           "deep-pnext-chain",
-    "multisample-depth",     "pipeline-binaries",
-    "set-environment",       "shader-objects",
-    "sparse-resources",      "triangle",
-    "triangle-extra-device",
-#if defined(__linux__)
-    "trigger-trimming",      "wait-for-present",
-#endif
-};
-
-// Apps with no known-good capture. Only the capture-disabled rerun applies.
-static const char* const kReplayOnlyApps[] = {
-    "isolate-render-passes",
-    "serialize-compute-and-transfer",
-};
+static const char* const kCaptureApps[] = { GFXRECON_TEST_APP_LIST_KNOWN_GOOD(GFXRECON_TEST_APP_NAME) };
+// Apps with a replay-only case. Only the capture-disabled rerun applies.
+static const char* const kReplayOnlyApps[] = { GFXRECON_TEST_APP_LIST_REPLAY_ONLY(GFXRECON_TEST_APP_NAME) };
+#undef GFXRECON_TEST_APP_NAME
 
 // gtest needs a name that is a C identifier.
 static std::string TestName(const testing::TestParamInfo<const char*>& info)
