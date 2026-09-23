@@ -330,6 +330,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     CommonObjectInfoTable& GetObjectInfoTable() { return *object_info_table_; }
 
+    virtual void TrackBufferWrite(format::HandleId commandBuffer, format::HandleId buffer)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(buffer);
+    }
+
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void PostProcessExternalObject(

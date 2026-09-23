@@ -1206,6 +1206,24 @@ class KhronosBaseGenerator(OutputGenerator):
             if not self.is_cmd_black_listed(key)
         ]
 
+    def get_buffer_write_params(self, command):
+        """Retrieves the buffers that command writes, derived from the registry.
+
+        A VkBuffer whose parameter or struct member name begins with "dst" is the destination
+        of a copy or write.
+        """
+        writes = []
+        for value in self.all_cmd_params[command][2]:
+            if value.base_type == 'VkBuffer':
+                if value.name.startswith('dst') and not value.is_array:
+                    writes.append((value, None))
+            elif value.base_type in self.all_struct_members:
+                for member in self.all_struct_members[value.base_type]:
+                    if (member.base_type == 'VkBuffer' and member.name.startswith('dst')
+                            and not member.is_array):
+                        writes.append((value, member.name))
+        return writes
+
     def get_filtered_cmd_names(self):
         """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
         return [
