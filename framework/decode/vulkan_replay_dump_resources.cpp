@@ -830,12 +830,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pRenderPassBegin->GetPointer(), contents);
-            }
+            func(dc_context->GetWorkCommandBuffer(), pRenderPassBegin->GetPointer(), contents);
         }
     }
 
@@ -906,12 +901,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
         }
     }
 
@@ -947,12 +937,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdNextSubpass(const ApiCallInfo&   
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, contents);
-            }
+            func(dc_context->GetWorkCommandBuffer(), contents);
         }
     }
 
@@ -991,12 +976,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdNextSubpass2(
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pSubpassBeginInfo->GetPointer(), pSubpassEndInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pSubpassBeginInfo->GetPointer(), pSubpassEndInfo->GetPointer());
         }
     }
 
@@ -1030,12 +1010,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass(const ApiCallInfo& 
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it);
-            }
+            func(dc_context->GetWorkCommandBuffer());
         }
     }
 
@@ -1071,12 +1046,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass2(
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pSubpassEndInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pSubpassEndInfo->GetPointer());
         }
     }
 
@@ -1649,12 +1619,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
-        CommandBufferIterator first, last;
-        dc_context->GetWorkCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it, groupCountX, groupCountY, groupCountZ);
-        }
+        func(dc_context->GetWorkCommandBuffer(), groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -1677,12 +1642,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInf
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
-        CommandBufferIterator first, last;
-        dc_context->GetWorkCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it, buffer_info->handle, offset);
-        }
+        func(dc_context->GetWorkCommandBuffer(), buffer_info->handle, offset);
     }
 }
 
@@ -1725,19 +1685,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
-        CommandBufferIterator first, last;
-        dc_context->GetWorkCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it,
-                 in_pRaygenShaderBindingTable,
-                 in_pMissShaderBindingTable,
-                 in_pHitShaderBindingTable,
-                 in_pCallableShaderBindingTable,
-                 width,
-                 height,
-                 depth);
-        }
+        func(dc_context->GetWorkCommandBuffer(),
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
     }
 }
 
@@ -1776,17 +1731,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_contest : dc_contexts)
     {
-        CommandBufferIterator first, last;
-        dc_contest->GetWorkCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it,
-                 in_pRaygenShaderBindingTable,
-                 in_pMissShaderBindingTable,
-                 in_pHitShaderBindingTable,
-                 in_pCallableShaderBindingTable,
-                 indirectDeviceAddress);
-        }
+        func(dc_contest->GetWorkCommandBuffer(),
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             indirectDeviceAddress);
     }
 }
 
@@ -1808,12 +1758,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCa
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
-        CommandBufferIterator first, last;
-        dc_context->GetWorkCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it, indirectDeviceAddress);
-        }
+        func(dc_context->GetWorkCommandBuffer(), indirectDeviceAddress);
     }
 }
 
@@ -1883,12 +1828,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                dc_context->RecordCmdBeginRendering(*it, pRenderingInfo->GetPointer());
-            }
+            dc_context->RecordCmdBeginRendering(dc_context->GetWorkCommandBuffer(), pRenderingInfo->GetPointer());
         }
     }
 
@@ -1929,12 +1869,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRendering(const ApiCallInfo&  
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                dc_context->RecordCmdEndRendering(*it);
-            }
+            dc_context->RecordCmdEndRendering(dc_context->GetWorkCommandBuffer());
         }
     }
 
@@ -1975,12 +1910,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRendering2KHR(
         }
         else
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pRenderingEndInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pRenderingEndInfo->GetPointer());
         }
     }
 
@@ -2533,12 +2463,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         else
         {
             // No executed secondary has a dumping context, so this is plain work for the primary.
-            CommandBufferIterator work_first, work_last;
-            dc_primary_context->GetWorkCommandBuffers(work_first, work_last);
-            for (CommandBufferIterator primary_it = work_first; primary_it < work_last; ++primary_it)
-            {
-                func(*primary_it, commandBufferCount, pCommandBuffers);
-            }
+            func(dc_primary_context->GetWorkCommandBuffer(), commandBufferCount, pCommandBuffers);
         }
     }
 
@@ -2732,12 +2657,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer(const ApiCallInfo&    
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, srcBuffer->handle, dstBuffer->handle, regionCount, pRegions->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(),
+                 srcBuffer->handle,
+                 dstBuffer->handle,
+                 regionCount,
+                 pRegions->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -2779,12 +2703,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer2(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyBufferInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyBufferInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -2821,12 +2740,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer2KHR(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyBufferInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyBufferInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -2867,12 +2781,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, srcBuffer->handle, dstImage->handle, dstImageLayout, regionCount, pRegions->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(),
+                 srcBuffer->handle,
+                 dstImage->handle,
+                 dstImageLayout,
+                 regionCount,
+                 pRegions->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -2920,12 +2834,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage2(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyBufferToImageInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyBufferToImageInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -2962,12 +2871,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage2KHR(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyBufferToImageInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyBufferToImageInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3008,18 +2912,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage(const ApiCallInfo&     
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it,
-                     srcImage->handle,
-                     srcImageLayout,
-                     dstImage->handle,
-                     dstImageLayout,
-                     regionCount,
-                     pRegions->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(),
+                 srcImage->handle,
+                 srcImageLayout,
+                 dstImage->handle,
+                 dstImageLayout,
+                 regionCount,
+                 pRegions->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3069,12 +2968,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage2(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyImageInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyImageInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3111,12 +3005,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage2KHR(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyImageInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyImageInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3157,12 +3046,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, srcImage->handle, srcImageLayout, dstBuffer->handle, regionCount, pRegions->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(),
+                 srcImage->handle,
+                 srcImageLayout,
+                 dstBuffer->handle,
+                 regionCount,
+                 pRegions->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3210,12 +3099,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer2(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyImageToBufferInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyImageToBufferInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3252,12 +3136,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer2KHR(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pCopyImageToBufferInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pCopyImageToBufferInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3299,19 +3178,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage(const ApiCallInfo&     
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it,
-                     srcImage->handle,
-                     srcImageLayout,
-                     dstImage->handle,
-                     dstImageLayout,
-                     regionCount,
-                     pRegions->GetPointer(),
-                     filter);
-            }
+            func(dc_context->GetWorkCommandBuffer(),
+                 srcImage->handle,
+                 srcImageLayout,
+                 dstImage->handle,
+                 dstImageLayout,
+                 regionCount,
+                 pRegions->GetPointer(),
+                 filter);
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3363,12 +3237,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage2(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pBlitImageInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pBlitImageInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3405,12 +3274,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage2KHR(
             FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pBlitImageInfo->GetPointer());
-            }
+            func(dc_context->GetWorkCommandBuffer(), pBlitImageInfo->GetPointer());
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3451,15 +3315,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
         std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            bool                  found = dc_context->GetWorkCommandBuffers(first, last);
-            if (found)
-            {
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, infoCount, build_geometry_infos, build_range_infos);
-                }
-            }
+            func(dc_context->GetWorkCommandBuffer(), infoCount, build_geometry_infos, build_range_infos);
         }
 
         std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3499,15 +3355,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyAccelerationStructureKHR(
         std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            bool                  found = dc_context->GetWorkCommandBuffers(first, last);
-            if (found)
-            {
-                for (CommandBufferIterator it = first; it < last; ++it)
-                {
-                    func(*it, pInfo->GetPointer());
-                }
-            }
+            func(dc_context->GetWorkCommandBuffer(), pInfo->GetPointer());
         }
 
         std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =

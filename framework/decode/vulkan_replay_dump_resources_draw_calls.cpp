@@ -383,12 +383,7 @@ void DrawCallsDumpingContext::CmdDraw(const ApiCallInfo& call_info,
         dc_params = InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
     }
 
-    CommandBufferIterator first, last;
-    GetWorkCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, vertex_count, instance_count, first_vertex, first_instance);
-    }
+    func(GetWorkCommandBuffer(), vertex_count, instance_count, first_vertex, first_instance);
 
     if (must_dump)
     {
@@ -423,12 +418,7 @@ void DrawCallsDumpingContext::CmdDrawIndexed(const ApiCallInfo&   call_info,
             dc_index, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
 
-    CommandBufferIterator first, last;
-    GetWorkCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, index_count, instance_count, first_index, vertex_offset, first_instance);
-    }
+    func(GetWorkCommandBuffer(), index_count, instance_count, first_index, vertex_offset, first_instance);
 
     if (must_dump)
     {
@@ -461,12 +451,7 @@ void DrawCallsDumpingContext::CmdDrawIndirect(const ApiCallInfo&      call_info,
         dc_params = InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
-    CommandBufferIterator first, last;
-    GetWorkCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
 
     if (must_dump)
     {
@@ -498,12 +483,7 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirect(const ApiCallInfo&         
         dc_params = InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
-    CommandBufferIterator first, last;
-    GetWorkCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
 
     if (must_dump)
     {
@@ -545,12 +525,13 @@ void DrawCallsDumpingContext::CmdDrawIndirectCount(const ApiCallInfo&           
                                                      drawcall_type);
     }
 
-    CommandBufferIterator first, last;
-    GetWorkCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(),
+         buffer_info->handle,
+         offset,
+         count_buffer_info->handle,
+         count_buffer_offset,
+         max_draw_count,
+         stride);
 
     if (must_dump)
     {
@@ -592,12 +573,13 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirectCount(const ApiCallInfo&    
                                                                 drawcall_type);
     }
 
-    CommandBufferIterator first, last;
-    GetWorkCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(),
+         buffer_info->handle,
+         offset,
+         count_buffer_info->handle,
+         count_buffer_offset,
+         max_draw_count,
+         stride);
 
     if (must_dump)
     {
@@ -3847,6 +3829,7 @@ void DrawCallsDumpingContext::GetCloneWindow(size_t cmd_buf_index, uint64_t& lo,
     // A slot's position in the primary's stream is where the vkCmdExecuteCommands that merged it sits,
     // or the draw call block index for the primary's own draws.
     const auto slot_position = [this](size_t slot_index) {
+        GFXRECON_ASSERT(slot_index < dc_slots_.size());
         const DrawCallSlot& slot = dc_slots_[slot_index];
         return slot.execute_index != UNDEFINED_INDEX ? slot.execute_index : slot.dc_index;
     };
@@ -3893,12 +3876,10 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
     return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
 }
 
-uint32_t DrawCallsDumpingContext::GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const
+VkCommandBuffer DrawCallsDumpingContext::GetWorkCommandBuffer() const
 {
-    GFXRECON_ASSERT(current_cb_index_ <= command_buffers_.size());
-    first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
-    last  = (current_cb_index_ < command_buffers_.size()) ? first + 1 : first;
-    return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
+    GFXRECON_ASSERT(current_cb_index_ < command_buffers_.size());
+    return command_buffers_[current_cb_index_];
 }
 
 uint32_t DrawCallsDumpingContext::GetRenderPassCommandBuffers(CommandBufferIterator& first,
@@ -3907,7 +3888,10 @@ uint32_t DrawCallsDumpingContext::GetRenderPassCommandBuffers(CommandBufferItera
     // An instance this context did not begin itself lives entirely inside the current clone's window
     if (!inside_renderpass_ || render_pass_contexts_.empty())
     {
-        return GetWorkCommandBuffers(first, last);
+        GFXRECON_ASSERT(current_cb_index_ < command_buffers_.size());
+        first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
+        last  = first + 1;
+        return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
     }
 
     const RenderPassContext& render_pass_context = *render_pass_contexts_.back();

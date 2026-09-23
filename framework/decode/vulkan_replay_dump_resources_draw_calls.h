@@ -214,7 +214,7 @@ class DrawCallsDumpingContext
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
     // The clone a work command is recorded into: the current one.
-    uint32_t GetWorkCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+    VkCommandBuffer GetWorkCommandBuffer() const;
 
     // The clones that have the active render pass instance begun: the stored range of an instance this
     // context began, or the current clone for one it only forwards.

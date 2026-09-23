@@ -878,12 +878,7 @@ class VulkanReplayDumpResourcesBase
             FindDrawCallDumpingContexts(original_command_buffer);
         for (const auto& dc_context : dc_contexts)
         {
-            CommandBufferIterator first, last;
-            dc_context->GetWorkCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                callback(*it);
-            }
+            callback(dc_context->GetWorkCommandBuffer());
         }
     }
 
