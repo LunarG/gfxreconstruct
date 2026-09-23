@@ -679,7 +679,7 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
         if (memory_type_index == std::numeric_limits<uint32_t>::max())
         {
             // Only vkCmdCopyBuffer ever touches a shadow buffer, so we prefer keeping the shadow buffer device local.
-            // If the application buffer was also device local, data won't need to be transferred through PCIe.
+            // If the application buffer was also device local, buffer data won't need to be transferred through PCIe.
             // Even if the application buffer was host visible, having a non device local shadow buffer would still
             // need to transfer over PCIe and execute it on the GPU for copies.
             memory_type_index = graphics::GetMemoryTypeIndex(
