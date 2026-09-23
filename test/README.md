@@ -50,6 +50,10 @@ ctest --test-dir build/linux/x64 -R Triangle      # Every case whose name matche
 ctest --test-dir build/linux/x64 -N               # List the cases and run nothing.
 ```
 
+The `unit` label exists only when the build had `RUN_TESTS` on.
+`scripts/build.py` turns it on unless you pass `--skip-tests`.
+A `--skip-tests` build has no unit test binaries to run.
+
 The run script in `<install>/test` does the same for the test app cases and adds one mode.
 An argument that is an app name runs that app alone, without a comparison:
 
@@ -84,7 +88,7 @@ It checks only the exit code.
 
 `reruns.cpp` runs each capture app two more times.
 One run has `GFXRECON_CAPTURE_PROCESS_NAME` set to a name that does not match.
-The layer must load and write no file.
+The layer must load, log the mismatch in its own log file, and write no capture file.
 The other run has `GFXRECON_FORCE_COMMAND_SERIALIZATION=true` and must match the same known good.
 When you add an app, add its name to the lists in that file.
 

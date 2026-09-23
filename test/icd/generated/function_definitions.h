@@ -2333,8 +2333,9 @@ static VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirements(
     const VkDeviceImageMemoryRequirements*      pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    pMemoryRequirements->memoryRequirements.size = GetImageSizeFromCreateInfo(pInfo->pCreateInfo);
-    pMemoryRequirements->memoryRequirements.alignment = 1;
+    // Same units as GetImageMemoryRequirements, for the same reason.
+    pMemoryRequirements->memoryRequirements.size = RoundToMockGranularity(GetImageSizeFromCreateInfo(pInfo->pCreateInfo));
+    pMemoryRequirements->memoryRequirements.alignment = kMockMemoryGranularity;
     // Here we hard-code that the memory type at index 3 doesn't support this image.
     pMemoryRequirements->memoryRequirements.memoryTypeBits = 0xFFFF & ~(0x1 << 3);
 }

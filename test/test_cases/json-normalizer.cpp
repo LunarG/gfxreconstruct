@@ -35,7 +35,7 @@ static nlohmann::json normalize(const char* text)
 TEST(JsonNormalizer, DropsIgnoredKeysAndKeepsTheRest)
 {
     auto result = normalize(R"([{"index": 1, "args": {"hwnd": 7, "fd": 3, "ppData": "0x1", "keep": 2}}])");
-    ASSERT_EQ(result.size(), 1);
+    ASSERT_EQ(result.size(), 1u);
     EXPECT_EQ(result[0]["args"], nlohmann::json::parse(R"({"keep": 2})"));
 }
 
@@ -65,7 +65,7 @@ TEST(JsonNormalizer, DropsHeaderAndAnnotationBlocks)
         {"index": 1, "annotation": {"label": "x", "data": "y"}},
         {"index": 2, "function": {"name": "vkCreateInstance"}}
     ])");
-    ASSERT_EQ(result.size(), 2);
+    ASSERT_EQ(result.size(), 2u);
     EXPECT_TRUE(result[0].contains("meta"));
     EXPECT_TRUE(result[1].contains("function"));
 }
@@ -74,7 +74,7 @@ TEST(JsonNormalizer, KeepsNestedObjectsThatUseTheBlockKeyNames)
 {
     // Only a top-level block is dropped. A nested object with the same key name stays.
     auto result = normalize(R"([{"index": 1, "args": {"header": 1, "annotation": 2}}])");
-    ASSERT_EQ(result.size(), 1);
+    ASSERT_EQ(result.size(), 1u);
     EXPECT_EQ(result[0]["args"], nlohmann::json::parse(R"({"header": 1, "annotation": 2})"));
 }
 
@@ -84,7 +84,7 @@ TEST(JsonNormalizer, DropsTheAhbBufferOnlyAfterItsMarker)
         {"index": 1, "args": {"sType": "VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID", "buffer": "0x1"}},
         {"index": 2, "args": {"buffer": "0x2", "size": 4}}
     ])");
-    ASSERT_EQ(result.size(), 2);
+    ASSERT_EQ(result.size(), 2u);
     EXPECT_FALSE(result[0]["args"].contains("buffer"));
     EXPECT_EQ(result[1]["args"], nlohmann::json::parse(R"({"buffer": "0x2", "size": 4})"));
 }
@@ -104,5 +104,5 @@ TEST(JsonNormalizer, TwoNormalizedDocumentsCompareEqual)
         normalize(R"([{"header": {"source-path": "/a"}}, {"index": 1, "args": {"ppData": "0x1", "size": 8}}])");
     auto second =
         normalize(R"([{"header": {"source-path": "/b"}}, {"index": 1, "args": {"ppData": "0x2", "size": 8}}])");
-    EXPECT_EQ(nlohmann::json::diff(first, second).size(), 0);
+    EXPECT_EQ(nlohmann::json::diff(first, second).size(), 0u);
 }

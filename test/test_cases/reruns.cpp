@@ -24,6 +24,7 @@
 
 #include "verify-gfxr.h"
 
+#include <algorithm>
 #include <string>
 
 // Two reruns of the capture apps along a second axis each. They reach code that the plain
@@ -53,13 +54,7 @@ static const char* const kReplayOnlyApps[] = {
 static std::string TestName(const testing::TestParamInfo<const char*>& info)
 {
     std::string name = info.param;
-    for (char& c : name)
-    {
-        if (c == '-')
-        {
-            c = '_';
-        }
-    }
+    std::replace(name.begin(), name.end(), '-', '_');
     return name;
 }
 

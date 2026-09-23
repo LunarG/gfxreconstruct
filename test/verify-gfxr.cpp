@@ -1,6 +1,7 @@
 #include "verify-gfxr.h"
 
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <cctype>
 #include <fstream>
 #include <filesystem>
@@ -40,21 +41,14 @@ static const char* const kAhbBufferMarkers[] = { "VK_STRUCTURE_TYPE_IMPORT_ANDRO
 
 static bool is_ignored_key(const std::string& key)
 {
-    for (const char* ignored : kIgnoredKeys)
+    if (std::any_of(
+            std::begin(kIgnoredKeys), std::end(kIgnoredKeys), [&](const char* ignored) { return key == ignored; }))
     {
-        if (key == ignored)
-        {
-            return true;
-        }
+        return true;
     }
-    for (const char* prefix : kIgnoredKeyPrefixes)
-    {
-        if (key.rfind(prefix, 0) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(std::begin(kIgnoredKeyPrefixes), std::end(kIgnoredKeyPrefixes), [&](const char* prefix) {
+        return key.starts_with(prefix);
+    });
 }
 
 bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
@@ -84,12 +78,11 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
             if (parsed.is_string())
             {
                 const std::string value = parsed.get<std::string>();
-                for (const char* marker : kAhbBufferMarkers)
+                if (std::any_of(std::begin(kAhbBufferMarkers), std::end(kAhbBufferMarkers), [&](const char* marker) {
+                        return value == marker;
+                    }))
                 {
-                    if (value == marker)
-                    {
-                        skip_next_buffer = true;
-                    }
+                    skip_next_buffer = true;
                 }
             }
             break;
@@ -327,7 +320,7 @@ int run_command(const std::filesystem::path& working_directory,
 
 // Remove the outputs of an earlier run. When they stay in place and the app writes no capture, the
 // convert step reads the old file and the case passes for the wrong reason.
-void remove_previous_outputs(std::initializer_list<std::filesystem::path> paths)
+static void remove_previous_outputs(std::initializer_list<std::filesystem::path> paths)
 {
     for (const auto& path : paths)
     {
@@ -494,16 +487,31 @@ void verify_no_capture(const char* test_name)
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
-    remove_previous_outputs({ paths.capture_path });
+    // The layer's own log proves that the layer loaded and chose to stay passive. Without it, a run
+    // with no layer at all would also produce no capture file and pass.
+    std::filesystem::path layer_log_path{ paths.base_path };
+    layer_log_path.append(paths.output_stem + ".layer.log");
+    remove_previous_outputs({ paths.capture_path, layer_log_path });
 
     // The launcher is named gfxrecon-test-launcher, so this name never matches.
     env_vars.SetEnv("GFXRECON_CAPTURE_PROCESS_NAME", "gfxrecon-no-such-process");
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    env_vars.SetEnv("GFXRECON_LOG_FILE", layer_log_path.string().c_str());
     int result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
     ASSERT_FALSE(std::filesystem::exists(paths.capture_path))
         << "capture file was produced with a process name that does not match: " << paths.capture_path;
+
+    std::ifstream layer_log_file{ layer_log_path };
+    ASSERT_TRUE(layer_log_file.is_open()) << "the layer wrote no log file, so it did not load: " << layer_log_path;
+    const std::string layer_log{ std::istreambuf_iterator<char>(layer_log_file), std::istreambuf_iterator<char>() };
+    EXPECT_NE(layer_log.find("Initializing GFXReconstruct capture layer"), std::string::npos)
+        << "the layer did not log its initialization: " << layer_log_path;
+    EXPECT_NE(layer_log.find("does not match current process"), std::string::npos)
+        << "the layer did not log the process name mismatch: " << layer_log_path;
+    EXPECT_EQ(layer_log.find("Recording graphics API capture"), std::string::npos)
+        << "the layer started a capture with a process name that does not match: " << layer_log_path;
 }
 
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)

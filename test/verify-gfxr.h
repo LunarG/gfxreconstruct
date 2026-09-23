@@ -50,7 +50,8 @@ void verify_gfxr_serialized(const char* test_name);
 
 /**
  * Run an application with GFXRECON_CAPTURE_PROCESS_NAME set to a name that does not match the
- * launcher. The layer must load, stay passive, and write no capture file.
+ * launcher. The layer must load, stay passive, and write no capture file. The layer's log file
+ * proves that it loaded and saw the mismatch.
  *
  * @param test_name - the name of the test app to launch
  */
