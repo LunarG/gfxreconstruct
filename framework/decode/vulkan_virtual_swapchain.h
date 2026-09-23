@@ -211,7 +211,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     struct AdhocSwapChainFrameData
     {
         VkCommandBuffer command_buffer    = VK_NULL_HANDLE;
-        VkFence         fence             = VK_NULL_HANDLE;
         VkSemaphore     acquire_semaphore = VK_NULL_HANDLE;
     };
 
