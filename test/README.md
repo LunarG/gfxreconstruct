@@ -105,7 +105,8 @@ The known-good file is a capture of the app on the mock ICD.
 
 1. Delete `known_good/<name>.gfxr` if one exists, then build and install.
 2. Run the case once.
-   It fails, and it leaves `<name>.gfxr` in `<install>/test`.
+   It fails, and it leaves `<name>.<suite>.<case>.gfxr` in `<install>/test`.
+   Every output file carries the case name, so cases can run in parallel with `ctest -j`.
 3. Copy that file to `test/known_good/<name>.gfxr`, then install again.
 4. Run the case two more times.
    Both must pass.

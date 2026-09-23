@@ -1,6 +1,7 @@
 #include "verify-gfxr.h"
 
 #include <gtest/gtest.h>
+#include <cctype>
 #include <fstream>
 #include <filesystem>
 #include <system_error>
@@ -122,21 +123,28 @@ static const char* CONVERT_FILENAME = "gfxrecon-convert.exe";
 static const char* REPLAY_FILENAME  = "gfxrecon-replay.exe";
 #endif
 
-// Gets the name of the test app combined with the test suite running it. This allows the same app to be used in
-// different test cases, as otherwise there might be conflicts with the same trace file.
-static std::string capture_file_name(const char* test_name)
+// The name of the running gtest case as a file name part, for example
+// "CaptureApps_Serialized.CorrectGFXR_triangle". Every output file of a case carries it, so cases
+// that share an app and run in parallel under ctest never touch each other's files.
+static std::string current_test_id()
 {
-    const auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-    if (test_info == nullptr)
+    const testing::TestInfo* info = testing::UnitTest::GetInstance()->current_test_info();
+    std::string id = info != nullptr ? std::string(info->test_suite_name()) + "." + info->name() : "no_test";
+    for (char& c : id)
     {
-        return test_name;
+        if (!std::isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '_' && c != '-')
+        {
+            c = '_';
+        }
     }
-
-    return std::string{ test_name } + "_" + test_info->test_suite_name() + "_" + test_info->name();
+    return id;
 }
 
 struct Paths
 {
+    // "<app>.<test id>", the stem of every file this case writes.
+    std::string output_stem;
+
     std::filesystem::path base_path{ std::filesystem::current_path() };
     std::filesystem::path working_directory{ base_path };
     std::filesystem::path full_app_directory{ base_path };
@@ -194,19 +202,19 @@ struct Paths
             trimming_suffix = "_trim_trigger";
         }
 
-        capture_trimming_path.append(capture_file_name(test_name) + trimming_suffix + ".gfxr");
-
-        std::string known_good_trimming_file = test_name + trimming_suffix;
-        known_good_trimming_file += ".gfxr";
+        // The layer puts the trimming suffix before the extension of GFXRECON_CAPTURE_FILE.
+        capture_trimming_path.append(output_stem + trimming_suffix + ".gfxr");
 
         known_good_trimming_path.append("known_good");
-        known_good_trimming_path.append(known_good_trimming_file);
+        known_good_trimming_path.append(test_name + trimming_suffix + ".gfxr");
 
         app_trimming_json_path = std::filesystem::path{ capture_trimming_path };
         app_trimming_json_path.replace_extension(".json");
 
-        known_good_trimming_json_path = std::filesystem::path{ known_good_trimming_path };
-        known_good_trimming_json_path.replace_extension(".json");
+        // The converted known good goes next to the capture, under the case's name, and not next to
+        // the known-good file, which every case of this app would share.
+        known_good_trimming_json_path = base_path;
+        known_good_trimming_json_path.append(output_stem + trimming_suffix + ".known_good.json");
     }
 
     Paths(const char* test_name, const char* trimming_frames, bool trigger_trimming)
@@ -227,16 +235,18 @@ struct Paths
         convert_path.append(CONVERT_FILENAME);
         replay_path.append(REPLAY_FILENAME);
 
-        capture_path.append(capture_file_name(test_name) + std::string(".gfxr"));
+        output_stem = std::string(test_name) + "." + current_test_id();
+        capture_path.append(output_stem + ".gfxr");
 
+        // The known-good file is an input and keeps the app name.
         known_good_path.append("known_good");
         known_good_path.append(test_name + std::string(".gfxr"));
 
         app_json_path = std::filesystem::path{ capture_path };
         app_json_path.replace_extension(".json");
 
-        known_good_json_path = std::filesystem::path{ known_good_path };
-        known_good_json_path.replace_extension(".json");
+        known_good_json_path = base_path;
+        known_good_json_path.append(output_stem + ".known_good.json");
 
         if (trimming_frames != nullptr || trigger_trimming)
         {
@@ -360,12 +370,17 @@ void run_trimming_app(const Paths& paths, const char* test_name, const char* tri
     env_vars.UnsetEnv("GFXRECON_CAPTURE_TRIGGER");
 
     // convert actual gfxr
-    result = run_command(paths.base_path, paths.convert_path, { paths.capture_trimming_path.string() });
+    result = run_command(paths.base_path,
+                         paths.convert_path,
+                         { "--output", paths.app_trimming_json_path.string(), paths.capture_trimming_path.string() });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.convert_path << " " << paths.capture_trimming_path
                          << " in path " << paths.base_path;
 
     // convert known good gfxr
-    result = run_command(paths.base_path, paths.convert_path, { paths.known_good_trimming_path.string() });
+    result = run_command(
+        paths.base_path,
+        paths.convert_path,
+        { "--output", paths.known_good_trimming_json_path.string(), paths.known_good_trimming_path.string() });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.convert_path << " " << paths.known_good_trimming_path
                          << " in path " << paths.base_path;
 
@@ -403,12 +418,15 @@ void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigge
     ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
 
     // convert actual gfxr
-    result = run_command(paths.base_path, paths.convert_path, { paths.capture_path.string() });
+    result = run_command(
+        paths.base_path, paths.convert_path, { "--output", paths.app_json_path.string(), paths.capture_path.string() });
     ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << paths.capture_path << " in path "
                          << paths.base_path;
 
     // convert known good gfxr
-    result = run_command(paths.base_path, paths.convert_path, { paths.known_good_path.string() });
+    result = run_command(paths.base_path,
+                         paths.convert_path,
+                         { "--output", paths.known_good_json_path.string(), paths.known_good_path.string() });
     ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << paths.known_good_path << " in path "
                          << paths.base_path;
 
@@ -614,7 +632,7 @@ void capture_and_verify_screenshots(const char* test_name, std::vector<std::stri
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
     std::filesystem::path replay_capture_path{ paths.base_path };
-    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    replay_capture_path.append(paths.output_stem + "_replay.gfxr");
     remove_previous_outputs({ paths.capture_path, replay_capture_path });
 
     // Run the app with capture enabled to produce the gfxr to replay.
