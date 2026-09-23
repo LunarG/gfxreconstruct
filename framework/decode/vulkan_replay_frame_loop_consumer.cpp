@@ -539,6 +539,8 @@ VulkanReplayFrameLoopConsumer::BufferTracking::MaxBlockSize(const VkPhysicalDevi
     // An allocation can never be larger than the heap that it comes from.
     const uint32_t heap_index = memory_properties.memoryTypes[memory_type_index].heapIndex;
 
+    // `kMaxMemoryBlockSize` is the 1 GiB that we know no allocation should exceed. However, the memory type's heap
+    // might be greater or lower than this, such as resizable bar being in chunks of 256 MiB.
     return std::min(kMaxMemoryBlockSize, memory_properties.memoryHeaps[heap_index].size);
 }
 
