@@ -561,7 +561,6 @@ return [
     MacLabel : 'Mac-M2',
     WinAMDLabel : 'Windows-AMD-6800-64G-RAID',
     WinNvidiaLabel : 'Windows-NVIDIA-20XX-stable',
-    Win11AMDLabel : 'Windows11-AMD-6800-stable',
     Win11ARMLabel : 'Windows11-ARM-GFXR',
     Win11AMD9070Label : 'Windows11-AMD-9070',
     Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',
