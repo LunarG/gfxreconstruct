@@ -1109,6 +1109,8 @@ void UnwrapStructHandles(VkRenderingAttachmentFlagsInfoKHR* value, HandleUnwrapM
 
 void UnwrapStructHandles(VkResolveImageModeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceMaintenance11FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -1983,8 +1985,6 @@ void UnwrapStructHandles(VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* value, H
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkLatencySleepModeInfoNV* value, HandleUnwrapMemory* unwrap_memory);
@@ -2288,6 +2288,14 @@ void UnwrapStructHandles(VkImageTilingControlCreateInfoEXT* value, HandleUnwrapM
 void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDevicePrivateDataBaseHandleFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceInfoPropertiesINTEL* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBufferDeviceAddressAlignmentAllocateInfoVALVE* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
 
