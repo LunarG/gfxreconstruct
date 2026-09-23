@@ -196,6 +196,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
         /// A device local copy of one buffer's contents, taken at the start of the loop range and copied back
         /// over the buffer before each repetition.  Its memory is suballocated from a `MemoryBlock`.
+        /// This buffer prefers device local memory when possible.
         struct ShadowBuffer
         {
             ShadowBuffer(VulkanResourceAllocator& allocator, VkDeviceSize buffer_size) :
