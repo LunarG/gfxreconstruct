@@ -1239,10 +1239,9 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
 
                 json_path_sub.emplace_back("counter_resource", format::kNoneIndex);
 
-                const uint64_t counter_offset =
-                    (desc.ViewDimension == D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET)
-                        ? desc.BufferByteOffset.CounterOffsetInBytes
-                        : desc.Buffer.CounterOffsetInBytes;
+                const uint64_t counter_offset = (desc.ViewDimension == D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET)
+                                                    ? desc.BufferByteOffset.CounterOffsetInBytes
+                                                    : desc.Buffer.CounterOffsetInBytes;
                 CopyDrawCallResourceBySubresource(queue_object_info,
                                                   front_command_list_ids,
                                                   info_entry->second.uav.counter_resource_id,

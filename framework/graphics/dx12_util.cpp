@@ -28,6 +28,10 @@
 #include "util/image_writer.h"
 #include "util/logging.h"
 
+#if defined(_WIN32)
+#include <d3d12video.h>
+#endif
+
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
