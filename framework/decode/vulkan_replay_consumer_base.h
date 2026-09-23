@@ -1812,6 +1812,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         PointerDecoder<uint32_t>*                                     pPresentationTimingCount,
         StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings);
 
+    VkResult OverrideGetPastPresentationTimingEXT(
+        PFN_vkGetPastPresentationTimingEXT                                   func,
+        VkResult                                                             original_result,
+        const VulkanDeviceInfo*                                              device_info,
+        StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT>*       pPastPresentationTimingInfo,
+        StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT>* pPastPresentationTimingProperties);
+
+    VkResult OverrideSetSwapchainPresentTimingQueueSizeEXT(PFN_vkSetSwapchainPresentTimingQueueSizeEXT func,
+                                                           VkResult                                    original_result,
+                                                           const VulkanDeviceInfo*                     device_info,
+                                                           const VulkanSwapchainKHRInfo*               swapchain_info,
+                                                           uint32_t                                    size);
+
     VkResult OverrideGetRefreshCycleDurationGOOGLE(
         PFN_vkGetRefreshCycleDurationGOOGLE                         func,
         VkResult                                                    original_result,
