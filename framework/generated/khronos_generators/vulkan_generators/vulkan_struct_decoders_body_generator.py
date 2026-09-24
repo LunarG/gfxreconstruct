@@ -86,23 +86,6 @@ class VulkanStructDecodersBodyGenerator(
         """Method override. The schema field walk owns these decoders, so no procedural body is emitted."""
         return is_schema_driven(self, struct)
 
-    def write_base_out_struct_decoder(self):
-        body = '\n'
-        body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper)\n'
-        body += '{\n'
-        body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
-        body += '\n'
-        body += '    size_t              bytes_read = 0;\n'
-        body += '    VkBaseOutStructure* value      = wrapper->decoded_value;\n'
-        body += '\n'
-        body += '    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));\n'
-        body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));\n'
-        body += '    value->pNext = wrapper->pNext ? reinterpret_cast<VkBaseOutStructure*>(wrapper->pNext->GetPointer()) : nullptr;\n'
-        body += '\n'
-        body += '    return bytes_read;\n'
-        body += '}\n'
-        write(body, file=self.outFile)
-
     def write_schema_driven_instantiations(self):
         """One explicit instantiation for each structure the schema drives.
 
@@ -130,8 +113,6 @@ class VulkanStructDecodersBodyGenerator(
     def endFile(self):
         """Method override."""
         KhronosStructDecodersBodyGenerator.generate_struct_decoder_content(self)
-        self.write_base_out_struct_decoder()
-        self.newline()
         self.write_schema_driven_instantiations()
 
         # Finish processing in superclass

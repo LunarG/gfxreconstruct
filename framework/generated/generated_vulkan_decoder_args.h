@@ -36,6 +36,7 @@
 #include "decode/string_array_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_decode_typed_struct.h"
 #include "decode/vulkan_pnext_node.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_schema_types.h"
@@ -9335,7 +9336,7 @@ struct GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
     format::HandleId physicalDevice;
     uint32_t queueFamilyIndex;
     StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM> pQueueFamilyDataGraphProperties;
-    StructPointerDecoder<Decoded_VkBaseOutStructure> pProperties;
+    TypedStructDecoder pProperties;
 
     auto GetTuple() const { return std::tie(result, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties); }
 };

@@ -37,6 +37,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+VkBaseOutStructure* AllocateOutputTypedStruct(const TypedStructDecoder& decoder);
+
 
 template <typename T>
 void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder);
@@ -10788,8 +10790,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngine
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkQueueFamilyDataGraphPropertiesARM* in_pQueueFamilyDataGraphProperties = args.pQueueFamilyDataGraphProperties.GetPointer();
     MapStructHandles(args.pQueueFamilyDataGraphProperties.GetMetaStructPointer(), GetObjectInfoTable());
-    VkBaseOutStructure* out_pProperties = args.pProperties.IsNull() ? nullptr : args.pProperties.AllocateOutputData(1);
-    InitializeOutputStructPNext(&args.pProperties);
+    VkBaseOutStructure* out_pProperties = args.pProperties.IsNull() ? nullptr : AllocateOutputTypedStruct(args.pProperties);
 
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(in_physicalDevice, args.queueFamilyIndex, in_pQueueFamilyDataGraphProperties, out_pProperties);
     CheckResult("vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM", args.result, replay_result, call_info);
@@ -16879,6 +16880,13 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
     }
 }
 
+
+VkBaseOutStructure* AllocateOutputTypedStruct(const TypedStructDecoder& decoder)
+{
+    VkBaseOutStructure head{};
+    InitializeOutputStructPNextImpl(reinterpret_cast<const VkBaseInStructure*>(decoder.GetPointer()), &head);
+    return head.pNext;
+}
 template <typename T>
 void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)
 {

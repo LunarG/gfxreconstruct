@@ -1390,14 +1390,11 @@ struct Decoded_VkPhysicalDeviceMeshShaderFeaturesEXT;
 struct Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT;
 struct Decoded_VkDrawMeshTasksIndirectCommandEXT;
 
-struct Decoded_VkBaseOutStructure;
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper);
 
 // The structures the schema does not drive: each keeps a generated body and a prototype above.
 // decode/vulkan_decode_struct.h includes this header and declares the constrained DecodeStruct over
 // this list beside the prototypes; it says why the list is an exclusion.
 using NonSchemaDrivenStructs = util::TypeList<
-    Decoded_VkBaseOutStructure
 >;
 
 GFXRECON_END_NAMESPACE(decode)

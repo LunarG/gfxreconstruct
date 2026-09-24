@@ -2242,7 +2242,11 @@ class KhronosBaseGenerator(OutputGenerator):
         if value.is_pointer or value.is_array:
             count = value.pointer_count
 
-            if self.is_struct(type_name):
+            if self.is_base_output_structure_type(type_name):
+                # A pointer to one structure named by its own sType: a decoder with the pointee's type erased, which
+                # runs the sType sieve and holds the node it allocates (decode/vulkan_decode_typed_struct.h).
+                type_name = 'TypedStructDecoder'
+            elif self.is_struct(type_name):
                 if count > 1:
                     type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
                         type_name

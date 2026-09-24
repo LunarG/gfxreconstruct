@@ -103,9 +103,6 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
             if not is_schema_driven(self, struct)
         )
 
-        # VkBaseOutStructure keeps a generated body, written by hand above, so it belongs to this category too.
-        excluded.append('VkBaseOutStructure')
-
         self.newline()
         write('// The structures the schema does not drive: each keeps a generated body and a prototype above.', file=self.outFile)
         write('// decode/vulkan_decode_struct.h includes this header and declares the constrained DecodeStruct over', file=self.outFile)
@@ -121,8 +118,6 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
     def endFile(self):
         """Method override."""
         KhronosStructDecodersForwardGenerator.write_struct_decoder_forward_prototypes(self)
-        write('struct Decoded_VkBaseOutStructure;', file=self.outFile)
-        write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper);', file=self.outFile)
 
         self.write_schema_driven_declarations()
 

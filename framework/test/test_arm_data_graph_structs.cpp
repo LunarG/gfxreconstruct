@@ -23,7 +23,8 @@
 #include <catch2/catch.hpp>
 
 #include "decode/decode_allocator.h"
-#include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_decode_typed_struct.h"
+#include "format/format.h"
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
@@ -35,6 +36,7 @@
 
 #include <iterator>
 #include <memory>
+#include <vector>
 
 TEST_CASE("VkBaseOutStructure decodes to the appropriate returned ARM type", "[enc/dec]")
 {
@@ -62,11 +64,15 @@ TEST_CASE("VkBaseOutStructure decodes to the appropriate returned ARM type", "[e
 
     DecodeAllocator::Begin();
 
-    StructPointerDecoder<Decoded_VkBaseOutStructure> wrapper;
-    wrapper.DecodeBaseHeader(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+    TypedStructDecoder decoder;
+    REQUIRE(decoder.Decode(parameter_buffer->GetData(), parameter_buffer->GetDataSize()) ==
+            parameter_buffer->GetDataSize());
+    REQUIRE_FALSE(decoder.IsNull());
+    REQUIRE(decoder.HasData());
+    REQUIRE(decoder.GetPNextNode() != nullptr);
 
     auto* decoded_properties =
-        reinterpret_cast<const VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(wrapper.GetPointer());
+        reinterpret_cast<const VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(decoder.GetPointer());
     REQUIRE(decoded_properties != nullptr);
     REQUIRE(decoded_properties->sType == optical_flow_properties.sType);
     REQUIRE(decoded_properties->supportedOutputGridSizes == optical_flow_properties.supportedOutputGridSizes);
@@ -239,4 +245,67 @@ TEST_CASE("VkDataGraphPipelineCreateInfoARM with optical flow structs can be enc
 
     DecodeAllocator::End();
     gfxrecon::util::Log::Release();
+}
+
+TEST_CASE("TypedStructDecoder has no node for a null, omitted, or unrecognized structure", "[enc/dec]")
+{
+    using namespace gfxrecon;
+    using namespace gfxrecon::decode;
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kFatal);
+    DecodeAllocator::Begin();
+
+    VkQueueFamilyDataGraphOpticalFlowPropertiesARM properties{};
+    properties.sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM;
+
+    SECTION("a null pointer is the attribute word alone")
+    {
+        auto buffer  = std::make_unique<encode::ParameterBuffer>();
+        auto encoder = std::make_unique<encode::ParameterEncoder>(buffer.get());
+        encode::EncodeStructPtr(encoder.get(), static_cast<const VkBaseOutStructure*>(nullptr));
+
+        TypedStructDecoder decoder;
+        CHECK(decoder.Decode(buffer->GetData(), buffer->GetDataSize()) == sizeof(uint32_t));
+        CHECK(decoder.IsNull());
+        CHECK(decoder.GetPNextNode() == nullptr);
+        CHECK(decoder.GetPointer() == nullptr);
+    }
+
+    SECTION("output omitted after a failed call is the attribute word and the address")
+    {
+        auto buffer  = std::make_unique<encode::ParameterBuffer>();
+        auto encoder = std::make_unique<encode::ParameterEncoder>(buffer.get());
+        encode::EncodeStructPtr(encoder.get(), reinterpret_cast<const VkBaseOutStructure*>(&properties), true);
+
+        REQUIRE(buffer->GetDataSize() == sizeof(uint32_t) + sizeof(format::AddressEncodeType));
+
+        TypedStructDecoder decoder;
+        CHECK(decoder.Decode(buffer->GetData(), buffer->GetDataSize()) == buffer->GetDataSize());
+        CHECK_FALSE(decoder.IsNull());
+        CHECK_FALSE(decoder.HasData());
+        CHECK(decoder.GetAddress() == reinterpret_cast<uint64_t>(&properties));
+        CHECK(decoder.GetPNextNode() == nullptr);
+    }
+
+    SECTION("an unrecognized sType consumes the preamble and no more")
+    {
+        // The preamble a present structure carries, then an sType no structure has, then a body.
+        std::vector<uint8_t> bytes;
+        auto                 append = [&bytes](const auto& value) {
+            const auto* p = reinterpret_cast<const uint8_t*>(&value);
+            bytes.insert(bytes.end(), p, p + sizeof(value));
+        };
+        append(uint32_t{ format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsSingle |
+                         format::PointerAttributes::kHasAddress | format::PointerAttributes::kHasData });
+        append(format::AddressEncodeType{ 0x1000 });
+        append(uint32_t{ VK_STRUCTURE_TYPE_MAX_ENUM });
+        append(uint64_t{ 0 });
+
+        TypedStructDecoder decoder;
+        CHECK(decoder.Decode(bytes.data(), bytes.size()) == sizeof(uint32_t) + sizeof(format::AddressEncodeType));
+        CHECK_FALSE(decoder.IsNull());
+        CHECK(decoder.HasData());
+        CHECK(decoder.GetPNextNode() == nullptr);
+    }
+
+    DecodeAllocator::End();
 }
