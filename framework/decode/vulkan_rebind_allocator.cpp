@@ -609,6 +609,18 @@ VkResult VulkanRebindAllocator::AllocateMemory(const VkMemoryAllocateInfo*  allo
         {
             memory_alloc_info->ahb = import_ahb_info->buffer;
         }
+
+        if (auto import_fd_info = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(allocate_info))
+        {
+            memory_alloc_info->replacement_import_fd = import_fd_info->fd;
+            memory_alloc_info->import_fd_handle_type = import_fd_info->handleType;
+
+            if (auto dedicated_info = graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(allocate_info))
+            {
+                memory_alloc_info->import_dedicated_buffer = dedicated_info->buffer;
+                memory_alloc_info->import_dedicated_image  = dedicated_info->image;
+            }
+        }
     }
 
     return result;
@@ -628,6 +640,12 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
         if (memory_alloc_info->ahb)
         {
             functions_.free_memory(device_, memory_alloc_info->ahb_memory, allocator_->GetAllocationCallbacks());
+        }
+
+        if (memory_alloc_info->replacement_import_fd >= 0)
+        {
+            util::platform::FileClose(memory_alloc_info->replacement_import_fd);
+            memory_alloc_info->replacement_import_fd = -1;
         }
         memory_alloc_info->is_free = true;
 
@@ -841,6 +859,17 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     const VkDeviceSize footprint = (capture_req.size > 0 && resource_alloc_info.create_size > 0)
                                        ? std::min(capture_req.size, resource_alloc_info.create_size)
                                        : std::max(capture_req.size, resource_alloc_info.create_size);
+
+    if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
+    {
+        if (AllocateImportedMemory(memory_alloc_info, memory_offset, capture_req, replay_req, vma_mem_info) ==
+            VK_SUCCESS)
+        {
+            memory_alloc_info.bound_ranges.push_back(
+                { VK_HANDLE_TO_UINT64(buffer), memory_offset, footprint, *vma_mem_info, replay_req.size });
+            return VK_SUCCESS;
+        }
+    }
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
@@ -1175,6 +1204,17 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     // Images carry no flat create-size proxy, so the footprint is only known when the memory
     // requirement size was recorded; otherwise overlap is untestable and we use the per-resource path.
     const VkDeviceSize footprint = capture_req.size;
+
+    if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
+    {
+        if (AllocateImportedMemory(memory_alloc_info, memory_offset, capture_req, replay_req, vma_mem_info) ==
+            VK_SUCCESS)
+        {
+            memory_alloc_info.bound_ranges.push_back(
+                { VK_HANDLE_TO_UINT64(image), memory_offset, footprint, *vma_mem_info, replay_req.size });
+            return VK_SUCCESS;
+        }
+    }
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
@@ -2767,6 +2807,15 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
+    if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
+    {
+        if (AllocateImportedMemory(memory_alloc_info, original_offset, capture_mem_req, replay_mem_req, vma_mem_info) ==
+            VK_SUCCESS)
+        {
+            return VK_SUCCESS;
+        }
+    }
+
     if (FindVmaMemoryInfo(memory_alloc_info,
                           original_offset,
                           capture_mem_req,
@@ -3049,6 +3098,91 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
     return result;
 }
 
+VkResult VulkanRebindAllocator::AllocateImportedMemory(MemoryAllocInfo&            memory_alloc_info,
+                                                       VkDeviceSize                memory_offset,
+                                                       const VkMemoryRequirements& capture_req,
+                                                       const VkMemoryRequirements& replay_req,
+                                                       VmaMemoryInfo**             vma_mem_info)
+{
+    if (((memory_offset + replay_req.size) > memory_alloc_info.allocation_size) ||
+        ((replay_req.alignment != 0) && ((memory_offset % replay_req.alignment) != 0)))
+    {
+        GFXRECON_LOG_WARNING("Rebind: resource at offset %" PRIu64 " with size %" PRIu64
+                             " does not fit imported external memory of size %" PRIu64
+                             ". Using non-external memory instead.",
+                             memory_offset,
+                             replay_req.size,
+                             memory_alloc_info.allocation_size);
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    if (memory_alloc_info.imported_mem_info != nullptr)
+    {
+        *vma_mem_info = memory_alloc_info.imported_mem_info;
+        return VK_SUCCESS;
+    }
+
+    const uint32_t memory_type_bits = 1u << memory_alloc_info.original_index;
+    if ((replay_req.memoryTypeBits & memory_type_bits) == 0)
+    {
+        GFXRECON_LOG_WARNING("Rebind: memory type %u of imported external memory is not supported by the resource. "
+                             "Using non-external memory instead.",
+                             memory_alloc_info.original_index);
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    VmaAllocationCreateInfo create_info{};
+    create_info.memoryTypeBits = memory_type_bits;
+
+    VkMemoryRequirements import_req = replay_req;
+
+    // The size of the imported memory is the same as the original allocation, not the resource's requirements.
+    import_req.size           = memory_alloc_info.allocation_size;
+    import_req.memoryTypeBits = memory_type_bits;
+
+    VkMemoryDedicatedAllocateInfo dedicated_info{ VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO };
+    dedicated_info.buffer = memory_alloc_info.import_dedicated_buffer;
+    dedicated_info.image  = memory_alloc_info.import_dedicated_image;
+
+    VkImportMemoryFdInfoKHR import_info{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR };
+    import_info.handleType = memory_alloc_info.import_fd_handle_type;
+    import_info.fd         = memory_alloc_info.replacement_import_fd;
+    if ((dedicated_info.buffer != VK_NULL_HANDLE) || (dedicated_info.image != VK_NULL_HANDLE))
+    {
+        import_info.pNext = &dedicated_info;
+    }
+
+    VmaMemoryInfo mem_info                      = {};
+    mem_info.memory_info                        = &memory_alloc_info;
+    mem_info.capture_mem_req                    = capture_req;
+    mem_info.replay_mem_req                     = import_req;
+    mem_info.requires_dedicated_allocation      = true;
+    mem_info.alc_create_info                    = create_info;
+    mem_info.offset_from_original_device_memory = 0;
+
+    // Mark vma's api calls as synthesized
+    util::MarkInjectedCommandsHelper injected;
+    auto                             result = vmaAllocateDedicatedMemory(
+        allocator_, &import_req, &create_info, &import_info, &mem_info.allocation, &mem_info.allocation_info);
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Rebind: importing external memory failed (%s). Using non-external memory instead.",
+                             util::ToString<VkResult>(result).c_str());
+
+        util::platform::FileClose(memory_alloc_info.replacement_import_fd);
+        memory_alloc_info.replacement_import_fd = -1;
+        return result;
+    }
+
+    memory_alloc_info.replacement_import_fd = -1;
+
+    memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
+    memory_alloc_info.imported_mem_info = memory_alloc_info.vma_mem_infos.back().get();
+    *vma_mem_info                       = memory_alloc_info.imported_mem_info;
+    return VK_SUCCESS;
+}
+
 bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                               VkDeviceSize                   original_offset,
                                               const VkMemoryRequirements&    capture_mem_req,
@@ -3100,6 +3234,10 @@ void VulkanRebindAllocator::RemoveVmaMemoryInfo(ResourceAllocInfo& resource_allo
             {
                 if (entry->get() == mem_info)
                 {
+                    if (mem_alc_info->imported_mem_info == mem_info)
+                    {
+                        mem_alc_info->imported_mem_info = nullptr;
+                    }
                     mem_alc_info->vma_mem_infos.erase(entry);
                     break;
                 }
@@ -3788,6 +3926,17 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
     create_info.pUserData      = nullptr;
 
     const VkDeviceSize footprint = capture_req.size;
+
+    if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
+    {
+        if (AllocateImportedMemory(memory_alloc_info, memory_offset, capture_req, replay_req, vma_mem_info) ==
+            VK_SUCCESS)
+        {
+            memory_alloc_info.bound_ranges.push_back(
+                { VK_HANDLE_TO_UINT64(tensor), memory_offset, footprint, *vma_mem_info, replay_req.size });
+            return VK_SUCCESS;
+        }
+    }
 
     if (VmaMemoryInfo* aliased = FindAliasedMemoryInfo(memory_alloc_info,
                                                        memory_offset,
