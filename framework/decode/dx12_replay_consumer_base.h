@@ -144,7 +144,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
     {
-        if (options_.windowed_width == 0 && options_.windowed_height == 0)
+        if (!options_.force_windowed)
         {
             options_.windowed_width  = width;
             options_.windowed_height = height;
