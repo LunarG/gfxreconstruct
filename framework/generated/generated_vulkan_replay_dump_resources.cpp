@@ -4110,7 +4110,12 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
             const auto func = injected->CmdDebugMarkerBeginEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer(), pMarkerInfo);
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it, pMarkerInfo);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4140,7 +4145,12 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerEndEXT(
             const auto func = injected->CmdDebugMarkerEndEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer());
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4171,7 +4181,12 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerInsertEXT(
             const auto func = injected->CmdDebugMarkerInsertEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer(), pMarkerInfo);
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it, pMarkerInfo);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4626,7 +4641,12 @@ void VulkanReplayDumpResources::Process_vkCmdBeginDebugUtilsLabelEXT(
             const auto func = injected->CmdBeginDebugUtilsLabelEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer(), pLabelInfo);
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it, pLabelInfo);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4656,7 +4676,12 @@ void VulkanReplayDumpResources::Process_vkCmdEndDebugUtilsLabelEXT(
             const auto func = injected->CmdEndDebugUtilsLabelEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer());
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4687,7 +4712,12 @@ void VulkanReplayDumpResources::Process_vkCmdInsertDebugUtilsLabelEXT(
             const auto func = injected->CmdInsertDebugUtilsLabelEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer(), pLabelInfo);
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it, pLabelInfo);
+                }
             }
 
             for (auto dr_context : dr_contexts)
