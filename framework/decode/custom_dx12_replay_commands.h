@@ -195,6 +195,16 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthS
 };
 
 template <>
+struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PreCall_ID3D12Device_CreateConstantBufferView(args...);
+    }
+};
+
+template <>
 struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>
 {
     template <typename... Args>
