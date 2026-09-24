@@ -41,6 +41,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <ranges>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -67,7 +68,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
-    inside_renderpass_(false)
+    inside_renderpass_(false), has_tail_clone_(false)
 {
     if (draw_indices != nullptr)
     {
@@ -161,6 +162,14 @@ void DrawCallsDumpingContext::Release()
                     injected->DestroyRenderPass(device, renderpass, nullptr);
                 }
             }
+
+            for (const auto& renderpass : rps->render_pass_load_clones | std::views::values)
+            {
+                if (renderpass != VK_NULL_HANDLE)
+                {
+                    injected->DestroyRenderPass(device, renderpass, nullptr);
+                }
+            }
         }
 
         original_command_buffer_info_ = nullptr;
@@ -172,6 +181,7 @@ void DrawCallsDumpingContext::Release()
     render_pass_dumped_descriptors_.clear();
 
     current_cb_index_ = 0;
+    has_tail_clone_   = false;
 }
 
 PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering(
@@ -374,12 +384,7 @@ void DrawCallsDumpingContext::CmdDraw(const ApiCallInfo& call_info,
         dc_params = InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, vertex_count, instance_count, first_vertex, first_instance);
-    }
+    func(GetWorkCommandBuffer(), vertex_count, instance_count, first_vertex, first_instance);
 
     if (must_dump)
     {
@@ -414,12 +419,7 @@ void DrawCallsDumpingContext::CmdDrawIndexed(const ApiCallInfo&   call_info,
             dc_index, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, index_count, instance_count, first_index, vertex_offset, first_instance);
-    }
+    func(GetWorkCommandBuffer(), index_count, instance_count, first_index, vertex_offset, first_instance);
 
     if (must_dump)
     {
@@ -452,12 +452,7 @@ void DrawCallsDumpingContext::CmdDrawIndirect(const ApiCallInfo&      call_info,
         dc_params = InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
 
     if (must_dump)
     {
@@ -489,12 +484,7 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirect(const ApiCallInfo&         
         dc_params = InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
 
     if (must_dump)
     {
@@ -536,12 +526,13 @@ void DrawCallsDumpingContext::CmdDrawIndirectCount(const ApiCallInfo&           
                                                      drawcall_type);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(),
+         buffer_info->handle,
+         offset,
+         count_buffer_info->handle,
+         count_buffer_offset,
+         max_draw_count,
+         stride);
 
     if (must_dump)
     {
@@ -583,12 +574,13 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirectCount(const ApiCallInfo&    
                                                                 drawcall_type);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(),
+         buffer_info->handle,
+         offset,
+         count_buffer_info->handle,
+         count_buffer_offset,
+         max_draw_count,
+         stride);
 
     if (must_dump)
     {
@@ -976,7 +968,7 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
 void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
 {
     GFXRECON_ASSERT(!RP_indices_.empty());
-    assert(current_cb_index_ < command_buffers_.size());
+    assert(current_cb_index_ < GetWindowCount());
     assert(device_table_.IsValid());
 
     const VkCommandBuffer current_command_buffer = command_buffers_[current_cb_index_];
@@ -1069,32 +1061,37 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
                                                 Index                submit_info_index,
                                                 Index                submit_info_cmd_buf_index)
 {
-    const size_t n_drawcalls = command_buffers_.size();
+    const size_t window_count = GetWindowCount();
+
+    // the tail clone holds work following the last target draw. it is submitted after the windows.
+    const VkCommandBuffer tail_command_buffer = GetTailCommandBuffer();
+    const size_t          submission_count    = window_count + (tail_command_buffer != VK_NULL_HANDLE ? 1 : 0);
 
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     GFXRECON_ASSERT(device_info);
 
     TemporaryFence submission_fence(device_info->handle, device_table_);
 
-    // Dump render targets
-    for (size_t cb = 0; cb < n_drawcalls; ++cb)
-    {
+    // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
+    // last one, so the application-visible synchronization is preserved across the split submissions.
+    const auto submit_clone = [&](VkCommandBuffer clone, size_t submission) -> VkResult {
         const VkCommandBufferSubmitInfo cb_info{
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffers_[cb], 0 /* deviceMask */
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, clone, 0 /* deviceMask */
         };
 
-        // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
-        // last clone, so the application-visible synchronization is preserved across the split submissions.
+        const bool first = (submission == 0);
+        const bool last  = (submission == (submission_count - 1));
+
         VkSubmitInfo2 si{};
         si.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
         si.pNext                    = submit_info.pNext;
         si.flags                    = submit_info.flags;
-        si.waitSemaphoreInfoCount   = !cb ? submit_info.waitSemaphoreInfoCount : 0;
-        si.pWaitSemaphoreInfos      = !cb ? submit_info.pWaitSemaphoreInfos : nullptr;
+        si.waitSemaphoreInfoCount   = first ? submit_info.waitSemaphoreInfoCount : 0;
+        si.pWaitSemaphoreInfos      = first ? submit_info.pWaitSemaphoreInfos : nullptr;
         si.commandBufferInfoCount   = 1;
         si.pCommandBufferInfos      = &cb_info;
-        si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
-        si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
+        si.signalSemaphoreInfoCount = last ? submit_info.signalSemaphoreInfoCount : 0;
+        si.pSignalSemaphoreInfos    = last ? submit_info.pSignalSemaphoreInfos : nullptr;
 
         VkResult res =
             SubmitInfo2OnQueue(device_table_, device_info->version_extension_info, queue, si, submission_fence.handle);
@@ -1113,7 +1110,13 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         }
 
         // Reset fence for next submission
-        res = submission_fence.Reset();
+        return submission_fence.Reset();
+    };
+
+    // Dump render targets
+    for (size_t cb = 0; cb < window_count; ++cb)
+    {
+        VkResult res = submit_clone(command_buffers_[cb], cb);
         if (res != VK_SUCCESS)
         {
             return res;
@@ -1233,6 +1236,15 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         {
             GFXRECON_LOG_ERROR("Reverting render target attachments layouts failed(%s)",
                                util::ToString<VkResult>(res).c_str())
+            return res;
+        }
+    }
+
+    if (tail_command_buffer != VK_NULL_HANDLE)
+    {
+        VkResult res = submit_clone(tail_command_buffer, submission_count - 1);
+        if (res != VK_SUCCESS)
+        {
             return res;
         }
     }
@@ -1363,6 +1375,8 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
            VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
+    bool depth_barrier = false;
+
     for (size_t i = 0; i < render_targets.color_att_imgs.size(); ++i)
     {
         if (options_.dump_resources_color_attachment_index != kUnspecifiedColorAttachment &&
@@ -1373,7 +1387,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 
         VulkanImageInfo* image_info = render_targets.color_att_imgs[i];
 
-        img_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        img_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         img_barrier.newLayout     = render_targets.color_attachment_layouts[i];
         img_barrier.image         = image_info->handle;
         img_barriers.push_back(img_barrier);
@@ -1387,12 +1401,14 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 
         img_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_info->format);
 
-        img_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        img_barrier.newLayout     = render_targets.depth_attachment_layout;
-        img_barrier.image         = image_info->handle;
+        img_barrier.dstAccessMask =
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        img_barrier.newLayout = render_targets.depth_attachment_layout;
+        img_barrier.image     = image_info->handle;
         img_barriers.push_back(img_barrier);
 
         image_info->intermediate_layout = render_targets.depth_attachment_layout;
+        depth_barrier                   = true;
     }
 
     if (!img_barriers.empty())
@@ -1406,9 +1422,15 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
             return res;
         }
 
+        VkPipelineStageFlags dst_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        if (depth_barrier)
+        {
+            dst_stages |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+        }
+
         injected->CmdPipelineBarrier(aux_command_buffer_,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                     dst_stages,
                                      0,
                                      0,
                                      nullptr,
@@ -2930,6 +2952,77 @@ static void FixAttachmentStoreOps(std::vector<AttachmentDescriptionType>& attach
     }
 }
 
+// The subpass each attachment is first used in, kNeverUsed for one that no subpass references. A render pass
+// performs an attachment's load operation when the subpass that first uses it begins.
+template <typename CreateInfoType>
+static std::vector<uint32_t> FirstUseSubpassPerAttachment(const CreateInfoType* create_info)
+{
+    std::vector<uint32_t> first_use(create_info->attachmentCount, DrawCallsDumpingContext::kNeverUsed);
+
+    const auto use = [&first_use](uint32_t attachment, uint32_t subpass) {
+        if (attachment != VK_ATTACHMENT_UNUSED && attachment < first_use.size() && subpass < first_use[attachment])
+        {
+            first_use[attachment] = subpass;
+        }
+    };
+
+    for (uint32_t sub = 0; sub < create_info->subpassCount; ++sub)
+    {
+        const auto& subpass = create_info->pSubpasses[sub];
+
+        for (uint32_t i = 0; i < subpass.colorAttachmentCount; ++i)
+        {
+            use(subpass.pColorAttachments[i].attachment, sub);
+
+            if (subpass.pResolveAttachments != nullptr)
+            {
+                use(subpass.pResolveAttachments[i].attachment, sub);
+            }
+        }
+
+        for (uint32_t i = 0; i < subpass.inputAttachmentCount; ++i)
+        {
+            use(subpass.pInputAttachments[i].attachment, sub);
+        }
+
+        if (subpass.pDepthStencilAttachment != nullptr)
+        {
+            use(subpass.pDepthStencilAttachment->attachment, sub);
+        }
+    }
+
+    return first_use;
+}
+
+// load what the previous window stored, for attachments it 'could' have written in 'subpass -> resume_subpass'.
+// an attachment the previous window never reached keeps the original ops:
+// -> clear still happens, in the window that first enters the subpass using it.
+// -> attachments are in their original finalLayout at window boundaries, used or not.
+template <typename AttachmentDescriptionType>
+static void FixAttachmentLoadOps(std::vector<AttachmentDescriptionType>& attachments,
+                                 const std::vector<uint32_t>&            first_use_subpass,
+                                 uint32_t                                resume_subpass)
+{
+    GFXRECON_ASSERT(attachments.size() == first_use_subpass.size());
+
+    for (size_t i = 0; i < attachments.size(); ++i)
+    {
+        auto& att = attachments[i];
+
+        if (first_use_subpass[i] <= resume_subpass)
+        {
+            att.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+
+            if (vkuFormatHasStencil(att.format))
+            {
+                att.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            }
+        }
+
+        att.initialLayout = att.finalLayout;
+    }
+}
+
 template <typename CreateInfoType>
 void DrawCallsDumpingContext::FinalizeRenderPassClone(RenderPassContext&    renderpass_context,
                                                       const CreateInfoType* create_info)
@@ -2958,6 +3051,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(RenderPassContext& renderpass_
                                                                   original_render_pass_ci->attachmentCount);
 
     FixAttachmentStoreOps(modified_attachments);
+
+    const std::vector<uint32_t> first_use_subpass = FirstUseSubpassPerAttachment(original_render_pass_ci);
 
     // Create new render passes. For each subpass in the original render pass a new render pass will be created.
     // Each new render pass will progressively contain an additional subpass until all subpasses of the original
@@ -3026,6 +3121,22 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(RenderPassContext& renderpass_
             GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
+
+        // One LOAD variant per subpass a window can resume this render pass in
+        for (uint32_t resume = 0; resume <= sub; ++resume)
+        {
+            std::vector<VkAttachmentDescription> load_attachments = modified_attachments;
+            FixAttachmentLoadOps(load_attachments, first_use_subpass, resume);
+            ci.pAttachments = load_attachments.empty() ? nullptr : load_attachments.data();
+
+            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones[{ resume, sub }];
+            res                            = injected->CreateRenderPass(device, &ci, nullptr, &load_render_pass);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
+                return res;
+            }
+        }
     }
 
     FinalizeRenderPassClone(renderpass_context, original_render_pass_ci);
@@ -3043,6 +3154,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(RenderPassContext& renderpass
                                                                    original_render_pass_ci->attachmentCount);
 
     FixAttachmentStoreOps(modified_attachments);
+
+    const std::vector<uint32_t> first_use_subpass = FirstUseSubpassPerAttachment(original_render_pass_ci);
 
     // Create new render passes. For each subpass in the original render pass a new render pass will be created.
     // Each new render pass will progressively contain an additional subpass until all subpasses of the original
@@ -3126,6 +3239,30 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(RenderPassContext& renderpass
             GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
+
+        // One LOAD variant per subpass a window can resume this render pass in
+        for (uint32_t resume = 0; resume <= sub; ++resume)
+        {
+            std::vector<VkAttachmentDescription2> load_attachments = modified_attachments;
+            FixAttachmentLoadOps(load_attachments, first_use_subpass, resume);
+            ci.pAttachments = load_attachments.empty() ? nullptr : load_attachments.data();
+
+            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones[{ resume, sub }];
+            if (renderpass_context.renderpass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
+            {
+                res = injected->CreateRenderPass2(device, &ci, nullptr, &load_render_pass);
+            }
+            else
+            {
+                res = injected->CreateRenderPass2KHR(device, &ci, nullptr, &load_render_pass);
+            }
+
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
+                return res;
+            }
+        }
     }
 
     FinalizeRenderPassClone(renderpass_context, original_render_pass_ci);
@@ -3166,26 +3303,19 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
 
     // Find this render pass' block index range. It determines which of the remaining draw calls (and executed
     // secondaries) fall inside this render pass and therefore replay with the cloned render pass.
-    const std::vector<uint64_t>* block_range = nullptr;
-    for (const auto& range : RP_indices_)
-    {
-        if (IsInsideRange(range, block_index))
-        {
-            block_range = &range;
-            break;
-        }
-    }
+    const std::vector<Index>* block_range = FindRenderPassBlockRange(block_index);
 
-    // A well-formed dump-args range for this render pass has one entry per subpass boundary plus
-    // begin/end, so it can never describe more subpass intervals than the render pass has subpasses.
-    // More intervals means the range does not match this render pass (stale or hand-edited json).
-    if (block_range != nullptr && block_range->size() - 1 > new_render_pass_context->render_pass_clones.size())
+    // The range holds the begin, one entry per vkCmdNextSubpass and the end.
+    // Any other size does not match this render pass, e.g. a stale or hand-edited json.
+    const size_t subpass_count = new_render_pass_context->render_pass_clones.size();
+    if (block_range != nullptr && block_range->size() != subpass_count + 1)
     {
-        GFXRECON_LOG_WARNING("Dump resources: render pass block range with %zu entries does not match a render "
-                             "pass with %zu subpass(es); draw calls in out-of-range subpasses will replay with "
-                             "the original render pass and their attachments may not be dumpable.",
-                             block_range->size(),
-                             new_render_pass_context->render_pass_clones.size());
+        GFXRECON_LOG_FATAL("Dump resources: the range of the render pass at block %" PRIu64
+                           " has %zu entries, but the render pass has %zu subpass(es) and needs %zu entries.",
+                           block_index,
+                           block_range->size(),
+                           subpass_count,
+                           subpass_count + 1);
     }
 
     // Add vkCmdBeginRenderPass into the cloned command buffers using the modified render pass
@@ -3197,34 +3327,71 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
 
     auto injected = device_table_.Open();
 
+    // The render pass is begun in every clone whose window overlaps it, and those clones form a contiguous
+    // range.
+    const uint64_t pass_begin    = block_range != nullptr ? block_range->front() : 0;
+    const uint64_t pass_end      = block_range != nullptr ? block_range->back() : 0;
+    bool           found_overlap = false;
+
+    // Find the subpass that holds the clone's target draw.
+    // If the clone stops after this render pass, it runs the pass to its end, so use the last subpass.
+    // A draw from a secondary is located by the vkCmdExecuteCommands that ran it.
+    const auto find_subpass =
+        [this, block_range, pass_end, &new_render_pass_context](size_t cmd_buf_idx, uint64_t hi, uint64_t& sp) {
+            if (block_range == nullptr)
+            {
+                return false;
+            }
+
+            if (hi > pass_end)
+            {
+                sp = new_render_pass_context->render_pass_clones.size() - 1;
+                return true;
+            }
+
+            const DrawCallSlot& slot = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_idx)];
+            return slot.execute_index != UNDEFINED_INDEX ? FindSubpassInRange(*block_range, slot.execute_index, sp)
+                                                         : FindSubpassInRange(*block_range, slot.dc_index, sp);
+        };
+
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
-        const size_t   dc_vec_idx = CmdBufToDCVectorIndex(cmd_buf_idx);
-        const uint64_t dc_index   = dc_slots_[dc_vec_idx].dc_index;
-
-        // Draw calls inside this render pass get the newly created / modified render pass. Draws merged from a
-        // secondary command buffer are correlated through the vkCmdExecuteCommands block that executed them,
-        // so each execution of the same secondary resolves to its own subpass. All other draw calls (earlier
-        // or later render passes, or draws that cannot be correlated) get the original render pass.
-        uint64_t sp        = 0;
-        bool     use_clone = false;
-        if (block_range != nullptr)
+        uint64_t sp = 0;
+        uint64_t lo, hi;
+        GetCloneWindow(cmd_buf_idx, lo, hi);
+        if (lo >= pass_end || hi <= pass_begin)
         {
-            const Index execute_index = dc_slots_[dc_vec_idx].execute_index;
-            use_clone = (execute_index != UNDEFINED_INDEX) ? FindSubpassInRange(*block_range, execute_index, sp)
-                                                           : FindSubpassInRange(*block_range, dc_index, sp);
+            continue;
         }
 
-        GFXRECON_ASSERT(!use_clone || sp < new_render_pass_context->render_pass_clones.size());
-        if (use_clone && sp < new_render_pass_context->render_pass_clones.size())
+        find_subpass(cmd_buf_idx, hi, sp);
+
+        // Only the window that contains the begin starts the render pass the way the application did. The
+        // others resume it in the subpass the window before them ended in, and load what it stored.
+        if (lo < pass_begin)
         {
+            GFXRECON_ASSERT(sp < new_render_pass_context->render_pass_clones.size());
             modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
         }
         else
         {
-            modified_renderpass_begin_info.renderPass = render_pass_info->handle;
+            uint64_t resume_subpass = 0;
+            FindSubpassInRange(*block_range, lo, resume_subpass);
+
+            const auto load_clone = new_render_pass_context->render_pass_load_clones.find(
+                { GFXRECON_NARROWING_CAST(uint32_t, resume_subpass), GFXRECON_NARROWING_CAST(uint32_t, sp) });
+            GFXRECON_ASSERT(load_clone != new_render_pass_context->render_pass_load_clones.end());
+            modified_renderpass_begin_info.renderPass = load_clone->second;
         }
+
+        if (!found_overlap)
+        {
+            new_render_pass_context->first_clone = cmd_buf_idx;
+            found_overlap                        = true;
+        }
+        new_render_pass_context->last_clone = cmd_buf_idx + 1;
+
         injected->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
     }
 
@@ -3236,10 +3403,9 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
 void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
 {
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    auto   injected    = device_table_.Open();
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    GetRenderPassCommandBuffers(first, last);
+    auto injected = device_table_.Open();
+    for (auto it = first; it < last; ++it)
     {
         injected->CmdNextSubpass(*it, contents);
     }
@@ -3304,10 +3470,9 @@ void DrawCallsDumpingContext::EndRenderPass()
     GFXRECON_ASSERT(render_pass_contexts_.back()->type == kRenderPass);
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    auto   injected    = device_table_.Open();
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    GetRenderPassCommandBuffers(first, last);
+    auto injected = device_table_.Open();
+    for (auto it = first; it < last; ++it)
     {
         injected->CmdEndRenderPass(*it);
     }
@@ -3321,11 +3486,26 @@ void DrawCallsDumpingContext::EndRendering()
     GFXRECON_ASSERT(render_pass_contexts_.back()->type == kDynamicRendering);
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    GetRenderPassCommandBuffers(first, last);
+    for (auto it = first; it < last; ++it)
     {
         RecordCmdEndRendering(*it);
+    }
+
+    inside_renderpass_ = false;
+}
+
+void DrawCallsDumpingContext::EndRendering(PFN_vkCmdEndRendering2KHR    func,
+                                           const VkRenderingEndInfoKHR* rendering_end_info)
+{
+    GFXRECON_ASSERT(!render_pass_contexts_.empty());
+    GFXRECON_ASSERT(render_pass_contexts_.back()->type == kDynamicRendering);
+
+    CommandBufferIterator first, last;
+    GetRenderPassCommandBuffers(first, last);
+    for (auto it = first; it < last; ++it)
+    {
+        func(*it, rendering_end_info);
     }
 
     inside_renderpass_ = false;
@@ -3628,7 +3808,7 @@ void DrawCallsDumpingContext::DestroyMutableResourceBackups()
 // dump_resources_before is true.
 size_t DrawCallsDumpingContext::CmdBufToDCVectorIndex(size_t cmd_buf_index) const
 {
-    assert(cmd_buf_index < command_buffers_.size());
+    assert(cmd_buf_index < GetWindowCount());
 
     if (options_.dump_resources_before)
     {
@@ -3644,6 +3824,49 @@ size_t DrawCallsDumpingContext::CmdBufToDCVectorIndex(size_t cmd_buf_index) cons
     }
 }
 
+void DrawCallsDumpingContext::GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const
+{
+    // A slot's position in the primary's stream is where the vkCmdExecuteCommands that merged it sits,
+    // or the draw call block index for the primary's own draws.
+    const auto slot_position = [this](size_t slot_index) {
+        GFXRECON_ASSERT(slot_index < dc_slots_.size());
+        const DrawCallSlot& slot = dc_slots_[slot_index];
+        return slot.execute_index != UNDEFINED_INDEX ? slot.execute_index : slot.dc_index;
+    };
+
+    // The tail clone has no slot of its own: it runs everything after the last target draw
+    if (has_tail_clone_ && cmd_buf_index + 1 == command_buffers_.size())
+    {
+        lo = dc_slots_.empty() ? 0 : slot_position(dc_slots_.size() - 1);
+        hi = std::numeric_limits<uint64_t>::max();
+        return;
+    }
+
+    const size_t slot_index = CmdBufToDCVectorIndex(cmd_buf_index);
+
+    hi = slot_position(slot_index);
+    lo = slot_index > 0 ? slot_position(slot_index - 1) : 0;
+
+    // With --dump-resources-before the "before" clone runs (lo, hi) and the "after" clone the target draw alone
+    if (options_.dump_resources_before && (cmd_buf_index % 2) != 0)
+    {
+        lo = hi;
+    }
+}
+
+const std::vector<Index>* DrawCallsDumpingContext::FindRenderPassBlockRange(uint64_t block_index) const
+{
+    for (const auto& range : RP_indices_)
+    {
+        if (IsInsideRange(range, block_index))
+        {
+            return &range;
+        }
+    }
+
+    return nullptr;
+}
+
 uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferIterator& first,
                                                                   CommandBufferIterator& last) const
 {
@@ -3653,18 +3876,176 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
     return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
 }
 
-void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>& color_attachments,
+VkCommandBuffer DrawCallsDumpingContext::GetWorkCommandBuffer() const
+{
+    GFXRECON_ASSERT(current_cb_index_ < command_buffers_.size());
+    return command_buffers_[current_cb_index_];
+}
+
+uint32_t DrawCallsDumpingContext::GetRenderPassCommandBuffers(CommandBufferIterator& first,
+                                                              CommandBufferIterator& last) const
+{
+    // An instance this context did not begin itself lives entirely inside the current clone's window
+    if (!inside_renderpass_ || render_pass_contexts_.empty())
+    {
+        GFXRECON_ASSERT(current_cb_index_ < command_buffers_.size());
+        first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
+        last  = first + 1;
+        return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
+    }
+
+    const RenderPassContext& render_pass_context = *render_pass_contexts_.back();
+
+    const size_t begin = std::max(render_pass_context.first_clone, current_cb_index_);
+    const size_t end   = std::max(begin, render_pass_context.last_clone);
+    GFXRECON_ASSERT(end <= command_buffers_.size());
+
+    first = command_buffers_.begin() + static_cast<int>(begin);
+    last  = command_buffers_.begin() + static_cast<int>(end);
+    return GFXRECON_NARROWING_CAST(uint32_t, begin);
+}
+
+namespace
+{
+// A VkRenderingInfo whose attachments store their results, and load them first when a window resumes the
+// instance. The copies are referenced by the info, so this must outlive the call it is passed to.
+class ChainedRenderingInfo
+{
+  public:
+    ChainedRenderingInfo(const VkRenderingInfo& original, bool load) :
+        info_(original),
+        color_attachments_(original.pColorAttachments, original.pColorAttachments + original.colorAttachmentCount)
+    {
+        for (auto& attachment : color_attachments_)
+        {
+            FixOps(attachment, load);
+        }
+        info_.pColorAttachments = color_attachments_.empty() ? nullptr : color_attachments_.data();
+
+        if (original.pDepthAttachment != nullptr)
+        {
+            depth_attachment_ = *original.pDepthAttachment;
+            FixOps(depth_attachment_, load);
+            info_.pDepthAttachment = &depth_attachment_;
+        }
+
+        if (original.pStencilAttachment != nullptr)
+        {
+            stencil_attachment_ = *original.pStencilAttachment;
+            FixOps(stencil_attachment_, load);
+            info_.pStencilAttachment = &stencil_attachment_;
+        }
+    }
+
+    ChainedRenderingInfo(const ChainedRenderingInfo&)            = delete;
+    ChainedRenderingInfo& operator=(const ChainedRenderingInfo&) = delete;
+
+    const VkRenderingInfo* Get() const { return &info_; }
+
+  private:
+    static void FixOps(VkRenderingAttachmentInfo& attachment, bool load)
+    {
+        if (attachment.imageView == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        if (load)
+        {
+            attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        }
+    }
+
+    VkRenderingInfo                        info_;
+    std::vector<VkRenderingAttachmentInfo> color_attachments_;
+    VkRenderingAttachmentInfo              depth_attachment_{};
+    VkRenderingAttachmentInfo              stencil_attachment_{};
+};
+} // namespace
+
+void DrawCallsDumpingContext::BeginRendering(uint64_t                             block_index,
+                                             const VkRenderingInfo*               rendering_info,
+                                             const std::vector<VulkanImageInfo*>& color_attachments,
                                              const std::vector<VkImageLayout>&    color_attachment_layouts,
                                              VulkanImageInfo*                     depth_attachment,
                                              VkImageLayout                        depth_attachment_layout)
 {
     assert(color_attachments.size() == color_attachment_layouts.size());
+    GFXRECON_ASSERT(rendering_info != nullptr);
 
     auto& new_render_pass_context    = render_pass_contexts_.emplace_back(std::make_shared<RenderPassContext>(
         color_attachments, color_attachment_layouts, depth_attachment, depth_attachment_layout, command_buffer_level_));
     new_render_pass_context->ordinal = render_pass_contexts_.size() - 1;
 
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+
+    // The rendering instance is begun in every clone whose window overlaps it, and those clones form a
+    // contiguous range. Only the window that contains the begin starts the instance the way the application
+    // did, the others resume it and load what the window before them stored.
+    const std::vector<Index>* block_range = FindRenderPassBlockRange(block_index);
+    const uint64_t            pass_begin  = block_range != nullptr ? block_range->front() : 0;
+    const uint64_t            pass_end    = block_range != nullptr ? block_range->back() : 0;
+
+    const ChainedRenderingInfo stored(*rendering_info, false);
+    const ChainedRenderingInfo resumed(*rendering_info, true);
+
+    bool   found_overlap = false;
+    size_t cmd_buf_idx   = current_cb_index_;
+    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    {
+        uint64_t lo, hi;
+        GetCloneWindow(cmd_buf_idx, lo, hi);
+        if (lo >= pass_end || hi <= pass_begin)
+        {
+            continue;
+        }
+
+        RecordCmdBeginRendering(*it, (lo < pass_begin) ? stored.Get() : resumed.Get());
+
+        if (!found_overlap)
+        {
+            new_render_pass_context->first_clone = cmd_buf_idx;
+            found_overlap                        = true;
+        }
+        new_render_pass_context->last_clone = cmd_buf_idx + 1;
+    }
+
     inside_renderpass_ = true;
+}
+
+void DrawCallsDumpingContext::AppendTailClones()
+{
+    // clones are the only execution, so any work after last target draw gets a clone of its own.
+    if (!has_tail_clone_)
+    {
+        command_buffers_.push_back(VK_NULL_HANDLE);
+        has_tail_clone_ = true;
+    }
+
+    for (const auto& secondaries : secondaries_ | std::views::values)
+    {
+        for (const auto& secondary_context : secondaries)
+        {
+            secondary_context->AppendTailClones();
+        }
+    }
+}
+
+// The window clones are ended by FinalizeCommandBuffer as their target draw is reached. The tail clone has no
+// target draw, so it is ended here, while the application still has the command buffer open.
+void DrawCallsDumpingContext::EndCommandBuffer()
+{
+    if (!has_tail_clone_)
+    {
+        return;
+    }
+
+    GFXRECON_ASSERT(device_table_.IsValid());
+
+    auto injected = device_table_.Open();
+    injected->EndCommandBuffer(command_buffers_.back());
 }
 
 void DrawCallsDumpingContext::AssignSecondary(uint64_t                                 execute_commands_index,

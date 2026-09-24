@@ -243,12 +243,14 @@ class VulkanAddressReplacer
      * @param build_range_infos     provided array of VkAccelerationStructureBuildRangeInfoKHR*
      * @param address_tracker       reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
      *                              and potentially update tracked information
+     * @param clone_command_buffers command buffers that also record this build, e.g. dump-resources clones
      */
     void ProcessCmdBuildAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
                                                   uint32_t                                     info_count,
                                                   VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
-                                                  decode::VulkanDeviceAddressTracker&          address_tracker);
+                                                  decode::VulkanDeviceAddressTracker&          address_tracker,
+                                                  std::span<const VkCommandBuffer> clone_command_buffers = {});
 
     /**
      * @brief   ProcessCmdCopyAccelerationStructuresKHR will check
@@ -476,10 +478,12 @@ class VulkanAddressReplacer
 
     void update_global_hashmap(VkCommandBuffer command_buffer);
 
+    //! records the replacement into command_buffer_info's command buffer and into each of clone_command_buffers
     void run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
                              const std::span<VkDeviceAddress>  addresses,
                              const VulkanDeviceAddressTracker& address_tracker,
-                             VkPipelineStageFlags              sync_stage);
+                             VkPipelineStageFlags              sync_stage,
+                             std::span<const VkCommandBuffer>  clone_command_buffers = {});
 
     [[nodiscard]] bool create_buffer(buffer_context_t&  buffer_context,
                                      size_t             num_bytes,

@@ -107,6 +107,23 @@ class VulkanReplayDumpResourcesBodyGenerator(
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
+    # A state command is replayed into every active draw call clone, a work command only into the current one.
+    def is_state_command(self, name):
+        # These do GPU work despite carrying a state prefix.
+        work_despite_prefix = (
+            name.startswith('vkCmdSetEvent') or name.startswith('vkCmdResetEvent')
+            or name == 'vkCmdSetCheckpointNV'
+            or (name.startswith('vkCmdSetPerformance') and name.endswith('INTEL'))
+        )
+        if work_despite_prefix:
+            return False
+        # Debug labels and markers fan out like state -> no clone ends a scope it did not begin.
+        debug_label = name in (
+            'vkCmdBeginDebugUtilsLabelEXT', 'vkCmdEndDebugUtilsLabelEXT', 'vkCmdInsertDebugUtilsLabelEXT',
+            'vkCmdDebugMarkerBeginEXT', 'vkCmdDebugMarkerEndEXT', 'vkCmdDebugMarkerInsertEXT'
+        )
+        return debug_label or name.startswith(('vkCmdBind', 'vkCmdSet', 'vkCmdPush'))
+
     def make_consumer_func_body(self, api_data, return_type, name, values):
         """
         Method override.
@@ -128,20 +145,20 @@ class VulkanReplayDumpResourcesBodyGenerator(
             body += '            const auto func = injected->{};\n'.format(name[2:])
             body += '            for (auto dc_context : dc_contexts)\n'
             body += '            {\n'
-            body += '                CommandBufferIterator first, last;\n'
-            body += '                dc_context->GetDrawCallActiveCommandBuffers(first, last);\n'
-            body += '                for (CommandBufferIterator it = first; it < last; ++it)\n'
-            body += '                {\n'
-
-            dispatchfunc = 'func(*it, '
 
             call_expr = ''
             for val in values[1:]:
                 call_expr += '{}, '.format(val.name)
 
-            dispatchfunc += call_expr
-            body += '                    ' + dispatchfunc[:-2] + ');\n'
-            body += '                }\n'
+            if self.is_state_command(name):
+                body += '                CommandBufferIterator first, last;\n'
+                body += '                dc_context->GetDrawCallActiveCommandBuffers(first, last);\n'
+                body += '                for (CommandBufferIterator it = first; it < last; ++it)\n'
+                body += '                {\n'
+                body += '                    ' + ('func(*it, ' + call_expr)[:-2] + ');\n'
+                body += '                }\n'
+            else:
+                body += '                ' + ('func(dc_context->GetWorkCommandBuffer(), ' + call_expr)[:-2] + ');\n'
             body += '            }\n'
             body += '\n'
             body += '            for (auto dr_context : dr_contexts)\n'

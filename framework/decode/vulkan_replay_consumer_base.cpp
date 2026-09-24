@@ -10562,8 +10562,19 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
         auto& address_tracker  = GetDeviceAddressTracker(device_info);
         auto& address_replacer = GetDeviceAddressReplacer(device_info);
 
-        address_replacer.ProcessCmdBuildAccelerationStructuresKHR(
-            command_buffer_info, infoCount, build_geometry_infos, build_range_infos, address_tracker);
+        // Dumping records the build into clones as well, and they need the same address patching before it
+        std::vector<VkCommandBuffer> clone_command_buffers;
+        if (options_.dumping_resources)
+        {
+            clone_command_buffers = resource_dumper_->GetWorkCommandBuffers(command_buffer);
+        }
+
+        address_replacer.ProcessCmdBuildAccelerationStructuresKHR(command_buffer_info,
+                                                                  infoCount,
+                                                                  build_geometry_infos,
+                                                                  build_range_infos,
+                                                                  address_tracker,
+                                                                  clone_command_buffers);
     }
 
     func(command_buffer, infoCount, build_geometry_infos, build_range_infos);

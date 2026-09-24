@@ -427,6 +427,23 @@ class VulkanReplayDumpResourcesBase
                                     PFN_vkCmdEndRenderingKHR func,
                                     VkCommandBuffer          commandBuffer);
 
+    void OverrideCmdEndRendering2KHR(const ApiCallInfo&                                   call_info,
+                                     PFN_vkCmdEndRendering2KHR                            func,
+                                     VkCommandBuffer                                      commandBuffer,
+                                     StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo);
+
+    void OverrideCmdSetRenderingAttachmentLocations(
+        const ApiCallInfo&                                               call_info,
+        PFN_vkCmdSetRenderingAttachmentLocations                         func,
+        VkCommandBuffer                                                  commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo);
+
+    void OverrideCmdSetRenderingInputAttachmentIndices(
+        const ApiCallInfo&                                                 call_info,
+        PFN_vkCmdSetRenderingInputAttachmentIndices                        func,
+        VkCommandBuffer                                                    commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo);
+
     void
     OverrideEndCommandBuffer(const ApiCallInfo& call_info, PFN_vkEndCommandBuffer func, VkCommandBuffer commandBuffer);
 
@@ -811,6 +828,15 @@ class VulkanReplayDumpResourcesBase
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos,
         bool                                                                       before_command);
 
+    // The clones that take original_command_buffer's next work command, instead of or besides the original.
+    std::vector<VkCommandBuffer> GetWorkCommandBuffers(VkCommandBuffer original_command_buffer)
+    {
+        std::vector<VkCommandBuffer> command_buffers;
+        ForEachWorkCommandBuffer(original_command_buffer,
+                                 [&](VkCommandBuffer command_buffer) { command_buffers.push_back(command_buffer); });
+        return command_buffers;
+    }
+
     void
     OverrideCmdCopyAccelerationStructureKHR(const ApiCallInfo&                    call_info,
                                             PFN_vkCmdCopyAccelerationStructureKHR func,
@@ -835,24 +861,9 @@ class VulkanReplayDumpResourcesBase
         return (entry != contexts.end()) ? entry->second : nullptr;
     }
 
+    // every clone recording this command buffer's work. a command not routed here does not run at all.
     template <typename Callback>
-    void ForEachDrawCallCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
-    {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(original_command_buffer);
-        for (const auto& dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                callback(*it);
-            }
-        }
-    }
-
-    template <typename Callback>
-    void ForEachDispatchTraceRaysCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
+    void ForEachWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
     {
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
             FindDispatchTraceRaysContexts(original_command_buffer);
@@ -864,6 +875,29 @@ class VulkanReplayDumpResourcesBase
                 callback(dispatch_rays_command_buffer);
             }
         }
+
+        ForEachDrawCallWorkCommandBuffer(original_command_buffer, callback);
+    }
+
+    // draw call clone currently taking work, for each context on this command buffer.
+    template <typename Callback>
+    void ForEachDrawCallWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
+    {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (const auto& dc_context : dc_contexts)
+        {
+            callback(dc_context->GetWorkCommandBuffer());
+        }
+    }
+
+    // Transfer dumping records its snapshot copies into the stream where the command sits. With a draw call
+    // context the clones are the only execution, so the snapshots belong in the clone taking work.
+    VkCommandBuffer TransferRecordingCommandBuffer(VkCommandBuffer original_command_buffer)
+    {
+        VkCommandBuffer clone = VK_NULL_HANDLE;
+        ForEachDrawCallWorkCommandBuffer(original_command_buffer, [&clone](VkCommandBuffer cb) { clone = cb; });
+        return (clone != VK_NULL_HANDLE) ? clone : original_command_buffer;
     }
 
     // Transfer contexts search funcs

@@ -1229,7 +1229,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     uint32_t                                     info_count,
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
-    VulkanDeviceAddressTracker&                  address_tracker)
+    VulkanDeviceAddressTracker&                  address_tracker,
+    std::span<const VkCommandBuffer>             clone_command_buffers)
 {
     GFXRECON_ASSERT(device_table_ != nullptr);
 
@@ -1529,7 +1530,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         run_compute_replace(command_buffer_info,
                             addresses_to_replace,
                             address_tracker,
-                            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR);
+                            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                            clone_command_buffers);
     }
 }
 
@@ -2351,7 +2353,8 @@ bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
 void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
                                                 const std::span<VkDeviceAddress>  addresses,
                                                 const VulkanDeviceAddressTracker& address_tracker,
-                                                VkPipelineStageFlags              sync_stage)
+                                                VkPipelineStageFlags              sync_stage,
+                                                std::span<const VkCommandBuffer>  clone_command_buffers)
 {
     if (addresses.empty() || storage_bda_binary_.empty())
     {
@@ -2431,73 +2434,82 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     GFXRECON_NARROWING_ASSIGN(replacer_params.num_handles, addresses.size());
 
-    // pre memory-barrier
-    for (const auto& buf : buffer_set)
-    {
-        barrier(command_buffer_info->handle,
-                buf,
-                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
-                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                VK_ACCESS_SHADER_WRITE_BIT);
-    }
+    // record into a command buffer that holds the state of command_buffer_info, e.g. one of its clones
+    const auto record = [&](VkCommandBuffer command_buffer) {
+        // pre memory-barrier
+        for (const auto& buf : buffer_set)
+        {
+            barrier(command_buffer,
+                    buf,
+                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                    VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                    VK_ACCESS_SHADER_WRITE_BIT);
+        }
 
-    auto label = device_table_->Label(injected, command_buffer_info->handle, "Address replacer");
-    injected->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
+        auto label = device_table_->Label(injected, command_buffer, "Address replacer");
+        injected->CmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
 
-    // NOTE: using push-constants here requires us to re-establish the previous data, if any
-    injected->CmdPushConstants(command_buffer_info->handle,
-                               pipeline_layout_,
-                               VK_SHADER_STAGE_COMPUTE_BIT,
-                               0,
-                               sizeof(replacer_params_bda_t),
-                               &replacer_params);
-    // dispatch workgroups
-    constexpr uint32_t wg_size = 32;
-    injected->CmdDispatch(command_buffer_info->handle, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
+        // NOTE: using push-constants here requires us to re-establish the previous data, if any
+        injected->CmdPushConstants(command_buffer,
+                                   pipeline_layout_,
+                                   VK_SHADER_STAGE_COMPUTE_BIT,
+                                   0,
+                                   sizeof(replacer_params_bda_t),
+                                   &replacer_params);
+        // dispatch workgroups
+        constexpr uint32_t wg_size = 32;
+        injected->CmdDispatch(command_buffer, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
 
-    // post memory-barrier
-    for (const auto& buf : buffer_set)
-    {
-        barrier(command_buffer_info->handle,
-                buf,
+        // post memory-barrier
+        for (const auto& buf : buffer_set)
+        {
+            barrier(command_buffer,
+                    buf,
+                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                    VK_ACCESS_SHADER_WRITE_BIT,
+                    sync_stage,
+                    VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT);
+        }
+
+        // synchronize host-reads
+        barrier(command_buffer,
+                hashmap_control_block_bda_binary_.buffer,
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 VK_ACCESS_SHADER_WRITE_BIT,
-                sync_stage,
-                VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT);
-    }
+                VK_PIPELINE_STAGE_HOST_BIT,
+                VK_ACCESS_HOST_READ_BIT);
 
-    // synchronize host-reads
-    barrier(command_buffer_info->handle,
-            hashmap_control_block_bda_binary_.buffer,
-            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-            VK_ACCESS_SHADER_WRITE_BIT,
-            VK_PIPELINE_STAGE_HOST_BIT,
-            VK_ACCESS_HOST_READ_BIT);
-
-    // set previous compute-pipeline, if any
-    if (command_buffer_info->bound_pipelines.contains(VK_PIPELINE_BIND_POINT_COMPUTE))
-    {
-        const auto* previous_pipeline =
-            object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
-        GFXRECON_ASSERT(previous_pipeline);
-
-        if (previous_pipeline != nullptr && previous_pipeline->handle != VK_NULL_HANDLE)
+        // set previous compute-pipeline, if any
+        if (command_buffer_info->bound_pipelines.contains(VK_PIPELINE_BIND_POINT_COMPUTE))
         {
-            injected->CmdBindPipeline(
-                command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
-        }
-    }
+            const auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+                command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
+            GFXRECON_ASSERT(previous_pipeline);
 
-    // set previous push-constant data, if any
-    if (!command_buffer_info->push_constant_data.empty())
+            if (previous_pipeline != nullptr && previous_pipeline->handle != VK_NULL_HANDLE)
+            {
+                injected->CmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
+            }
+        }
+
+        // set previous push-constant data, if any
+        if (!command_buffer_info->push_constant_data.empty())
+        {
+            injected->CmdPushConstants(
+                command_buffer,
+                command_buffer_info->push_constant_pipeline_layout,
+                command_buffer_info->push_constant_stage_flags,
+                0,
+                GFXRECON_NARROWING_CAST(uint32_t, command_buffer_info->push_constant_data.size()),
+                command_buffer_info->push_constant_data.data());
+        }
+    };
+
+    record(command_buffer_info->handle);
+    for (VkCommandBuffer clone_command_buffer : clone_command_buffers)
     {
-        injected->CmdPushConstants(command_buffer_info->handle,
-                                   command_buffer_info->push_constant_pipeline_layout,
-                                   command_buffer_info->push_constant_stage_flags,
-                                   0,
-                                   GFXRECON_NARROWING_CAST(uint32_t, command_buffer_info->push_constant_data.size()),
-                                   command_buffer_info->push_constant_data.data());
+        record(clone_command_buffer);
     }
 }
 

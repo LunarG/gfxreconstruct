@@ -38,9 +38,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -168,12 +170,16 @@ class DrawCallsDumpingContext
 
     void EndRenderPass();
 
-    void BeginRendering(const std::vector<VulkanImageInfo*>& color_attachments,
+    void BeginRendering(uint64_t                             block_index,
+                        const VkRenderingInfo*               rendering_info,
+                        const std::vector<VulkanImageInfo*>& color_attachments,
                         const std::vector<VkImageLayout>&    color_attachment_layouts,
                         VulkanImageInfo*                     depth_attachment,
                         VkImageLayout                        depth_attachment_layout);
 
     void EndRendering();
+
+    void EndRendering(PFN_vkCmdEndRendering2KHR func, const VkRenderingEndInfoKHR* rendering_end_info);
 
     void RecordCmdBeginRendering(VkCommandBuffer command_buffer, const VkRenderingInfo* rendering_info) const;
 
@@ -206,6 +212,30 @@ class DrawCallsDumpingContext
     void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+
+    // The clone a work command is recorded into: the current one.
+    VkCommandBuffer GetWorkCommandBuffer() const;
+
+    // The clones that have the active render pass instance begun: the stored range of an instance this
+    // context began, or the current clone for one it only forwards.
+    uint32_t GetRenderPassCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+
+    bool IsPrimary() const { return command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary; }
+
+    // Marks an attachment that no subpass of a render pass references
+    static constexpr uint32_t kNeverUsed = std::numeric_limits<uint32_t>::max();
+
+    // Gives every secondary this context executes its tail clone. Call it once, after
+    // RecalculateCommandBuffers and before anything is recorded.
+    void AppendTailClones();
+
+    // The clones that hold a window. The tail clone, when there is one, follows them in command_buffers_.
+    size_t GetWindowCount() const { return command_buffers_.size() - (has_tail_clone_ ? 1 : 0); }
+
+    // The clone holding the work this context recorded after its last target draw, VK_NULL_HANDLE if it has none.
+    VkCommandBuffer GetTailCommandBuffer() const { return has_tail_clone_ ? command_buffers_.back() : VK_NULL_HANDLE; }
+
+    void EndCommandBuffer();
 
     VkResult DumpDrawCalls(VkQueue              queue,
                            const VkSubmitInfo2& submit_info,
@@ -285,6 +315,12 @@ class DrawCallsDumpingContext
     // dump_resources_before is true) so it can be used to index arrays that don't double their sizes in case of
     // dump_resources_before is true.
     size_t CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
+
+    // The block index window (lo, hi] of the stream that the given clone records.
+    void GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const;
+
+    // The block index range of the render pass instance the given block index belongs to
+    const std::vector<Index>* FindRenderPassBlockRange(uint64_t block_index) const;
 
     void DestroyMutableResourceBackups();
 
@@ -416,6 +452,14 @@ class DrawCallsDumpingContext
 
         // Also one entry per subpass. For each subpass we create a new render pass
         std::vector<VkRenderPass> render_pass_clones;
+
+        // LOAD variants of render_pass_clones, used by a clone that resumes this render pass instead of
+        // starting it, keyed by the subpass the window resumes in and the subpass its target draw is in.
+        std::map<std::pair<uint32_t, uint32_t>, VkRenderPass> render_pass_load_clones;
+
+        // Half-open range of clones that have this instance begun, as command buffer indices.
+        size_t first_clone{ 0 };
+        size_t last_clone{ 0 };
     };
 
     // One entry per render pass, in replay order. Held through shared_ptr so that each DrawCallParams can point
@@ -425,6 +469,10 @@ class DrawCallsDumpingContext
     // True while a render pass (or dynamic rendering) instance begun by this context is active. Used by
     // FinalizeCommandBuffer to decide whether a CmdEndRenderPass/CmdEndRendering must be recorded.
     bool inside_renderpass_;
+
+    // True when command_buffers_ ends in a tail clone: the work a secondary records after its last target
+    // draw, which the target draws that follow it still need.
+    bool has_tail_clone_;
 
     // One entry per descriptor set
     BoundDescriptorSets bound_descriptor_sets_gr_;
