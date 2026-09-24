@@ -23,6 +23,7 @@
 
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_injected_calls.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -1850,13 +1851,101 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
     return result;
 }
 
+static std::vector<uint64_t> GetDrmFormatModifiers(const VkImageCreateInfo* create_info)
+{
+    if (const auto* explicit_info = vulkan_struct_get_pnext<VkImageDrmFormatModifierExplicitCreateInfoEXT>(create_info))
+    {
+        return { explicit_info->drmFormatModifier };
+    }
+
+    if (const auto* list_info = vulkan_struct_get_pnext<VkImageDrmFormatModifierListCreateInfoEXT>(create_info))
+    {
+        return { list_info->pDrmFormatModifiers, list_info->pDrmFormatModifiers + list_info->drmFormatModifierCount };
+    }
+
+    return {};
+}
+
+static std::vector<VkDrmFormatModifierPropertiesEXT> GetDrmFormatModifierProperties(
+    const VulkanInstanceTable& instance_table, VkPhysicalDevice physical_device, VkFormat format)
+{
+    PFN_vkGetPhysicalDeviceFormatProperties2 get_format_properties2 = instance_table.GetPhysicalDeviceFormatProperties2;
+    if (get_format_properties2 == noop::vkGetPhysicalDeviceFormatProperties2)
+    {
+        get_format_properties2 = instance_table.GetPhysicalDeviceFormatProperties2KHR;
+    }
+    if (get_format_properties2 == noop::vkGetPhysicalDeviceFormatProperties2KHR)
+    {
+        return {};
+    }
+
+    VkDrmFormatModifierPropertiesListEXT modifier_list = { VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT };
+    VkFormatProperties2                  format_props  = { VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2, &modifier_list };
+
+    // First call to get number of modifiers
+    get_format_properties2(physical_device, format, &format_props);
+
+    std::vector<VkDrmFormatModifierPropertiesEXT> modifier_props(modifier_list.drmFormatModifierCount);
+    if (!modifier_props.empty())
+    {
+        modifier_list.pDrmFormatModifierProperties = modifier_props.data();
+        get_format_properties2(physical_device, format, &format_props);
+    }
+
+    return modifier_props;
+}
+
+static bool IsDrmFormatModifiersSupported(const VulkanInstanceTable& instance_table,
+                                          VkPhysicalDevice           physical_device,
+                                          VkFormat                   format,
+                                          VkFormatFeatureFlags       feature_flags,
+                                          const VkImageCreateInfo*   create_info)
+{
+    const std::vector<uint64_t> modifiers = GetDrmFormatModifiers(create_info);
+    if (modifiers.empty())
+    {
+        return false;
+    }
+
+    const std::vector<VkDrmFormatModifierPropertiesEXT> modifier_props =
+        GetDrmFormatModifierProperties(instance_table, physical_device, format);
+
+    for (uint64_t modifier : modifiers)
+    {
+        bool supported = false;
+
+        for (const VkDrmFormatModifierPropertiesEXT& props : modifier_props)
+        {
+            if (props.drmFormatModifier == modifier)
+            {
+                supported = (props.drmFormatModifierTilingFeatures & feature_flags) == feature_flags;
+                break;
+            }
+        }
+
+        if (!supported)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool VulkanResourcesUtil::IsFormatSupported(const VulkanInstanceTable& instance_table,
                                             VkPhysicalDevice           physical_device,
                                             VkFormat                   format,
                                             VkImageTiling              tiling,
-                                            VkFormatFeatureFlags       feature_flags)
+                                            VkFormatFeatureFlags       feature_flags,
+                                            const VkImageCreateInfo*   create_info)
 {
-    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL);
+    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL ||
+                    tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
+
+    if (tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT)
+    {
+        return IsDrmFormatModifiersSupported(instance_table, physical_device, format, feature_flags, create_info);
+    }
 
     VkFormatProperties format_props;
     instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_props);

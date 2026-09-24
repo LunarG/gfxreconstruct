@@ -289,7 +289,8 @@ class VulkanResourcesUtil
                                   VkPhysicalDevice           physical_device,
                                   VkFormat                   format,
                                   VkImageTiling              tiling,
-                                  VkFormatFeatureFlags       feature_flags);
+                                  VkFormatFeatureFlags       feature_flags,
+                                  const VkImageCreateInfo*   create_info = nullptr);
 
     static bool IsImageSupported(const VulkanInstanceTable& instance_table,
                                  VkPhysicalDevice           physical_device,
