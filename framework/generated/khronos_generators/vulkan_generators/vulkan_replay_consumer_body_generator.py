@@ -158,6 +158,16 @@ class VulkanReplayConsumerBodyGenerator(
     def check_skip_offscreen(self, values, name):
         """Method override. """
         body = ''
+        # Timestamp results are not needed for replay, and swapchain-local
+        # queries can reference synthetic offscreen handles.
+        if name in ('vkGetCalibratedTimestampsKHR', 'vkGetCalibratedTimestampsEXT'):
+            body += '    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)\n'
+            body += '    {\n'
+            body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen.");\n'
+            body += '        return;\n'
+            body += '    }\n'
+            return body
+
         is_print = False
         for value in values:
             for key in self.SKIP_FUNCTIONS_OFFSCREEN:

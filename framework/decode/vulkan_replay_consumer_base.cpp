@@ -70,6 +70,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <limits>
 #include <numeric>
@@ -112,6 +113,7 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedByReplayTiming 
 const std::unordered_map<VkResult, VkResult> kResultValuesAllowedByReplayEnvironment = {
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
     { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+    { VK_INCOMPLETE, VK_SUCCESS },
     { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
     { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
 };
@@ -9058,6 +9060,25 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     {
         swapchain_->DestroySwapchainKHR(func, device_info, swapchain_info, GetAllocationCallbacks(pAllocator));
     }
+
+    // These images are owned by the swapchain and are destroyed along with it, but Process_vkDestroySwapchainKHR only
+    // removes the swapchain entry. Drop the image entries here so that the table does not accumulate infos holding
+    // destroyed VkImage handles.
+    if (swapchain_info != nullptr)
+    {
+        std::vector<format::HandleId> image_ids;
+        object_info_table_->VisitVkImageInfo([&image_ids, swapchain_info](const VulkanImageInfo* image_info) {
+            if (image_info->swapchain_id == swapchain_info->capture_id)
+            {
+                image_ids.push_back(image_info->capture_id);
+            }
+        });
+
+        for (format::HandleId image_id : image_ids)
+        {
+            object_info_table_->RemoveVkImageInfo(image_id);
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
@@ -9465,6 +9486,36 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     return result;
 }
 
+static constexpr uint32_t kReplayPresentTimingQueueSize = 16;
+
+static VkResult DrainPastPresentationTimingEXT(PFN_vkGetPastPresentationTimingEXT     func,
+                                               VkDevice                               device,
+                                               const VkPastPresentationTimingInfoEXT& query)
+{
+    // Sufficiently large VkPastPresentationTimingEXT array size to drain everything.
+    constexpr size_t kPresentStageSize = std::numeric_limits<VkPresentStageFlagsEXT>::digits;
+
+    std::array<VkPastPresentationTimingEXT, kReplayPresentTimingQueueSize>                          timings{};
+    std::array<std::array<VkPresentStageTimeEXT, kPresentStageSize>, kReplayPresentTimingQueueSize> present_stages{};
+
+    VkPastPresentationTimingInfoEXT modified_query = query;
+    modified_query.flags                           = VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT;
+
+    for (size_t i = 0; i < kReplayPresentTimingQueueSize; ++i)
+    {
+        timings[i].sType             = VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT;
+        timings[i].pPresentStages    = present_stages[i].data();
+        timings[i].presentStageCount = static_cast<uint32_t>(kPresentStageSize);
+    }
+
+    VkPastPresentationTimingPropertiesEXT properties{};
+    properties.sType                   = VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT;
+    properties.presentationTimingCount = kReplayPresentTimingQueueSize;
+    properties.pPresentationTimings    = timings.data();
+
+    return func(device, &modified_query, &properties);
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR                                 func,
                                                   VkResult                                              original_result,
@@ -9484,6 +9535,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     VkDeviceGroupPresentInfoKHR modified_device_group_present_info{ VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR };
     VkPresentRegionsKHR         modified_present_region_info{ VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR };
     VkPresentTimesInfoGOOGLE    modified_present_times_info{ VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE };
+    VkPresentTimingsInfoEXT     modified_present_timings_info{ VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT };
+    std::vector<VkPresentTimingInfoEXT> modified_present_timing_infos;
 
     valid_swapchains_.clear();
     modified_image_indices_.clear();
@@ -9771,12 +9824,63 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         modified_present_info.pImageIndices = modified_image_indices_.data();
     }
 
+    // Filter presentation timing infos when their corresponding swapchains are filtered.
+    if (const auto* present_timings_info =
+            graphics::vulkan_struct_get_pnext<VkPresentTimingsInfoEXT>(&modified_present_info))
+    {
+        if (present_timings_info->pTimingInfos != nullptr)
+        {
+            for (uint32_t i = 0; i < present_timings_info->swapchainCount; ++i)
+            {
+                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
+                {
+                    modified_present_timing_infos.push_back(present_timings_info->pTimingInfos[i]);
+                }
+            }
+
+            modified_present_timings_info.swapchainCount = static_cast<uint32_t>(modified_present_timing_infos.size());
+            modified_present_timings_info.pTimingInfos   = modified_present_timing_infos.data();
+
+            graphics::vulkan_struct_add_pnext(&modified_present_info, &modified_present_timings_info);
+        }
+    }
+
     if (options_.wait_before_present)
     {
         VkDevice device = MapHandle<VulkanDeviceInfo>(queue_info->parent_id, &CommonObjectInfoTable::GetVkDeviceInfo);
         auto     device_table = GetInjectedDeviceCalls(device);
         auto     injected     = device_table.Open();
         injected->DeviceWaitIdle(device);
+    }
+
+    if ((options_.swapchain_option != util::SwapchainOption::kOffscreen) && (modified_present_info.swapchainCount > 0))
+    {
+        if (graphics::vulkan_struct_get_pnext<VkPresentTimingsInfoEXT>(&modified_present_info) != nullptr)
+        {
+            const auto timing_count =
+                std::min<size_t>(modified_present_timing_infos.size(), modified_present_info.swapchainCount);
+            const auto device_table = GetInjectedDeviceCalls(queue_info->parent);
+            auto       injected     = device_table.Open();
+            if (injected->GetPastPresentationTimingEXT != nullptr)
+            {
+                for (size_t i = 0; i < timing_count; ++i)
+                {
+                    if (modified_present_timing_infos[i].presentStageQueries != 0)
+                    {
+                        VkPastPresentationTimingInfoEXT query{ VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT };
+                        query.swapchain = modified_present_info.pSwapchains[i];
+
+                        const VkResult drain_result = DrainPastPresentationTimingEXT(
+                            injected->GetPastPresentationTimingEXT, queue_info->parent, query);
+                        if (drain_result < 0)
+                        {
+                            GFXRECON_LOG_WARNING("Failed to drain VK_EXT_present_timing reports before present: %d",
+                                                 static_cast<int>(drain_result));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
@@ -13667,6 +13771,43 @@ VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingGOOGLE(
                     pPresentationTimings->GetOutputPointer());
     }
     return VK_SUCCESS;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingEXT(
+    PFN_vkGetPastPresentationTimingEXT                                   func,
+    VkResult                                                             original_result,
+    const VulkanDeviceInfo*                                              device_info,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT>*       pPastPresentationTimingInfo,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT>* pPastPresentationTimingProperties)
+{
+    if ((pPastPresentationTimingInfo == nullptr) || pPastPresentationTimingInfo->IsNull() ||
+        (pPastPresentationTimingInfo->GetPointer() == nullptr))
+    {
+        return original_result;
+    }
+
+    const VkPastPresentationTimingInfoEXT* in_past_presentation_timing_info = pPastPresentationTimingInfo->GetPointer();
+
+    GFXRECON_UNREFERENCED_PARAMETER(pPastPresentationTimingProperties);
+    return DrainPastPresentationTimingEXT(func, device_info->handle, *in_past_presentation_timing_info);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetSwapchainPresentTimingQueueSizeEXT(
+    PFN_vkSetSwapchainPresentTimingQueueSizeEXT func,
+    VkResult                                    original_result,
+    const VulkanDeviceInfo*                     device_info,
+    const VulkanSwapchainKHRInfo*               swapchain_info,
+    uint32_t                                    size)
+{
+    GFXRECON_ASSERT((device_info != nullptr) && (swapchain_info != nullptr));
+
+    const VulkanSurfaceKHRInfo* surface_info = GetObjectInfoTable().GetVkSurfaceKHRInfo(swapchain_info->surface_id);
+    if ((surface_info == nullptr) || surface_info->surface_creation_skipped)
+    {
+        return original_result;
+    }
+
+    return func(device_info->handle, swapchain_info->handle, std::max(size, kReplayPresentTimingQueueSize));
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetRefreshCycleDurationGOOGLE(

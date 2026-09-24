@@ -5990,6 +5990,11 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsKHR(
     const ApiCallInfo&                          call_info,
     args::GetCalibratedTimestampsKHR&           args)
 {
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetCalibratedTimestampsKHR for offscreen.");
+        return;
+    }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = args.pTimestampInfos.GetPointer();
     MapStructArrayHandles(args.pTimestampInfos.GetMetaStructPointer(), args.pTimestampInfos.GetLength(), GetObjectInfoTable());
@@ -7580,6 +7585,11 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsEXT(
     const ApiCallInfo&                          call_info,
     args::GetCalibratedTimestampsEXT&           args)
 {
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetCalibratedTimestampsEXT for offscreen.");
+        return;
+    }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = args.pTimestampInfos.GetPointer();
     MapStructArrayHandles(args.pTimestampInfos.GetMetaStructPointer(), args.pTimestampInfos.GetLength(), GetObjectInfoTable());
@@ -7715,11 +7725,10 @@ void VulkanReplayConsumer::Process_vkSetSwapchainPresentTimingQueueSizeEXT(
         GFXRECON_LOG_DEBUG("Skip vkSetSwapchainPresentTimingQueueSizeEXT for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(args.swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
-    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain)->surface_id)->surface_creation_skipped) { return; }
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_swapchain = GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain);
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetSwapchainPresentTimingQueueSizeEXT(in_device, in_swapchain, args.size);
+    VkResult replay_result = OverrideSetSwapchainPresentTimingQueueSizeEXT(GetDeviceTable(in_device->handle)->SetSwapchainPresentTimingQueueSizeEXT, args.result, in_device, in_swapchain, args.size);
     CheckResult("vkSetSwapchainPresentTimingQueueSizeEXT", args.result, replay_result, call_info);
 }
 
@@ -7772,13 +7781,13 @@ void VulkanReplayConsumer::Process_vkGetPastPresentationTimingEXT(
         GFXRECON_LOG_DEBUG("Skip vkGetPastPresentationTimingEXT for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkPastPresentationTimingInfoEXT* in_pPastPresentationTimingInfo = args.pPastPresentationTimingInfo.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructHandles(args.pPastPresentationTimingInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    VkPastPresentationTimingPropertiesEXT* out_pPastPresentationTimingProperties = args.pPastPresentationTimingProperties.IsNull() ? nullptr : args.pPastPresentationTimingProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
+    args.pPastPresentationTimingProperties.IsNull() ? nullptr : args.pPastPresentationTimingProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
     InitializeOutputStructPNext(&args.pPastPresentationTimingProperties);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetPastPresentationTimingEXT(in_device, in_pPastPresentationTimingInfo, out_pPastPresentationTimingProperties);
+    VkResult replay_result = OverrideGetPastPresentationTimingEXT(GetDeviceTable(in_device->handle)->GetPastPresentationTimingEXT, args.result, in_device, &args.pPastPresentationTimingInfo, &args.pPastPresentationTimingProperties);
     CheckResult("vkGetPastPresentationTimingEXT", args.result, replay_result, call_info);
 }
 
@@ -13800,6 +13809,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkResolveImageModeInfoKHR>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMaintenance11FeaturesKHR>());
@@ -15980,11 +15994,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>());
@@ -16758,6 +16767,26 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrivateDataBaseHandleFeaturesNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceInfoPropertiesINTEL>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBufferDeviceAddressAlignmentAllocateInfoVALVE>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
