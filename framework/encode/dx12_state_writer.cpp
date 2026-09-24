@@ -492,6 +492,24 @@ bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
     return false;
 }
 
+// The ID3D12Device15::TryCreate* calls encode their HRESULT after DestDescriptor.
+static bool IsTryCreateDescriptorCall(format::ApiCallId call_id)
+{
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
 {
     std::set<util::MemoryOutputStream*> processed;
@@ -554,17 +572,34 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             {
                 if (descriptor_info.is_copy)
                 {
-                    // Append heap id and descriptor index if the create parameters were copied from another descriptor
-                    // in CopyDescriptors.
-                    auto dest_heap_id = descriptor_info.heap_id;
-                    auto dest_index   = descriptor_info.index;
-                    parameter_stream_.Write(descriptor_info.create_parameters->GetData(),
-                                            descriptor_info.create_parameters->GetDataSize());
-                    parameter_stream_.Write(&dest_heap_id, sizeof(dest_heap_id));
-                    parameter_stream_.Write(&dest_index, sizeof(dest_index));
-                    WriteMethodCall(
-                        descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
-                    parameter_stream_.Clear();
+                    // Create parameters copied from another descriptor in CopyDescriptors end with the source's
+                    // DestDescriptor (heap id and index), followed by the HRESULT of the TryCreate* calls. Write them
+                    // with this descriptor's heap id and index in place of the source's.
+                    auto           dest_heap_id  = descriptor_info.heap_id;
+                    auto           dest_index    = descriptor_info.index;
+                    const uint8_t* data          = descriptor_info.create_parameters->GetData();
+                    size_t         size          = descriptor_info.create_parameters->GetDataSize();
+                    bool           has_result    = IsTryCreateDescriptorCall(descriptor_info.create_call_id);
+                    size_t         result_size   = has_result ? sizeof(HRESULT) : 0;
+                    size_t         trailing_size = sizeof(dest_heap_id) + sizeof(dest_index) + result_size;
+
+                    if (size > trailing_size)
+                    {
+                        parameter_stream_.Write(data, size - trailing_size);
+                        parameter_stream_.Write(&dest_heap_id, sizeof(dest_heap_id));
+                        parameter_stream_.Write(&dest_index, sizeof(dest_index));
+                        parameter_stream_.Write(data + size - result_size, result_size);
+                        WriteMethodCall(
+                            descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
+                        parameter_stream_.Clear();
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("The copied state of descriptor %u in descriptor heap (id = %" PRIu64
+                                             ") has an unexpected size. Skipping it.",
+                                             i,
+                                             heap_wrapper->GetCaptureId());
+                    }
                 }
                 else
                 {
