@@ -13036,8 +13036,7 @@ bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* dev
 
 bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const
 {
-    // -m rebind manages memory via VMA and does not preserve external memory
-    if (device_info == nullptr || UseAddressReplacement(device_info))
+    if (device_info == nullptr)
     {
         return false;
     }
