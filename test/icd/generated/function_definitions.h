@@ -519,9 +519,10 @@ static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     VkBuffer                                    buffer,
     VkMemoryRequirements*                       pMemoryRequirements)
 {
-    // TODO: Just hard-coding reqs for now
-    pMemoryRequirements->size = 4096;
-    pMemoryRequirements->alignment = 1;
+    // Sizes and alignments are in units of kMockMemoryGranularity, so that the capture layer's
+    // page alignment of the values that the app receives is the same on every platform.
+    pMemoryRequirements->size = kMockMemoryGranularity;
+    pMemoryRequirements->alignment = kMockMemoryGranularity;
     pMemoryRequirements->memoryTypeBits = 0xFFFF;
     // Return a better size based on the buffer size from the create info.
     unique_lock_t lock(global_lock);
@@ -529,7 +530,7 @@ static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     if (d_iter != buffer_map.end()) {
         auto iter = d_iter->second.find(buffer);
         if (iter != d_iter->second.end()) {
-            pMemoryRequirements->size = ((iter->second.size + 4095) / 4096) * 4096;
+            pMemoryRequirements->size = RoundToMockGranularity(iter->second.size);
         }
     }
 }
@@ -539,15 +540,16 @@ static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     VkImage                                     image,
     VkMemoryRequirements*                       pMemoryRequirements)
 {
+    // Same units as GetBufferMemoryRequirements, for the same reason.
     pMemoryRequirements->size = 0;
-    pMemoryRequirements->alignment = 1;
+    pMemoryRequirements->alignment = kMockMemoryGranularity;
 
     unique_lock_t lock(global_lock);
     auto d_iter = image_memory_size_map.find(device);
     if(d_iter != image_memory_size_map.end()){
         auto iter = d_iter->second.find(image);
         if (iter != d_iter->second.end()) {
-            pMemoryRequirements->size = iter->second;
+            pMemoryRequirements->size = RoundToMockGranularity(iter->second);
         }
     }
     // Here we hard-code that the memory type at index 3 doesn't support this image.
@@ -2318,12 +2320,12 @@ static VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirements(
     const VkDeviceBufferMemoryRequirements*     pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    // TODO: Just hard-coding reqs for now
-    pMemoryRequirements->memoryRequirements.alignment = 1;
+    // Same units as GetBufferMemoryRequirements, for the same reason.
+    pMemoryRequirements->memoryRequirements.alignment = kMockMemoryGranularity;
     pMemoryRequirements->memoryRequirements.memoryTypeBits = 0xFFFF;
 
     // Return a size based on the buffer size from the create info.
-    pMemoryRequirements->memoryRequirements.size = ((pInfo->pCreateInfo->size + 4095) / 4096) * 4096;
+    pMemoryRequirements->memoryRequirements.size = RoundToMockGranularity(pInfo->pCreateInfo->size);
 }
 
 static VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirements(
