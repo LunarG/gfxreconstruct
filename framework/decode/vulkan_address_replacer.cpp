@@ -2461,13 +2461,13 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                     VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT);
         }
 
-    // synchronize host-reads
-    barrier(command_buffer_info->handle,
-            hashmap_control_block_bda_binary_.temp_buffer.handle,
-            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-            VK_ACCESS_SHADER_WRITE_BIT,
-            VK_PIPELINE_STAGE_HOST_BIT,
-            VK_ACCESS_HOST_READ_BIT);
+        // synchronize host-reads
+        barrier(command_buffer_info->handle,
+                hashmap_control_block_bda_binary_.temp_buffer.handle,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_ACCESS_SHADER_WRITE_BIT,
+                VK_PIPELINE_STAGE_HOST_BIT,
+                VK_ACCESS_HOST_READ_BIT);
 
         // set previous compute-pipeline, if any
         if (command_buffer_info->bound_pipelines.contains(VK_PIPELINE_BIND_POINT_COMPUTE))

@@ -117,7 +117,12 @@ class VulkanReplayDumpResourcesBodyGenerator(
         )
         if work_despite_prefix:
             return False
-        return name.startswith(('vkCmdBind', 'vkCmdSet', 'vkCmdPush'))
+        # Debug labels and markers fan out like state -> no clone ends a scope it did not begin.
+        debug_label = name in (
+            'vkCmdBeginDebugUtilsLabelEXT', 'vkCmdEndDebugUtilsLabelEXT', 'vkCmdInsertDebugUtilsLabelEXT',
+            'vkCmdDebugMarkerBeginEXT', 'vkCmdDebugMarkerEndEXT', 'vkCmdDebugMarkerInsertEXT'
+        )
+        return debug_label or name.startswith(('vkCmdBind', 'vkCmdSet', 'vkCmdPush'))
 
     def make_consumer_func_body(self, api_data, return_type, name, values):
         """
