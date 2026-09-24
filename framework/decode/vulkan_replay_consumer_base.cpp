@@ -9060,6 +9060,25 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     {
         swapchain_->DestroySwapchainKHR(func, device_info, swapchain_info, GetAllocationCallbacks(pAllocator));
     }
+
+    // These images are owned by the swapchain and are destroyed along with it, but Process_vkDestroySwapchainKHR only
+    // removes the swapchain entry. Drop the image entries here so that the table does not accumulate infos holding
+    // destroyed VkImage handles.
+    if (swapchain_info != nullptr)
+    {
+        std::vector<format::HandleId> image_ids;
+        object_info_table_->VisitVkImageInfo([&image_ids, swapchain_info](const VulkanImageInfo* image_info) {
+            if (image_info->swapchain_id == swapchain_info->capture_id)
+            {
+                image_ids.push_back(image_info->capture_id);
+            }
+        });
+
+        for (format::HandleId image_id : image_ids)
+        {
+            object_info_table_->RemoveVkImageInfo(image_id);
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
