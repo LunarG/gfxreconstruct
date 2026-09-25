@@ -2076,7 +2076,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void PropagateImageLayouts(const VulkanCommandBufferInfo* command_buffer_info);
 
     bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info);
-    bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info, const PNextNode* pnext);
+    bool CheckPNextChainForFrameBoundary(const PNextNode* pnext);
+    void WriteFrameBoundaryImage(const VulkanImageInfo* image_info, const std::string& filename_prefix);
+    void PresentFrameBoundaryImage(const VulkanImageInfo* image_info);
 
     void UpdateDescriptorSetInfoWithTemplate(VulkanDescriptorSetInfo*                  desc_set_info,
                                              const VulkanDescriptorUpdateTemplateInfo* template_info,
