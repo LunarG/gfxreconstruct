@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
 FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_size, bool append) :
-    file_(nullptr), own_file_(true)
+    file_(nullptr), own_file_(true), filename_(filename)
 {
     const char* mode   = append ? "ab" : "wb";
     int32_t     result = platform::FileOpen(&file_, filename.c_str(), mode);
@@ -54,20 +54,31 @@ FileOutputStream::FileOutputStream(FILE* file, bool owned) : file_(file), own_fi
 
 FileOutputStream::~FileOutputStream()
 {
-    if ((file_ != nullptr) && own_file_)
-    {
-        platform::FileClose(file_);
-    }
+    Close();
 }
 
 void FileOutputStream::Reset(FILE* file)
 {
-    if ((file_ != nullptr) && own_file_)
-    {
-        platform::FileClose(file_);
-    }
+    Close();
 
     file_ = file;
+    filename_.clear();
+}
+
+// fclose() writes the last buffered bytes, and a failure there is reported nowhere else.
+void FileOutputStream::Close()
+{
+    if ((file_ != nullptr) && own_file_)
+    {
+        if (platform::FileClose(file_) != 0)
+        {
+            GFXRECON_LOG_ERROR("Failed to write buffered data while closing file \"%s\" (%s)",
+                               filename_.empty() ? "<unnamed>" : filename_.c_str(),
+                               strerror(errno));
+        }
+    }
+
+    file_ = nullptr;
 }
 
 bool FileOutputStream::Write(const void* data, size_t len)
