@@ -113,14 +113,16 @@ Dx12DumpResources::Dx12DumpResources(std::function<DxObjectInfo*(format::HandleI
 
 void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& capture_file_name)
 {
-    // prepare for copy resources
-    auto hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                             IID_PPV_ARGS(&track_dump_resources_.copy_cmd_allocator));
-
     const UINT64 initial_fence_value = 1;
     device->CreateFence(initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
-    track_dump_resources_.fence_event        = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    track_dump_resources_.fence_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
     track_dump_resources_.fence_signal_value = initial_fence_value;
+
+    D3D12_COMMAND_QUEUE_DESC copy_queue_desc = {};
+    copy_queue_desc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    device->CreateCommandQueue(&copy_queue_desc, IID_PPV_ARGS(&track_dump_resources_.copy_queue));
+    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_ready_fence));
+    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.copy_complete_fence));
 
     if (user_delegate_ != nullptr)
     {
@@ -162,6 +164,13 @@ void Dx12DumpResources::CloseDump()
 
     // Free the default delegate if it was used.
     default_delegate_ = nullptr;
+
+    CloseHandle(track_dump_resources_.fence_event);
+    track_dump_resources_.fence_event         = nullptr;
+    track_dump_resources_.fence               = nullptr;
+    track_dump_resources_.copy_queue          = nullptr;
+    track_dump_resources_.copy_ready_fence    = nullptr;
+    track_dump_resources_.copy_complete_fence = nullptr;
 }
 
 bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                             replay_object_info,
@@ -605,6 +614,10 @@ std::vector<uint32_t> GetDescSubIndices(uint32_t first_mip_slice,
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -837,6 +850,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -907,6 +924,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -977,6 +998,10 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& 
 
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHDepthStencilViewInfo& info, const DxObjectInfo* resource)
 {
+    if (resource == nullptr || resource->object == nullptr)
+    {
+        return;
+    }
     auto res_desc    = reinterpret_cast<ID3D12Resource*>(resource->object)->GetDesc();
     auto mip_count   = res_desc.MipLevels;
     auto array_count = res_desc.DepthOrArraySize;
@@ -1874,33 +1899,21 @@ void Dx12DumpResources::CopyDrawCallResource(DxObjectInfo*                      
         auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(source_resource);
         if (device != nullptr)
         {
-            // Get or create staging buffer.
-            if (!track_dump_resources_.copy_staging_buffer ||
-                (track_dump_resources_.copy_staging_buffer_size < copy_resource_data->total_size))
-            {
-                // TODO: If we could know the max required resource size for the all dump resources, we wouldn't need to
-                //       free and re-create buffer. But it's tough to know it. dx12_brower_consumer might help it.
-                //       It needs a map to match GPU virutal address with resources. Use a GPU virtal address
-                //       to find its resource, and then know the size.
-                track_dump_resources_.copy_staging_buffer = nullptr;
-                track_dump_resources_.copy_staging_buffer = graphics::Dx12ResourceDataUtil::CreateStagingBuffer(
-                    device, graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead, copy_resource_data->total_size);
-                track_dump_resources_.copy_staging_buffer_size = copy_resource_data->total_size;
-
-                GFXRECON_ASSERT(track_dump_resources_.copy_staging_buffer);
-            }
-            copy_resource_data->read_resource                   = track_dump_resources_.copy_staging_buffer;
+            // Deferred read callbacks retain the staging buffer and allocator until the copy completes.
+            copy_resource_data->read_resource = graphics::Dx12ResourceDataUtil::CreateStagingBuffer(
+                device, graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead, copy_resource_data->total_size);
             copy_resource_data->read_resource_is_staging_buffer = true;
 
-            if (track_dump_resources_.copy_cmd_allocator)
+            device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+                                           IID_PPV_ARGS(&copy_resource_data->copy_cmd_allocator));
+            if (copy_resource_data->copy_cmd_allocator)
             {
                 device->CreateCommandList(0,
                                           D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                          track_dump_resources_.copy_cmd_allocator,
+                                          copy_resource_data->copy_cmd_allocator,
                                           nullptr,
                                           IID_PPV_ARGS(&copy_resource_data->cmd_list));
             }
-
             if (copy_resource_data->cmd_list == nullptr)
             {
                 GFXRECON_LOG_ERROR("Failed to create command list for dump resources.");
@@ -1950,6 +1963,14 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
     }
 
     HRESULT hr = S_OK;
+    // A direct command list cannot be submitted to a compute or copy queue.
+    const bool use_dedicated_copy_queue =
+        !copy_resource_data->is_cpu_accessible && draw_call_queue->GetDesc().Type != D3D12_COMMAND_LIST_TYPE_DIRECT;
+    ID3D12CommandQueue* copy_queue = draw_call_queue;
+    if (use_dedicated_copy_queue)
+    {
+        copy_queue = track_dump_resources_.copy_queue;
+    }
     if (copy_resource_data->is_cpu_accessible)
     {
         // If the source_resource is CPU accessible, it can be read from directly.
@@ -2014,16 +2035,30 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
 
         if (SUCCEEDED(hr))
         {
-            // Execute the command list.
-            hr                             = copy_resource_data->cmd_list->Close();
+            hr = copy_resource_data->cmd_list->Close();
+            if (use_dedicated_copy_queue)
+            {
+                // Separate timelines prevent source-ready signals from satisfying waits for copy completion.
+                const UINT64 copy_value = ++track_dump_resources_.copy_queue_fence_value;
+                hr = draw_call_queue->Signal(track_dump_resources_.copy_ready_fence, copy_value);
+                hr = copy_queue->Wait(track_dump_resources_.copy_ready_fence, copy_value);
+            }
+
             ID3D12CommandList* cmd_lists[] = { copy_resource_data->cmd_list };
-            draw_call_queue->ExecuteCommandLists(1, cmd_lists);
+            copy_queue->ExecuteCommandLists(1, cmd_lists);
         }
         else
         {
             GFXRECON_LOG_ERROR("Failed to record commands to copy resource data for resource %" PRIu64,
                                copy_resource_data->source_resource_id);
         }
+    }
+
+    if (use_dedicated_copy_queue)
+    {
+        const UINT64 copy_value = track_dump_resources_.copy_queue_fence_value;
+        hr = copy_queue->Signal(track_dump_resources_.copy_complete_fence, copy_value);
+        hr = draw_call_queue->Wait(track_dump_resources_.copy_complete_fence, copy_value);
     }
 
     // Signal the fence to indicate that data has been copied to the staging resource.
@@ -2054,6 +2089,7 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     {
         GFXRECON_LOG_FATAL(
             "Invalid fence value (UINT64_MAX). Device may have been removed. GFXR is unable to continue.");
+        return;
     }
     if (completed_value < fence_wait_value)
     {
