@@ -218,6 +218,8 @@ class VulkanDecoderBase : public ApiDecoder
     void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
                                                                         size_t         buffer_size) override;
 
+    void DispatchResourceAliasingGroupsCommand(const uint8_t* parameter_buffer, size_t buffer_size) override;
+
     virtual void DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
                                                uint32_t           n_blocks,
                                                int64_t            offset,

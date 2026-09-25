@@ -245,6 +245,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_command_buffer_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_command_buffer_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_layout.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_layout.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_aliasing_groups.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_options.h

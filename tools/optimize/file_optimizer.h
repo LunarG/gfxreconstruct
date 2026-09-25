@@ -44,7 +44,6 @@ class FileOptimizer : public decode::FileTransformer
     bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
     bool WriteAnnotation(std::string_view label, std::string_view message);
 
-  private:
     VisitResult FilterMetaData(const decode::InitBufferArgs& args);
     VisitResult FilterMetaData(const decode::InitImageArgs& args);
     VisitResult FilterMetaData(const decode::InitTensorArgs& args);
@@ -55,6 +54,7 @@ class FileOptimizer : public decode::FileTransformer
         return kNeedsPassthrough;
     }
 
+  private:
     [[nodiscard]] bool FilterMethodCall(const decode::MethodCallArgs& args) const;
 
   protected:

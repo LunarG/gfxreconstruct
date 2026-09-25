@@ -22,7 +22,11 @@
 
 #include "optimize_vulkan_feature.h"
 
-#include "file_optimizer.h"
+#if defined(GFXRECON_ENABLE_VULKAN)
+// The modifier writes its block through gfxrecon_encode, we need to apply the same guard here
+#include "vulkan_aliasing_group_modifier.h"
+#endif
+#include "vulkan_file_optimizer.h"
 #include "decode/file_processor.h"
 #include "generated/generated_vulkan_referenced_block_consumer.h"
 #include "generated/generated_vulkan_referenced_resource_consumer.h"
@@ -37,6 +41,20 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
 
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(OptimizeFeature, OptimizeVulkanFeature)
+
+// Writing the resource aliasing groups block changes where a replayer places aliased resources, so
+// every existing caller of this tool gets that change by default and needs a way back.
+constexpr char kNoAliasingMetadata[] = "--no-aliasing-metadata";
+
+std::vector<util::FeatureOptionDesc> OptimizeVulkanFeature::GetOptionDescs() const
+{
+    return { { .name          = "",
+               .description   = { "Do not detect aliased resources and do not write the resource aliasing",
+                                  "groups meta-data block. Replay then places aliased resources one bind",
+                                  "at a time, as it does for a capture this tool has not seen." },
+               .has_argument  = false,
+               .trigger_names = kNoAliasingMetadata } };
+}
 
 std::string OptimizeVulkanFeature::CompiledHeaderVersionString() const
 {
@@ -67,9 +85,21 @@ bool OptimizeVulkanFeature::ShouldRun(const util::ArgumentParser& args) const
     return WasDetected();
 }
 
-bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&                    input_filename,
-                                                     std::unordered_set<format::HandleId>& unreferenced_ids)
+bool OptimizeVulkanFeature::ScanInput(const std::string&                    input_filename,
+                                      const util::ArgumentParser&           args,
+                                      std::unordered_set<format::HandleId>& unreferenced_ids,
+                                      VulkanFileOptimizer::Modifiers&       modifiers)
 {
+    // Modifiers are constructed here, then dropped again if the scan finds nothing for them to do.
+    VulkanFileOptimizer::Modifiers candidates;
+
+#if defined(GFXRECON_ENABLE_VULKAN)
+    if (!args.IsOptionSet(kNoAliasingMetadata))
+    {
+        candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>());
+    }
+#endif
+
     decode::FileProcessor file_processor;
     if (!file_processor.Initialize(input_filename))
     {
@@ -79,6 +109,10 @@ bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&         
     decode::VulkanDecoder                    decoder;
     decode::VulkanReferencedResourceConsumer resref_consumer;
     decoder.AddConsumer(&resref_consumer);
+    for (auto& candidate : candidates)
+    {
+        decoder.AddConsumer(candidate.get());
+    }
     file_processor.AddDecoder(&decoder);
     file_processor.ProcessAllFrames();
 
@@ -96,37 +130,52 @@ bool OptimizeVulkanFeature::GetUnreferencedResources(const std::string&         
     }
 
     resref_consumer.GetReferencedHandleIds(nullptr, &unreferenced_ids);
+
+    for (auto& candidate : candidates)
+    {
+        if (candidate->CanOptimize())
+        {
+            modifiers.push_back(std::move(candidate));
+        }
+    }
     return true;
 }
 
-bool OptimizeVulkanFeature::FilterUnreferencedResources(const std::string&                          input_filename,
-                                                        const std::string&                          output_filename,
-                                                        const std::unordered_set<format::HandleId>& unreferenced_ids)
+bool OptimizeVulkanFeature::WriteOptimizedFile(const std::string&                          input_filename,
+                                               const std::string&                          output_filename,
+                                               const std::unordered_set<format::HandleId>& unreferenced_ids,
+                                               VulkanFileOptimizer::Modifiers              modifiers)
 {
-    // Collect the block indices that correspond to unreferenced resources.
-    decode::FileProcessor file_processor;
-    if (!file_processor.Initialize(input_filename))
+    uint64_t                     num_blocks = 0;
+    std::unordered_set<uint64_t> unreferenced_blocks;
+
+    if (!unreferenced_ids.empty())
     {
-        return false;
+        // Collect the block indices that correspond to unreferenced resources.
+        decode::FileProcessor file_processor;
+        if (!file_processor.Initialize(input_filename))
+        {
+            return false;
+        }
+
+        decode::VulkanDecoder                 decoder;
+        decode::VulkanReferencedBlockConsumer block_ref_consumer(unreferenced_ids);
+        decoder.AddConsumer(&block_ref_consumer);
+        file_processor.AddDecoder(&decoder);
+        file_processor.ProcessAllFrames();
+
+        if (file_processor.GetErrorState() != decode::BlockIOError::kErrorNone)
+        {
+            GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
+            return false;
+        }
+
+        num_blocks          = file_processor.GetCurrentBlockIndex();
+        unreferenced_blocks = block_ref_consumer.GetUnreferencedBlocks();
     }
 
-    decode::VulkanDecoder                 decoder;
-    decode::VulkanReferencedBlockConsumer block_ref_consumer(unreferenced_ids);
-    decoder.AddConsumer(&block_ref_consumer);
-    file_processor.AddDecoder(&decoder);
-    file_processor.ProcessAllFrames();
-
-    if (file_processor.GetErrorState() != decode::BlockIOError::kErrorNone)
-    {
-        GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-        return false;
-    }
-
-    uint64_t                     num_blocks          = file_processor.GetCurrentBlockIndex();
-    std::unordered_set<uint64_t> unreferenced_blocks = block_ref_consumer.GetUnreferencedBlocks();
-
-    // Stream the input to the output, dropping unreferenced blocks.
-    FileOptimizer file_optimizer(unreferenced_ids, unreferenced_blocks);
+    // Stream the input to the output, dropping unreferenced blocks and applying the modifiers.
+    VulkanFileOptimizer file_optimizer(unreferenced_ids, unreferenced_blocks, std::move(modifiers));
     if (!file_optimizer.Initialize(input_filename, output_filename))
     {
         return false;
@@ -151,23 +200,28 @@ bool OptimizeVulkanFeature::Optimize(const std::string&          input_filename,
                                      const std::string&          output_filename,
                                      const util::ArgumentParser& args)
 {
-    GFXRECON_WRITE_CONSOLE("Scanning Vulkan file %s for unreferenced resources.", input_filename.c_str());
+    GFXRECON_WRITE_CONSOLE("Scanning Vulkan file %s for optimizations.", input_filename.c_str());
 
     std::unordered_set<format::HandleId> unreferenced_ids;
-    if (!GetUnreferencedResources(input_filename, unreferenced_ids))
+    VulkanFileOptimizer::Modifiers       modifiers;
+    if (!ScanInput(input_filename, args, unreferenced_ids, modifiers))
     {
         return false;
     }
 
-    if (unreferenced_ids.empty())
+    if (unreferenced_ids.empty() && modifiers.empty())
     {
-        GFXRECON_WRITE_CONSOLE("No unused resources detected. A new file will not be created.");
+        GFXRECON_WRITE_CONSOLE("Nothing to optimize. A new file will not be created.");
         return true;
     }
 
-    GFXRECON_WRITE_CONSOLE("Writing optimized file, removing initialization data for %" PRIu64 " unused resources.",
-                           unreferenced_ids.size());
-    return FilterUnreferencedResources(input_filename, output_filename, unreferenced_ids);
+    if (!unreferenced_ids.empty())
+    {
+        GFXRECON_WRITE_CONSOLE("Writing optimized file, removing initialization data for %" PRIu64 " unused resources.",
+                               unreferenced_ids.size());
+    }
+
+    return WriteOptimizedFile(input_filename, output_filename, unreferenced_ids, std::move(modifiers));
 }
 
 GFXRECON_END_NAMESPACE(optimize)
