@@ -350,6 +350,10 @@ int main(int argc, const char** argv)
 
             file_processor.InitializeFrameProcessing();
 
+            // Pre-frame blocks go to the initial stream. Each loop iteration then completes one frame,
+            // which the detection check, frame range, and file-per-frame logic below rely on.
+            success = success && file_processor.ProcessPreFrame();
+
             while (success)
             {
                 success = file_processor.ProcessNextFrame();
