@@ -28,7 +28,7 @@
 #include "graphics/frame_loop_info.h"
 #include "util/feature_module_registry.h"
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 #include <android_native_app_glue.h>
 #endif
 
@@ -209,7 +209,7 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
         feature->CheckEnvironment();
     }
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     // Start paused; replay begins once APP_CMD_GAINED_FOCUS fires.
     application->SetPaused(true);
 #endif

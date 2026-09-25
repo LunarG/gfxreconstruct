@@ -34,11 +34,11 @@ target_sources(gfxrecon_application
                     ${CMAKE_CURRENT_LIST_DIR}/application.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/wsi_context.h
                     ${CMAKE_CURRENT_LIST_DIR}/wsi_context.cpp
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_context.h>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_context.cpp>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_window.h>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_window.cpp>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_jni.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android_context.h>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android_context.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android_window.h>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android_window.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android_jni.cpp>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.cpp>
@@ -86,7 +86,7 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_replay_event_plugin_loader
                       vulkan_registry
                       $<$<AND:$<BOOL:${OPENXR_SUPPORT_ENABLED}>,$<NOT:$<BOOL:${ANDROID}>>>:OpenXR>
-                      $<$<BOOL:${ANDROID}>:native_app_glue>
+                      $<$<BOOL:${BUILD_ANDROID_APP}>:native_app_glue>
                       platform_specific)
 
 common_build_directives(gfxrecon_application)
