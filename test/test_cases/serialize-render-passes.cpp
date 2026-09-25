@@ -6,8 +6,7 @@
  * Capture the isolate-render-passes app and replay it with --serialize-render-passes.
  * The replay tool injects an ALL_GRAPHICS -> ALL_GRAPHICS execution barrier before every render pass begin, so
  * rendering cannot overlap on the GPU.
- * The capture layer is still enabled during replay, so the injected barriers land in a recapture of the replay and
- * can be counted there.
+ * This test exercises the code path and checks that there are injected barriers.
  */
 TEST(SerializeRenderPasses, ReplayInjectsBarrierBeforeEachRenderPass)
 {
@@ -19,7 +18,6 @@ TEST(SerializeRenderPasses, ReplayInjectsBarrierBeforeEachRenderPass)
     // Replay the app with and without the option "--serialize-render-passes" to compare the counts of barrier commands.
     std::map<std::string, int> baseline;
     ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, &baseline));
-
     std::map<std::string, int> with_option;
     ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(
         test_name, { "--serialize-render-passes" }, "_replay_option", counted, &with_option));
