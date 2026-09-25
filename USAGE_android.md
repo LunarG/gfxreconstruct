@@ -805,6 +805,8 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--serialize-queue-submissions]
                           [--replay-event-plugin-path PATH]
                           [--replay-event-plugin-params PARAMS]
+                          [--direct-driver-lib PATHS]
+                          [--direct-driver-policy POLICY]
                           [--isolate-render-passes]
                           [--serialize-compute-and-transfer]
                           [--annotate-injected-commands]
@@ -1051,6 +1053,17 @@ options:
                         Parameters to forward to the replay event plugin. The format
                         of the parameters is determined by the plugin and is not
                         interpreted by the replay tool. (forwarded to replay tool)
+  --direct-driver-lib PATHS
+                        Load the driver libraries for VK_LUNARG_direct_driver_loading
+                        from these paths, as a comma-separated list in driver order,
+                        instead of the paths that the capture recorded. An empty item
+                        keeps the recorded path for that driver.
+                        (forwarded to replay tool)
+  --direct-driver-policy POLICY
+                        Choose how replay handles VK_LUNARG_direct_driver_loading in
+                        vkCreateInstance. One of auto, strip, or require. See the
+                        desktop usage documentation for the meaning of each value.
+                        The default is auto. (forwarded to replay tool)
   --isolate-render-passes
                         Isolate render passes by splitting the command buffer into multiple submits.
   --serialize-compute-and-transfer
@@ -1208,6 +1221,12 @@ The current version of the Android replay layer has the following limitations:
        GFXReconstruct properly capturing the necessary content from the correct
        surface.
   * Permission to access external storage must be granted manually.
+  * A driver that the captured application gave to the loader with
+    `VK_LUNARG_direct_driver_loading` usually lives inside the APK of that
+    application.
+    The replay tool cannot open a library inside another APK.
+    Copy the library to a location that the replay tool can read, and give
+    its path with `--direct-driver-lib`.
 
 ### Troubleshooting Replay of Applications
 

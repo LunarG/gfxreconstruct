@@ -566,6 +566,16 @@ void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(const format::Set
     }
 }
 
+void VulkanDecoderBase::DispatchSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                           std::string_view                          module_path,
+                                                           std::string_view                          symbol_name)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetDirectDriverInfoCommand(header, module_path, symbol_name);
+    }
+}
+
 void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)
