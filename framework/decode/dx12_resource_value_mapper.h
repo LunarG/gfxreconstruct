@@ -101,7 +101,8 @@ class Dx12ResourceValueMapper
                                         SIZE_T                       blob_length_in_bytes,
                                         HandlePointerDecoder<void*>* root_signature_decoder);
 
-    void PostProcessCreateStateObject(HandlePointerDecoder<void*>*                           state_object_decoder,
+    void PostProcessCreateStateObject(ID3D12Device*                                          device,
+                                      HandlePointerDecoder<void*>*                           state_object_decoder,
                                       StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
                                       const D3D12StateObjectInfo*                            grow_from_state_object);
 
@@ -212,13 +213,16 @@ class Dx12ResourceValueMapper
     void GetStateObjectLrsAssociationInfo(
         format::HandleId                                       state_object_id,
         StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+        ID3D12DeviceConfiguration1*                            device_config,
         std::set<std::wstring>&                                export_names,
         std::vector<format::HandleId>&                         local_root_signature_ids,
         format::HandleId&                                      explicit_default_local_root_signature_id,
         std::map<std::wstring, format::HandleId>&              explicit_local_root_signature_associations,
         std::map<std::wstring, std::set<std::wstring>>&        hit_group_imports,
         std::map<std::wstring, format::HandleId>&              lrs_associations_map,
-        std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>>& existing_shader_id_lrs_map);
+        std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>>& existing_shader_id_lrs_map,
+        std::set<ResourceValueInfo>&                                           in_dxil_default_lrs_value_infos,
+        std::map<std::wstring, std::set<ResourceValueInfo>>&                   in_dxil_export_lrs_value_infos);
 
     QueueSyncEventInfo CreateProcessProcessResourceMappingsSyncEvent(ProcessResourceMappingsArgs args);
 
