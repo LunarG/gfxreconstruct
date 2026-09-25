@@ -60,6 +60,54 @@ COPYRIGHT = '''/*
 '''
 
 
+# Indentation of a class member, of an access specifier and of a nesting level within a
+# member function body.  Generated sources use spaces only.
+MEMBER_INDENT = ' ' * 4
+ACCESS_INDENT = ' ' * 2
+BODY_INDENT = ' ' * 4
+
+
+# The types generated for the interfaces of the protocol currently being processed, keyed by
+# Wayland interface name.  Interfaces that libwayland already declares (the "wl_" ones) are
+# absent from this table and keep the names wayland-client.h gives them.
+protocol_interface_types = dict()
+
+
+def to_upper_camel_case(name: str) -> str:
+    return ''.join(word[:1].upper() + word[1:] for word in name.split('_'))
+
+
+def interface_to_cpp_type(interface_name: str) -> str:
+    """C++ type name for a Wayland interface, generated or from wayland-client.h."""
+    return protocol_interface_types.get(interface_name, interface_name)
+
+
+def generated_type_name(*parts: str) -> str:
+    """Name for a type generated for a Wayland interface.
+
+    Everything the generator writes goes into the gfxrecon::util namespace, which keeps these
+    names apart from the ones the real Wayland protocol headers declare at global scope.
+    """
+    return ''.join(to_upper_camel_case(part) for part in parts)
+
+
+def generated_enum_entry_name(entry_name: str) -> str:
+    """Name for one entry of a generated enum.
+
+    The enum classes scope their entries, so an entry keeps only the name the protocol gives
+    it.  A protocol can name an entry with a leading digit, which C++ does not accept in an
+    identifier, so reject that here instead of writing a source file that does not compile.
+    """
+    if entry_name[:1].isdigit():
+        raise Exception(f'Enum entry "{entry_name}" starts with a digit: Case not handled.')
+    return entry_name.upper()
+
+
+def protocol_table_type_name(protocol_name: str) -> str:
+    """Name of the table class generated for a protocol."""
+    return 'Wayland' + to_upper_camel_case(protocol_name) + 'Table'
+
+
 def wayland_arg_to_cpp_type(arg: ET.Element) -> str:
 
     arg_type = arg.attrib['type']
@@ -69,9 +117,9 @@ def wayland_arg_to_cpp_type(arg: ET.Element) -> str:
     elif arg_type == 'uint':
         return 'uint32_t'
     elif arg_type == 'fixed':
-        return 'wl_fixed'
+        return 'wl_fixed_t'
     elif arg_type == 'object' or arg_type == 'new_id':
-        return arg.attrib['interface'] + '*'
+        return interface_to_cpp_type(arg.attrib['interface']) + '*'
     elif arg_type == 'string':
         return 'const char*'
     elif arg_type == 'array':
@@ -83,34 +131,37 @@ def wayland_arg_to_cpp_type(arg: ET.Element) -> str:
 def generate_request(file: TextIOWrapper, interface_name: str, request: ET.Element, opcode: int) -> None:
 
     return_type = 'void'
+    return_interface = None
     args = list()
 
     for arg in request.findall('arg'):
         if arg.attrib['type'] == 'new_id':
-            if return_type != 'void':
+            if return_interface is not None:
                 raise Exception('Two objects created by the same request: Case not handled.')
+            return_interface = arg.attrib['interface']
             return_type = wayland_arg_to_cpp_type(arg)
         else:
             args.append((wayland_arg_to_cpp_type(arg), arg.attrib['name']))
 
     func_name = interface_name + '_' + request.attrib["name"]
+    self_type = interface_to_cpp_type(interface_name)
 
-    file.write(f'\t\t{return_type} {func_name}({interface_name}* self{", ".join([""] + [arg[0] + " " + arg[1] for arg in args])}) const\n')
-    file.write('\t\t{\n')
+    file.write(f'{MEMBER_INDENT}{return_type} {func_name}({self_type}* self{", ".join([""] + [arg[0] + " " + arg[1] for arg in args])}) const\n')
+    file.write(f'{MEMBER_INDENT}{{\n')
 
-    if return_type != 'void':
+    if return_interface is not None:
 
         params = [
             'reinterpret_cast<wl_proxy*>(self)',
             str(opcode),
-            f'&{return_type[:-1]}_interface',
+            f'&{return_interface}_interface',
             'NULL'
         ]
 
         params.extend(arg[1] for arg in args)
 
-        file.write(f'\t\t\treturn reinterpret_cast<{return_type}>(_wl->proxy_marshal_constructor({", ".join(params)}));\n')
-    
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}return reinterpret_cast<{return_type}>(_wl->proxy_marshal_constructor({", ".join(params)}));\n')
+
     else:
 
         params = [
@@ -120,13 +171,12 @@ def generate_request(file: TextIOWrapper, interface_name: str, request: ET.Eleme
 
         params.extend(arg[1] for arg in args)
 
-        file.write(f'\t\t\t_wl->proxy_marshal({", ".join(params)});\n')
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}_wl->proxy_marshal({", ".join(params)});\n')
 
         if request.attrib["name"] == 'destroy':
-            file.write('\t\t\t_wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));\n')
+            file.write(f'{MEMBER_INDENT}{BODY_INDENT}_wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));\n')
 
-
-    file.write('\t\t}\n')
+    file.write(f'{MEMBER_INDENT}}}\n')
     file.write('\n')
 
 
@@ -220,6 +270,12 @@ def generate(protocol_path: str) -> None:
     protocol_name = root.attrib['name']
     generated_filename = os.path.join(SCRIPT_DIR, f'generated_wayland_{protocol_name}.h')
 
+    global protocol_interface_types
+    protocol_interface_types = {
+        interface.attrib['name']: generated_type_name(interface.attrib['name'])
+        for interface in root.findall('interface')
+    }
+
     with open(generated_filename, 'w') as file:
         
         # Header of file
@@ -229,6 +285,7 @@ def generate(protocol_path: str) -> None:
         file.write(f'#ifndef GFXRECON_GENERATED_WAYLAND_{protocol_name.upper()}_H\n')
         file.write(f'#define GFXRECON_GENERATED_WAYLAND_{protocol_name.upper()}_H\n')
         file.write('\n')
+        file.write('#include <cstdint>\n')
         file.write('#include <vector>\n')
         file.write('\n')
         file.write('#include <wayland-client.h>\n')
@@ -236,17 +293,21 @@ def generate(protocol_path: str) -> None:
         file.write('#include "util/defines.h"\n')
         file.write('#include "util/wayland_loader.h"\n')
         file.write('\n')
+        file.write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)\n')
+        file.write('GFXRECON_BEGIN_NAMESPACE(util)\n')
+        file.write('\n')
 
         # Static declarations
 
         for interface in root.findall('interface'):
-            file.write(f'struct {interface.attrib["name"]};\n')
+            file.write(f'struct {interface_to_cpp_type(interface.attrib["name"])};\n')
 
         file.write('\n')
 
         for interface in root.findall('interface'):
 
             interface_name = interface.attrib['name']
+            interface_type = interface_to_cpp_type(interface_name)
 
             file.write(f'// {interface_name} static declarations\n')
             file.write('\n')
@@ -254,26 +315,27 @@ def generate(protocol_path: str) -> None:
             # Enums
 
             for enum in interface.findall('enum'):
-                file.write(f'enum {interface_name}_{enum.attrib["name"]}\n')
+                file.write(f'enum class {generated_type_name(interface_name, enum.attrib["name"])} : uint32_t\n')
                 file.write('{\n')
                 for entry in enum.findall('entry'):
-                    file.write(f'\t{interface_name}_{enum.attrib["name"]}_{entry.attrib["name"]} = {entry.attrib["value"]},\n'.upper())
+                    entry_name = generated_enum_entry_name(entry.attrib['name'])
+                    file.write(f'{MEMBER_INDENT}{entry_name} = {entry.attrib["value"]},\n')
                 file.write('};\n')
                 file.write('\n')
-        
+
             # Listeners
 
             if interface.find('event') is not None:
 
-                file.write(f'struct {interface_name}_listener\n')
+                file.write(f'struct {generated_type_name(interface_name, "listener")}\n')
                 file.write('{\n')
 
                 for event in interface.findall('event'):
-                    file.write(f'\tvoid (*{event.attrib["name"]})(void* data, {interface_name}* object')
+                    file.write(f'{MEMBER_INDENT}void (*{event.attrib["name"]})(void* data, {interface_type}* object')
 
                     for arg in event.findall('arg'):
                         file.write(f', {wayland_arg_to_cpp_type(arg)} {arg.attrib["name"]}')
-                    
+
                     file.write(');\n')
 
                 file.write('};\n')
@@ -281,20 +343,17 @@ def generate(protocol_path: str) -> None:
 
         # Protocol table
                 
-        file.write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)\n')
-        file.write('GFXRECON_BEGIN_NAMESPACE(util)\n')
-        file.write('\n')
         file.write(f'// Global to {protocol_name}\n')
         file.write('\n')
-        file.write(f'class wayland_{protocol_name}_table\n')
+        file.write(f'class {protocol_table_type_name(protocol_name)}\n')
         file.write('{\n')
-        file.write('\tprivate:\n')
+        file.write(f'{ACCESS_INDENT}private:\n')
         file.write('\n')
-        file.write('\t\tconst WaylandLoader::FunctionTable* _wl;\n')
-        file.write('\t\tstd::vector<wl_message> _messages;\n')
-        file.write('\t\tstd::vector<const wl_interface*> _messageArgs;\n')
+        file.write(f'{MEMBER_INDENT}const WaylandLoader::FunctionTable* _wl;\n')
+        file.write(f'{MEMBER_INDENT}std::vector<wl_message> _messages;\n')
+        file.write(f'{MEMBER_INDENT}std::vector<const wl_interface*> _messageArgs;\n')
         file.write('\n')
-        file.write('\tpublic:\n')
+        file.write(f'{ACCESS_INDENT}public:\n')
         file.write('\n')
 
         # Per-interface dynamic declarations
@@ -302,48 +361,51 @@ def generate(protocol_path: str) -> None:
         for interface in root.findall('interface'):
 
             interface_name = interface.attrib['name']
+            interface_type = interface_to_cpp_type(interface_name)
 
-            file.write(f'\t\t// {interface_name} dynamic declarations\n')
+            file.write(f'{MEMBER_INDENT}// {interface_name} dynamic declarations\n')
             file.write('\n')
 
             # Interfaces
-            
-            file.write(f'\t\twl_interface {interface.attrib["name"]}_interface;\n')
+
+            file.write(f'{MEMBER_INDENT}wl_interface {interface_name}_interface;\n')
             file.write('\n')
 
             # Listeners
 
             if interface.find('event') is not None:
-                
-                file.write(f'\t\tint {interface_name}_add_listener({interface_name}* self, {interface_name}_listener* listener, void* data) const\n')
-                file.write('\t\t{\n')
-                file.write('\t\t\treturn _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);\n')
-                file.write('\t\t}\n')
+
+                listener_type = generated_type_name(interface_name, 'listener')
+
+                file.write(f'{MEMBER_INDENT}int {interface_name}_add_listener({interface_type}* self, {listener_type}* listener, void* data) const\n')
+                file.write(f'{MEMBER_INDENT}{{\n')
+                file.write(f'{MEMBER_INDENT}{BODY_INDENT}return _wl->proxy_add_listener(reinterpret_cast<wl_proxy*>(self), reinterpret_cast<void (**)(void)>(listener), data);\n')
+                file.write(f'{MEMBER_INDENT}}}\n')
                 file.write('\n')
 
             # Requests
-        
+
             destroy_found = False
             for opcode, request in enumerate(interface.findall('request')):
                 generate_request(file, interface_name, request, opcode)
                 if request.attrib['name'] == 'destroy':
                     destroy_found = True
-            
+
             if not destroy_found:
-                file.write(f'\t\tvoid {interface_name}_destroy({interface_name}* self) const\n')
-                file.write('\t\t{\n')
-                file.write('\t\t\t_wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));\n')
-                file.write('\t\t}\n')
+                file.write(f'{MEMBER_INDENT}void {interface_name}_destroy({interface_type}* self) const\n')
+                file.write(f'{MEMBER_INDENT}{{\n')
+                file.write(f'{MEMBER_INDENT}{BODY_INDENT}_wl->proxy_destroy(reinterpret_cast<wl_proxy*>(self));\n')
+                file.write(f'{MEMBER_INDENT}}}\n')
                 file.write('\n')
 
         # Initialize func
 
-        file.write('\t\t// Call this once libwayland-client is successfully loaded\n')
+        file.write(f'{MEMBER_INDENT}// Call this once libwayland-client is successfully loaded\n')
         file.write('\n')
-        file.write('\t\tvoid initialize(const WaylandLoader* waylandLoader)\n')
-        file.write('\t\t{\n')
+        file.write(f'{MEMBER_INDENT}void initialize(const WaylandLoader* waylandLoader)\n')
+        file.write(f'{MEMBER_INDENT}{{\n')
 
-        file.write('\t\t\t_wl = &waylandLoader->GetFunctionTable();\n')
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}_wl = &waylandLoader->GetFunctionTable();\n')
         file.write('\n')
 
         messages = dict()
@@ -356,18 +418,18 @@ def generate(protocol_path: str) -> None:
             for event in interface.findall('event'):
                 messages[interface_name][1].append(message_from_func(message_args, event))
 
-        file.write('\t\t\t_messageArgs = {\n')
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}_messageArgs = {{\n')
         for arg in message_args:
-            file.write(f'\t\t\t\t{arg},\n')
-        file.write('\t\t\t};\n')
+            file.write(f'{MEMBER_INDENT}{BODY_INDENT * 2}{arg},\n')
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}}};\n')
         file.write('\n')
 
-        file.write('\t\t\t_messages = {\n')
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}_messages = {{\n')
         for interface in root.findall('interface'):
             for message in itertools.chain(messages[interface.attrib['name']][0], messages[interface.attrib['name']][1]):
-                file.write(f'\t\t\t\t{{ "{message[0]}", "{message[1]}", _messageArgs.data() + {message[2]} }},\n')
+                file.write(f'{MEMBER_INDENT}{BODY_INDENT * 2}{{ "{message[0]}", "{message[1]}", _messageArgs.data() + {message[2]} }},\n')
 
-        file.write('\t\t\t};\n')
+        file.write(f'{MEMBER_INDENT}{BODY_INDENT}}};\n')
         file.write('\n')
 
         counter = 0
@@ -377,13 +439,13 @@ def generate(protocol_path: str) -> None:
             request_count = len(messages[interface_name][0])
             event_count = len(messages[interface_name][1])
 
-            file.write(f'\t\t\t{interface_name}_interface = {{ "{interface_name}", {interface.attrib["version"]},')
+            file.write(f'{MEMBER_INDENT}{BODY_INDENT}{interface_name}_interface = {{ "{interface_name}", {interface.attrib["version"]},')
             file.write(f' {request_count}, _messages.data() + {counter},')
             counter += request_count
             file.write(f' {event_count}, _messages.data() + {counter} }};\n')
             counter += event_count
 
-        file.write('\t\t}\n')
+        file.write(f'{MEMBER_INDENT}}}\n')
         file.write('};\n')
         file.write('\n')
 
@@ -408,6 +470,10 @@ def clone_wayland_protocols():
 def main():
     clone_wayland_protocols()
     generate(os.path.join(PROTOCOLS_DIR, 'stable', 'xdg-shell', 'xdg-shell.xml'))
+    # viewporter and fractional-scale together let a window size itself correctly on a
+    # fractionally scaled output, which wl_surface::set_buffer_scale cannot express.
+    generate(os.path.join(PROTOCOLS_DIR, 'stable', 'viewporter', 'viewporter.xml'))
+    generate(os.path.join(PROTOCOLS_DIR, 'staging', 'fractional-scale', 'fractional-scale-v1.xml'))
 
 
 if __name__ == '__main__':
