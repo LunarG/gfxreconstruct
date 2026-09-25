@@ -828,6 +828,9 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             }
             break;
         }
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            info.subresource_indices.emplace_back(0);
+            break;
         case D3D12_SRV_DIMENSION_UNKNOWN:
         default:
             GFXRECON_LOG_ERROR("Unknown D3D12_SRV_DIMENSION_UNKNOWN.");
@@ -898,6 +901,9 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
             info.subresource_indices = GetDescSubIndices(info.desc.Texture3D.MipSlice, 1, mip_count, 0, 1, 1, 0);
             break;
         }
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            info.subresource_indices.emplace_back(0);
+            break;
         case D3D12_UAV_DIMENSION_UNKNOWN:
         default:
             GFXRECON_LOG_ERROR("Unknown D3D12_UAV_DIMENSION_UNKNOWN.");
@@ -1163,6 +1169,10 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                         size   = desc.Buffer.NumElements * size;
                         break;
                     }
+                    case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+                        offset = desc.BufferByteOffset.Offset;
+                        size   = desc.BufferByteOffset.Size;
+                        break;
                     default:
                         break;
                 }
@@ -1203,6 +1213,10 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                         size   = desc.Buffer.NumElements * size;
                         break;
                     }
+                    case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+                        offset = desc.BufferByteOffset.Offset;
+                        size   = desc.BufferByteOffset.Size;
+                        break;
                     default:
                         break;
                 }
@@ -1225,10 +1239,13 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
 
                 json_path_sub.emplace_back("counter_resource", format::kNoneIndex);
 
+                const uint64_t counter_offset = (desc.ViewDimension == D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET)
+                                                    ? desc.BufferByteOffset.CounterOffsetInBytes
+                                                    : desc.Buffer.CounterOffsetInBytes;
                 CopyDrawCallResourceBySubresource(queue_object_info,
                                                   front_command_list_ids,
                                                   info_entry->second.uav.counter_resource_id,
-                                                  desc.Buffer.CounterOffsetInBytes,
+                                                  counter_offset,
                                                   0,
                                                   sub_indices_emptry,
                                                   json_path_sub,
