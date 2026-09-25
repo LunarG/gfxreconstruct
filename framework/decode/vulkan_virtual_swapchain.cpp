@@ -1325,15 +1325,11 @@ void VulkanVirtualSwapchain::AdhocSwapChain::DestroySwapchain()
             injected->QueueWaitIdle(queue);
         }
 
-        for (auto& [cmd_buf, fence, acquire_semaphore] : frame_data)
+        for (auto& [cmd_buf, acquire_semaphore] : frame_data)
         {
             if (cmd_buf != VK_NULL_HANDLE)
             {
                 injected->FreeCommandBuffers(device, command_pool, 1, &cmd_buf);
-            }
-            if (fence != VK_NULL_HANDLE)
-            {
-                injected->DestroyFence(device, fence, nullptr);
             }
             if (acquire_semaphore != VK_NULL_HANDLE)
             {
@@ -1652,9 +1648,6 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         {
             swapchain.image_data[i].image = swapchain_images[i];
 
-            result = injected->CreateFence(device, &fence_create_info, nullptr, &swapchain.frame_data[i].fence);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-
             result = injected->CreateSemaphore(
                 device, &semaphore_create_info, nullptr, &swapchain.frame_data[i].acquire_semaphore);
             GFXRECON_ASSERT(result == VK_SUCCESS);
@@ -1669,14 +1662,8 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         }
     }
 
-    // wait for previous frame
-    const auto& frame_data = swapchain.frame_data[swapchain.acquire_index];
-    result = injected->WaitForFences(device, 1, &frame_data.fence, true, std::numeric_limits<uint64_t>::max());
-    GFXRECON_ASSERT(result == VK_SUCCESS);
-    result = injected->ResetFences(device, 1, &frame_data.fence);
-    GFXRECON_ASSERT(result == VK_SUCCESS);
-
     // Acquire next image from the swapchain
+    const auto& frame_data            = swapchain.frame_data[swapchain.acquire_index];
     VkSemaphore acquire_semaphore     = frame_data.acquire_semaphore;
     uint32_t    swapchain_image_index = 0;
 
@@ -1835,7 +1822,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         submit_info.signalSemaphoreCount = 1;
         submit_info.pSignalSemaphores    = &image_data.semaphore;
 
-        result = injected->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
+        result = injected->QueueSubmit(ofb_data.queue, 1, &submit_info, VK_NULL_HANDLE);
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
