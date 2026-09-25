@@ -17,7 +17,8 @@ TEST(SerializeComputeAndTransfer, ReplayInjectsBarriersAroundDispatches)
 
     ASSERT_NO_FATAL_FAILURE(capture_app(test_name));
 
-    // Replay the app with and without the option "--serialize-compute-and-transfer" to compare the counts of barrier commands.
+    // Replay the app with and without the option "--serialize-compute-and-transfer" to compare the counts of barrier
+    // commands.
     std::map<std::string, int> baseline;
     ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, &baseline));
     std::map<std::string, int> with_option;
