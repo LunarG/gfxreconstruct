@@ -27,7 +27,15 @@ cmake_minimum_required(VERSION 3.16)
 
 option(RUN_TESTS "Run unit tests" OFF)
 
+function(gfxrecon_require_googletest)
+    set(INSTALL_GTEST OFF PARENT_SCOPE)
+    set(INSTALL_GTEST OFF)
+    find_package(GoogleTest REQUIRED)
+endfunction()
+
 if (${RUN_TESTS})
+    gfxrecon_require_googletest()
+
     # Python
     if(CMAKE_HOST_WIN32)
         find_program(PYTHON python.exe DOC "Python executable")
@@ -69,6 +77,23 @@ if (${RUN_TESTS})
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
             add_dependencies(${TARGET}RunTests ${TARGET})
         endif()
+    endfunction()
+
+    # Add test execution directives to a GoogleTest executable target.
+    function(common_gtest_directives TARGET)
+        target_compile_definitions(${TARGET} PRIVATE $<$<BOOL:${MSVC}>:_UNICODE>)
+        get_target_property(TARGET_TYPE ${TARGET} TYPE)
+        if (NOT ("EXECUTABLE" STREQUAL ${TARGET_TYPE}))
+            message(FATAL_ERROR
+                    "${TARGET} is not an executable.\n"
+                    "Test directives can only be applied to executables.")
+        endif()
+        add_custom_target(${TARGET}RunTests ALL
+                COMMAND "${PYTHON}" ${GFXReconstruct_SOURCE_DIR}/scripts/test.py
+                    --build-dir ${CMAKE_CURRENT_BINARY_DIR}
+                    --test-exe $<TARGET_FILE:${TARGET}>
+                WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+        add_dependencies(${TARGET}RunTests ${TARGET})
     endfunction()
 
     option(GENERATE_TEST_ARCHIVE
@@ -118,6 +143,9 @@ if (${RUN_TESTS})
     endfunction()
 else()
     function(common_test_directives TARGET)
+    endfunction()
+
+    function(common_gtest_directives TARGET)
     endfunction()
 
     function(add_test_package_file FILE)
