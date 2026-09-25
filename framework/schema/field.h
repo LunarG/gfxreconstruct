@@ -98,9 +98,10 @@ GFXRECON_END_NAMESPACE(field_shape)
 //   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
 //                     reads it that way so that no other descriptor has to state it.
 //   pointer_count     Pointer, Array and PointerArray. The declared star count, one or two.
-//   count_field       Array, PointerArray or StaticArray whose registry length is exactly one sibling member, or a
-//                     sibling and the constant 1 for a PointerArray: that sibling's Field descriptor, so a cross-field
-//                     read can be constrained on it.
+//   field_count       Array, PointerArray or StaticArray whose registry length an Action can evaluate: a FieldValue
+//                     expression over the owner's storage. FieldValue<Sibling> for a length that is exactly one
+//                     sibling member, or a sibling and the constant 1 for a PointerArray; FieldValue<Sibling, Member>
+//                     for a length read through a pointer sibling, `sibling->member`.
 //   length_expression Array or StaticArray whose registry length is anything else: the registry text as
 //                     written, for example a computed length or the comma-joined extents of a matrix. Not read by
 //                     any operation; a length no Action can evaluate is recorded here rather than dropped.
@@ -139,10 +140,10 @@ using FieldKind = typename Field::api_type::kind;
 template <typename Field>
 using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
 
-// The count field for an Array, PointerArray or StaticArray Field, if any. The sibling Field whose value names the
-// array's length
+// The count expression for an Array, PointerArray or StaticArray Field, if any: a FieldValue whose Get reads the
+// array's length from the owner's storage.
 template <typename Field>
-using FieldCountField = typename Field::count_field;
+using FieldCount = typename Field::field_count;
 
 // The sibling Field whose value names a generic handle's object type.
 template <typename Field>
@@ -193,7 +194,10 @@ template <typename Storage, typename Field>
 concept HasSelectorField = HasMember<Storage, FieldSelectorField<Field>>;
 
 template <typename Storage, typename Field>
-concept HasCountField = HasMember<Storage, FieldCountField<Field>>;
+concept HasFieldCount = requires(const Storage& storage)
+{
+    FieldCount<Field>::Get(storage);
+};
 
 template <typename Storage, typename Field>
 concept Addressable = requires
@@ -213,72 +217,23 @@ requires Addressable<Storage, Field>
     return (storage.*MemberPointer<std::remove_cv_t<Storage>, Field>::value);
 }
 
-// Get expresses a read by value, and is the only read available for a non-addressable member.
+// Get is the uniform const read, whatever the member's addressability. It yields a reference to the member where it
+// is addressable, and the member's value where it is not: a non-addressable member is a bitfield, so the value is
+// an integer read through the generated accessor. A caller that binds the result to a const reference is safe in
+// both cases, and a caller that wants a copy takes one with auto.
 template <typename Storage, typename Field>
 requires HasMember<Storage, Field>
-[[nodiscard]] auto Get(const Storage& storage, Field field)
+[[nodiscard]] decltype(auto) Get(const Storage& storage, Field field)
 {
     if constexpr (Addressable<Storage, Field>)
     {
-        using Value = std::remove_cvref_t<decltype(GetRef(storage, field))>;
-        return Value(GetRef(storage, field));
+        return GetRef(storage, field);
     }
     else
     {
         return MemberPointer<std::remove_cv_t<Storage>, Field>::Get(storage);
     }
 }
-
-// Uniform const read access to a Field's value, whatever the member's addressability. operator* yields a reference
-// to the member where it is addressable, and the member's value where it is not: a non-addressable member is a
-// bitfield, so the value is an integer read through the generated accessor, and nothing is held or referenced.
-// Neither specialization returns a reference into the Getter, so a temporary Getter is as safe to dereference as a
-// named one. Shaped for operations that only read storage, Encode, Copy and the like; a write-side twin for Decode,
-// if the decode Action is condensed the same way, is a later question. The two partial specializations partition
-// HasMember; the primary is reached only by a pair with no member binding, and says so. Its constructor also exists
-// so that Getter(storage, field) deduces its arguments the ordinary way, since deduction reads the primary's
-// constructors and not the specializations'.
-template <typename Storage, typename Field>
-class Getter
-{
-  public:
-    Getter(const Storage&, Field)
-    {
-        static_assert(HasMember<Storage, Field>, "Getter: this Field has no member binding in this Storage");
-    }
-};
-
-template <typename Storage, typename Field>
-requires Addressable<Storage, Field>
-class Getter<Storage, Field>
-{
-  public:
-    Getter(const Storage& storage, Field) : storage_(storage) {}
-
-    Getter(const Getter&)            = delete;
-    Getter& operator=(const Getter&) = delete;
-
-    [[nodiscard]] const auto& operator*() const { return GetRef(storage_, Field{}); }
-
-  private:
-    const Storage& storage_;
-};
-
-template <typename Storage, typename Field>
-requires NonAddressable<Storage, Field>
-class Getter<Storage, Field>
-{
-  public:
-    Getter(const Storage& storage, Field) : storage_(storage) {}
-
-    Getter(const Getter&)            = delete;
-    Getter& operator=(const Getter&) = delete;
-
-    [[nodiscard]] auto operator*() const { return Get(storage_, Field{}); }
-
-  private:
-    const Storage& storage_;
-};
 
 // Set expresses a write, and is the only write available for a non-addressable member.
 template <typename Storage, typename Field, typename ValueType>
@@ -374,6 +329,34 @@ concept ExtensionChainShapeField = std::same_as<typename Field::shape, field_sha
 
 template <typename Field>
 concept VoidReturnShapeField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
+
+// A value read from storage by Field, as a type an Action evaluates with Get(store). The one-argument form reads the
+// Field's own value. The two-argument form reads Member from what the Field points to: Store holds Field, FieldStore
+// is what Field's value points to, and is the Store that Member is read from.
+template <typename Field, typename... Member>
+struct FieldValue;
+
+template <typename Field>
+struct FieldValue<Field>
+{
+    template <typename Store>
+    requires HasMember<Store, Field>
+    [[nodiscard]] static auto Get(const Store& store) { return schema::Get(store, Field{}); }
+};
+
+template <typename Field, typename Member>
+struct FieldValue<Field, Member>
+{
+    static_assert(PointerShapeField<Field>,
+                  "Pointer Field only. Struct Field: add a GetRef branch in Get and FieldStore.");
+
+    template <typename Store>
+    using FieldStore = std::remove_cvref_t<decltype(*FieldValue<Field>::Get(std::declval<const Store&>()))>;
+
+    template <typename Store>
+    requires HasMember<FieldStore<Store>, Member>
+    [[nodiscard]] static auto Get(const Store& store) { return schema::Get(*FieldValue<Field>::Get(store), Member{}); }
+};
 
 // Storage concepts. These describe what a storage type holds for a Field, and stay independent of any one operation
 // family.

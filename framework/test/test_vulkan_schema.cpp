@@ -39,6 +39,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_encode_capture_wrappers.h"
+#include "encode/vulkan_encode_action.h"
 #include "encode/vulkan_encode_struct.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/struct_pointer_encoder.h"
@@ -132,7 +133,8 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, for
 static_assert(schema::HandleValueField<barrier_field::buffer>);
 static_assert(schema::StructKindField<cmd_field::pBufferMemoryBarriers>);
 static_assert(schema::ArrayShapeField<cmd_field::pBufferMemoryBarriers>);
-static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::count_field, cmd_field::bufferMemoryBarrierCount>);
+static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::field_count,
+                             schema::FieldValue<cmd_field::bufferMemoryBarrierCount>>);
 static_assert(schema::ExtensionChainShapeField<barrier_field::pNext>);
 
 // One Field reaches a member of every storage type that holds it.
@@ -211,6 +213,15 @@ struct NativeCallStore
     uint32_t                     imageMemoryBarrierCount;
     const VkImageMemoryBarrier*  pImageMemoryBarriers;
 };
+
+namespace alloc_field = schema::vulkan::fields::AllocateCommandBuffers;
+
+struct AllocateCallStore
+{
+    VkDevice                           device;
+    const VkCommandBufferAllocateInfo* pAllocateInfo;
+    VkCommandBuffer*                   pCommandBuffers;
+};
 } // namespace
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -267,6 +278,22 @@ template <>
 struct MemberPointer<NativeCallStore, cmd_field::pImageMemoryBarriers>
 {
     static constexpr auto value = &NativeCallStore::pImageMemoryBarriers;
+};
+
+template <>
+struct MemberPointer<AllocateCallStore, alloc_field::device>
+{
+    static constexpr auto value = &AllocateCallStore::device;
+};
+template <>
+struct MemberPointer<AllocateCallStore, alloc_field::pAllocateInfo>
+{
+    static constexpr auto value = &AllocateCallStore::pAllocateInfo;
+};
+template <>
+struct MemberPointer<AllocateCallStore, alloc_field::pCommandBuffers>
+{
+    static constexpr auto value = &AllocateCallStore::pCommandBuffers;
 };
 
 GFXRECON_END_NAMESPACE(schema)
@@ -1441,7 +1468,7 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
 TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "[schema][encode]")
 {
     // Two migrated structures whose fixed-extent arrays carry a count sibling. The procedural bodies encode the
-    // count, not the extent, and the schema records the sibling as count_field, so the static-array overload reads
+    // count, not the extent, and the schema records the sibling as field_count, so the static-array overload reads
     // it. VkPhysicalDeviceMemoryProperties holds two structure arrays; VkPhysicalDeviceGroupProperties holds the
     // registry's one handle static array, the only exercise the handle array adapter entry's static-array half
     // gets. Counts sit below the extents so a full-extent run lands on different bytes. The over-extent cases have
@@ -1458,16 +1485,18 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
     namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
     static_assert(schema::StaticArrayShapeField<group_field::physicalDevices>);
     static_assert(schema::HandleKindField<group_field::physicalDevices>);
-    static_assert(schema::HasCountField<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
-    static_assert(
-        std::is_same_v<schema::FieldCountField<group_field::physicalDevices>, group_field::physicalDeviceCount>);
+    static_assert(schema::HasFieldCount<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
+    static_assert(std::is_same_v<schema::FieldCount<group_field::physicalDevices>,
+                                 schema::FieldValue<group_field::physicalDeviceCount>>);
     static_assert(encode::HasCaptureWrapper<schema::vulkan::api_types::VkPhysicalDevice>);
     static_assert(schema::StaticArrayShapeField<memory_field::memoryTypes>);
     static_assert(schema::StaticArrayShapeField<memory_field::memoryHeaps>);
-    static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
-    static_assert(schema::HasCountField<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
-    static_assert(std::is_same_v<schema::FieldCountField<memory_field::memoryTypes>, memory_field::memoryTypeCount>);
-    static_assert(std::is_same_v<schema::FieldCountField<memory_field::memoryHeaps>, memory_field::memoryHeapCount>);
+    static_assert(schema::HasFieldCount<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
+    static_assert(schema::HasFieldCount<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
+    static_assert(std::is_same_v<schema::FieldCount<memory_field::memoryTypes>,
+                                 schema::FieldValue<memory_field::memoryTypeCount>>);
+    static_assert(std::is_same_v<schema::FieldCount<memory_field::memoryHeaps>,
+                                 schema::FieldValue<memory_field::memoryHeapCount>>);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
@@ -1641,14 +1670,14 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     static_assert(schema::PointerArrayShapeField<instance_field::ppEnabledLayerNames>);
     static_assert(schema::TextKindField<instance_field::ppEnabledLayerNames>);
     static_assert(instance_field::ppEnabledLayerNames::pointer_count == 2);
-    static_assert(std::is_same_v<schema::FieldCountField<instance_field::ppEnabledExtensionNames>,
-                                 instance_field::enabledExtensionCount>);
+    static_assert(std::is_same_v<schema::FieldCount<instance_field::ppEnabledExtensionNames>,
+                                 schema::FieldValue<instance_field::enabledExtensionCount>>);
 
     static_assert(schema::PointerArrayShapeField<micromap_field::ppUsageCounts>);
     static_assert(schema::StructKindField<micromap_field::ppUsageCounts>);
     static_assert(micromap_field::ppUsageCounts::pointer_count == 2);
-    static_assert(
-        std::is_same_v<schema::FieldCountField<micromap_field::ppUsageCounts>, micromap_field::usageCountsCount>);
+    static_assert(std::is_same_v<schema::FieldCount<micromap_field::ppUsageCounts>,
+                                 schema::FieldValue<micromap_field::usageCountsCount>>);
     static_assert(schema::ArrayShapeField<micromap_field::pUsageCounts>);
 
     // Both counted shapes are pointer shapes to the decoder, which reads depth and length from the wire.
@@ -1808,24 +1837,96 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     }));
 }
 
-TEST_CASE("Getter yields a Field's value in place or by copy", "[schema]")
+TEST_CASE("Get yields a Field's value in place or by copy", "[schema]")
 {
-    // An addressable member is referenced where it lives: the dereferenced Getter is the member itself. A bitfield
-    // has no address, so the Getter reads it through the generated accessor and yields the value.
+    // An addressable member is referenced where it lives: Get returns the member itself. A bitfield has no address,
+    // so Get reads it through the generated accessor and yields the value.
     using width = schema::vulkan::fields::VkExtent2D::width;
     static_assert(schema::Addressable<VkExtent2D, width>);
+    static_assert(std::is_same_v<decltype(schema::Get(std::declval<const VkExtent2D&>(), width{})), const uint32_t&>);
 
     VkExtent2D extent{ 3u, 4u };
-    CHECK(&*schema::Getter<VkExtent2D, width>(extent, width{}) == &extent.width);
-    CHECK(*schema::Getter<VkExtent2D, width>(extent, width{}) == 3u);
-    CHECK(&*schema::Getter(extent, width{}) == &extent.width); // arguments deduced from the primary's constructor
+    CHECK(&schema::Get(extent, width{}) == &extent.width);
+    CHECK(schema::Get(extent, width{}) == 3u);
 
     using flag = schema::vulkan::fields::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag;
     static_assert(schema::NonAddressable<StdVideoH264SpsVuiFlags, flag>);
+    static_assert(!std::is_reference_v<decltype(schema::Get(std::declval<const StdVideoH264SpsVuiFlags&>(), flag{}))>);
 
     StdVideoH264SpsVuiFlags flags{};
     flags.aspect_ratio_info_present_flag = 1u;
-    CHECK(*schema::Getter<StdVideoH264SpsVuiFlags, flag>(flags, flag{}) == 1u);
+    CHECK(schema::Get(flags, flag{}) == 1u);
+}
+
+TEST_CASE("A field_count reads a length through a pointer sibling", "[schema]")
+{
+    // Three command parameters have a registry length of the form sibling->member, with no sibling holding the
+    // count itself. The generator records the two-argument FieldValue for each, and its Get reads the sibling's
+    // value, dereferences it, and reads the member from the pointee. The pointee's own field descriptors and
+    // MemberPointer rows serve the inner read, so the schema names the member and generates nothing else for it.
+    namespace alloc_info_field = schema::vulkan::fields::VkCommandBufferAllocateInfo;
+    namespace set_field        = schema::vulkan::fields::AllocateDescriptorSets;
+    namespace set_info_field   = schema::vulkan::fields::VkDescriptorSetAllocateInfo;
+    namespace sizes_field      = schema::vulkan::fields::GetAccelerationStructureBuildSizesKHR;
+    namespace build_field      = schema::vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR;
+
+    static_assert(schema::PointerShapeField<alloc_field::pAllocateInfo>);
+    static_assert(std::is_same_v<schema::FieldCount<alloc_field::pCommandBuffers>,
+                                 schema::FieldValue<alloc_field::pAllocateInfo, alloc_info_field::commandBufferCount>>);
+    static_assert(std::is_same_v<schema::FieldCount<set_field::pDescriptorSets>,
+                                 schema::FieldValue<set_field::pAllocateInfo, set_info_field::descriptorSetCount>>);
+    static_assert(std::is_same_v<schema::FieldCount<sizes_field::pMaxPrimitiveCounts>,
+                                 schema::FieldValue<sizes_field::pBuildInfo, build_field::geometryCount>>);
+
+    // The two-argument form is a count the Action can evaluate on a store that holds the pointer sibling, and the
+    // store the member is read from is the pointee.
+    static_assert(schema::HasFieldCount<AllocateCallStore, alloc_field::pCommandBuffers>);
+    static_assert(std::is_same_v<schema::FieldCount<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
+                                 VkCommandBufferAllocateInfo>);
+
+    VkCommandBufferAllocateInfo info{};
+    info.commandBufferCount = 3u;
+    AllocateCallStore store{ VK_NULL_HANDLE, &info, nullptr };
+
+    CHECK(schema::FieldCount<alloc_field::pCommandBuffers>::Get(store) == 3u);
+    CHECK(schema::FieldValue<alloc_field::pAllocateInfo>::Get(store) == &info);
+
+    // The Action's counted-run Apply evaluates the same count. No command goes through the encode Action yet, but
+    // the Apply is per field and takes any store that holds the members, so it runs on the hand-written store. Two
+    // registered command buffers behind a count of two, against the procedural handle-array call.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    void*           command_buffer_objects[2] = {};
+    VkCommandBuffer command_buffers[2]        = { reinterpret_cast<VkCommandBuffer>(&command_buffer_objects[0]),
+                                                  reinterpret_cast<VkCommandBuffer>(&command_buffer_objects[1]) };
+    for (VkCommandBuffer& command_buffer : command_buffers)
+    {
+        CreateWrappedDispatchHandle<DeviceWrapper, CommandBufferWrapper>(VK_NULL_HANDLE, &command_buffer, TestHandleId);
+        REQUIRE(GetWrappedId<CommandBufferWrapper>(command_buffer) != format::kNullHandleId);
+    }
+
+    info.commandBufferCount = 2u;
+    store.pCommandBuffers   = command_buffers;
+
+    encode::ParameterBuffer  buffer;
+    encode::ParameterEncoder encoder(&buffer);
+    encode::EncodeStructAction(&encoder).Apply(alloc_field::pCommandBuffers{}, store);
+
+    encode::ParameterBuffer  oracle_buffer;
+    encode::ParameterEncoder oracle(&oracle_buffer);
+    oracle.EncodeVulkanHandleArray<CommandBufferWrapper>(command_buffers, 2u);
+
+    CHECK(buffer.GetDataSize() == oracle_buffer.GetDataSize());
+    CHECK(std::memcmp(buffer.GetData(), oracle_buffer.GetData(), buffer.GetDataSize()) == 0);
+
+    for (VkCommandBuffer command_buffer : command_buffers)
+    {
+        auto* wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+        RemoveWrapper<CommandBufferWrapper>(wrapper);
+        delete wrapper;
+    }
 }
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")

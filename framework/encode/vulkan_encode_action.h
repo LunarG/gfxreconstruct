@@ -183,14 +183,11 @@ class EncodeStructAction
   public:
     explicit EncodeStructAction(ParameterEncoder* encoder) : encoder_(encoder) {}
 
-    // A value-shaped field of any kind the adapter encodes. Getter references an ordinary member in place, or an
-    // internal copy of a non-addressable one (e.g. a bitfield), so one overload serves both.
+    // A value-shaped field of any kind the adapter encodes. Get references an ordinary member in place, or yields the
+    // value of a non-addressable one (e.g. a bitfield), so one overload serves both.
     template <typename Field, typename Storage>
     requires schema::ValueShapeField<Field> && schema::HasMember<Storage, Field>
-    void Apply(Field field, const Storage& storage)
-    {
-        EncoderAdapter()(field, encoder_, *schema::Getter(storage, field));
-    }
+    void Apply(Field field, const Storage& storage) { EncoderAdapter()(field, encoder_, schema::Get(storage, field)); }
 
     // A pointer to one element. The member holds the pointer, and the pointer is what the encoder needs, so it is
     // read as a value like any other; nothing here takes the member's address.
@@ -207,15 +204,15 @@ class EncodeStructAction
     // encoder needs, so it is read as a value like any other; nothing here takes the member's address.
     template <typename Field, typename Storage>
     requires schema::AnyCountedShapeField<Field> && schema::HasMember<Storage, Field> &&
-        schema::HasCountField<Storage, Field>
+        schema::HasFieldCount<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
-        using CountField = schema::FieldCountField<Field>;
+        using FieldCount = schema::FieldCount<Field>;
 
         static_assert(Field::pointer_count == (schema::ArrayShapeField<Field> ? 1 : 2),
                       "A pointer to a run has one level of indirection, a run of pointers two");
 
-        const size_t count = GFXRECON_NARROWING_CAST(size_t, schema::Get(storage, CountField{}));
+        const size_t count = GFXRECON_NARROWING_CAST(size_t, FieldCount::Get(storage));
         EncoderAdapter()(field, encoder_, schema::Get(storage, field), count);
     }
 
@@ -243,18 +240,18 @@ class EncodeStructAction
 
         if constexpr (std::rank_v<ArrayType> == 2)
         {
-            static_assert(!(schema::HasCountField<Storage, Field>),
+            static_assert(!(schema::HasFieldCount<Storage, Field>),
                           "A multi-dimensional fixed-extent array with a count field is not yet schema enabled");
             EncoderAdapter()(field, encoder_, &array_ref[0][0], count);
         }
         else
         {
-            if constexpr (schema::HasCountField<Storage, Field>)
+            if constexpr (schema::HasFieldCount<Storage, Field>)
             {
-                using CountField = schema::FieldCountField<Field>;
+                using FieldCount = schema::FieldCount<Field>;
                 // We don't need a NARROWING_CAST here because the count is a size_t, count_value is either less or
                 // ignored.
-                const auto count_value = *schema::Getter(storage, CountField{});
+                const auto count_value = FieldCount::Get(storage);
                 count                  = std::cmp_less(count_value, count) ? static_cast<size_t>(count_value) : count;
             }
             EncoderAdapter()(field, encoder_, &array_ref[0], count);

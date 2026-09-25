@@ -768,6 +768,41 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         return length
 
+    def get_count_member(self, value, members):
+        """The (sibling, member) pair when the length is read through a pointer sibling, `sibling->member`."""
+        length = value.array_length
+        sibling = value.array_length_value
+
+        if not length or sibling is None or '->' not in length:
+            return None
+
+        sibling_name, _, member_name = (part.strip() for part in length.partition('->'))
+
+        if sibling_name != sibling.name or not any(member.name == sibling_name for member in members):
+            return None
+
+        if sibling.base_type not in self.schema_structs:
+            return None
+
+        if not any(member.name == member_name for member in self.all_struct_members[sibling.base_type]):
+            return None
+
+        return sibling_name, self.get_field_path(sibling.base_type, member_name)
+
+    def get_field_count(self, value, members):
+        """The field_count expression, or None when no Action can evaluate the registry length."""
+        count_field = self.get_count_field(value, members)
+
+        if count_field:
+            return 'FieldValue<{}>'.format(count_field)
+
+        count_member = self.get_count_member(value, members)
+
+        if count_member:
+            return 'FieldValue<{}, {}>'.format(*count_member)
+
+        return None
+
     def get_static_array_extents(self, value):
         """The declared extents of a fixed-extent array member, in declaration order, as the registry spells them."""
         return [part.strip() for part in value.array_capacity.split(',')]
@@ -804,10 +839,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 )
             )
 
-        count_field = self.get_count_field(value, members)
+        field_count = self.get_field_count(value, members)
 
-        if count_field:
-            parts.append('using count_field = {};'.format(count_field))
+        if field_count:
+            parts.append('using field_count = {};'.format(field_count))
         elif value.array_length and shape in ('Array', 'StaticArray'):
             parts.append(
                 'static constexpr std::string_view length_expression = "{}";'.
@@ -870,13 +905,18 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         generic_handles = self.get_generic_handles(owner, is_command, members)
 
-        # A count_field or a selector_field can name a sibling that the registry declares later, so forward declare
+        # A field_count or a selector_field can name a sibling that the registry declares later, so forward declare
         # every Field that a sibling names.
         referenced = [
             count for count in (
                 self.get_count_field(value, members) for value in members
             ) if count
         ]
+        referenced.extend(
+            pair[0] for pair in (
+                self.get_count_member(value, members) for value in members
+            ) if pair
+        )
         referenced.extend(generic_handles.values())
 
         for member in members:
