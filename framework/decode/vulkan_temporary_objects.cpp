@@ -23,10 +23,23 @@
 #include "decode/vulkan_temporary_objects.h"
 
 #include "decode/decoder_util.h"
+
 #include <vulkan/vulkan_core.h>
+
+#include <cinttypes>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+TemporaryCommandBuffer::~TemporaryCommandBuffer()
+{
+    if (command_pool != VK_NULL_HANDLE)
+    {
+        auto injected = device_table.Open();
+        injected->DestroyCommandPool(device_info.handle, command_pool, nullptr);
+    }
+}
 
 VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp, uint32_t queue_index)
 {
@@ -209,6 +222,96 @@ VkResult TemporaryQueryPool::Create(uint32_t query_count)
     }
 
     return res;
+}
+
+TemporaryBuffer::TemporaryBuffer(VkDevice                                   dev,
+                                 VulkanResourceAllocator*                   alloc,
+                                 const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                                 VkDeviceSize                               buffer_size,
+                                 VkBufferUsageFlags                         usage) :
+    device(dev),
+    allocator(alloc), device_table(injected_calls)
+{
+    if (device == VK_NULL_HANDLE)
+    {
+        GFXRECON_LOG_ERROR("%s() called without a device", __func__);
+        return;
+    }
+
+    if (allocator == nullptr)
+    {
+        GFXRECON_LOG_ERROR("%s() called for a device without a resource allocator", __func__);
+        return;
+    }
+
+    if (buffer_size == 0)
+    {
+        GFXRECON_LOG_ERROR("%s() called with a size of zero", __func__);
+        return;
+    }
+
+    VkBufferCreateInfo buffer_create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    buffer_create_info.size               = buffer_size;
+    buffer_create_info.usage              = usage;
+    buffer_create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+    const VkResult res = allocator->CreateBufferDirect(&buffer_create_info, nullptr, &handle, &resource_data);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s() CreateBufferDirect failed for %" PRIu64 " bytes (%s)",
+                           __func__,
+                           static_cast<uint64_t>(buffer_size),
+                           util::ToString(res).c_str());
+        Destroy();
+        return;
+    }
+
+    auto injected = device_table.Open();
+    injected->GetBufferMemoryRequirements(device, handle, &requirements);
+
+    size = buffer_size;
+}
+
+void TemporaryBuffer::Destroy()
+{
+    if ((allocator != nullptr) && (handle != VK_NULL_HANDLE))
+    {
+        allocator->DestroyBufferDirect(handle, nullptr, resource_data);
+    }
+
+    handle        = VK_NULL_HANDLE;
+    resource_data = 0;
+    size          = 0;
+    requirements  = {};
+    device        = VK_NULL_HANDLE;
+    allocator     = nullptr;
+    device_table  = graphics::VulkanInjectedDeviceCalls{};
+}
+
+TemporaryBuffer::TemporaryBuffer(TemporaryBuffer&& other) noexcept
+{
+    swap(other);
+}
+
+TemporaryBuffer& TemporaryBuffer::operator=(TemporaryBuffer&& other) noexcept
+{
+    if (this != &other)
+    {
+        Destroy();
+        swap(other);
+    }
+    return *this;
+}
+
+void TemporaryBuffer::swap(TemporaryBuffer& other) noexcept
+{
+    std::swap(handle, other.handle);
+    std::swap(size, other.size);
+    std::swap(requirements, other.requirements);
+    std::swap(resource_data, other.resource_data);
+    std::swap(device, other.device);
+    std::swap(allocator, other.allocator);
+    std::swap(device_table, other.device_table);
 }
 
 GFXRECON_END_NAMESPACE(decode)
