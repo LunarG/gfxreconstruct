@@ -78,6 +78,11 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/info_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/info_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/info_decoder.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_call_reader.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_call_reader.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_native_call_callbacks.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_native_call_callbacks.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_native_call_consumer_base.h
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx_replay_options.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_options.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
@@ -329,6 +334,8 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_native_call_consumer.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_native_call_consumer.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.h
@@ -482,12 +489,80 @@ target_link_libraries(gfxrecon_decode
 
 common_build_directives(gfxrecon_decode)
 
+option(GFXRECON_BUILD_VULKAN_API_READER_SHARED
+       "Build the installable Vulkan API reader shared library"
+       ON)
+
+if (GFXRECON_BUILD_VULKAN_API_READER_SHARED)
+    add_library(gfxrecon_vulkan_api_reader SHARED
+                ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_call_reader.cpp
+                ${CMAKE_CURRENT_LIST_DIR}/vulkan_native_call_callbacks.cpp
+                ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_native_call_consumer.cpp)
+    add_library(GFXReconstruct::vulkan_api_reader ALIAS gfxrecon_vulkan_api_reader)
+
+    target_compile_definitions(gfxrecon_vulkan_api_reader
+                               PRIVATE GFXRECON_VULKAN_API_READER_EXPORTS
+                               PUBLIC GFXRECON_VULKAN_API_READER_SHARED)
+    target_include_directories(gfxrecon_vulkan_api_reader
+                               PUBLIC
+                                   $<BUILD_INTERFACE:${GFXRECON_SOURCE_DIR}/framework>
+                                   $<BUILD_INTERFACE:${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include>
+                                   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    target_link_libraries(gfxrecon_vulkan_api_reader PRIVATE gfxrecon_decode)
+    set_target_properties(gfxrecon_vulkan_api_reader
+                          PROPERTIES
+                              EXPORT_NAME vulkan_api_reader
+                              OUTPUT_NAME gfxrecon_vulkan_api_reader
+                              VERSION ${GFXRECONSTRUCT_PROJECT_VERSION_MAJOR}.${GFXRECONSTRUCT_PROJECT_VERSION_MINOR}.${GFXRECONSTRUCT_PROJECT_VERSION_PATCH}
+                              SOVERSION ${GFXRECONSTRUCT_PROJECT_VERSION_MAJOR})
+    common_build_directives(gfxrecon_vulkan_api_reader)
+
+    include(CMakePackageConfigHelpers)
+    set(GFXRECON_VULKAN_API_READER_CMAKE_INSTALL_DIR
+        ${CMAKE_INSTALL_LIBDIR}/cmake/GFXReconstructVulkanApiReader)
+    configure_package_config_file(
+        ${GFXRECON_SOURCE_DIR}/cmake/GFXReconstructVulkanApiReaderConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/GFXReconstructVulkanApiReaderConfig.cmake
+        INSTALL_DESTINATION ${GFXRECON_VULKAN_API_READER_CMAKE_INSTALL_DIR})
+    write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/GFXReconstructVulkanApiReaderConfigVersion.cmake
+        VERSION ${GFXRECONSTRUCT_PROJECT_VERSION_MAJOR}.${GFXRECONSTRUCT_PROJECT_VERSION_MINOR}.${GFXRECONSTRUCT_PROJECT_VERSION_PATCH}
+        COMPATIBILITY SameMajorVersion)
+
+    install(TARGETS gfxrecon_vulkan_api_reader
+            EXPORT GFXReconstructVulkanApiReaderTargets
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT VulkanApiReader
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT VulkanApiReader
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT VulkanApiReader)
+    install(EXPORT GFXReconstructVulkanApiReaderTargets
+            FILE GFXReconstructVulkanApiReaderTargets.cmake
+            NAMESPACE GFXReconstruct::
+            DESTINATION ${GFXRECON_VULKAN_API_READER_CMAKE_INSTALL_DIR}
+            COMPONENT VulkanApiReader)
+    install(FILES
+            ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_call_reader.h
+            ${CMAKE_CURRENT_LIST_DIR}/vulkan_native_call_callbacks.h
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/decode
+            COMPONENT VulkanApiReader)
+    install(FILES ${GFXRECON_SOURCE_DIR}/framework/util/defines.h
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/util
+            COMPONENT VulkanApiReader)
+    install(FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/GFXReconstructVulkanApiReaderConfig.cmake
+            ${CMAKE_CURRENT_BINARY_DIR}/GFXReconstructVulkanApiReaderConfigVersion.cmake
+            DESTINATION ${GFXRECON_VULKAN_API_READER_CMAKE_INSTALL_DIR}
+            COMPONENT VulkanApiReader)
+endif()
+
 if (${RUN_TESTS})
     add_executable(gfxrecon_decode_test "")
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
+    target_compile_definitions(gfxrecon_decode_test
+                               PRIVATE
+                                   GFXRECON_TEST_DATA_DIR="${GFXRECON_SOURCE_DIR}/test/known_good")
     if (MSVC)
         # The test source exceeds the default number of sections during compilation, use this flag to increase the limit
         target_compile_options(gfxrecon_decode_test PRIVATE /bigobj)

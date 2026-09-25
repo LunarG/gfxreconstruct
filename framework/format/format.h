@@ -49,6 +49,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
 
+// The Arm fork marks its capture files with the high bit of the major version.
+constexpr uint32_t kArmTraceFileVersionFlag = 0x80000000u;
+
 // Types to define encoding sizes.
 typedef uint32_t EnumEncodeType;
 typedef uint32_t FlagsEncodeType;
