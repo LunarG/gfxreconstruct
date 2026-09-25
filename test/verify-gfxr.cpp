@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <stdlib.h>
 
+#include <format/format_json.h>
 #include <util/logging.h>
 
 bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
@@ -384,4 +385,101 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     result = run_command(paths.base_path, paths.replay_path, replay_args);
     ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
                          << " in path " << paths.base_path;
+}
+
+static void count_calls_in_json(std::filesystem::path const&    json_path,
+                                std::vector<std::string> const& function_names,
+                                std::map<std::string, int>*     counts)
+{
+    std::ifstream json_file{ json_path };
+    ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
+
+    auto json = nlohmann::json::parse(json_file, clean_gfxr_json);
+
+    counts->clear();
+    for (auto const& function_name : function_names)
+    {
+        (*counts)[function_name] = 0;
+    }
+
+    for (auto const& block : json)
+    {
+        auto function = block.find(gfxrecon::format::kNameFunction);
+        if (function == block.end())
+        {
+            continue;
+        }
+
+        auto name = function->find(gfxrecon::format::kNameName);
+        if (name == function->end() || !name->is_string())
+        {
+            continue;
+        }
+
+        auto entry = counts->find(name->get<std::string>());
+        if (entry != counts->end())
+        {
+            ++entry->second;
+        }
+    }
+}
+
+void capture_app(const char* test_name)
+{
+    EnvironmentVariables env_vars;
+    Paths                paths{ test_name, nullptr, false };
+
+    bool working_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
+
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
+                         << paths.working_directory;
+
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+}
+
+void replay_and_count_recapture(const char*                     test_name,
+                                std::vector<std::string>        extra_replay_args,
+                                std::string const&              recapture_suffix,
+                                std::vector<std::string> const& function_names,
+                                std::map<std::string, int>*     counts)
+{
+    ASSERT_NE(counts, nullptr);
+
+    EnvironmentVariables env_vars;
+    Paths                paths{ test_name, nullptr, false };
+
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path))
+        << "no capture to replay: " << paths.capture_path << " - call capture_app() first";
+
+    std::filesystem::path recapture_path{ paths.base_path };
+    recapture_path.append(paths.capture_path.stem().string() + recapture_suffix + ".gfxr");
+
+    // The gfxreconstruct capture layer is still enabled in the environment, so the replay process is itself captured
+    // into this file. Pointing the layer here also keeps it from re-capturing over the input gfxr we are about to read.
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", recapture_path.string().c_str());
+
+    std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
+    replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
+    replay_args.push_back(paths.capture_path.string());
+
+    auto result = run_command(paths.base_path, paths.replay_path, replay_args);
+    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
+                         << " in path " << paths.base_path;
+
+    ASSERT_TRUE(std::filesystem::exists(recapture_path))
+        << "the replay was not recaptured into " << recapture_path
+        << ": the gfxreconstruct capture layer did not load during replay";
+
+    // convert the recapture
+    result = run_command(paths.base_path, paths.convert_path, { recapture_path.string() });
+    ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << recapture_path << " in path "
+                         << paths.base_path;
+
+    std::filesystem::path recapture_json_path{ recapture_path };
+    recapture_json_path.replace_extension(".json");
+
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_json(recapture_json_path, function_names, counts));
 }
