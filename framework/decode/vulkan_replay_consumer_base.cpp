@@ -6319,6 +6319,29 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 backing_dedicated_info.buffer = dedicated_info->buffer;
                 backing_dedicated_info.pNext  = &backing_export_info;
                 backing_allocate_info.pNext   = &backing_dedicated_info;
+
+                // Choose the larger size.
+                VkMemoryRequirements replay_requirements = {};
+                if (dedicated_info->image != VK_NULL_HANDLE)
+                {
+                    injected->GetImageMemoryRequirements(
+                        device_info->handle, dedicated_info->image, &replay_requirements);
+                }
+                else if (dedicated_info->buffer != VK_NULL_HANDLE)
+                {
+                    injected->GetBufferMemoryRequirements(
+                        device_info->handle, dedicated_info->buffer, &replay_requirements);
+                }
+
+                if (replay_requirements.size > modified_allocate_info->allocationSize)
+                {
+                    GFXRECON_LOG_DEBUG("Increasing imported dedicated allocation size from %" PRIu64 " to %" PRIu64
+                                       " to match replay memory requirements.",
+                                       modified_allocate_info->allocationSize,
+                                       replay_requirements.size);
+                    modified_allocate_info->allocationSize = replay_requirements.size;
+                    backing_allocate_info.allocationSize   = replay_requirements.size;
+                }
             }
 
             VkResult backing_result = injected->AllocateMemory(
@@ -13036,8 +13059,7 @@ bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* dev
 
 bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const
 {
-    // -m rebind manages memory via VMA and does not preserve external memory
-    if (device_info == nullptr || UseAddressReplacement(device_info))
+    if (device_info == nullptr)
     {
         return false;
     }

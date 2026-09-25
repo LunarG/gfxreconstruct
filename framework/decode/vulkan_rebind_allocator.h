@@ -515,6 +515,11 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkDeviceSize                                     mapped_offset{ 0 };
         AHardwareBuffer*                                 ahb{ nullptr };
         VkDeviceMemory                                   ahb_memory{ VK_NULL_HANDLE };
+        VkExternalMemoryHandleTypeFlagBits               import_fd_handle_type{};
+        int                                              replacement_import_fd{ -1 };
+        VmaMemoryInfo*                                   imported_mem_info{ nullptr };
+        VkBuffer                                         import_dedicated_buffer{ VK_NULL_HANDLE };
+        VkImage                                          import_dedicated_image{ VK_NULL_HANDLE };
         std::unique_ptr<uint8_t[]>                       original_content;
         std::unordered_map<uint64_t, ResourceAllocInfo*> original_objects; // Key is object handle.
 
@@ -695,6 +700,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                VkImage                     dedicated_image,
                                VmaMemoryUsage              usage,
                                VmaMemoryInfo**             vma_mem_info);
+
+    VkResult AllocateImportedMemory(MemoryAllocInfo&            memory_alloc_info,
+                                    VkDeviceSize                memory_offset,
+                                    const VkMemoryRequirements& capture_req,
+                                    const VkMemoryRequirements& replay_req,
+                                    VmaMemoryInfo**             vma_mem_info);
 
     static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                   VkDeviceSize                   original_offset,
