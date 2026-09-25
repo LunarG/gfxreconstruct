@@ -22,6 +22,8 @@
 
 #include "decode/vulkan_resource_tracking_consumer.h"
 
+#include "graphics/vulkan_struct_get_pnext.h"
+
 #include <algorithm>
 #include <cassert>
 #include <unordered_set>
@@ -126,6 +128,44 @@ const graphics::VulkanDeviceTable* VulkanResourceTrackingConsumer::GetDeviceTabl
     return (table != device_tables_.end()) ? &table->second : nullptr;
 }
 
+// The pre-pass creates no messenger of its own and reports nothing, so a callback that the app put
+// in the instance pNext chain gets this function, which does nothing.
+static VKAPI_ATTR VkBool32 VKAPI_CALL IgnoreDebugUtilsMessage(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                              VkDebugUtilsMessageTypeFlagsEXT,
+                                                              const VkDebugUtilsMessengerCallbackDataEXT*,
+                                                              void*)
+{
+    return VK_FALSE;
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL IgnoreDebugReportMessage(
+    VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*, void*)
+{
+    return VK_FALSE;
+}
+
+// The decoded VkInstanceCreateInfo carries the callback pointers that the app passed at capture.
+// They are addresses in the capture process, and the loader calls them for its own messages
+// during vkCreateInstance, so they must not reach the loader. Replace every one of them.
+static void ReplaceDebugCallbacks(VkInstanceCreateInfo* create_info)
+{
+    auto messenger_info = graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(create_info);
+    while (messenger_info != nullptr)
+    {
+        messenger_info->pfnUserCallback = IgnoreDebugUtilsMessage;
+        messenger_info->pUserData       = nullptr;
+        messenger_info = graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(messenger_info);
+    }
+
+    auto report_info = graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(create_info);
+    while (report_info != nullptr)
+    {
+        report_info->pfnCallback = IgnoreDebugReportMessage;
+        report_info->pUserData   = nullptr;
+        report_info              = graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(report_info);
+    }
+}
+
 void VulkanResourceTrackingConsumer::Process_vkCreateInstance(const ApiCallInfo& call_info, args::CreateInstance& args)
 {
     if (!args.pInstance.IsNull())
@@ -145,6 +185,8 @@ void VulkanResourceTrackingConsumer::Process_vkCreateInstance(const ApiCallInfo&
     // TODO(gfxrec-28): Replace WSI extension in extension list??
 
     // TODO(gfxrec-28): Disable layers??
+
+    ReplaceDebugCallbacks(replay_create_info);
 
     VkResult result = create_instance_function_(replay_create_info, nullptr, replay_instance);
 
