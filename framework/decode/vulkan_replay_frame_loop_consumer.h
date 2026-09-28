@@ -25,6 +25,7 @@
 
 #include "util/defines.h"
 #include "decode/vulkan_replay_consumer_base.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 
@@ -192,62 +193,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             memory_properties_(memory_properties)
         {}
 
-        /// A device local copy of one buffer's contents, taken at the start of the loop range and copied back
-        /// over the buffer before each repetition.  Its memory is suballocated from a `MemoryBlock`.
-        /// This buffer prefers device local memory when possible.
-        struct ShadowBuffer
-        {
-            ShadowBuffer(VulkanResourceAllocator& allocator, VkDeviceSize buffer_size) :
-                size(buffer_size), allocator(&allocator)
-            {}
-
-            ~ShadowBuffer() { Destroy(); }
-
-            // A shadow buffer owns its handle, so it can be moved but not copied.
-            ShadowBuffer(const ShadowBuffer&)            = delete;
-            ShadowBuffer& operator=(const ShadowBuffer&) = delete;
-
-            ShadowBuffer(ShadowBuffer&& other) noexcept :
-                buffer(other.buffer), size(other.size), alloc_data(other.alloc_data), allocator(other.allocator)
-            {
-                other.buffer = VK_NULL_HANDLE;
-            }
-
-            ShadowBuffer& operator=(ShadowBuffer&& other) noexcept
-            {
-                if (this != &other)
-                {
-                    Destroy();
-
-                    buffer     = other.buffer;
-                    size       = other.size;
-                    alloc_data = other.alloc_data;
-                    allocator  = other.allocator;
-
-                    other.buffer = VK_NULL_HANDLE;
-                }
-
-                return *this;
-            }
-
-            /// Creates the buffer that holds the shadow copy.
-            VkResult Create();
-
-            VkBuffer                              buffer{ VK_NULL_HANDLE };
-            VkDeviceSize                          size{ 0 };
-            VulkanResourceAllocator::ResourceData alloc_data{ 0 };
-            VulkanResourceAllocator*              allocator{ nullptr };
-
-          private:
-            void Destroy()
-            {
-                if (buffer != VK_NULL_HANDLE)
-                {
-                    GFXRECON_ASSERT(allocator != nullptr);
-                    allocator->DestroyBufferDirect(buffer, nullptr, alloc_data);
-                }
-            }
-        };
+        // A shadow buffer is only ever the source or destination of a vkCmdCopyBuffer.
+        static constexpr VkBufferUsageFlags kShadowBufferUsage =
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         // Allocations that shadow buffers are suballocated from.
         struct MemoryBlock
@@ -290,7 +238,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             bool Allocate(uint32_t memory_type_index, VkDeviceSize allocation_size);
 
             /// Suballocates memory from this block and binds `shadow` to it.
-            VkResult Bind(const ShadowBuffer& shadow, const VkMemoryRequirements& requirements);
+            VkResult Bind(const TemporaryBuffer& shadow);
 
             VkDeviceMemory                      memory{ VK_NULL_HANDLE };
             VulkanResourceAllocator::MemoryData mem_data{ 0 };
@@ -312,7 +260,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         /// A shadow buffer that has been created, but not yet suballocated from a memory block.
         struct PendingShadowBuffer
         {
-            PendingShadowBuffer(format::HandleId buffer_id, ShadowBuffer&& shadow_buffer) :
+            PendingShadowBuffer(format::HandleId buffer_id, TemporaryBuffer&& shadow_buffer) :
                 buffer_id(buffer_id), shadow(std::move(shadow_buffer))
             {}
 
@@ -321,9 +269,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                             CommonObjectInfoTable&             object_table,
                             VkCommandBuffer                    command_buffer) const;
 
-            format::HandleId     buffer_id{ format::kNullHandleId };
-            ShadowBuffer         shadow;
-            VkMemoryRequirements requirements{};
+            format::HandleId buffer_id{ format::kNullHandleId };
+            TemporaryBuffer  shadow;
         };
 
         void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
@@ -348,7 +295,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         const VkPhysicalDeviceMemoryProperties*  memory_properties_;
         std::vector<MemoryBlock>                 memory_blocks_;
 
-        std::unordered_map<format::HandleId, ShadowBuffer> shadow_buffers_;
+        /// A device local copy of each buffer's contents, taken at the start of the loop range and copied back
+        /// over the buffer before each repetition.  Their memory is suballocated from `memory_blocks_`, which
+        /// have to outlive them, and prefers being device local when possible.
+        std::unordered_map<format::HandleId, TemporaryBuffer> shadow_buffers_;
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
