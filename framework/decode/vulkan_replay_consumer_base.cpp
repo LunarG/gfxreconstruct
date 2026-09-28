@@ -3895,6 +3895,9 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         // free frame warm up resources before the device is destroyed
         device_frame_warmups_.erase(device_info);
 
+        // free the timeline semaphores injected to serialize submits, while the device that owns them still exists
+        device_submit_job_executors_.erase(device_info);
+
         device_info->allocator->Destroy();
         func(device, GetAllocationCallbacks(pAllocator));
     }
