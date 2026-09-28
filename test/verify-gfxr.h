@@ -1,6 +1,7 @@
 #ifndef GFXRECONSTRUCT_VERIFY_GFXR_H
 #define GFXRECONSTRUCT_VERIFY_GFXR_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -36,5 +37,32 @@ void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr, b
  * @note expects the same environment variables as verify_gfxr().
  */
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args = {});
+
+/**
+ * Run a test app with capture enabled, producing <test_name>.gfxr next to the test runner for a later replay.
+ *
+ * @param test_name - the name of the test app to launch and capture
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void capture_app(const char* test_name);
+
+/**
+ * Replay the gfxr that capture_app() produced for test_name, headless (--swapchain offscreen) against the mock ICD
+ * with extra_replay_args forwarded to gfxrecon-replay. It then saves the counts of specified Vulkan commands.
+ *
+ * @param test_name         - the name of the test app whose capture to replay
+ * @param extra_replay_args - additional arguments forwarded verbatim to gfxrecon-replay
+ * @param recapture_suffix  - distinguishes this replay's recapture from another's, e.g. "_replay_baseline"
+ * @param function_names    - the Vulkan commands to count, e.g. { "vkCmdPipelineBarrier" }
+ * @param[out] counts       - how often each of function_names was recorded, keyed by command name
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void replay_and_count_recapture(const char*                     test_name,
+                                std::vector<std::string>        extra_replay_args,
+                                std::string const&              recapture_suffix,
+                                std::vector<std::string> const& function_names,
+                                std::map<std::string, int>*     counts);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H
