@@ -147,20 +147,25 @@ std::string InfoVulkanFeature::GenerateText()
     // return_val += "\tTotal draw calls: " + std::to_string(stats_consumer.GetTotalDrawCount()) + "\n";
     // return_val += "\tTotal dispatch calls: " + std::to_string(stats_consumer.GetTotalDispatchCount()) + "\n";
 
-    // Print Physical device info
-    const decode::VulkanStatsConsumer::PhysicalDeviceProperties& physical_device_properties =
-        vulkan_stats_consumer_.GetPhysicalDeviceProperties();
-
+    // Print Physical device info, indexed in enumeration order like vulkaninfo
     return_val += "\nPhysical device properties:\n";
-    for (const auto& props : physical_device_properties)
+    const auto& physical_devices = best_instance_info.physical_devices;
+    for (size_t i = 0; i < physical_devices.size(); ++i)
     {
-        return_val += "  Device: " + std::to_string(props.first) + "\n";
-        return_val += "\tAPI version:         " + util::to_hex_fixed_width<uint64_t>(props.second.apiVersion) + " (" +
-                      GetVersionString(props.second.apiVersion) + ")" + "\n";
-        return_val += "\tDriver version:      " + util::to_hex_fixed_width<uint32_t>(props.second.driverVersion) + "\n";
-        return_val += "\tVendor ID:           " + util::to_hex_fixed_width<uint32_t>(props.second.vendorID) + "\n";
-        return_val += "\tDevice ID:           " + util::to_hex_fixed_width<uint32_t>(props.second.deviceID) + "\n";
-        return_val += "\tDevice name:         " + std::string(props.second.deviceName) + "\n";
+        auto handle_id = reinterpret_cast<format::HandleId>(physical_devices[i]);
+        auto props     = vulkan_stats_consumer_.GetDeviceProperties(handle_id);
+        if (props == nullptr)
+        {
+            continue;
+        }
+        return_val += "  GPU" + std::to_string(i) + ":\n";
+        return_val += "\tHandle ID:           " + std::to_string(handle_id) + "\n";
+        return_val += "\tAPI version:         " + util::to_hex_fixed_width<uint64_t>(props->apiVersion) + " (" +
+                      GetVersionString(props->apiVersion) + ")" + "\n";
+        return_val += "\tDriver version:      " + util::to_hex_fixed_width<uint32_t>(props->driverVersion) + "\n";
+        return_val += "\tVendor ID:           " + util::to_hex_fixed_width<uint32_t>(props->vendorID) + "\n";
+        return_val += "\tDevice ID:           " + util::to_hex_fixed_width<uint32_t>(props->deviceID) + "\n";
+        return_val += "\tDevice name:         " + std::string(props->deviceName) + "\n";
     }
 
     return return_val;
