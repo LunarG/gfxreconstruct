@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018-2020 Valve Corporation
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -52,12 +52,23 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
         'VkComputePipelineCreateInfo': ['stage'],
     }
 
+    # Answers the question "which field of this Vulkan type's metastruct is the object?"
+    MEMORY_INFO_OBJECT_FIELDS = {
+        'VkBindBufferMemoryInfo': 'buffer',
+        'VkBindImageMemoryInfo': 'image',
+        'VkBindAccelerationStructureMemoryInfoNV': 'accelerationStructure',
+        'VkBindDataGraphPipelineSessionMemoryInfoARM': 'session',
+        'VkBindTensorMemoryInfoARM': 'tensor',
+        'VkBindVideoSessionMemoryInfoKHR': 'video'
+    }
+
     def skip_generating_command(self, command):
         return (command not in
                 (self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES +
-                 self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY +
+                 self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_BIND_MEMORY +
+                 self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
 
@@ -278,7 +289,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        boundMemory.erase(' + values[-2].prefixed_name + ');\n'
             body += '    }\n'
 
-        elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY:
+        elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_BIND_MEMORY:
 
             body += '    if (!getFrameLoopInfo().IsLooping())\n'
             body += '    {\n'
@@ -301,6 +312,41 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '            ' + self.genCallReplayConsumer(return_type, name, values)
             body += '            boundMemory[' + values[-3].prefixed_name + '] = ' + values[-2].prefixed_name + ';\n'
             body += '        }\n'
+            body += '    }\n'
+
+        elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY:
+            #breakpoint()
+            body += '    if (!getFrameLoopInfo().IsLooping())\n'
+            body += '    {\n'
+            body += '        // Pass through if not looping\n'
+            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '    }\n'
+            body += '    else\n'
+            body += '    {\n'
+            body += '        ' + values[-1].base_type + '* raw_infos = ' + values[-1].prefixed_name + '.GetPointer();\n'
+            body += '        const Decoded_' + values[-1].base_type + '* meta_ptr = ' + values[-1].prefixed_name + '.GetMetaStructPointer();\n'
+            body += '        std::vector<' + values[-1].base_type + '> filtered_binds;\n'
+            body += '        for (int i = 0; i < ' + values[-1].prefixed_array_length + '; ++i)\n'
+            body += '        {\n'
+            body += '            // We need to bind the memory if the object hasn\'t been bound\n'
+            body += '            // or if it\'s being bound to a different memory\n'
+            body += '            bool need_bind = !boundMemory.contains(meta_ptr->' + self.MEMORY_INFO_OBJECT_FIELDS[values[-1].base_type] + ');\n'
+            body += '            if (!need_bind)\n'
+            body += '            {\n'
+            body += '                format::HandleId old_memory = boundMemory[' + values[-3].prefixed_name + '];\n'
+            body += '                need_bind = old_memory != ' + values[-2].prefixed_name + ';\n'
+            body += '            }\n'
+            body += '\n'
+            body += '            if (!need_bind)\n'
+            body += '            {\n'
+            body += '                // If this object doesn\'t need to be bound,\n'
+            body += '                // delete it from the list,\n'
+            body += '                raw_infos[i] = raw_infos[' + values[-2].prefixed_name + ' - 1];\n'
+            body += '                ' + values[-2].prefixed_name + ' -= 1;\n'
+            body += '                i -= 1;\n'
+            body += '            }\n'
+            body += '        }\n'
+            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED:
