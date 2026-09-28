@@ -29,12 +29,12 @@ if not defined TEST_BRANCH (
 
 set /a clonetestloop=0
 :clone_tests
-git clone --verbose %TEST_REPO% VulkanTests
+git clone --verbose "%TEST_REPO%" VulkanTests
 if %errorlevel% equ 0 goto :clone_tests_done
 if exist VulkanTests/ rmdir /s /q VulkanTests
 set /a clonetestloop+=1
 if %clonetestloop% gtr 3 (
-    echo tried to clone %TEST_REPO% too many times, giving up
+    echo tried to clone "%TEST_REPO%" too many times, giving up
     exit 1
 )
 waitfor forever /t 60 2>nul
@@ -43,7 +43,7 @@ goto :clone_tests
 cd VulkanTests
 git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" & :: Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git fetch origin
-git checkout %TEST_BRANCH% || exit /b
+git checkout "%TEST_BRANCH%" || exit /b
 git submodule update --init --recursive
 git describe --tags --always
 cd ..

@@ -215,6 +215,8 @@ class PointerDecoder : public PointerDecoderBase
         {
             size_t len = GetLength();
 
+            CheckExpectedLength("Pointer", capacity_);
+
             if (len <= capacity_)
             {
                 ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, len);

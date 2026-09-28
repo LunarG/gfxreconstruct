@@ -74,10 +74,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::AllocateMemory&                       args) override;
 
-    void Process_vkFreeMemory(
-        const ApiCallInfo&                          call_info,
-        args::FreeMemory&                           args) override;
-
     void Process_vkBindBufferMemory(
         const ApiCallInfo&                          call_info,
         args::BindBufferMemory&                     args) override;
@@ -627,7 +623,8 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         args::DestroyAccelerationStructureKHR&      args) override;
 
     protected:
-        std::set<format::HandleId> allocatedLoopResources;
+        std::set<format::HandleId>                             allocatedLoopResources;
+        std::unordered_map<format::HandleId, format::HandleId> boundMemory;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -6565,6 +6565,15 @@ struct Decoded_VkResolveImageModeInfoKHR
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR
+{
+    using struct_type = VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
+
+    VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR
 {
     using struct_type = VkPhysicalDeviceMaintenance11FeaturesKHR;
@@ -11079,15 +11088,6 @@ struct Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT
-{
-    using struct_type = VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
-
-    VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT;
@@ -12636,6 +12636,42 @@ struct Decoded_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceInfoPropertiesINTEL
+{
+    using struct_type = VkPhysicalDeviceInfoPropertiesINTEL;
+
+    VkPhysicalDeviceInfoPropertiesINTEL* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE;
+
+    VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE
+{
+    using struct_type = VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE;
+
+    VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE
+{
+    using struct_type = VkBufferDeviceAddressAlignmentAllocateInfoVALVE;
+
+    VkBufferDeviceAddressAlignmentAllocateInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR
 {
     using struct_type = VkAccelerationStructureBuildRangeInfoKHR;
@@ -13404,6 +13440,8 @@ typedef Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT Decoded_VkSubpass
 typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 
 typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
 
 typedef Decoded_VkRenderingEndInfoKHR Decoded_VkRenderingEndInfoEXT;
 

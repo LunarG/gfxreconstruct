@@ -157,6 +157,8 @@ class StructPointerDecoder : public PointerDecoderBase
                 assert(struct_memory_ != nullptr);
                 assert(len <= capacity_);
 
+                CheckExpectedLength("Struct pointer", capacity_);
+
                 if ((struct_memory_ == nullptr) || (len > capacity_))
                 {
                     GFXRECON_LOG_WARNING("Struct pointer decoder's external memory capacity (%" PRIuPTR

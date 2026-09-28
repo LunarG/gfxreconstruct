@@ -515,15 +515,19 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
         {
             // Any queue should be sufficient for signaling the semaphores; queue submit will not include any
             // command buffers.
-            const vulkan_wrappers::QueueWrapper* queue_wrapper = entry.first->child_queues.front();
-            WriteCommandExecution(queue_wrapper->handle_id,
-                                  0,
-                                  nullptr,
-                                  static_cast<uint32_t>(entry.second.size()),
-                                  entry.second.data(),
-                                  0,
-                                  nullptr,
-                                  nullptr);
+            const auto device_queues_entry = entry.first->child_queues.begin();
+            if (device_queues_entry != entry.first->child_queues.end())
+            {
+                const auto& queue = device_queues_entry->second;
+                WriteCommandExecution(queue.wrapper->handle_id,
+                                      0,
+                                      nullptr,
+                                      static_cast<uint32_t>(entry.second.size()),
+                                      entry.second.data(),
+                                      0,
+                                      nullptr,
+                                      nullptr);
+            }
         }
     }
 }

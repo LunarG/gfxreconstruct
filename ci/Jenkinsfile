@@ -88,8 +88,6 @@ pipeline {
                             'Windows AMD Dbg': runJob.gfxrTestWindows('Win AMD Dbg', runJob.DebugMode, runJob.WinAMDLabel, "commit-suite.json", scm.branches),
                             'Windows Nvidia Rel': runJob.gfxrTestWindows('Win Nvidia Rel', runJob.ReleaseMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),
                             'Windows Nvidia Dbg': runJob.gfxrTestWindows('Win Nvidia Dbg', runJob.DebugMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),
-                            'Windows11 AMD Rel': runJob.gfxrTestWindows('Win11 AMD Rel', runJob.ReleaseMode, runJob.Win11AMDLabel, "commit-suite.json", scm.branches),
-                            'Windows11 AMD Dbg': runJob.gfxrTestWindows('Win11 AMD Dbg', runJob.DebugMode, runJob.Win11AMDLabel, "commit-suite.json", scm.branches),
                             'Windows11 ARM Rel': runJob.gfxrTestWindows('Win11 ARM Rel', runJob.ReleaseMode, runJob.Win11ARMLabel, "commit-suite.json", scm.branches),
                             'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Win11 ARM Dbg', runJob.DebugMode, runJob.Win11ARMLabel, "commit-suite.json", scm.branches),
                             'Windows11 AMD 9070 Rel': runJob.gfxrTestWindows('Win11 AMD 9070 Rel', runJob.ReleaseMode, runJob.Win11AMD9070Label, "commit-suite.json", scm.branches),

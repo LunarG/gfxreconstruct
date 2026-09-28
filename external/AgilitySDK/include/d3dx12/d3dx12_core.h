@@ -1561,7 +1561,8 @@ inline bool operator!=( const D3D12_RESOURCE_DESC1& l, const D3D12_RESOURCE_DESC
 { return !( l == r ); }
 
 //------------------------------------------------------------------------------------------------
-// Fills in the mipmap and alignment values of pDesc when either members are zero
+// Fills in the mipmap and alignment values of pDesc when either members are zero or the
+// flag D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT is set
 // Used to replace an implicit field to an explicit (0 mip map = max mip map level)
 // If expansion has occured, returns LclDesc, else returns the original pDesc
 inline const CD3DX12_RESOURCE_DESC1* D3DX12ConditionallyExpandAPIDesc(
@@ -1570,8 +1571,10 @@ inline const CD3DX12_RESOURCE_DESC1* D3DX12ConditionallyExpandAPIDesc(
     const bool tightAlignmentSupported = false,
     const bool alignAsCommitted = false)
 {
+    const bool bRecomputeAlignment = (pDesc->Alignment == 0)
+        || (tightAlignmentSupported && (pDesc->Flags & D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT));
     // Expand mip levels:
-    if (pDesc->MipLevels == 0 || pDesc->Alignment == 0)
+    if (pDesc->MipLevels == 0 || bRecomputeAlignment)
     {
         LclDesc = *pDesc;
         if (pDesc->MipLevels == 0)
@@ -1595,7 +1598,7 @@ inline const CD3DX12_RESOURCE_DESC1* D3DX12ConditionallyExpandAPIDesc(
                 Max(LclDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D ? LclDesc.DepthOrArraySize : 1,
                     Max(LclDesc.Width, LclDesc.Height)));
         }
-        if (pDesc->Alignment == 0)
+        if (bRecomputeAlignment)
         {
             if (pDesc->Layout == D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE
                 || pDesc->Layout == D3D12_TEXTURE_LAYOUT_64KB_STANDARD_SWIZZLE
@@ -1611,12 +1614,16 @@ inline const CD3DX12_RESOURCE_DESC1* D3DX12ConditionallyExpandAPIDesc(
             }
             else
             {
-                // Tight alignment is supported and we aren't a cross adapter resource, now just need to set the alignment field to the minimum alignment for each type
-                if(alignAsCommitted)
-                    LclDesc.Alignment = D3D12_TIGHT_ALIGNMENT_MIN_COMMITTED_RESOURCE_ALIGNMENT;
-                else
-                    LclDesc.Alignment = D3D12_TIGHT_ALIGNMENT_MIN_PLACED_RESOURCE_ALIGNMENT;
-			}
+                // Clamp valid tight alignment values to be >= spec minimums.
+                // Valid means pow2 and <= spec maximums. Invalid alignments flush to minimum.
+                const UINT64 runtimeMin = alignAsCommitted ? D3D12_TIGHT_ALIGNMENT_MIN_COMMITTED_RESOURCE_ALIGNMENT : D3D12_TIGHT_ALIGNMENT_MIN_PLACED_RESOURCE_ALIGNMENT;
+                const UINT64 specMax = (pDesc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+                    ? (alignAsCommitted ? D3D12_TIGHT_ALIGNMENT_MAX_COMMITTED_BUFFER_ALIGNMENT : D3D12_TIGHT_ALIGNMENT_MAX_PLACED_BUFFER_ALIGNMENT)
+                    : (pDesc->SampleDesc.Count > 1 ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+                const UINT64 appAlignment = pDesc->Alignment;
+                const bool appAlignmentIsValidFloor = appAlignment != 0 && (appAlignment & (appAlignment - 1)) == 0 && appAlignment <= specMax;
+                LclDesc.Alignment = appAlignmentIsValidFloor ? (appAlignment > runtimeMin ? appAlignment : runtimeMin) : runtimeMin;
+            }
         }
         return &LclDesc;
     }
@@ -1625,6 +1632,7 @@ inline const CD3DX12_RESOURCE_DESC1* D3DX12ConditionallyExpandAPIDesc(
         return pDesc;
     }
 }
+
 
 
 //------------------------------------------------------------------------------------------------
@@ -1656,7 +1664,7 @@ struct CD3DX12_SHADER_RESOURCE_VIEW_DESC : public D3D12_SHADER_RESOURCE_VIEW_DES
         UINT64 FirstElement = 0) noexcept
     {
         CD3DX12_SHADER_RESOURCE_VIEW_DESC desc;
-        desc.Format = DXGI_FORMAT_R32_UINT;
+        desc.Format = DXGI_FORMAT_R32_TYPELESS;
         desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
         desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         desc.Buffer.FirstElement = FirstElement;
@@ -1888,7 +1896,7 @@ struct CD3DX12_UNORDERED_ACCESS_VIEW_DESC : public D3D12_UNORDERED_ACCESS_VIEW_D
         UINT64 CounterOffsetInBytes = 0) noexcept
     {
         CD3DX12_UNORDERED_ACCESS_VIEW_DESC desc;
-        desc.Format = DXGI_FORMAT_R32_UINT;
+        desc.Format = DXGI_FORMAT_R32_TYPELESS;
         desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
         desc.Buffer.FirstElement = FirstElement;
         desc.Buffer.NumElements = NumElements;
@@ -2068,5 +2076,3 @@ struct CD3DX12_SERIALIZED_ROOT_SIGNATURE_DESC : public D3D12_SERIALIZED_ROOT_SIG
         SerializedBlobSizeInBytes = size;
     }
 };
-
-

@@ -10671,6 +10671,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkResolveImageMode
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["pipelineLibraryGroupHandles"] = static_cast<bool>(decoded_value.pipelineLibraryGroupHandles);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR* data)
 {
     if (data && data->decoded_value)
@@ -17697,19 +17710,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& decoded_value = *data->decoded_value;
-        const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["pipelineLibraryGroupHandles"] = static_cast<bool>(decoded_value.pipelineLibraryGroupHandles);
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* data)
 {
     if (data && data->decoded_value)
@@ -20087,6 +20087,60 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInfoPropertiesINTEL* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceInfoPropertiesINTEL& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceInfoPropertiesINTEL& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["deviceIpVersionArch"] = decoded_value.deviceIpVersionArch;
+        jdata["deviceIpVersionRelease"] = decoded_value.deviceIpVersionRelease;
+        jdata["deviceIpVersionRevision"] = decoded_value.deviceIpVersionRevision;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["bufferDeviceAddressAllocationAlignment"] = static_cast<bool>(decoded_value.bufferDeviceAddressAllocationAlignment);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["maxBufferDeviceAddressAllocationAlignment"] = decoded_value.maxBufferDeviceAddressAllocationAlignment;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkBufferDeviceAddressAlignmentAllocateInfoVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["alignment"] = decoded_value.alignment;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data)
 {
     if (data && data->decoded_value)
@@ -20948,6 +21002,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkBufferCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -23486,6 +23547,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures*>(data->GetMetaStructPointer());
@@ -24480,6 +24555,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInfoPropertiesINTEL*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(data->GetMetaStructPointer());
@@ -24998,9 +25080,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
