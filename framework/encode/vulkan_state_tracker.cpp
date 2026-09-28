@@ -844,7 +844,7 @@ void VulkanStateTracker::TrackImageBarriers2KHR(VkCommandBuffer                 
 
 void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits)
 {
-    if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferCount > 0))
+    if ((submit_count > 0) && (submits != nullptr))
     {
         for (uint32_t submit = 0; submit < submit_count; ++submit)
         {
@@ -865,7 +865,7 @@ void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, co
 
 void VulkanStateTracker::TrackCommandBufferSubmissions2(uint32_t submit_count, const VkSubmitInfo2* submits)
 {
-    if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferInfoCount > 0))
+    if ((submit_count > 0) && (submits != nullptr))
     {
         for (uint32_t submit = 0; submit < submit_count; ++submit)
         {
