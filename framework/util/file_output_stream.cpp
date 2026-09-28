@@ -72,9 +72,11 @@ void FileOutputStream::Close()
     {
         if (platform::FileClose(file_) != 0)
         {
-            GFXRECON_LOG_ERROR("Failed to write buffered data while closing file \"%s\" (%s)",
+            const int error = errno;
+            GFXRECON_LOG_ERROR("Failed to close file \"%s\" (errno %d: %s)",
                                filename_.empty() ? "<unnamed>" : filename_.c_str(),
-                               strerror(errno));
+                               error,
+                               strerror(error));
         }
     }
 
