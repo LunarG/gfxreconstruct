@@ -1618,7 +1618,6 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
         swapchain.handle       = swapchain_handle;
         swapchain.image_extent = swapchain_create_info.imageExtent;
-
         // Get swapchain images and create swapchain resources
         uint32_t image_count = 0;
         result               = injected->GetSwapchainImagesKHR(device, swapchain.handle, &image_count, nullptr);
@@ -1628,7 +1627,6 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         result = injected->GetSwapchainImagesKHR(device, swapchain.handle, &image_count, swapchain_images.data());
         GFXRECON_ASSERT((result == VK_SUCCESS) && (swapchain_images.size() == image_count));
 
-        swapchain.frame_data.resize(image_count);
         swapchain.image_data.resize(image_count);
 
         VkSemaphoreCreateInfo semaphore_create_info;
@@ -1636,10 +1634,35 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         semaphore_create_info.pNext = nullptr;
         semaphore_create_info.flags = 0;
 
-        VkFenceCreateInfo fence_create_info;
-        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fence_create_info.pNext = nullptr;
-        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        for (uint32_t i = 0; i < image_count; ++i)
+        {
+            swapchain.image_data[i].image = swapchain_images[i];
+
+            result =
+                injected->CreateSemaphore(device, &semaphore_create_info, nullptr, &swapchain.image_data[i].semaphore);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+        }
+    }
+
+    // Find set of command_buffer/semaphore/fence available or create one if none available
+    AdhocSwapChainFrameData* frame_data = nullptr;
+    for (AdhocSwapChainFrameData& data : swapchain.frame_data)
+    {
+        result = injected->GetFenceStatus(device, data.fence);
+        if (result == VK_SUCCESS)
+        {
+            frame_data = &data;
+
+            result = injected->ResetFences(device, 1, &frame_data->fence);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            break;
+        }
+    }
+
+    if (frame_data == nullptr)
+    {
+        frame_data = &swapchain.frame_data.emplace_back();
 
         VkCommandBufferAllocateInfo command_buffer_alloc_info;
         command_buffer_alloc_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1648,46 +1671,41 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         command_buffer_alloc_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         command_buffer_alloc_info.commandBufferCount = 1;
 
-        for (uint32_t i = 0; i < image_count; ++i)
-        {
-            swapchain.image_data[i].image = swapchain_images[i];
+        VkFenceCreateInfo fence_create_info;
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_create_info.pNext = nullptr;
+        fence_create_info.flags = 0;
 
-            result = injected->CreateFence(device, &fence_create_info, nullptr, &swapchain.frame_data[i].fence);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
+        VkSemaphoreCreateInfo semaphore_create_info;
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphore_create_info.pNext = nullptr;
+        semaphore_create_info.flags = 0;
 
-            result = injected->CreateSemaphore(
-                device, &semaphore_create_info, nullptr, &swapchain.frame_data[i].acquire_semaphore);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
+        result = injected->AllocateCommandBuffers(device, &command_buffer_alloc_info, &frame_data->command_buffer);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            result =
-                injected->CreateSemaphore(device, &semaphore_create_info, nullptr, &swapchain.image_data[i].semaphore);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
+        result = injected->CreateFence(device, &fence_create_info, nullptr, &frame_data->fence);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            result = injected->AllocateCommandBuffers(
-                device, &command_buffer_alloc_info, &swapchain.frame_data[i].command_buffer);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-        }
+        result = injected->CreateSemaphore(device, &semaphore_create_info, nullptr, &frame_data->acquire_semaphore);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
-    // wait for previous frame
-    const auto& frame_data = swapchain.frame_data[swapchain.acquire_index];
-    result = injected->WaitForFences(device, 1, &frame_data.fence, true, std::numeric_limits<uint64_t>::max());
-    GFXRECON_ASSERT(result == VK_SUCCESS);
-    result = injected->ResetFences(device, 1, &frame_data.fence);
-    GFXRECON_ASSERT(result == VK_SUCCESS);
-
     // Acquire next image from the swapchain
-    VkSemaphore acquire_semaphore     = frame_data.acquire_semaphore;
-    uint32_t    swapchain_image_index = 0;
+    uint32_t swapchain_image_index = 0;
 
-    result = injected->AcquireNextImageKHR(
-        device, swapchain.handle, UINT64_MAX, acquire_semaphore, VK_NULL_HANDLE, &swapchain_image_index);
+    VkFence acquire_fence = swapchain_options_.virtual_swapchain_skip_blit ? frame_data->fence : VK_NULL_HANDLE;
+
+    result = injected->AcquireNextImageKHR(device,
+                                           swapchain.handle,
+                                           std::numeric_limits<uint64_t>::max(),
+                                           frame_data->acquire_semaphore,
+                                           acquire_fence,
+                                           &swapchain_image_index);
 
     auto& image_data = swapchain.image_data[swapchain_image_index];
 
-    swapchain.acquire_index = (swapchain.acquire_index + 1) % swapchain.frame_data.size();
-
-    std::vector<VkSemaphore> submit_wait_semaphores = { acquire_semaphore };
+    std::vector<VkSemaphore> submit_wait_semaphores = { frame_data->acquire_semaphore };
     if (semaphore != VK_NULL_HANDLE)
     {
         submit_wait_semaphores.push_back(semaphore);
@@ -1697,7 +1715,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     if (!swapchain_options_.virtual_swapchain_skip_blit)
     {
         // Record command buffer for copy
-        result = injected->ResetCommandBuffer(frame_data.command_buffer, 0);
+        result = injected->ResetCommandBuffer(frame_data->command_buffer, 0);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         VkCommandBufferBeginInfo command_buffer_begin_info;
@@ -1706,7 +1724,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
 
-        result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info, __func__);
+        result = injected.BeginCommandBuffer(frame_data->command_buffer, &command_buffer_begin_info, __func__);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -1739,7 +1757,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             }
 
             // NOTE: VK_PIPELINE_STAGE_NONE is only legal as a srcStageMask when synchronization2 is enabled
-            injected->CmdPipelineBarrier(frame_data.command_buffer,
+            injected->CmdPipelineBarrier(frame_data->command_buffer,
                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                          0,
@@ -1755,7 +1773,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                 // tiles not covered by a layer are never touched by a blit, so clearing them once is enough
                 constexpr VkClearColorValue clear_color = {};
 
-                injected->CmdClearColorImage(frame_data.command_buffer,
+                injected->CmdClearColorImage(frame_data->command_buffer,
                                              image_data.image,
                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                              &clear_color,
@@ -1767,7 +1785,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                 memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                 memory_barrier.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-                injected->CmdPipelineBarrier(frame_data.command_buffer,
+                injected->CmdPipelineBarrier(frame_data->command_buffer,
                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                              0,
@@ -1814,10 +1832,10 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                                        0 };
             blit_params.dst_extent = { max_x, max_y, 1 };
 
-            ofb_data.copy_util->BlitImage(frame_data.command_buffer, blit_params);
+            ofb_data.copy_util->BlitImage(frame_data->command_buffer, blit_params);
         }
 
-        result = injected->EndCommandBuffer(frame_data.command_buffer);
+        result = injected->EndCommandBuffer(frame_data->command_buffer);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // Submit copy command buffer
@@ -1831,11 +1849,11 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
         submit_info.pWaitDstStageMask    = submit_wait_stages.data();
         submit_info.commandBufferCount   = 1;
-        submit_info.pCommandBuffers      = &frame_data.command_buffer;
+        submit_info.pCommandBuffers      = &frame_data->command_buffer;
         submit_info.signalSemaphoreCount = 1;
         submit_info.pSignalSemaphores    = &image_data.semaphore;
 
-        result = injected->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
+        result = injected->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data->fence);
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 

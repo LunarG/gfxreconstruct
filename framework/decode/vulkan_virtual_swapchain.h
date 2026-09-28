@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 #define GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 
+#include <deque>
+
 #include "decode/vulkan_swapchain.h"
 #include "graphics/vulkan_resources_util.h"
 
@@ -279,7 +281,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         VkSwapchainKHR handle{ VK_NULL_HANDLE };
 
         std::vector<AdhocSwapChainFrameData> frame_data{};
-        std::vector<AdhocSwapChainImageData> image_data{};
+        std::deque<AdhocSwapChainImageData>  image_data{};
 
         // destroy swapchain and per-frame resources, keep surface
         void DestroySwapchain();
