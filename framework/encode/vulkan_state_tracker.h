@@ -422,6 +422,18 @@ class VulkanStateTracker
                                 uint32_t                        image_barrier_count,
                                 const VkImageMemoryBarrier2KHR* image_barriers);
 
+    // Records the queue family ownership transfers made by a barrier command, for vkCmdPipelineBarrier and
+    // vkCmdWaitEvents and their synchronization2 variants.
+    void TrackOwnershipTransfers(VkCommandBuffer              command_buffer,
+                                 uint32_t                     buffer_barrier_count,
+                                 const VkBufferMemoryBarrier* buffer_barriers,
+                                 uint32_t                     image_barrier_count,
+                                 const VkImageMemoryBarrier*  image_barriers);
+
+    void TrackOwnershipTransfers2(VkCommandBuffer         command_buffer,
+                                  uint32_t                dependency_count,
+                                  const VkDependencyInfo* dependencies);
+
     void TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits);
 
     void TrackCommandBufferSubmissions2(uint32_t submit_count, const VkSubmitInfo2* submits);
@@ -869,6 +881,8 @@ class VulkanStateTracker
     void DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper);
 
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
+
+    void TrackOwnershipTransferSubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
 
     void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
                                   vulkan_state_info::PipelineBindPoints  ppl_bind_point);

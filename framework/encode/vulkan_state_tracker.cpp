@@ -67,6 +67,7 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         wrapper->command_data.Clear();
         wrapper->pending_layouts.clear();
         wrapper->recorded_queries.clear();
+        wrapper->recorded_ownership_transfers.clear();
         wrapper->tlas_build_info_map.clear();
         wrapper->modified_assets.clear();
         wrapper->secondaries.clear();
@@ -786,6 +787,10 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
             primary_wrapper->pending_layouts[layout_entry.first] = layout_entry.second;
         }
 
+        primary_wrapper->recorded_ownership_transfers.insert(primary_wrapper->recorded_ownership_transfers.end(),
+                                                             secondary_wrapper->recorded_ownership_transfers.begin(),
+                                                             secondary_wrapper->recorded_ownership_transfers.end());
+
         for (const auto& secondary_query_pool_entry : secondary_wrapper->recorded_queries)
         {
             auto& primary_query_pool_info = primary_wrapper->recorded_queries[secondary_query_pool_entry.first];
@@ -842,6 +847,101 @@ void VulkanStateTracker::TrackImageBarriers2KHR(VkCommandBuffer                 
     }
 }
 
+template <typename BufferBarrier, typename ImageBarrier>
+static void RecordOwnershipTransfers(vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                     uint32_t                               buffer_barrier_count,
+                                     const BufferBarrier*                   buffer_barriers,
+                                     uint32_t                               image_barrier_count,
+                                     const ImageBarrier*                    image_barriers)
+{
+    if ((wrapper == nullptr) || (wrapper->parent_pool == nullptr))
+    {
+        return;
+    }
+
+    const uint32_t queue_family_index = wrapper->parent_pool->queue_family_index;
+
+    const auto record = [&](vulkan_wrappers::AssetWrapperBase*                     resource,
+                            const vulkan_state_info::QueueFamilyOwnershipTransfer& transfer) {
+        if ((resource == nullptr) || !vulkan_state_info::IsQueueFamilyOwnershipTransfer(
+                                         transfer.src_queue_family_index, transfer.dst_queue_family_index))
+        {
+            return;
+        }
+
+        // The same barrier is recorded on both sides of the transfer; the queue family it runs on says which side
+        // this is.
+        if (queue_family_index == transfer.src_queue_family_index)
+        {
+            wrapper->recorded_ownership_transfers.push_back({ resource, transfer, true });
+        }
+        else if (queue_family_index == transfer.dst_queue_family_index)
+        {
+            wrapper->recorded_ownership_transfers.push_back({ resource, transfer, false });
+        }
+    };
+
+    for (uint32_t i = 0; (buffer_barriers != nullptr) && (i < buffer_barrier_count); ++i)
+    {
+        const BufferBarrier& barrier = buffer_barriers[i];
+
+        vulkan_state_info::QueueFamilyOwnershipTransfer transfer;
+        transfer.src_queue_family_index = barrier.srcQueueFamilyIndex;
+        transfer.dst_queue_family_index = barrier.dstQueueFamilyIndex;
+        transfer.offset                 = barrier.offset;
+        transfer.size                   = barrier.size;
+
+        record(vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(barrier.buffer), transfer);
+    }
+
+    for (uint32_t i = 0; (image_barriers != nullptr) && (i < image_barrier_count); ++i)
+    {
+        const ImageBarrier& barrier = image_barriers[i];
+
+        vulkan_state_info::QueueFamilyOwnershipTransfer transfer;
+        transfer.src_queue_family_index = barrier.srcQueueFamilyIndex;
+        transfer.dst_queue_family_index = barrier.dstQueueFamilyIndex;
+        transfer.old_layout             = barrier.oldLayout;
+        transfer.new_layout             = barrier.newLayout;
+        transfer.subresource_range      = barrier.subresourceRange;
+
+        record(vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(barrier.image), transfer);
+    }
+}
+
+void VulkanStateTracker::TrackOwnershipTransfers(VkCommandBuffer              command_buffer,
+                                                 uint32_t                     buffer_barrier_count,
+                                                 const VkBufferMemoryBarrier* buffer_barriers,
+                                                 uint32_t                     image_barrier_count,
+                                                 const VkImageMemoryBarrier*  image_barriers)
+{
+    assert(command_buffer != VK_NULL_HANDLE);
+
+    RecordOwnershipTransfers(vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer),
+                             buffer_barrier_count,
+                             buffer_barriers,
+                             image_barrier_count,
+                             image_barriers);
+}
+
+void VulkanStateTracker::TrackOwnershipTransfers2(VkCommandBuffer         command_buffer,
+                                                  uint32_t                dependency_count,
+                                                  const VkDependencyInfo* dependencies)
+{
+    assert(command_buffer != VK_NULL_HANDLE);
+
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+
+    for (uint32_t i = 0; (dependencies != nullptr) && (i < dependency_count); ++i)
+    {
+        RecordOwnershipTransfers(wrapper,
+                                 dependencies[i].bufferMemoryBarrierCount,
+                                 dependencies[i].pBufferMemoryBarriers,
+                                 dependencies[i].imageMemoryBarrierCount,
+                                 dependencies[i].pImageMemoryBarriers);
+    }
+}
+
 void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits)
 {
     if ((submit_count > 0) && (submits != nullptr))
@@ -858,6 +958,7 @@ void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, co
                 assert(command_wrapper != nullptr);
 
                 TrackQuerySubmissions(command_wrapper);
+                TrackOwnershipTransferSubmissions(command_wrapper);
             }
         }
     }
@@ -879,6 +980,7 @@ void VulkanStateTracker::TrackCommandBufferSubmissions2(uint32_t submit_count, c
                 assert(command_wrapper != nullptr);
 
                 TrackQuerySubmissions(command_wrapper);
+                TrackOwnershipTransferSubmissions(command_wrapper);
             }
         }
     }
@@ -913,6 +1015,17 @@ void VulkanStateTracker::TrackQuerySubmissions(vulkan_wrappers::CommandBufferWra
                 query_info.queue_family_index = query_entry.second.queue_family_index;
             }
         }
+    }
+}
+
+void VulkanStateTracker::TrackOwnershipTransferSubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper)
+{
+    for (const auto& entry : command_wrapper->recorded_ownership_transfers)
+    {
+        assert(entry.resource != nullptr);
+
+        vulkan_state_info::ApplyQueueFamilyOwnershipTransfer(
+            entry.resource->pending_ownership_releases, entry.transfer, entry.is_release);
     }
 }
 
