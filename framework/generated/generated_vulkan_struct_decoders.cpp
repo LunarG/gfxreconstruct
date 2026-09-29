@@ -38,22 +38,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t              bytes_read = 0;
-    VkBaseOutStructure* value      = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
-    value->pNext = wrapper->pNext ? reinterpret_cast<VkBaseOutStructure*>(wrapper->pNext->GetPointer()) : nullptr;
-
-    return bytes_read;
-}
-
-
 // The schema drives these decoders. This is the only translation unit that compiles the walk.
 template size_t DecodeStruct<Decoded_StdVideoAV1CDEF>(const uint8_t*, size_t, Decoded_StdVideoAV1CDEF*);
 template size_t DecodeStruct<Decoded_StdVideoAV1ColorConfig>(const uint8_t*, size_t, Decoded_StdVideoAV1ColorConfig*);

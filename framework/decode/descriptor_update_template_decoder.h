@@ -27,7 +27,7 @@
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/pointer_decoder_base.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "util/defines.h"
 
 #include <memory>
