@@ -117,12 +117,14 @@ class VulkanReplayDumpResourcesBodyGenerator(
         )
         if work_despite_prefix:
             return False
-        # Debug labels and markers fan out like state -> no clone ends a scope it did not begin.
-        debug_label = name in (
+        # Debug labels, markers and conditional rendering fan out like state -> no clone ends a scope it did not begin.
+        scoped = name in (
             'vkCmdBeginDebugUtilsLabelEXT', 'vkCmdEndDebugUtilsLabelEXT', 'vkCmdInsertDebugUtilsLabelEXT',
-            'vkCmdDebugMarkerBeginEXT', 'vkCmdDebugMarkerEndEXT', 'vkCmdDebugMarkerInsertEXT'
+            'vkCmdDebugMarkerBeginEXT', 'vkCmdDebugMarkerEndEXT', 'vkCmdDebugMarkerInsertEXT',
+            'vkCmdBeginConditionalRenderingEXT', 'vkCmdBeginConditionalRendering2EXT',
+            'vkCmdEndConditionalRenderingEXT'
         )
-        return debug_label or name.startswith(('vkCmdBind', 'vkCmdSet', 'vkCmdPush'))
+        return scoped or name.startswith(('vkCmdBind', 'vkCmdSet', 'vkCmdPush'))
 
     def make_consumer_func_body(self, api_data, return_type, name, values):
         """

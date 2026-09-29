@@ -3406,7 +3406,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginQuery(const ApiCallInfo&    
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query, flags);
         });
     }
@@ -3420,7 +3420,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndQuery(const ApiCallInfo&      
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query);
         });
     }
@@ -3435,7 +3435,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdResetQueryPool(const ApiCallInfo&
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, firstQuery, queryCount);
         });
     }
@@ -3450,7 +3450,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp(const ApiCallInfo&
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, pipelineStage, queryPool->handle, query);
         });
     }
@@ -3469,7 +3469,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyQueryPoolResults(const ApiCal
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(
                 command_buffer, queryPool->handle, firstQuery, queryCount, dstBuffer->handle, dstOffset, stride, flags);
         });
@@ -3490,7 +3490,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyQueryPoolResultsToMemoryKHR(
     if (IsRecording())
     {
         const VkStridedDeviceAddressRangeKHR* dst_range = pDstRange->GetPointer();
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, firstQuery, queryCount, dst_range, dstFlags, queryResultFlags);
         });
     }
@@ -3505,7 +3505,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp2(const ApiCallInfo
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, stage, queryPool->handle, query);
         });
     }
@@ -3520,7 +3520,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp2KHR(const ApiCallI
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, stage, queryPool->handle, query);
         });
     }
@@ -3536,7 +3536,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginQueryIndexedEXT(const ApiCal
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query, flags, index);
         });
     }
@@ -3551,7 +3551,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndQueryIndexedEXT(const ApiCallI
 {
     if (IsRecording())
     {
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, queryPool->handle, query, index);
         });
     }
@@ -3577,7 +3577,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteAccelerationStructuresProper
             acceleration_structures[i] = (as_info != nullptr) ? as_info->handle : VK_NULL_HANDLE;
         }
 
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer,
                  accelerationStructureCount,
                  acceleration_structures.data(),
@@ -3606,7 +3606,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteMicromapsPropertiesEXT(const
             micromaps[i] = (micromap_info != nullptr) ? micromap_info->handle : VK_NULL_HANDLE;
         }
 
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer, micromapCount, micromaps.data(), queryType, queryPool->handle, firstQuery);
         });
     }
@@ -3632,7 +3632,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdWriteAccelerationStructuresProper
             acceleration_structures[i] = (as_info != nullptr) ? as_info->handle : VK_NULL_HANDLE;
         }
 
-        ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        ForEachStateCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
             func(command_buffer,
                  accelerationStructureCount,
                  acceleration_structures.data(),

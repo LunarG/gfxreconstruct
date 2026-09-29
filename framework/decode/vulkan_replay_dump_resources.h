@@ -879,6 +879,35 @@ class VulkanReplayDumpResourcesBase
         ForEachDrawCallWorkCommandBuffer(original_command_buffer, callback);
     }
 
+    // every clone from the one taking work to the last. query commands go here, so each clone resets, begins and
+    // ends its queries in order.
+    template <typename Callback>
+    void ForEachStateCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (const auto& dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                callback(dispatch_rays_command_buffer);
+            }
+        }
+
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (const auto& dc_context : dc_contexts)
+        {
+            CommandBufferIterator first, last;
+            dc_context->GetDrawCallActiveCommandBuffers(first, last);
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                callback(*it);
+            }
+        }
+    }
+
     // draw call clone currently taking work, for each context on this command buffer.
     template <typename Callback>
     void ForEachDrawCallWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)

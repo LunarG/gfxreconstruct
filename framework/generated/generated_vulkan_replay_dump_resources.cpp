@@ -3425,7 +3425,12 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRendering2EXT(
             const auto func = injected->CmdBeginConditionalRendering2EXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer(), pConditionalRenderingBegin);
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it, pConditionalRenderingBegin);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4432,7 +4437,12 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRenderingEXT(
             const auto func = injected->CmdBeginConditionalRenderingEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer(), pConditionalRenderingBegin);
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it, pConditionalRenderingBegin);
+                }
             }
 
             for (auto dr_context : dr_contexts)
@@ -4462,7 +4472,12 @@ void VulkanReplayDumpResources::Process_vkCmdEndConditionalRenderingEXT(
             const auto func = injected->CmdEndConditionalRenderingEXT;
             for (auto dc_context : dc_contexts)
             {
-                func(dc_context->GetWorkCommandBuffer());
+                CommandBufferIterator first, last;
+                dc_context->GetDrawCallActiveCommandBuffers(first, last);
+                for (CommandBufferIterator it = first; it < last; ++it)
+                {
+                    func(*it);
+                }
             }
 
             for (auto dr_context : dr_contexts)
