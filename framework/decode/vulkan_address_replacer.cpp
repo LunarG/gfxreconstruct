@@ -2607,7 +2607,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
         {
             if (!init_queue_assets())
             {
-                GFXRECON_LOG_ERROR("%s(): cannot initialize a local command-buffer");
+                GFXRECON_LOG_ERROR("%s(): cannot initialize a local command-buffer", __func__);
             }
 
             // reset/submit/sync command-buffer
