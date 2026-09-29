@@ -65,18 +65,24 @@ void FileOutputStream::Reset(FILE* file)
     filename_.clear();
 }
 
-// fclose() writes the last buffered bytes, and a failure there is reported nowhere else.
 void FileOutputStream::Close()
 {
     if ((file_ != nullptr) && own_file_)
     {
+        const char* name = filename_.empty() ? "<unnamed>" : filename_.c_str();
+
+        // Flush separately so a failed write of buffered data is not reported as a close failure.
+        if (platform::FileFlush(file_) != 0)
+        {
+            const int error = errno;
+            GFXRECON_LOG_ERROR(
+                "Failed to flush buffered data to file \"%s\" (errno %d: %s)", name, error, strerror(error));
+        }
+
         if (platform::FileClose(file_) != 0)
         {
             const int error = errno;
-            GFXRECON_LOG_ERROR("Failed to close file \"%s\" (errno %d: %s)",
-                               filename_.empty() ? "<unnamed>" : filename_.c_str(),
-                               error,
-                               strerror(error));
+            GFXRECON_LOG_ERROR("Failed to close file \"%s\" (errno %d: %s)", name, error, strerror(error));
         }
     }
 
