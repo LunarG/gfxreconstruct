@@ -1118,13 +1118,13 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     // Reset all fences
     if (all_fences.size() > 0)
     {
-        GFXRECON_LOG_DEBUG("Synthetically resetting all %" PRIu64 " observed fences...", all_fences.size());
+        GFXRECON_LOG_DEBUG("Synthetically resetting all %zu observed fences...", all_fences.size());
         result = device_table->ResetFences(vk_device, all_fences.size(), all_fences.data());
         CHECK_VK_RESULT(result, "vkResetFences");
     }
 
     // Synthetically signal the ones that were originally signaled
-    GFXRECON_LOG_DEBUG("Synthetically signaling %" PRIu64 " fences...", fences_to_signal.size());
+    GFXRECON_LOG_DEBUG("Synthetically signaling %zu fences...", fences_to_signal.size());
     VulkanQueueInfo* queue_info = table.GetVkQueueInfo(queue);
     for (VkFence fence : fences_to_signal)
     {

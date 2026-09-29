@@ -3316,7 +3316,7 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
             }
         } // current batch, consume staging-buffer
 
-        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%d)", __func__, start_idx, end_idx, buffer_resources.size());
+        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%zu)", __func__, start_idx, end_idx, buffer_resources.size());
     }
 }
 

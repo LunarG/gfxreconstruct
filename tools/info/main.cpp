@@ -110,7 +110,7 @@ void WriteOutput(const char* format_string, ...)
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE(result_string.c_str());
+            GFXRECON_WRITE_CONSOLE("%s", result_string.c_str());
         }
     }
     catch (...)

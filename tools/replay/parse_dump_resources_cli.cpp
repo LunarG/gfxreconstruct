@@ -406,9 +406,9 @@ static uint32_t ExtractAndFilterSubresourceRange(const json_iterator json_it,
             const std::string level_count_str = json_it[range_name];
             if (level_count_str.compare(alternative_end_range_name))
             {
-                GFXRECON_LOG_WARNING("The string \"%s\", that is being passed as %s for command index: %" PRIu64
-                                     ", descriptor set: %" PRIu64 ", binding set: %" PRIu64
-                                     " and, array index: %" PRIu64
+                GFXRECON_LOG_WARNING("The string \"%s\", that is being passed as %s for command index: %" PRIu32
+                                     ", descriptor set: %" PRIu32 ", binding set: %" PRIu32
+                                     " and, array index: %" PRIu32
                                      ", is not recognized and will be ignored (will use 1 instead).",
                                      level_count_str.c_str(),
                                      range_name.c_str(),
