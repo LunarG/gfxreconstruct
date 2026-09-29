@@ -14,6 +14,7 @@ if (${RUN_TESTS})
             $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_arm_data_graph_structs.cpp>
             $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_static_array_len.cpp>
             $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_schema.cpp>
+            $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/test/schema_fill.h>
             $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_checks.cpp>
             ${CMAKE_CURRENT_LIST_DIR}/../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_framework_test PRIVATE gfxrecon_encode gfxrecon_decode)
