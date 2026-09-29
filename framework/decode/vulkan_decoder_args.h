@@ -32,6 +32,7 @@
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_pnext_node.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 
@@ -93,6 +94,8 @@ struct CreateRayTracingPipelinesKHR
 
 struct DeferredOperationJoinKHR
 {
+    using api_element = schema::vulkan::commands::DeferredOperationJoinKHR;
+
     VkResult         result;
     format::HandleId device;
     format::HandleId operation;

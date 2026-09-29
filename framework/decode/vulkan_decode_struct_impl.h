@@ -24,8 +24,8 @@
 //
 // PRIVATE. One translation unit includes this: generated_vulkan_struct_decoders.cpp, which holds the explicit
 // instantiations and the one procedural body that remains. Everything else sees the declaration in
-// generated_vulkan_struct_decoders_forward.h and links against those instantiations, reaching no schema, so the
-// next operation family costs one translation unit rather than one per caller.
+// decode/vulkan_decode_struct.h and links against those instantiations, reaching no schema, so the next operation
+// family costs one translation unit rather than one per caller.
 //
 // It is a header only because that .cpp is generated. This is the one piece of the arrangement that must stay
 // hand-written -- it names no structure and no field, which is the property the whole thing exists to have -- and
@@ -33,7 +33,7 @@
 // looks like. Were the .cpp hand-written, this would be a function in it and this header would not exist.
 //
 // Everything generated that the body touches is a dependent name -- the descriptors, the Schema specializations,
-// the ApiElementFor specializations and both member-trait partitions are needed to instantiate, not to parse. So
+// each wrapper's api_element and both member-trait partitions are needed to instantiate, not to parse. So
 // this header could be light. It is not, because two headers it includes deliberately carry their generated
 // content: api_element_traits.h pulls the specializations so its concepts cannot silently answer no, and
 // vulkan_decode_action.h pulls the member partitions so its overloads cannot re-resolve on a partial set. Both
@@ -49,7 +49,7 @@
 
 #include "decode/api_element_traits.h"
 #include "decode/vulkan_decode_action.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "generated/generated_vulkan_schema.h"
 #include "schema/schema.h"
 #include "util/defines.h"
@@ -61,20 +61,20 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// The declaration constrains on the generated exclusion list; this asserts that what the list admits has a schema.
-// A structure it admits whose element has none fails here rather than inside WalkFields.
-template <SchemaDriven Wrapper>
+// The assertion is the only gate: a wrapper whose element has no schema fails here, naming the wrapper, rather than
+// inside WalkFields.
+template <typename Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
     static_assert(HasApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
-    static_assert(schema::HasSchema<typename ApiElementFor<Wrapper>::type>,
+    static_assert(schema::HasSchema<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 
     GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     DecodeStructAction action(buffer, buffer_size);
 
-    schema::WalkFields<typename ApiElementFor<Wrapper>::type>(action, *wrapper);
+    schema::WalkFields<typename Wrapper::api_element>(action, *wrapper);
 
     return action.BytesRead();
 }

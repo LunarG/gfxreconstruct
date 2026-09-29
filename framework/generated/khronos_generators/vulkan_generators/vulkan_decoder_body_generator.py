@@ -59,10 +59,10 @@ class VulkanDecoderBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             'decode/string_decoder.h',
             'decode/struct_pointer_decoder.h',
             'decode/value_decoder.h',
+            'decode/vulkan_decode_struct.h',
             'decode/vulkan_decoder_args.h',
             'decode/vulkan_pnext_node.h',
             'generated/generated_vulkan_decoder.h',
-            'generated/generated_vulkan_struct_decoders_forward.h',
             'generated/generated_vulkan_decoder_args.h',
             'util/defines.h',
         ))

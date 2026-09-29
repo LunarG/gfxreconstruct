@@ -56,6 +56,12 @@ struct Pointer
 {};
 
 // A pointer to a run of elements, with a sibling count field.
+struct Array
+{};
+
+// An array of pointers, each to one element, with a sibling count field. The storage is count pointers and nothing
+// more; what the wire makes of each pointee is the adapter's decision by kind, a structure row of one or a
+// null-terminated string.
 struct PointerArray
 {};
 
@@ -80,6 +86,42 @@ struct VoidReturn
 
 GFXRECON_END_NAMESPACE(field_shape)
 
+// The Field descriptor vocabulary. Every Field descriptor the schema generator emits is a struct of the members below
+// and no others; the members present depend on the field's shape and kind. A descriptor states what one use site
+// is, never what an operation does with it, so nothing here names an operation, a wire type or a storage type.
+//
+//   api_type          Every field. The API type descriptor; its kind and element_type answer every type question, and
+//                     the kind concepts below select on it.
+//   shape             Every field. One of the field_shape tags above; the shape concepts below select on it.
+//   field_name        Every field. The registry's member or parameter name, for diagnostics. It is not `name`,
+//                     because Vulkan declares members called name and a member cannot share the name of its class.
+//   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
+//                     reads it that way so that no other descriptor has to state it.
+//   pointer_count     Pointer, Array and PointerArray. The declared star count, one or two.
+//   field_count       Array, PointerArray or StaticArray whose registry length an Action can evaluate: a StoreValue
+//                     expression over the owner's storage. FieldValue<Sibling> for a length that is exactly one
+//                     sibling member, or a sibling and the constant 1 for a PointerArray; FieldValue<Sibling, Member>
+//                     for a length read through a pointer sibling, `sibling->member`; Sum, Product and Quotient over
+//                     those and Constant for the registry's arithmetic, `codeSize / 4`, `2*VK_UUID_SIZE`.
+//   length_expression Array or StaticArray whose registry length is anything else: the registry text as
+//                     written, for example a computed length or the comma-joined extents of a matrix. Not read by
+//                     any operation; a length no Action can evaluate is recorded here rather than dropped.
+//   extents           StaticArray. The declared extents in declaration order, so extents[i] is
+//                     std::extent_v<Member, i> and the rank is the array's length. The schema states them so a
+//                     field is fully described without a storage type; an Action with storage in hand may read the
+//                     declared type instead, and asserts the two agree with DeclaredExtentsMatch below.
+//   selector_field    A GenericHandle field only: the sibling Field whose value names the handle type the integer
+//                     stands for, so an operation can dispatch on it.
+//   has_extensions    ExtensionChain. Whether the registry declares the owning structure on either side of
+//                     structextends: extended by some structure, or itself an extension of one. This is the
+//                     registry's fact, not the spec's. The spec usually states the false case as "pNext must be
+//                     NULL", but a registry entry can disagree with the spec's text: VkPipelineCreateInfoKHR
+//                     requires a create-info node and declares none. The schema records the fact and nothing
+//                     more; whether to trust, probe or ignore the pointer is the Action's policy, not the Field's.
+//
+// Storage facts, which member of which type holds a field, are MemberPointer specializations and never descriptor
+// members. Type facts, kind, element_type, capture_wrapper_type, are on the api_type and are not restated.
+
 // The API's own C++ type for one element of a field that names this descriptor. It is not the declared type of any
 // field: the shape supplies the packaging, so a pointer-array field naming this descriptor is declared as a pointer
 // to this type.
@@ -89,10 +131,42 @@ using ElementType = typename ApiType::element_type;
 template <typename Field>
 using FieldElementType = ElementType<typename Field::api_type>;
 
+// The logical kind a Field's API type names. Every kind concept below asks format.h a question about this type
+// and never spells a kind tag itself.
+template <typename Field>
+using FieldKind = typename Field::api_type::kind;
+
 // The wire type a Field is recorded as. The join between a kind and its width is on the kind itself, in
 // format/format.h, so a change to the capture format touches that header and no schema content.
 template <typename Field>
-using FieldEncodeType = format::EncodeTypeFor<typename Field::api_type::kind>;
+using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
+
+// The count expression for an Array, PointerArray or StaticArray Field, if any: a FieldValue whose Get reads the
+// array's length from the owner's storage.
+template <typename Field>
+using FieldCount = typename Field::field_count;
+
+// The sibling Field whose value names a generic handle's object type.
+template <typename Field>
+using FieldSelectorField = typename Field::selector_field;
+
+// Whether the extents a StaticArray Field records equal the extents of an array type, in rank and in every
+// dimension. An Action with the declared member type in hand asserts this where it reads the array, so a schema that
+// drifts from the API header fails in every build and not only in the one that compiles the generated checks file.
+template <typename ArrayType, typename Field, typename Indices = std::make_index_sequence<std::rank_v<ArrayType>>>
+struct DeclaredExtentsMatch;
+
+template <typename ArrayType, typename Field, size_t... I>
+struct DeclaredExtentsMatch<ArrayType, Field, std::index_sequence<I...>>
+{
+    // The rank test guards the fold: a recorded list shorter than the declared rank is a mismatch, not an
+    // out-of-bounds read, because a constant && does not evaluate its right operand once the left is false.
+    static constexpr bool rank_matches = std::rank_v<ArrayType> == std::extent_v<decltype(Field::extents)>;
+    static constexpr bool value        = rank_matches && ((std::extent_v<ArrayType, I> == Field::extents[I]) && ...);
+};
+
+template <typename ArrayType, typename Field>
+inline constexpr bool DeclaredExtentsMatchV = DeclaredExtentsMatch<ArrayType, Field>::value;
 
 // Member traits. The primary template stays undefined, so an absent specialization makes the access concepts fail
 // rather than producing a hard error.
@@ -118,6 +192,15 @@ concept HasMember = requires
 };
 
 template <typename Storage, typename Field>
+concept HasSelectorField = HasMember<Storage, FieldSelectorField<Field>>;
+
+template <typename Storage, typename Field>
+concept HasFieldCount = requires(const Storage& storage)
+{
+    FieldCount<Field>::Get(storage);
+};
+
+template <typename Storage, typename Field>
 concept Addressable = requires
 {
     requires std::is_member_object_pointer_v<decltype(MemberPointer<std::remove_cv_t<Storage>, Field>::value)>;
@@ -135,15 +218,17 @@ requires Addressable<Storage, Field>
     return (storage.*MemberPointer<std::remove_cv_t<Storage>, Field>::value);
 }
 
-// Get expresses a read by value, and is the only read available for a non-addressable member.
+// Get is the uniform const read, whatever the member's addressability. It yields a reference to the member where it
+// is addressable, and the member's value where it is not: a non-addressable member is a bitfield, so the value is
+// an integer read through the generated accessor. A caller that binds the result to a const reference is safe in
+// both cases, and a caller that wants a copy takes one with auto.
 template <typename Storage, typename Field>
 requires HasMember<Storage, Field>
-[[nodiscard]] auto Get(const Storage& storage, Field field)
+[[nodiscard]] decltype(auto) Get(const Storage& storage, Field field)
 {
     if constexpr (Addressable<Storage, Field>)
     {
-        using Value = std::remove_cvref_t<decltype(GetRef(storage, field))>;
-        return Value(GetRef(storage, field));
+        return GetRef(storage, field);
     }
     else
     {
@@ -169,63 +254,166 @@ void Set(Storage& storage, Field field, ValueType&& value)
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
 
 template <typename Field>
-concept HandleKindField = std::same_as<typename Field::api_type::kind, format::kind::Handle>;
+concept HandleKindField = format::IsHandleKind<FieldKind<Field>>;
 
 template <typename Field>
-concept HandleField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
+concept HandleValueField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
-// The kind alone, so a shape other than Value can select on it. ScalarField is the value-shaped case.
+// The kind alone, so a shape other than Value can select on it. ScalarValueField is the value-shaped case.
 template <typename Field>
-concept ScalarKindField = std::derived_from<typename Field::api_type::kind, format::kind::Scalar>;
+concept ScalarKindField = format::IsScalarKind<FieldKind<Field>>;
 
 template <typename Field>
-concept ScalarField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
+concept ScalarValueField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // Text, of either width. The two kinds pick different decoder classes, and nothing else about them differs.
 template <typename Field>
-concept TextKindField = std::same_as<typename Field::api_type::kind, format::kind::Char> ||
-    std::same_as<typename Field::api_type::kind, format::kind::WChar>;
+concept TextKindField = format::IsTextKind<FieldKind<Field>>;
 
-// StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
+// StructKindField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
 template <typename Field>
-concept StructField = std::same_as<typename Field::api_type::kind, format::kind::Struct>;
+concept StructKindField = format::IsStructKind<FieldKind<Field>>;
 
 // An opaque address: recorded as the value the capture saw rather than followed, so nothing is at the other end
 // to decode and the field is value-shaped whether or not the declaration writes a star.
 template <typename Field>
-concept AddressField = std::same_as<typename Field::api_type::kind, format::kind::Address>;
+concept AddressKindField = format::IsAddressKind<FieldKind<Field>>;
 
 // A kind that records an identifier rather than the thing itself: a handle's capture-file id, or the address the
 // capture saw. Nothing decodes into the API's own member for either; the identifier goes to the wrapper and the
 // member is nulled until replay resolves it. The two kinds share that pattern and nothing else, so one concept
 // names the pair.
 template <typename Field>
-concept IdentifierKindField = HandleKindField<Field> || AddressField<Field>;
+concept IdentifierKindField = HandleKindField<Field> || AddressKindField<Field>;
+
+// A scalar in the general sense that the member's own bits are the value recorded, in the kind's wire type. That
+// is the scalar family and the address kind, which format.h keeps off that family because the decoder treats an
+// address as an identifier; for encode the distinction does not arise. A handle is not one, since it records the
+// wrapper's id.
+template <typename Field>
+concept GeneralScalarKindField = ScalarKindField<Field> || AddressKindField<Field>;
 
 template <typename Field>
-concept ValueShapedField = std::same_as<typename Field::shape, field_shape::Value>;
+concept ValueShapeField = std::same_as<typename Field::shape, field_shape::Value>;
 
 template <typename Field>
-concept PointerField = std::same_as<typename Field::shape, field_shape::Pointer>;
+concept PointerShapeField = std::same_as<typename Field::shape, field_shape::Pointer>;
 
 template <typename Field>
-concept PointerArrayField = std::same_as<typename Field::shape, field_shape::PointerArray>;
-
-// Either pointer shape. A decoder that reads its own length from the wire cannot tell them apart -- a pointer to
-// one element is a run of one -- so an operation whose body does not consult the length constrains on this rather
-// than on the two shapes separately.
-template <typename Field>
-concept PointerShapedField = PointerField<Field> || PointerArrayField<Field>;
+concept ArrayShapeField = std::same_as<typename Field::shape, field_shape::Array>;
 
 template <typename Field>
-concept StaticArrayField = std::same_as<typename Field::shape, field_shape::StaticArray>;
+concept PointerArrayShapeField = std::same_as<typename Field::shape, field_shape::PointerArray>;
+
+// Any pointer shape. A decoder that reads its own length and depth from the wire cannot tell them apart -- a pointer
+// to one element is a run of one, and a run of pointers is one more level of the same -- so an operation whose body
+// does not consult the length constrains on this rather than on the shapes separately.
+template <typename Field>
+concept AnyPointerShapeField = PointerShapeField<Field> || ArrayShapeField<Field> || PointerArrayShapeField<Field>;
+
+// Either counted run: a pointer to a run of elements, or a run of pointers. Both read a sibling count and hand the
+// member's pointer value to an operation with it.
+template <typename Field>
+concept AnyCountedShapeField = ArrayShapeField<Field> || PointerArrayShapeField<Field>;
 
 template <typename Field>
-concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
+concept StaticArrayShapeField = std::same_as<typename Field::shape, field_shape::StaticArray>;
+
+// A run of elements, counted or fixed. The adapter's array entries take either, since both hand over a pointer and a
+// count; the Action reads them differently.
+template <typename Field>
+concept AnyArrayShapeField = StaticArrayShapeField<Field> || ArrayShapeField<Field>;
 
 template <typename Field>
-concept VoidReturnField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
+concept ExtensionChainShapeField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
+
+template <typename Field>
+concept VoidReturnShapeField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
+
+// Store values. A store value is a type with a static Get(store) that yields a value; a descriptor names one as its
+// field_count, and an Action evaluates it. The base marks the types that are one, so an operator can require it of
+// its operands and a descriptor member can be constrained on it.
+struct StoreValueBase
+{};
+
+template <typename T>
+concept StoreValue = std::derived_from<T, StoreValueBase>;
+
+// What a count operand may yield: an integer, or a C enum standing for one, as rasterizationSamples does. bool is an
+// integer to the language and not a count.
+template <typename T>
+concept CountValue = (std::integral<T> && !std::same_as<T, bool>) || std::is_enum_v<T>;
+
+template <typename Operand, typename Store>
+using OperandValue = decltype(Operand::Get(std::declval<const Store&>()));
+
+// A value read from storage by Field. The one-argument form reads the Field's own value. The two-argument form reads
+// Member from what the Field points to: Store holds Field, FieldStore is what Field's value points to, and is the
+// Store that Member is read from.
+template <typename Field, typename... Member>
+struct FieldValue;
+
+template <typename Field>
+struct FieldValue<Field> : StoreValueBase
+{
+    template <typename Store>
+    requires HasMember<Store, Field>
+    [[nodiscard]] static auto Get(const Store& store) { return schema::Get(store, Field{}); }
+};
+
+template <typename Field, typename Member>
+struct FieldValue<Field, Member> : StoreValueBase
+{
+    static_assert(PointerShapeField<Field>,
+                  "Pointer Field only. Struct Field: add a GetRef branch in Get and FieldStore.");
+
+    template <typename Store>
+    using FieldStore = std::remove_cvref_t<decltype(*FieldValue<Field>::Get(std::declval<const Store&>()))>;
+
+    template <typename Store>
+    requires HasMember<FieldStore<Store>, Member>
+    [[nodiscard]] static auto Get(const Store& store) { return schema::Get(*FieldValue<Field>::Get(store), Member{}); }
+};
+
+// A number written into the schema, in the type the generator gave the literal. An API constant such as VK_UUID_SIZE
+// is a macro, so the type carries its value and the generated header's NOTE line carries its name.
+template <auto V>
+struct Constant : StoreValueBase
+{
+    template <typename Store>
+    [[nodiscard]] static constexpr auto Get(const Store&)
+    {
+        return V;
+    }
+};
+
+// Arithmetic over two operands, in the operands' own types under the usual conversions, so an enum promotes and a
+// literal beside an unsigned sibling is written unsigned. The Apply narrows the result once, as it does for a plain
+// sibling. The registry's lengths use these three operators and no others.
+template <StoreValue Left, StoreValue Right>
+struct Sum : StoreValueBase
+{
+    template <typename Store>
+    requires CountValue<OperandValue<Left, Store>> && CountValue<OperandValue<Right, Store>>
+    [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) + Right::Get(store); }
+};
+
+template <StoreValue Left, StoreValue Right>
+struct Product : StoreValueBase
+{
+    template <typename Store>
+    requires CountValue<OperandValue<Left, Store>> && CountValue<OperandValue<Right, Store>>
+    [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) * Right::Get(store); }
+};
+
+template <StoreValue Left, StoreValue Right>
+struct Quotient : StoreValueBase
+{
+    template <typename Store>
+    requires CountValue<OperandValue<Left, Store>> && CountValue<OperandValue<Right, Store>>
+    [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) / Right::Get(store); }
+};
 
 // Storage concepts. These describe what a storage type holds for a Field, and stay independent of any one operation
 // family.

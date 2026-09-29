@@ -33,10 +33,10 @@
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "decode/value_decoder.h"
+#include "decode/vulkan_decode_struct.h"
 #include "decode/vulkan_decoder_args.h"
 #include "decode/vulkan_pnext_node.h"
 #include "generated/generated_vulkan_decoder.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "generated/generated_vulkan_decoder_args.h"
 #include "util/defines.h"
 
@@ -13686,7 +13686,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperat
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queueFamilyIndex);
     bytes_read += args.pQueueFamilyDataGraphProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += args.pProperties.DecodeBaseHeader((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())

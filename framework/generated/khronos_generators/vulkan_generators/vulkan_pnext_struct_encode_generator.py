@@ -54,6 +54,11 @@ class EncodePNextStructGeneratorOptions(VulkanBaseGeneratorOptions):
         )
         KhronosEncodeExtendedStructGenerator.update_begin_end_file_data('vulkan', self.begin_end_file_data)
 
+        # Vulkan callers of EncodeStruct include the one header that declares every EncodeStruct, generated
+        # prototypes and schema-driven template alike, rather than the generated prototypes alone.
+        headers = self.begin_end_file_data.specific_headers
+        headers[headers.index('generated/generated_vulkan_struct_encoders.h')] = 'encode/vulkan_encode_struct.h'
+
 class EncodePNextStructGenerator(VulkanBaseGenerator, KhronosEncodeExtendedStructGenerator):
     """EncodePNextStructGenerator - subclass of VulkanBaseGenerator.
     Generates C++ code for Vulkan API pNext structure encoding.
