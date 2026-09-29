@@ -24,7 +24,6 @@
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_body_generator import KhronosStructDecodersBodyGenerator
-from vulkan_schema_generator import is_schema_driven
 
 
 class VulkanStructDecodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -83,25 +82,8 @@ class VulkanStructDecodersBodyGenerator(
         )
 
     def skip_struct_decoder(self, struct):
-        """Method override. The schema field walk owns these decoders, so no procedural body is emitted."""
-        return is_schema_driven(self, struct)
-
-    def write_base_out_struct_decoder(self):
-        body = '\n'
-        body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper)\n'
-        body += '{\n'
-        body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
-        body += '\n'
-        body += '    size_t              bytes_read = 0;\n'
-        body += '    VkBaseOutStructure* value      = wrapper->decoded_value;\n'
-        body += '\n'
-        body += '    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));\n'
-        body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));\n'
-        body += '    value->pNext = wrapper->pNext ? reinterpret_cast<VkBaseOutStructure*>(wrapper->pNext->GetPointer()) : nullptr;\n'
-        body += '\n'
-        body += '    return bytes_read;\n'
-        body += '}\n'
-        write(body, file=self.outFile)
+        """Method override. The schema field walk owns every decoder, so no procedural body is emitted."""
+        return True
 
     def write_schema_driven_instantiations(self):
         """One explicit instantiation for each structure the schema drives.
@@ -110,10 +92,7 @@ class VulkanStructDecodersBodyGenerator(
         decoder, so making it the one that compiles the walk keeps the schema and the member-trait partitions out
         of every other target rather than following DecodeStruct into each caller.
         """
-        driven = sorted(
-            struct for struct in self.get_all_filtered_struct_names()
-            if is_schema_driven(self, struct)
-        )
+        driven = sorted(self.get_all_filtered_struct_names())
 
         write('// The schema drives these decoders. This is the only translation unit that compiles the walk.', file=self.outFile)
 
@@ -130,8 +109,6 @@ class VulkanStructDecodersBodyGenerator(
     def endFile(self):
         """Method override."""
         KhronosStructDecodersBodyGenerator.generate_struct_decoder_content(self)
-        self.write_base_out_struct_decoder()
-        self.newline()
         self.write_schema_driven_instantiations()
 
         # Finish processing in superclass

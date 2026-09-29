@@ -35,7 +35,7 @@
 #include "decode/vulkan_pnext_node.h"
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_handle_mappers.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"

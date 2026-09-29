@@ -59,10 +59,11 @@ class VulkanStructDecodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             'decode/string_array_decoder.h',
             'decode/string_decoder.h',
             'decode/struct_pointer_decoder.h',
+            'decode/vulkan_decode_struct.h',
             'decode/vulkan_pnext_node.h',
             'format/format.h',
             'format/platform_types.h',
-            'generated/generated_vulkan_struct_decoders_forward.h',
+            'generated/generated_vulkan_schema_types.h',
             'util/defines.h',
             'util/logging.h',
         ))
@@ -87,115 +88,18 @@ class VulkanStructDecodersHeaderGenerator(
             diag_file=diag_file
         )
 
-    def write_base_out_struct_definition(self):
-        entries = self.get_base_out_structure_type_info_list()
-        api_data = self.get_api_data()
-        var_name = api_data.type_prefix.lower() + '_type'
+    def make_api_element_alias(self, struct):
+        """Method override. Every generated Vulkan wrapper names its API type descriptor, which the schema generator
+        emits for every filtered structure. A blacklisted structure keeps a hand-written body and has no descriptor.
+        """
+        if self.is_struct_black_listed(struct):
+            return ''
 
-        body = '\n'
-        body += 'struct Decoded_VkBaseOutStructure\n'
-        body += '{\n'
-        body += '    using struct_type = VkBaseOutStructure;\n'
-        body += '\n'
-        body += '    union VkBaseOutStructureSizeUnion\n'
-        body += '    {\n'
-        if entries:
-            current_char = 'a'
-            for child, _ in entries:
-                body += '        {} {};\n'.format(child, current_char)
-                current_char = chr(ord(current_char) + 1)
-        else:
-            body += '        VkBaseOutStructure value;\n'
-        body += '    };\n'
-        body += '\n'
-        body += '    using union_size_type = VkBaseOutStructureSizeUnion;\n'
-        body += '\n'
-        body += '    VkBaseOutStructure* decoded_value{ nullptr };\n'
-        body += '    PNextNode*          pNext{ nullptr };\n'
-        body += '\n'
-        body += '    static Decoded_VkBaseOutStructure* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)\n'
-        body += '    {\n'
-        body += '        Decoded_VkBaseOutStructure* return_type = nullptr;\n'
-        body += '\n'
-        body += '        uint32_t peek_structure_type = 0;\n'
-        body += '        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);\n'
-        body += '        {struct_type} {var_name} = static_cast<{struct_type}>(peek_structure_type);\n'.format(
-            struct_type=api_data.struct_type_enum, var_name=var_name
-        )
-        body += '\n'
-        body += '        switch ({})\n'.format(var_name)
-        body += '        {\n'
-        body += '            default:\n'
-        body += '                GFXRECON_LOG_WARNING_ONCE("Decoded_VkBaseOutStructure::AllocateAppropriate: unrecognized sType 0x%x", peek_structure_type);\n'
-        body += '                return_type = DecodeAllocator::Allocate<Decoded_VkBaseOutStructure>(len, initialize);\n'
-        body += '                break;\n'
-        for child, struct_type in entries:
-            body += '            case {}:\n'.format(struct_type)
-            body += '                return_type = reinterpret_cast<Decoded_VkBaseOutStructure*>(DecodeAllocator::Allocate<Decoded_{}>(len, initialize));\n'.format(
-                child
-            )
-            body += '                break;\n'
-        body += '        }\n'
-        body += '        return return_type;\n'
-        body += '    }\n'
-        body += '\n'
-        body += '    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOutStructure* dest)\n'
-        body += '    {\n'
-        body += '        size_t bytes_read = 0;\n'
-        body += '\n'
-        body += '        uint32_t peek_structure_type = 0;\n'
-        body += '        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);\n'
-        body += '        {struct_type} {var_name} = static_cast<{struct_type}>(peek_structure_type);\n'.format(
-            struct_type=api_data.struct_type_enum, var_name=var_name
-        )
-        body += '\n'
-        body += '        switch ({})\n'.format(var_name)
-        body += '        {\n'
-        body += '            default:\n'
-        body += '                GFXRECON_LOG_WARNING_ONCE("Decoded_VkBaseOutStructure::DecodeAppropriate: unrecognized sType 0x%x", peek_structure_type);\n'
-        body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);\n'
-        body += '                break;\n'
-        for child, struct_type in entries:
-            body += '            case {}:\n'.format(struct_type)
-            body += '            {\n'
-            body += '                Decoded_{}* local_dest = reinterpret_cast<Decoded_{}*>(dest);\n'.format(
-                child, child
-            )
-            body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);\n'
-            body += '                break;\n'
-            body += '            }\n'
-        body += '        }\n'
-        body += '        return bytes_read;\n'
-        body += '    }\n'
-        body += '\n'
-        body += '    VkBaseOutStructure* AllocateOutputData(size_t len)\n'
-        body += '    {\n'
-        body += '        assert(decoded_value != nullptr);\n'
-        body += '\n'
-        body += '        switch (decoded_value->sType)\n'
-        body += '        {\n'
-        body += '            default:\n'
-        body += '                return DecodeAllocator::Allocate<VkBaseOutStructure>(len);\n'
-        for child, struct_type in entries:
-            body += '            case {}:\n'.format(struct_type)
-            body += '            {\n'
-            body += '                auto* allocation = DecodeAllocator::Allocate<{}>(len);\n'.format(child)
-            body += '                for (size_t i = 0; i < len; ++i)\n'
-            body += '                {\n'
-            body += '                    allocation[i] = {}{{ {}, nullptr }};\n'.format(child, struct_type)
-            body += '                }\n'
-            body += '                return reinterpret_cast<VkBaseOutStructure*>(allocation);\n'
-            body += '            }\n'
-        body += '        }\n'
-        body += '    }\n'
-        body += '};\n'
-        write(body, file=self.outFile)
+        return '    using api_element = schema::vulkan::api_types::{};\n'.format(struct)
 
     def endFile(self):
         """Method override."""
         KhronosStructDecodersHeaderGenerator.endFile(self)
-        self.write_base_out_struct_definition()
-        self.newline()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)

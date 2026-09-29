@@ -54,6 +54,7 @@ class VulkanStructEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
 
         self.begin_end_file_data.specific_headers.extend((
             'encode/parameter_encoder.h',
+            'encode/vulkan_encode_struct.h',
             'format/platform_types.h',
             'util/defines.h',
         ))
@@ -78,6 +79,10 @@ class VulkanStructEncodersHeaderGenerator(VulkanBaseGenerator, KhronosStructEnco
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+    def skip_struct_type(self, struct_type):
+        """Method override. Every encoder is declared by the template in encode/vulkan_encode_struct.h."""
+        return True
 
     def endFile(self):
         """Method override."""
