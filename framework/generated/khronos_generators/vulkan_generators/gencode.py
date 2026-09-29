@@ -60,12 +60,16 @@ from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, Dec
 
 # Field Schema
 from vulkan_schema_generator import (
-    VulkanSchemaIdentityGenerator, VulkanSchemaIdentityGeneratorOptions,
+    VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions,
+    VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions,
+    VulkanSchemaGenerator, VulkanSchemaGeneratorOptions,
     VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions,
     VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions,
     VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions,
     VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
-    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions
+    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
+    VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions,
+    VulkanEncodeDescriptorForGenerator, VulkanEncodeDescriptorForGeneratorOptions
 )
 
 # Consumers
@@ -348,8 +352,12 @@ def make_gen_opts(args):
     # Field schema generators. One model, one generated file for each part of it, so that a target includes only
     # the storage population it uses.
     for schema_filename, schema_generator, schema_options, schema_protect in (
+        ('generated_vulkan_schema_types.h',
+         VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions, True),
+        ('generated_vulkan_schema_fields.h',
+         VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions, True),
         ('generated_vulkan_schema.h',
-         VulkanSchemaIdentityGenerator, VulkanSchemaIdentityGeneratorOptions, True),
+         VulkanSchemaGenerator, VulkanSchemaGeneratorOptions, True),
         ('generated_vulkan_decode_api_element_traits.h',
          VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions, True),
         ('generated_vulkan_schema_native_struct_members.h',
@@ -358,6 +366,10 @@ def make_gen_opts(args):
          VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions, True),
         ('generated_vulkan_schema_decoded_command_members.h',
          VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
+        ('generated_vulkan_encode_capture_wrappers.h',
+         VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions, True),
+        ('generated_vulkan_encode_descriptor_for.h',
+         VulkanEncodeDescriptorForGenerator, VulkanEncodeDescriptorForGeneratorOptions, True),
         ('generated_vulkan_schema_checks.cpp',
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
     ):

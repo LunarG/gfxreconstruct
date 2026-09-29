@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2026 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc.
+** Copyright (c) 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,35 +20,32 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-/*
-** This file is generated from the Khronos Vulkan XML API Registry.
-**
-*/
+// The one EncodeStruct declaration: a function template over every Vulkan structure the schema describes, in
+// place of one prototype per structure. The generated struct-encoders header includes this one, so a caller may
+// include either.
+//
+// The definition is in encode/vulkan_encode_struct_impl.h, which is private to the one translation unit that
+// instantiates it.
 
-#ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_ENCODERS_H
-#define  GFXRECON_GENERATED_VULKAN_STRUCT_ENCODERS_H
+#ifndef GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_H
+#define GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_H
 
-#include "encode/parameter_encoder.h"
-#include "encode/vulkan_encode_struct.h"
-#include "format/platform_types.h"
+// Nothing in this file uses the custom header. A structure with a hand-written EncodeStruct is taken out of the
+// template by overload resolution, which prefers the non-template overload only where it is declared; including the
+// custom header here declares those overloads wherever the template is, so a caller of this header alone cannot get
+// the template for such a structure. There is no list of such structures.
+#include "encode/custom_vulkan_struct_encoders.h"
 #include "util/defines.h"
-
-#include "vulkan/vulkan.h"
-#include "vk_video/vulkan_video_codec_h264std.h"
-#include "vk_video/vulkan_video_codec_h264std_decode.h"
-#include "vk_video/vulkan_video_codec_h264std_encode.h"
-#include "vk_video/vulkan_video_codec_h265std.h"
-#include "vk_video/vulkan_video_codec_h265std_decode.h"
-#include "vk_video/vulkan_video_codec_h265std_encode.h"
-#include "vk_video/vulkan_video_codecs_common.h"
-
-#include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-void EncodePNextStruct(ParameterEncoder* encoder, const void* value);
+
+class ParameterEncoder;
+
+template <typename Struct>
+void EncodeStruct(ParameterEncoder* encoder, const Struct& value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_GENERATED_VULKAN_STRUCT_ENCODERS_H
+#endif // GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_H

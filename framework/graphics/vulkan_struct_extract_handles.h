@@ -25,7 +25,7 @@
 
 #include "util/defines.h"
 #include "decode/struct_pointer_decoder.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "vulkan/vulkan.h"
 #include <unordered_set>
 
