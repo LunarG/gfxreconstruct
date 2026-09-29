@@ -60,6 +60,7 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_format_test PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/test/api_call_log_test.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/test/file_header_test.cpp
         ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_format_test PRIVATE gfxrecon_format)
     if (MSVC)
@@ -74,4 +75,3 @@ if (${RUN_TESTS})
     common_build_directives(gfxrecon_format_test)
     common_test_directives(gfxrecon_format_test)
 endif()
-

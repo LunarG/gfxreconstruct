@@ -203,7 +203,7 @@ bool BlockProcessor::ProcessFileHeader()
 
         if (success)
         {
-            auto file_version = GFXRECON_MAKE_FILE_VERSION(file_header_.major_version, file_header_.minor_version);
+            const auto file_version = format::GetFileFormatVersion(file_header_);
             if (file_version >= GFXRECON_EXPLICIT_FRAME_MARKER_FILE_VERSION)
             {
                 capture_uses_frame_markers_  = true;

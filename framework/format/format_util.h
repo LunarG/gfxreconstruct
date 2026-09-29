@@ -88,6 +88,16 @@ constexpr size_t GetAnnotationBlockBaseSize()
 }
 
 // Utilities for format validation.
+constexpr uint32_t GetFileFormatMajorVersion(const FileHeader& header)
+{
+    return header.major_version & ~kArmTraceFileVersionFlag;
+}
+
+constexpr uint64_t GetFileFormatVersion(const FileHeader& header)
+{
+    return GFXRECON_MAKE_FILE_VERSION(GetFileFormatMajorVersion(header), header.minor_version);
+}
+
 bool ValidateFileHeader(const FileHeader& header);
 
 // Utilities for object creation.
