@@ -86,6 +86,7 @@ class RemoteChannel
     // in order by a background sender thread; if a send fails, queued messages are dropped and the channel reports
     // disconnected. Disconnect() flushes any queued messages before closing the socket.
     void SendJson(const nlohmann::json& msg);
+    void SendFile(const std::string& name, const void* data, size_t size);
     void SendDone(bool success); // Also calls Disconnect().
 
     // Register (or clear, with nullptr) the process-wide channel. Called once during remote setup and cleared during
@@ -94,6 +95,11 @@ class RemoteChannel
 
     // Returns true when a connected channel is registered.
     static bool IsActive();
+
+    // Send data to the active channel as a "file" message; a no-op when no channel is registered or connected. Lets
+    // file writers (screenshots, dump-resources) stream their output without threading a channel pointer through the
+    // decode layer.
+    static void SendActiveFile(const std::string& name, const void* data, size_t size);
 
   private:
     // Append a length-prefixed frame to buffer.

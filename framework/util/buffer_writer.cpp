@@ -23,6 +23,7 @@
 #include "buffer_writer.h"
 #include "platform.h"
 #include "logging.h"
+#include "remote_channel.h"
 #include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -33,6 +34,25 @@ size_t WriteBuffer(const std::string& filename, const void* data, size_t size, c
 {
     assert(data);
     assert(size);
+
+    // When a remote channel is active, stream the bytes directly to the controller without touching disk.
+    if (util::RemoteChannel::IsActive())
+    {
+        GFXRECON_LOG_INFO("%s(): Streaming file \"%s\" to controller", __func__, filename.c_str())
+        if (compressor != nullptr)
+        {
+            std::vector<uint8_t> compressed_data;
+            const size_t         compressed_size =
+                compressor->Compress(size, static_cast<const uint8_t*>(data), &compressed_data, 0);
+            if (compressed_size)
+            {
+                util::RemoteChannel::SendActiveFile(filename, compressed_data.data(), compressed_size);
+                return compressed_size;
+            }
+        }
+        util::RemoteChannel::SendActiveFile(filename, data, size);
+        return size;
+    }
 
     FILE*   file   = nullptr;
     int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");

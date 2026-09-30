@@ -44,6 +44,9 @@ Every frame is a length-prefixed byte string:
 - All target devices are little-endian; no byte-swapping is performed.
 - No maximum frame size is enforced.
 - Structured messages are UTF-8 JSON payloads. These could be migrated to a binary format such as protobuf or even GFXR's own encode/decode machinery.
+- Binary file payloads are sent as a JSON `"file"` metadata frame **immediately
+  followed** by a separate raw binary frame (no base64). After a `"file"`
+  message the receiver treats the next frame as raw bytes.
 
 ## Startup Handshake
 
@@ -74,6 +77,8 @@ replay     → controller:  {"type":"ready"}
 ### Replay → controller
 
 ```json
+{"type":"file","name":"dump/frame_0042.png","size":204800}
+<204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
 ```
 
@@ -111,12 +116,30 @@ re-normalized, and fails the handshake instead of printing usage text.
 The same payload shape will carry capture-side settings, whose native model is
 already a `<string, string>` map. The key sets are disjoint; the shape is not.
 
+## File Streaming
+
+When a channel is active (`RemoteChannel::IsActive()`), file writers stream their
+output over the socket instead of writing to disk, using process-wide statics
+(`SetActiveChannel` / `SendActiveFile`):
+
+- Screenshots — `image_writer.cpp` (`WriteBmpImage` writes through a
+  `MemoryOutputStream` in place of the usual `FileOutputStream`; `WritePngImage`
+  collects bytes via `stbi_write_png_to_func`).
+- Dump-resources buffers — `buffer_writer.cpp` (`WriteBuffer`).
+- Dump-resources JSON — `vulkan_replay_dump_resources_json.cpp` (same
+  `MemoryOutputStream` substitution, sent on `Close()`).
+
+If a send fails, `IsActive()` / `IsConnected()` become false and writers fall
+back to disk.
+
 ## Threading Model
 
 `RemoteChannel` runs a sender thread:
 
 - All `Send*` calls serialize their message into a single buffer and enqueue it;
-  the sender thread drains the queue in order.
+  the sender thread drains the queue in order. `SendFile` packs the JSON header
+  and binary data into one buffer so they are never interleaved with another
+  message.
 - `Disconnect()` drains and joins the sender (flushing queued messages), then
   closes the socket.
 
@@ -147,6 +170,8 @@ an untrusted network.
 - A connected controller fully drives replay: it chooses the settings and
   receives everything replay reports. Connecting is equivalent to running replay
   as that user.
+- The reference controller anchors received files under `--output-dir` and
+  strips path components that would escape it.
 
 ## CLI Reference
 

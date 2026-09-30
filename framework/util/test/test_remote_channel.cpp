@@ -332,6 +332,37 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
     }
 }
 
+TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    // Comfortably larger than a single socket read, so the length prefix has to carry the reassembly.
+    std::vector<uint8_t> payload(512 * 1024);
+    for (size_t i = 0; i < payload.size(); ++i)
+    {
+        payload[i] = static_cast<uint8_t>((i * 31) & 0xff);
+    }
+
+    channel.SendFile("screenshot.png", payload.data(), payload.size());
+
+    const json header = controller.RecvJson();
+    CHECK(header.at("type") == "file");
+    CHECK(header.at("name") == "screenshot.png");
+    CHECK(header.at("size") == payload.size());
+
+    std::vector<uint8_t> received;
+    REQUIRE(controller.RecvFrame(received));
+    CHECK(received == payload);
+}
+
 TEST_CASE("RemoteChannel reports completion", "[remote_channel]")
 {
     TestController                     controller;

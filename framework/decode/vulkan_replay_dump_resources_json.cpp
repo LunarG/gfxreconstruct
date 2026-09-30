@@ -31,6 +31,7 @@
 #include "util/file_path.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/remote_channel.h"
 #include "vulkan_replay_dump_resources_json.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
@@ -73,14 +74,27 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
 
 bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
 {
-    stream_ =
-        std::make_unique<util::FileOutputStream>(filename, kJsonFileBufferSize, false, util::FileWriteMode::kText);
-    if (!stream_->IsValid())
+    filename_ = filename;
+
+    if (util::RemoteChannel::IsActive())
     {
-        // No reason string here; FileOutputStream has already logged one.
-        GFXRECON_LOG_FATAL("Could not open dump resources output json file %s", filename.c_str());
-        stream_.reset();
-        return false;
+        auto owned     = std::make_unique<util::MemoryOutputStream>();
+        memory_stream_ = owned.get();
+        stream_        = std::move(owned);
+    }
+    else
+    {
+        memory_stream_ = nullptr;
+
+        stream_ =
+            std::make_unique<util::FileOutputStream>(filename, kJsonFileBufferSize, false, util::FileWriteMode::kText);
+        if (!stream_->IsValid())
+        {
+            // No reason string here; FileOutputStream has already logged one.
+            GFXRECON_LOG_FATAL("Could not open dump resources output json file %s", filename.c_str());
+            stream_.reset();
+            return false;
+        }
     }
 
     util::Write(*stream_, "[\n");
@@ -121,7 +135,14 @@ void VulkanReplayDumpResourcesJson::Close()
     if (stream_ != nullptr)
     {
         util::Write(*stream_, "]");
+
+        if (memory_stream_ != nullptr)
+        {
+            util::RemoteChannel::SendActiveFile(filename_, memory_stream_->GetData(), memory_stream_->GetDataSize());
+        }
+
         stream_.reset();
+        memory_stream_ = nullptr;
     }
     first_block_ = true;
 }

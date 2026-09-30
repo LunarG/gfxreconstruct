@@ -476,6 +476,24 @@ void RemoteChannel::SendJson(const nlohmann::json& msg)
     EnqueueFrames(std::move(buffer));
 }
 
+void RemoteChannel::SendFile(const std::string& name, const void* data, size_t size)
+{
+    if (!IsConnected())
+    {
+        return;
+    }
+
+    nlohmann::json header  = { { "type", "file" }, { "name", name }, { "size", size } };
+    std::string    payload = header.dump();
+
+    // Queue both frames as one buffer so the JSON header and binary data are never interleaved with other senders.
+    std::vector<uint8_t> buffer;
+    buffer.reserve((2 * sizeof(uint32_t)) + payload.size() + size);
+    AppendFrame(buffer, payload.data(), static_cast<uint32_t>(payload.size()));
+    AppendFrame(buffer, data, static_cast<uint32_t>(size));
+    EnqueueFrames(std::move(buffer));
+}
+
 void RemoteChannel::SendDone(bool success)
 {
     SendJson({ { "type", "done" }, { "success", success } });
@@ -599,6 +617,15 @@ void RemoteChannel::SetActiveChannel(RemoteChannel* channel)
 bool RemoteChannel::IsActive()
 {
     return active_channel_ != nullptr && active_channel_->IsConnected();
+}
+
+void RemoteChannel::SendActiveFile(const std::string& name, const void* data, size_t size)
+{
+    RemoteChannel* channel = active_channel_;
+    if (channel != nullptr && channel->IsConnected())
+    {
+        channel->SendFile(name, data, size);
+    }
 }
 
 GFXRECON_END_NAMESPACE(util)

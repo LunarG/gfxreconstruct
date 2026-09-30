@@ -1072,9 +1072,10 @@ rather than falling back to the command line. Addresses take the form `tcp:host:
 controller:
 
 ```bash
-# Terminal 1 - the controller.
+# Terminal 1 - the controller, which also receives the streamed output.
 python3 scripts/replay_controller.py --port 9001 \
-    -- --loop-count=3 capture_file=capture.gfxr
+    --output-dir remote_output \
+    -- --loop-count=3 --screenshot-all capture_file=capture.gfxr
 
 # Terminal 2 - replay needs no settings and no capture file on its command line.
 gfxrecon-replay --remote-connect tcp:127.0.0.1:9001
@@ -1084,6 +1085,12 @@ Settings travel as `key=value` pairs rather than as a command line, so each
 option is joined to its value with `=` and the capture file is named by the
 `capture_file` key instead of being positional. Leading dashes are optional.
 Replay rejects any key it does not recognize and names it in the error.
+
+Output produced during replay — screenshots, and dump-resources buffers and
+images — streams to the controller and is written under its `--output-dir`
+instead of to local disk. Some output is not yet streamed and is still written
+by replay itself: `--measurement-file`, `--save-pipeline-cache`, `--log-file`,
+the `--capture` recapture file, and the dump-resources JSON for D3D12 and OpenXR.
 
 The channel is neither authenticated nor encrypted. It is intended for a trusted
 lab network or a local socket forwarded over adb; do not expose the listening
