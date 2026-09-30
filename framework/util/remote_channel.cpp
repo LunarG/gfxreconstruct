@@ -62,6 +62,9 @@ constexpr int kAcceptTimeoutSeconds = 30;
 
 constexpr int kHandshakeTimeoutSeconds = 5;
 
+// The controller only sends small JSON messages; a larger length prefix is a protocol error, not an allocation request.
+constexpr uint32_t kMaxRecvFrameSize = 1024 * 1024;
+
 // The rest of this block adapts Winsock and BSD sockets to the one interface used by the logic below.
 #if defined(_WIN32)
 
@@ -144,6 +147,12 @@ void CloseSocket(SocketHandle& fd)
     fd = kInvalidSocket;
 }
 
+// Winsock's shutdown() leaves an in-progress recv() parked; only closesocket() cancels it.
+void WakeReceiver(SocketHandle& fd)
+{
+    CloseSocket(fd);
+}
+
 // A timeout_seconds of 0 restores indefinite blocking. Windows takes SO_RCVTIMEO in milliseconds, POSIX as a timeval.
 void SetRecvTimeout(SocketHandle fd, int timeout_seconds)
 {
@@ -210,6 +219,12 @@ void CloseSocket(SocketHandle& fd)
 {
     close(fd);
     fd = kInvalidSocket;
+}
+
+// shutdown() unblocks a parked recv() without closing, so fd stays valid for the caller.
+void WakeReceiver(SocketHandle& fd)
+{
+    shutdown(fd, SHUT_RDWR);
 }
 
 // A timeout_seconds of 0 restores indefinite blocking.
@@ -624,7 +639,12 @@ bool RemoteChannel::Listen(const std::string& address)
 
 bool RemoteChannel::IsConnected() const
 {
-    return (fd_ != kInvalidSocket) && !send_failed_;
+    return (fd_ != kInvalidSocket) && !send_failed_ && !controller_closed_;
+}
+
+bool RemoteChannel::IsControllerClosed() const
+{
+    return controller_closed_;
 }
 
 void RemoteChannel::Disconnect()
@@ -641,16 +661,30 @@ void RemoteChannel::Disconnect()
         sender_thread_.join();
     }
 
+    receiver_stop_requested_ = true;
+    if (fd_ != kInvalidSocket)
+    {
+        // Wake the receiver thread out of a blocking recv; on Windows that closes the socket, clearing fd_.
+        WakeReceiver(fd_);
+    }
+    if (receiver_thread_.joinable())
+    {
+        receiver_thread_.join();
+    }
+
     if (fd_ != kInvalidSocket)
     {
         CloseSocket(fd_);
     }
 
     send_queue_.clear();
-    queue_bytes_    = 0;
-    stop_requested_ = false;
-    sender_active_  = false;
-    send_failed_    = false;
+    control_queue_.clear();
+    queue_bytes_             = 0;
+    stop_requested_          = false;
+    sender_active_           = false;
+    send_failed_             = false;
+    controller_closed_       = false;
+    receiver_stop_requested_ = false;
 }
 
 bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
@@ -667,7 +701,7 @@ bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
     SetRecvTimeout(fd_, kHandshakeTimeoutSeconds);
 
     std::vector<uint8_t> frame;
-    if (!RecvFrame(frame))
+    if (!RecvFrame(fd_, frame))
     {
         GFXRECON_LOG_ERROR("Remote channel: handshake failed waiting for settings");
         return false;
@@ -707,6 +741,39 @@ bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
 
     SendJson({ { "type", "ready" } });
 
+    // Restore blocking receives for the receiver thread.
+    SetRecvTimeout(fd_, 0);
+    receiver_thread_ = std::thread(&RemoteChannel::ReceiverThread, this, fd_);
+
+    return true;
+}
+
+bool RemoteChannel::TryPopControl(std::string* action)
+{
+    GFXRECON_ASSERT(action != nullptr);
+
+    const std::lock_guard<std::mutex> lock(control_mutex_);
+    if (control_queue_.empty())
+    {
+        return false;
+    }
+    *action = std::move(control_queue_.front());
+    control_queue_.pop_front();
+    return true;
+}
+
+bool RemoteChannel::WaitPopControl(std::string* action, std::chrono::milliseconds timeout)
+{
+    GFXRECON_ASSERT(action != nullptr);
+
+    std::unique_lock<std::mutex> lock(control_mutex_);
+    control_cv_.wait_for(lock, timeout, [this] { return !control_queue_.empty() || controller_closed_; });
+    if (control_queue_.empty())
+    {
+        return false;
+    }
+    *action = std::move(control_queue_.front());
+    control_queue_.pop_front();
     return true;
 }
 
@@ -824,6 +891,50 @@ void RemoteChannel::EnqueueFrames(std::vector<uint8_t>&& buffer, bool stall_when
     queue_cv_.notify_one();
 }
 
+void RemoteChannel::ReceiverThread(SocketHandle fd)
+{
+    std::vector<uint8_t> frame;
+    while (RecvFrame(fd, frame))
+    {
+        nlohmann::json msg = nlohmann::json::parse(frame.begin(), frame.end(), nullptr, false);
+        if (msg.is_discarded() || !msg.contains("type"))
+        {
+            GFXRECON_LOG_WARNING("Remote channel: ignoring malformed message from controller");
+            continue;
+        }
+
+        if (msg["type"] == "control")
+        {
+            // Not value(), which throws on a type mismatch and would take down replay from this thread.
+            const auto action = msg.find("action");
+            if ((action == msg.end()) || !action->is_string() || action->get_ref<const std::string&>().empty())
+            {
+                GFXRECON_LOG_WARNING("Remote channel: ignoring control message without a string action");
+                continue;
+            }
+            {
+                const std::lock_guard<std::mutex> lock(control_mutex_);
+                control_queue_.push_back(action->get<std::string>());
+            }
+            control_cv_.notify_one();
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Remote channel: ignoring unexpected message type '%s'", msg["type"].dump().c_str());
+        }
+    }
+
+    if (!receiver_stop_requested_)
+    {
+        // Under the lock so a WaitPopControl() checking its predicate cannot miss the wakeup.
+        {
+            const std::lock_guard<std::mutex> lock(control_mutex_);
+            controller_closed_ = true;
+        }
+        control_cv_.notify_all();
+    }
+}
+
 void RemoteChannel::SenderThread()
 {
     for (;;)
@@ -867,11 +978,19 @@ void RemoteChannel::SenderThread()
     }
 }
 
-bool RemoteChannel::RecvFrame(std::vector<uint8_t>& out)
+bool RemoteChannel::RecvFrame(SocketHandle fd, std::vector<uint8_t>& out)
 {
     uint32_t length = 0;
-    if (!RecvExact(&length, sizeof(length)))
+    if (!RecvExact(fd, &length, sizeof(length)))
     {
+        return false;
+    }
+
+    if (length > kMaxRecvFrameSize)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: controller sent a %" PRIu32 "-byte frame, over the %" PRIu32 "-byte limit",
+                           length,
+                           kMaxRecvFrameSize);
         return false;
     }
 
@@ -880,7 +999,7 @@ bool RemoteChannel::RecvFrame(std::vector<uint8_t>& out)
     {
         return true;
     }
-    return RecvExact(out.data(), length);
+    return RecvExact(fd, out.data(), length);
 }
 
 bool RemoteChannel::SendAll(const void* buf, size_t size)
@@ -904,13 +1023,13 @@ bool RemoteChannel::SendAll(const void* buf, size_t size)
     return true;
 }
 
-bool RemoteChannel::RecvExact(void* buf, size_t size)
+bool RemoteChannel::RecvExact(SocketHandle fd, void* buf, size_t size)
 {
     uint8_t* ptr       = static_cast<uint8_t*>(buf);
     size_t   remaining = size;
     while (remaining > 0)
     {
-        int64_t received = SocketRecv(fd_, ptr, remaining);
+        int64_t received = SocketRecv(fd, ptr, remaining);
         if (received <= 0)
         {
             if (received < 0 && SocketErrorIsInterrupt())

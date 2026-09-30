@@ -291,6 +291,9 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
     fps_info.BeginFile();
     application->Run();
 
+    // Nobody receives "done" once the controller has gone, but the exit code still reports the abandoned session.
+    const bool controller_closed = (remote_channel != nullptr) && remote_channel->IsControllerClosed();
+
     // Add one so that it matches the trim range frame number semantic.
     fps_info.EndFile(file_processor_out->GetCurrentFrameNumber() + 1);
 
@@ -324,7 +327,7 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
         feature->Destroy();
     }
 
-    return true;
+    return !controller_closed;
 }
 
 GFXRECON_END_NAMESPACE(replay)

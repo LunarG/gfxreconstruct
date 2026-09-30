@@ -54,7 +54,9 @@ Every frame is a length-prefixed byte string:
 ```
 
 - All target devices are little-endian; no byte-swapping is performed.
-- No maximum frame size is enforced.
+- Frames from the controller are limited to 1 MiB; a larger length prefix is
+  treated as the controller closing the connection. Frames from replay have no
+  size limit.
 - Structured messages are UTF-8 JSON payloads. These could be migrated to a binary format such as protobuf or even GFXR's own encode/decode machinery.
 - Binary file payloads are sent as a JSON `"file"` metadata frame **immediately
   followed** by a separate raw binary frame (no base64). After a `"file"`
@@ -84,6 +86,7 @@ replay     → controller:  {"type":"ready"}
 
 ```json
 {"type":"settings","options":{"<key>":"<value>", ...}}
+{"type":"control","action":"pause"}   // "pause" | "resume" | "step" | "stop"
 ```
 
 ### Replay → controller
@@ -95,7 +98,9 @@ replay     → controller:  {"type":"ready"}
 {"type":"done","success":true}
 ```
 
-`done` is the final message; replay disconnects after sending it.
+`done` is the final message; replay disconnects after sending it. `success`
+reports whether replay ran without error; a `stop` from the controller is not a
+failure.
 
 ## Settings Keys
 
@@ -146,6 +151,21 @@ addition) or a full pre-scan, which is impossible for a streamed capture. Use
 Only state owned by the tool's main loop belongs in `status`. A subsystem
 reports through a message of its own.
 
+## Playback Controls
+
+Control actions (`pause` / `resume` / `step` / `stop`) are received on replay's
+receiver thread and queued. The replay thread applies them at replayed-frame
+boundaries, so an action arriving mid-frame takes effect when that frame
+finishes; a frame with dump-resources targets can take a long time. `step`
+replays one frame and is ignored unless replay is paused. While paused, replay
+waits on the control queue in 10 ms intervals rather than blocking on window
+events, since a remote session may have nobody at the device. Each pause,
+resume, and step is reflected in the next `status` message.
+
+Closing the connection, including closing only the controller's write side,
+ends the session: replay stops at the next replayed-frame boundary and exits
+with failure.
+
 ## File Streaming
 
 When a channel is active (`RemoteChannel::IsActive()`), file writers stream their
@@ -165,14 +185,15 @@ afterward go to disk.
 
 ## Threading Model
 
-`RemoteChannel` runs a sender thread:
+`RemoteChannel` runs a sender thread and a receiver thread:
 
 - All `Send*` calls serialize their message into a single buffer and enqueue it;
   the sender thread drains the queue in order. `SendFile` packs the JSON header
   and binary data into one buffer so they are never interleaved with another
   message.
+- The receiver thread demultiplexes incoming frames into the control queue.
 - `Disconnect()` drains and joins the sender (flushing queued messages), then
-  closes the socket.
+  `shutdown()`s the socket to wake the receiver, joins it, and closes.
 
 ## Reference Controller
 
@@ -189,6 +210,7 @@ controller implementation:
   familiar spelling. Deliberately *not* a replay command line: which options take
   a value is not knowable from the tokens alone, so requiring `=` removes the
   guesswork rather than inferring it.
+- Reads `p` / `r` / `s` / `q` from stdin to send pause/resume/step/stop controls.
 - `--self-test` runs the script's doctests.
 
 ```

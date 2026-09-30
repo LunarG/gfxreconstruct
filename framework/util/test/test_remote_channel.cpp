@@ -193,6 +193,18 @@ class TestController
         SendFrame(payload.data(), static_cast<uint32_t>(payload.size()));
     }
 
+    // A length prefix with no payload, for frames too large to actually send.
+    void SendLengthPrefix(uint32_t length)
+    {
+        SendAll(&length, sizeof(length));
+    }
+
+    void Close()
+    {
+        CloseTestSocket(conn_fd_);
+        conn_fd_ = kInvalidTestSock;
+    }
+
   private:
     bool RecvExact(void* buf, size_t size)
     {
@@ -436,4 +448,96 @@ TEST_CASE("RemoteChannel reports status and completion", "[remote_channel]")
     const json done = controller.RecvJson();
     CHECK(done.at("type") == "done");
     CHECK(done.at("success") == true);
+}
+
+TEST_CASE("RemoteChannel queues control actions from the controller", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    controller.SendJson({ { "type", "control" }, { "action", "pause" } });
+
+    std::string action;
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "pause");
+
+    // Actions are delivered in the order the controller sent them.
+    controller.SendJson({ { "type", "control" }, { "action", "step" } });
+    controller.SendJson({ { "type", "control" }, { "action", "resume" } });
+
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "step");
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "resume");
+}
+
+TEST_CASE("RemoteChannel ignores malformed control messages", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    const std::string not_json = "not json";
+    controller.SendFrame(not_json.data(), static_cast<uint32_t>(not_json.size()));
+    controller.SendJson({ { "type", "control" } });
+    controller.SendJson({ { "type", "control" }, { "action", 5 } });
+    controller.SendJson({ { "type", "control" }, { "action", "" } });
+    controller.SendJson({ { "type", "control" }, { "action", "pause" } });
+
+    // Only the valid action arrives, which also shows the receiver thread survived the others.
+    std::string action;
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "pause");
+    CHECK_FALSE(channel.TryPopControl(&action));
+    CHECK(channel.IsConnected());
+}
+
+TEST_CASE("RemoteChannel rejects an oversized frame from the controller", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendLengthPrefix(0xFFFFFFFF);
+
+    CHECK_FALSE(runner.Result());
+}
+
+TEST_CASE("RemoteChannel reports when the controller closes", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+    CHECK_FALSE(channel.IsControllerClosed());
+
+    controller.Close();
+
+    // The close wakes the wait early rather than letting it run out the timeout.
+    const auto  start = std::chrono::steady_clock::now();
+    std::string action;
+    CHECK_FALSE(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(std::chrono::steady_clock::now() - start < std::chrono::seconds(kSocketTimeoutSeconds / 2));
+    CHECK(channel.IsControllerClosed());
+    CHECK_FALSE(channel.IsConnected());
 }

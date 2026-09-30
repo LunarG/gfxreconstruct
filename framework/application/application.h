@@ -127,8 +127,7 @@ class Application final
             replay_event_sink ? std::move(replay_event_sink) : std::make_unique<plugin::NullReplayEventSink>();
     }
 
-    // Set an optional, non-owning channel used to report replay status to a remote controller. Pass nullptr (the
-    // default) to disable status reporting.
+    // Optional and non-owning: receives replay status and supplies playback controls. nullptr disables.
     void SetRemoteChannel(util::RemoteChannel* remote_channel)
     {
         remote_channel_ = remote_channel;
@@ -141,6 +140,10 @@ class Application final
     {
         return file_processor_ && file_processor_->IsFrameProcessingInitialized();
     }
+
+    // Apply queued control actions. While paused, waits briefly for one rather than spinning.
+    void ApplyRemoteControls();
+    void ApplyRemoteControl(const std::string& action);
 
     decode::PreloadFileProcessor* GetPreloadFileProcessor()
     {

@@ -91,10 +91,17 @@ class RemoteChannel
     bool IsConnected() const;
     void Disconnect();
 
+    // True once the controller has closed its end of the connection, after which no further control actions arrive.
+    bool IsControllerClosed() const;
+
     // Perform the startup handshake. Sends "hello", waits for a "settings" message, then sends "ready". On success
     // fills settings with the controller-supplied option name/value pairs (keys as described by ArgumentParser's
-    // settings-map constructor, values always strings).
+    // settings-map constructor, values always strings) and starts the receiver thread for control messages.
     bool Handshake(std::map<std::string, std::string>& settings);
+
+    // Pop the next control action, if any. Thread-safe. WaitPopControl also returns early if the controller closes.
+    bool TryPopControl(std::string* action);
+    bool WaitPopControl(std::string* action, std::chrono::milliseconds timeout);
 
     // The following are thread-safe and no-ops when disconnected. Messages are queued and delivered in order by a
     // background sender thread; if a send fails, queued messages are dropped and the channel reports disconnected.
@@ -132,9 +139,13 @@ class RemoteChannel
     // Sender thread entry point: sends queued buffers in order until stopped or a send fails.
     void SenderThread();
 
-    bool RecvFrame(std::vector<uint8_t>& out);
-    bool SendAll(const void* buf, size_t size);
-    bool RecvExact(void* buf, size_t size);
+    // Receiver thread entry point: queues incoming control actions until the controller disconnects.
+    void ReceiverThread(SocketHandle fd);
+
+    // Take the socket as a parameter so the receiver thread never reads fd_ while Disconnect() changes it.
+    static bool RecvFrame(SocketHandle fd, std::vector<uint8_t>& out);
+    static bool RecvExact(SocketHandle fd, void* buf, size_t size);
+    bool        SendAll(const void* buf, size_t size);
 
     SocketHandle fd_{ kInvalidSocket };
 
@@ -152,6 +163,13 @@ class RemoteChannel
     std::atomic<size_t>   stat_queue_peak_{ 0 }; // Updated under queue_mutex_, read from anywhere.
     std::atomic<uint64_t> stat_stalls_{ 0 };
     std::atomic<uint64_t> stat_stall_ns_{ 0 };
+
+    std::thread             receiver_thread_;
+    std::mutex              control_mutex_;
+    std::condition_variable control_cv_;
+    std::deque<std::string> control_queue_; // Guarded by control_mutex_.
+    std::atomic<bool>       controller_closed_{ false };
+    std::atomic<bool>       receiver_stop_requested_{ false }; // Set by Disconnect() so its own wakeup isn't a close.
 
     // Process-wide channel behind the static helpers, for callers that cannot be handed a pointer to it. Only one
     // controller connection exists per process.
