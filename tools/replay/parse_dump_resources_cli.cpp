@@ -149,6 +149,14 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
                     GFXRECON_LOG_ERROR("Render pass indices are not sorted")
                     return true;
                 }
+
+                if (indices1.size() == 1)
+                {
+                    GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources block indices parameters");
+                    GFXRECON_LOG_ERROR("A render pass index range holds its begin, one entry per subpass "
+                                       "boundary and its end, or nothing for an inheriting secondary");
+                    return true;
+                }
             }
         }
 
