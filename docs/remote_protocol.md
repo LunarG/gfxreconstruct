@@ -111,6 +111,15 @@ re-normalized, and fails the handshake instead of printing usage text.
 The same payload shape will carry capture-side settings, whose native model is
 already a `<string, string>` map. The key sets are disjoint; the shape is not.
 
+## Threading Model
+
+`RemoteChannel` runs a sender thread:
+
+- All `Send*` calls serialize their message into a single buffer and enqueue it;
+  the sender thread drains the queue in order.
+- `Disconnect()` drains and joins the sender (flushing queued messages), then
+  closes the socket.
+
 ## Reference Controller
 
 [scripts/replay_controller.py](../scripts/replay_controller.py) is a reference

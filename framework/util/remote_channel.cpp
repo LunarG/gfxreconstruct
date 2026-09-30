@@ -368,20 +368,41 @@ bool RemoteChannel::Connect(const std::string& address)
         return false;
     }
 
-    return fd_ != kInvalidSocket;
+    if (fd_ == kInvalidSocket)
+    {
+        return false;
+    }
+
+    sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
+    return true;
 }
 
 bool RemoteChannel::IsConnected() const
 {
-    return fd_ != kInvalidSocket;
+    return (fd_ != kInvalidSocket) && !send_failed_;
 }
 
 void RemoteChannel::Disconnect()
 {
+    if (sender_thread_.joinable())
+    {
+        // Flush: the sender thread drains the queue before honoring the stop request.
+        {
+            const std::lock_guard<std::mutex> lock(queue_mutex_);
+            stop_requested_ = true;
+        }
+        queue_cv_.notify_one();
+        sender_thread_.join();
+    }
+
     if (fd_ != kInvalidSocket)
     {
         CloseSocket(fd_);
     }
+
+    send_queue_.clear();
+    stop_requested_ = false;
+    send_failed_    = false;
 }
 
 bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
@@ -443,14 +464,16 @@ bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
 
 void RemoteChannel::SendJson(const nlohmann::json& msg)
 {
-    if (fd_ == kInvalidSocket)
+    if (!IsConnected())
     {
         return;
     }
 
-    std::string                       payload = msg.dump();
-    const std::lock_guard<std::mutex> lock(send_mutex_);
-    SendFrame(payload.data(), static_cast<uint32_t>(payload.size()));
+    std::string          payload = msg.dump();
+    std::vector<uint8_t> buffer;
+    buffer.reserve(sizeof(uint32_t) + payload.size());
+    AppendFrame(buffer, payload.data(), static_cast<uint32_t>(payload.size()));
+    EnqueueFrames(std::move(buffer));
 }
 
 void RemoteChannel::SendDone(bool success)
@@ -459,14 +482,53 @@ void RemoteChannel::SendDone(bool success)
     Disconnect();
 }
 
-bool RemoteChannel::SendFrame(const void* data, uint32_t size)
+void RemoteChannel::AppendFrame(std::vector<uint8_t>& buffer, const void* data, uint32_t size)
 {
-    uint32_t length = size; // All target devices are little-endian; no byte-swap needed.
-    if (!SendAll(&length, sizeof(length)))
+    uint32_t    length       = size; // All target devices are little-endian; no byte-swap needed.
+    const auto* length_bytes = reinterpret_cast<const uint8_t*>(&length);
+    buffer.insert(buffer.end(), length_bytes, length_bytes + sizeof(length));
+    const auto* data_bytes = static_cast<const uint8_t*>(data);
+    buffer.insert(buffer.end(), data_bytes, data_bytes + size);
+}
+
+void RemoteChannel::EnqueueFrames(std::vector<uint8_t>&& buffer)
+{
     {
-        return false;
+        const std::lock_guard<std::mutex> lock(queue_mutex_);
+        if (stop_requested_ || send_failed_)
+        {
+            return;
+        }
+        send_queue_.push_back(std::move(buffer));
     }
-    return SendAll(data, size);
+    queue_cv_.notify_one();
+}
+
+void RemoteChannel::SenderThread()
+{
+    for (;;)
+    {
+        std::vector<uint8_t> buffer;
+        {
+            std::unique_lock<std::mutex> lock(queue_mutex_);
+            queue_cv_.wait(lock, [this] { return stop_requested_ || !send_queue_.empty(); });
+            if (send_queue_.empty())
+            {
+                return; // Stop requested and queue drained.
+            }
+            buffer = std::move(send_queue_.front());
+            send_queue_.pop_front();
+        }
+
+        if (!SendAll(buffer.data(), buffer.size()))
+        {
+            // The controller went away; drop queued messages and report the channel as disconnected.
+            send_failed_ = true;
+            const std::lock_guard<std::mutex> lock(queue_mutex_);
+            send_queue_.clear();
+            return;
+        }
+    }
 }
 
 bool RemoteChannel::RecvFrame(std::vector<uint8_t>& out)
