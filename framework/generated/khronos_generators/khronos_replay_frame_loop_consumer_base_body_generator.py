@@ -58,8 +58,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
         'VkBindImageMemoryInfo': 'image',
         'VkBindAccelerationStructureMemoryInfoNV': 'accelerationStructure',
         'VkBindDataGraphPipelineSessionMemoryInfoARM': 'session',
-        'VkBindTensorMemoryInfoARM': 'tensor',
-        'VkBindVideoSessionMemoryInfoKHR': 'video'
+        'VkBindTensorMemoryInfoARM': 'tensor'
     }
 
     def skip_generating_command(self, command):
@@ -315,7 +314,6 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY:
-            #breakpoint()
             body += '    if (!getFrameLoopInfo().IsLooping())\n'
             body += '    {\n'
             body += '        // Pass through if not looping\n'
@@ -325,16 +323,16 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {\n'
             body += '        ' + values[-1].base_type + '* raw_infos = ' + values[-1].prefixed_name + '.GetPointer();\n'
             body += '        const Decoded_' + values[-1].base_type + '* meta_ptr = ' + values[-1].prefixed_name + '.GetMetaStructPointer();\n'
-            body += '        std::vector<' + values[-1].base_type + '> filtered_binds;\n'
             body += '        for (int i = 0; i < ' + values[-1].prefixed_array_length + '; ++i)\n'
             body += '        {\n'
+            body += '            const Decoded_' + values[-1].base_type + '& meta = meta_ptr[i];\n'
             body += '            // We need to bind the memory if the object hasn\'t been bound\n'
             body += '            // or if it\'s being bound to a different memory\n'
-            body += '            bool need_bind = !boundMemory.contains(meta_ptr->' + self.MEMORY_INFO_OBJECT_FIELDS[values[-1].base_type] + ');\n'
+            body += '            bool need_bind = !boundMemory.contains(meta.' + self.MEMORY_INFO_OBJECT_FIELDS[values[-1].base_type] + ');\n'
             body += '            if (!need_bind)\n'
             body += '            {\n'
-            body += '                format::HandleId old_memory = boundMemory[' + values[-3].prefixed_name + '];\n'
-            body += '                need_bind = old_memory != ' + values[-2].prefixed_name + ';\n'
+            body += '                format::HandleId old_memory = boundMemory[meta.' + self.MEMORY_INFO_OBJECT_FIELDS[values[-1].base_type] + '];\n'
+            body += '                need_bind = old_memory != meta.memory;\n'
             body += '            }\n'
             body += '\n'
             body += '            if (!need_bind)\n'
@@ -346,7 +344,10 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '                i -= 1;\n'
             body += '            }\n'
             body += '        }\n'
-            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '        if (' + values[-2].prefixed_name + ' > 0)\n'
+            body += '        {\n'
+            body += '            ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '        }\n'
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED:
