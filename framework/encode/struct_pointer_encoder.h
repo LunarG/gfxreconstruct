@@ -55,7 +55,7 @@ inline void EncodeStructPtr(ParameterEncoder*         encoder,
     {
         encoder->EncodeStructPtrPreamble(value, omit_data, omit_addr);
     }
-    else if (util::platform::PointerIsValid(value))
+    else if (util::platform::PointerIsValid(value, sizeof(VkBaseOutStructure)))
     {
         EncodePNextStruct(encoder, value);
     }
@@ -143,7 +143,7 @@ typename std::enable_if<!std::is_integral<SizeT>::value>::type EncodeStructArray
 /// To handle this, we encode the pNext chain if it is valid, otherwise we encode a null pNext pointer.
 inline void EncodePNextStructIfValid(ParameterEncoder* encoder, const void* pNext)
 {
-    if (util::platform::PointerIsValid(pNext))
+    if (util::platform::PointerIsValid(pNext, sizeof(VkBaseOutStructure)))
     {
         EncodePNextStruct(encoder, pNext);
     }
@@ -157,7 +157,7 @@ inline void EncodePNextStructIfValid(ParameterEncoder* encoder, const void* pNex
 #if ENABLE_OPENXR_SUPPORT
 inline void EncodeNextStructIfValid(ParameterEncoder* encoder, const void* value)
 {
-    if (util::platform::PointerIsValid(value))
+    if (util::platform::PointerIsValid(value, sizeof(XrBaseOutStructure)))
     {
         EncodeNextStruct(encoder, value);
     }
