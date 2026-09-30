@@ -863,6 +863,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdCopyGpaSessionResultsAMD                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1375),
     ApiCall_vkGetGpaDeviceClockInfoAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1376),
     ApiCall_vkSetGpaDeviceClockModeAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1377),
+    ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1378),
 
     ApiCall_VulkanLast,
 
@@ -1435,6 +1436,25 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc                                         = MakeApiCallId(ApiFamily_D3D12, 0x1177),
     ApiCall_ID3D12StateObjectDatabase_FindObjectVersion                                           = MakeApiCallId(ApiFamily_D3D12, 0x1178),
     ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile                    = MakeApiCallId(ApiFamily_D3D12, 0x1179),
+
+    // Agility SDK 1.619.5
+    ApiCall_ID3D12RootSignature1_GetSerializedSize                                                = MakeApiCallId(ApiFamily_D3D12, 0x117a),
+    ApiCall_ID3D12RootSignature1_GetSerializedData                                                = MakeApiCallId(ApiFamily_D3D12, 0x117b),
+    ApiCall_ID3D12Device15_RegisterTrimNotificationCallback                                       = MakeApiCallId(ApiFamily_D3D12, 0x117c),
+    ApiCall_ID3D12Device15_UnregisterTrimNotificationCallback                                     = MakeApiCallId(ApiFamily_D3D12, 0x117d),
+    ApiCall_ID3D12Device15_TryCreateShaderResourceView                                            = MakeApiCallId(ApiFamily_D3D12, 0x117e),
+    ApiCall_ID3D12Device15_TryCreateUnorderedAccessView                                           = MakeApiCallId(ApiFamily_D3D12, 0x117f),
+    ApiCall_ID3D12Device15_TryCreateConstantBufferView                                            = MakeApiCallId(ApiFamily_D3D12, 0x1180),
+    ApiCall_ID3D12Device15_TryCreateSampler2                                                      = MakeApiCallId(ApiFamily_D3D12, 0x1181),
+    ApiCall_ID3D12Device15_TryCreateRenderTargetView                                              = MakeApiCallId(ApiFamily_D3D12, 0x1182),
+    ApiCall_ID3D12Device15_TryCreateDepthStencilView                                              = MakeApiCallId(ApiFamily_D3D12, 0x1183),
+    ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView                            = MakeApiCallId(ApiFamily_D3D12, 0x1184),
+    ApiCall_ID3D12Device15_CreateQueryHeap1                                                       = MakeApiCallId(ApiFamily_D3D12, 0x1185),
+    ApiCall_ID3D12Device15_ResolveQueryData                                                       = MakeApiCallId(ApiFamily_D3D12, 0x1186),
+    ApiCall_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime = MakeApiCallId(ApiFamily_D3D12, 0x1187),
+    ApiCall_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled = MakeApiCallId(ApiFamily_D3D12, 0x1188),
+    ApiCall_ID3D12ApplicationIdentity_SetApplicationIdentity                                      = MakeApiCallId(ApiFamily_D3D12, 0x1189),
+    ApiCall_ID3D12DeviceStatistics_GetStateObjectStatistics                                       = MakeApiCallId(ApiFamily_D3D12, 0x118a),
 
     // AGS API
     // amd_ags.h

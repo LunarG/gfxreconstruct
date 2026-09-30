@@ -23,6 +23,7 @@
 
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_injected_calls.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -38,6 +39,20 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+template <typename RegionCopy>
+static VkDeviceSize GetBufferSizeFromCopyImage(const RegionCopy& region, uint32_t array_layers, VkFormat format);
+
+// The four fields GetBufferSizeFromCopyImage reads.  The size of a tightly
+// packed region needs nothing else, thus it does not need a copy struct of the
+// host image copy, which says a host image copy happens when none does.
+struct TightCopyRegion
+{
+    uint32_t                 memoryRowLength{ 0 };
+    uint32_t                 memoryImageHeight{ 0 };
+    VkImageSubresourceLayers imageSubresource{};
+    VkExtent3D               imageExtent{};
+};
 
 static constexpr bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
 {
@@ -919,14 +934,16 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
-                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
+                                         QueueLockFn                                            queue_lock_fn) :
     VulkanResourcesUtil(device,
                         physical_device,
                         graphics::VulkanInjectedDeviceCalls(&device_table),
                         instance_table,
                         physical_device_features_info,
                         device_version_extension_info,
-                        memory_properties)
+                        memory_properties,
+                        std::move(queue_lock_fn))
 {}
 
 VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
@@ -935,11 +952,12 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
-                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
+                                         QueueLockFn                                            queue_lock_fn) :
     device_(device),
     device_table_(injected_device_calls), physical_device_(physical_device), instance_table_(instance_table),
     memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info),
-    device_version_extension_info_(device_version_extension_info)
+    device_version_extension_info_(device_version_extension_info), queue_lock_fn_(std::move(queue_lock_fn))
 
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -1015,7 +1033,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
     for (uint32_t m = 0; m < mip_levels; ++m)
     {
         // Compute exact bytes copied for one tightly-packed region.
-        VkImageToMemoryCopy copy_region{};
+        TightCopyRegion copy_region{};
         copy_region.memoryRowLength                 = 0;
         copy_region.memoryImageHeight               = 0;
         copy_region.imageExtent                     = graphics::ScaleToMipLevel(extent, m);
@@ -1119,6 +1137,78 @@ uint64_t VulkanResourcesUtil::GetImageSubresourceSizesDumpResources(VkFormat    
     GFXRECON_ASSERT(total_subresources == sub);
 
     return resource_size;
+}
+
+VulkanResourcesUtil::SubresourceLocation VulkanResourcesUtil::GetImageLayerLocationOptimal(VkFormat          format,
+                                                                                           const VkExtent3D& extent,
+                                                                                           uint32_t          mip_levels,
+                                                                                           uint32_t      array_layers,
+                                                                                           VkImageTiling tiling,
+                                                                                           VkImageAspectFlagBits aspect,
+                                                                                           uint32_t              level,
+                                                                                           uint32_t              layer)
+{
+    SubresourceLocation location;
+
+    if ((level >= mip_levels) || (layer >= array_layers))
+    {
+        GFXRECON_LOG_ERROR("%s: level %u and layer %u are not both inside an image of %u levels and %u layers",
+                           __func__,
+                           level,
+                           layer,
+                           mip_levels,
+                           array_layers);
+        return location;
+    }
+
+    std::vector<uint64_t> subresource_offsets;
+    if (GetImageResourceSizesOptimal(
+            format, extent, mip_levels, array_layers, tiling, aspect, &subresource_offsets, nullptr) == 0)
+    {
+        return location;
+    }
+    GFXRECON_ASSERT(subresource_offsets.size() == mip_levels);
+
+    // A copy of more than one layer puts the layers of a level next to each other, each of them the
+    // size of one tightly packed layer.
+    TightCopyRegion copy_region{};
+    copy_region.memoryRowLength                 = 0;
+    copy_region.memoryImageHeight               = 0;
+    copy_region.imageExtent                     = graphics::ScaleToMipLevel(extent, level);
+    copy_region.imageSubresource.aspectMask     = aspect;
+    copy_region.imageSubresource.baseArrayLayer = 0;
+    copy_region.imageSubresource.layerCount     = 1;
+
+    location.size   = GetBufferSizeFromCopyImage(copy_region, 1, format);
+    location.offset = subresource_offsets[level] + (layer * location.size);
+
+    return location;
+}
+
+std::span<const uint8_t> VulkanResourcesUtil::GetImageLayerData(std::span<const uint8_t> resource_data,
+                                                                VkFormat                 format,
+                                                                const VkExtent3D&        extent,
+                                                                uint32_t                 mip_levels,
+                                                                uint32_t                 array_layers,
+                                                                VkImageTiling            tiling,
+                                                                VkImageAspectFlagBits    aspect,
+                                                                uint32_t                 level,
+                                                                uint32_t                 layer)
+{
+    const SubresourceLocation location =
+        GetImageLayerLocationOptimal(format, extent, mip_levels, array_layers, tiling, aspect, level, layer);
+
+    if ((location.size == 0) || ((location.offset + location.size) > resource_data.size()))
+    {
+        GFXRECON_LOG_ERROR("%s: level %u and layer %u are not inside %zu bytes of image data",
+                           __func__,
+                           level,
+                           layer,
+                           resource_data.size());
+        return {};
+    }
+
+    return resource_data.subspan(location.offset, location.size);
 }
 
 VkResult VulkanResourcesUtil::AllocateStagingMemory(const VkMemoryRequirements& requirements, StagingMemoryContext& ctx)
@@ -1468,10 +1558,13 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
                                                            VkImage            image,
                                                            VkImageLayout      current_layout,
                                                            VkImageLayout      destination_layout,
-                                                           VkImageAspectFlags aspect)
+                                                           VkImageAspectFlags aspect,
+                                                           uint32_t           base_layer,
+                                                           uint32_t           layer_count)
 {
     GFXRECON_ASSERT(image != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(layer_count > 0);
 
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1486,8 +1579,8 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
     memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    memory_barrier.subresourceRange.baseArrayLayer = 0;
-    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+    memory_barrier.subresourceRange.baseArrayLayer = base_layer;
+    memory_barrier.subresourceRange.layerCount     = layer_count;
 
     auto injected = device_table_.Open();
     injected->CmdPipelineBarrier(command_buffer,
@@ -1506,10 +1599,13 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
                                                              VkImage            image,
                                                              VkImageLayout      old_layout,
                                                              VkImageLayout      new_layout,
-                                                             VkImageAspectFlags aspect)
+                                                             VkImageAspectFlags aspect,
+                                                             uint32_t           base_layer,
+                                                             uint32_t           layer_count)
 {
     GFXRECON_ASSERT(image != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(layer_count > 0);
 
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1520,8 +1616,8 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
     memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    memory_barrier.subresourceRange.baseArrayLayer = 0;
-    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+    memory_barrier.subresourceRange.baseArrayLayer = base_layer;
+    memory_barrier.subresourceRange.layerCount     = layer_count;
 
     memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
     memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
@@ -1552,7 +1648,8 @@ void VulkanResourcesUtil::CopyImageToBuffer(VkCommandBuffer              command
                                             uint32_t                     array_layers,
                                             VkImageAspectFlags           aspect,
                                             const std::vector<uint64_t>& sizes,
-                                            bool                         is_dump_resources)
+                                            bool                         is_dump_resources,
+                                            uint32_t                     base_layer)
 {
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
@@ -1608,7 +1705,7 @@ void VulkanResourcesUtil::CopyImageToBuffer(VkCommandBuffer              command
             // not just the start of the staging buffer.
             current_offset                              = AlignBufferOffset(current_offset, copy_alignment);
             copy_region.bufferOffset                    = current_offset;
-            copy_region.imageSubresource.baseArrayLayer = l;
+            copy_region.imageSubresource.baseArrayLayer = base_layer + l;
             copy_regions.push_back(copy_region);
 
             if (is_dump_resources)
@@ -1721,7 +1818,17 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
         return result;
     }
 
-    result = injected->QueueSubmit(queue, 1, &submit_info, fence);
+    {
+        // Host access to the queue must be externally synchronized; the owner of the queue may hand out a lock.
+        std::unique_lock<std::mutex> queue_lock;
+        if (queue_lock_fn_)
+        {
+            queue_lock = queue_lock_fn_(queue);
+        }
+
+        result = injected->QueueSubmit(queue, 1, &submit_info, fence);
+    }
+
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to submit command buffer for execution while taking a resource memory snapshot");
@@ -1744,13 +1851,101 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
     return result;
 }
 
+static std::vector<uint64_t> GetDrmFormatModifiers(const VkImageCreateInfo* create_info)
+{
+    if (const auto* explicit_info = vulkan_struct_get_pnext<VkImageDrmFormatModifierExplicitCreateInfoEXT>(create_info))
+    {
+        return { explicit_info->drmFormatModifier };
+    }
+
+    if (const auto* list_info = vulkan_struct_get_pnext<VkImageDrmFormatModifierListCreateInfoEXT>(create_info))
+    {
+        return { list_info->pDrmFormatModifiers, list_info->pDrmFormatModifiers + list_info->drmFormatModifierCount };
+    }
+
+    return {};
+}
+
+static std::vector<VkDrmFormatModifierPropertiesEXT> GetDrmFormatModifierProperties(
+    const VulkanInstanceTable& instance_table, VkPhysicalDevice physical_device, VkFormat format)
+{
+    PFN_vkGetPhysicalDeviceFormatProperties2 get_format_properties2 = instance_table.GetPhysicalDeviceFormatProperties2;
+    if (get_format_properties2 == noop::vkGetPhysicalDeviceFormatProperties2)
+    {
+        get_format_properties2 = instance_table.GetPhysicalDeviceFormatProperties2KHR;
+    }
+    if (get_format_properties2 == noop::vkGetPhysicalDeviceFormatProperties2KHR)
+    {
+        return {};
+    }
+
+    VkDrmFormatModifierPropertiesListEXT modifier_list = { VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT };
+    VkFormatProperties2                  format_props  = { VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2, &modifier_list };
+
+    // First call to get number of modifiers
+    get_format_properties2(physical_device, format, &format_props);
+
+    std::vector<VkDrmFormatModifierPropertiesEXT> modifier_props(modifier_list.drmFormatModifierCount);
+    if (!modifier_props.empty())
+    {
+        modifier_list.pDrmFormatModifierProperties = modifier_props.data();
+        get_format_properties2(physical_device, format, &format_props);
+    }
+
+    return modifier_props;
+}
+
+static bool IsDrmFormatModifiersSupported(const VulkanInstanceTable& instance_table,
+                                          VkPhysicalDevice           physical_device,
+                                          VkFormat                   format,
+                                          VkFormatFeatureFlags       feature_flags,
+                                          const VkImageCreateInfo*   create_info)
+{
+    const std::vector<uint64_t> modifiers = GetDrmFormatModifiers(create_info);
+    if (modifiers.empty())
+    {
+        return false;
+    }
+
+    const std::vector<VkDrmFormatModifierPropertiesEXT> modifier_props =
+        GetDrmFormatModifierProperties(instance_table, physical_device, format);
+
+    for (uint64_t modifier : modifiers)
+    {
+        bool supported = false;
+
+        for (const VkDrmFormatModifierPropertiesEXT& props : modifier_props)
+        {
+            if (props.drmFormatModifier == modifier)
+            {
+                supported = (props.drmFormatModifierTilingFeatures & feature_flags) == feature_flags;
+                break;
+            }
+        }
+
+        if (!supported)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool VulkanResourcesUtil::IsFormatSupported(const VulkanInstanceTable& instance_table,
                                             VkPhysicalDevice           physical_device,
                                             VkFormat                   format,
                                             VkImageTiling              tiling,
-                                            VkFormatFeatureFlags       feature_flags)
+                                            VkFormatFeatureFlags       feature_flags,
+                                            const VkImageCreateInfo*   create_info)
 {
-    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL);
+    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL ||
+                    tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
+
+    if (tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT)
+    {
+        return IsDrmFormatModifiersSupported(instance_table, physical_device, format, feature_flags, create_info);
+    }
 
     VkFormatProperties format_props;
     instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_props);
@@ -2519,10 +2714,10 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         tmp_data[i].scaling_supported =
             IsScalingSupported(img.format, img.tiling, dst_format, img.type, img.extent, img.scale);
 
-        tmp_data[i].use_blit =
-            (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
+        const bool scale_requested = (img.scale[0] != 1.0f) || (img.scale[1] != 1.0f);
 
-        GFXRECON_ASSERT((!img.dump_resources && img.scale == 1.0f) || (img.dump_resources));
+        tmp_data[i].use_blit =
+            (img.format != dst_format && blit_supported) || (scale_requested && tmp_data[i].scaling_supported);
         tmp_data[i].scaled_extent = graphics::ScaleExtent3DNoDepth(img.extent, img.scale);
 
         uint64_t resource_size = img.resource_size;
@@ -2686,7 +2881,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                  img.image,
                                                  img.layout,
                                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                 tmp_data[i].transition_aspect);
+                                                 tmp_data[i].transition_aspect,
+                                                 img.base_layer,
+                                                 img.layer_count);
             }
 
             VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
@@ -2706,7 +2903,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    img.layer_count,
                                    img.aspect,
                                    img.queue_family_index,
-                                   tmp_data[i].scaling_supported ? img.scale : 1.0f,
+                                   tmp_data[i].scaling_supported ? img.scale : std::array<float, 2>{ 1.0f, 1.0f },
+                                   img.base_layer,
                                    tmp_data[i].scaled_image,
                                    tmp_data[i].scaled_image_memory);
 
@@ -2736,7 +2934,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                   img.layer_count,
                                   img.aspect,
                                   img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
-                                  img.dump_resources);
+                                  img.dump_resources,
+                                  tmp_data[i].use_blit ? 0 : img.base_layer);
             }
 
             // Cache flushing barrier. Make results visible to host
@@ -2769,7 +2968,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                    img.image,
                                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                                    img.layout,
-                                                   tmp_data[i].transition_aspect);
+                                                   tmp_data[i].transition_aspect,
+                                                   img.base_layer,
+                                                   img.layer_count);
             }
         } // current batch, record commands
 
@@ -3115,7 +3316,7 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
             }
         } // current batch, consume staging-buffer
 
-        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%d)", __func__, start_idx, end_idx, buffer_resources.size());
+        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%zu)", __func__, start_idx, end_idx, buffer_resources.size());
     }
 }
 
@@ -3463,17 +3664,17 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
     return false;
 }
 
-bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
-                                             VkImageTiling     src_image_tiling,
-                                             VkFormat          dst_format,
-                                             VkImageType       type,
-                                             const VkExtent3D& extent,
-                                             float             scale) const
+bool VulkanResourcesUtil::IsScalingSupported(VkFormat                    src_format,
+                                             VkImageTiling               src_image_tiling,
+                                             VkFormat                    dst_format,
+                                             VkImageType                 type,
+                                             const VkExtent3D&           extent,
+                                             const std::array<float, 2>& scale) const
 {
     VkImageTiling dst_image_tiling;
     bool          is_blit_supported = IsBlitSupported(src_format, src_image_tiling, dst_format, &dst_image_tiling);
 
-    if (is_blit_supported && scale > 1.0f)
+    if (is_blit_supported && ((std::abs(scale[0]) > 1.0f) || (std::abs(scale[1]) > 1.0f)))
     {
         VkImageFormatProperties dst_img_format_props;
         instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
@@ -3493,7 +3694,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
         }
     }
 
-    return scale == 1.0f || is_blit_supported;
+    return ((scale[0] == 1.0f) && (scale[1] == 1.0f)) || is_blit_supported;
 }
 
 void VulkanResourcesUtil::BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params)
@@ -3529,21 +3730,22 @@ void VulkanResourcesUtil::BlitImage(VkCommandBuffer command_buffer, const blit_i
                                        blit_image_params.aspect);
 }
 
-VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
-                                        VkImage               image,
-                                        VkFormat              format,
-                                        VkFormat              dst_format,
-                                        VkImageType           type,
-                                        VkImageTiling         tiling,
-                                        const VkExtent3D&     extent,
-                                        const VkExtent3D&     scaled_extent,
-                                        uint32_t              mip_levels,
-                                        uint32_t              array_layers,
-                                        VkImageAspectFlagBits aspect,
-                                        uint32_t              queue_family_index,
-                                        float                 scale,
-                                        VkImage&              scaled_image,
-                                        VkDeviceMemory&       scaled_image_mem)
+VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer             command_buffer,
+                                        VkImage                     image,
+                                        VkFormat                    format,
+                                        VkFormat                    dst_format,
+                                        VkImageType                 type,
+                                        VkImageTiling               tiling,
+                                        const VkExtent3D&           extent,
+                                        const VkExtent3D&           scaled_extent,
+                                        uint32_t                    mip_levels,
+                                        uint32_t                    array_layers,
+                                        VkImageAspectFlagBits       aspect,
+                                        uint32_t                    queue_family_index,
+                                        const std::array<float, 2>& scale,
+                                        uint32_t                    src_base_layer,
+                                        VkImage&                    scaled_image,
+                                        VkDeviceMemory&             scaled_image_mem)
 {
     scaled_image     = VK_NULL_HANDLE;
     scaled_image_mem = VK_NULL_HANDLE;
@@ -3552,7 +3754,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     bool blit_supported = IsBlitSupported(format, tiling, dst_format, &dst_img_tiling);
 
     // In case of scalling an image up, check if the image resolution is supported by the implementation
-    if (blit_supported && scale > 1.0f)
+    if (blit_supported && ((std::abs(scale[0]) > 1.0f) || (std::abs(scale[1]) > 1.0f)))
     {
         blit_supported = IsScalingSupported(format, tiling, dst_format, type, extent, scale);
         if (!blit_supported)
@@ -3567,18 +3769,18 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     }
 
     // Create a scaled image and then blit to scaled image
-    VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-    create_info.pNext                 = nullptr;
-    create_info.flags                 = 0;
-    create_info.imageType             = type;
-    create_info.format                = dst_format;
-    create_info.extent                = (scale > 1.0f) ? scaled_extent : extent;
-    create_info.mipLevels             = mip_levels;
-    create_info.arrayLayers           = array_layers;
-    create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-    create_info.tiling                = dst_img_tiling;
-    create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    VkImageCreateInfo create_info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    create_info.pNext             = nullptr;
+    create_info.flags             = 0;
+    create_info.imageType         = type;
+    create_info.format            = dst_format;
+    create_info.extent      = ((std::abs(scale[0]) > 1.0f) || (std::abs(scale[1]) > 1.0f)) ? scaled_extent : extent;
+    create_info.mipLevels   = mip_levels;
+    create_info.arrayLayers = array_layers;
+    create_info.samples     = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling      = dst_img_tiling;
+    create_info.usage       = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices   = nullptr;
     create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -3667,7 +3869,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
         blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(extent.width) >> i, 1);
         blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(extent.height) >> i, 1);
         blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(extent.depth) >> i, 1);
-        blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
+        blit_region.srcSubresource  = { aspectMask, i, src_base_layer, array_layers };
 
         blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(scaled_extent.width) >> i, 1);
         blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(scaled_extent.height) >> i, 1);
@@ -3675,6 +3877,15 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
         blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
 
         blit_regions[i] = blit_region;
+
+        if (scale[0] < 0.0f)
+        {
+            std::swap(blit_regions[i].dstOffsets[0].x, blit_regions[i].dstOffsets[1].x);
+        }
+        if (scale[1] < 0.0f)
+        {
+            std::swap(blit_regions[i].dstOffsets[0].y, blit_regions[i].dstOffsets[1].y);
+        }
     }
 
     injected->CmdBlitImage(command_buffer,

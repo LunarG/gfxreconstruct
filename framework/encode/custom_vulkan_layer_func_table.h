@@ -33,6 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 const std::unordered_map<std::string, PFN_vkVoidFunction> custom_func_table = {
     { "GetBlockIndexGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetBlockIndexGFXR) },
+    { "GetCurrentFrameGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetCurrentFrameGFXR) },
     { "DumpAssetsGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::vkDumpAssetsGFXR) }
 };
 

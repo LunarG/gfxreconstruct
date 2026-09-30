@@ -50,14 +50,23 @@ def gfxrTestWindows(
                     dir('gfxreconstruct') {
                         // Use a curated subset of SCM fields: enough to preserve checkout behavior
                         // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        def scmVars = checkout([
-                            $class: 'GitSCM',
-                            branches: branches,
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        def scmVars
+                        retry(3) {
+                            try {
+                                scmVars = checkout([
+                                    $class: 'GitSCM',
+                                    branches: branches,
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -85,6 +94,12 @@ def gfxrTestWindows(
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
+                    )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true,
+                        skipPublishingChecks: true
                     )
                 } finally {
                     retry(3) {
@@ -127,14 +142,23 @@ def gfxrTestLinux(
                     dir('gfxreconstruct') {
                         // Use a curated subset of SCM fields: enough to preserve checkout behavior
                         // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        def scmVars = checkout([
-                            $class: 'GitSCM',
-                            branches: branches,
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        def scmVars
+                        retry(3) {
+                            try {
+                                scmVars = checkout([
+                                    $class: 'GitSCM',
+                                    branches: branches,
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -162,6 +186,12 @@ def gfxrTestLinux(
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
+                    )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true,
+                        skipPublishingChecks: true
                     )
                 } finally {
                     retry(3) {
@@ -204,14 +234,23 @@ def gfxrTestAndroid(
                     dir('gfxreconstruct') {
                         // Use a curated subset of SCM fields: enough to preserve checkout behavior
                         // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        def scmVars = checkout([
-                            $class: 'GitSCM',
-                            branches: branches,
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        def scmVars
+                        retry(3) {
+                            try {
+                                scmVars = checkout([
+                                    $class: 'GitSCM',
+                                    branches: branches,
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -239,6 +278,12 @@ def gfxrTestAndroid(
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
+                    )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true,
+                        skipPublishingChecks: true
                     )
                 } finally {
                     retry(3) {
@@ -300,11 +345,19 @@ def gfxrTestWindowsManual(
                     bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: projectBranch]],
-                            userRemoteConfigs: [[url: projectRepo]]
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: projectBranch]],
+                                    userRemoteConfigs: [[url: projectRepo]]
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
 
                         def commitHash = bat(script: '@git rev-parse HEAD', returnStdout: true).trim()
 
@@ -335,6 +388,12 @@ def gfxrTestWindowsManual(
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
+                    )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true,
+                        skipPublishingChecks: true
                     )
                 } finally {
                     retry(3) {
@@ -381,11 +440,19 @@ def gfxrTestLinuxManual(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: projectBranch]],
-                            userRemoteConfigs: [[url: projectRepo]]
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: projectBranch]],
+                                    userRemoteConfigs: [[url: projectRepo]]
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
 
                         def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
@@ -416,6 +483,12 @@ def gfxrTestLinuxManual(
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
+                    )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true,
+                        skipPublishingChecks: true
                     )
                 } finally {
                     retry(3) {
@@ -462,11 +535,19 @@ def gfxrTestAndroidManual(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: projectBranch]],
-                            userRemoteConfigs: [[url: projectRepo]]
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: projectBranch]],
+                                    userRemoteConfigs: [[url: projectRepo]]
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
 
                         def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
@@ -498,6 +579,12 @@ def gfxrTestAndroidManual(
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
                     )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true,
+                        skipPublishingChecks: true
+                    )
                 } finally {
                     retry(3) {
                         try {
@@ -525,7 +612,6 @@ return [
     MacLabel : 'Mac-M2',
     WinAMDLabel : 'Windows-AMD-6800-64G-RAID',
     WinNvidiaLabel : 'Windows-NVIDIA-20XX-stable',
-    Win11AMDLabel : 'Windows11-AMD-6800-stable',
     Win11ARMLabel : 'Windows11-ARM-GFXR',
     Win11AMD9070Label : 'Windows11-AMD-9070',
     Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',

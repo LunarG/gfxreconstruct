@@ -147,6 +147,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_RESOURCE_VIEW_DE
         case D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE:
             EncodeStruct(encoder, value.RaytracingAccelerationStructure);
             break;
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            EncodeStruct(encoder, value.BufferByteOffset);
+            break;
         default:
             break;
     }
@@ -182,6 +185,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_UNORDERED_ACCESS_VIEW_D
             break;
         case D3D12_UAV_DIMENSION_TEXTURE3D:
             EncodeStruct(encoder, value.Texture3D);
+            break;
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            EncodeStruct(encoder, value.BufferByteOffset);
             break;
         default:
             break;
@@ -897,6 +903,12 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
             break;
         case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
             // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
+            break;
+        case D3D12_FEATURE_BARRIER_LAYOUT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_BARRIER_LAYOUT*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS22:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS22*>(feature_data));
             break;
         default:
             GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "

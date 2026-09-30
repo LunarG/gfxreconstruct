@@ -62,7 +62,7 @@ thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 bool                                           CommonCaptureManager::initialize_log_ = true;
 std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
-uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
+uint64_t                                       CommonCaptureManager::default_unique_id_offset_ = 0;
 thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
 int64_t                                        CommonCaptureManager::avoid_api_call_lock_ = 0;
 

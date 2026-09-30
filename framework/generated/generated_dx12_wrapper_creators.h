@@ -120,6 +120,8 @@ void WrapID3D12VirtualizationGuestDevice(REFIID riid, void** object, DxWrapperRe
 
 void WrapID3D12Tools(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D12RuntimeValidationControl(REFIID riid, void** object, DxWrapperResources* resources);
+
 void WrapID3D12PageableTools(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12DeviceTools(REFIID riid, void** object, DxWrapperResources* resources);
@@ -132,11 +134,15 @@ void WrapID3D12DeviceConfiguration(REFIID riid, void** object, DxWrapperResource
 
 void WrapID3D12StateObjectDatabaseFactory(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D12ApplicationIdentity(REFIID riid, void** object, DxWrapperResources* resources);
+
 void WrapID3D12CommandList(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12DSRDeviceFactory(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12GBVDiagnostics(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12DeviceStatistics(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D10Blob(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -193,6 +199,7 @@ void WrapIDXGIFactory(REFIID riid, void** object, DxWrapperResources* resources)
 const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResources*)>,IidHash> kFunctionTable
 {
     { IID_ID3D12RootSignature, WrapID3D12RootSignature },
+    { IID_ID3D12RootSignature1, WrapID3D12RootSignature },
     { IID_ID3D12RootSignatureDeserializer, WrapID3D12RootSignatureDeserializer },
     { IID_ID3D12VersionedRootSignatureDeserializer, WrapID3D12VersionedRootSignatureDeserializer },
     { IID_ID3D12CommandAllocator, WrapID3D12CommandAllocator },
@@ -245,11 +252,13 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Device12, WrapID3D12Device },
     { IID_ID3D12Device13, WrapID3D12Device },
     { IID_ID3D12Device14, WrapID3D12Device },
+    { IID_ID3D12Device15, WrapID3D12Device },
     { IID_ID3D12StateObjectDatabase, WrapID3D12StateObjectDatabase },
     { IID_ID3D12VirtualizationGuestDevice, WrapID3D12VirtualizationGuestDevice },
     { IID_ID3D12Tools, WrapID3D12Tools },
     { IID_ID3D12Tools1, WrapID3D12Tools },
     { IID_ID3D12Tools2, WrapID3D12Tools },
+    { IID_ID3D12RuntimeValidationControl, WrapID3D12RuntimeValidationControl },
     { IID_ID3D12PageableTools, WrapID3D12PageableTools },
     { IID_ID3D12DeviceTools, WrapID3D12DeviceTools },
     { IID_ID3D12DeviceTools1, WrapID3D12DeviceTools },
@@ -259,6 +268,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12DeviceConfiguration, WrapID3D12DeviceConfiguration },
     { IID_ID3D12DeviceConfiguration1, WrapID3D12DeviceConfiguration },
     { IID_ID3D12StateObjectDatabaseFactory, WrapID3D12StateObjectDatabaseFactory },
+    { IID_ID3D12ApplicationIdentity, WrapID3D12ApplicationIdentity },
     { IID_ID3D12CommandList, WrapID3D12CommandList },
     { IID_ID3D12GraphicsCommandList, WrapID3D12CommandList },
     { IID_ID3D12GraphicsCommandList1, WrapID3D12CommandList },
@@ -273,6 +283,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12GraphicsCommandList10, WrapID3D12CommandList },
     { IID_ID3D12DSRDeviceFactory, WrapID3D12DSRDeviceFactory },
     { IID_ID3D12GBVDiagnostics, WrapID3D12GBVDiagnostics },
+    { IID_ID3D12DeviceStatistics, WrapID3D12DeviceStatistics },
     { IID_ID3D10Blob, WrapID3D10Blob },
     { IID_ID3DDestructionNotifier, WrapID3DDestructionNotifier },
     { IID_ID3D12Debug1, WrapID3D12Debug1 },

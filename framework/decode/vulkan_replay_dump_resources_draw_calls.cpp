@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
@@ -40,6 +41,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <ranges>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -60,30 +62,45 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
-    bcb_index_(bcb_index), qs_index_(qs_index), current_cb_index_(0), dc_subresources_(dc_subresources),
-    active_renderpass_(nullptr), active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0),
-    current_subpass_(0), delegate_(delegate), options_(options), compressor_(compressor),
-    current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), instance_table_(nullptr),
-    object_info_table_(object_info_table),
-    replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
-    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
+    bcb_index_(bcb_index), qs_index_(qs_index), current_cb_index_(0),
+    dc_subresources_(dc_subresources), bound_gr_pipeline_{ nullptr }, delegate_(delegate), options_(options),
+    compressor_(compressor), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
+    aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE), instance_table_(nullptr),
+    object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
+    inside_renderpass_(false), has_tail_clone_(false)
 {
     if (draw_indices != nullptr)
     {
         const size_t n_cmd_buffs = options_.dump_resources_before ? 2 * draw_indices->size() : draw_indices->size();
         command_buffers_.resize(n_cmd_buffs, VK_NULL_HANDLE);
 
-        dc_indices_ = *draw_indices;
+        dc_slots_.reserve(draw_indices->size());
+        for (const Index dc_index : *draw_indices)
+        {
+            dc_slots_.push_back({ dc_index, UNDEFINED_INDEX });
+        }
     }
 
     if (renderpass_indices != nullptr)
     {
-        const size_t n_render_passes = renderpass_indices->size();
-        render_pass_dumped_descriptors_.resize(n_render_passes);
-
         RP_indices_ = *renderpass_indices;
     }
+}
+
+// Find the subpass interval of the given render pass block range that contains the given block index
+static bool FindSubpassInRange(const std::vector<uint64_t>& render_pass, uint64_t block_index, uint64_t& sp)
+{
+    for (uint64_t s = 0; s + 1 < render_pass.size(); ++s)
+    {
+        if (block_index > render_pass[s] && block_index < render_pass[s + 1])
+        {
+            sp = s;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 DrawCallsDumpingContext::~DrawCallsDumpingContext()
@@ -136,9 +153,17 @@ void DrawCallsDumpingContext::Release()
         ReleaseIndirectParams();
 
         // cleanup cloned renderpasses
-        for (auto& subpasses : render_pass_clones_)
+        for (const auto& rps : render_pass_contexts_)
         {
-            for (VkRenderPass renderpass : subpasses)
+            for (VkRenderPass renderpass : rps->render_pass_clones)
+            {
+                if (renderpass != VK_NULL_HANDLE)
+                {
+                    injected->DestroyRenderPass(device, renderpass, nullptr);
+                }
+            }
+
+            for (const auto& renderpass : rps->render_pass_load_clones | std::views::values)
             {
                 if (renderpass != VK_NULL_HANDLE)
                 {
@@ -151,13 +176,12 @@ void DrawCallsDumpingContext::Release()
     }
 
     draw_call_params_.clear();
-    dc_indices_.clear();
+    dc_slots_.clear();
     RP_indices_.clear();
     render_pass_dumped_descriptors_.clear();
 
-    current_renderpass_ = 0;
-    current_subpass_    = 0;
-    current_cb_index_   = 0;
+    current_cb_index_ = 0;
+    has_tail_clone_   = false;
 }
 
 PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering(
@@ -360,12 +384,7 @@ void DrawCallsDumpingContext::CmdDraw(const ApiCallInfo& call_info,
         dc_params = InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, vertex_count, instance_count, first_vertex, first_instance);
-    }
+    func(GetWorkCommandBuffer(), vertex_count, instance_count, first_vertex, first_instance);
 
     if (must_dump)
     {
@@ -400,12 +419,7 @@ void DrawCallsDumpingContext::CmdDrawIndexed(const ApiCallInfo&   call_info,
             dc_index, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, index_count, instance_count, first_index, vertex_offset, first_instance);
-    }
+    func(GetWorkCommandBuffer(), index_count, instance_count, first_index, vertex_offset, first_instance);
 
     if (must_dump)
     {
@@ -438,12 +452,7 @@ void DrawCallsDumpingContext::CmdDrawIndirect(const ApiCallInfo&      call_info,
         dc_params = InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
 
     if (must_dump)
     {
@@ -475,12 +484,7 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirect(const ApiCallInfo&         
         dc_params = InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
 
     if (must_dump)
     {
@@ -522,12 +526,13 @@ void DrawCallsDumpingContext::CmdDrawIndirectCount(const ApiCallInfo&           
                                                      drawcall_type);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(),
+         buffer_info->handle,
+         offset,
+         count_buffer_info->handle,
+         count_buffer_offset,
+         max_draw_count,
+         stride);
 
     if (must_dump)
     {
@@ -569,12 +574,13 @@ void DrawCallsDumpingContext::CmdDrawIndexedIndirectCount(const ApiCallInfo&    
                                                                 drawcall_type);
     }
 
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
+    func(GetWorkCommandBuffer(),
+         buffer_info->handle,
+         offset,
+         count_buffer_info->handle,
+         count_buffer_offset,
+         max_draw_count,
+         stride);
 
     if (must_dump)
     {
@@ -961,76 +967,58 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
 
 void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
 {
-    assert(current_cb_index_ < command_buffers_.size());
+    GFXRECON_ASSERT(!RP_indices_.empty());
+    assert(current_cb_index_ < GetWindowCount());
     assert(device_table_.IsValid());
 
-    VkCommandBuffer current_command_buffer = command_buffers_[current_cb_index_];
-
-    GFXRECON_ASSERT(!RP_indices_.empty());
+    const VkCommandBuffer current_command_buffer = command_buffers_[current_cb_index_];
 
     auto injected = device_table_.Open();
 
-    if (current_render_pass_type_ == RenderPassType::kRenderPass)
+    // When calling CmdEndRenderPass/CmdEndRendering we need to distinguish the following two cases:
+    // 1. While inside a render pass then we need to call it once from the primary right after CmdExecuteCommands
+    // 2. For dynamic rendering we need to make sure that we call CmdEndRendering only once, either from the secondary
+    // (it that's the case) or from the primary
+    // inside_renderpass_ guards against ending a render pass that this context does not currently have active:
+    // render_pass_contexts_ keeps finished render passes, so back() alone does not imply an active instance.
+    if (inside_renderpass_ && !render_pass_contexts_.empty() &&
+        (render_pass_contexts_.back()->cmd_buf_level == command_buffer_level_))
     {
-        injected->CmdEndRenderPass(current_command_buffer);
-    }
-    else if (current_render_pass_type_ == RenderPassType::kDynamicRendering)
-    {
-        RecordCmdEndRendering(current_command_buffer);
+        const auto& current_rp_context = render_pass_contexts_.back();
 
-        // Transition render targets into TRANSFER_SRC_OPTIMAL
-        assert(current_renderpass_ == render_targets_.size() - 1);
-        assert(render_targets_[current_renderpass_].size() == 1);
-        for (auto& rt : render_targets_[current_renderpass_])
+        // Correlate this slot with the render pass it is being finalized in. Draw calls from secondaries that
+        // inherit the primary's render pass are correlated here as well, when UpdateSecondaries finalizes them
+        // from within the primary at vkCmdExecuteCommands time. With --dump-resources-before the "before" and
+        // "after" clones map to the same slot and are finalized inside the same render pass.
+        GFXRECON_ASSERT(!current_rp_context->render_targets.empty());
+        DrawCallSlot& slot       = dc_slots_[CmdBufToDCVectorIndex(current_cb_index_)];
+        slot.render_pass_context = current_rp_context;
+        slot.subpass             = current_rp_context->render_targets.size() - 1;
+
+        if (current_rp_context->type == RenderPassType::kRenderPass)
         {
-            for (auto& cat : rt.color_att_imgs)
-            {
-                if (cat->intermediate_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-                {
-                    VkImageMemoryBarrier barrier;
-                    barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                    barrier.pNext               = nullptr;
-                    barrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                    barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-                    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                    barrier.oldLayout           = cat->intermediate_layout;
-                    barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    barrier.image               = cat->handle;
-                    barrier.subresourceRange    = { graphics::GetFormatAspects(cat->format),
-                                                    0,
-                                                    VK_REMAINING_MIP_LEVELS,
-                                                    0,
-                                                    VK_REMAINING_ARRAY_LAYERS };
-
-                    injected->CmdPipelineBarrier(current_command_buffer,
-                                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 1,
-                                                 &barrier);
-
-                    cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                }
-            }
+            injected->CmdEndRenderPass(current_command_buffer);
         }
+        else if (current_rp_context->type == RenderPassType::kDynamicRendering)
+        {
+            RecordCmdEndRendering(current_command_buffer);
+        }
+
+        // Transition render targets into VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+        TransitionRenderTargetLayouts(*current_rp_context);
     }
 
-    // Copy indirect draw params.
-    // In case --dump-resources-before-draw is set, since each dc_params (each entry in draw_call_params_) represents
-    // both "before" and "after" case, we should do this only once. For the "before" commands dc_params in
-    // FinalizeCommandBuffer() will be null so we distinguish between "before" and "after" and call
-    // CopyDrawIndirectParameters() just once.
-    // If current_render_pass_type_ == RenderPassType::kNone it means that we are inside a secondary which means that we
-    // will be inside a render pass once vkCmdExecuteCommands is issued
-    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type) &&
-        current_render_pass_type_ != RenderPassType::kNone)
+    if (command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary)
     {
-        CopyDrawIndirectParameters(*dc_params);
+        // Copy indirect draw params.
+        // In case --dump-resources-before-draw is set, since each dc_params (each entry in draw_call_params_)
+        // represents both "before" and "after" case, we should do this only once. For the "before" commands dc_params
+        // in FinalizeCommandBuffer() will be null so we distinguish between "before" and "after" and call
+        // CopyDrawIndirectParameters() just once.
+        if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type))
+        {
+            CopyDrawIndirectParameters(*dc_params);
+        }
     }
 
     injected->EndCommandBuffer(current_command_buffer);
@@ -1041,16 +1029,12 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
 {
-    // Indices should be sorted
-    if (std::find(dc_indices_.begin(), dc_indices_.end(), index) == dc_indices_.end())
-    {
-        return false;
-    }
-
-    for (size_t i = options_.dump_resources_before ? current_cb_index_ / 2 : current_cb_index_; i < dc_indices_.size();
+    // dc_slots_ is in finalization order (not necessarily sorted by value once secondary draws are
+    // merged in), so draws not yet finalized are all at positions >= current_cb_index_.
+    for (size_t i = options_.dump_resources_before ? current_cb_index_ / 2 : current_cb_index_; i < dc_slots_.size();
          ++i)
     {
-        if (index == dc_indices_[i])
+        if (index == dc_slots_[i].dc_index)
         {
             return true;
         }
@@ -1072,42 +1056,42 @@ bool DrawCallsDumpingContext::ShouldHandleRenderPass(uint64_t index) const
     return false;
 }
 
-bool DrawCallsDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
-{
-    return secondaries_.find(index) != secondaries_.end();
-}
-
 VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
                                                 const VkSubmitInfo2& submit_info,
                                                 Index                submit_info_index,
                                                 Index                submit_info_cmd_buf_index)
 {
-    const size_t n_drawcalls = command_buffers_.size();
+    const size_t window_count = GetWindowCount();
+
+    // the tail clone holds work following the last target draw. it is submitted after the windows.
+    const VkCommandBuffer tail_command_buffer = GetTailCommandBuffer();
+    const size_t          submission_count    = window_count + (tail_command_buffer != VK_NULL_HANDLE ? 1 : 0);
 
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     GFXRECON_ASSERT(device_info);
 
     TemporaryFence submission_fence(device_info->handle, device_table_);
 
-    // Dump render targets
-    for (size_t cb = 0; cb < n_drawcalls; ++cb)
-    {
+    // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
+    // last one, so the application-visible synchronization is preserved across the split submissions.
+    const auto submit_clone = [&](VkCommandBuffer clone, size_t submission) -> VkResult {
         const VkCommandBufferSubmitInfo cb_info{
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffers_[cb], 0 /* deviceMask */
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, clone, 0 /* deviceMask */
         };
 
-        // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
-        // last clone, so the application-visible synchronization is preserved across the split submissions.
+        const bool first = (submission == 0);
+        const bool last  = (submission == (submission_count - 1));
+
         VkSubmitInfo2 si{};
         si.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
         si.pNext                    = submit_info.pNext;
         si.flags                    = submit_info.flags;
-        si.waitSemaphoreInfoCount   = !cb ? submit_info.waitSemaphoreInfoCount : 0;
-        si.pWaitSemaphoreInfos      = !cb ? submit_info.pWaitSemaphoreInfos : nullptr;
+        si.waitSemaphoreInfoCount   = first ? submit_info.waitSemaphoreInfoCount : 0;
+        si.pWaitSemaphoreInfos      = first ? submit_info.pWaitSemaphoreInfos : nullptr;
         si.commandBufferInfoCount   = 1;
         si.pCommandBufferInfos      = &cb_info;
-        si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
-        si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
+        si.signalSemaphoreInfoCount = last ? submit_info.signalSemaphoreInfoCount : 0;
+        si.pSignalSemaphoreInfos    = last ? submit_info.pSignalSemaphoreInfos : nullptr;
 
         VkResult res =
             SubmitInfo2OnQueue(device_table_, device_info->version_extension_info, queue, si, submission_fence.handle);
@@ -1126,7 +1110,13 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         }
 
         // Reset fence for next submission
-        res = submission_fence.Reset();
+        return submission_fence.Reset();
+    };
+
+    // Dump render targets
+    for (size_t cb = 0; cb < window_count; ++cb)
+    {
+        VkResult res = submit_clone(command_buffers_[cb], cb);
         if (res != VK_SUCCESS)
         {
             return res;
@@ -1134,19 +1124,32 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
 
         // If options_.dump_resources_before is true, it means that we have two command buffer clones for each draw
         // call. In this case CmdBufToDCVectorIndex will return the command buffer index divided by 2 so it can be used
-        // to index inside dc_indices_
+        // to index inside dc_slots_
         const size_t cb_absolute = CmdBufToDCVectorIndex(cb);
 
-        const Index                 dc_index = dc_indices_[cb_absolute];
-        const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
-        const uint64_t              sp       = RP_index.second;
-        const uint64_t              rp       = RP_index.first;
+        const DrawCallSlot& slot     = dc_slots_[cb_absolute];
+        const Index         dc_index = slot.dc_index;
 
         auto dc_params_entry = draw_call_params_.find(dc_index);
         GFXRECON_ASSERT(dc_params_entry != draw_call_params_.end());
 
         DrawCallParams& dc_params = *dc_params_entry->second;
         GFXRECON_ASSERT(dc_params.draw_call_index == dc_index);
+
+        uint64_t rp = 0;
+        uint64_t sp = 0;
+        if (slot.render_pass_context != nullptr)
+        {
+            rp = slot.render_pass_context->ordinal;
+            sp = slot.subpass;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Could not correlate draw call with index %" PRIu64
+                               " with a render pass. There might be an error with the provided draw call indices in "
+                               "combination with the render pass indices.",
+                               dc_index);
+        }
 
         // Some things need to be dumped once. It shouldn't matter if this is for the "before" or "after" command buffer
         // but we need to distinguish between the two in order to make sure we make each thing once.
@@ -1168,7 +1171,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         if (dc_params.command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
         {
             // This map is updated in UpdateSecondaries accordingly
-            const auto entry = dc_params.secondary_identifiers.find(cb_absolute);
+            const auto entry = dc_params.secondary_identifiers.find(cb);
             GFXRECON_ASSERT(entry != dc_params.secondary_identifiers.end());
             if (entry != dc_params.secondary_identifiers.end())
             {
@@ -1228,7 +1231,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
             delegate_.DumpDrawCallInfo(draw_call_info);
         }
 
-        res = RevertRenderTargetImageLayouts(queue, dc_params);
+        res = RevertRenderTargetImageLayouts(queue, slot);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reverting render target attachments layouts failed(%s)",
@@ -1237,12 +1240,27 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         }
     }
 
+    if (tail_command_buffer != VK_NULL_HANDLE)
+    {
+        VkResult res = submit_clone(tail_command_buffer, submission_count - 1);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
+    }
+
     // Clean up some state in case this command buffer is submitted again
     ResetFetchedIndirectParams();
     for (auto& rpc : render_pass_dumped_descriptors_)
     {
-        rpc.image_descriptors.clear();
-        rpc.buffer_descriptors.clear();
+        rpc.second.image_descriptors.clear();
+        rpc.second.buffer_descriptors.clear();
+        rpc.second.acceleration_structures.clear();
+    }
+
+    for (auto& dc_params : draw_call_params_)
+    {
+        dc_params.second->dumped_resources.Reset();
     }
 
     GFXRECON_LOG_INFO("Done.")
@@ -1250,22 +1268,94 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallParams& dc_params)
+void DrawCallsDumpingContext::TransitionRenderTargetLayouts(const RenderPassContext& renderpass_context)
 {
-    const Index                 dc_index = dc_params.draw_call_index;
-    const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
-    const uint64_t              rp       = RP_index.first;
-    const uint64_t              sp       = RP_index.second;
+    VkCommandBuffer current_command_buffer = command_buffers_[current_cb_index_];
 
-    if (render_targets_[rp][sp].color_att_imgs.empty() && render_targets_[rp][sp].depth_att_img == nullptr)
+    // Insert pipeline barriers to flush render pass writes and transition render targets to LAYOUT_TRANSFER_SRC
+    const auto& subpass_attachments = renderpass_context.render_targets.back();
+
+    std::vector<VkImageMemoryBarrier> att_barriers;
+
+    VkImageMemoryBarrier att_barrier;
+    att_barrier.sType         = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    att_barrier.pNext         = nullptr;
+    att_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    att_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    att_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    att_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    att_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+    GFXRECON_ASSERT(subpass_attachments.color_att_imgs.size() == subpass_attachments.color_attachment_layouts.size());
+    for (size_t rt = 0; rt < subpass_attachments.color_att_imgs.size(); ++rt)
     {
+        // Only the attachment that is going to be dumped needs to be transitioned. RevertRenderTargetImageLayouts
+        // applies the same filter, so transitioning the rest would leave them stuck in TRANSFER_SRC_OPTIMAL.
+        if (options_.dump_resources_color_attachment_index != kUnspecifiedColorAttachment &&
+            static_cast<size_t>(options_.dump_resources_color_attachment_index) != rt)
+        {
+            continue;
+        }
+
+        auto* attachment_img_info = subpass_attachments.color_att_imgs[rt];
+        GFXRECON_ASSERT(attachment_img_info != nullptr);
+        att_barrier.oldLayout        = subpass_attachments.color_attachment_layouts[rt];
+        att_barrier.image            = attachment_img_info->handle;
+        att_barrier.subresourceRange = { graphics::GetFormatAspects(attachment_img_info->format),
+                                         0,
+                                         VK_REMAINING_MIP_LEVELS,
+                                         0,
+                                         VK_REMAINING_ARRAY_LAYERS };
+        att_barriers.push_back(att_barrier);
+
+        attachment_img_info->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    }
+
+    if (options_.dump_resources_dump_depth && subpass_attachments.depth_att_img != nullptr)
+    {
+        auto* depth_att              = subpass_attachments.depth_att_img;
+        att_barrier.oldLayout        = subpass_attachments.depth_attachment_layout;
+        att_barrier.image            = depth_att->handle;
+        att_barrier.subresourceRange = {
+            graphics::GetFormatAspects(depth_att->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+        };
+        att_barriers.push_back(att_barrier);
+
+        depth_att->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    }
+
+    if (!att_barriers.empty())
+    {
+        auto injected = device_table_.Open();
+        injected->CmdPipelineBarrier(current_command_buffer,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     GFXRECON_NARROWING_CAST(uint32_t, att_barriers.size()),
+                                     att_barriers.data());
+    }
+}
+
+VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallSlot& slot)
+{
+    if (slot.render_pass_context == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Could not correlate draw call with index %" PRIu64
+                           " with a render pass. Skipping render target layout revert.",
+                           slot.dc_index);
         return VK_SUCCESS;
     }
 
-    const auto entry = rendering_attachment_layouts_.find(GFXRECON_NARROWING_CAST(uint32_t, rp));
-    assert(entry != rendering_attachment_layouts_.end());
+    const auto&    render_pass_context = *slot.render_pass_context;
+    const uint64_t sp                  = slot.subpass;
+    GFXRECON_ASSERT(render_pass_context.render_targets.size() > sp);
+    auto& render_targets = slot.render_pass_context->render_targets[sp];
 
-    if (!entry->second.is_dynamic)
+    if (render_targets.color_att_imgs.empty() && render_targets.depth_att_img == nullptr)
     {
         return VK_SUCCESS;
     }
@@ -1285,7 +1375,9 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
            VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
-    for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
+    bool depth_barrier = false;
+
+    for (size_t i = 0; i < render_targets.color_att_imgs.size(); ++i)
     {
         if (options_.dump_resources_color_attachment_index != kUnspecifiedColorAttachment &&
             static_cast<size_t>(options_.dump_resources_color_attachment_index) != i)
@@ -1293,28 +1385,30 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
             continue;
         }
 
-        VulkanImageInfo* image_info = render_targets_[rp][sp].color_att_imgs[i];
+        VulkanImageInfo* image_info = render_targets.color_att_imgs[i];
 
-        img_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        img_barrier.newLayout     = entry->second.color_attachment_layouts[i];
+        img_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        img_barrier.newLayout     = render_targets.color_attachment_layouts[i];
         img_barrier.image         = image_info->handle;
         img_barriers.push_back(img_barrier);
 
-        image_info->intermediate_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        image_info->intermediate_layout = render_targets.color_attachment_layouts[i];
     }
 
-    if (options_.dump_resources_dump_depth && render_targets_[rp][sp].depth_att_img != nullptr)
+    if (options_.dump_resources_dump_depth && render_targets.depth_att_img != nullptr)
     {
-        VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
+        VulkanImageInfo* image_info = render_targets.depth_att_img;
 
         img_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_info->format);
 
-        img_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        img_barrier.newLayout     = entry->second.depth_attachment_layout;
-        img_barrier.image         = image_info->handle;
+        img_barrier.dstAccessMask =
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        img_barrier.newLayout = render_targets.depth_attachment_layout;
+        img_barrier.image     = image_info->handle;
         img_barriers.push_back(img_barrier);
 
-        image_info->intermediate_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        image_info->intermediate_layout = render_targets.depth_attachment_layout;
+        depth_barrier                   = true;
     }
 
     if (!img_barriers.empty())
@@ -1328,9 +1422,15 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
             return res;
         }
 
+        VkPipelineStageFlags dst_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        if (depth_barrier)
+        {
+            dst_stages |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+        }
+
         injected->CmdPipelineBarrier(aux_command_buffer_,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                     dst_stages,
                                      0,
                                      0,
                                      nullptr,
@@ -1397,13 +1497,23 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
 {
     assert(device_table_.IsValid());
 
-    const Index dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_index)];
+    const DrawCallSlot& slot     = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_index)];
+    const Index         dc_index = slot.dc_index;
     GFXRECON_ASSERT(dc_params.draw_call_index == dc_index);
 
-    const uint64_t rp = dumped_resource_base.render_pass;
-    const uint64_t sp = dumped_resource_base.subpass;
+    if (slot.render_pass_context == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Draw call with index %" PRIu64 " is not correlated with a render pass. Skipping dump.",
+                           dc_index);
+        return VK_SUCCESS;
+    }
 
-    if (render_targets_[rp][sp].color_att_imgs.empty() && render_targets_[rp][sp].depth_att_img == nullptr)
+    const auto&    render_pass_context = *slot.render_pass_context;
+    const uint64_t sp                  = slot.subpass;
+    GFXRECON_ASSERT(render_pass_context.render_targets.size() > sp);
+    const auto& render_targets = render_pass_context.render_targets[sp];
+
+    if (render_targets.color_att_imgs.empty() && render_targets.depth_att_img == nullptr)
     {
         return VK_SUCCESS;
     }
@@ -1420,12 +1530,12 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
     auto&      dumped_rts                = dc_params.dumped_resources.dumped_render_targets;
     const bool before_command            = options_.dump_resources_before && !(cmd_buf_index % 2);
     const bool insert_new_resource_entry = before_command || !options_.dump_resources_before;
-    const bool has_depth                 = render_targets_[rp][sp].depth_att_img != nullptr;
+    const bool has_depth                 = render_targets.depth_att_img != nullptr;
 
     const VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_, before_command);
 
     // Dump color attachments
-    for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
+    for (size_t i = 0; i < render_targets.color_att_imgs.size(); ++i)
     {
         if (options_.dump_resources_color_attachment_index != kUnspecifiedColorAttachment &&
             static_cast<size_t>(options_.dump_resources_color_attachment_index) != i)
@@ -1433,7 +1543,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
             continue;
         }
 
-        const VulkanImageInfo* image_info = render_targets_[rp][sp].color_att_imgs[i];
+        const VulkanImageInfo* image_info = render_targets.color_att_imgs[i];
         const ImageDumpResult  can_dump_image =
             CanDumpImage(instance_table_, device_info->parent, image_info, device_info->property_feature_info);
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
@@ -1501,7 +1611,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
     // Dump depth attachment
     if (has_depth && options_.dump_resources_dump_depth)
     {
-        const VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
+        const VulkanImageInfo* image_info = render_targets.depth_att_img;
 
         const ImageDumpResult can_dump_image =
             CanDumpImage(instance_table_, device_info->parent, image_info, device_info->property_feature_info);
@@ -1576,8 +1686,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                   DrawCallParams&           dc_params,
                                                   const DumpedResourceBase& dumped_resource_base)
 {
-    const uint64_t rp = dumped_resource_base.render_pass;
-    GFXRECON_ASSERT(rp < render_pass_dumped_descriptors_.size());
+    // Descriptors are deduplicated per render pass. Uncorrelated draw calls share the nullptr entry.
+    RenderPassDumpedDescriptors& dumped_descriptors =
+        render_pass_dumped_descriptors_[dc_slots_[CmdBufToDCVectorIndex(cmd_buf_index)].render_pass_context.get()];
 
     const Index                   dc_index = dc_params.draw_call_index;
     const decode::CommandLocation command_location(bcb_index_, qs_index_, dc_index);
@@ -1655,10 +1766,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                         continue;
                     }
 
-                    auto&      new_dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
-                    const auto dumped_desc_entry =
-                        render_pass_dumped_descriptors_[rp].image_descriptors.find(desc_tuple);
-                    if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].image_descriptors.end() ||
+                    auto&      new_dumped_image  = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
+                    const auto dumped_desc_entry = dumped_descriptors.image_descriptors.find(desc_tuple);
+                    if (dumped_desc_entry == dumped_descriptors.image_descriptors.end() ||
                         dumped_desc_entry->second.image_info != image_info)
                     {
                         VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1700,7 +1810,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                         }
 
                         delegate_.DumpResource(res_info);
-                        render_pass_dumped_descriptors_[rp].image_descriptors.emplace(desc_tuple, new_dumped_image);
+                        dumped_descriptors.image_descriptors.emplace(desc_tuple, new_dumped_image);
                     }
                     else
                     {
@@ -1737,8 +1847,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                                                offset,
                                                                                size);
 
-                const auto& dumped_desc_entry = render_pass_dumped_descriptors_[rp].buffer_descriptors.find(desc_tuple);
-                if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end() ||
+                const auto& dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(desc_tuple);
+                if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end() ||
                     dumped_desc_entry->second.buffer_info.capture_id != buffer_info->capture_id)
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
@@ -1765,7 +1875,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                     }
 
                     delegate_.DumpResource(res_info);
-                    render_pass_dumped_descriptors_[rp].buffer_descriptors.emplace(desc_tuple, new_dumped_buffer);
+                    dumped_descriptors.buffer_descriptors.emplace(desc_tuple, new_dumped_buffer);
                 }
                 else
                 {
@@ -1805,8 +1915,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                                                offset,
                                                                                size);
 
-                const auto& dumped_desc_entry = render_pass_dumped_descriptors_[rp].buffer_descriptors.find(desc_tuple);
-                if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end() ||
+                const auto& dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(desc_tuple);
+                if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end() ||
                     dumped_desc_entry->second.buffer_info.capture_id != buffer_info->capture_id)
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
@@ -1833,7 +1943,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                     }
 
                     delegate_.DumpResource(res_info);
-                    render_pass_dumped_descriptors_[rp].buffer_descriptors.emplace(desc_tuple, new_dumped_buffer);
+                    dumped_descriptors.buffer_descriptors.emplace(desc_tuple, new_dumped_buffer);
                 }
                 else
                 {
@@ -1882,13 +1992,12 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                     as_info,
                     options_.dump_resources_dump_build_AS_input_buffers);
 
-                auto&       new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
-                const auto& dumped_descs_entry =
-                    render_pass_dumped_descriptors_[rp].acceleration_structures.find(desc_tuple);
-                if (dumped_descs_entry == render_pass_dumped_descriptors_[rp].acceleration_structures.end() ||
+                auto&       new_dumped_as      = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
+                const auto& dumped_descs_entry = dumped_descriptors.acceleration_structures.find(desc_tuple);
+                if (dumped_descs_entry == dumped_descriptors.acceleration_structures.end() ||
                     dumped_descs_entry->second.as_info->capture_id != as_info->capture_id)
                 {
-                    render_pass_dumped_descriptors_[rp].acceleration_structures.emplace(desc_tuple, new_dumped_as);
+                    dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
 
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
@@ -2670,49 +2779,280 @@ void DrawCallsDumpingContext::BindDescriptorSets(
     assert((dynamic_offset_index == dynamicOffsetCount && pDynamicOffsets != nullptr) || (!dynamic_offset_index));
 }
 
-VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* original_render_pass_ci)
+template <typename CreateInfoType>
+void DrawCallsDumpingContext::ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*       render_pass_info,
+                                                                     const CreateInfoType*             ci,
+                                                                     const VulkanFramebufferInfo*      framebuffer_info,
+                                                                     uint32_t                          subpass,
+                                                                     RenderPassContext::RenderTargets& render_targets)
 {
-    std::vector<VkAttachmentDescription> modified_attachments(original_render_pass_ci->pAttachments,
-                                                              original_render_pass_ci->pAttachments +
-                                                                  original_render_pass_ci->attachmentCount);
-
-    // Fix storeOps and final layouts
-    for (auto& att : modified_attachments)
+    // Parse color attachments
+    for (uint32_t i = 0; i < ci->pSubpasses[subpass].colorAttachmentCount; ++i)
     {
-        att.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
-        att.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        const uint32_t att_idx = ci->pSubpasses[subpass].pColorAttachments[i].attachment;
+        if (att_idx == VK_ATTACHMENT_UNUSED)
+        {
+            continue;
+        }
+
+        const VulkanImageViewInfo* img_view_info = nullptr;
+        if (att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            img_view_info = object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
+        }
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
+        {
+            GFXRECON_ASSERT(render_pass_info->begin_renderpass_override_attachments.size() >
+                            static_cast<size_t>(att_idx));
+
+            img_view_info =
+                object_info_table_.GetVkImageViewInfo(render_pass_info->begin_renderpass_override_attachments[att_idx]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
+            continue;
+        }
+
+        GFXRECON_ASSERT(img_view_info != nullptr);
+        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
+        GFXRECON_ASSERT(img_info != nullptr);
+
+        render_targets.color_att_imgs.push_back(img_info);
+        render_targets.color_attachment_layouts.push_back(ci->pAttachments[att_idx].finalLayout);
+    }
+
+    // Detect depth attachment
+    if (ci->pSubpasses[subpass].pDepthStencilAttachment != nullptr &&
+        ci->pSubpasses[subpass].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
+    {
+        const VulkanImageViewInfo* depth_img_view_info = nullptr;
+        const uint32_t             depth_att_idx       = ci->pSubpasses[subpass].pDepthStencilAttachment->attachment;
+
+        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            depth_img_view_info =
+                object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
+        }
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
+        {
+            GFXRECON_ASSERT(render_pass_info->begin_renderpass_override_attachments.size() >
+                            static_cast<size_t>(depth_att_idx));
+
+            depth_img_view_info = object_info_table_.GetVkImageViewInfo(
+                render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing depth-attachment in %s", __func__);
+        }
+
+        if (depth_img_view_info != nullptr)
+        {
+            render_targets.depth_attachment_layout = ci->pAttachments[depth_att_idx].finalLayout;
+            render_targets.depth_att_img           = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
+            GFXRECON_ASSERT(render_targets.depth_att_img != nullptr);
+        }
+        else
+        {
+            render_targets.depth_att_img = nullptr;
+        }
+    }
+}
+
+template <typename CreateInfoType>
+static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPassInfo*  render_pass_info,
+                                                           const CreateInfoType*        original_render_pass_ci,
+                                                           const VulkanFramebufferInfo* framebuffer_info,
+                                                           CommonObjectInfoTable&       object_info_table,
+                                                           VulkanCommandBufferInfo*     original_command_buffer_info)
+{
+    // Inform the original command buffer about the new image layouts
+    GFXRECON_ASSERT(original_render_pass_ci->subpassCount && original_render_pass_ci->pSubpasses != nullptr);
+    for (uint32_t i = 0; i < original_render_pass_ci->pSubpasses[0].colorAttachmentCount; ++i)
+    {
+        const auto& att_ref = original_render_pass_ci->pSubpasses[0].pColorAttachments[i];
+
+        const VulkanImageViewInfo* att_img_view_info = nullptr;
+        if (att_ref.attachment < framebuffer_info->attachment_image_view_ids.size())
+        {
+            att_img_view_info =
+                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_ref.attachment]);
+
+            GFXRECON_ASSERT(att_img_view_info != nullptr);
+
+            VulkanImageInfo* att_img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
+            if (att_img_info != nullptr)
+            {
+                InitializeCommandBufferImageLayouts(original_command_buffer_info, att_img_info);
+                original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].SetLayout(
+                    att_img_view_info->subresource_range, att_ref.layout);
+            }
+        }
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
+        {
+            att_img_view_info = object_info_table.GetVkImageViewInfo(
+                render_pass_info->begin_renderpass_override_attachments[att_ref.attachment]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
+            continue;
+        }
+        GFXRECON_ASSERT(att_img_view_info != nullptr);
+        VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
+        GFXRECON_ASSERT(img_info != nullptr);
+        img_info->intermediate_layout = att_ref.layout;
+    }
+
+    if (original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment != nullptr &&
+        original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
+    {
+        const VulkanImageViewInfo* att_img_view_info = nullptr;
+
+        const uint32_t depth_att_idx = original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->attachment;
+        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            att_img_view_info =
+                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
+        }
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
+        {
+            att_img_view_info = object_info_table.GetVkImageViewInfo(
+                render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
+        }
+
+        if (att_img_view_info != nullptr)
+        {
+            VulkanImageInfo* att_img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
+            if (att_img_info != nullptr)
+            {
+                InitializeCommandBufferImageLayouts(original_command_buffer_info, att_img_info);
+                original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id].SetLayout(
+                    att_img_view_info->subresource_range,
+                    original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout);
+            }
+        }
+    }
+}
+
+// Force attachment writes to be stored. Final layouts are left untouched: TransitionRenderTargetLayouts records
+// explicit barriers out of the original final layouts, so the cloned render pass must end in them as well.
+template <typename AttachmentDescriptionType>
+static void FixAttachmentStoreOps(std::vector<AttachmentDescriptionType>& attachments)
+{
+    for (auto& att : attachments)
+    {
+        att.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
         if (vkuFormatHasStencil(att.format))
         {
             att.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
         }
     }
+}
 
-    // Create new render passes
-    std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.emplace_back();
-    new_render_pass.resize(original_render_pass_ci->subpassCount);
+// The subpass each attachment is first used in, kNeverUsed for one that no subpass references. A render pass
+// performs an attachment's load operation when the subpass that first uses it begins.
+template <typename CreateInfoType>
+static std::vector<uint32_t> FirstUseSubpassPerAttachment(const CreateInfoType* create_info)
+{
+    std::vector<uint32_t> first_use(create_info->attachmentCount, DrawCallsDumpingContext::kNeverUsed);
 
-    // Do one quick pass over the subpass references in order to check if the render pass
-    // uses color and/or depth attachments. This information might be necessary when
-    // defining the dependencies of the custom render passes
-    bool has_color = false, has_depth = false;
-    for (uint32_t i = 0; i < original_render_pass_ci->subpassCount; ++i)
-    {
-        for (uint32_t j = 0; j < original_render_pass_ci->pSubpasses[i].colorAttachmentCount; ++j)
+    const auto use = [&first_use](uint32_t attachment, uint32_t subpass) {
+        if (attachment != VK_ATTACHMENT_UNUSED && attachment < first_use.size() && subpass < first_use[attachment])
         {
-            if (original_render_pass_ci->pSubpasses[i].pColorAttachments[j].attachment != VK_ATTACHMENT_UNUSED)
+            first_use[attachment] = subpass;
+        }
+    };
+
+    for (uint32_t sub = 0; sub < create_info->subpassCount; ++sub)
+    {
+        const auto& subpass = create_info->pSubpasses[sub];
+
+        for (uint32_t i = 0; i < subpass.colorAttachmentCount; ++i)
+        {
+            use(subpass.pColorAttachments[i].attachment, sub);
+
+            if (subpass.pResolveAttachments != nullptr)
             {
-                has_color = true;
-                break;
+                use(subpass.pResolveAttachments[i].attachment, sub);
             }
         }
 
-        if (original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment != nullptr &&
-            original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
+        for (uint32_t i = 0; i < subpass.inputAttachmentCount; ++i)
         {
-            has_depth = true;
+            use(subpass.pInputAttachments[i].attachment, sub);
+        }
+
+        if (subpass.pDepthStencilAttachment != nullptr)
+        {
+            use(subpass.pDepthStencilAttachment->attachment, sub);
         }
     }
+
+    return first_use;
+}
+
+// load what the previous window stored, for attachments it 'could' have written in 'subpass -> resume_subpass'.
+// an attachment the previous window never reached keeps the original ops:
+// -> clear still happens, in the window that first enters the subpass using it.
+// -> attachments are in their original finalLayout at window boundaries, used or not.
+template <typename AttachmentDescriptionType>
+static void FixAttachmentLoadOps(std::vector<AttachmentDescriptionType>& attachments,
+                                 const std::vector<uint32_t>&            first_use_subpass,
+                                 uint32_t                                resume_subpass)
+{
+    GFXRECON_ASSERT(attachments.size() == first_use_subpass.size());
+
+    for (size_t i = 0; i < attachments.size(); ++i)
+    {
+        auto& att = attachments[i];
+
+        if (first_use_subpass[i] <= resume_subpass)
+        {
+            att.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+
+            if (vkuFormatHasStencil(att.format))
+            {
+                att.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            }
+        }
+
+        att.initialLayout = att.finalLayout;
+    }
+}
+
+template <typename CreateInfoType>
+void DrawCallsDumpingContext::FinalizeRenderPassClone(RenderPassContext&    renderpass_context,
+                                                      const CreateInfoType* create_info)
+{
+    // Get render targets info of current renderpass/subpass
+    GFXRECON_ASSERT(renderpass_context.render_targets.empty());
+    auto& new_render_targets = renderpass_context.render_targets.emplace_back();
+    ParseAttachmentsInRenderPassCreateInfo(
+        renderpass_context.renderpass_info, create_info, renderpass_context.framebuffer_info, 0, new_render_targets);
+
+    // Update tracked layouts in VulkanCommandBufferInfo
+    UpdateOriginalCommandBufferWithNewImageLayouts(renderpass_context.renderpass_info,
+                                                   create_info,
+                                                   renderpass_context.framebuffer_info,
+                                                   object_info_table_,
+                                                   original_command_buffer_info_);
+}
+
+VkResult DrawCallsDumpingContext::CloneRenderPass(RenderPassContext& renderpass_context)
+{
+    const auto* original_render_pass_ci =
+        reinterpret_cast<const VkRenderPassCreateInfo*>(renderpass_context.renderpass_info->create_info.data());
+
+    std::vector<VkAttachmentDescription> modified_attachments(original_render_pass_ci->pAttachments,
+                                                              original_render_pass_ci->pAttachments +
+                                                                  original_render_pass_ci->attachmentCount);
+
+    FixAttachmentStoreOps(modified_attachments);
+
+    const std::vector<uint32_t> first_use_subpass = FirstUseSubpassPerAttachment(original_render_pass_ci);
 
     // Create new render passes. For each subpass in the original render pass a new render pass will be created.
     // Each new render pass will progressively contain an additional subpass until all subpasses of the original
@@ -2724,12 +3064,9 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
     // Renderpass 2: Will contain 3 subpass.
     // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
     // subpasses it was called from in the original render pass
-    auto injected = device_table_.Open();
-
     std::vector<VkSubpassDescription> subpass_descs;
     for (uint32_t sub = 0; sub < original_render_pass_ci->subpassCount; ++sub)
     {
-        bool                             has_external_dependencies_post = false;
         std::vector<VkSubpassDependency> modified_dependencies;
 
         for (uint32_t i = 0; i < original_render_pass_ci->dependencyCount; ++i)
@@ -2751,41 +3088,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
             else if (new_dep->dstSubpass != VK_SUBPASS_EXTERNAL && new_dep->dstSubpass > sub)
             {
                 new_dep->dstSubpass = sub;
-            }
-
-            if (new_dep->dstSubpass == VK_SUBPASS_EXTERNAL)
-            {
-                has_external_dependencies_post = true;
-            }
-        }
-
-        // No post renderpass dependency was detected
-        if (!has_external_dependencies_post)
-        {
-            VkSubpassDependency post_dependency;
-            post_dependency.srcSubpass      = sub;
-            post_dependency.dstSubpass      = VK_SUBPASS_EXTERNAL;
-            post_dependency.dstStageMask    = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            post_dependency.dstAccessMask   = VK_ACCESS_TRANSFER_READ_BIT;
-            post_dependency.dependencyFlags = VkDependencyFlags(0);
-
-            // Injecting one for color
-            if (has_color)
-            {
-                post_dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-                post_dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-                modified_dependencies.push_back(post_dependency);
-            }
-
-            // Injecting one for depth
-            if (has_depth)
-            {
-                post_dependency.srcStageMask =
-                    VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
-                post_dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-                modified_dependencies.push_back(post_dependency);
             }
         }
 
@@ -2811,62 +3113,49 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
             object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
         VkDevice device = device_info->handle;
 
-        assert(sub < new_render_pass.size());
-        VkResult res = injected->CreateRenderPass(device, &ci, nullptr, &new_render_pass[sub]);
+        auto          injected        = device_table_.Open();
+        VkRenderPass& new_render_pass = renderpass_context.render_pass_clones.emplace_back();
+        VkResult      res             = injected->CreateRenderPass(device, &ci, nullptr, &new_render_pass);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
+
+        // One LOAD variant per subpass a window can resume this render pass in
+        for (uint32_t resume = 0; resume <= sub; ++resume)
+        {
+            std::vector<VkAttachmentDescription> load_attachments = modified_attachments;
+            FixAttachmentLoadOps(load_attachments, first_use_subpass, resume);
+            ci.pAttachments = load_attachments.empty() ? nullptr : load_attachments.data();
+
+            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones[{ resume, sub }];
+            res                            = injected->CreateRenderPass(device, &ci, nullptr, &load_render_pass);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
+                return res;
+            }
+        }
     }
+
+    FinalizeRenderPassClone(renderpass_context, original_render_pass_ci);
 
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*    render_pass_info,
-                                                   const VkRenderPassCreateInfo2* original_render_pass_ci)
+VkResult DrawCallsDumpingContext::CloneRenderPass2(RenderPassContext& renderpass_context)
 {
+    auto* original_render_pass_ci =
+        reinterpret_cast<const VkRenderPassCreateInfo2*>(renderpass_context.renderpass_info->create_info.data());
+
     std::vector<VkAttachmentDescription2> modified_attachments(original_render_pass_ci->pAttachments,
                                                                original_render_pass_ci->pAttachments +
                                                                    original_render_pass_ci->attachmentCount);
 
-    // Fix storeOps and final layouts
-    for (auto& att : modified_attachments)
-    {
-        att.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
-        att.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    FixAttachmentStoreOps(modified_attachments);
 
-        if (vkuFormatHasStencil(att.format))
-        {
-            att.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-        }
-    }
-
-    // Create new render passes
-    std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.emplace_back();
-    new_render_pass.resize(original_render_pass_ci->subpassCount);
-
-    // Do one quick pass over the subpass references in order to check if the render pass
-    // uses color and/or depth attachments. This information might be necessary when
-    // defining the dependencies of the custom render passes
-    bool has_color = false, has_depth = false;
-    for (uint32_t i = 0; i < original_render_pass_ci->subpassCount; ++i)
-    {
-        for (uint32_t j = 0; j < original_render_pass_ci->pSubpasses[i].colorAttachmentCount; ++j)
-        {
-            if (original_render_pass_ci->pSubpasses[i].pColorAttachments[j].attachment != VK_ATTACHMENT_UNUSED)
-            {
-                has_color = true;
-                break;
-            }
-        }
-
-        if (original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment != nullptr &&
-            original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
-        {
-            has_depth = true;
-        }
-    }
+    const std::vector<uint32_t> first_use_subpass = FirstUseSubpassPerAttachment(original_render_pass_ci);
 
     // Create new render passes. For each subpass in the original render pass a new render pass will be created.
     // Each new render pass will progressively contain an additional subpass until all subpasses of the original
@@ -2878,12 +3167,9 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
     // Renderpass 2: Will contain 3 subpass.
     // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
     // subpasses it was called from in the original render pass
-    auto injected = device_table_.Open();
-
     std::vector<VkSubpassDescription2> subpass_descs;
     for (uint32_t sub = 0; sub < original_render_pass_ci->subpassCount; ++sub)
     {
-        bool                              has_external_dependencies_post = false;
         std::vector<VkSubpassDependency2> modified_dependencies;
 
         for (uint32_t i = 0; i < original_render_pass_ci->dependencyCount; ++i)
@@ -2905,42 +3191,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
             else if (new_dep->dstSubpass != VK_SUBPASS_EXTERNAL && new_dep->dstSubpass > sub)
             {
                 new_dep->dstSubpass = sub;
-            }
-
-            if (new_dep->dstSubpass == VK_SUBPASS_EXTERNAL)
-            {
-                has_external_dependencies_post = true;
-            }
-        }
-
-        // No post renderpass dependency was detected
-        if (!has_external_dependencies_post)
-        {
-            VkSubpassDependency2 post_dependency;
-            post_dependency.sType         = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2;
-            post_dependency.pNext         = nullptr;
-            post_dependency.srcSubpass    = sub;
-            post_dependency.dstSubpass    = VK_SUBPASS_EXTERNAL;
-            post_dependency.dstStageMask  = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            post_dependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-            // Injecting one for color
-            if (has_color)
-            {
-                post_dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-                post_dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-                modified_dependencies.push_back(post_dependency);
-            }
-
-            // Injecting one for depth
-            if (has_depth)
-            {
-                post_dependency.srcStageMask =
-                    VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
-                post_dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-                modified_dependencies.push_back(post_dependency);
             }
         }
 
@@ -2970,17 +3220,18 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
             object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
         VkDevice device = device_info->handle;
 
-        assert(sub < new_render_pass.size());
-
-        VkResult res;
-        if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
+        VkResult      res;
+        auto          injected        = device_table_.Open();
+        VkRenderPass& new_render_pass = renderpass_context.render_pass_clones.emplace_back();
+        if (renderpass_context.renderpass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
         {
-            res = injected->CreateRenderPass2(device, &ci, nullptr, &new_render_pass[sub]);
+            res = injected->CreateRenderPass2(device, &ci, nullptr, &new_render_pass);
         }
         else
         {
-            GFXRECON_ASSERT(render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2KHR);
-            res = injected->CreateRenderPass2KHR(device, &ci, nullptr, &new_render_pass[sub]);
+            GFXRECON_ASSERT(renderpass_context.renderpass_info->func_version ==
+                            VulkanRenderPassInfo::kCreateRenderPass2KHR);
+            res = injected->CreateRenderPass2KHR(device, &ci, nullptr, &new_render_pass);
         }
 
         if (res != VK_SUCCESS)
@@ -2988,155 +3239,39 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
             GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
+
+        // One LOAD variant per subpass a window can resume this render pass in
+        for (uint32_t resume = 0; resume <= sub; ++resume)
+        {
+            std::vector<VkAttachmentDescription2> load_attachments = modified_attachments;
+            FixAttachmentLoadOps(load_attachments, first_use_subpass, resume);
+            ci.pAttachments = load_attachments.empty() ? nullptr : load_attachments.data();
+
+            VkRenderPass& load_render_pass = renderpass_context.render_pass_load_clones[{ resume, sub }];
+            if (renderpass_context.renderpass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
+            {
+                res = injected->CreateRenderPass2(device, &ci, nullptr, &load_render_pass);
+            }
+            else
+            {
+                res = injected->CreateRenderPass2KHR(device, &ci, nullptr, &load_render_pass);
+            }
+
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
+                return res;
+            }
+        }
     }
+
+    FinalizeRenderPassClone(renderpass_context, original_render_pass_ci);
 
     return VK_SUCCESS;
 }
 
-template <typename CreateInfoType>
-static void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*    render_pass_info,
-                                                   const CreateInfoType*          ci,
-                                                   const VulkanFramebufferInfo*   framebuffer_info,
-                                                   uint32_t                       subpass,
-                                                   CommonObjectInfoTable&         object_info_table,
-                                                   std::vector<VulkanImageInfo*>& color_att_imgs,
-                                                   VulkanImageInfo**              depth_img_info)
-{
-    // Parse color attachments
-    for (uint32_t i = 0; i < ci->pSubpasses[subpass].colorAttachmentCount; ++i)
-    {
-        const uint32_t att_idx = ci->pSubpasses[subpass].pColorAttachments[i].attachment;
-        if (att_idx == VK_ATTACHMENT_UNUSED)
-        {
-            continue;
-        }
-
-        const VulkanImageViewInfo* img_view_info = nullptr;
-        if (att_idx < framebuffer_info->attachment_image_view_ids.size())
-        {
-            img_view_info = object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
-        }
-        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
-        {
-            GFXRECON_ASSERT(render_pass_info->begin_renderpass_override_attachments.size() >
-                            static_cast<size_t>(att_idx));
-
-            img_view_info =
-                object_info_table.GetVkImageViewInfo(render_pass_info->begin_renderpass_override_attachments[att_idx]);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
-            continue;
-        }
-
-        GFXRECON_ASSERT(img_view_info != nullptr);
-        VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(img_view_info->image_id);
-        GFXRECON_ASSERT(img_info != nullptr);
-
-        color_att_imgs.push_back(img_info);
-    }
-
-    // Detect depth attachment
-    const VulkanImageViewInfo* depth_img_view_info = nullptr;
-
-    if (ci->pSubpasses[subpass].pDepthStencilAttachment != nullptr &&
-        ci->pSubpasses[subpass].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
-    {
-        GFXRECON_ASSERT(depth_img_info != nullptr);
-
-        const uint32_t depth_att_idx = ci->pSubpasses[subpass].pDepthStencilAttachment->attachment;
-
-        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
-        {
-            depth_img_view_info =
-                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
-        }
-        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
-        {
-            GFXRECON_ASSERT(render_pass_info->begin_renderpass_override_attachments.size() >
-                            static_cast<size_t>(depth_att_idx));
-
-            depth_img_view_info = object_info_table.GetVkImageViewInfo(
-                render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("unhandled missing depth-attachment in %s", __func__);
-        }
-    }
-
-    if (depth_img_view_info != nullptr)
-    {
-        *depth_img_info = object_info_table.GetVkImageInfo(depth_img_view_info->image_id);
-        GFXRECON_ASSERT(*depth_img_info != nullptr);
-    }
-    else
-    {
-        *depth_img_info = nullptr;
-    }
-}
-
-template <typename CreateInfoType>
-static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPassInfo*  render_pass_info,
-                                                           const CreateInfoType*        original_render_pass_ci,
-                                                           const VulkanFramebufferInfo* framebuffer_info,
-                                                           VulkanCommandBufferInfo*     original_command_buffer_info,
-                                                           CommonObjectInfoTable&       object_info_table)
-{
-    // Inform the original command buffer about the new image layouts
-    GFXRECON_ASSERT(original_render_pass_ci->subpassCount && original_render_pass_ci->pSubpasses != nullptr);
-    for (uint32_t i = 0; i < original_render_pass_ci->pSubpasses[0].colorAttachmentCount; ++i)
-    {
-        const auto& att_ref = original_render_pass_ci->pSubpasses[0].pColorAttachments[i];
-
-        const VulkanImageViewInfo* att_img_view_info = nullptr;
-        if (att_ref.attachment < framebuffer_info->attachment_image_view_ids.size())
-        {
-            att_img_view_info =
-                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_ref.attachment]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
-        }
-        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
-        {
-            att_img_view_info = object_info_table.GetVkImageViewInfo(
-                render_pass_info->begin_renderpass_override_attachments[att_ref.attachment]);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
-            continue;
-        }
-        GFXRECON_ASSERT(att_img_view_info != nullptr);
-        VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
-        GFXRECON_ASSERT(img_info != nullptr);
-        img_info->intermediate_layout = att_ref.layout;
-    }
-
-    if (original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment != nullptr &&
-        original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
-    {
-        const VulkanImageViewInfo* att_img_view_info = nullptr;
-
-        const uint32_t depth_att_idx = original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->attachment;
-        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
-        {
-            att_img_view_info =
-                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
-                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
-        }
-        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
-        {
-            att_img_view_info = object_info_table.GetVkImageViewInfo(
-                render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
-            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
-                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
-        }
-    }
-}
-
-VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  render_pass_info,
+VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     block_index,
+                                                  const VulkanRenderPassInfo*  render_pass_info,
                                                   const VulkanFramebufferInfo* framebuffer_info,
                                                   const VkRenderPassBeginInfo* renderpass_begin_info,
                                                   VkSubpassContents            contents)
@@ -3146,74 +3281,41 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     GFXRECON_ASSERT(renderpass_begin_info != nullptr);
     GFXRECON_ASSERT(!render_pass_info->create_info.empty());
 
-    std::vector<VulkanImageInfo*> color_att_imgs;
-    VulkanImageInfo*              depth_img_info;
-
-    current_render_pass_type_ = kRenderPass;
-    current_subpass_          = 0;
-    active_renderpass_        = render_pass_info;
-    active_framebuffer_       = framebuffer_info;
-
-    if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
-    {
-        ParseAttachmentsInRenderPassCreateInfo(
-            render_pass_info,
-            reinterpret_cast<const VkRenderPassCreateInfo*>(render_pass_info->create_info.data()),
-            framebuffer_info,
-            current_subpass_,
-            object_info_table_,
-            color_att_imgs,
-            &depth_img_info);
-    }
-    else
-    {
-        ParseAttachmentsInRenderPassCreateInfo(
-            render_pass_info,
-            reinterpret_cast<const VkRenderPassCreateInfo2*>(render_pass_info->create_info.data()),
-            framebuffer_info,
-            current_subpass_,
-            object_info_table_,
-            color_att_imgs,
-            &depth_img_info);
-    }
-
-    SetRenderTargets(color_att_imgs, depth_img_info, true);
-    SetRenderArea(renderpass_begin_info->renderArea);
-
-    if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
-    {
-        UpdateOriginalCommandBufferWithNewImageLayouts(
-            render_pass_info,
-            reinterpret_cast<const VkRenderPassCreateInfo*>(render_pass_info->create_info.data()),
-            framebuffer_info,
-            original_command_buffer_info_,
-            object_info_table_);
-    }
-    else
-    {
-        UpdateOriginalCommandBufferWithNewImageLayouts(
-            render_pass_info,
-            reinterpret_cast<const VkRenderPassCreateInfo2*>(render_pass_info->create_info.data()),
-            framebuffer_info,
-            original_command_buffer_info_,
-            object_info_table_);
-    }
+    auto& new_render_pass_context = render_pass_contexts_.emplace_back(
+        std::make_shared<RenderPassContext>(render_pass_info, framebuffer_info, command_buffer_level_));
+    new_render_pass_context->ordinal = render_pass_contexts_.size() - 1;
 
     VkResult res;
     if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
     {
-        res = CloneRenderPass(reinterpret_cast<const VkRenderPassCreateInfo*>(render_pass_info->create_info.data()));
+        res = CloneRenderPass(*new_render_pass_context);
     }
     else
     {
-        res = CloneRenderPass2(render_pass_info,
-                               reinterpret_cast<const VkRenderPassCreateInfo2*>(render_pass_info->create_info.data()));
+        res = CloneRenderPass2(*new_render_pass_context);
     }
 
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed cloning render pass (%s).", util::ToString<VkResult>(res).c_str())
         return res;
+    }
+
+    // Find this render pass' block index range. It determines which of the remaining draw calls (and executed
+    // secondaries) fall inside this render pass and therefore replay with the cloned render pass.
+    const std::vector<Index>* block_range = FindRenderPassBlockRange(block_index);
+
+    // The range holds the begin, one entry per vkCmdNextSubpass and the end.
+    // Any other size does not match this render pass, e.g. a stale or hand-edited json.
+    const size_t subpass_count = new_render_pass_context->render_pass_clones.size();
+    if (block_range != nullptr && block_range->size() != subpass_count + 1)
+    {
+        GFXRECON_LOG_FATAL("Dump resources: the range of the render pass at block %" PRIu64
+                           " has %zu entries, but the render pass has %zu subpass(es) and needs %zu entries.",
+                           block_index,
+                           block_range->size(),
+                           subpass_count,
+                           subpass_count + 1);
     }
 
     // Add vkCmdBeginRenderPass into the cloned command buffers using the modified render pass
@@ -3225,138 +3327,130 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
 
     auto injected = device_table_.Open();
 
+    // The render pass is begun in every clone whose window overlaps it, and those clones form a contiguous
+    // range.
+    const uint64_t pass_begin    = block_range != nullptr ? block_range->front() : 0;
+    const uint64_t pass_end      = block_range != nullptr ? block_range->back() : 0;
+    bool           found_overlap = false;
+
+    // Find the subpass that holds the clone's target draw.
+    // If the clone stops after this render pass, it runs the pass to its end, so use the last subpass.
+    // A draw from a secondary is located by the vkCmdExecuteCommands that ran it.
+    const auto find_subpass =
+        [this, block_range, pass_end, &new_render_pass_context](size_t cmd_buf_idx, uint64_t hi, uint64_t& sp) {
+            if (block_range == nullptr)
+            {
+                return false;
+            }
+
+            if (hi > pass_end)
+            {
+                sp = new_render_pass_context->render_pass_clones.size() - 1;
+                return true;
+            }
+
+            const DrawCallSlot& slot = dc_slots_[CmdBufToDCVectorIndex(cmd_buf_idx)];
+            return slot.execute_index != UNDEFINED_INDEX ? FindSubpassInRange(*block_range, slot.execute_index, sp)
+                                                         : FindSubpassInRange(*block_range, slot.dc_index, sp);
+        };
+
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
-        const uint64_t dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
-
-        // GetRenderPassIndex will tell us which render pass each cloned command buffer should use depending on the
-        // assigned draw call index
-        const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
-        const uint64_t              rp       = RP_index.first;
-        const uint64_t              sp       = RP_index.second;
-
-        if (dc_index >= RP_indices_[rp][0])
+        uint64_t sp = 0;
+        uint64_t lo, hi;
+        GetCloneWindow(cmd_buf_idx, lo, hi);
+        if (lo >= pass_end || hi <= pass_begin)
         {
-            if (dc_index > RP_indices_[rp][RP_indices_[rp].size() - 1] || rp > current_renderpass_)
-            {
-                // Command buffers / Draw calls outside this specific render pass should get
-                // assigned the original render pass
-                modified_renderpass_begin_info.renderPass = render_pass_info->handle;
-            }
-            else
-            {
-                // Command buffers / Draw calls inside this render pass should get the newly created / modified
-                // render pass
-                assert(rp < render_pass_clones_.size());
-                assert(sp < render_pass_clones_[rp].size());
-                modified_renderpass_begin_info.renderPass = render_pass_clones_[rp][sp];
-            }
+            continue;
+        }
+
+        find_subpass(cmd_buf_idx, hi, sp);
+
+        // Only the window that contains the begin starts the render pass the way the application did. The
+        // others resume it in the subpass the window before them ended in, and load what it stored.
+        if (lo < pass_begin)
+        {
+            GFXRECON_ASSERT(sp < new_render_pass_context->render_pass_clones.size());
+            modified_renderpass_begin_info.renderPass = new_render_pass_context->render_pass_clones[sp];
         }
         else
         {
-            // This must be from a secondary
-            for (const auto& ex_com : secondaries_)
-            {
-                const uint64_t execute_commands_index = ex_com.first;
-                if (execute_commands_index > RP_indices_[rp][RP_indices_[rp].size() - 1] || rp > current_renderpass_)
-                {
-                    // Command buffers / Draw calls outside this specific render pass should get
-                    // assigned the original render pass
-                    modified_renderpass_begin_info.renderPass = render_pass_info->handle;
-                }
-                else
-                {
-                    // Command buffers / Draw calls inside this render pass should get the newly created / modified
-                    // render pass
-                    assert(rp < render_pass_clones_.size());
-                    assert(sp < render_pass_clones_[rp].size());
-                    modified_renderpass_begin_info.renderPass = render_pass_clones_[rp][sp];
-                }
-            }
+            uint64_t resume_subpass = 0;
+            FindSubpassInRange(*block_range, lo, resume_subpass);
+
+            const auto load_clone = new_render_pass_context->render_pass_load_clones.find(
+                { GFXRECON_NARROWING_CAST(uint32_t, resume_subpass), GFXRECON_NARROWING_CAST(uint32_t, sp) });
+            GFXRECON_ASSERT(load_clone != new_render_pass_context->render_pass_load_clones.end());
+            modified_renderpass_begin_info.renderPass = load_clone->second;
         }
+
+        if (!found_overlap)
+        {
+            new_render_pass_context->first_clone = cmd_buf_idx;
+            found_overlap                        = true;
+        }
+        new_render_pass_context->last_clone = cmd_buf_idx + 1;
+
         injected->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
     }
 
-    auto new_entry = rendering_attachment_layouts_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(current_renderpass_), std::forward_as_tuple());
-    assert(new_entry.second);
-    new_entry.first->second.is_dynamic = false;
+    inside_renderpass_ = true;
 
     return VK_SUCCESS;
 }
 
 void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
 {
-    assert(active_renderpass_);
-    assert(!active_renderpass_->create_info.empty());
-    assert(active_framebuffer_);
-
-    std::vector<VulkanImageInfo*>    color_att_imgs;
-    std::vector<VkAttachmentStoreOp> color_att_storeOps;
-    std::vector<VkImageLayout>       color_att_final_layouts;
-
-    ++current_subpass_;
-
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    auto   injected    = device_table_.Open();
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    GetRenderPassCommandBuffers(first, last);
+    auto injected = device_table_.Open();
+    for (auto it = first; it < last; ++it)
     {
-        const uint64_t              dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
-        const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
-        const uint64_t              rp       = RP_index.first;
-
         injected->CmdNextSubpass(*it, contents);
     }
 
-    VulkanImageInfo*    depth_img_info;
-    VkAttachmentStoreOp depth_att_storeOp;
-    VkImageLayout       depth_final_layout;
+    GFXRECON_ASSERT(!render_pass_contexts_.empty());
+    auto& current_render_pass_context = *render_pass_contexts_.back();
 
-    if (active_renderpass_->func_version == VulkanRenderPassInfo::kCreateRenderPass)
+    // First increment, then query size
+    auto&      new_render_targets = current_render_pass_context.render_targets.emplace_back();
+    const auto current_subpass =
+        GFXRECON_NARROWING_CAST(uint32_t, current_render_pass_context.render_targets.size() - 1);
+
+    if (current_render_pass_context.renderpass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
     {
-        ParseAttachmentsInRenderPassCreateInfo(
-            active_renderpass_,
-            reinterpret_cast<const VkRenderPassCreateInfo*>(active_renderpass_->create_info.data()),
-            active_framebuffer_,
-            current_subpass_,
+        ParseAttachmentsInRenderPassCreateInfo(current_render_pass_context.renderpass_info,
+                                               reinterpret_cast<const VkRenderPassCreateInfo*>(
+                                                   current_render_pass_context.renderpass_info->create_info.data()),
+                                               current_render_pass_context.framebuffer_info,
+                                               current_subpass,
+                                               new_render_targets);
+
+        UpdateOriginalCommandBufferWithNewImageLayouts(
+            current_render_pass_context.renderpass_info,
+            reinterpret_cast<const VkRenderPassCreateInfo*>(
+                current_render_pass_context.renderpass_info->create_info.data()),
+            current_render_pass_context.framebuffer_info,
             object_info_table_,
-            color_att_imgs,
-            &depth_img_info);
+            original_command_buffer_info_);
     }
     else
     {
-        ParseAttachmentsInRenderPassCreateInfo(
-            active_renderpass_,
-            reinterpret_cast<const VkRenderPassCreateInfo2*>(active_renderpass_->create_info.data()),
-            active_framebuffer_,
-            current_subpass_,
+        ParseAttachmentsInRenderPassCreateInfo(current_render_pass_context.renderpass_info,
+                                               reinterpret_cast<const VkRenderPassCreateInfo2*>(
+                                                   current_render_pass_context.renderpass_info->create_info.data()),
+                                               current_render_pass_context.framebuffer_info,
+                                               current_subpass,
+                                               new_render_targets);
+
+        UpdateOriginalCommandBufferWithNewImageLayouts(
+            current_render_pass_context.renderpass_info,
+            reinterpret_cast<const VkRenderPassCreateInfo2*>(
+                current_render_pass_context.renderpass_info->create_info.data()),
+            current_render_pass_context.framebuffer_info,
             object_info_table_,
-            color_att_imgs,
-            &depth_img_info);
-    }
-
-    SetRenderTargets(color_att_imgs, depth_img_info, false);
-
-    if (active_renderpass_->func_version == VulkanRenderPassInfo::kCreateRenderPass)
-    {
-        UpdateOriginalCommandBufferWithNewImageLayouts(
-            active_renderpass_,
-            reinterpret_cast<const VkRenderPassCreateInfo*>(active_renderpass_->create_info.data()),
-            active_framebuffer_,
-            original_command_buffer_info_,
-            object_info_table_);
-    }
-    else
-    {
-        UpdateOriginalCommandBufferWithNewImageLayouts(
-            active_renderpass_,
-            reinterpret_cast<const VkRenderPassCreateInfo2*>(active_renderpass_->create_info.data()),
-            active_framebuffer_,
-            original_command_buffer_info_,
-            object_info_table_);
+            original_command_buffer_info_);
     }
 }
 
@@ -3372,48 +3466,49 @@ void DrawCallsDumpingContext::BindPipeline(VkPipelineBindPoint pipeline_bind_poi
 
 void DrawCallsDumpingContext::EndRenderPass()
 {
-    assert(current_render_pass_type_ == kRenderPass);
+    GFXRECON_ASSERT(!render_pass_contexts_.empty());
+    GFXRECON_ASSERT(render_pass_contexts_.back()->type == kRenderPass);
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    auto   injected    = device_table_.Open();
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    GetRenderPassCommandBuffers(first, last);
+    auto injected = device_table_.Open();
+    for (auto it = first; it < last; ++it)
     {
-        const uint64_t              dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
-        const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
-        const uint64_t              rp       = RP_index.first;
-        const uint64_t              sp       = RP_index.second;
-
-        if (dc_index < RP_indices_[rp][0])
-        {
-            continue;
-        }
-
         injected->CmdEndRenderPass(*it);
     }
 
-    ++current_renderpass_;
-
-    active_renderpass_        = nullptr;
-    current_render_pass_type_ = kNone;
+    inside_renderpass_ = false;
 }
 
 void DrawCallsDumpingContext::EndRendering()
 {
-    assert(current_render_pass_type_ == kDynamicRendering);
+    GFXRECON_ASSERT(!render_pass_contexts_.empty());
+    GFXRECON_ASSERT(render_pass_contexts_.back()->type == kDynamicRendering);
 
     CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(first, last);
-    size_t cmd_buf_idx = current_cb_index_;
-    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
+    GetRenderPassCommandBuffers(first, last);
+    for (auto it = first; it < last; ++it)
     {
         RecordCmdEndRendering(*it);
     }
 
-    ++current_renderpass_;
+    inside_renderpass_ = false;
+}
 
-    current_render_pass_type_ = kNone;
+void DrawCallsDumpingContext::EndRendering(PFN_vkCmdEndRendering2KHR    func,
+                                           const VkRenderingEndInfoKHR* rendering_end_info)
+{
+    GFXRECON_ASSERT(!render_pass_contexts_.empty());
+    GFXRECON_ASSERT(render_pass_contexts_.back()->type == kDynamicRendering);
+
+    CommandBufferIterator first, last;
+    GetRenderPassCommandBuffers(first, last);
+    for (auto it = first; it < last; ++it)
+    {
+        func(*it, rendering_end_info);
+    }
+
+    inside_renderpass_ = false;
 }
 
 void DrawCallsDumpingContext::BindVertexBuffers(uint64_t                                    index,
@@ -3523,29 +3618,6 @@ void DrawCallsDumpingContext::BindIndexBuffer(
     bound_index_buffer_.offset      = offset;
     bound_index_buffer_.index_type  = index_type;
     bound_index_buffer_.size        = index_buffer_size;
-}
-
-void DrawCallsDumpingContext::SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
-                                               VulkanImageInfo*                     depth_att_img,
-                                               bool                                 new_render_pass)
-{
-    if (new_render_pass)
-    {
-        render_targets_.emplace_back();
-    }
-
-    auto new_render_targets = render_targets_.end() - 1;
-
-    new_render_targets->emplace_back(RenderTargets());
-    auto new_rts = new_render_targets->end() - 1;
-
-    new_rts->color_att_imgs = color_att_imgs;
-    new_rts->depth_att_img  = depth_att_img;
-}
-
-void DrawCallsDumpingContext::SetRenderArea(const VkRect2D& new_render_area)
-{
-    render_area_.push_back(new_render_area);
 }
 
 void DrawCallsDumpingContext::ResetFetchedIndirectParams()
@@ -3730,113 +3802,69 @@ void DrawCallsDumpingContext::DestroyMutableResourceBackups()
     mutable_resource_backups_.original_buffers.clear();
 }
 
-DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRenderPassIndex(uint64_t dc_index) const
-{
-    assert(RP_indices_.size());
-
-    if (secondaries_.empty())
-    {
-        for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
-        {
-            const std::vector<uint64_t>& render_pass = RP_indices_[rp];
-            assert(render_pass.size());
-
-            if (dc_index > render_pass[render_pass.size() - 1])
-            {
-                continue;
-            }
-
-            for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
-            {
-                if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
-                {
-                    return { rp, sp };
-                }
-            }
-        }
-    }
-    else
-    {
-        for (const auto& ex_com : secondaries_)
-        {
-            const uint64_t execute_commands_index = ex_com.first;
-            for (const auto secondary_context : ex_com.second)
-            {
-                const CommandIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
-
-                if (IsInsideRange(secondary_dcs, dc_index))
-                {
-                    // Draw call from secondary
-                    for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
-                    {
-                        const std::vector<uint64_t>& render_pass = RP_indices_[rp];
-                        GFXRECON_ASSERT(!render_pass.empty());
-
-                        for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
-                        {
-                            if ((execute_commands_index > render_pass[sp] &&
-                                 execute_commands_index < render_pass[sp + 1]) ||
-                                (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1]))
-                            {
-                                return { rp, sp };
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Draw call from primary
-                    for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
-                    {
-                        const std::vector<uint64_t>& render_pass = RP_indices_[rp];
-                        assert(render_pass.size());
-
-                        if (dc_index > render_pass[render_pass.size() - 1])
-                        {
-                            continue;
-                        }
-
-                        for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
-                        {
-                            if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
-                            {
-                                return { rp, sp };
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // If this is hit then probably there's something wrong with the draw call and/or render pass indices
-    GFXRECON_LOG_ERROR(
-        "It appears that there is an error with the provided Draw indices in combination with the render pass indices.")
-    assert(0);
-
-    return { 0, 0 };
-}
-
 // If options_.dump_resources_before is true, it means that we have two command buffer clones for each draw
 // This function converts the provided command buffer index into an absolute one (divided by 2 in the case of
 // dump_resources_before is true) so it can be used to index arrays that don't double their sizes in case of
 // dump_resources_before is true.
 size_t DrawCallsDumpingContext::CmdBufToDCVectorIndex(size_t cmd_buf_index) const
 {
-    assert(cmd_buf_index < command_buffers_.size());
+    assert(cmd_buf_index < GetWindowCount());
 
     if (options_.dump_resources_before)
     {
-        assert(cmd_buf_index / 2 < dc_indices_.size());
+        assert(cmd_buf_index / 2 < dc_slots_.size());
 
         return cmd_buf_index / 2;
     }
     else
     {
-        assert(cmd_buf_index < dc_indices_.size());
+        assert(cmd_buf_index < dc_slots_.size());
 
         return cmd_buf_index;
     }
+}
+
+void DrawCallsDumpingContext::GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const
+{
+    // A slot's position in the primary's stream is where the vkCmdExecuteCommands that merged it sits,
+    // or the draw call block index for the primary's own draws.
+    const auto slot_position = [this](size_t slot_index) {
+        GFXRECON_ASSERT(slot_index < dc_slots_.size());
+        const DrawCallSlot& slot = dc_slots_[slot_index];
+        return slot.execute_index != UNDEFINED_INDEX ? slot.execute_index : slot.dc_index;
+    };
+
+    // The tail clone has no slot of its own: it runs everything after the last target draw
+    if (has_tail_clone_ && cmd_buf_index + 1 == command_buffers_.size())
+    {
+        lo = dc_slots_.empty() ? 0 : slot_position(dc_slots_.size() - 1);
+        hi = std::numeric_limits<uint64_t>::max();
+        return;
+    }
+
+    const size_t slot_index = CmdBufToDCVectorIndex(cmd_buf_index);
+
+    hi = slot_position(slot_index);
+    lo = slot_index > 0 ? slot_position(slot_index - 1) : 0;
+
+    // With --dump-resources-before the "before" clone runs (lo, hi) and the "after" clone the target draw alone
+    if (options_.dump_resources_before && (cmd_buf_index % 2) != 0)
+    {
+        lo = hi;
+    }
+}
+
+const std::vector<Index>* DrawCallsDumpingContext::FindRenderPassBlockRange(uint64_t block_index) const
+{
+    for (const auto& range : RP_indices_)
+    {
+        if (IsInsideRange(range, block_index))
+        {
+            return &range;
+        }
+    }
+
+    return nullptr;
 }
 
 uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferIterator& first,
@@ -3848,42 +3876,176 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
     return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
 }
 
-void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>& color_attachments,
+VkCommandBuffer DrawCallsDumpingContext::GetWorkCommandBuffer() const
+{
+    GFXRECON_ASSERT(current_cb_index_ < command_buffers_.size());
+    return command_buffers_[current_cb_index_];
+}
+
+uint32_t DrawCallsDumpingContext::GetRenderPassCommandBuffers(CommandBufferIterator& first,
+                                                              CommandBufferIterator& last) const
+{
+    // An instance this context did not begin itself lives entirely inside the current clone's window
+    if (!inside_renderpass_ || render_pass_contexts_.empty())
+    {
+        GFXRECON_ASSERT(current_cb_index_ < command_buffers_.size());
+        first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
+        last  = first + 1;
+        return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
+    }
+
+    const RenderPassContext& render_pass_context = *render_pass_contexts_.back();
+
+    const size_t begin = std::max(render_pass_context.first_clone, current_cb_index_);
+    const size_t end   = std::max(begin, render_pass_context.last_clone);
+    GFXRECON_ASSERT(end <= command_buffers_.size());
+
+    first = command_buffers_.begin() + static_cast<int>(begin);
+    last  = command_buffers_.begin() + static_cast<int>(end);
+    return GFXRECON_NARROWING_CAST(uint32_t, begin);
+}
+
+namespace
+{
+// A VkRenderingInfo whose attachments store their results, and load them first when a window resumes the
+// instance. The copies are referenced by the info, so this must outlive the call it is passed to.
+class ChainedRenderingInfo
+{
+  public:
+    ChainedRenderingInfo(const VkRenderingInfo& original, bool load) :
+        info_(original),
+        color_attachments_(original.pColorAttachments, original.pColorAttachments + original.colorAttachmentCount)
+    {
+        for (auto& attachment : color_attachments_)
+        {
+            FixOps(attachment, load);
+        }
+        info_.pColorAttachments = color_attachments_.empty() ? nullptr : color_attachments_.data();
+
+        if (original.pDepthAttachment != nullptr)
+        {
+            depth_attachment_ = *original.pDepthAttachment;
+            FixOps(depth_attachment_, load);
+            info_.pDepthAttachment = &depth_attachment_;
+        }
+
+        if (original.pStencilAttachment != nullptr)
+        {
+            stencil_attachment_ = *original.pStencilAttachment;
+            FixOps(stencil_attachment_, load);
+            info_.pStencilAttachment = &stencil_attachment_;
+        }
+    }
+
+    ChainedRenderingInfo(const ChainedRenderingInfo&)            = delete;
+    ChainedRenderingInfo& operator=(const ChainedRenderingInfo&) = delete;
+
+    const VkRenderingInfo* Get() const { return &info_; }
+
+  private:
+    static void FixOps(VkRenderingAttachmentInfo& attachment, bool load)
+    {
+        if (attachment.imageView == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        if (load)
+        {
+            attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        }
+    }
+
+    VkRenderingInfo                        info_;
+    std::vector<VkRenderingAttachmentInfo> color_attachments_;
+    VkRenderingAttachmentInfo              depth_attachment_{};
+    VkRenderingAttachmentInfo              stencil_attachment_{};
+};
+} // namespace
+
+void DrawCallsDumpingContext::BeginRendering(uint64_t                             block_index,
+                                             const VkRenderingInfo*               rendering_info,
+                                             const std::vector<VulkanImageInfo*>& color_attachments,
                                              const std::vector<VkImageLayout>&    color_attachment_layouts,
                                              VulkanImageInfo*                     depth_attachment,
-                                             VkImageLayout                        depth_attachment_layout,
-                                             const VkRect2D&                      render_area)
+                                             VkImageLayout                        depth_attachment_layout)
 {
     assert(color_attachments.size() == color_attachment_layouts.size());
-    assert(current_render_pass_type_ == kNone);
+    GFXRECON_ASSERT(rendering_info != nullptr);
 
-    if (command_buffer_level_ == DumpResourcesCommandBufferLevel::kSecondary)
+    auto& new_render_pass_context    = render_pass_contexts_.emplace_back(std::make_shared<RenderPassContext>(
+        color_attachments, color_attachment_layouts, depth_attachment, depth_attachment_layout, command_buffer_level_));
+    new_render_pass_context->ordinal = render_pass_contexts_.size() - 1;
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+
+    // The rendering instance is begun in every clone whose window overlaps it, and those clones form a
+    // contiguous range. Only the window that contains the begin starts the instance the way the application
+    // did, the others resume it and load what the window before them stored.
+    const std::vector<Index>* block_range = FindRenderPassBlockRange(block_index);
+    const uint64_t            pass_begin  = block_range != nullptr ? block_range->front() : 0;
+    const uint64_t            pass_end    = block_range != nullptr ? block_range->back() : 0;
+
+    const ChainedRenderingInfo stored(*rendering_info, false);
+    const ChainedRenderingInfo resumed(*rendering_info, true);
+
+    bool   found_overlap = false;
+    size_t cmd_buf_idx   = current_cb_index_;
+    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
-        secondary_with_dynamic_rendering_ = true;
+        uint64_t lo, hi;
+        GetCloneWindow(cmd_buf_idx, lo, hi);
+        if (lo >= pass_end || hi <= pass_begin)
+        {
+            continue;
+        }
+
+        RecordCmdBeginRendering(*it, (lo < pass_begin) ? stored.Get() : resumed.Get());
+
+        if (!found_overlap)
+        {
+            new_render_pass_context->first_clone = cmd_buf_idx;
+            found_overlap                        = true;
+        }
+        new_render_pass_context->last_clone = cmd_buf_idx + 1;
     }
 
-    current_render_pass_type_ = kDynamicRendering;
+    inside_renderpass_ = true;
+}
 
-    for (size_t i = 0; i < color_attachments.size(); ++i)
+void DrawCallsDumpingContext::AppendTailClones()
+{
+    // clones are the only execution, so any work after last target draw gets a clone of its own.
+    if (!has_tail_clone_)
     {
-        color_attachments[i]->intermediate_layout = color_attachment_layouts[i];
+        command_buffers_.push_back(VK_NULL_HANDLE);
+        has_tail_clone_ = true;
     }
 
-    if (depth_attachment != nullptr)
+    for (const auto& secondaries : secondaries_ | std::views::values)
     {
-        depth_attachment->intermediate_layout = depth_attachment_layout;
+        for (const auto& secondary_context : secondaries)
+        {
+            secondary_context->AppendTailClones();
+        }
+    }
+}
+
+// The window clones are ended by FinalizeCommandBuffer as their target draw is reached. The tail clone has no
+// target draw, so it is ended here, while the application still has the command buffer open.
+void DrawCallsDumpingContext::EndCommandBuffer()
+{
+    if (!has_tail_clone_)
+    {
+        return;
     }
 
-    SetRenderTargets(color_attachments, depth_attachment, true);
-    SetRenderArea(render_area);
+    GFXRECON_ASSERT(device_table_.IsValid());
 
-    auto [new_entry_it, success] = rendering_attachment_layouts_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(current_renderpass_), std::forward_as_tuple());
-    GFXRECON_ASSERT(success);
-
-    new_entry_it->second.is_dynamic               = true;
-    new_entry_it->second.color_attachment_layouts = color_attachment_layouts;
-    new_entry_it->second.depth_attachment_layout  = depth_attachment_layout;
+    auto injected = device_table_.Open();
+    injected->EndCommandBuffer(command_buffers_.back());
 }
 
 void DrawCallsDumpingContext::AssignSecondary(uint64_t                                 execute_commands_index,
@@ -3895,116 +4057,98 @@ void DrawCallsDumpingContext::AssignSecondary(uint64_t                          
     secondary_context->command_buffer_level_ = DumpResourcesCommandBufferLevel::kSecondary;
 }
 
-uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
+std::vector<std::shared_ptr<DrawCallsDumpingContext>>
+DrawCallsDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) const
 {
-    auto n_command_buffers = GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
+    auto entry = secondaries_.find(execute_commands_index);
+    if (entry != secondaries_.end())
+    {
+        return entry->second;
+    }
 
+    return std::vector<std::shared_ptr<DrawCallsDumpingContext>>();
+}
+
+// Rewrite this vkCmdExecuteCommands block's segment of dc_slots_ so that the labels follow the
+// given execution order. RecalculateCommandBuffers merges secondaries in dump-args order at setup,
+// but slots are consumed in pCommandBuffers order, which is only known when the execute replays.
+void DrawCallsDumpingContext::ReorderSecondaries(
+    Index execute_commands_index, const std::vector<std::shared_ptr<DrawCallsDumpingContext>>& execution_order)
+{
+    const auto seg_entry =
+        std::find_if(dc_slots_.begin(), dc_slots_.end(), [execute_commands_index](const DrawCallSlot& slot) {
+            return slot.execute_index == execute_commands_index;
+        });
+    if (seg_entry == dc_slots_.end())
+    {
+        return;
+    }
+
+    size_t pos = std::distance(dc_slots_.begin(), seg_entry);
+    for (const auto& secondary_context : execution_order)
+    {
+        for (const DrawCallSlot& secondary_slot : secondary_context->GetDrawCallSlots())
+        {
+            GFXRECON_ASSERT(pos < dc_slots_.size() && dc_slots_[pos].execute_index == execute_commands_index);
+            dc_slots_[pos++].dc_index = secondary_slot.dc_index;
+        }
+    }
+}
+
+uint32_t DrawCallsDumpingContext::RecalculateCommandBuffers()
+{
     if (secondaries_.empty())
     {
-        return n_command_buffers;
+        return GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
     }
+
+    auto n_command_buffers = GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
+
+    // Merge secondary draw call indices into the primary in finalization order: the primary's own
+    // draws and the vkCmdExecuteCommands blocks replay in ascending block index order, and each
+    // execute finalizes its secondaries' draws at its own position in the primary's command stream.
+    // Each merged draw is tagged with the block index of the vkCmdExecuteCommands that ran it, so
+    // that render pass correlation can tell apart multiple executions of the same secondary.
+    std::vector<DrawCallSlot> merged_slots;
+
+    auto       primary_it  = dc_slots_.begin();
+    const auto primary_end = dc_slots_.end();
 
     for (const auto& execute_commands : secondaries_)
     {
+        // The primary's own draws recorded before this vkCmdExecuteCommands finalize first
+        for (; primary_it != primary_end && primary_it->dc_index < execute_commands.first; ++primary_it)
+        {
+            merged_slots.push_back(*primary_it);
+        }
+
         for (const auto& secondary_context : execute_commands.second)
         {
-            const size_t secondary_n_command_buffers = secondary_context->RecaclulateCommandBuffers();
+            const size_t secondary_n_command_buffers = secondary_context->RecalculateCommandBuffers();
             if (!secondary_n_command_buffers)
             {
-                return n_command_buffers;
+                // Abort the merge, leaving the primary in its original, consistent state
+                return GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
             }
 
             n_command_buffers += secondary_n_command_buffers;
 
-            // Merge draw call indices into primary
-            const std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
-            dc_indices_.reserve(n_command_buffers);
-            dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
-            std::sort(dc_indices_.begin(), dc_indices_.end());
+            for (const DrawCallSlot& secondary_slot : secondary_context->GetDrawCallSlots())
+            {
+                merged_slots.push_back({ secondary_slot.dc_index, execute_commands.first });
+            }
         }
     }
+
+    // The primary's own draws recorded after the last vkCmdExecuteCommands
+    merged_slots.insert(merged_slots.end(), primary_it, primary_end);
+
+    dc_slots_ = std::move(merged_slots);
 
     GFXRECON_ASSERT(n_command_buffers >= command_buffers_.size())
     command_buffers_.resize(n_command_buffers);
 
     return n_command_buffers;
-}
-
-void DrawCallsDumpingContext::MergeRenderPasses(const DrawCallsDumpingContext& secondary_context)
-{
-    // Here we only need to take care of secondary command buffers that have dynamic rendering.
-    // Traditional render passes do not need special handling since their commands are recorded directly into the
-    // primary command buffer.
-    if (!secondary_context.secondary_with_dynamic_rendering_)
-    {
-        return;
-    }
-
-    RenderPassIndices&       rp_primary   = RP_indices_;
-    const RenderPassIndices& rp_secondary = secondary_context.RP_indices_;
-    rp_primary.reserve(rp_primary.size() + rp_secondary.size());
-    for (auto prim_it = rp_primary.begin(); prim_it < rp_primary.end(); ++prim_it)
-    {
-        uint32_t sec_rts_copied = 0;
-        for (auto sec_it = rp_secondary.begin(); sec_it < rp_secondary.end(); ++sec_it)
-        {
-            if (prim_it->empty())
-            {
-                if (!sec_it->empty())
-                {
-                    *prim_it = *sec_it;
-
-                    // This is a dynamic rendering. Push back an empty render pass clone.
-                    render_pass_clones_.emplace_back();
-
-                    // Copy render targets to primary
-                    SetRenderTargets(secondary_context.render_targets_[sec_rts_copied][0].color_att_imgs,
-                                     secondary_context.render_targets_[sec_rts_copied][0].depth_att_img,
-                                     true);
-
-                    // Copy render targets' layout into primary
-                    GFXRECON_ASSERT(!secondary_context.render_targets_.empty());
-                    rendering_attachment_layouts_.insert(secondary_context.rendering_attachment_layouts_.begin(),
-                                                         secondary_context.rendering_attachment_layouts_.end());
-                    ++sec_rts_copied;
-                }
-            }
-            else
-            {
-                if (!sec_it->empty())
-                {
-                    if ((*sec_it)[0] < (*prim_it)[0])
-                    {
-                        prim_it = rp_primary.insert(prim_it, *sec_it);
-
-                        // This is a dynamic rendering. Push back an empty render pass clone.
-                        render_pass_clones_.emplace_back();
-                        render_pass_clones_[current_renderpass_].emplace_back();
-
-                        // Copy render targets to primary
-                        SetRenderTargets(secondary_context.render_targets_[sec_rts_copied][0].color_att_imgs,
-                                         secondary_context.render_targets_[sec_rts_copied][0].depth_att_img,
-                                         true);
-
-                        // Copy render targets' layout into primary
-                        GFXRECON_ASSERT(!secondary_context.render_targets_.empty());
-                        rendering_attachment_layouts_.insert(secondary_context.rendering_attachment_layouts_.begin(),
-                                                             secondary_context.rendering_attachment_layouts_.end());
-
-                        ++prim_it;
-                        ++sec_rts_copied;
-                    }
-                }
-            }
-        }
-
-        if (sec_rts_copied == rp_secondary.size())
-        {
-            break;
-        }
-    }
-
-    current_renderpass_ += secondary_context.rendering_attachment_layouts_.size();
 }
 
 void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& secondary_context,
@@ -4027,6 +4171,9 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
     const DrawCallParameters& secondary_dc_params = secondary_context.GetDrawCallParameters();
     for (const auto& [secondary_index, secondary_params] : secondary_dc_params)
     {
+        // The slot the following FinalizeCommandBuffer calls are going to fill in
+        const size_t primary_slot_index = CmdBufToDCVectorIndex(current_cb_index_);
+
         auto entry = draw_call_params_.find(secondary_index);
         if (entry == draw_call_params_.end())
         {
@@ -4039,6 +4186,7 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
                 std::forward_as_tuple(execute_cmd_index, command_buffer_execute_index));
 
             FinalizeCommandBuffer(new_entry->second.get());
+            entry = new_entry;
         }
         else
         {
@@ -4055,7 +4203,30 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
         // Finalize the command buffer for the before case as well
         if (options_.dump_resources_before)
         {
+            entry->second->secondary_identifiers.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(current_cb_index_),
+                std::forward_as_tuple(execute_cmd_index, command_buffer_execute_index));
+
             FinalizeCommandBuffer();
+        }
+
+        // A secondary that begins its own render pass instance (dynamic rendering) is executed outside any render
+        // pass of the primary, so the primary could not correlate the slot above. The secondary correlated its own
+        // slot when it finalized the draw call, so take the render pass context from there.
+        DrawCallSlot& primary_slot = dc_slots_[primary_slot_index];
+        if (primary_slot.render_pass_context == nullptr)
+        {
+            const std::vector<DrawCallSlot>& secondary_slots = secondary_context.GetDrawCallSlots();
+            const auto                       secondary_slot =
+                std::find_if(secondary_slots.begin(),
+                             secondary_slots.end(),
+                             [index = secondary_index](const DrawCallSlot& s) { return s.dc_index == index; });
+            if (secondary_slot != secondary_slots.end())
+            {
+                primary_slot.render_pass_context = secondary_slot->render_pass_context;
+                primary_slot.subpass             = secondary_slot->subpass;
+            }
         }
     }
 }

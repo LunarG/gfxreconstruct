@@ -25,8 +25,13 @@
 
 #include "util/defines.h"
 #include "decode/vulkan_replay_consumer_base.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
+
+#include <limits>
+#include <memory>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -41,9 +46,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         frame_loop_info_(frame_loop_info)
     {}
 
+    ~VulkanReplayFrameLoopConsumer() override;
+
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
+
+    void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
+
+    void Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
@@ -89,6 +100,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void Process_vkAcquireProfilingLockKHR(const ApiCallInfo& call_info, args::AcquireProfilingLockKHR& args) override;
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, args::ReleaseProfilingLockKHR& args) override;
+
+    void Process_vkDestroyDevice(const ApiCallInfo& call_info, args::DestroyDevice& args) override;
+
+    void Process_vkFreeMemory(const ApiCallInfo& call_info, args::FreeMemory& args) override;
 
     virtual void StartLooping() override;
 
@@ -164,6 +179,210 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     SemaphoreTracking& GetSemaphoreTracking(format::HandleId device);
     void               TrackSemaphoreStates();
 
+    /// Tracks a device-local copy of each buffer's contents at the start of the loop range so that GPU
+    /// writes made to the buffer during the loop can be undone before each repetition.
+    struct BufferTracking
+    {
+        BufferTracking(format::HandleId                         device_id,
+                       const graphics::VulkanDeviceTable&       device_table,
+                       CommonObjectInfoTable&                   object_table,
+                       std::shared_ptr<VulkanResourceAllocator> allocator,
+                       const VkPhysicalDeviceMemoryProperties*  memory_properties) :
+            device_id_(device_id),
+            device_table_(device_table), object_table_(object_table), allocator_(allocator),
+            memory_properties_(memory_properties)
+        {}
+
+        // A shadow buffer is only ever the source or destination of a vkCmdCopyBuffer.
+        static constexpr VkBufferUsageFlags kShadowBufferUsage =
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+        // Allocations that shadow buffers are suballocated from.
+        struct MemoryBlock
+        {
+            /// `allocator` has to outlive the memory block.
+            explicit MemoryBlock(VulkanResourceAllocator& allocator) : allocator(&allocator) {}
+
+            ~MemoryBlock() { Free(); }
+
+            // A memory block owns its allocation, so it can be moved but not copied.
+            MemoryBlock(const MemoryBlock&)            = delete;
+            MemoryBlock& operator=(const MemoryBlock&) = delete;
+
+            MemoryBlock(MemoryBlock&& other) noexcept :
+                memory(other.memory), mem_data(other.mem_data), size(other.size), next_offset(other.next_offset),
+                allocator(other.allocator)
+            {
+                other.memory = VK_NULL_HANDLE;
+            }
+
+            MemoryBlock& operator=(MemoryBlock&& other) noexcept
+            {
+                if (this != &other)
+                {
+                    Free();
+
+                    memory      = other.memory;
+                    mem_data    = other.mem_data;
+                    size        = other.size;
+                    next_offset = other.next_offset;
+                    allocator   = other.allocator;
+
+                    other.memory = VK_NULL_HANDLE;
+                }
+
+                return *this;
+            }
+
+            /// Allocates `allocation_size` bytes of `memory_type_index` for the block to suballocate from.
+            bool Allocate(uint32_t memory_type_index, VkDeviceSize allocation_size);
+
+            /// Suballocates memory from this block and binds `shadow` to it.
+            VkResult Bind(const TemporaryBuffer& shadow);
+
+            VkDeviceMemory                      memory{ VK_NULL_HANDLE };
+            VulkanResourceAllocator::MemoryData mem_data{ 0 };
+            VkDeviceSize                        size{ 0 };
+            VkDeviceSize                        next_offset{ 0 };
+            VulkanResourceAllocator*            allocator{ nullptr };
+
+          private:
+            void Free()
+            {
+                if (memory != VK_NULL_HANDLE)
+                {
+                    GFXRECON_ASSERT(allocator != nullptr);
+                    allocator->FreeMemoryDirect(memory, nullptr, mem_data);
+                }
+            }
+        };
+
+        /// A shadow buffer that has been created, but not yet suballocated from a memory block.
+        struct PendingShadowBuffer
+        {
+            PendingShadowBuffer(format::HandleId buffer_id, TemporaryBuffer&& shadow_buffer) :
+                buffer_id(buffer_id), shadow(std::move(shadow_buffer))
+            {}
+
+            /// Copys buffer with matching `buffer_id` into shadow
+            void CopyBuffer(const graphics::VulkanDeviceTable& device_table,
+                            CommonObjectInfoTable&             object_table,
+                            VkCommandBuffer                    command_buffer) const;
+
+            format::HandleId buffer_id{ format::kNullHandleId };
+            TemporaryBuffer  shadow;
+        };
+
+        void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
+        void Restore();
+        void DestroyShadowBuffers();
+
+        // Spec required minimum for maxMemoryAllocationSize.
+        static constexpr VkDeviceSize kMaxMemoryBlockSize = 1024ull * 1024ull * 1024ull;
+
+        static constexpr size_t kInvalidBlockIndex = std::numeric_limits<size_t>::max();
+
+        size_t AddMemoryBlock(uint32_t memory_type_index, VkDeviceSize preferred_size, VkDeviceSize minimum_size);
+
+        /// The largest block that may be allocated from `memory_type_index`.
+        static VkDeviceSize MaxBlockSize(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                         uint32_t                                memory_type_index);
+
+        format::HandleId                         device_id_;
+        const graphics::VulkanDeviceTable&       device_table_;
+        CommonObjectInfoTable&                   object_table_;
+        std::shared_ptr<VulkanResourceAllocator> allocator_;
+        const VkPhysicalDeviceMemoryProperties*  memory_properties_;
+        std::vector<MemoryBlock>                 memory_blocks_;
+
+        /// A device local copy of each buffer's contents, taken at the start of the loop range and copied back
+        /// over the buffer before each repetition.  Their memory is suballocated from `memory_blocks_`, which
+        /// have to outlive them, and prefers being device local when possible.
+        std::unordered_map<format::HandleId, TemporaryBuffer> shadow_buffers_;
+    };
+
+    BufferTracking& GetBufferTracking(format::HandleId device);
+    void            RecordBufferStates();
+    void            FixupDeviceBuffers(format::HandleId device);
+    void            ResetBufferTracking();
+    void            ResetBufferTracking(format::HandleId device);
+
+    struct ImageTracking
+    {
+        ImageTracking(format::HandleId                         device_id,
+                      const graphics::VulkanDeviceTable&       device_table,
+                      CommonObjectInfoTable&                   object_table,
+                      std::shared_ptr<VulkanResourceAllocator> allocator,
+                      const VkPhysicalDeviceMemoryProperties*  memory_properties) :
+            device_id_(device_id),
+            device_table_(device_table), object_table_(object_table), allocator_(allocator),
+            memory_properties_(memory_properties)
+        {}
+
+        struct ImageState
+        {
+            graphics::ImageLayoutMap initial_layouts;
+
+            VkImage                               shadow_image{ VK_NULL_HANDLE };
+            VkDeviceMemory                        shadow_memory{ VK_NULL_HANDLE };
+            VulkanResourceAllocator::ResourceData alloc_data{ 0 };
+            VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+
+            std::vector<VkImageSubresourceRange> copyable_ranges;
+
+            std::vector<VkImageSubresourceRange> excluded_ranges;
+
+            std::vector<VkImageCopy> copy_regions;
+
+            VkImageSubresourceRange shadow_range{};
+
+            bool HasShadow() const { return shadow_image != VK_NULL_HANDLE; }
+        };
+
+        struct RestoreCommands
+        {
+            // Puts every copyable subresource of each source image into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
+            std::vector<VkImageMemoryBarrier> pre_barriers;
+
+            // Transitions subresources to their initial recorded layouts.
+            std::vector<VkImageMemoryBarrier> post_barriers;
+
+            // Images whose contents are copied back out of their shadow.
+            std::vector<format::HandleId> copy_ids;
+
+            std::vector<std::pair<format::HandleId, VkImageLayout>> layout_updates;
+
+            bool built{ false };
+        };
+
+        void RecordInitialState(const std::vector<format::HandleId>& image_ids,
+                                const std::vector<format::HandleId>& restorable_image_ids);
+
+        void Restore(format::HandleId queue);
+
+        void DestroyShadowImages();
+
+        bool CreateShadowImage(format::HandleId image_id, const VulkanImageInfo* image_info, ImageState& state);
+        void DestroyShadowImage(ImageState& state);
+
+        void BuildRestoreCommands();
+
+        format::HandleId                                 device_id_;
+        const graphics::VulkanDeviceTable&               device_table_;
+        CommonObjectInfoTable&                           object_table_;
+        std::shared_ptr<VulkanResourceAllocator>         allocator_;
+        const VkPhysicalDeviceMemoryProperties*          memory_properties_;
+        std::unordered_map<format::HandleId, ImageState> image_states_;
+        RestoreCommands                                  restore_commands_;
+    };
+
+    ImageTracking& GetImageTracking(format::HandleId device);
+    bool           CanSnapshotImageContents(const VulkanImageInfo* image_info) const;
+    void           TrackImageStates();
+    void           FixupDeviceImages(format::HandleId device, format::HandleId queue);
+    void           ResetImageTracking();
+    void           ResetImageTracking(format::HandleId device);
+
     // Private data
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
@@ -184,6 +403,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     std::unordered_set<format::HandleId>                host_visible_events_;
     std::unordered_map<format::HandleId, EventTracking> per_device_event_tracking_;
+
+    std::unordered_map<format::HandleId, BufferTracking> per_device_buffer_tracking_;
+
+    std::unordered_set<format::HandleId> restorable_images_;
+
+    std::unordered_map<format::HandleId, ImageTracking> per_device_image_tracking_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;

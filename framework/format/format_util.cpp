@@ -56,7 +56,7 @@ bool ValidateFileHeader(const FileHeader& header)
     else if (!VersionSupported(header))
     {
 
-        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%",
+        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%u",
                            header.major_version,
                            header.minor_version,
                            GFXRECON_CURRENT_FILE_MAJOR,

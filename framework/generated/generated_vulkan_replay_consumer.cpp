@@ -912,14 +912,14 @@ void VulkanReplayConsumer::Process_vkCmdEndQuery(
     const ApiCallInfo&                          call_info,
     args::CmdEndQuery&                          args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndQuery(in_commandBuffer, in_queryPool, args.query);
+    OverrideCmdEndQuery(GetDeviceTable(in_commandBuffer->handle)->CmdEndQuery, in_commandBuffer, in_queryPool, args.query);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndQuery(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool), args.query);
+        resource_dumper_->Process_vkCmdEndQuery(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_queryPool, args.query);
     }
 }
 
@@ -927,14 +927,14 @@ void VulkanReplayConsumer::Process_vkCmdResetQueryPool(
     const ApiCallInfo&                          call_info,
     args::CmdResetQueryPool&                    args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_commandBuffer)->CmdResetQueryPool(in_commandBuffer, in_queryPool, args.firstQuery, args.queryCount);
+    OverrideCmdResetQueryPool(GetDeviceTable(in_commandBuffer->handle)->CmdResetQueryPool, in_commandBuffer, in_queryPool, args.firstQuery, args.queryCount);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdResetQueryPool(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool), args.firstQuery, args.queryCount);
+        resource_dumper_->Process_vkCmdResetQueryPool(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_queryPool, args.firstQuery, args.queryCount);
     }
 }
 
@@ -942,14 +942,14 @@ void VulkanReplayConsumer::Process_vkCmdWriteTimestamp(
     const ApiCallInfo&                          call_info,
     args::CmdWriteTimestamp&                    args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp(in_commandBuffer, args.pipelineStage, in_queryPool, args.query);
+    OverrideCmdWriteTimestamp(GetDeviceTable(in_commandBuffer->handle)->CmdWriteTimestamp, in_commandBuffer, args.pipelineStage, in_queryPool, args.query);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWriteTimestamp(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.pipelineStage, GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool), args.query);
+        resource_dumper_->Process_vkCmdWriteTimestamp(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.pipelineStage, in_queryPool, args.query);
     }
 }
 
@@ -1019,10 +1019,10 @@ void VulkanReplayConsumer::Process_vkGetEventStatus(
     const ApiCallInfo&                          call_info,
     args::GetEventStatus&                       args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetEventStatus(in_device, in_event);
+    VkResult replay_result = OverrideGetEventStatus(GetDeviceTable(in_device->handle)->GetEventStatus, args.result, in_device, in_event);
     CheckResult("vkGetEventStatus", args.result, replay_result, call_info);
 }
 
@@ -1030,10 +1030,10 @@ void VulkanReplayConsumer::Process_vkSetEvent(
     const ApiCallInfo&                          call_info,
     args::SetEvent&                             args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetEvent(in_device, in_event);
+    VkResult replay_result = OverrideSetEvent(GetDeviceTable(in_device->handle)->SetEvent, args.result, in_device, in_event);
     CheckResult("vkSetEvent", args.result, replay_result, call_info);
 }
 
@@ -1041,10 +1041,10 @@ void VulkanReplayConsumer::Process_vkResetEvent(
     const ApiCallInfo&                          call_info,
     args::ResetEvent&                           args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    VkResult replay_result = GetDeviceTable(in_device)->ResetEvent(in_device, in_event);
+    VkResult replay_result = OverrideResetEvent(GetDeviceTable(in_device->handle)->ResetEvent, args.result, in_device, in_event);
     CheckResult("vkResetEvent", args.result, replay_result, call_info);
 }
 
@@ -1230,11 +1230,10 @@ void VulkanReplayConsumer::Process_vkDestroyPipelineLayout(
     const ApiCallInfo&                          call_info,
     args::DestroyPipelineLayout&                args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkPipelineLayout in_pipelineLayout = MapHandle<VulkanPipelineLayoutInfo>(args.pipelineLayout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(&args.pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_pipelineLayout = GetObjectInfoTable().GetVkPipelineLayoutInfo(args.pipelineLayout);
 
-    GetDeviceTable(in_device)->DestroyPipelineLayout(in_device, in_pipelineLayout, in_pAllocator);
+    OverrideDestroyPipelineLayout(GetDeviceTable(in_device->handle)->DestroyPipelineLayout, in_device, in_pipelineLayout, &args.pAllocator);
     RemoveHandle(args.pipelineLayout, &CommonObjectInfoTable::RemoveVkPipelineLayoutInfo);
 }
 
@@ -1467,14 +1466,14 @@ void VulkanReplayConsumer::Process_vkCmdSetEvent(
     const ApiCallInfo&                          call_info,
     args::CmdSetEvent&                          args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    GetDeviceTable(in_commandBuffer)->CmdSetEvent(in_commandBuffer, in_event, args.stageMask);
+    OverrideCmdSetEvent(GetDeviceTable(in_commandBuffer->handle)->CmdSetEvent, in_commandBuffer, in_event, args.stageMask);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetEvent(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_event, args.stageMask);
+        resource_dumper_->Process_vkCmdSetEvent(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_event->handle, args.stageMask);
     }
 }
 
@@ -1482,14 +1481,14 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent(
     const ApiCallInfo&                          call_info,
     args::CmdResetEvent&                        args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    GetDeviceTable(in_commandBuffer)->CmdResetEvent(in_commandBuffer, in_event, args.stageMask);
+    OverrideCmdResetEvent(GetDeviceTable(in_commandBuffer->handle)->CmdResetEvent, in_commandBuffer, in_event, args.stageMask);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdResetEvent(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_event, args.stageMask);
+        resource_dumper_->Process_vkCmdResetEvent(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_event->handle, args.stageMask);
     }
 }
 
@@ -1497,20 +1496,20 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents(
     const ApiCallInfo&                          call_info,
     args::CmdWaitEvents&                        args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkMemoryBarrier* in_pMemoryBarriers = args.pMemoryBarriers.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
+
     MapStructArrayHandles(args.pMemoryBarriers.GetMetaStructPointer(), args.pMemoryBarriers.GetLength(), GetObjectInfoTable());
-    const VkBufferMemoryBarrier* in_pBufferMemoryBarriers = args.pBufferMemoryBarriers.GetPointer();
+
     MapStructArrayHandles(args.pBufferMemoryBarriers.GetMetaStructPointer(), args.pBufferMemoryBarriers.GetLength(), GetObjectInfoTable());
-    const VkImageMemoryBarrier* in_pImageMemoryBarriers = args.pImageMemoryBarriers.GetPointer();
+
     MapStructArrayHandles(args.pImageMemoryBarriers.GetMetaStructPointer(), args.pImageMemoryBarriers.GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdWaitEvents(in_commandBuffer, args.eventCount, in_pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, in_pMemoryBarriers, args.bufferMemoryBarrierCount, in_pBufferMemoryBarriers, args.imageMemoryBarrierCount, in_pImageMemoryBarriers);
+    OverrideCmdWaitEvents(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents, in_commandBuffer, args.eventCount, &args.pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, &args.pMemoryBarriers, args.bufferMemoryBarrierCount, &args.pBufferMemoryBarriers, args.imageMemoryBarrierCount, &args.pImageMemoryBarriers);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.eventCount, in_pEvents, args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, in_pMemoryBarriers, args.bufferMemoryBarrierCount, in_pBufferMemoryBarriers, args.imageMemoryBarrierCount, in_pImageMemoryBarriers);
+        resource_dumper_->Process_vkCmdWaitEvents(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.srcStageMask, args.dstStageMask, args.memoryBarrierCount, args.pMemoryBarriers.GetPointer(), args.bufferMemoryBarrierCount, args.pBufferMemoryBarriers.GetPointer(), args.imageMemoryBarrierCount, args.pImageMemoryBarriers.GetPointer());
     }
 }
 
@@ -2317,10 +2316,10 @@ void VulkanReplayConsumer::Process_vkResetQueryPool(
     const ApiCallInfo&                          call_info,
     args::ResetQueryPool&                       args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_device)->ResetQueryPool(in_device, in_queryPool, args.firstQuery, args.queryCount);
+    OverrideResetQueryPool(GetDeviceTable(in_device->handle)->ResetQueryPool, in_device, in_queryPool, args.firstQuery, args.queryCount);
 }
 
 void VulkanReplayConsumer::Process_vkGetSemaphoreCounterValue(
@@ -2584,14 +2583,14 @@ void VulkanReplayConsumer::Process_vkCmdWriteTimestamp2(
     const ApiCallInfo&                          call_info,
     args::CmdWriteTimestamp2&                   args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp2(in_commandBuffer, args.stage, in_queryPool, args.query);
+    OverrideCmdWriteTimestamp2(GetDeviceTable(in_commandBuffer->handle)->CmdWriteTimestamp2, in_commandBuffer, args.stage, in_queryPool, args.query);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWriteTimestamp2(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.stage, GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool), args.query);
+        resource_dumper_->Process_vkCmdWriteTimestamp2(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.stage, in_queryPool, args.query);
     }
 }
 
@@ -2737,16 +2736,16 @@ void VulkanReplayConsumer::Process_vkCmdSetEvent2(
     const ApiCallInfo&                          call_info,
     args::CmdSetEvent2&                         args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkDependencyInfo* in_pDependencyInfo = args.pDependencyInfo.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
+
     MapStructHandles(args.pDependencyInfo.GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdSetEvent2(in_commandBuffer, in_event, in_pDependencyInfo);
+    OverrideCmdSetEvent2(GetDeviceTable(in_commandBuffer->handle)->CmdSetEvent2, in_commandBuffer, in_event, &args.pDependencyInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetEvent2(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_event, in_pDependencyInfo);
+        resource_dumper_->Process_vkCmdSetEvent2(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_event->handle, args.pDependencyInfo.GetPointer());
     }
 }
 
@@ -2754,14 +2753,14 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent2(
     const ApiCallInfo&                          call_info,
     args::CmdResetEvent2&                       args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    GetDeviceTable(in_commandBuffer)->CmdResetEvent2(in_commandBuffer, in_event, args.stageMask);
+    OverrideCmdResetEvent2(GetDeviceTable(in_commandBuffer->handle)->CmdResetEvent2, in_commandBuffer, in_event, args.stageMask);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdResetEvent2(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_event, args.stageMask);
+        resource_dumper_->Process_vkCmdResetEvent2(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_event->handle, args.stageMask);
     }
 }
 
@@ -2769,16 +2768,16 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2(
     const ApiCallInfo&                          call_info,
     args::CmdWaitEvents2&                       args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkDependencyInfo* in_pDependencyInfos = args.pDependencyInfos.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
+
     MapStructArrayHandles(args.pDependencyInfos.GetMetaStructPointer(), args.pDependencyInfos.GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdWaitEvents2(in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+    OverrideCmdWaitEvents2(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2, in_commandBuffer, args.eventCount, &args.pEvents, &args.pDependencyInfos);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents2(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper_->Process_vkCmdWaitEvents2(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.pDependencyInfos.GetPointer());
     }
 }
 
@@ -3285,7 +3284,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocations(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocations(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pLocationInfo);
+        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocations(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pLocationInfo);
     }
 }
 
@@ -3301,7 +3300,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingInputAttachmentIndices(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndices(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pInputAttachmentIndexInfo);
+        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndices(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pInputAttachmentIndexInfo);
     }
 }
 
@@ -4903,7 +4902,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocationsKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pLocationInfo);
+        resource_dumper_->Process_vkCmdSetRenderingAttachmentLocationsKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pLocationInfo);
     }
 }
 
@@ -4919,7 +4918,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pInputAttachmentIndexInfo);
+        resource_dumper_->Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pInputAttachmentIndexInfo);
     }
 }
 
@@ -5160,16 +5159,16 @@ void VulkanReplayConsumer::Process_vkCmdSetEvent2KHR(
     const ApiCallInfo&                          call_info,
     args::CmdSetEvent2KHR&                      args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkDependencyInfo* in_pDependencyInfo = args.pDependencyInfo.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
+
     MapStructHandles(args.pDependencyInfo.GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdSetEvent2KHR(in_commandBuffer, in_event, in_pDependencyInfo);
+    OverrideCmdSetEvent2(GetDeviceTable(in_commandBuffer->handle)->CmdSetEvent2KHR, in_commandBuffer, in_event, &args.pDependencyInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdSetEvent2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_event, in_pDependencyInfo);
+        resource_dumper_->Process_vkCmdSetEvent2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_event->handle, args.pDependencyInfo.GetPointer());
     }
 }
 
@@ -5177,14 +5176,14 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent2KHR(
     const ApiCallInfo&                          call_info,
     args::CmdResetEvent2KHR&                    args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkEvent in_event = MapHandle<VulkanEventInfo>(args.event, &CommonObjectInfoTable::GetVkEventInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_event = GetObjectInfoTable().GetVkEventInfo(args.event);
 
-    GetDeviceTable(in_commandBuffer)->CmdResetEvent2KHR(in_commandBuffer, in_event, args.stageMask);
+    OverrideCmdResetEvent2(GetDeviceTable(in_commandBuffer->handle)->CmdResetEvent2KHR, in_commandBuffer, in_event, args.stageMask);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdResetEvent2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_event, args.stageMask);
+        resource_dumper_->Process_vkCmdResetEvent2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_event->handle, args.stageMask);
     }
 }
 
@@ -5192,16 +5191,16 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2KHR(
     const ApiCallInfo&                          call_info,
     args::CmdWaitEvents2KHR&                    args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
-    const VkDependencyInfo* in_pDependencyInfos = args.pDependencyInfos.GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    MapHandles<VulkanEventInfo>(&args.pEvents, args.eventCount, &CommonObjectInfoTable::GetVkEventInfo);
+
     MapStructArrayHandles(args.pDependencyInfos.GetMetaStructPointer(), args.pDependencyInfos.GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdWaitEvents2KHR(in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+    OverrideCmdWaitEvents2(GetDeviceTable(in_commandBuffer->handle)->CmdWaitEvents2KHR, in_commandBuffer, args.eventCount, &args.pEvents, &args.pDependencyInfos);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWaitEvents2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper_->Process_vkCmdWaitEvents2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.eventCount, args.pEvents.GetHandlePointer(), args.pDependencyInfos.GetPointer());
     }
 }
 
@@ -5225,14 +5224,14 @@ void VulkanReplayConsumer::Process_vkCmdWriteTimestamp2KHR(
     const ApiCallInfo&                          call_info,
     args::CmdWriteTimestamp2KHR&                args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp2KHR(in_commandBuffer, args.stage, in_queryPool, args.query);
+    OverrideCmdWriteTimestamp2(GetDeviceTable(in_commandBuffer->handle)->CmdWriteTimestamp2KHR, in_commandBuffer, args.stage, in_queryPool, args.query);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdWriteTimestamp2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, args.stage, GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool), args.query);
+        resource_dumper_->Process_vkCmdWriteTimestamp2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, args.stage, in_queryPool, args.query);
     }
 }
 
@@ -5991,6 +5990,11 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsKHR(
     const ApiCallInfo&                          call_info,
     args::GetCalibratedTimestampsKHR&           args)
 {
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetCalibratedTimestampsKHR for offscreen.");
+        return;
+    }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = args.pTimestampInfos.GetPointer();
     MapStructArrayHandles(args.pTimestampInfos.GetMetaStructPointer(), args.pTimestampInfos.GetLength(), GetObjectInfoTable());
@@ -6151,7 +6155,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering2KHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRendering2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pRenderingEndInfo);
+        resource_dumper_->Process_vkCmdEndRendering2KHR(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pRenderingEndInfo);
     }
 }
 
@@ -6347,14 +6351,14 @@ void VulkanReplayConsumer::Process_vkCmdEndQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
     args::CmdEndQueryIndexedEXT&                args)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndQueryIndexedEXT(in_commandBuffer, in_queryPool, args.query, args.index);
+    OverrideCmdEndQueryIndexedEXT(GetDeviceTable(in_commandBuffer->handle)->CmdEndQueryIndexedEXT, in_commandBuffer, in_queryPool, args.query, args.index);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndQueryIndexedEXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool), args.query, args.index);
+        resource_dumper_->Process_vkCmdEndQueryIndexedEXT(call_info, GetInjectedDeviceCalls(in_commandBuffer->handle), in_commandBuffer->handle, in_queryPool, args.query, args.index);
     }
 }
 
@@ -7581,6 +7585,11 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsEXT(
     const ApiCallInfo&                          call_info,
     args::GetCalibratedTimestampsEXT&           args)
 {
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetCalibratedTimestampsEXT for offscreen.");
+        return;
+    }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = args.pTimestampInfos.GetPointer();
     MapStructArrayHandles(args.pTimestampInfos.GetMetaStructPointer(), args.pTimestampInfos.GetLength(), GetObjectInfoTable());
@@ -7716,11 +7725,10 @@ void VulkanReplayConsumer::Process_vkSetSwapchainPresentTimingQueueSizeEXT(
         GFXRECON_LOG_DEBUG("Skip vkSetSwapchainPresentTimingQueueSizeEXT for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(args.swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
-    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain)->surface_id)->surface_creation_skipped) { return; }
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_swapchain = GetObjectInfoTable().GetVkSwapchainKHRInfo(args.swapchain);
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetSwapchainPresentTimingQueueSizeEXT(in_device, in_swapchain, args.size);
+    VkResult replay_result = OverrideSetSwapchainPresentTimingQueueSizeEXT(GetDeviceTable(in_device->handle)->SetSwapchainPresentTimingQueueSizeEXT, args.result, in_device, in_swapchain, args.size);
     CheckResult("vkSetSwapchainPresentTimingQueueSizeEXT", args.result, replay_result, call_info);
 }
 
@@ -7773,13 +7781,13 @@ void VulkanReplayConsumer::Process_vkGetPastPresentationTimingEXT(
         GFXRECON_LOG_DEBUG("Skip vkGetPastPresentationTimingEXT for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkPastPresentationTimingInfoEXT* in_pPastPresentationTimingInfo = args.pPastPresentationTimingInfo.GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
     MapStructHandles(args.pPastPresentationTimingInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    VkPastPresentationTimingPropertiesEXT* out_pPastPresentationTimingProperties = args.pPastPresentationTimingProperties.IsNull() ? nullptr : args.pPastPresentationTimingProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
+    args.pPastPresentationTimingProperties.IsNull() ? nullptr : args.pPastPresentationTimingProperties.AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
     InitializeOutputStructPNext(&args.pPastPresentationTimingProperties);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetPastPresentationTimingEXT(in_device, in_pPastPresentationTimingInfo, out_pPastPresentationTimingProperties);
+    VkResult replay_result = OverrideGetPastPresentationTimingEXT(GetDeviceTable(in_device->handle)->GetPastPresentationTimingEXT, args.result, in_device, &args.pPastPresentationTimingInfo, &args.pPastPresentationTimingProperties);
     CheckResult("vkGetPastPresentationTimingEXT", args.result, replay_result, call_info);
 }
 
@@ -8129,10 +8137,10 @@ void VulkanReplayConsumer::Process_vkResetQueryPoolEXT(
     const ApiCallInfo&                          call_info,
     args::ResetQueryPoolEXT&                    args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(args.queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    auto in_queryPool = GetObjectInfoTable().GetVkQueryPoolInfo(args.queryPool);
 
-    GetDeviceTable(in_device)->ResetQueryPoolEXT(in_device, in_queryPool, args.firstQuery, args.queryCount);
+    OverrideResetQueryPool(GetDeviceTable(in_device->handle)->ResetQueryPoolEXT, in_device, in_queryPool, args.firstQuery, args.queryCount);
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetCullModeEXT(
@@ -10744,7 +10752,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering2EXT(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRendering2EXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pRenderingEndInfo);
+        resource_dumper_->Process_vkCmdEndRendering2EXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, &args.pRenderingEndInfo);
     }
 }
 
@@ -10810,6 +10818,22 @@ void VulkanReplayConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     {
         resource_dumper_->Process_vkCmdSetComputeOccupancyPriorityNV(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pParameters);
     }
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+    const VkPhysicalDeviceCooperativeMatrixInfo2EXT* in_pCooperativeMatrixInfo = args.pCooperativeMatrixInfo.GetPointer();
+    MapStructHandles(args.pCooperativeMatrixInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    uint32_t* out_pPropertyCount = args.pPropertyCount.IsNull() ? nullptr : args.pPropertyCount.AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceCooperativeMatrixProperties2EXT", args.result, args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT, &args.pPropertyCount, &args.pProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
+    VkCooperativeMatrixProperties2EXT* out_pProperties = args.pProperties.IsNull() ? nullptr : args.pProperties.AllocateOutputData(*out_pPropertyCount, VkCooperativeMatrixProperties2EXT{ VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT, nullptr });
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceCooperativeMatrixProperties2EXT(in_physicalDevice, in_pCooperativeMatrixInfo, out_pPropertyCount, out_pProperties);
+    CheckResult("vkGetPhysicalDeviceCooperativeMatrixProperties2EXT", args.result, replay_result, call_info);
+
+    if (args.pProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT, *out_pPropertyCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
@@ -13785,6 +13809,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkResolveImageModeInfoKHR>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMaintenance11FeaturesKHR>());
@@ -15965,11 +15994,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>());
@@ -16665,6 +16689,21 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCooperativeMatrixProperties2EXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixInfo2EXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>());
@@ -16710,9 +16749,44 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceImageTilingControlFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageTilingControlCreateInfoEXT>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrivateDataBaseHandleFeaturesNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceInfoPropertiesINTEL>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBufferDeviceAddressAlignmentAllocateInfoVALVE>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:

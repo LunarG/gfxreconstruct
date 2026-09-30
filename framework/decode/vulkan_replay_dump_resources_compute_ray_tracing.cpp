@@ -584,16 +584,22 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     assert(src_image_info != nullptr);
     assert(dst_image != VK_NULL_HANDLE);
 
-    VkImageLayout old_layout;
+    // The barrier below covers the whole image, so this should have a single layout. Query the first subresource of
+    // the format's first aspect.
+    const VkImageAspectFlags    aspects = graphics::GetFormatAspects(src_image_info->format);
+    const VkImageAspectFlagBits first_aspect =
+        static_cast<VkImageAspectFlagBits>(aspects & ~(aspects - 1)); // Lowest set aspect bit.
+
+    VkImageLayout old_layout = VK_IMAGE_LAYOUT_GENERAL;
     assert(original_command_buffer_info_ != nullptr);
     const auto img_layout_entry = original_command_buffer_info_->image_layout_barriers.find(src_image_info->capture_id);
     if (img_layout_entry != original_command_buffer_info_->image_layout_barriers.end())
     {
-        old_layout = img_layout_entry->second;
-    }
-    else
-    {
-        old_layout = VK_IMAGE_LAYOUT_GENERAL;
+        const VkImageLayout command_buffer_layout = img_layout_entry->second.GetSubresourceLayout(first_aspect, 0, 0);
+        if (command_buffer_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            old_layout = command_buffer_layout;
+        }
     }
 
     // Make sure any potential writes are complete and transition image to TRANSFER_SRC_OPTIMAL layout
@@ -1344,9 +1350,21 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
     // Clean up references to dumped descriptors in case this command buffer is submitted again
     dispatch_dumped_descriptors_.buffer_descriptors.clear();
     dispatch_dumped_descriptors_.image_descriptors.clear();
+    dispatch_dumped_descriptors_.acceleration_structures.clear();
 
     trace_rays_dumped_descriptors_.buffer_descriptors.clear();
     trace_rays_dumped_descriptors_.image_descriptors.clear();
+    trace_rays_dumped_descriptors_.acceleration_structures.clear();
+
+    for (auto& tr_params : trace_rays_params_)
+    {
+        tr_params.second->dumped_resources.Reset();
+    }
+
+    for (auto& disp_params : dispatch_params_)
+    {
+        disp_params.second->dumped_resources.Reset();
+    }
 
     assert(res == VK_SUCCESS);
     return VK_SUCCESS;
@@ -2334,9 +2352,16 @@ void DispatchTraceRaysDumpingContext::AssignSecondary(
     secondary_context->command_buffer_level_ = DumpResourcesCommandBufferLevel::kSecondary;
 }
 
-bool DispatchTraceRaysDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
+std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
+DispatchTraceRaysDumpingContext::SecondariesToExecute(uint64_t execute_commands_index) const
 {
-    return secondaries_.find(index) != secondaries_.end();
+    auto entry = secondaries_.find(execute_commands_index);
+    if (entry != secondaries_.end())
+    {
+        return entry->second;
+    }
+
+    return std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>();
 }
 
 void DispatchTraceRaysDumpingContext::UpdateSecondaries(DispatchTraceRaysDumpingContext& secondary_context,

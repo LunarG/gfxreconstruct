@@ -28,6 +28,10 @@
 #include "util/image_writer.h"
 #include "util/logging.h"
 
+#if defined(_WIN32)
+#include <d3d12video.h>
+#endif
+
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -269,38 +273,19 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                             filename += "_frame_";
                             filename += std::to_string(frame_num);
 
-                            switch (screenshot_format)
-                            {
-                                default:
-                                    GFXRECON_LOG_ERROR(
-                                        "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
-                                    // Intentional fall-through
-                                case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch)))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write BMP file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                                case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImage(filename + ".png",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch),
-                                                                          util::imagewriter::kFormat_RGBA))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write PNG file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                            }
+                            // RetrieveImageData swizzled to BGRA only when a
+                            // BMP was asked for, thus the layout of the bytes
+                            // follows the file format.
+                            const auto data_format =
+                                convert_to_bgra ? util::imagewriter::kFormat_BGRA : util::imagewriter::kFormat_RGBA;
+
+                            util::imagewriter::WriteScreenshotFile(filename,
+                                                                   screenshot_format,
+                                                                   static_cast<unsigned int>(fb_desc.Width),
+                                                                   static_cast<unsigned int>(fb_desc.Height),
+                                                                   std::data(captured_image.data),
+                                                                   static_cast<unsigned int>(pitch),
+                                                                   data_format);
                         }
                     }
                 }
@@ -1737,6 +1722,49 @@ uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t d
     return static_cast<uint64_t>(mip_depth) * depth_pitch;
 }
 #endif
+
+size_t GetResolveQueryDataSize(D3D12_QUERY_TYPE type, UINT num_queries)
+{
+    size_t element_size = 0;
+    switch (type)
+    {
+        case D3D12_QUERY_TYPE_OCCLUSION:
+        case D3D12_QUERY_TYPE_BINARY_OCCLUSION:
+        case D3D12_QUERY_TYPE_TIMESTAMP:
+            element_size = sizeof(UINT64);
+            break;
+        case D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS:
+            // D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS is not listed as a supported type in the
+            // ID3D12Device::ResolveQueryData spec (CPU Timeline Query Resolution). Additionally, GFXR
+            // does not support the video decode API. Allocate based on the correct struct size anyway
+            // so that if the driver accepts the call the buffer is large enough; if the driver rejects
+            // it, CheckReplayResult will handle the HRESULT mismatch.
+            GFXRECON_LOG_WARNING_ONCE(
+                "GetResolveQueryDataSize: D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS is not listed as a "
+                "supported query type for ID3D12Device::ResolveQueryData (CPU-timeline resolution). "
+                "GFXR does not support the video decode API.");
+            element_size = sizeof(D3D12_QUERY_DATA_VIDEO_DECODE_STATISTICS);
+            break;
+        case D3D12_QUERY_TYPE_PIPELINE_STATISTICS:
+            element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS);
+            break;
+        case D3D12_QUERY_TYPE_PIPELINE_STATISTICS1:
+            element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS1);
+            break;
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM0:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM1:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM2:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM3:
+            element_size = sizeof(D3D12_QUERY_DATA_SO_STATISTICS);
+            break;
+        default:
+            GFXRECON_LOG_WARNING("GetResolveQueryDataSize: unknown D3D12_QUERY_TYPE %d, using sizeof(UINT64)",
+                                 static_cast<int>(type));
+            element_size = sizeof(UINT64);
+            break;
+    }
+    return element_size * static_cast<size_t>(num_queries);
+}
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
