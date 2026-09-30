@@ -24,6 +24,7 @@
 #include "image_writer.h"
 
 #include "platform.h"
+#include "util/file_output_stream.h"
 #include "util/file_path.h"
 #include "util/logging.h"
 
@@ -91,15 +92,16 @@ static std::vector<uint8_t> temporary_buffer;
 // writes into temporary_buffer and would destroy an alpha image held there.
 static std::vector<uint8_t> alpha_buffer;
 
-#define CheckFwriteRetVal(_val_, _file_)                                                              \
-    {                                                                                                 \
-        if (!_val_)                                                                                   \
-        {                                                                                             \
-            GFXRECON_LOG_ERROR("%s() (%u): fwrite failed (%s)", __func__, __LINE__, strerror(errno)); \
-            util::platform::FileClose(_file_);                                                        \
-                                                                                                      \
-            return false;                                                                             \
-        }                                                                                             \
+// Without a buffer, the row-at-a-time writes below would each reach the file system.
+constexpr size_t kBmpFileBufferSize = 64 * 1024;
+
+#define CheckWriteRetVal(_val_)                                                                      \
+    {                                                                                                \
+        if (!_val_)                                                                                  \
+        {                                                                                            \
+            GFXRECON_LOG_ERROR("%s() (%u): write failed (%s)", __func__, __LINE__, strerror(errno)); \
+            return false;                                                                            \
+        }                                                                                            \
     }
 
 static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
@@ -448,14 +450,17 @@ ExtractAlphaChannel(uint32_t width, uint32_t height, const void* data, uint32_t 
     return alpha_buffer.data();
 }
 
-static bool WriteBmpHeader(FILE* file, uint32_t width, uint32_t height, bool write_alpha)
+// BMP image data requires row to be a multiple of 4 bytes
+// Round-up row size to next multiple of 4, if it isn't already
+static uint32_t GetBmpPitch(uint32_t width, bool write_alpha)
 {
-    assert(file);
+    return static_cast<uint32_t>(
+        util::platform::GetAlignedSize(width * (write_alpha ? kImageBpp : kImageBppNoAlpha), 4));
+}
 
-    // BMP image data requires row to be a multiple of 4 bytes
-    // Round-up row size to next multiple of 4, if it isn't already
-    const uint32_t bmp_pitch =
-        static_cast<uint32_t>(util::platform::GetAlignedSize(width * (write_alpha ? kImageBpp : kImageBppNoAlpha), 4));
+static bool WriteBmpHeader(util::OutputStream& stream, uint32_t width, uint32_t height, bool write_alpha)
+{
+    const uint32_t bmp_pitch = GetBmpPitch(width, write_alpha);
 
     BmpFileHeader file_header;
     BmpInfoHeader info_header;
@@ -478,11 +483,11 @@ static bool WriteBmpHeader(FILE* file, uint32_t width, uint32_t height, bool wri
     info_header.clr_used         = 0;
     info_header.clr_important    = 0;
 
-    bool ret = util::platform::FileWrite(&file_header, sizeof(file_header), file);
-    CheckFwriteRetVal(ret, file);
+    bool ret = stream.Write(&file_header, sizeof(file_header));
+    CheckWriteRetVal(ret);
 
-    ret = util::platform::FileWrite(&info_header, sizeof(info_header), file);
-    CheckFwriteRetVal(ret, file);
+    ret = stream.Write(&info_header, sizeof(info_header));
+    CheckWriteRetVal(ret);
 
     return true;
 }
@@ -495,8 +500,6 @@ bool WriteBmpImage(const std::string& filename,
                    DataFormats        format,
                    bool               write_alpha)
 {
-    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
-
     if (data_pitch == 0)
     {
         data_pitch = static_cast<uint32_t>(width * DataFormatsSizes(format));
@@ -507,24 +510,24 @@ bool WriteBmpImage(const std::string& filename,
         }
     }
 
-    bool    success = false;
-    FILE*   file    = nullptr;
-    int32_t result  = util::platform::FileOpen(&file, filename.c_str(), "wb");
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
-    if ((result == 0) && (file != nullptr))
+    // FileOutputStream logs the reason when the open fails.
+    std::unique_ptr<util::OutputStream> stream =
+        std::make_unique<util::FileOutputStream>(filename, kBmpFileBufferSize);
+
+    if (!stream->IsValid())
     {
-        success = WriteBmpHeader(file, width, height, write_alpha);
-        if (!success)
-        {
-            GFXRECON_LOG_ERROR("%s() Failed writing file", __func__);
-            return false;
-        }
+        return false;
+    }
 
+    bool success = WriteBmpHeader(*stream, width, height, write_alpha);
+    if (success)
+    {
         // Y needs to be inverted when writing the bitmap data.
         auto height_1 = height - 1;
 
-        const uint32_t bmp_pitch = static_cast<uint32_t>(
-            util::platform::GetAlignedSize(width * (write_alpha ? kImageBpp : kImageBppNoAlpha), 4));
+        const uint32_t bmp_pitch = GetBmpPitch(width, write_alpha);
 
         // The rows can go to the file as they are only when they already have
         // the layout of a bitmap row.  The header says the rows are aligned to
@@ -539,8 +542,8 @@ bool WriteBmpImage(const std::string& filename,
             const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
             for (uint32_t y = 0; y < height; ++y)
             {
-                success = util::platform::FileWrite(&bytes[(height_1 - y) * data_pitch], data_pitch, file);
-                CheckFwriteRetVal(success, file);
+                success = stream->Write(&bytes[(height_1 - y) * data_pitch], data_pitch);
+                CheckWriteRetVal(success);
             }
         }
         else
@@ -549,21 +552,14 @@ bool WriteBmpImage(const std::string& filename,
                 ConvertIntoTemporaryBuffer(width, height, data, data_pitch, format, false, write_alpha);
             for (uint32_t y = 0; y < height; ++y)
             {
-                success = util::platform::FileWrite(&bytes[(height_1 - y) * bmp_pitch], bmp_pitch, file);
-                CheckFwriteRetVal(success, file);
+                success = stream->Write(&bytes[(height_1 - y) * bmp_pitch], bmp_pitch);
+                CheckWriteRetVal(success);
             }
         }
-
-        if (!ferror(file))
-        {
-            success = true;
-        }
-
-        util::platform::FileClose(file);
     }
     else
     {
-        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
+        GFXRECON_LOG_ERROR("%s() Failed writing BMP header", __func__);
     }
 
     return success;

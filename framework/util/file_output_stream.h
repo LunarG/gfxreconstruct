@@ -37,6 +37,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+/// @brief Selects the fopen mode. Differs from binary only on Windows, where text translates '\n' to CRLF.
+enum class FileWriteMode
+{
+    kBinary,
+    kText
+};
+
 /// @brief An implementation of the abstract OuptutStream interface which writes
 /// to a file or sequence of files.
 class FileOutputStream : public OutputStream
@@ -44,7 +51,10 @@ class FileOutputStream : public OutputStream
   public:
     /// @param buffer_size Controls the size of file stream buffer. If buffer_size is 0,
     /// file writes will be unbuffered.
-    FileOutputStream(const std::string& filename, size_t buffer_size, bool append = false);
+    FileOutputStream(const std::string& filename,
+                     size_t             buffer_size,
+                     bool               append = false,
+                     FileWriteMode      mode   = FileWriteMode::kBinary);
 
     FileOutputStream(FILE* file, bool owned = false);
 
