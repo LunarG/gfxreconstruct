@@ -309,7 +309,10 @@ def handle_session(conn, options, output_dir, hello=None):
         msg = json.loads(frame)
         msg_type = msg.get('type')
 
-        if msg_type in ('status', 'progress'):
+        if msg_type == 'log':
+            # Already formatted like replay's console line, level included.
+            print(msg.get('message', ''))
+        elif msg_type in ('status', 'progress'):
             # 'status' and bounded 'progress' share one in-place status line.
             if msg_type == 'status':
                 last_state = msg.get('state')

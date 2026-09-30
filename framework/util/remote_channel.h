@@ -109,6 +109,7 @@ class RemoteChannel
     // applies backpressure once the queue is full (see kSendQueueLimit).
     void SendJson(const nlohmann::json& msg);
     void SendFile(const std::string& name, const void* data, size_t size);
+    void SendLog(LoggingSeverity severity, const std::string& message);
     void SendStatus(const std::string& state, uint64_t frame, uint64_t block);
     void SendDone(bool success); // Also calls Disconnect().
 
@@ -131,6 +132,10 @@ class RemoteChannel
     // Report progress of a bounded operation (with a total, unlike the frame in SendStatus) on the active channel; a
     // no-op when no channel is connected. Emits {"type":"progress","operation":<op>,"current":X,"total":Y}.
     static void SendActiveProgress(const char* operation, uint64_t current, uint64_t total);
+
+    // Relay a log message to the active channel; a no-op when none is connected. Safe from any thread and from inside
+    // a log call, since the send path never logs.
+    static void SendActiveLog(LoggingSeverity severity, const std::string& message);
 
   private:
     // Append a length-prefixed frame to buffer.
@@ -162,6 +167,7 @@ class RemoteChannel
     bool                             stop_requested_{ false }; // Guarded by queue_mutex_.
     bool                             sender_active_{ false };  // Sender thread is running; guarded by queue_mutex_.
     std::atomic<bool>                send_failed_{ false };
+    std::atomic<bool>                connected_{ false }; // Read by IsConnected() from any thread, unlike fd_.
 
     // Backpressure accounting for LogSendQueueStats().
     std::atomic<size_t>   stat_queue_peak_{ 0 }; // Updated under queue_mutex_, read from anywhere.
@@ -177,7 +183,7 @@ class RemoteChannel
 
     // Process-wide channel behind the static helpers, for callers that cannot be handed a pointer to it. Only one
     // controller connection exists per process.
-    static RemoteChannel* active_channel_;
+    static std::atomic<RemoteChannel*> active_channel_;
 };
 
 GFXRECON_END_NAMESPACE(util)

@@ -27,6 +27,7 @@
 
 #include "util/remote_channel.h"
 
+#include "util/logging.h"
 #include "util/output_file.h"
 
 #include "nlohmann/json.hpp"
@@ -564,4 +565,57 @@ TEST_CASE("RemoteChannel reports progress on the active channel", "[remote_chann
     CHECK(progress.at("operation") == "dump_resources");
     CHECK(progress.at("current") == 3);
     CHECK(progress.at("total") == 7);
+}
+
+TEST_CASE("RemoteChannel relays log output from the logging target", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    // Other tests leave the process-wide log level raised.
+    util::Log::Init(util::LoggingSeverity::kInfo);
+    {
+        ActiveChannelScope active(channel);
+        GFXRECON_LOG_WARNING("relayed %d", 7);
+        GFXRECON_WRITE_CONSOLE("console");
+    }
+    util::Log::Release();
+
+    const json warning = controller.RecvJson();
+    CHECK(warning.at("type") == "log");
+    CHECK(warning.at("level") == "warning");
+    CHECK(warning.at("message").get<std::string>().find("relayed 7") != std::string::npos);
+
+    // Output the log level never filters has no level of its own.
+    const json console = controller.RecvJson();
+    CHECK(console.at("type") == "log");
+    CHECK(console.at("level") == "info");
+    CHECK(console.at("message") == "console");
+}
+
+TEST_CASE("RemoteChannel replaces invalid UTF-8 instead of failing", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    channel.SendLog(util::LoggingSeverity::kInfo, "bad \xff byte");
+    const json log = controller.RecvJson();
+    CHECK(log.at("message") == "bad \xEF\xBF\xBD byte");
+
+    channel.SendDone(true);
+    CHECK(controller.RecvJson().at("type") == "done");
 }

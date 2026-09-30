@@ -58,6 +58,8 @@ Every frame is a length-prefixed byte string:
   treated as the controller closing the connection. Frames from replay have no
   size limit.
 - Structured messages are UTF-8 JSON payloads. These could be migrated to a binary format such as protobuf or even GFXR's own encode/decode machinery.
+- Replay replaces invalid UTF-8 in a string value it sends, such as a log line
+  or a non-UTF-8 file name, with U+FFFD.
 - Binary file payloads are sent as a JSON `"file"` metadata frame **immediately
   followed** by a separate raw binary frame (no base64). After a `"file"`
   message the receiver treats the next frame as raw bytes.
@@ -92,12 +94,20 @@ replay     → controller:  {"type":"ready"}
 ### Replay → controller
 
 ```json
+{"type":"log","level":"info","message":"..."}
 {"type":"status","state":"running","frame":42,"block":1234}
 {"type":"progress","operation":"dump_resources","current":37,"total":90}
 {"type":"file","name":"dump/frame_0042.png","size":204800}
 <204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
 ```
+
+`log` carries one line of replay's log output. `message` is the line exactly as
+replay writes it to its console, prefix included, so it follows the log settings
+the controller sent. `level` is one of `verbose`, `debug`, `info`, `warning`,
+`error`, or `fatal`. Console output that the log level does not filter, such as
+usage text, is sent as `info` regardless of `--log-level`; a controller that
+filters by level will hide it.
 
 `done` is the final message; replay disconnects after sending it. `success`
 reports whether replay ran without error; a `stop` from the controller is not a

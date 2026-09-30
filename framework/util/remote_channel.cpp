@@ -408,6 +408,39 @@ std::string AddrInfoErrorString(int error)
 #endif
 }
 
+// Log text and file names may not be UTF-8; replace bad bytes rather than throw from inside whatever logged.
+std::string ToWireString(const nlohmann::json& msg)
+{
+    return msg.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+}
+
+const char* SeverityToLevelString(LoggingSeverity severity)
+{
+    switch (severity)
+    {
+        case LoggingSeverity::kVerbose:
+            return "verbose";
+        case LoggingSeverity::kDebug:
+            return "debug";
+        case LoggingSeverity::kInfo:
+            return "info";
+        case LoggingSeverity::kWarning:
+            return "warning";
+        case LoggingSeverity::kError:
+            return "error";
+        case LoggingSeverity::kFatal:
+            return "fatal";
+        case LoggingSeverity::kAlwaysOutput:
+            // Console output the log level does not filter; it has no level of its own.
+            return "info";
+        case LoggingSeverity::kDisabled:
+            break;
+    }
+
+    GFXRECON_ASSERT(false);
+    return "info";
+}
+
 // Connect a TCP socket described by "host:port". Returns a connected fd, or kInvalidSocket on failure.
 SocketHandle ConnectTcp(const std::string& host_port)
 {
@@ -583,6 +616,7 @@ bool RemoteChannel::Connect(const std::string& address)
         sender_active_ = true;
     }
     sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
+    connected_     = true;
     return true;
 }
 
@@ -634,12 +668,13 @@ bool RemoteChannel::Listen(const std::string& address)
         sender_active_ = true;
     }
     sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
+    connected_     = true;
     return true;
 }
 
 bool RemoteChannel::IsConnected() const
 {
-    return (fd_ != kInvalidSocket) && !send_failed_ && !controller_closed_;
+    return connected_ && !send_failed_ && !controller_closed_;
 }
 
 bool RemoteChannel::IsControllerClosed() const
@@ -649,6 +684,9 @@ bool RemoteChannel::IsControllerClosed() const
 
 void RemoteChannel::Disconnect()
 {
+    // First, so threads still holding the active-channel pointer stop queueing while the rest is torn down.
+    connected_ = false;
+
     if (sender_thread_.joinable())
     {
         // Flush: the sender thread drains the queue before honoring the stop request.
@@ -677,13 +715,19 @@ void RemoteChannel::Disconnect()
         CloseSocket(fd_);
     }
 
-    send_queue_.clear();
-    control_queue_.clear();
-    queue_bytes_             = 0;
-    stop_requested_          = false;
-    sender_active_           = false;
-    send_failed_             = false;
-    controller_closed_       = false;
+    {
+        const std::lock_guard<std::mutex> lock(queue_mutex_);
+        send_queue_.clear();
+        queue_bytes_    = 0;
+        stop_requested_ = false;
+        sender_active_  = false;
+        send_failed_    = false;
+    }
+    {
+        const std::lock_guard<std::mutex> lock(control_mutex_);
+        control_queue_.clear();
+        controller_closed_ = false;
+    }
     receiver_stop_requested_ = false;
 }
 
@@ -784,7 +828,7 @@ void RemoteChannel::SendJson(const nlohmann::json& msg)
         return;
     }
 
-    std::string          payload = msg.dump();
+    std::string          payload = ToWireString(msg);
     std::vector<uint8_t> buffer;
     buffer.reserve(sizeof(uint32_t) + payload.size());
     AppendFrame(buffer, payload.data(), static_cast<uint32_t>(payload.size()));
@@ -799,7 +843,7 @@ void RemoteChannel::SendFile(const std::string& name, const void* data, size_t s
     }
 
     nlohmann::json header  = { { "type", "file" }, { "name", name }, { "size", size } };
-    std::string    payload = header.dump();
+    std::string    payload = ToWireString(header);
 
     // Queue both frames as one buffer so the JSON header and binary data are never interleaved with other senders.
     std::vector<uint8_t> buffer;
@@ -831,6 +875,11 @@ void RemoteChannel::LogSendQueueStats() const
                     static_cast<double>(kSendQueueLimit) / (1024.0 * 1024.0),
                     stalls,
                     static_cast<double>(stat_stall_ns_.load()) / 1e6);
+}
+
+void RemoteChannel::SendLog(LoggingSeverity severity, const std::string& message)
+{
+    SendJson({ { "type", "log" }, { "level", SeverityToLevelString(severity) }, { "message", message } });
 }
 
 void RemoteChannel::SendStatus(const std::string& state, uint64_t frame, uint64_t block)
@@ -1044,16 +1093,18 @@ bool RemoteChannel::RecvExact(SocketHandle fd, void* buf, size_t size)
     return true;
 }
 
-RemoteChannel* RemoteChannel::active_channel_ = nullptr;
+std::atomic<RemoteChannel*> RemoteChannel::active_channel_{ nullptr };
 
 void RemoteChannel::SetActiveChannel(RemoteChannel* channel)
 {
     active_channel_ = channel;
+    Log::UpdateRemoteTarget(channel != nullptr);
 }
 
 bool RemoteChannel::IsActive()
 {
-    return active_channel_ != nullptr && active_channel_->IsConnected();
+    RemoteChannel* channel = active_channel_;
+    return channel != nullptr && channel->IsConnected();
 }
 
 void RemoteChannel::SendActiveFile(const std::string& name, const void* data, size_t size)
@@ -1072,6 +1123,15 @@ void RemoteChannel::SendActiveProgress(const char* operation, uint64_t current, 
     {
         channel->SendJson(
             { { "type", "progress" }, { "operation", operation }, { "current", current }, { "total", total } });
+    }
+}
+
+void RemoteChannel::SendActiveLog(LoggingSeverity severity, const std::string& message)
+{
+    RemoteChannel* channel = active_channel_;
+    if (channel != nullptr && channel->IsConnected())
+    {
+        channel->SendLog(severity, message);
     }
 }
 
