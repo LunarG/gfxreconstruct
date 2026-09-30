@@ -59,6 +59,7 @@ pipeline {
                         ))
                     properties([discarder])
 
+                    def builds
                     def tests
 
                     // Checkout and load on any available node
@@ -82,17 +83,25 @@ pipeline {
                         // labels and helper functions for creating test stages.
                         def runJob = load 'ci/runJob.groovy'
 
+                        builds = [
+                            'Windows Build': runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode])
+                            // 'Linux Build': runJob.gfxrBuildLinux()
+                            // 'Mac Build': runJob.gfxrBuildMac()
+                            // 'Android Build': runJob.gfxrBuildAndroid()
+                        ]
+                        parallel builds
+
                         tests = [
-                            'Android Rel': runJob.gfxrTestAndroid('Android Rel', runJob.ReleaseMode, runJob.AndroidLabel, "commit-suite.json", scm.branches),
-                            'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel', runJob.ReleaseMode, runJob.LinuxMesaLabel, "commit-suite.json", scm.branches),
-                            'Linux Mesa Dbg': runJob.gfxrTestLinux('Linux Mesa Dbg', runJob.DebugMode, runJob.LinuxMesaLabel, "commit-suite.json", scm.branches),
-                            'Linux Nnvidia Rel': runJob.gfxrTestLinux('Linux Nvidia Rel', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, "commit-suite.json", scm.branches),
-                            'Linux Nnvidia Dbg': runJob.gfxrTestLinux('Linux Nvidia Dbg', runJob.DebugMode, runJob.LinuxNvidiaLabel, "commit-suite.json", scm.branches),
-                            'Linux Mesa 9070 Rel': runJob.gfxrTestLinux('Linux Mesa 9070 Rel', runJob.ReleaseMode, runJob.LinuxMesa9070Label, "commit-suite.json", scm.branches),
-                            'Linux Mesa 9070 Dbg': runJob.gfxrTestLinux('Linux Mesa 9070 Dbg', runJob.DebugMode, runJob.LinuxMesa9070Label, "commit-suite.json", scm.branches),
-                            'Linux Nvidia 5080 Rel': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, "commit-suite.json", scm.branches),
-                            'Linux Nvidia 5080 Dbg': runJob.gfxrTestLinux('Linux Nvidia 5080 Dbg', runJob.DebugMode, runJob.LinuxNvidia5080Label, "commit-suite.json", scm.branches),
-                            'Mac': runJob.gfxrTestLinux('Mac', runJob.ReleaseMode, runJob.MacLabel, "commit-suite.json", scm.branches),
+                            // 'Android Rel': runJob.gfxrTestAndroid('Android Rel', runJob.ReleaseMode, runJob.AndroidLabel, "commit-suite.json", scm.branches),
+                            // 'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel', runJob.ReleaseMode, runJob.LinuxMesaLabel, "commit-suite.json", scm.branches),
+                            // 'Linux Mesa Dbg': runJob.gfxrTestLinux('Linux Mesa Dbg', runJob.DebugMode, runJob.LinuxMesaLabel, "commit-suite.json", scm.branches),
+                            // 'Linux Nnvidia Rel': runJob.gfxrTestLinux('Linux Nvidia Rel', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, "commit-suite.json", scm.branches),
+                            // 'Linux Nnvidia Dbg': runJob.gfxrTestLinux('Linux Nvidia Dbg', runJob.DebugMode, runJob.LinuxNvidiaLabel, "commit-suite.json", scm.branches),
+                            // 'Linux Mesa 9070 Rel': runJob.gfxrTestLinux('Linux Mesa 9070 Rel', runJob.ReleaseMode, runJob.LinuxMesa9070Label, "commit-suite.json", scm.branches),
+                            // 'Linux Mesa 9070 Dbg': runJob.gfxrTestLinux('Linux Mesa 9070 Dbg', runJob.DebugMode, runJob.LinuxMesa9070Label, "commit-suite.json", scm.branches),
+                            // 'Linux Nvidia 5080 Rel': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, "commit-suite.json", scm.branches),
+                            // 'Linux Nvidia 5080 Dbg': runJob.gfxrTestLinux('Linux Nvidia 5080 Dbg', runJob.DebugMode, runJob.LinuxNvidia5080Label, "commit-suite.json", scm.branches),
+                            // 'Mac': runJob.gfxrTestLinux('Mac', runJob.ReleaseMode, runJob.MacLabel, "commit-suite.json", scm.branches),
                             'Windows AMD Rel': runJob.gfxrTestWindows('Win AMD Rel', runJob.ReleaseMode, runJob.WinAMDLabel, "commit-suite.json", scm.branches),
                             'Windows AMD Dbg': runJob.gfxrTestWindows('Win AMD Dbg', runJob.DebugMode, runJob.WinAMDLabel, "commit-suite.json", scm.branches),
                             'Windows Nvidia Rel': runJob.gfxrTestWindows('Win Nvidia Rel', runJob.ReleaseMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),

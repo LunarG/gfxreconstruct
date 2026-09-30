@@ -19,7 +19,101 @@
 ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
-*/
+ */
+
+def cleanWorkSpace() {
+    retry(3) {
+        try {
+            cleanWs(deleteDirs: true)
+        } catch (Exception e) {
+            sleep(time: 5)
+            throw e
+        }
+    }
+    if (isUnix())
+        sh 'rm -rf vulkantest-results'
+    else
+        bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+}
+
+def gfxrBuildWindows(
+    String label,
+    def branches,
+    List buildModes
+) {
+    return {
+        node(label) {
+            stage('Building GFXR for Windows') {
+
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
+                cleanWorkSpace()
+
+                dir('gfxreconstruct') {
+                    // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                    // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                    def scmVars = checkout([
+                        $class: 'GitSCM',
+                        branches: branches,
+                        doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                        extensions: scm.extensions,
+                        submoduleCfg: scm.submoduleCfg,
+                        userRemoteConfigs: scm.userRemoteConfigs
+                    ])
+
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
+                            bat(script: 'ci/cloneTests.bat')
+                        }
+                    }
+
+                    buildModes.each { buildMode ->
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "BITS=64",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/Windows-Build-Log-${buildMode}"
+                            ]) {
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/buildGfxr.bat')
+                            }
+                        }
+                        def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                        stash name: "gfxr-windows-${buildMode}",
+                            allowEmpty: false,
+                            includes: [
+                            "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
+                            "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
+                            "${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
+                            "${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
+                            "${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
+                            "${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
+                            "${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
+                            "${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
+                            "${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
+                            "${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
+                            "${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
+                            "${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
+                            "${buildDir}/tools/optimize/${buildMode}/D3D12/**",
+                            "${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
+                            "${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
+                            "${buildDir}/tools/replay/${buildMode}/D3D12/**",
+                        ].join(',')
+
+                        // Probably need to stash/archive vulkantest-results for the build
+                    }
+                }
+            }
+        }
+    }
+}
+
+def gfxrBuildLinux(){}
+
+def gfxrBuildMac(){}
+
+def gfxrBuildAndroid(){}
 
 def gfxrTestWindows(
     String name,
@@ -36,16 +130,7 @@ def gfxrTestWindows(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+                    cleanWorkSpace()
 
                     dir('gfxreconstruct') {
                         // Use a curated subset of SCM fields: enough to preserve checkout behavior
@@ -69,10 +154,10 @@ def gfxrTestWindows(
                         }
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
+                        unstash "gfxr-windows-${buildMode}"
+
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
-                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
@@ -80,10 +165,7 @@ def gfxrTestWindows(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                bat(script: 'git submodule update --init --recursive --depth 1')
-                                bat(script: 'git describe --tags --always')
                                 bat(script: 'ci/cloneTests.bat')
-                                bat(script: 'ci/buildGfxr.bat')
                                 bat(script: 'ci/cloneSuites.bat')
                                 bat(script: 'ci/runTest.bat')
                             }
@@ -604,6 +686,11 @@ return [
     ReleaseMode : 'Release',
     DebugMode : 'Debug',
 
+    LinuxBuildMachineLabel : 'Linux-Build-Machine',
+    WindowsBuildMachineLabel : 'Windows-Build-Machine',
+    MacBuildMachineLabel : 'Mac-Build-Machine',
+    AndroidBuildMachineLabel : 'Android-build-Machine',
+
     AndroidLabel : 'Linux-Android-GFXR',
     LinuxMesaLabel : 'Linux-Mesa-6800-stable',
     LinuxNvidiaLabel : 'Linux-NVIDIA-950',
@@ -617,6 +704,11 @@ return [
     Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',
     WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
     WinNvidiaExtendedLabel: 'Windows-NVIDIA-2080-stable-exclusive',
+
+    gfxrBuildWindows: this.&gfxrBuildWindows,
+    gfxrBuildLinux: this.&gfxrBuildLinux,
+    gfxrBuildMac: this.&gfxrBuildMac,
+    gfxrBuildAndroid: this.&gfxrBuildAndroid,
 
     gfxrTestWindows: this.&gfxrTestWindows,
     gfxrTestLinux: this.&gfxrTestLinux,
