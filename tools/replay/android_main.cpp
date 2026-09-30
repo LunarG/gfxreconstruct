@@ -31,6 +31,7 @@
 #include "format/format.h"
 #include "util/android/activity.h"
 #include "util/android/intent.h"
+#include "util/input_file_store.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "util/remote_channel.h"
@@ -97,9 +98,11 @@ void android_main(struct android_app* app)
     // If --remote-connect or --remote-listen is specified, the controller supplies the replay settings. Because the
     // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
     // falling back to the intent arguments.
+    // An app process has no reliable $TMPDIR or /tmp, so scratch input files go under the app's private data dir.
+    gfxrecon::util::InputFileStore            input_files(app->activity->internalDataPath);
     gfxrecon::util::RemoteChannel             remote_channel;
     const gfxrecon::replay::RemoteSetupResult remote_setup =
-        gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments);
+        gfxrecon::replay::SetupRemoteChannel(remote_channel, input_files, arg_parser, options, arguments);
     if (remote_setup == gfxrecon::replay::RemoteSetupResult::kFailed)
     {
         run = false;
@@ -170,7 +173,7 @@ void android_main(struct android_app* app)
     }
 
     // Notify the controller that replay is complete. A no-op when no remote controller is connected.
-    gfxrecon::replay::ShutdownRemoteChannel(remote_channel, success);
+    gfxrecon::replay::ShutdownRemoteChannel(remote_channel, input_files, success);
 
     GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
 

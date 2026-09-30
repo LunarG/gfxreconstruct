@@ -86,6 +86,13 @@ CONTROL_COMMANDS = {
     'q': 'stop',
     'stop': 'stop',
 }
+# Options whose value names an input file, pushed to replay when it exists on this machine. Keep in sync with
+# kRemoteInputFileArguments in tools/replay/replay_settings.h.
+INPUT_FILE_OPTIONS = (
+    'dump_resources',
+    'frame_warm_up_spirv',
+    'load_pipeline_cache',
+)
 
 
 def normalize(token):
@@ -149,6 +156,32 @@ def settings_from_args(tokens):
             raise ValueError(f"'{token}' has no setting name")
         assign(options, key, value if separator else 'true')
     return options
+
+
+def collect_input_files(options):
+    '''Split local input files out of a settings dict.
+
+    Returns (options, files): options with each local input file's value replaced by its bare name, and files as
+    (name, contents) pairs to push. A value that is not a file on this machine passes through untouched.
+    '''
+    options = dict(options)
+    files = []
+    seen = {}
+    for key in INPUT_FILE_OPTIONS:
+        value = options.get(key)
+        if value is None or not os.path.isfile(value):
+            continue
+        name = os.path.basename(value)
+        if name in seen and seen[name] != value:
+            print(
+                f"Warning: '{name}' pushed from both {seen[name]} and {value}; "
+                'replay will see only the last',
+                file=sys.stderr)
+        seen[name] = value
+        with open(value, 'rb') as source:
+            files.append((name, source.read()))
+        options[key] = name
+    return options, files
 
 
 recv_rate = 0.0  # --slow-recv byte rate; 0 leaves reads unthrottled
@@ -245,13 +278,15 @@ def start_command_reader():
     return commands
 
 
-def handle_session(conn, options, output_dir, hello=None):
+def handle_session(conn, options, output_dir, hello=None, input_files=()):
     '''Run the handshake and process messages until replay reports done.
 
     options is the settings dict sent to replay.
 
     hello is replay's already-received greeting frame when the caller read it during connection setup
     (connect mode); when None (listen mode) it is read here.
+
+    input_files is a list of (name, contents) pairs pushed before the settings message.
     '''
     # Handshake: replay greets us, we reply with settings, replay acknowledges.
     if hello is None:
@@ -264,6 +299,12 @@ def handle_session(conn, options, output_dir, hello=None):
         print(f'Unexpected first message: {hello}', file=sys.stderr)
         return False
     print(f"Connected to replay (protocol version {hello.get('version')})")
+
+    # Input files precede the settings message.
+    for name, blob in input_files:
+        send_json(conn, {'type': 'file', 'name': name, 'size': len(blob)})
+        send_frame(conn, blob)
+        print(f'Sent input file: {name} ({len(blob)} bytes)')
 
     send_json(conn, {'type': 'settings', 'options': options})
     print('Sent settings:')
@@ -542,11 +583,16 @@ def adb_prepare(mode, port):
         raise ControllerError(f'failed to set up adb remote: {e}') from e
 
 
-def run_session(conn, options, output_dir, hello=None, slow_recv=0.0):
+def run_session(conn,
+                options,
+                output_dir,
+                hello=None,
+                input_files=(),
+                slow_recv=0.0):
     '''Drive one replay session over an already-connected socket. Returns True on success.'''
     apply_recv_throttle(conn, slow_recv)
     with conn:
-        return handle_session(conn, options, output_dir, hello)
+        return handle_session(conn, options, output_dir, hello, input_files)
 
 
 def run_replay(options,
@@ -554,6 +600,7 @@ def run_replay(options,
                mode='listen',
                host='127.0.0.1',
                port=9001,
+               input_files=(),
                slow_recv=0.0,
                launch=None,
                launch_adb=False):
@@ -592,7 +639,8 @@ def run_replay(options,
             reap_replay(proc)
             return False
         print(f'Connected to replay at {host}:{port}')
-        success = run_session(conn, options, output_dir, hello, slow_recv)
+        success = run_session(conn, options, output_dir, hello, input_files,
+                              slow_recv)
     else:
         server, port = open_listen_socket(host, port)
         print(f'Listening on {host}:{port}')
@@ -606,7 +654,8 @@ def run_replay(options,
 
             conn, peer = server.accept()
             print(f'Replay connected from {peer[0]}:{peer[1]}')
-        success = run_session(conn, options, output_dir, None, slow_recv)
+        success = run_session(conn, options, output_dir, None, input_files,
+                              slow_recv)
 
     returncode = reap_replay(proc)
     if returncode:
@@ -692,6 +741,8 @@ rejects any key it does not recognize, naming it in the error.''')
     except ValueError as e:
         parser.error(str(e))
 
+    options, input_files = collect_input_files(options)
+
     def parse_host_port(flag, spec):
         host, _, port_str = spec.rpartition(':')
         if not host or not port_str:
@@ -714,6 +765,7 @@ rejects any key it does not recognize, naming it in the error.''')
                              mode=mode,
                              host=host,
                              port=port,
+                             input_files=input_files,
                              slow_recv=args.slow_recv,
                              launch=args.launch,
                              launch_adb=args.launch_adb)

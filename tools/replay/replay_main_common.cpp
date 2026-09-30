@@ -27,6 +27,7 @@
 #include "decode/preload_file_processor.h"
 #include "graphics/frame_loop_info.h"
 #include "util/feature_module_registry.h"
+#include "util/input_file_store.h"
 #include "util/logging.h"
 #include "util/remote_channel.h"
 
@@ -37,6 +38,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -47,6 +49,7 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 static const std::vector<std::unique_ptr<ReplayFeatureBase>>* g_loaded_features = nullptr;
 
 RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
+                                     util::InputFileStore& input_files,
                                      util::ArgumentParser& arg_parser,
                                      const std::string&    options,
                                      const std::string&    arguments)
@@ -73,8 +76,9 @@ RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
     }
 
     std::map<std::string, std::string> settings;
-    if (!channel.Handshake(settings))
+    if (!channel.Handshake(settings, input_files))
     {
+        input_files.Cleanup();
         return RemoteSetupResult::kFailed;
     }
 
@@ -95,20 +99,34 @@ RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
 
         // Flushed here because a caller may exit() without unwinding, dropping the messages above unsent. Repeating
         // this in the caller's own shutdown is harmless.
-        ShutdownRemoteChannel(channel, false);
+        ShutdownRemoteChannel(channel, input_files, false);
         return RemoteSetupResult::kFailed;
+    }
+
+    // Point options at the files the controller pushed. Any other value stays a device path.
+    for (const char* argument : kRemoteInputFileArguments)
+    {
+        if (arg_parser.IsArgumentSet(argument))
+        {
+            const std::optional<std::string> path = input_files.Resolve(arg_parser.GetArgumentValue(argument));
+            if (path.has_value())
+            {
+                arg_parser.SetArgumentValue(argument, *path);
+            }
+        }
     }
 
     return RemoteSetupResult::kConnected;
 }
 
-void ShutdownRemoteChannel(util::RemoteChannel& channel, bool success)
+void ShutdownRemoteChannel(util::RemoteChannel& channel, util::InputFileStore& input_files, bool success)
 {
     channel.LogSendQueueStats();
 
     // Unregister before notifying the controller that replay is complete, so nothing reaches it after "done".
     util::RemoteChannel::SetActiveChannel(nullptr);
     channel.SendDone(success);
+    input_files.Cleanup();
 }
 
 void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features)

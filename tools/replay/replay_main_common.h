@@ -33,6 +33,7 @@ struct android_app;
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "util/argument_parser.h"
+#include "util/input_file_store.h"
 #include "util/remote_channel.h"
 
 #include <functional>
@@ -56,18 +57,19 @@ enum class RemoteSetupResult
 // or listening, respectively), perform the handshake, replace arg_parser with the controller-provided settings, and
 // begin relaying log output to the controller. On failure the specific reason is logged (by RemoteChannel) and
 // kFailed is returned; the caller decides how to abort. Does nothing and returns kNotRequested when neither mode is
-// set.
+// set. Options naming a file the controller pushed are pointed at its copy in input_files.
 // options and arguments are the tool's name lists with every loaded Feature's entries already
 // appended, the same lists the command-line parser was built from. Remote settings are parsed
 // against them so a Feature option means the same thing from a controller as from the command line.
 RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
+                                     util::InputFileStore& input_files,
                                      util::ArgumentParser& arg_parser,
                                      const std::string&    options,
                                      const std::string&    arguments);
 
-// Stop relaying log output, then notify the controller that replay finished. Both steps are no-ops when channel is not
-// connected, so this is safe to call unconditionally.
-void ShutdownRemoteChannel(util::RemoteChannel& channel, bool success);
+// Stop relaying log output, notify the controller that replay finished, then remove the pushed input files. All are
+// no-ops when channel is not connected, so this is safe to call unconditionally.
+void ShutdownRemoteChannel(util::RemoteChannel& channel, util::InputFileStore& input_files, bool success);
 
 // Populate features from the module registry.
 void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features);

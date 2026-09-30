@@ -1110,6 +1110,10 @@ option is joined to its value with `=` and the capture file is named by the
 `capture_file` key instead of being positional. Leading dashes are optional.
 Replay rejects any key it does not recognize and names it in the error.
 
+The controller pushes the files named by `--dump-resources`,
+`--frame-warm-up-spirv` and `--load-pipeline-cache` when they exist on its
+machine, so they do not have to exist on the replay machine.
+
 Output produced during replay — screenshots and their `--screenshot-results`
 JSON, and dump-resources buffers and images — streams to the controller and is
 written under its `--output-dir` instead of to local disk. Some output is not yet streamed and is still written

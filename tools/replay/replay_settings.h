@@ -92,6 +92,14 @@ static void PrintFeatureSynopsisLines(const std::string& synopsis)
     }
 }
 
+// Replay options whose value names an input file a remote controller can push. Keep in sync with INPUT_FILE_OPTIONS
+// in scripts/replay_controller.py.
+const char* const kRemoteInputFileArguments[] = {
+    "--dump-resources",
+    "--frame-warm-up-spirv",
+    "--load-pipeline-cache",
+};
+
 // The settings-map key carrying the capture file, which is positional and so has no spelling to normalize.
 const char kRemoteCaptureFileKey[] = "capture_file";
 
