@@ -862,7 +862,8 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
 
     if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
     {
-        if (AllocateImportedMemory(memory_alloc_info, memory_offset, capture_req, replay_req, vma_mem_info) ==
+        if (AllocateImportedMemory(
+                memory_alloc_info, memory_offset, capture_req, replay_req, resource_alloc_info, vma_mem_info) ==
             VK_SUCCESS)
         {
             memory_alloc_info.bound_ranges.push_back(
@@ -1207,7 +1208,8 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
 
     if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
     {
-        if (AllocateImportedMemory(memory_alloc_info, memory_offset, capture_req, replay_req, vma_mem_info) ==
+        if (AllocateImportedMemory(
+                memory_alloc_info, memory_offset, capture_req, replay_req, resource_alloc_info, vma_mem_info) ==
             VK_SUCCESS)
         {
             memory_alloc_info.bound_ranges.push_back(
@@ -1496,6 +1498,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
                                             VK_NULL_HANDLE,
                                             VK_NULL_HANDLE,
                                             usage,
+                                            *resource_alloc_info,
                                             &vma_mem_info);
             if (result >= 0)
             {
@@ -2796,6 +2799,7 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
                                                   VkBuffer                    dedicated_buffer,
                                                   VkImage                     dedicated_image,
                                                   VmaMemoryUsage              usage,
+                                                  const ResourceAllocInfo&    resource_alloc_info,
                                                   VmaMemoryInfo**             vma_mem_info)
 {
     VmaAllocationCreateInfo create_info{};
@@ -2809,8 +2813,12 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
 
     if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
     {
-        if (AllocateImportedMemory(memory_alloc_info, original_offset, capture_mem_req, replay_mem_req, vma_mem_info) ==
-            VK_SUCCESS)
+        if (AllocateImportedMemory(memory_alloc_info,
+                                   original_offset,
+                                   capture_mem_req,
+                                   replay_mem_req,
+                                   resource_alloc_info,
+                                   vma_mem_info) == VK_SUCCESS)
         {
             return VK_SUCCESS;
         }
@@ -3102,6 +3110,7 @@ VkResult VulkanRebindAllocator::AllocateImportedMemory(MemoryAllocInfo&         
                                                        VkDeviceSize                memory_offset,
                                                        const VkMemoryRequirements& capture_req,
                                                        const VkMemoryRequirements& replay_req,
+                                                       const ResourceAllocInfo&    resource_alloc_info,
                                                        VmaMemoryInfo**             vma_mem_info)
 {
     if (((memory_offset + replay_req.size) > memory_alloc_info.allocation_size) ||
@@ -3152,19 +3161,30 @@ VkResult VulkanRebindAllocator::AllocateImportedMemory(MemoryAllocInfo&         
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = 0;
 
+    VmaBufferImageUsage vma_usage = VmaBufferImageUsage::UNKNOWN;
+    switch (resource_alloc_info.object_type)
+    {
+        case VK_OBJECT_TYPE_BUFFER:
+        case VK_OBJECT_TYPE_IMAGE:
+            vma_usage = VmaBufferImageUsage(resource_alloc_info.usage);
+            break;
+        default:
+            break;
+    }
+
     // Mark vma's api calls as synthesized
     util::MarkInjectedCommandsHelper injected;
     auto                             result = allocator_->AllocateMemory(import_req,
-                                                     true,  // requiresDedicatedAllocation
-                                                     false, // prefersDedicatedAllocation
-                                                     memory_alloc_info.import_dedicated_buffer,
-                                                     memory_alloc_info.import_dedicated_image,
-                                                     0,
-                                                     &import_info,
-                                                     create_info,
-                                                     VMA_SUBALLOCATION_TYPE_UNKNOWN,
-                                                     1,
-                                                     &mem_info.allocation);
+                                             true,  // requiresDedicatedAllocation
+                                             false, // prefersDedicatedAllocation
+                                             memory_alloc_info.import_dedicated_buffer,
+                                             memory_alloc_info.import_dedicated_image,
+                                             vma_usage,
+                                             &import_info,
+                                             create_info,
+                                             VMA_SUBALLOCATION_TYPE_UNKNOWN,
+                                             1,
+                                             &mem_info.allocation);
 
     if (result != VK_SUCCESS)
     {
@@ -3350,6 +3370,7 @@ void VulkanRebindAllocator::RebindSparseMemory(const T&                     orig
                                             buffer,
                                             image,
                                             usage,
+                                            *res_alloc_info,
                                             &vma_mem_info);
         if (result < 0)
         {
@@ -3931,7 +3952,8 @@ VulkanRebindAllocator::AllocateMemoryForTensor(VkTensorARM                      
 
     if ((memory_alloc_info.replacement_import_fd >= 0) || (memory_alloc_info.imported_mem_info != nullptr))
     {
-        if (AllocateImportedMemory(memory_alloc_info, memory_offset, capture_req, replay_req, vma_mem_info) ==
+        if (AllocateImportedMemory(
+                memory_alloc_info, memory_offset, capture_req, replay_req, resource_alloc_info, vma_mem_info) ==
             VK_SUCCESS)
         {
             memory_alloc_info.bound_ranges.push_back(

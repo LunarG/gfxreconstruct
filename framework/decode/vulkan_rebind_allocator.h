@@ -699,12 +699,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                VkBuffer                    dedicated_buffer,
                                VkImage                     dedicated_image,
                                VmaMemoryUsage              usage,
+                               const ResourceAllocInfo&    resource_alloc_info,
                                VmaMemoryInfo**             vma_mem_info);
 
     VkResult AllocateImportedMemory(MemoryAllocInfo&            memory_alloc_info,
                                     VkDeviceSize                memory_offset,
                                     const VkMemoryRequirements& capture_req,
                                     const VkMemoryRequirements& replay_req,
+                                    const ResourceAllocInfo&    resource_alloc_info,
                                     VmaMemoryInfo**             vma_mem_info);
 
     static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
