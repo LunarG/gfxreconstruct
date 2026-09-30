@@ -20,14 +20,19 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// winsock2.h must come before any windows.h.
+// winsock2.h must come before any windows.h; WSAPoll() requires a Vista or later SDK target.
 #if defined(_WIN32)
+#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600)
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
@@ -55,6 +60,9 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 namespace
 {
+// Seconds to wait for a controller to connect in Listen() mode before giving up.
+constexpr int kAcceptTimeoutSeconds = 30;
+
 constexpr int kHandshakeTimeoutSeconds = 5;
 
 // The rest of this block adapts Winsock and BSD sockets to the one interface used by the logic below.
@@ -146,14 +154,38 @@ void SetRecvTimeout(SocketHandle fd, int timeout_seconds)
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout));
 }
 
+// Returns >0 when fd becomes readable within timeout_seconds, 0 on timeout, <0 on error.
+int WaitForReadable(SocketHandle fd, int timeout_seconds)
+{
+    WSAPOLLFD pfd = {};
+    pfd.fd        = fd;
+    pfd.events    = static_cast<SHORT>(POLLRDNORM);
+    return WSAPoll(&pfd, 1, timeout_seconds * 1000);
+}
+
 // Windows has no SIGPIPE; a send to a closed peer simply fails.
 void SetNoSigPipe(SocketHandle fd)
 {
     GFXRECON_UNREFERENCED_PARAMETER(fd);
 }
 
+// Not SO_REUSEADDR: on Windows that lets an unrelated process take over a port this socket has bound, and unlike BSD
+// it is not needed to rebind a port left in TIME_WAIT.
+void SetListenSocketOptions(SocketHandle fd)
+{
+    int on = 1;
+    setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, reinterpret_cast<const char*>(&on), sizeof(on));
+}
+
 // Windows has no abstract namespace, and the controller has no AF_UNIX there either, so Windows targets speak TCP.
 SocketHandle ConnectUnix(const std::string& name)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(name);
+    GFXRECON_LOG_ERROR("Remote channel: Unix domain sockets are not supported on Windows; use a tcp: address");
+    return kInvalidSocket;
+}
+
+SocketHandle ListenUnix(const std::string& name)
 {
     GFXRECON_UNREFERENCED_PARAMETER(name);
     GFXRECON_LOG_ERROR("Remote channel: Unix domain sockets are not supported on Windows; use a tcp: address");
@@ -191,6 +223,15 @@ void SetRecvTimeout(SocketHandle fd, int timeout_seconds)
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 }
 
+// Returns >0 when fd becomes readable within timeout_seconds, 0 on timeout, <0 on error.
+int WaitForReadable(SocketHandle fd, int timeout_seconds)
+{
+    pollfd pfd = {};
+    pfd.fd     = fd;
+    pfd.events = POLLIN;
+    return poll(&pfd, 1, timeout_seconds * 1000);
+}
+
 // Suppress SIGPIPE on platforms that signal it instead of honoring MSG_NOSIGNAL (e.g. macOS).
 void SetNoSigPipe(SocketHandle fd)
 {
@@ -200,6 +241,46 @@ void SetNoSigPipe(SocketHandle fd)
 #else
     GFXRECON_UNREFERENCED_PARAMETER(fd);
 #endif
+}
+
+// Let a listening socket rebind a port left in TIME_WAIT by a previous run.
+void SetListenSocketOptions(SocketHandle fd)
+{
+    int on = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+}
+
+// Populate addr/addrlen for a Unix domain socket name. A leading '@' selects the abstract namespace. Returns false if
+// the name is too long for sun_path.
+bool BuildUnixAddr(const std::string& name, sockaddr_un& addr, socklen_t& addrlen)
+{
+    addr            = {};
+    addr.sun_family = AF_UNIX;
+
+    if (!name.empty() && name[0] == '@')
+    {
+        // Abstract socket: leading null byte, name starts at sun_path[1], no trailing null.
+        std::string abstract_name = name.substr(1);
+        if (abstract_name.size() + 1 > sizeof(addr.sun_path))
+        {
+            GFXRECON_LOG_ERROR("Remote channel: abstract socket name '%s' is too long", name.c_str());
+            return false;
+        }
+        addr.sun_path[0] = '\0';
+        memcpy(addr.sun_path + 1, abstract_name.data(), abstract_name.size());
+        addrlen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + 1 + abstract_name.size());
+    }
+    else
+    {
+        if (name.size() + 1 > sizeof(addr.sun_path))
+        {
+            GFXRECON_LOG_ERROR("Remote channel: Unix socket path '%s' is too long", name.c_str());
+            return false;
+        }
+        memcpy(addr.sun_path, name.data(), name.size());
+        addrlen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + name.size() + 1);
+    }
+    return true;
 }
 
 // Connect a Unix domain socket. A leading '@' in name selects the abstract namespace. Returns a connected fd, or
@@ -213,34 +294,12 @@ SocketHandle ConnectUnix(const std::string& name)
         return kInvalidSocket;
     }
 
-    sockaddr_un addr = {};
-    addr.sun_family  = AF_UNIX;
-
-    socklen_t addrlen = 0;
-    if (!name.empty() && name[0] == '@')
+    sockaddr_un addr    = {};
+    socklen_t   addrlen = 0;
+    if (!BuildUnixAddr(name, addr, addrlen))
     {
-        // Abstract socket: leading null byte, name starts at sun_path[1], no trailing null.
-        std::string abstract_name = name.substr(1);
-        if (abstract_name.size() + 1 > sizeof(addr.sun_path))
-        {
-            GFXRECON_LOG_ERROR("Remote channel: abstract socket name '%s' is too long", name.c_str());
-            CloseSocket(fd);
-            return kInvalidSocket;
-        }
-        addr.sun_path[0] = '\0';
-        memcpy(addr.sun_path + 1, abstract_name.data(), abstract_name.size());
-        addrlen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + 1 + abstract_name.size());
-    }
-    else
-    {
-        if (name.size() + 1 > sizeof(addr.sun_path))
-        {
-            GFXRECON_LOG_ERROR("Remote channel: Unix socket path '%s' is too long", name.c_str());
-            CloseSocket(fd);
-            return kInvalidSocket;
-        }
-        memcpy(addr.sun_path, name.data(), name.size());
-        addrlen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + name.size() + 1);
+        CloseSocket(fd);
+        return kInvalidSocket;
     }
 
     if (connect(fd, reinterpret_cast<sockaddr*>(&addr), addrlen) != 0)
@@ -252,6 +311,42 @@ SocketHandle ConnectUnix(const std::string& name)
     }
 
     SetNoSigPipe(fd);
+    return fd;
+}
+
+// Bind and listen a Unix domain socket. A leading '@' in name selects the abstract namespace. Returns a listening fd,
+// or kInvalidSocket on failure.
+SocketHandle ListenUnix(const std::string& name)
+{
+    SocketHandle fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd == kInvalidSocket)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: failed to create Unix socket: %s", SocketErrorString().c_str());
+        return kInvalidSocket;
+    }
+
+    sockaddr_un addr    = {};
+    socklen_t   addrlen = 0;
+    if (!BuildUnixAddr(name, addr, addrlen))
+    {
+        CloseSocket(fd);
+        return kInvalidSocket;
+    }
+
+    // Filesystem-backed sockets fail to bind if a stale node remains; abstract names (leading '@') need no unlink.
+    if (name.empty() || name[0] != '@')
+    {
+        unlink(name.c_str());
+    }
+
+    if (bind(fd, reinterpret_cast<sockaddr*>(&addr), addrlen) != 0 || listen(fd, 1) != 0)
+    {
+        GFXRECON_LOG_ERROR(
+            "Remote channel: failed to listen on Unix socket '%s': %s", name.c_str(), SocketErrorString().c_str());
+        CloseSocket(fd);
+        return kInvalidSocket;
+    }
+
     return fd;
 }
 
@@ -340,6 +435,92 @@ SocketHandle ConnectTcp(const std::string& host_port)
     }
     return fd;
 }
+// Bind and listen a TCP socket described by "host:port". Returns a listening fd, or kInvalidSocket on failure.
+SocketHandle ListenTcp(const std::string& host_port)
+{
+    size_t colon = host_port.find_last_of(':');
+    if (colon == std::string::npos)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: invalid TCP address '%s' (expected host:port)", host_port.c_str());
+        return kInvalidSocket;
+    }
+
+    std::string host = host_port.substr(0, colon);
+    std::string port = host_port.substr(colon + 1);
+
+    addrinfo hints    = {};
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags    = AI_PASSIVE;
+
+    addrinfo* results = nullptr;
+    int       err     = getaddrinfo(host.empty() ? nullptr : host.c_str(), port.c_str(), &hints, &results);
+    if (err != 0)
+    {
+        GFXRECON_LOG_ERROR(
+            "Remote channel: failed to resolve '%s': %s", host_port.c_str(), AddrInfoErrorString(err).c_str());
+        return kInvalidSocket;
+    }
+
+    SocketHandle fd = kInvalidSocket;
+    for (addrinfo* ai = results; ai != nullptr; ai = ai->ai_next)
+    {
+        fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+        if (fd == kInvalidSocket)
+        {
+            continue;
+        }
+        SetListenSocketOptions(fd);
+        if (ai->ai_family == AF_INET6)
+        {
+            // Windows defaults IPV6_V6ONLY on, which would leave a wildcard bind refusing IPv4 controllers.
+            int off = 0;
+            setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&off), sizeof(off));
+        }
+        if (bind(fd, ai->ai_addr, static_cast<socklen_t>(ai->ai_addrlen)) == 0 && listen(fd, 1) == 0)
+        {
+            break;
+        }
+        CloseSocket(fd);
+    }
+
+    freeaddrinfo(results);
+
+    if (fd == kInvalidSocket)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: failed to listen on '%s'", host_port.c_str());
+    }
+    return fd;
+}
+
+// Wait up to timeout_seconds for a connection on listen_fd, then accept it. Returns the accepted fd, or kInvalidSocket
+// on timeout or error.
+SocketHandle AcceptWithTimeout(SocketHandle listen_fd, int timeout_seconds)
+{
+    const int ready = WaitForReadable(listen_fd, timeout_seconds);
+    if (ready == 0)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: timed out after %d seconds waiting for a controller connection",
+                           timeout_seconds);
+        return kInvalidSocket;
+    }
+    if (ready < 0)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: poll failed while waiting for a controller connection: %s",
+                           SocketErrorString().c_str());
+        return kInvalidSocket;
+    }
+
+    SocketHandle fd = accept(listen_fd, nullptr, nullptr);
+    if (fd == kInvalidSocket)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: failed to accept controller connection: %s", SocketErrorString().c_str());
+        return kInvalidSocket;
+    }
+
+    SetNoSigPipe(fd);
+    return fd;
+}
 } // namespace
 
 bool RemoteChannel::Connect(const std::string& address)
@@ -382,6 +563,52 @@ bool RemoteChannel::Connect(const std::string& address)
     return true;
 }
 
+bool RemoteChannel::Listen(const std::string& address)
+{
+    Disconnect();
+
+    if (!EnsureSocketLibrary())
+    {
+        return false;
+    }
+
+    constexpr const char kTcpPrefix[]  = "tcp:";
+    constexpr const char kUnixPrefix[] = "unix:";
+
+    if (address.rfind(kTcpPrefix, 0) == 0)
+    {
+        listen_fd_ = ListenTcp(address.substr(sizeof(kTcpPrefix) - 1));
+    }
+    else if (address.rfind(kUnixPrefix, 0) == 0)
+    {
+        listen_fd_ = ListenUnix(address.substr(sizeof(kUnixPrefix) - 1));
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Remote channel: unrecognized address '%s' (expected tcp: or unix: prefix)",
+                           address.c_str());
+        return false;
+    }
+
+    if (listen_fd_ == kInvalidSocket)
+    {
+        return false;
+    }
+
+    fd_ = AcceptWithTimeout(listen_fd_, kAcceptTimeoutSeconds);
+
+    // The listening socket is no longer needed once a single controller has connected.
+    CloseSocket(listen_fd_);
+
+    if (fd_ == kInvalidSocket)
+    {
+        return false;
+    }
+
+    sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
+    return true;
+}
+
 bool RemoteChannel::IsConnected() const
 {
     return (fd_ != kInvalidSocket) && !send_failed_;
@@ -404,6 +631,12 @@ void RemoteChannel::Disconnect()
     if (fd_ != kInvalidSocket)
     {
         CloseSocket(fd_);
+    }
+
+    // Covers the Listen() paths that fail before a connection is accepted (bind/listen failure or accept timeout).
+    if (listen_fd_ != kInvalidSocket)
+    {
+        CloseSocket(listen_fd_);
     }
 
     send_queue_.clear();

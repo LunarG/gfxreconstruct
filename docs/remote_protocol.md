@@ -25,13 +25,25 @@ Windows targets speak TCP only: there is no abstract namespace, and the
 controller has no `AF_UNIX` support there either. A `unix:` address on Windows
 is rejected with an error rather than silently falling back.
 
-Replay dials out to a listening controller with **`--remote-connect
-<address>`**. If `--remote-connect` is set but the connection fails, replay
-exits with failure and does not fall back to local playback. Local CLI args are
-used only when `--remote-connect` is absent.
+Replay can establish the socket in either direction; the wire protocol is
+identical once the socket exists:
 
-On Android this is bridged to the PC with `adb reverse localabstract:gfxrecon
-tcp:<port>` (adbd binds the abstract name on the device).
+- **`--remote-connect <address>`** — replay is the client, dialing out to a
+  listening controller.
+- **`--remote-listen <address>`** — replay is the server, accepting one
+  controller that dials in. Waits up to 30 seconds for the connection.
+
+The two options are mutually exclusive (specifying both is a fatal error). If a
+remote option is set but the channel cannot be established (connection failure or
+accept timeout), replay exits with failure and does not fall back to local
+playback. Local CLI args are used only when neither remote option is present.
+
+On Android these are bridged to the PC over adb:
+
+- Listen mode: `adb reverse localabstract:gfxrecon tcp:<port>` (adbd binds the
+  abstract name on the device).
+- Connect mode: `adb forward tcp:<port> localabstract:gfxrecon` (adbd only
+  connects to the name).
 
 ## Wire Format
 
@@ -59,7 +71,7 @@ replay     → controller:  {"type":"ready"}
 [replay runs]
 ```
 
-- Replay sends `hello` first.
+- Replay sends `hello` first regardless of which side dialed.
 - `options` is a set of replay settings, from which replay rebuilds its
   `ArgumentParser`. It completely replaces the traditional command-line
   arguments. See [Settings Keys](#settings-keys).
@@ -149,8 +161,9 @@ afterward go to disk.
 [scripts/replay_controller.py](../scripts/replay_controller.py) is a reference
 controller implementation:
 
-- `--host HOST` / `--port PORT` — listen for a `--remote-connect` replay (default
-  `127.0.0.1:9001`).
+- `--listen HOST:PORT` — accept a connection from a `--remote-connect` replay.
+- `--connect HOST:PORT` — dial out to a `--remote-listen` replay (retries a
+  refused connection for up to 30 s to cover launch races).
 - Replay settings are given after `--` as `key=value`, or as a bare key for an
   option that takes no value. Leading dashes are optional, so options keep their
   familiar spelling. Deliberately *not* a replay command line: which options take
@@ -159,7 +172,7 @@ controller implementation:
 - `--self-test` runs the script's doctests.
 
 ```
-python scripts/replay_controller.py --port 9001 -- --loop-count=3 capture_file=capture.gfxr
+python scripts/replay_controller.py --connect localhost:9000 -- --loop-count=3 capture_file=capture.gfxr
 ```
 
 ## Security
@@ -168,6 +181,9 @@ The protocol is unauthenticated and unencrypted, intended for trusted links:
 loopback, adb-forwarded sockets, or an ssh tunnel. Do not expose either end on
 an untrusted network.
 
+- `--remote-listen` accepts the first connection from anyone who can reach the
+  address; prefer loopback or adb/ssh forwarding over binding a routable
+  interface.
 - A connected controller fully drives replay: it chooses the settings and
   receives everything replay reports. Connecting is equivalent to running replay
   as that user.
@@ -178,6 +194,7 @@ an untrusted network.
 
 ```
 --remote-connect <address>   Connect out to a listening controller.
+--remote-listen  <address>   Listen for and accept one controller (30 s timeout).
 
   <address> forms:
     tcp:host:port    TCP (all platforms)

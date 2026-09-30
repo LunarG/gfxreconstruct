@@ -94,9 +94,9 @@ void android_main(struct android_app* app)
     bool run     = true;
     bool success = false;
 
-    // If --remote-connect is specified, the controller supplies the replay settings. Because the user explicitly
-    // requested remote control, treat any failure to establish it as fatal rather than silently falling back to the
-    // intent arguments.
+    // If --remote-connect or --remote-listen is specified, the controller supplies the replay settings. Because the
+    // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
+    // falling back to the intent arguments.
     gfxrecon::util::RemoteChannel remote_channel;
     if (gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments) ==
         gfxrecon::replay::RemoteSetupResult::kFailed)
