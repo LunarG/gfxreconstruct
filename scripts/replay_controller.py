@@ -22,9 +22,13 @@
 '''
 Controller for gfxrecon-replay's remote feature.
 
-gfxrecon-replay is the client and connects outward with --remote-connect to
-this controller, which acts as the server. This script listens for that connection, sends the replay
-settings, then reports what replay sends back.
+This script sends replay settings, then reports what replay sends back. It
+supports both directions of connection setup:
+
+  * Default (listen): this controller is the server; replay dials in with
+    --remote-connect.
+  * --connect HOST:PORT: this controller dials out to a replay that is listening
+    with --remote-listen.
 
 Wire format: each frame is a little-endian uint32 length prefix followed by
 that many payload bytes. Structured messages are JSON.
@@ -34,14 +38,23 @@ replay option with its leading dashes stripped and '-' replaced by '_', and
 every value is a string. Write them after -- as key=value, or as a bare key for
 an option that takes no value; see settings_from_args().
 
-Desktop usage:
-    python3 scripts/replay_controller.py --port 9001 -- --loop-count=3 capture_file=capture.gfxr
+Desktop usage (replay connects out):
+    python3 scripts/replay_controller.py --listen 127.0.0.1:9001 -- --loop-count=3 capture_file=capture.gfxr
     gfxrecon-replay --remote-connect tcp:localhost:9001
 
-Android usage (replay connects to an abstract unix socket forwarded to the PC):
+Desktop usage (replay listens):
+    gfxrecon-replay --remote-listen tcp:0.0.0.0:9001 capture.gfxr
+    python3 scripts/replay_controller.py --connect localhost:9001 -- --loop-count=3 capture_file=capture.gfxr
+
+Android usage (replay connects out, abstract unix socket forwarded to the PC):
     adb reverse localabstract:gfxrecon tcp:9001
-    python3 scripts/replay_controller.py --port 9001 -- capture_file=/sdcard/capture.gfxr
+    python3 scripts/replay_controller.py --listen 127.0.0.1:9001 -- capture_file=/sdcard/capture.gfxr
     # launch the replay activity with intent args: --remote-connect unix:@gfxrecon
+
+Android usage (replay listens, abstract unix socket forwarded to the PC):
+    adb forward tcp:9001 localabstract:gfxrecon
+    python3 scripts/replay_controller.py --connect localhost:9001 -- capture_file=/sdcard/capture.gfxr
+    # launch the replay activity with intent args: --remote-listen unix:@gfxrecon
 '''
 
 import argparse
@@ -49,6 +62,7 @@ import json
 import socket
 import struct
 import sys
+import time
 
 
 def normalize(token):
@@ -146,13 +160,17 @@ def send_json(conn, obj):
     send_frame(conn, json.dumps(obj).encode('utf-8'))
 
 
-def handle_session(conn, options):
+def handle_session(conn, options, hello=None):
     '''Run the handshake and process messages until replay reports done.
 
     options is the settings dict sent to replay.
+
+    hello is replay's already-received greeting frame when the caller read it during connection setup
+    (connect mode); when None (listen mode) it is read here.
     '''
     # Handshake: replay greets us, we reply with settings, replay acknowledges.
-    hello = recv_frame(conn)
+    if hello is None:
+        hello = recv_frame(conn)
     if hello is None:
         print('Replay disconnected before handshake', file=sys.stderr)
         return False
@@ -192,6 +210,35 @@ def handle_session(conn, options):
     return success
 
 
+def connect_and_await_hello(host, port, timeout_seconds=30):
+    '''Dial out to a listening replay and return (conn, hello_frame) once its hello arrives.
+
+    Replay may still be coming up when we connect. Through `adb forward`, adb accepts the local
+    connection immediately and only then dials the device-side socket, so a not-yet-listening replay
+    shows up as a connection that closes right after connect rather than as connection-refused. Retry
+    the whole connect-and-read until the hello arrives or the timeout expires; returns (None, None) on
+    timeout.
+    '''
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        conn = None
+        try:
+            conn = socket.create_connection((host, port), timeout=5)
+            conn.settimeout(5)
+            hello = recv_frame(conn)
+            if hello is not None:
+                conn.settimeout(None)
+                return conn, hello
+            # Connected, but replay is not listening yet (e.g. adb forward with no device-side socket).
+        except OSError:
+            pass
+        if conn is not None:
+            conn.close()
+        if time.monotonic() >= deadline:
+            return None, None
+        time.sleep(0.2)
+
+
 # --- Session driving -----------------------------------------------------------------------------------
 #
 # Everything below is importable without argparse, so another harness can drive a replay session without
@@ -224,20 +271,37 @@ def open_listen_socket(host, port):
     return server
 
 
-def run_session(conn, options):
+def run_session(conn, options, hello=None):
     '''Drive one replay session over an already-connected socket. Returns True on success.'''
     with conn:
-        return handle_session(conn, options)
+        return handle_session(conn, options, hello)
 
 
-def run_replay(options, host='127.0.0.1', port=9001):
-    '''Listen for replay to connect with --remote-connect, then drive one session. Returns True on success.'''
-    server = open_listen_socket(host, port)
-    print(f'Listening on {host}:{port}')
-    with server:
-        conn, peer = server.accept()
-        print(f'Replay connected from {peer[0]}:{peer[1]}')
-    return run_session(conn, options)
+def run_replay(options, mode='listen', host='127.0.0.1', port=9001):
+    '''Set up the transport and drive one session.
+
+    mode selects who dials: 'listen' waits for replay to connect (replay uses --remote-connect),
+    'connect' dials out to a replay that is listening (replay uses --remote-listen).
+
+    Returns True when replay reported success.
+    '''
+    if mode == 'connect':
+        conn, hello = connect_and_await_hello(host, port)
+        if conn is None:
+            print(f'Timed out waiting for a listening replay at {host}:{port}',
+                  file=sys.stderr)
+            return False
+        print(f'Connected to replay at {host}:{port}')
+        success = run_session(conn, options, hello)
+    else:
+        server = open_listen_socket(host, port)
+        print(f'Listening on {host}:{port}')
+        with server:
+            conn, peer = server.accept()
+            print(f'Replay connected from {peer[0]}:{peer[1]}')
+        success = run_session(conn, options, None)
+
+    return success
 
 
 def main():
@@ -255,13 +319,17 @@ Leading dashes are optional, so options keep their familiar spelling. What
 differs from a replay command line is the '=' joining an option to its value,
 and the capture file being named by its key rather than positional. Replay
 rejects any key it does not recognize, naming it in the error.''')
-    parser.add_argument('--host',
-                        default='127.0.0.1',
-                        help='Address to listen on (default: 127.0.0.1).')
-    parser.add_argument('--port',
-                        type=int,
-                        default=9001,
-                        help='TCP port to listen on (default: 9001).')
+    parser.add_argument(
+        '--listen',
+        metavar='HOST:PORT',
+        default='127.0.0.1:9001',
+        help='Address to listen on for replay to connect (default: '
+        '127.0.0.1:9001).')
+    parser.add_argument(
+        '--connect',
+        metavar='HOST:PORT',
+        help='Connect out to a replay that is listening (--remote-listen) '
+        'instead of listening for replay to connect.')
     parser.add_argument('--self-test',
                         action='store_true',
                         help='Run this script\'s doctests and exit.')
@@ -288,8 +356,24 @@ rejects any key it does not recognize, naming it in the error.''')
     except ValueError as e:
         parser.error(str(e))
 
+    def parse_host_port(flag, spec):
+        host, _, port_str = spec.rpartition(':')
+        if not host or not port_str:
+            parser.error(f'{flag} expects HOST:PORT')
+        try:
+            return host, int(port_str)
+        except ValueError:
+            parser.error(f'{flag} expects a numeric port in HOST:PORT')
+
+    if args.connect:
+        mode = 'connect'
+        host, port = parse_host_port('--connect', args.connect)
+    else:
+        mode = 'listen'
+        host, port = parse_host_port('--listen', args.listen)
+
     try:
-        success = run_replay(options, host=args.host, port=args.port)
+        success = run_replay(options, mode=mode, host=host, port=port)
     except KeyboardInterrupt:
         print('\nInterrupted', file=sys.stderr)
         return 1
