@@ -3140,17 +3140,9 @@ VkResult VulkanRebindAllocator::AllocateImportedMemory(MemoryAllocInfo&         
     import_req.size           = memory_alloc_info.allocation_size;
     import_req.memoryTypeBits = memory_type_bits;
 
-    VkMemoryDedicatedAllocateInfo dedicated_info{ VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO };
-    dedicated_info.buffer = memory_alloc_info.import_dedicated_buffer;
-    dedicated_info.image  = memory_alloc_info.import_dedicated_image;
-
     VkImportMemoryFdInfoKHR import_info{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR };
     import_info.handleType = memory_alloc_info.import_fd_handle_type;
     import_info.fd         = memory_alloc_info.replacement_import_fd;
-    if ((dedicated_info.buffer != VK_NULL_HANDLE) || (dedicated_info.image != VK_NULL_HANDLE))
-    {
-        import_info.pNext = &dedicated_info;
-    }
 
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
@@ -3162,8 +3154,17 @@ VkResult VulkanRebindAllocator::AllocateImportedMemory(MemoryAllocInfo&         
 
     // Mark vma's api calls as synthesized
     util::MarkInjectedCommandsHelper injected;
-    auto                             result = vmaAllocateDedicatedMemory(
-        allocator_, &import_req, &create_info, &import_info, &mem_info.allocation, &mem_info.allocation_info);
+    auto                             result = allocator_->AllocateMemory(import_req,
+                                                     true,  // requiresDedicatedAllocation
+                                                     false, // prefersDedicatedAllocation
+                                                     memory_alloc_info.import_dedicated_buffer,
+                                                     memory_alloc_info.import_dedicated_image,
+                                                     0,
+                                                     &import_info,
+                                                     create_info,
+                                                     VMA_SUBALLOCATION_TYPE_UNKNOWN,
+                                                     1,
+                                                     &mem_info.allocation);
 
     if (result != VK_SUCCESS)
     {
@@ -3175,6 +3176,7 @@ VkResult VulkanRebindAllocator::AllocateImportedMemory(MemoryAllocInfo&         
         return result;
     }
 
+    allocator_->GetAllocationInfo(mem_info.allocation, &mem_info.allocation_info);
     memory_alloc_info.replacement_import_fd = -1;
 
     memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
