@@ -1629,16 +1629,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
     {
         VkBindBufferMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindBufferMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindBufferMemoryInfo> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindBufferMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->buffer);
+            bool need_bind = !boundMemory.contains(meta.buffer);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.buffer];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -1650,7 +1650,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindBufferMemory2(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindBufferMemory2(call_info, args);
+        }
     }
 }
 
@@ -1667,16 +1670,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
     {
         VkBindImageMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindImageMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindImageMemoryInfo> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindImageMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->image);
+            bool need_bind = !boundMemory.contains(meta.image);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.image];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -1688,7 +1691,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindImageMemory2(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindImageMemory2(call_info, args);
+        }
     }
 }
 
@@ -2674,16 +2680,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
     {
         VkBindBufferMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindBufferMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindBufferMemoryInfo> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindBufferMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->buffer);
+            bool need_bind = !boundMemory.contains(meta.buffer);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.buffer];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -2695,7 +2701,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindBufferMemory2KHR(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindBufferMemory2KHR(call_info, args);
+        }
     }
 }
 
@@ -2712,16 +2721,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
     {
         VkBindImageMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindImageMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindImageMemoryInfo> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindImageMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->image);
+            bool need_bind = !boundMemory.contains(meta.image);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.image];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -2733,7 +2742,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindImageMemory2KHR(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindImageMemory2KHR(call_info, args);
+        }
     }
 }
 
@@ -3293,16 +3305,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
     {
         VkBindAccelerationStructureMemoryInfoNV* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindAccelerationStructureMemoryInfoNV* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindAccelerationStructureMemoryInfoNV> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindAccelerationStructureMemoryInfoNV& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->accelerationStructure);
+            bool need_bind = !boundMemory.contains(meta.accelerationStructure);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.accelerationStructure];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -3314,7 +3326,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindAccelerationStructureMemoryNV(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindAccelerationStructureMemoryNV(call_info, args);
+        }
     }
 }
 
@@ -3925,16 +3940,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
     {
         VkBindTensorMemoryInfoARM* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindTensorMemoryInfoARM* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindTensorMemoryInfoARM> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindTensorMemoryInfoARM& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->tensor);
+            bool need_bind = !boundMemory.contains(meta.tensor);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.tensor];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -3946,7 +3961,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, args);
+        }
     }
 }
 
@@ -4318,16 +4336,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
     {
         VkBindDataGraphPipelineSessionMemoryInfoARM* raw_infos = args.pBindInfos.GetPointer();
         const Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        std::vector<VkBindDataGraphPipelineSessionMemoryInfoARM> filtered_binds;
         for (int i = 0; i < args.bindInfoCount; ++i)
         {
+            const Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
-            bool need_bind = !boundMemory.contains(meta_ptr->session);
+            bool need_bind = !boundMemory.contains(meta.session);
             if (!need_bind)
             {
-                format::HandleId old_memory = boundMemory[args.device];
-                need_bind = old_memory != args.bindInfoCount;
+                format::HandleId old_memory = boundMemory[meta.session];
+                need_bind = old_memory != meta.memory;
             }
 
             if (!need_bind)
@@ -4339,7 +4357,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
                 i -= 1;
             }
         }
-        VulkanReplayConsumer::Process_vkBindDataGraphPipelineSessionMemoryARM(call_info, args);
+        if (args.bindInfoCount > 0)
+        {
+            VulkanReplayConsumer::Process_vkBindDataGraphPipelineSessionMemoryARM(call_info, args);
+        }
     }
 }
 
