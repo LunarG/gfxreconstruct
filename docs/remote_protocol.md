@@ -140,6 +140,8 @@ controller implementation:
 - `--listen HOST:PORT` — accept a connection from a `--remote-connect` replay.
 - `--connect HOST:PORT` — dial out to a `--remote-listen` replay (retries a
   refused connection for up to 30 s to cover launch races).
+- `--launch-adb` — set up the appropriate adb mapping and launch the replay activity on
+  a connected Android device.
 - Replay settings are given after `--` as `key=value`, or as a bare key for an
   option that takes no value. Leading dashes are optional, so options keep their
   familiar spelling. Deliberately *not* a replay command line: which options take
@@ -148,7 +150,7 @@ controller implementation:
 - `--self-test` runs the script's doctests.
 
 ```
-python scripts/replay_controller.py --connect localhost:9000 -- --loop-count=3 capture_file=capture.gfxr
+python scripts/replay_controller.py --connect localhost:9000 --launch-adb -- --dump-resources=/sdcard/dr.json capture_file=/sdcard/capture.gfxr
 ```
 
 ## Security

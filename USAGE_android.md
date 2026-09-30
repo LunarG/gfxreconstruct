@@ -1211,7 +1211,16 @@ The capture file and every other setting arrive over the socket, so neither has
 to be pushed to the device first and the `file` argument becomes optional.
 
 [scripts/replay_controller.py](./scripts/replay_controller.py) is a reference
-controller. Start it on the host, then in connect mode:
+controller, and its `--launch-adb` option performs the whole sequence — it sets up the
+port bridge, force-stops any prior replay instance, and launches the replay
+activity with the matching option:
+
+```bash
+python3 scripts/replay_controller.py --launch-adb --listen 127.0.0.1:9001 \
+    -- --screenshot-all capture_file=/sdcard/Download/android_capture.gfxr
+```
+
+Doing it by hand is the same two steps. In connect mode:
 
 ```bash
 adb reverse localabstract:gfxrecon tcp:9001
@@ -1237,6 +1246,8 @@ it — adbd, or a replay process that is still running:
 adb reverse --remove localabstract:gfxrecon   # before a listen-mode run
 adb forward --remove tcp:9001                 # before a connect-mode run
 ```
+
+`replay_controller.py` clears the opposite mapping automatically on each run.
 
 For the options themselves, the settings format, and the security posture, see
 [Remote Replay Control](./USAGE_desktop_Vulkan.md#remote-replay-control) in the

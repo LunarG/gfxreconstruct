@@ -52,15 +52,16 @@ Android usage (replay connects out, abstract unix socket forwarded to the PC):
     # launch the replay activity with intent args: --remote-connect unix:@gfxrecon
 
 Android usage (replay listens, abstract unix socket forwarded to the PC):
-    adb forward tcp:9001 localabstract:gfxrecon
-    python3 scripts/replay_controller.py --connect localhost:9001 -- capture_file=/sdcard/capture.gfxr
-    # launch the replay activity with intent args: --remote-listen unix:@gfxrecon
+    python3 scripts/replay_controller.py --connect localhost:9001 --launch-adb -- capture_file=/sdcard/capture.gfxr
+    # sets up: adb forward tcp:9001 localabstract:gfxrecon
+    # launches the replay activity with intent args: --remote-listen unix:@gfxrecon
 '''
 
 import argparse
 import json
 import socket
 import struct
+import subprocess
 import sys
 import time
 
@@ -244,12 +245,15 @@ def connect_and_await_hello(host, port, timeout_seconds=30):
 # Everything below is importable without argparse, so another harness can drive a replay session without
 # duplicating the handshake or shelling out to this script.
 
+ABSTRACT_SOCKET_NAME = 'gfxrecon'
+REPLAY_PACKAGE = 'com.lunarg.gfxreconstruct.replay'
+
 
 class ControllerError(Exception):
     '''A setup failure worth reporting to the user rather than tracing back.
 
-    Raised for the things that go wrong before a session exists, such as a port we cannot bind. Session
-    outcomes are reported by the return value instead.
+    Raised for the things that go wrong before a session exists: a port we cannot bind or an adb step
+    that fails. Session outcomes are reported by the return value instead.
     '''
 
 
@@ -271,13 +275,69 @@ def open_listen_socket(host, port):
     return server
 
 
+def adb_prepare(mode, port):
+    '''Point an Android replay at this controller and start it.
+
+    Each mode clears the opposite mapping first: an `adb reverse` makes adbd itself bind the abstract
+    name and that outlives both the replay process and a force-stop, so a leftover one from the other
+    mode makes this run fail to bind with EADDRINUSE.
+    '''
+    try:
+        if mode == 'connect':
+            # This controller dials out, so adb must forward our local port to the device's socket.
+            subprocess.run([
+                'adb', 'reverse', '--remove',
+                f'localabstract:{ABSTRACT_SOCKET_NAME}'
+            ],
+                           check=False)
+            subprocess.run([
+                'adb', 'forward', f'tcp:{port}',
+                f'localabstract:{ABSTRACT_SOCKET_NAME}'
+            ],
+                           check=True)
+            print(
+                f'ADB forward set up: tcp:{port} -> localabstract:{ABSTRACT_SOCKET_NAME}'
+            )
+            replay_option = '--remote-listen'
+        else:
+            subprocess.run(['adb', 'forward', '--remove', f'tcp:{port}'],
+                           check=False)
+            subprocess.run([
+                'adb', 'reverse', f'localabstract:{ABSTRACT_SOCKET_NAME}',
+                f'tcp:{port}'
+            ],
+                           check=True)
+            print(
+                f'ADB reverse set up: tcp:{port} -> localabstract:{ABSTRACT_SOCKET_NAME}'
+            )
+            replay_option = '--remote-connect'
+
+        # A lingering instance keeps the abstract socket bound, so clear it before starting a fresh one.
+        subprocess.run(['adb', 'shell', 'am', 'force-stop', REPLAY_PACKAGE],
+                       check=True)
+        subprocess.run([
+            'adb', 'shell', 'am', 'start', '-n',
+            f'{REPLAY_PACKAGE}/.ReplayActivity', '-a',
+            'android.intent.action.MAIN', '-c',
+            'android.intent.category.LAUNCHER', '--es', 'args',
+            f'"{replay_option} unix:@{ABSTRACT_SOCKET_NAME}"'
+        ],
+                       check=True)
+    except subprocess.CalledProcessError as e:
+        raise ControllerError(f'failed to set up adb remote: {e}') from e
+
+
 def run_session(conn, options, hello=None):
     '''Drive one replay session over an already-connected socket. Returns True on success.'''
     with conn:
         return handle_session(conn, options, hello)
 
 
-def run_replay(options, mode='listen', host='127.0.0.1', port=9001):
+def run_replay(options,
+               mode='listen',
+               host='127.0.0.1',
+               port=9001,
+               launch_adb=False):
     '''Set up the transport and drive one session.
 
     mode selects who dials: 'listen' waits for replay to connect (replay uses --remote-connect),
@@ -286,6 +346,9 @@ def run_replay(options, mode='listen', host='127.0.0.1', port=9001):
     Returns True when replay reported success.
     '''
     if mode == 'connect':
+        if launch_adb:
+            adb_prepare('connect', port)
+
         conn, hello = connect_and_await_hello(host, port)
         if conn is None:
             print(f'Timed out waiting for a listening replay at {host}:{port}',
@@ -297,6 +360,9 @@ def run_replay(options, mode='listen', host='127.0.0.1', port=9001):
         server = open_listen_socket(host, port)
         print(f'Listening on {host}:{port}')
         with server:
+            if launch_adb:
+                adb_prepare('listen', port)
+
             conn, peer = server.accept()
             print(f'Replay connected from {peer[0]}:{peer[1]}')
         success = run_session(conn, options, None)
@@ -330,6 +396,10 @@ rejects any key it does not recognize, naming it in the error.''')
         metavar='HOST:PORT',
         help='Connect out to a replay that is listening (--remote-listen) '
         'instead of listening for replay to connect.')
+    parser.add_argument(
+        '--launch-adb',
+        action='store_true',
+        help='Launch replay on an connected Android device via adb.')
     parser.add_argument('--self-test',
                         action='store_true',
                         help='Run this script\'s doctests and exit.')
@@ -373,7 +443,11 @@ rejects any key it does not recognize, naming it in the error.''')
         host, port = parse_host_port('--listen', args.listen)
 
     try:
-        success = run_replay(options, mode=mode, host=host, port=port)
+        success = run_replay(options,
+                             mode=mode,
+                             host=host,
+                             port=port,
+                             launch_adb=args.launch_adb)
     except KeyboardInterrupt:
         print('\nInterrupted', file=sys.stderr)
         return 1
