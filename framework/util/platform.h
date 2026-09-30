@@ -138,6 +138,22 @@ inline pid_t GetCurrentProcessId()
     return ::GetCurrentProcessId();
 }
 
+// Returns true when a process with this id is running, erring toward "running" when the state cannot be determined.
+inline bool IsProcessRunning(pid_t pid)
+{
+    HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+    if (process == nullptr)
+    {
+        // Access denied means it exists but is not ours; anything else means it is gone.
+        return GetLastError() == ERROR_ACCESS_DENIED;
+    }
+
+    DWORD exit_code = 0;
+    bool  running   = (GetExitCodeProcess(process, &exit_code) == FALSE) || (exit_code == STILL_ACTIVE);
+    CloseHandle(process);
+    return running;
+}
+
 inline uint64_t GetCurrentThreadId()
 {
     return ::GetCurrentThreadId();
@@ -385,6 +401,13 @@ typedef void* LibraryHandle;
 inline pid_t GetCurrentProcessId()
 {
     return getpid();
+}
+
+// Returns true when a process with this id is running, erring toward "running" when the state cannot be determined.
+inline bool IsProcessRunning(pid_t pid)
+{
+    // Only ESRCH means no such process; EPERM means it exists but is not ours.
+    return (kill(pid, 0) == 0) || (errno != ESRCH);
 }
 
 inline uint64_t GetCurrentThreadId()
