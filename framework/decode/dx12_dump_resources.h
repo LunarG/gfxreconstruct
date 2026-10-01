@@ -304,12 +304,50 @@ class Dx12DumpResources
                          StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
                          D3D12_RENDER_PASS_FLAGS                                             Flags,
                          uint64_t                                                            block_index);
+
+    // Record the views written to or copied into descriptor heaps in the heap infos' per-descriptor maps. Only the dump
+    // of the target's descriptor tables, render targets and depth stencil reads them, so replay tracks them in this
+    // mode alone.
+    void TrackConstantBufferViewDesc(StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+                                     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
+    void TrackConstantBufferViewCreation(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+    void TrackShaderResourceViewCreation(format::HandleId                                               pResource,
+                                         StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+                                         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
+    void TrackUnorderedAccessViewCreation(format::HandleId pResource,
+                                          format::HandleId pCounterResource,
+                                          StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+                                          Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+    void TrackRenderTargetViewCreation(format::HandleId                                             pResource,
+                                       StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+                                       Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
+    void TrackDepthStencilViewCreation(format::HandleId                                             pResource,
+                                       StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+                                       Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
+    void CopyDescriptors(UINT                                                       NumDestDescriptorRanges,
+                         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDestDescriptorRangeStarts,
+                         PointerDecoder<UINT>*                                      pDestDescriptorRangeSizes,
+                         UINT                                                       NumSrcDescriptorRanges,
+                         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pSrcDescriptorRangeStarts,
+                         PointerDecoder<UINT>*                                      pSrcDescriptorRangeSizes);
+    void CopyDescriptorsSimple(UINT                                NumDescriptors,
+                               Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
+                               Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart);
+
+  private:
+    // Null for a descriptor whose capture recorded no heap (a TryCreate* that failed at capture).
+    D3D12DescriptorHeapInfo* GetDescriptorHeapInfo(format::HandleId heap_id);
+    void                     CopyDescriptorViews(format::HandleId dest_heap_id,
+                                                 uint32_t         dest_index,
+                                                 format::HandleId src_heap_id,
+                                                 uint32_t         src_index,
+                                                 uint32_t         count);
+
     void GetDescriptorSubresourceIndices(DHShaderResourceViewInfo& info, const DxObjectInfo* resource);
     void GetDescriptorSubresourceIndices(DHUnorderedAccessViewInfo& info, const DxObjectInfo* resource);
     void GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& info, const DxObjectInfo* resource);
     void GetDescriptorSubresourceIndices(DHDepthStencilViewInfo& info, const DxObjectInfo* resource);
 
-  private:
     void StartDump(ID3D12Device* device, const std::string& filename);
     void FinishDump(DxObjectInfo* queue_object_info);
     void CloseDump();
