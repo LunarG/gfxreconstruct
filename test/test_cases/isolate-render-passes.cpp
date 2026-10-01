@@ -16,7 +16,7 @@ TEST(IsolateRenderPasses, ReplaySplitsLegacyRenderPasses)
 /**
  * Capture the isolate-render-passes app and replay it with --isolate-render-passes.
  * The replay tool cuts the recording at every vkCmdBeginRenderPass and vkCmdEndRenderPass, continuing it in a fresh
- * command buffer each time, so every render pass has it's own command buffer.
+ * command buffer each time, so every render pass has its own command buffer.
  */
 TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
 {
@@ -29,10 +29,10 @@ TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
 
     // Replay the app with and without the option "--isolate-render-passes" to compare.
     std::map<std::string, int> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, &baseline));
+    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
     std::map<std::string, int> with_option;
     ASSERT_NO_FATAL_FAILURE(
-        replay_and_count_recapture(test_name, { "--isolate-render-passes" }, "_replay_option", counted, &with_option));
+        replay_and_count_recapture(test_name, { "--isolate-render-passes" }, "_replay_option", counted, with_option));
 
     const int render_passes = with_option["vkCmdBeginRenderPass"];
 

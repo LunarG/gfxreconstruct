@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <filesystem>
+#include <system_error>
 #include <nlohmann/json.hpp>
 #include <stdlib.h>
 
@@ -69,11 +70,11 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
 }
 
 #if defined(__linux__) || defined(__APPLE__)
-static char const* CONVERT_FILENAME = "gfxrecon-convert";
-static char const* REPLAY_FILENAME  = "gfxrecon-replay";
+static const char* CONVERT_FILENAME = "gfxrecon-convert";
+static const char* REPLAY_FILENAME  = "gfxrecon-replay";
 #elif defined(_WIN32)
-static char const* CONVERT_FILENAME = "gfxrecon-convert.exe";
-static char const* REPLAY_FILENAME  = "gfxrecon-replay.exe";
+static const char* CONVERT_FILENAME = "gfxrecon-convert.exe";
+static const char* REPLAY_FILENAME  = "gfxrecon-replay.exe";
 #endif
 
 struct Paths
@@ -94,7 +95,7 @@ struct Paths
     std::filesystem::path app_trimming_json_path;
     std::filesystem::path known_good_trimming_json_path;
 
-    void trimming_paths(char const* test_name, char const* trimming_frames, bool trigger_trimming)
+    void trimming_paths(const char* test_name, const char* trimming_frames, bool trigger_trimming)
     {
         std::string trimming_suffix;
         if (trimming_frames != nullptr)
@@ -149,7 +150,7 @@ struct Paths
         known_good_trimming_json_path.replace_extension(".json");
     }
 
-    Paths(char const* test_name, char const* trimming_frames, bool trigger_trimming)
+    Paths(const char* test_name, const char* trimming_frames, bool trigger_trimming)
     {
         working_directory = full_app_directory;
         working_directory.append("res");
@@ -237,8 +238,8 @@ class EnvironmentVariables
     }
 };
 
-int run_command(std::filesystem::path const& working_directory,
-                std::filesystem::path const& command,
+int run_command(const std::filesystem::path& working_directory,
+                const std::filesystem::path& command,
                 std::vector<std::string>     args)
 {
     std::string command_string;
@@ -262,7 +263,7 @@ void run_in_background(const char* test_name)
     run_command(paths.working_directory, paths.full_executable_path, { test_name, "&" });
 }
 
-void run_trimming_app(const Paths& paths, const char* test_name, char const* trimming_frames, bool trigger_trimming)
+void run_trimming_app(const Paths& paths, const char* test_name, const char* trimming_frames, bool trigger_trimming)
 {
     EnvironmentVariables env_vars;
 
@@ -308,7 +309,7 @@ void run_trimming_app(const Paths& paths, const char* test_name, char const* tri
     ASSERT_EQ(trimming_diff.size(), 0) << std::setw(4) << trimming_diff;
 }
 
-void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigger_trimming)
+void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigger_trimming)
 {
     EnvironmentVariables env_vars;
 
@@ -361,6 +362,12 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
+    // Remove stale captures so a failure to produce a capture file assume the stale capture was the one produced.
+    std::error_code remove_error;
+    std::filesystem::remove(paths.capture_path, remove_error);
+    ASSERT_FALSE(remove_error) << "could not remove stale capture file: " << paths.capture_path << " - "
+                               << remove_error.message();
+
     // Run the app with capture enabled to produce the gfxr to replay.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
@@ -387,22 +394,22 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
                          << " in path " << paths.base_path;
 }
 
-static void count_calls_in_json(std::filesystem::path const&    json_path,
-                                std::vector<std::string> const& function_names,
-                                std::map<std::string, int>*     counts)
+static void count_calls_in_json(const std::filesystem::path&    json_path,
+                                const std::vector<std::string>& function_names,
+                                std::map<std::string, int>&     counts)
 {
     std::ifstream json_file{ json_path };
     ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
 
     auto json = nlohmann::json::parse(json_file, clean_gfxr_json);
 
-    counts->clear();
-    for (auto const& function_name : function_names)
+    counts.clear();
+    for (const auto& function_name : function_names)
     {
-        (*counts)[function_name] = 0;
+        counts[function_name] = 0;
     }
 
-    for (auto const& block : json)
+    for (const auto& block : json)
     {
         auto function = block.find(gfxrecon::format::kNameFunction);
         if (function == block.end())
@@ -416,8 +423,8 @@ static void count_calls_in_json(std::filesystem::path const&    json_path,
             continue;
         }
 
-        auto entry = counts->find(name->get<std::string>());
-        if (entry != counts->end())
+        auto entry = counts.find(name->get<std::string>());
+        if (entry != counts.end())
         {
             ++entry->second;
         }
@@ -432,6 +439,12 @@ void capture_app(const char* test_name)
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
+    // Remove stale captures so a failure to produce a capture file assume the stale capture was the one produced.
+    std::error_code remove_error;
+    std::filesystem::remove(paths.capture_path, remove_error);
+    ASSERT_FALSE(remove_error) << "could not remove stale capture file: " << paths.capture_path << " - "
+                               << remove_error.message();
+
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
     auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
@@ -442,12 +455,10 @@ void capture_app(const char* test_name)
 
 void replay_and_count_recapture(const char*                     test_name,
                                 std::vector<std::string>        extra_replay_args,
-                                std::string const&              recapture_suffix,
-                                std::vector<std::string> const& function_names,
-                                std::map<std::string, int>*     counts)
+                                const std::string&              recapture_suffix,
+                                const std::vector<std::string>& function_names,
+                                std::map<std::string, int>&     counts)
 {
-    ASSERT_NE(counts, nullptr);
-
     EnvironmentVariables env_vars;
     Paths                paths{ test_name, nullptr, false };
 
@@ -456,6 +467,12 @@ void replay_and_count_recapture(const char*                     test_name,
 
     std::filesystem::path recapture_path{ paths.base_path };
     recapture_path.append(paths.capture_path.stem().string() + recapture_suffix + ".gfxr");
+
+    // Remove stale recaptures so the counts cannot come from a stale file.
+    std::error_code remove_error;
+    std::filesystem::remove(recapture_path, remove_error);
+    ASSERT_FALSE(remove_error) << "could not remove stale recapture file: " << recapture_path << " - "
+                               << remove_error.message();
 
     // The gfxreconstruct capture layer is still enabled in the environment, so the replay process is itself captured
     // into this file. Pointing the layer here also keeps it from re-capturing over the input gfxr we are about to read.
