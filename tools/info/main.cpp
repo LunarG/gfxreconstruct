@@ -110,7 +110,7 @@ void WriteOutput(const char* format_string, ...)
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE(result_string.c_str());
+            GFXRECON_WRITE_CONSOLE("%s", result_string.c_str());
         }
     }
     catch (...)
@@ -720,7 +720,7 @@ static std::string GetEnumGpuIndicesText()
                 if (index == adapter.second.adapter_idx)
                 {
                     std::string replay_adapter_str =
-                        gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
+                        gfxrecon::util::Char16ArrayToString(adapter.second.internal_desc.Description);
 
                     return_val +=
                         gfxrecon::util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +

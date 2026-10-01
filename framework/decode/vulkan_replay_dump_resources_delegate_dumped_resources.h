@@ -959,6 +959,14 @@ struct DumpedResourcesInfo
 
     // We need to keep references to inserted elements. Use a list instead of a vector
     std::list<DumpedDescriptor> dumped_descriptors;
+
+    void Reset()
+    {
+        dumped_vertex_index_buffers.clear();
+        dumped_render_targets.clear();
+        dumped_descriptors.clear();
+        dumped_transfer_command.reset();
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -2655,6 +2655,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR:
+            {
+                const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR*>(next);
+                VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineLibraryGroupHandles == VK_TRUE) && (query.pipelineLibraryGroupHandles == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineLibraryGroupHandles %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR*>(currentNext)->pipelineLibraryGroupHandles =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
             {
                 const VkPhysicalDeviceMaintenance11FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance11FeaturesKHR*>(next);
@@ -5247,21 +5262,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
-            {
-                const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(next);
-                VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->pipelineLibraryGroupHandles == VK_TRUE) && (query.pipelineLibraryGroupHandles == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature pipelineLibraryGroupHandles %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(currentNext)->pipelineLibraryGroupHandles =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
             {
                 const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(next);
@@ -5983,6 +5983,49 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(next);
+                VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->cooperativeMatrixProperties2 == VK_TRUE) && (query.cooperativeMatrixProperties2 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixProperties2 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(currentNext)->cooperativeMatrixProperties2 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixReductions == VK_TRUE) && (query.cooperativeMatrixReductions == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixReductions %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(currentNext)->cooperativeMatrixReductions =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixConversions == VK_TRUE) && (query.cooperativeMatrixConversions == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixConversions %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(currentNext)->cooperativeMatrixConversions =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixPerElementOperations == VK_TRUE) && (query.cooperativeMatrixPerElementOperations == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixPerElementOperations %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(currentNext)->cooperativeMatrixPerElementOperations =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixGetCoordinate == VK_TRUE) && (query.cooperativeMatrixGetCoordinate == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixGetCoordinate %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(currentNext)->cooperativeMatrixGetCoordinate =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             {
                 const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(next);
@@ -6115,6 +6158,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceImageTilingControlFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(next);
+                VkPhysicalDeviceImageTilingControlFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->imageTilingControl == VK_TRUE) && (query.imageTilingControl == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature imageTilingControl %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceImageTilingControlFeaturesEXT*>(currentNext)->imageTilingControl =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             {
                 const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(next);
@@ -6126,6 +6184,36 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature cooperativeMatrixDecodeVector %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(currentNext)->cooperativeMatrixDecodeVector =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            {
+                const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(next);
+                VkPhysicalDevicePrivateDataBaseHandleFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->privateDataBaseHandle == VK_TRUE) && (query.privateDataBaseHandle == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature privateDataBaseHandle %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(currentNext)->privateDataBaseHandle =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE:
+            {
+                const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE*>(next);
+                VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->bufferDeviceAddressAllocationAlignment == VK_TRUE) && (query.bufferDeviceAddressAllocationAlignment == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature bufferDeviceAddressAllocationAlignment %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE*>(currentNext)->bufferDeviceAddressAllocationAlignment =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -6730,6 +6818,7 @@ static const FeatureExtensionMapping kFeatureExtensionMappings[] = {
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR, { "VK_EXT_present_mode_fifo_latest_ready", "VK_KHR_present_mode_fifo_latest_ready" }, "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_KHR, { "VK_KHR_opacity_micromap" }, "VkPhysicalDeviceOpacityMicromapFeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR, { "VK_KHR_maintenance10" }, "VkPhysicalDeviceMaintenance10FeaturesKHR" },
+    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR, { "VK_EXT_pipeline_library_group_handles", "VK_KHR_pipeline_library_group_handles" }, "VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR, { "VK_KHR_maintenance11" }, "VkPhysicalDeviceMaintenance11FeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR, { "VK_KHR_extended_flags" }, "VkPhysicalDeviceExtendedFlagsFeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT, { "VK_EXT_transform_feedback" }, "VkPhysicalDeviceTransformFeedbackFeaturesEXT" },
@@ -6844,7 +6933,6 @@ static const FeatureExtensionMapping kFeatureExtensionMappings[] = {
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV, { "VK_NV_extended_sparse_address_space" }, "VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT, { "VK_EXT_legacy_vertex_attributes" }, "VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM, { "VK_ARM_shader_core_builtins" }, "VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM" },
-    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT, { "VK_EXT_pipeline_library_group_handles" }, "VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT, { "VK_EXT_dynamic_rendering_unused_attachments" }, "VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM, { "VK_ARM_data_graph" }, "VkPhysicalDeviceDataGraphFeaturesARM" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM, { "VK_QCOM_multiview_per_view_render_areas" }, "VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM" },
@@ -6887,13 +6975,17 @@ static const FeatureExtensionMapping kFeatureExtensionMappings[] = {
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC, { "VK_SEC_pipeline_cache_incremental_mode" }, "VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT, { "VK_EXT_shader_uniform_buffer_unsized_array" }, "VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV, { "VK_NV_compute_occupancy_priority" }, "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV" },
+    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT, { "VK_EXT_cooperative_matrix_maintenance1" }, "VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT, { "VK_EXT_shader_subgroup_partitioned" }, "VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT, { "VK_EXT_shader_ocp_microscaling_types" }, "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE, { "VK_VALVE_shader_mixed_float_dot_product" }, "VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC, { "VK_SEC_throttle_hint" }, "VkPhysicalDeviceThrottleHintFeaturesSEC" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM, { "VK_ARM_data_graph_neural_accelerator_statistics" }, "VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT, { "VK_EXT_primitive_restart_index" }, "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT" },
+    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT, { "VK_EXT_image_tiling_control" }, "VkPhysicalDeviceImageTilingControlFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV, { "VK_NV_cooperative_matrix_decode_vector" }, "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV" },
+    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV, { "VK_NV_private_data_base_handle" }, "VkPhysicalDevicePrivateDataBaseHandleFeaturesNV" },
+    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE, { "VK_VALVE_buffer_device_address_allocation_alignment" }, "VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR, { "VK_KHR_acceleration_structure" }, "VkPhysicalDeviceAccelerationStructureFeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR, { "VK_KHR_ray_tracing_pipeline" }, "VkPhysicalDeviceRayTracingPipelineFeaturesKHR" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR, { "VK_KHR_ray_query" }, "VkPhysicalDeviceRayQueryFeaturesKHR" },

@@ -57,7 +57,13 @@ class HandlePointerDecoder
 
     size_t GetLength() const { return decoder_.GetLength(); }
 
+    // See PointerDecoderBase::SetLength(): overrides the decoded array length reported by
+    // GetLength() without touching the underlying data/output buffers.
+    void SetLength(size_t len) { decoder_.SetLength(len); }
+
     const format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
+
+    format::HandleId* GetPointerMutable() { return decoder_.GetPointer(); }
 
     std::span<const format::HandleId> GetSpan() const { return decoder_.GetSpan(); }
 
@@ -77,6 +83,9 @@ class HandlePointerDecoder
         }
     }
 
+    // See PointerDecoderBase::SetExpectedLength().
+    void SetExpectedLength(size_t len) { decoder_.SetExpectedLength(len); }
+
     void SetHandleLength(size_t len)
     {
         handle_data_len_ = len;
@@ -93,7 +102,17 @@ class HandlePointerDecoder
 
     const T* GetHandlePointer() const { return handle_data_; }
 
-    size_t Decode(const uint8_t* buffer, size_t buffer_size) { return decoder_.DecodeHandleId(buffer, buffer_size); }
+    size_t Decode(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = decoder_.DecodeHandleId(buffer, buffer_size);
+
+        if (is_memory_external_ && !decoder_.IsNull())
+        {
+            decoder_.CheckExpectedLength("Handle pointer", capacity_);
+        }
+
+        return bytes_read;
+    }
 
     // The value returned is only guaranteed to be valid if the current consumer has called SetConsumerData.
     void* GetConsumerData(size_t index) const

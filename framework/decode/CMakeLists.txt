@@ -139,8 +139,10 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/replay_options.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.h
-                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_controller.h
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_controller.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_handler.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_handler.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/string_array_decoder.h
@@ -266,6 +268,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_json.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_json.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
@@ -414,15 +417,13 @@ elseif(APPLE)
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/macos/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 elseif(ANDROID)
     target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
-                               ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include)
+                               ${GFXRECON_SOURCE_DIR}/external)
 else()
     target_include_directories(gfxrecon_decode
                            PRIVATE
@@ -431,36 +432,7 @@ else()
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
-endif()
-
-if (NOT ANDROID)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        if (WIN32)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/win64/lib)
-        elseif(APPLE)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/macos/lib)
-        else()
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
-        endif()
-    else (CMAKE_SIZEOF_VOID_P EQUAL 4)
-        if (WIN32)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/win32/lib)
-        else()
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/lib/x86)
-        endif()
-    endif()
 endif()
 
 target_link_libraries(gfxrecon_decode
@@ -486,6 +458,9 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
     if (MSVC)
+        # The test source exceeds the default number of sections during compilation, use this flag to increase the limit
+        target_compile_options(gfxrecon_decode_test PRIVATE /bigobj)
+
         # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
         # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
         if(CMAKE_SIZEOF_VOID_P EQUAL 4)

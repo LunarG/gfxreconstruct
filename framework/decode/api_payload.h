@@ -544,6 +544,27 @@ struct InitializeMetaArgs
 
     auto GetTuple() const { return std::tie(command_header, data); }
 };
+// Payload for a meta-data block whose layout BlockParser does not know, produced by an extended
+// meta-data parser (see block_parser_meta_data.h). The block's parameter data is passed through
+// undecoded, along with the MetaDataId, so the decoder that claims the id can interpret it with
+// its own API-specific decoders. Unlike the payloads above, meta_data_id is part of GetTuple: it
+// both selects the decoder (via SupportsMetaDataId) and tells that decoder which extended type it
+// has been handed.
+struct ExtendedMetaDataArgs
+{
+    format::MetaDataId meta_data_id;
+
+    const uint8_t* data;
+    size_t         data_size;
+
+    auto GetTuple() const { return std::tie(meta_data_id, data, data_size); }
+};
+// The data is decoded by the claiming decoder with the same machinery a function call's
+// parameter buffer goes through, so it needs the same DecodeAllocator scope.
+template <>
+struct DispatchHasAllocGuard<ExtendedMetaDataArgs> : std::true_type
+{};
+
 struct AnnotationArgs
 {
     uint64_t               block_index;
@@ -812,6 +833,12 @@ struct DispatchTraits<SetOpaqueDescriptorDataArgs> : DispatchFlagTraits<SetOpaqu
 };
 
 template <>
+struct DispatchTraits<ExtendedMetaDataArgs> : DispatchFlagTraits<ExtendedMetaDataArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchExtendedMetaDataBlock;
+};
+
+template <>
 struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
 {
     // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
@@ -883,6 +910,7 @@ using DispatchArgs = std::variant<std::monostate,
                                   VulkanAccelerationStructuresWritePropertiesMetaArgs*,
                                   ViewRelativeLocationArgs*,
                                   InitializeMetaArgs*,
+                                  ExtendedMetaDataArgs*,
                                   AnnotationArgs*,
                                   SetOpaqueDescriptorDataArgs*>;
 

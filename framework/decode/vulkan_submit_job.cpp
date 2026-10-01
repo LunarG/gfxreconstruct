@@ -25,6 +25,8 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 
+#include <algorithm>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 

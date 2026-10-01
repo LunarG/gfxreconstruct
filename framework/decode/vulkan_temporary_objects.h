@@ -23,7 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_TEMPORARY_OBJECTS_H
 #define GFXRECON_DECODE_VULKAN_TEMPORARY_OBJECTS_H
 
-#include "decode/vulkan_object_info.h"
+#include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_injected_calls.h"
@@ -33,6 +33,10 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// forward declaration to avoid cyclic include:
+// vulkan_object_info.h -> vulkan_resource_initializer.h -> this header
+struct VulkanDeviceInfo;
 
 // Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one
 struct TemporaryFence
@@ -130,25 +134,84 @@ struct TemporaryCommandBuffer
         TemporaryCommandBuffer(dev_info, graphics::VulkanInjectedDeviceCalls(&dev_table))
     {}
 
-    ~TemporaryCommandBuffer()
-    {
-        if (command_pool != VK_NULL_HANDLE)
-        {
-            auto injected = device_table.Open();
-            injected->DestroyCommandPool(device_info.handle, command_pool, nullptr);
-        }
-    };
+    ~TemporaryCommandBuffer();
 
-    VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp);
+    VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp, uint32_t queue_index = 0);
 
-    VkResult CreateAndBegin(uint32_t queue_family_index);
+    VkResult CreateAndBegin(uint32_t queue_family_index, uint32_t queue_index = 0);
+
+    VkResult CreateAndBegin(uint32_t queue_family_index, VkQueue submit_queue);
 
     VkResult SubmitAndDestroy();
+
+    VkResult SubmitAndReset();
+
+    VkResult Submit();
 
     VkCommandPool                       command_pool{ VK_NULL_HANDLE };
     VkCommandBuffer                     command_buffer{ VK_NULL_HANDLE };
     VkQueue                             queue{ VK_NULL_HANDLE };
     const VulkanDeviceInfo&             device_info;
+    graphics::VulkanInjectedDeviceCalls device_table;
+};
+
+struct TemporaryQueryPool
+{
+    TemporaryQueryPool() = delete;
+
+    TemporaryQueryPool(VkDevice dev, const graphics::VulkanInjectedDeviceCalls& dev_table) :
+        query_pool(VK_NULL_HANDLE), device(dev), device_table(dev_table)
+    {}
+
+    ~TemporaryQueryPool();
+
+    VkResult Create(uint32_t query_count);
+
+    VkQueryPool                         query_pool;
+    VkDevice                            device;
+    graphics::VulkanInjectedDeviceCalls device_table;
+};
+
+// Wrapper for a VkBuffer injected by replay.
+struct TemporaryBuffer
+{
+    TemporaryBuffer() = default;
+
+    TemporaryBuffer(VkDevice                                   dev,
+                    VulkanResourceAllocator*                   alloc,
+                    const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                    VkDeviceSize                               buffer_size,
+                    VkBufferUsageFlags                         usage);
+
+    TemporaryBuffer(VkDevice                           dev,
+                    VulkanResourceAllocator*           alloc,
+                    const graphics::VulkanDeviceTable& dev_table,
+                    VkDeviceSize                       buffer_size,
+                    VkBufferUsageFlags                 usage) :
+        TemporaryBuffer(dev, alloc, graphics::VulkanInjectedDeviceCalls(&dev_table), buffer_size, usage)
+    {}
+
+    // Ownership of the buffer has to transfer rather than be duplicated, so we won't call `vkDestroyBuffer` on an
+    // already destroyed buffer.
+    TemporaryBuffer(const TemporaryBuffer&)            = delete;
+    TemporaryBuffer& operator=(const TemporaryBuffer&) = delete;
+    TemporaryBuffer(TemporaryBuffer&& other) noexcept;
+    TemporaryBuffer& operator=(TemporaryBuffer&& other) noexcept;
+
+    void swap(TemporaryBuffer& other) noexcept;
+
+    // Destroys the buffer.  Any memory the caller bound to it has to outlive this and be freed afterwards.
+    ~TemporaryBuffer() { Destroy(); }
+
+    void Destroy();
+
+    VkBuffer                              handle{ VK_NULL_HANDLE };
+    VkDeviceSize                          size{ 0 }; // Requested size
+    VkMemoryRequirements                  requirements{};
+    VulkanResourceAllocator::ResourceData resource_data{ 0 };
+
+    VkDevice                            device{ VK_NULL_HANDLE };
+    VulkanResourceAllocator*            allocator{ nullptr };
     graphics::VulkanInjectedDeviceCalls device_table;
 };
 

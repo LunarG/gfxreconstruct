@@ -7893,6 +7893,18 @@ struct CmdSetComputeOccupancyPriorityNV
 };
 
 
+struct GetPhysicalDeviceCooperativeMatrixProperties2EXT
+{
+    VkResult result;
+    format::HandleId physicalDevice;
+    StructPointerDecoder<Decoded_VkPhysicalDeviceCooperativeMatrixInfo2EXT> pCooperativeMatrixInfo;
+    PointerDecoder<uint32_t> pPropertyCount;
+    StructPointerDecoder<Decoded_VkCooperativeMatrixProperties2EXT> pProperties;
+
+    auto GetTuple() const { return std::tie(result, physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties); }
+};
+
+
 struct CmdSetPrimitiveRestartIndexEXT
 {
     format::HandleId commandBuffer;

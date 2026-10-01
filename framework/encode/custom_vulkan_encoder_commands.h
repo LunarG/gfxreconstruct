@@ -517,26 +517,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBuffer>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkCreateBuffer(result, args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImage>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkCreateImage(result, args...);
-    }
-};
-
-template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>
 {
     template <typename... Args>
@@ -1974,6 +1954,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindDataGraphPipelineS
     static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkBindDataGraphPipelineSessionMemoryARM(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetDeviceQueue(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetDeviceQueue2(args...);
     }
 };
 

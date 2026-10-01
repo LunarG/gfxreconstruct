@@ -25,6 +25,7 @@
 
 #include "optimize_feature.h"
 #include "tool_settings.h"
+#include "tool_feature_options.h"
 #include "tool_feature_version.h"
 
 #include "decode/decode_api_detection.h"
@@ -62,15 +63,13 @@ static void PrintUsage(const char* exe_name)
 {
     std::string app_name = std::filesystem::path(exe_name).stem().string();
 
-    // Build synopsis from feature fragments so it stays in sync automatically.
+    // Build synopsis from the feature entries so it stays in sync automatically.
     std::string synopsis = app_name + " [-h | --help] [--version]";
-    for (const auto& feature : g_optimize_features)
+
+    const std::string feature_synopsis = BuildFeatureSynopsis(g_optimize_features);
+    if (!feature_synopsis.empty())
     {
-        const std::string fragment = feature->GetSynopsisFragment();
-        if (!fragment.empty())
-        {
-            synopsis += " " + fragment;
-        }
+        synopsis += " " + feature_synopsis;
     }
     synopsis += " <input-file> <output-file>";
 
@@ -96,10 +95,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("        \t\t\tdisplayed when abort() is called (Windows debug only).");
 #endif
 
-    for (const auto& feature : g_optimize_features)
-    {
-        feature->PrintUsage();
-    }
+    PrintFeatureUsage(g_optimize_features);
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Note: running without optional arguments will instruct the optimizer to detect the API "
                            "and run all available optimizations.");
@@ -130,33 +126,21 @@ int32_t main(int32_t argc, const char** argv)
         g_optimize_features.push_back(creator());
     }
 
-    // Aggregate option flags and argument keys from all features plus common flags.
-    std::string options   = "-h|--help,--version";
-    std::string arguments = "";
+    // Aggregate option flags and argument keys from all features plus common flags. The
+    // ArgumentParser keeps its own copy of the names, so the two lists go out of scope as soon
+    // as it is built.
+    gfxrecon::util::ArgumentParser arg_parser = [argc, argv]() {
+        std::string options   = "-h|--help,--version";
+        std::string arguments = "";
 
 #if defined(WIN32) && defined(_DEBUG)
-    options += ",--no-debug-popup";
+        options += ",--no-debug-popup";
 #endif
 
-    for (const auto& feature : g_optimize_features)
-    {
-        const std::string feature_opts = feature->GetOptions();
-        if (!feature_opts.empty())
-        {
-            options += "," + feature_opts;
-        }
-        const std::string feature_args = feature->GetArguments();
-        if (!feature_args.empty())
-        {
-            if (!arguments.empty())
-            {
-                arguments += ",";
-            }
-            arguments += feature_args;
-        }
-    }
+        AppendFeatureOptions(g_optimize_features, options, arguments);
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
+        return gfxrecon::util::ArgumentParser(argc, argv, options, arguments);
+    }();
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) ||
         CheckOptionPrintFeatureVersions<gfxrecon::optimize::OptimizeFeature>(argv[0], arg_parser))
@@ -170,6 +154,10 @@ int32_t main(int32_t argc, const char** argv)
     }
     else
     {
+        // An entry that received a value outside its accepted set gets a warning. The Feature
+        // that owns the entry then uses its default value.
+        CheckFeatureOptionValues(g_optimize_features, arg_parser);
+
 #if defined(_WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {

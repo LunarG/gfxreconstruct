@@ -33,19 +33,15 @@ using PFN_EventBeginCallBack = void (*)(void*);
 using PFN_EventEndCallBack   = void (*)(void*);
 using PFN_SetEventsCallbacks = void (*)(PFN_EventBeginCallBack, PFN_EventEndCallBack, void*);
 
-void BeginInjectedCommands();
-
-void EndInjectedCommands();
-
 //! RAII helper to mark injected commands in scope
 struct MarkInjectedCommandsHelper
 {
-    // allow nested usage without hitting an assertion
-    static thread_local uint32_t semaphore;
-
     MarkInjectedCommandsHelper();
     ~MarkInjectedCommandsHelper();
 };
+
+// Returns true while the calling thread is inside a MarkInjectedCommandsHelper scope.
+bool InjectedCommandsActive();
 
 // Interface for registering callbacks so that GFXReconstruct can notify an external library about
 // generated API calls that are not included in the capture file.

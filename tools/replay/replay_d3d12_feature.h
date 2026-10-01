@@ -53,6 +53,8 @@ class ReplayD3d12Feature : public ReplayPreProcessFeature<decode::Dx12ReplayCons
     std::string Label() const final { return "D3D12"; }
     std::string CompiledHeaderVersionString() const final;
 
+    std::vector<util::FeatureOptionDesc> GetOptionDescs() const final;
+
     void QueryOptions(util::ArgumentParser& arg_parser, const std::string& capture_filename) final;
     void QueryFpsInfoOptions(bool& quit_after_range,
                              bool& flush_range,

@@ -26,6 +26,7 @@
 #include "graphics/vulkan_feature_util.h"
 
 #include "util/logging.h"
+#include "util/platform.h"
 #include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

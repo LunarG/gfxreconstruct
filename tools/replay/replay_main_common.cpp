@@ -38,6 +38,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(replay)
 
+// The list that the last LoadFeatures() call filled. GetLoadedFeatures() gives it to the usage
+// function of the tool, which cannot receive the list as a parameter.
+static const std::vector<std::unique_ptr<ReplayFeatureBase>>* g_loaded_features = nullptr;
+
 void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features)
 {
     for (const auto& creator :
@@ -45,6 +49,15 @@ void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features)
     {
         features.push_back(creator());
     }
+
+    g_loaded_features = &features;
+}
+
+const std::vector<std::unique_ptr<ReplayFeatureBase>>& GetLoadedFeatures()
+{
+    static const std::vector<std::unique_ptr<ReplayFeatureBase>> empty;
+
+    return (g_loaded_features != nullptr) ? *g_loaded_features : empty;
 }
 
 void RunPreProcessConsumer(const std::string& filename, std::vector<std::unique_ptr<ReplayFeatureBase>>& features)
@@ -70,7 +83,6 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
                std::vector<std::unique_ptr<ReplayFeatureBase>>&                                 features,
                util::ArgumentParser&                                                            arg_parser,
                const std::string&                                                               filename,
-               const std::string&                                                               active_layers_value,
                std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application)
 {
     uint32_t loop_frame        = 0;
@@ -191,7 +203,11 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
     }
 
     application->SetPauseFrame(GetPauseFrame(arg_parser));
-    CheckActiveLayers(active_layers_value);
+
+    for (auto& feature : features)
+    {
+        feature->CheckEnvironment();
+    }
 
 #if defined(__ANDROID__)
     // Start paused; replay begins once APP_CMD_GAINED_FOCUS fires.

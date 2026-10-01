@@ -20,49 +20,47 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_default_allocator.h"
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_remap_allocator.h"
 
 #include "decode/portability.h"
+#include "decode/vulkan_resource_allocator.h"
 #include "util/logging.h"
 
 #include <cassert>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanRemapAllocator::Initialize(uint32_t                                api_version,
-                                          VkInstance                              instance,
-                                          VkPhysicalDevice                        physical_device,
-                                          VkDevice                                device,
-                                          const VkDeviceCreateInfo&               device_create_info,
-                                          const std::vector<std::string>&         enabled_device_extensions,
-                                          VkPhysicalDeviceType                    capture_device_type,
-                                          const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
-                                          const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
-                                          const Functions&                        functions)
+VkResult VulkanRemapAllocator::Initialize(const VulkanPhysicalDeviceInfo*      physical_device_info,
+                                          VkDevice                             device,
+                                          const VkDeviceCreateInfo&            device_create_info,
+                                          const std::vector<std::string>&      enabled_device_extensions,
+                                          const graphics::VulkanInstanceTable& instance_table,
+                                          const graphics::VulkanDeviceTable*   device_table)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result = VulkanDefaultAllocator::Initialize(
+        physical_device_info, device, device_create_info, enabled_device_extensions, instance_table, device_table);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
 
-    VulkanDefaultAllocator::Initialize(api_version,
-                                       instance,
-                                       physical_device,
-                                       device,
-                                       device_create_info,
-                                       enabled_device_extensions,
-                                       capture_device_type,
-                                       capture_memory_properties,
-                                       replay_memory_properties,
-                                       functions);
+    result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
+    const VkPhysicalDeviceMemoryProperties& capture_memory_properties = physical_device_info->capture_memory_properties;
+
+    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties_.memoryTypeCount == 0))
     {
         GFXRECON_LOG_FATAL("Capture file does not contain physical device memory properties and cannot be used with "
                            "memory translation.");
     }
-    else if (portability::CheckMemoryTypeCompatibility(capture_memory_properties, replay_memory_properties, false))
+    else if (portability::CheckMemoryTypeCompatibility(capture_memory_properties, replay_memory_properties_, false))
     {
         // One-to-one mapping when all memory types match.
-        for (uint32_t i = 0; i < replay_memory_properties.memoryTypeCount; ++i)
+        for (uint32_t i = 0; i < replay_memory_properties_.memoryTypeCount; ++i)
         {
             index_map_.push_back(i);
         }
@@ -76,7 +74,7 @@ VkResult VulkanRemapAllocator::Initialize(uint32_t                              
         for (uint32_t i = 0; i < capture_memory_properties.memoryTypeCount; ++i)
         {
             index_map_[i] =
-                portability::FindCompatibleMemoryType(i, capture_memory_properties, replay_memory_properties);
+                portability::FindCompatibleMemoryType(i, capture_memory_properties, replay_memory_properties_);
         }
 
         if (portability::CheckMemoryTypeIndexValidity(index_map_))

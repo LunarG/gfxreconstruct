@@ -60,6 +60,9 @@ std::string_view ViewOfCharArray(const char* array, const size_t capacity);
 /// Convert a std::wstring_view to an UTF-8 encoded std::string
 std::string convert_wstring_to_utf8(const std::wstring_view& wstr);
 
+/// Convert a std::u16string_view to a UTF-8 encoded std::string
+std::string convert_u16string_to_utf8(const std::u16string_view& str);
+
 // Wraps stoul so the caller doesn't have to worry about exceptions
 bool StringToU32(const std::string& value_string, uint32_t& value);
 

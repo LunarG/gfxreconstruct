@@ -23,6 +23,7 @@
 
 #include "replay_settings.h"
 #include "replay_main_common.h"
+#include "tool_feature_options.h"
 
 #include "application/android_context.h"
 #include "application/android_window.h"
@@ -45,7 +46,6 @@
 
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-const char kLayerProperty[]      = "debug.vulkan.layers";
 
 const int32_t kSwipeDistance = 200;
 
@@ -80,16 +80,27 @@ void android_main(struct android_app* app)
 
     gfxrecon::replay::LoadFeatures(g_features);
 
-    std::string                    args = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
+    // Each Feature adds its own command-line entries to the shared name lists, so an entry
+    // exists only when the build contains the Feature that reads it. The ArgumentParser keeps
+    // its own copy of the names, so the two lists go out of scope as soon as it is built.
+    const std::string              args       = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
+    gfxrecon::util::ArgumentParser arg_parser = [&args]() {
+        std::string options   = kOptions;
+        std::string arguments = kArguments;
+        AppendFeatureOptions(g_features, options, arguments);
+        return gfxrecon::util::ArgumentParser(false, args.c_str(), options, arguments);
+    }();
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
 
     bool run = true;
 
-    if (CheckOptionPrintUsage(kApplicationName, arg_parser) ||
-        CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(kApplicationName, arg_parser))
+    if (CheckOptionPrintUsage(kApplicationName, arg_parser))
+    {
+        run = false;
+    }
+    else if (CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(kApplicationName, arg_parser))
     {
         run = false;
     }
@@ -105,6 +116,11 @@ void android_main(struct android_app* app)
         GetLogSettings(arg_parser, log_settings);
         gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
+        // An entry that received a value outside its accepted set gets a warning. The Feature that
+        // owns the entry then uses its default value. The log settings apply before this call, so
+        // --log-level controls the warning.
+        CheckFeatureOptionValues(g_features, arg_parser);
+
         std::string filename = kDefaultCaptureFile;
         if (arg_parser.GetPositionalArgumentsCount() == 1)
         {
@@ -118,8 +134,7 @@ void android_main(struct android_app* app)
                     kApplicationName, fp, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
             };
 
-            gfxrecon::replay::RunReplay(
-                g_file_processor, g_features, arg_parser, filename, kLayerProperty, make_application);
+            gfxrecon::replay::RunReplay(g_file_processor, g_features, arg_parser, filename, make_application);
         }
         catch (std::runtime_error& error)
         {
@@ -140,9 +155,9 @@ void android_main(struct android_app* app)
 
     GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
 
-    gfxrecon::util::Log::Release();
-
     gfxrecon::util::DestroyActivity(app);
+
+    gfxrecon::util::Log::Release();
 
     raise(SIGTERM);
 }

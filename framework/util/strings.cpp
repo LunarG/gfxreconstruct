@@ -110,6 +110,30 @@ std::string convert_wstring_to_utf8(const std::wstring_view& wstr)
     return conv.to_bytes(wstr.data(), wstr.data() + wstr.length());
 }
 
+std::string convert_u16string_to_utf8(const std::u16string_view& str)
+{
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> conv;
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+    return conv.to_bytes(str.data(), str.data() + str.length());
+}
+
 // Wraps stoul so the caller doesn't have to worry about exceptions
 bool StringToU32(const std::string& value_string, uint32_t& value)
 {

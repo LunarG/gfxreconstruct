@@ -74,6 +74,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.instance))
         VulkanReplayConsumer::Process_vkDestroyInstance(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.instance);
     }
     else if (allocatedLoopResources.contains(args.instance))
     {
@@ -81,6 +84,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyInstance(call_info, args);
         allocatedLoopResources.erase(args.instance);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.instance);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -88,6 +94,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyInstance(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.instance);
     }
 }
 
@@ -131,6 +140,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.device))
         VulkanReplayConsumer::Process_vkDestroyDevice(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.device);
     }
     else if (allocatedLoopResources.contains(args.device))
     {
@@ -138,6 +150,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDevice(call_info, args);
         allocatedLoopResources.erase(args.device);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.device);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -145,6 +160,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDevice(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.device);
     }
 }
 
@@ -172,67 +190,67 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateMemory(
     }
 }
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkFreeMemory(
-    const ApiCallInfo&                          call_info,
-    args::FreeMemory&                           args)
-{
-    // Skip for loop iterations 1-(n-1).
-    // Skip if looping and if not final iteration
-    // Execute if args.memory is in allocatedLoopResources
-
-    // Call Process_vkFreeMemory if:
-    //    We are not looping
-    //    We are looping and args.memory is in allocatedLoopResources
-    //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping())
-    {
-        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.memory))
-        VulkanReplayConsumer::Process_vkFreeMemory(call_info, args);
-    }
-    else if (allocatedLoopResources.contains(args.memory))
-    {
-        // Looping special case:
-        // This resource has been allocated WITHIN the loop range.
-        VulkanReplayConsumer::Process_vkFreeMemory(call_info, args);
-        allocatedLoopResources.erase(args.memory);
-    }
-    else if (getFrameLoopInfo().IsFinalIteration())
-    {
-        // Looping special case:
-        // This resource has been allocated BEFORE the loop range.
-        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
-        VulkanReplayConsumer::Process_vkFreeMemory(call_info, args);
-    }
-}
-
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory(
     const ApiCallInfo&                          call_info,
     args::BindBufferMemory&                     args)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    if (!getFrameLoopInfo().IsLooping())
     {
-        return;
+        // Pass through if not looping
+        VulkanReplayConsumer::Process_vkBindBufferMemory(call_info, args);
     }
-    VulkanReplayConsumer::Process_vkBindBufferMemory(call_info, args);
+    else
+    {
+        // We need to bind the memory if the object hasn't been bound
+        // or if it's being bound to a different memory
+        bool need_bind = !boundMemory.contains(args.buffer);
+        if (!need_bind)
+        {
+            format::HandleId old_memory = boundMemory[args.buffer];
+            need_bind = old_memory != args.memory;
+        }
+
+        if (need_bind)
+        {
+            VulkanReplayConsumer::Process_vkBindBufferMemory(call_info, args);
+            boundMemory[args.buffer] = args.memory;
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory(
     const ApiCallInfo&                          call_info,
     args::BindImageMemory&                      args)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    if (!getFrameLoopInfo().IsLooping())
     {
-        return;
+        // Pass through if not looping
+        VulkanReplayConsumer::Process_vkBindImageMemory(call_info, args);
     }
-    VulkanReplayConsumer::Process_vkBindImageMemory(call_info, args);
+    else
+    {
+        // We need to bind the memory if the object hasn't been bound
+        // or if it's being bound to a different memory
+        bool need_bind = !boundMemory.contains(args.image);
+        if (!need_bind)
+        {
+            format::HandleId old_memory = boundMemory[args.image];
+            need_bind = old_memory != args.memory;
+        }
+
+        if (need_bind)
+        {
+            VulkanReplayConsumer::Process_vkBindImageMemory(call_info, args);
+            boundMemory[args.image] = args.memory;
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkQueueBindSparse(
     const ApiCallInfo&                          call_info,
     args::QueueBindSparse&                      args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -281,6 +299,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.fence))
         VulkanReplayConsumer::Process_vkDestroyFence(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.fence);
     }
     else if (allocatedLoopResources.contains(args.fence))
     {
@@ -288,6 +309,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyFence(call_info, args);
         allocatedLoopResources.erase(args.fence);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.fence);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -295,6 +319,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyFence(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.fence);
     }
 }
 
@@ -338,6 +365,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.semaphore))
         VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.semaphore);
     }
     else if (allocatedLoopResources.contains(args.semaphore))
     {
@@ -345,6 +375,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, args);
         allocatedLoopResources.erase(args.semaphore);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.semaphore);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -352,6 +385,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.semaphore);
     }
 }
 
@@ -395,6 +431,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.queryPool))
         VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.queryPool);
     }
     else if (allocatedLoopResources.contains(args.queryPool))
     {
@@ -402,6 +441,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, args);
         allocatedLoopResources.erase(args.queryPool);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.queryPool);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -409,6 +451,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.queryPool);
     }
 }
 
@@ -452,6 +497,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.buffer))
         VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.buffer);
     }
     else if (allocatedLoopResources.contains(args.buffer))
     {
@@ -459,6 +507,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, args);
         allocatedLoopResources.erase(args.buffer);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.buffer);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -466,6 +517,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.buffer);
     }
 }
 
@@ -509,6 +563,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.image))
         VulkanReplayConsumer::Process_vkDestroyImage(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.image);
     }
     else if (allocatedLoopResources.contains(args.image))
     {
@@ -516,6 +573,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyImage(call_info, args);
         allocatedLoopResources.erase(args.image);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.image);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -523,6 +583,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyImage(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.image);
     }
 }
 
@@ -566,6 +629,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.imageView))
         VulkanReplayConsumer::Process_vkDestroyImageView(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.imageView);
     }
     else if (allocatedLoopResources.contains(args.imageView))
     {
@@ -573,6 +639,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyImageView(call_info, args);
         allocatedLoopResources.erase(args.imageView);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.imageView);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -580,6 +649,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyImageView(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.imageView);
     }
 }
 
@@ -599,6 +671,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.commandPool))
         VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.commandPool);
     }
     else if (allocatedLoopResources.contains(args.commandPool))
     {
@@ -606,6 +681,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, args);
         allocatedLoopResources.erase(args.commandPool);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.commandPool);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -613,6 +691,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.commandPool);
     }
 }
 
@@ -620,6 +701,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::AllocateCommandBuffers&               args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -632,6 +714,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     const ApiCallInfo&                          call_info,
     args::FreeCommandBuffers&                   args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -679,6 +763,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.event))
         VulkanReplayConsumer::Process_vkDestroyEvent(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.event);
     }
     else if (allocatedLoopResources.contains(args.event))
     {
@@ -686,6 +773,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyEvent(call_info, args);
         allocatedLoopResources.erase(args.event);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.event);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -693,6 +783,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyEvent(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.event);
     }
 }
 
@@ -736,6 +829,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.bufferView))
         VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.bufferView);
     }
     else if (allocatedLoopResources.contains(args.bufferView))
     {
@@ -743,6 +839,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, args);
         allocatedLoopResources.erase(args.bufferView);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.bufferView);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -750,6 +849,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.bufferView);
     }
 }
 
@@ -793,6 +895,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.shaderModule))
         VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.shaderModule);
     }
     else if (allocatedLoopResources.contains(args.shaderModule))
     {
@@ -800,6 +905,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, args);
         allocatedLoopResources.erase(args.shaderModule);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.shaderModule);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -807,6 +915,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.shaderModule);
     }
 }
 
@@ -850,6 +961,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.pipelineCache))
         VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineCache);
     }
     else if (allocatedLoopResources.contains(args.pipelineCache))
     {
@@ -857,6 +971,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, args);
         allocatedLoopResources.erase(args.pipelineCache);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineCache);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -864,6 +981,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineCache);
     }
 }
 
@@ -871,6 +991,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkMergePipelineCaches(
     const ApiCallInfo&                          call_info,
     args::MergePipelineCaches&                  args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -883,36 +1004,114 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     const ApiCallInfo&                          call_info,
     args::CreateComputePipelines&               args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkComputePipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkComputePipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
+
+    for (uint32_t i : to_create)
+    {
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateComputePipelines/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        // meta_infos[x].stage is a pointer to a separately-allocated Decoded_<Type>
+        // with its own decoded_value pointer, set at decode time to
+        // &raw_infos[<original index>].stage. Swapping the outer wrapper above
+        // does not update this nested pointer, so it must be re-pointed here too, or
+        // handle-mapping code will write the mapped handle into the wrong raw_infos
+        // slot, leaving this slot's embedded field unset.
+        meta_infos[0].stage->decoded_value = &raw_infos[0].stage;
+        meta_infos[i].stage->decoded_value = &raw_infos[i].stage;
+        std::swap(capture_ids[0], capture_ids[i]);
+
+        // Restrict this call to a single create info/handle. Process_vkCreateComputePipelines()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
+        args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
+
+        VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, args);
+
+        args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
+
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateComputePipelines()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (out_handle != VK_NULL_HANDLE)
+        {
+            allocatedLoopResources.insert(target_capture_id);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(capture_ids[0], capture_ids[i]);
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        meta_infos[0].stage->decoded_value = &raw_infos[0].stage;
+        meta_infos[i].stage->decoded_value = &raw_infos[i].stage;
     }
 }
 
@@ -932,6 +1131,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.pipeline))
         VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipeline);
     }
     else if (allocatedLoopResources.contains(args.pipeline))
     {
@@ -939,6 +1141,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, args);
         allocatedLoopResources.erase(args.pipeline);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipeline);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -946,6 +1151,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipeline);
     }
 }
 
@@ -989,6 +1197,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.pipelineLayout))
         VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineLayout);
     }
     else if (allocatedLoopResources.contains(args.pipelineLayout))
     {
@@ -996,6 +1207,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, args);
         allocatedLoopResources.erase(args.pipelineLayout);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineLayout);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1003,6 +1217,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineLayout);
     }
 }
 
@@ -1046,6 +1263,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.sampler))
         VulkanReplayConsumer::Process_vkDestroySampler(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.sampler);
     }
     else if (allocatedLoopResources.contains(args.sampler))
     {
@@ -1053,6 +1273,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroySampler(call_info, args);
         allocatedLoopResources.erase(args.sampler);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.sampler);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1060,6 +1283,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroySampler(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.sampler);
     }
 }
 
@@ -1103,6 +1329,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.descriptorSetLayout))
         VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorSetLayout);
     }
     else if (allocatedLoopResources.contains(args.descriptorSetLayout))
     {
@@ -1110,6 +1339,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, args);
         allocatedLoopResources.erase(args.descriptorSetLayout);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorSetLayout);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1117,6 +1349,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorSetLayout);
     }
 }
 
@@ -1148,36 +1383,104 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                          call_info,
     args::CreateGraphicsPipelines&              args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkGraphicsPipelineCreateInfo* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkGraphicsPipelineCreateInfo* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
+
+    for (uint32_t i : to_create)
+    {
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateGraphicsPipelines/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        std::swap(capture_ids[0], capture_ids[i]);
+
+        // Restrict this call to a single create info/handle. Process_vkCreateGraphicsPipelines()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
+        args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
+
+        VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, args);
+
+        args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
+
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateGraphicsPipelines()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (out_handle != VK_NULL_HANDLE)
+        {
+            allocatedLoopResources.insert(target_capture_id);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(capture_ids[0], capture_ids[i]);
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -1221,6 +1524,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.framebuffer))
         VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.framebuffer);
     }
     else if (allocatedLoopResources.contains(args.framebuffer))
     {
@@ -1228,6 +1534,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, args);
         allocatedLoopResources.erase(args.framebuffer);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.framebuffer);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1235,6 +1544,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.framebuffer);
     }
 }
 
@@ -1278,6 +1590,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.renderPass))
         VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.renderPass);
     }
     else if (allocatedLoopResources.contains(args.renderPass))
     {
@@ -1285,6 +1600,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, args);
         allocatedLoopResources.erase(args.renderPass);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.renderPass);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1292,6 +1610,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.renderPass);
     }
 }
 
@@ -1299,6 +1620,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
     const ApiCallInfo&                          call_info,
     args::BindBufferMemory2&                    args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1311,6 +1633,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
     const ApiCallInfo&                          call_info,
     args::BindImageMemory2&                     args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1359,6 +1682,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.descriptorUpdateTemplate))
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorUpdateTemplate);
     }
     else if (allocatedLoopResources.contains(args.descriptorUpdateTemplate))
     {
@@ -1366,6 +1692,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, args);
         allocatedLoopResources.erase(args.descriptorUpdateTemplate);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorUpdateTemplate);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1373,6 +1702,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorUpdateTemplate);
     }
 }
 
@@ -1416,6 +1748,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.ycbcrConversion))
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.ycbcrConversion);
     }
     else if (allocatedLoopResources.contains(args.ycbcrConversion))
     {
@@ -1423,6 +1758,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, args);
         allocatedLoopResources.erase(args.ycbcrConversion);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.ycbcrConversion);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1430,6 +1768,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.ycbcrConversion);
     }
 }
 
@@ -1497,6 +1838,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.privateDataSlot))
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.privateDataSlot);
     }
     else if (allocatedLoopResources.contains(args.privateDataSlot))
     {
@@ -1504,6 +1848,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, args);
         allocatedLoopResources.erase(args.privateDataSlot);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.privateDataSlot);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1511,6 +1858,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.privateDataSlot);
     }
 }
 
@@ -1518,6 +1868,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
     const ApiCallInfo&                          call_info,
     args::MapMemory2&                           args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1530,6 +1881,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2(
     const ApiCallInfo&                          call_info,
     args::UnmapMemory2&                         args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -1541,6 +1894,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkTransitionImageLayout(
     const ApiCallInfo&                          call_info,
     args::TransitionImageLayout&                args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1565,6 +1919,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.surface))
         VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.surface);
     }
     else if (allocatedLoopResources.contains(args.surface))
     {
@@ -1572,6 +1929,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, args);
         allocatedLoopResources.erase(args.surface);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.surface);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1579,6 +1939,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.surface);
     }
 }
 
@@ -1622,6 +1985,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.swapchain))
         VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.swapchain);
     }
     else if (allocatedLoopResources.contains(args.swapchain))
     {
@@ -1629,6 +1995,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, args);
         allocatedLoopResources.erase(args.swapchain);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.swapchain);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1636,6 +2005,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.swapchain);
     }
 }
 
@@ -1691,36 +2063,104 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     const ApiCallInfo&                          call_info,
     args::CreateSharedSwapchainsKHR&            args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.swapchainCount; i++)
-        {
-            format::HandleId handle = args.pSwapchains.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    format::HandleId* capture_ids = args.pSwapchains.GetPointerMutable();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.swapchainCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.swapchainCount; i++)
-            {
-                format::HandleId handle = args.pSwapchains.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.swapchainCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
+
+        for (uint32_t i = 0; i < args.swapchainCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkSwapchainCreateInfoKHR* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkSwapchainCreateInfoKHR* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    const uint32_t original_count_value = args.swapchainCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pSwapchains_length = args.pSwapchains.GetLength();
+
+    for (uint32_t i : to_create)
+    {
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateSharedSwapchainsKHR/driver code (which
+        // always starts at index 0) operates on the VkSwapchainKHR we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        std::swap(capture_ids[0], capture_ids[i]);
+
+        // Restrict this call to a single create info/handle. Process_vkCreateSharedSwapchainsKHR()
+        // and anything it calls may consult either args.swapchainCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.swapchainCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
+        args.swapchainCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pSwapchains.SetLength(1);
+
+        VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, args);
+
+        args.swapchainCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pSwapchains.SetLength(original_pSwapchains_length);
+
+        // args.pSwapchains.SetHandleLength(), called internally by Process_vkCreateSharedSwapchainsKHR()
+        // above, (re)allocates args.pSwapchains's handle buffer to exactly args.swapchainCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
+        VkSwapchainKHR out_handle = args.pSwapchains.GetHandlePointer()[0];
+
+        if (out_handle != VK_NULL_HANDLE)
+        {
+            allocatedLoopResources.insert(target_capture_id);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkSwapchainKHR (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(capture_ids[0], capture_ids[i]);
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -1884,6 +2324,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.videoSession))
         VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.videoSession);
     }
     else if (allocatedLoopResources.contains(args.videoSession))
     {
@@ -1891,6 +2334,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, args);
         allocatedLoopResources.erase(args.videoSession);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.videoSession);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1898,6 +2344,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.videoSession);
     }
 }
 
@@ -1905,6 +2354,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindVideoSessionMemoryKHR(
     const ApiCallInfo&                          call_info,
     args::BindVideoSessionMemoryKHR&            args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -1953,6 +2403,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersK
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.videoSessionParameters))
         VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.videoSessionParameters);
     }
     else if (allocatedLoopResources.contains(args.videoSessionParameters))
     {
@@ -1960,6 +2413,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersK
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, args);
         allocatedLoopResources.erase(args.videoSessionParameters);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.videoSessionParameters);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -1967,6 +2423,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersK
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.videoSessionParameters);
     }
 }
 
@@ -1974,6 +2433,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkImportSemaphoreFdKHR(
     const ApiCallInfo&                          call_info,
     args::ImportSemaphoreFdKHR&                 args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2022,6 +2482,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.descriptorUpdateTemplate))
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorUpdateTemplate);
     }
     else if (allocatedLoopResources.contains(args.descriptorUpdateTemplate))
     {
@@ -2029,6 +2492,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, args);
         allocatedLoopResources.erase(args.descriptorUpdateTemplate);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorUpdateTemplate);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2036,6 +2502,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.descriptorUpdateTemplate);
     }
 }
 
@@ -2067,6 +2536,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkImportFenceFdKHR(
     const ApiCallInfo&                          call_info,
     args::ImportFenceFdKHR&                     args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2115,6 +2585,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionK
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.ycbcrConversion))
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.ycbcrConversion);
     }
     else if (allocatedLoopResources.contains(args.ycbcrConversion))
     {
@@ -2122,6 +2595,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionK
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, args);
         allocatedLoopResources.erase(args.ycbcrConversion);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.ycbcrConversion);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2129,6 +2605,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionK
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.ycbcrConversion);
     }
 }
 
@@ -2136,6 +2615,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::BindBufferMemory2KHR&                 args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2148,6 +2628,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::BindImageMemory2KHR&                  args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2196,6 +2677,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.operation))
         VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.operation);
     }
     else if (allocatedLoopResources.contains(args.operation))
     {
@@ -2203,6 +2687,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, args);
         allocatedLoopResources.erase(args.operation);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.operation);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2210,6 +2697,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.operation);
     }
 }
 
@@ -2217,6 +2707,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::MapMemory2KHR&                        args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2229,6 +2720,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     const ApiCallInfo&                          call_info,
     args::UnmapMemory2KHR&                      args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2240,6 +2733,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     args::CreatePipelineBinariesKHR&            args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2264,6 +2758,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineBinaryKHR(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.pipelineBinary))
         VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineBinary);
     }
     else if (allocatedLoopResources.contains(args.pipelineBinary))
     {
@@ -2271,6 +2768,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineBinaryKHR(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, args);
         allocatedLoopResources.erase(args.pipelineBinary);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineBinary);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2278,6 +2778,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineBinaryKHR(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.pipelineBinary);
     }
 }
 
@@ -2285,6 +2788,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseCapturedPipelineDataKHR
     const ApiCallInfo&                          call_info,
     args::ReleaseCapturedPipelineDataKHR&       args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2296,6 +2801,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesKHR(
     const ApiCallInfo&                          call_info,
     args::ReleaseSwapchainImagesKHR&            args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2343,6 +2850,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.callback))
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.callback);
     }
     else if (allocatedLoopResources.contains(args.callback))
     {
@@ -2350,6 +2860,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, args);
         allocatedLoopResources.erase(args.callback);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.callback);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2357,6 +2870,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.callback);
     }
 }
 
@@ -2412,6 +2928,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseDisplayEXT(
     const ApiCallInfo&                          call_info,
     args::ReleaseDisplayEXT&                    args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2423,6 +2941,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkRegisterDeviceEventEXT(
     const ApiCallInfo&                          call_info,
     args::RegisterDeviceEventEXT&               args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2435,6 +2954,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkRegisterDisplayEventEXT(
     const ApiCallInfo&                          call_info,
     args::RegisterDisplayEventEXT&              args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2531,6 +3051,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.messenger))
         VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.messenger);
     }
     else if (allocatedLoopResources.contains(args.messenger))
     {
@@ -2538,6 +3061,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, args);
         allocatedLoopResources.erase(args.messenger);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.messenger);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2545,6 +3071,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.messenger);
     }
 }
 
@@ -2588,6 +3117,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.validationCache))
         VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.validationCache);
     }
     else if (allocatedLoopResources.contains(args.validationCache))
     {
@@ -2595,6 +3127,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, args);
         allocatedLoopResources.erase(args.validationCache);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.validationCache);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2602,6 +3137,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.validationCache);
     }
 }
 
@@ -2633,6 +3171,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureNV
     const ApiCallInfo&                          call_info,
     args::DestroyAccelerationStructureNV&       args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2644,6 +3184,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
     const ApiCallInfo&                          call_info,
     args::BindAccelerationStructureMemoryNV&    args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -2656,36 +3197,104 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     const ApiCallInfo&                          call_info,
     args::CreateRayTracingPipelinesNV&          args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkRayTracingPipelineCreateInfoNV* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkRayTracingPipelineCreateInfoNV* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
+
+    for (uint32_t i : to_create)
+    {
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateRayTracingPipelinesNV/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        std::swap(capture_ids[0], capture_ids[i]);
+
+        // Restrict this call to a single create info/handle. Process_vkCreateRayTracingPipelinesNV()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
+        args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
+
+        VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, args);
+
+        args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
+
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateRayTracingPipelinesNV()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (out_handle != VK_NULL_HANDLE)
+        {
+            allocatedLoopResources.insert(target_capture_id);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(capture_ids[0], capture_ids[i]);
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -2693,6 +3302,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleasePerformanceConfiguratio
     const ApiCallInfo&                          call_info,
     args::ReleasePerformanceConfigurationINTEL& args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2752,6 +3363,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseFullScreenExclusiveMode
     const ApiCallInfo&                          call_info,
     args::ReleaseFullScreenExclusiveModeEXT&    args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2787,6 +3400,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(
     const ApiCallInfo&                          call_info,
     args::ReleaseSwapchainImagesEXT&            args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
@@ -2834,6 +3449,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutN
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.indirectCommandsLayout))
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectCommandsLayout);
     }
     else if (allocatedLoopResources.contains(args.indirectCommandsLayout))
     {
@@ -2841,6 +3459,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutN
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, args);
         allocatedLoopResources.erase(args.indirectCommandsLayout);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectCommandsLayout);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2848,6 +3469,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutN
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectCommandsLayout);
     }
 }
 
@@ -2891,6 +3515,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.privateDataSlot))
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.privateDataSlot);
     }
     else if (allocatedLoopResources.contains(args.privateDataSlot))
     {
@@ -2898,6 +3525,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, args);
         allocatedLoopResources.erase(args.privateDataSlot);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.privateDataSlot);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -2905,6 +3535,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.privateDataSlot);
     }
 }
 
@@ -2996,6 +3629,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.micromap))
         VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.micromap);
     }
     else if (allocatedLoopResources.contains(args.micromap))
     {
@@ -3003,6 +3639,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, args);
         allocatedLoopResources.erase(args.micromap);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.micromap);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3010,6 +3649,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.micromap);
     }
 }
 
@@ -3053,6 +3695,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorARM(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.tensor))
         VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.tensor);
     }
     else if (allocatedLoopResources.contains(args.tensor))
     {
@@ -3060,6 +3705,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorARM(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, args);
         allocatedLoopResources.erase(args.tensor);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.tensor);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3067,6 +3715,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorARM(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.tensor);
     }
 }
 
@@ -3110,6 +3761,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorViewARM(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.tensorView))
         VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.tensorView);
     }
     else if (allocatedLoopResources.contains(args.tensorView))
     {
@@ -3117,6 +3771,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorViewARM(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, args);
         allocatedLoopResources.erase(args.tensorView);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.tensorView);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3124,6 +3781,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorViewARM(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.tensorView);
     }
 }
 
@@ -3131,6 +3791,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
     const ApiCallInfo&                          call_info,
     args::BindTensorMemoryARM&                  args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -3179,6 +3840,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.session))
         VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.session);
     }
     else if (allocatedLoopResources.contains(args.session))
     {
@@ -3186,6 +3850,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, args);
         allocatedLoopResources.erase(args.session);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.session);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3193,6 +3860,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.session);
     }
 }
 
@@ -3200,6 +3870,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindOpticalFlowSessionImageNV(
     const ApiCallInfo&                          call_info,
     args::BindOpticalFlowSessionImageNV&        args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -3212,36 +3883,104 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     const ApiCallInfo&                          call_info,
     args::CreateShadersEXT&                     args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pShaders.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    format::HandleId* capture_ids = args.pShaders.GetPointerMutable();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pShaders.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkShaderCreateInfoEXT* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkShaderCreateInfoEXT* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pShaders_length = args.pShaders.GetLength();
+
+    for (uint32_t i : to_create)
+    {
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateShadersEXT/driver code (which
+        // always starts at index 0) operates on the VkShaderEXT we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        std::swap(capture_ids[0], capture_ids[i]);
+
+        // Restrict this call to a single create info/handle. Process_vkCreateShadersEXT()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
+        args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pShaders.SetLength(1);
+
+        VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, args);
+
+        args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pShaders.SetLength(original_pShaders_length);
+
+        // args.pShaders.SetHandleLength(), called internally by Process_vkCreateShadersEXT()
+        // above, (re)allocates args.pShaders's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
+        VkShaderEXT out_handle = args.pShaders.GetHandlePointer()[0];
+
+        if (out_handle != VK_NULL_HANDLE)
+        {
+            allocatedLoopResources.insert(target_capture_id);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkShaderEXT (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(capture_ids[0], capture_ids[i]);
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -3261,6 +4000,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.shader))
         VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.shader);
     }
     else if (allocatedLoopResources.contains(args.shader))
     {
@@ -3268,6 +4010,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, args);
         allocatedLoopResources.erase(args.shader);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.shader);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3275,6 +4020,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.shader);
     }
 }
 
@@ -3282,36 +4030,104 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     const ApiCallInfo&                          call_info,
     args::CreateDataGraphPipelinesARM&          args)
 {
-    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
-    bool doReplay = false;
+    // Pass the call along unchanged if we are not looping.
     if (!getFrameLoopInfo().IsLooping())
     {
-        doReplay = true;
-    }
-    else
-    {
-        for (uint32_t i=0; i < args.createInfoCount; i++)
-        {
-            format::HandleId handle = args.pPipelines.GetPointer()[i];
-            if (!allocatedLoopResources.contains(handle))
-            {
-                doReplay = true;
-                break;
-            }
-        }
-    }
-    if (doReplay)
-    {
         VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
-        // If we are looping, save the handles in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
+        return;
+    }
+
+    format::HandleId* capture_ids = args.pPipelines.GetPointerMutable();
+
+    std::vector<uint32_t> to_create;
+    for (uint32_t i = 0; i < args.createInfoCount; ++i)
+    {
+        if (!allocatedLoopResources.contains(capture_ids[i]))
         {
-            for (uint32_t i=0; i < args.createInfoCount; i++)
-            {
-                format::HandleId handle = args.pPipelines.GetPointer()[i];
-                allocatedLoopResources.insert(handle);
-            }
+            to_create.push_back(i);
         }
+    }
+
+    if (to_create.empty())
+    {
+        // Every handle in this batch already exists from an earlier loop iteration.
+        return;
+    }
+
+    if (to_create.size() == args.createInfoCount)
+    {
+        // Nothing pre-exists; take the normal batched path.
+        VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
+
+        for (uint32_t i = 0; i < args.createInfoCount; ++i)
+        {
+            allocatedLoopResources.insert(capture_ids[i]);
+        }
+        return;
+    }
+
+    // Mixed case: some handles in this batch already exist, others do not.
+    VkDataGraphPipelineCreateInfoARM* raw_infos  = args.pCreateInfos.GetPointer();
+    Decoded_VkDataGraphPipelineCreateInfoARM* meta_infos = args.pCreateInfos.GetMetaStructPointer();
+
+    const uint32_t original_count_value = args.createInfoCount;
+    const size_t original_pCreateInfos_length = args.pCreateInfos.GetLength();
+    const size_t original_pPipelines_length = args.pPipelines.GetLength();
+
+    for (uint32_t i : to_create)
+    {
+        format::HandleId target_capture_id = capture_ids[i];
+
+        // Move index i into slot 0 so Process_vkCreateDataGraphPipelinesARM/driver code (which
+        // always starts at index 0) operates on the VkPipeline we actually want.
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
+        std::swap(capture_ids[0], capture_ids[i]);
+
+        // Restrict this call to a single create info/handle. Process_vkCreateDataGraphPipelinesARM()
+        // and anything it calls may consult either args.createInfoCount or the
+        // independently-tracked decoded length (GetLength()) of each
+        // args.createInfoCount-sized array to determine how many entries to
+        // process, so both must be overridden to make this call operate on
+        // only slot 0. Each array's length is restored below so that the
+        // full-length raw_infos/meta_infos/capture_ids arrays remain valid
+        // for the swap-based indexing used on the next to_create entry.
+        args.createInfoCount = 1;
+        args.pCreateInfos.SetLength(1);
+        args.pPipelines.SetLength(1);
+
+        VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, args);
+
+        args.createInfoCount = original_count_value;
+        args.pCreateInfos.SetLength(original_pCreateInfos_length);
+        args.pPipelines.SetLength(original_pPipelines_length);
+
+        // args.pPipelines.SetHandleLength(), called internally by Process_vkCreateDataGraphPipelinesARM()
+        // above, (re)allocates args.pPipelines's handle buffer to exactly args.createInfoCount = 1
+        // elements on every call, so this pointer must be re-fetched here and only
+        // index [0] may ever be read, so do not attempt to swap or index this array by
+        // anything other than 0.
+        VkPipeline out_handle = args.pPipelines.GetHandlePointer()[0];
+
+        if (out_handle != VK_NULL_HANDLE)
+        {
+            allocatedLoopResources.insert(target_capture_id);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Frame loop: failed to create VkPipeline (capture id %" PRIu64 ") during loop repetition",
+                target_capture_id);
+        }
+
+        // Restore original order before moving to the next index.
+        std::swap(capture_ids[0], capture_ids[i]);
+        std::swap(raw_infos[0], raw_infos[i]);
+        std::swap(meta_infos[0], meta_infos[i]);
+        meta_infos[0].decoded_value = &raw_infos[0];
+        meta_infos[i].decoded_value = &raw_infos[i];
     }
 }
 
@@ -3343,6 +4159,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
     const ApiCallInfo&                          call_info,
     args::BindDataGraphPipelineSessionMemoryARM& args)
 {
+    // Not fully implemented yet.
     // Return if not the first time through loop
     if (getFrameLoopInfo().IsRepetition())
     {
@@ -3367,6 +4184,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDataGraphPipelineSessio
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.session))
         VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.session);
     }
     else if (allocatedLoopResources.contains(args.session))
     {
@@ -3374,6 +4194,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDataGraphPipelineSessio
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, args);
         allocatedLoopResources.erase(args.session);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.session);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3381,6 +4204,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDataGraphPipelineSessio
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.session);
     }
 }
 
@@ -3424,6 +4250,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutE
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.indirectCommandsLayout))
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectCommandsLayout);
     }
     else if (allocatedLoopResources.contains(args.indirectCommandsLayout))
     {
@@ -3431,6 +4260,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutE
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, args);
         allocatedLoopResources.erase(args.indirectCommandsLayout);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectCommandsLayout);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3438,6 +4270,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutE
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectCommandsLayout);
     }
 }
 
@@ -3481,6 +4316,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT
     {
         GFXRECON_ASSERT(!allocatedLoopResources.contains(args.indirectExecutionSet))
         VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectExecutionSet);
     }
     else if (allocatedLoopResources.contains(args.indirectExecutionSet))
     {
@@ -3488,6 +4326,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT
         // This resource has been allocated WITHIN the loop range.
         VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, args);
         allocatedLoopResources.erase(args.indirectExecutionSet);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectExecutionSet);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
@@ -3495,6 +4336,9 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, args);
+
+        // If this resource binds to memory, remove it from bound memory set
+        boundMemory.erase(args.indirectExecutionSet);
     }
 }
 
@@ -3526,6 +4370,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureKH
     const ApiCallInfo&                          call_info,
     args::DestroyAccelerationStructureKHR&      args)
 {
+    // Not fully implemented yet.
+    // Return if looping and we are not executing the last iteration.
     if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
