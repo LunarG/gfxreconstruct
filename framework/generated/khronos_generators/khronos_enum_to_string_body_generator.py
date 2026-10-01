@@ -33,6 +33,10 @@ class KhronosEnumToStringBodyGenerator():
         """ Method may be overridden"""
         return False
 
+    def has_enumerants(self, enum):
+        """ Method may be overridden: True when Enumerants<enum> is generated and ToString reads it."""
+        return False
+
     def write_enum_to_string_body(self, use_flags_for_64bit_enum=False):
         api_data = self.get_api_data()
         flags_type = api_data.flags_type
@@ -52,7 +56,10 @@ class KhronosEnumToStringBodyGenerator():
                 body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
             body += '{{\n'
             enumerants = self.enumEnumerants[enum]
-            if len(enumerants):
+            if self.has_enumerants(enum):
+                body += '    const std::string_view name = NameOf(value);\n'
+                body += '    return name.empty() ? "Unhandled {0}" : std::string(name);\n'
+            elif len(enumerants):
                 body += '    switch (value) {{\n'
                 for enumerant in enumerants:
                     body += '    case {0}: return "{0}";\n'.format(
@@ -60,7 +67,8 @@ class KhronosEnumToStringBodyGenerator():
                     )
                 body += '    default: break;\n'
                 body += '    }}\n'
-            body += '    return "Unhandled {0}";\n'
+            if not self.has_enumerants(enum):
+                body += '    return "Unhandled {0}";\n'
             body += '}}\n'
             if 'Bits' in enum:
                 if self.is_flags_enum_64bit(enum):

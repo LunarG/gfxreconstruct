@@ -48,6 +48,9 @@
 #include "generated/generated_vulkan_schema_decoded_command_members.h"
 #include "generated/generated_vulkan_schema_decoded_struct_members.h"
 #include "generated/generated_vulkan_schema_native_struct_members.h"
+#include "generated/generated_vulkan_schema_enumerants.h"
+#include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_json.h"
 #include "test/schema_fill.h"
 
 #include <cstring>
@@ -3042,4 +3045,33 @@ TEST_CASE("The schema filler populates every described field", "[schema][fill]")
     CHECK(info.pApplicationInfo->apiVersion == 2);
     CHECK(std::string(info.pApplicationInfo->pApplicationName) == "ab");
     CHECK(info.pNext == nullptr);
+}
+
+// Enumerants<Enum> names every enumerant, and the two name functions read it: ToString substitutes its unhandled
+// string on a miss, to_json the hex form. VkStructureType is the largest enum and the sieves' key;
+// VkImageUsageFlagBits stands for the flag-bits enums, whose per-bit expansion reads the same entries.
+TEST_CASE("Enumerants names every enumerant and both name functions read it", "[schema][enumerants]")
+{
+    auto check_every_entry = []<typename Enum>() {
+        for (const util::Enumerant<Enum>& entry : util::Enumerants<Enum>::entries)
+        {
+            CHECK(util::NameOf(entry.value) == entry.name);
+            CHECK(util::ToString(entry.value) == std::string(entry.name));
+
+            nlohmann::ordered_json json;
+            to_json(json, entry.value);
+            CHECK(json.get<std::string>() == std::string(entry.name));
+        }
+    };
+    check_every_entry.template operator()<VkStructureType>();
+    check_every_entry.template operator()<VkImageUsageFlagBits>();
+
+    // VK_STRUCTURE_TYPE_MAX_ENUM is the header's sentinel, not a registry enumerant.
+    const auto not_an_enumerant = static_cast<VkStructureType>(0x7FFFFFFF);
+    CHECK(util::NameOf(not_an_enumerant).empty());
+    CHECK(util::ToString(not_an_enumerant) == "Unhandled VkStructureType");
+
+    nlohmann::ordered_json json;
+    to_json(json, not_an_enumerant);
+    CHECK(json.get<std::string>() == util::to_hex_fixed_width(not_an_enumerant));
 }

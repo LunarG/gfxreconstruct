@@ -34,6 +34,10 @@ class KhronosEnumToJsonBodyGenerator():
         """ Method may be overridden"""
         return False
 
+    def has_enumerants(self, enum):
+        """ Method may be overridden: True when Enumerants<enum> is generated and to_json reads it."""
+        return False
+
     def make_decls(self):
         body = format_cpp_code(
             '''
@@ -89,7 +93,17 @@ class KhronosEnumToJsonBodyGenerator():
                 body = f'void to_json(nlohmann::ordered_json& jdata, const {enum}& value)\n'
                 value = 'value'
             body += '{\n'
-            if len(self.enumEnumerants[enum]):
+            if self.has_enumerants(enum):
+                body += f'    const std::string_view name = gfxrecon::util::NameOf({value});\n'
+                body += '    if (name.empty())\n'
+                body += '    {\n'
+                body += f'        jdata = gfxrecon::decode::to_hex_fixed_width({value});\n'
+                body += '    }\n'
+                body += '    else\n'
+                body += '    {\n'
+                body += '        jdata = std::string(name);\n'
+                body += '    }\n'
+            elif len(self.enumEnumerants[enum]):
                 body += f'    switch ({value}) {{\n'
                 for enumerant in self.enumEnumerants[enum]:
                     body += f'        case {enumerant}:\n'
@@ -127,6 +141,13 @@ class KhronosEnumToJsonBodyGenerator():
                 body += "    }}\n"
                 body += "    jdata = ExpandFlags(static_cast<{0}>(flags), []({1} flags)\n"
                 body += "    {{\n"
+                if self.has_enumerants(bittype):
+                    body += '        const std::string_view name = gfxrecon::util::NameOf(static_cast<{2}>(flags));\n'
+                    body += '        return name.empty() ? to_hex_fixed_width(flags) : std::string(name);\n'
+                    body += '    }});\n'
+                    body += '}}\n'
+                    write(body.format(flag, self.flags_types[flag], bittype), file=self.outFile)
+                    continue
                 body += '        switch (flags)\n'
                 body += '        {{\n'
                 for enumerant in self.enumEnumerants[bittype]:

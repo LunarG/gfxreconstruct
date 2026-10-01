@@ -106,6 +106,7 @@ generate_targets = [
     'generated_vulkan_encode_capture_wrappers.h',
     'generated_vulkan_encode_descriptor_for.h',
     'generated_vulkan_schema_checks.cpp',
+    'generated_vulkan_schema_enumerants.h',
 ]
 
 

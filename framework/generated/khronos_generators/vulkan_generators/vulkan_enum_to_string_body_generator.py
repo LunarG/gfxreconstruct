@@ -54,7 +54,10 @@ class VulkanEnumToStringBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
-        self.begin_end_file_data.specific_headers.append('generated_vulkan_enum_to_string.h')
+        self.begin_end_file_data.specific_headers.extend((
+            'generated_vulkan_enum_to_string.h',
+            'generated_vulkan_schema_enumerants.h',
+        ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'util'))
         self.begin_end_file_data.common_api_headers = []
 
