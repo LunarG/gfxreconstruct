@@ -139,7 +139,7 @@ TEST(ReplayWaitOptions, WaitBeforeFrameEmitsAWaitPerFrame)
     std::vector<RecordedEvent> wait_begins = events_of_type(events, GFXR_REPLAY_EVENT_WAIT_BEGIN);
 
     EXPECT_GT(wait_begins.size(), 1) << "--wait-before-frame emitted " << wait_begins.size()
-                                      << " waits, so it did not wait before every frame";
+                                     << " waits, so it did not wait before every frame";
     EXPECT_EQ(events_of_type(events, GFXR_REPLAY_EVENT_WAIT_END).size(), wait_begins.size());
 
     for (const RecordedEvent& wait_begin : wait_begins)
