@@ -84,6 +84,22 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
         last_event_header    = event.header;
         last_frame_end_event = event;
     }
+
+    void EmitWaitBegin(const GfxrReplayWaitBeginEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_WAIT_BEGIN);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayWaitBeginEvent));
+        last_event_header = event.header;
+    }
+
+    void EmitWaitEnd(const GfxrReplayWaitEndEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_WAIT_END);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayWaitEndEvent));
+        last_event_header = event.header;
+    }
 };
 
 TEST_CASE("ReplayEventSink - frame lifecycle", "[plugin]")
