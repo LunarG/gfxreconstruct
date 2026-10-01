@@ -4844,10 +4844,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                                                        StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                                        const VulkanFenceInfo*                      fence_info)
 {
-    options_.MaybeWaitBeforeFirstSubmit();
+    options_.MaybeWaitBeforeFirstSubmit(application_->GetReplayEventSink());
     if (!fps_info_->IsFirstSubmitDone())
     {
-        options_.MaybeWaitBeforeFrame();
+        options_.MaybeWaitBeforeFrame(application_->GetReplayEventSink());
     }
 
     GFXRECON_ASSERT((queue_info != nullptr) && (pSubmits != nullptr));
@@ -5123,10 +5123,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                                                         StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
                                                         const VulkanFenceInfo*                       fence_info)
 {
-    options_.MaybeWaitBeforeFirstSubmit();
+    options_.MaybeWaitBeforeFirstSubmit(application_->GetReplayEventSink());
     if (!fps_info_->IsFirstSubmitDone())
     {
-        options_.MaybeWaitBeforeFrame();
+        options_.MaybeWaitBeforeFrame(application_->GetReplayEventSink());
     }
 
     GFXRECON_ASSERT((queue_info != nullptr) && (pSubmits != nullptr));

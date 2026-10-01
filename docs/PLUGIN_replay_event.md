@@ -109,6 +109,8 @@ The v1 event set and emission points are fixed as follows:
 | `FrameEnd` | Explicitly when replay reaches the frame boundary according to replay frame-boundary semantics | If replay never reaches the boundary for that frame | `timestamp_ns`, `frame_index`, `first_submit_index`, `last_submit_index` |
 | `StateSetupBegin` | Immediately when state setup begins | If not replaying a trimmed capture | No fields |
 | `StateSetupEnd` | Immediately when state setup ends | If not replaying a trimmed capture | No fields |
+| `WaitBegin` | Immediately before replay sleeps for `--wait-before-first-submit` or `--wait-before-frame` | If neither option is set, or the requested delay has already elapsed | `timestamp_ns`, `frame_index`, `requested_duration_ms` |
+| `WaitEnd` | Immediately after that sleep returns | If the matching `WaitBegin` was not emitted | `timestamp_ns`, `frame_index` |
 
 For v1, every attempted replay submit emits `QueueSubmitBegin` followed by exactly one `QueueSubmitEnd`. The completion event reports whether replay stopped at submit return or at queue-wait-idle completion point, and it carries the associated `VkResult`.
 
@@ -177,6 +179,14 @@ This event is intended for:
 ### StateSetupEnd
 
 `StateSetupEnd` is emitted right after the last state setup command.
+
+### WaitBegin
+
+`WaitBegin` is emitted immediately before replay sleeps for a requested delay. 
+
+### WaitEnd
+
+`WaitEnd` is emitted exactly once for each `WaitBegin`, immediately after the sleep returns.
 
 ## Indexing and Sentinel Values
 
@@ -287,6 +297,10 @@ typedef enum GfxrReplayEventType {
     GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END = 2,
     GFXR_REPLAY_EVENT_FRAME_BEGIN = 3,
     GFXR_REPLAY_EVENT_FRAME_END = 4,
+    GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN = 5,
+    GFXR_REPLAY_EVENT_STATE_SETUP_END = 6,
+    GFXR_REPLAY_EVENT_WAIT_BEGIN = 7,
+    GFXR_REPLAY_EVENT_WAIT_END = 8,
 } GfxrReplayEventType;
 
 typedef enum GfxrReplayPluginResult {
@@ -340,6 +354,16 @@ typedef struct GfxrReplayFrameEndEvent {
     uint64_t first_submit_index;
     uint64_t last_submit_index;
 } GfxrReplayFrameEndEvent;
+
+typedef struct GfxrReplayWaitBeginEvent {
+    GfxrReplayEventHeader header;
+    uint32_t requested_duration_ms;
+    uint32_t reserved;
+} GfxrReplayWaitBeginEvent;
+
+typedef struct GfxrReplayWaitEndEvent {
+    GfxrReplayEventHeader header;
+} GfxrReplayWaitEndEvent;
 
 typedef struct GfxrReplayPluginV1 {
     uint32_t abi_version;
@@ -455,6 +479,7 @@ To add an event type, do these steps:
 | :---- | :---- | :---- |
 | 1 | `QueueSubmitBegin`, `QueueSubmitEnd`, `FrameBegin`, `FrameEnd` | first public version |
 | 2 | `StateSetupBegin`, `StateSetupEnd` | state setup markers |
+| 3 | `WaitBegin`, `WaitEnd` | replay-requested delay markers |
 
 Add a row for each increase of `GFXR_REPLAY_PLUGIN_ABI_VERSION`.
 
