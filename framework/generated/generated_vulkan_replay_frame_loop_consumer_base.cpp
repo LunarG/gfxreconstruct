@@ -1629,14 +1629,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
     {
         VkBindBufferMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindBufferMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindBufferMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -1653,11 +1647,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.buffer] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
@@ -1680,14 +1675,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
     {
         VkBindImageMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindImageMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindImageMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -1704,11 +1693,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.image] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
@@ -2700,14 +2690,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
     {
         VkBindBufferMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindBufferMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindBufferMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -2724,11 +2708,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.buffer] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
@@ -2751,14 +2736,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
     {
         VkBindImageMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindImageMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindImageMemoryInfo& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -2775,11 +2754,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.image] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
@@ -3345,14 +3325,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
     {
         VkBindAccelerationStructureMemoryInfoNV* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindAccelerationStructureMemoryInfoNV* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindAccelerationStructureMemoryInfoNV& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -3369,11 +3343,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.accelerationStructure] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
@@ -3990,14 +3965,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
     {
         VkBindTensorMemoryInfoARM* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindTensorMemoryInfoARM* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindTensorMemoryInfoARM& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -4014,11 +3983,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.tensor] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
@@ -4396,14 +4366,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
     {
         VkBindDataGraphPipelineSessionMemoryInfoARM* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM* meta_ptr = args.pBindInfos.GetMetaStructPointer();
-        bool removed_item = false;
-        for (uint32_t i = 0; i < args.bindInfoCount; ++i)
+        for (uint32_t i = 0; i < args.bindInfoCount;)
         {
-            // If an item was removed last iteration, we need to rewind the index.
-            if (removed_item) {
-                i -= 1;
-                removed_item = false;
-            }
             const Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM& meta = meta_ptr[i];
             // We need to bind the memory if the object hasn't been bound
             // or if it's being bound to a different memory
@@ -4420,11 +4384,12 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
                 // delete it from the list,
                 raw_infos[i] = raw_infos[args.bindInfoCount - 1];
                 meta_ptr[i] = meta_ptr[args.bindInfoCount - 1];
+                meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
-                removed_item = true;
             }
             else {
                 boundMemory[meta.session] = meta.memory;
+                i += 1;
             }
         }
         if (args.bindInfoCount > 0)
