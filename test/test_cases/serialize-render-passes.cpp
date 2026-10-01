@@ -16,16 +16,16 @@ TEST(SerializeRenderPasses, ReplayInjectsBarrierBeforeEachRenderPass)
     ASSERT_NO_FATAL_FAILURE(capture_app(test_name));
 
     // Replay the app with and without the option "--serialize-render-passes" to compare the counts of barrier commands.
-    std::map<std::string, int> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, &baseline));
-    std::map<std::string, int> with_option;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(
-        test_name, { "--serialize-render-passes" }, "_replay_option", counted, &with_option));
+    std::map<std::string, uint32_t> baseline;
+    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    std::map<std::string, uint32_t> with_option;
+    ASSERT_NO_FATAL_FAILURE(
+        replay_and_count_recapture(test_name, { "--serialize-render-passes" }, "_replay_option", counted, with_option));
 
-    const int render_passes = with_option["vkCmdBeginRenderPass"];
+    const uint32_t render_passes = with_option["vkCmdBeginRenderPass"];
 
     // The app has to actually begin render passes for the option to have anything to serialize.
-    ASSERT_GT(render_passes, 0);
+    ASSERT_GT(render_passes, 0u);
 
     // Number of render passes stays the same.
     EXPECT_EQ(render_passes, baseline["vkCmdBeginRenderPass"]);

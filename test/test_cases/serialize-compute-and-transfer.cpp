@@ -19,22 +19,22 @@ TEST(SerializeComputeAndTransfer, ReplayInjectsBarriersAroundDispatches)
 
     // Replay the app with and without the option "--serialize-compute-and-transfer" to compare the counts of barrier
     // commands.
-    std::map<std::string, int> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, &baseline));
-    std::map<std::string, int> with_option;
+    std::map<std::string, uint32_t> baseline;
+    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    std::map<std::string, uint32_t> with_option;
     ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(
-        test_name, { "--serialize-compute-and-transfer" }, "_replay_option", counted, &with_option));
+        test_name, { "--serialize-compute-and-transfer" }, "_replay_option", counted, with_option));
 
-    ASSERT_GT(with_option["vkCmdDispatch"], 0);
-    ASSERT_GT(with_option["vkCmdDispatchBase"], 0);
-    ASSERT_GT(with_option["vkCmdDispatchIndirect"], 0);
+    ASSERT_GT(with_option["vkCmdDispatch"], 0u);
+    ASSERT_GT(with_option["vkCmdDispatchBase"], 0u);
+    ASSERT_GT(with_option["vkCmdDispatchIndirect"], 0u);
 
     // Must not add or drop a dispatch.
     EXPECT_EQ(with_option["vkCmdDispatch"], baseline["vkCmdDispatch"]);
     EXPECT_EQ(with_option["vkCmdDispatchBase"], baseline["vkCmdDispatchBase"]);
     EXPECT_EQ(with_option["vkCmdDispatchIndirect"], baseline["vkCmdDispatchIndirect"]);
 
-    const int dispatches =
+    const uint32_t dispatches =
         with_option["vkCmdDispatch"] + with_option["vkCmdDispatchBase"] + with_option["vkCmdDispatchIndirect"];
 
     // One barrier before and one after each of them.

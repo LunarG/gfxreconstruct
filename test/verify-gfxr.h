@@ -1,6 +1,7 @@
 #ifndef GFXRECONSTRUCT_VERIFY_GFXR_H
 #define GFXRECONSTRUCT_VERIFY_GFXR_H
 
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
@@ -22,7 +23,7 @@ void run_in_background(const char* test_name);
  * GFXRECON_CAPTURE_FILE_TIMESTAMP=false
  * GFXRECON_CAPTURE_FILE=actual.gfxr
  */
-void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr, bool trigger_trimming = false);
+void verify_gfxr(const char* test_name, const char* trimming_frames = nullptr, bool trigger_trimming = false);
 
 /**
  * Run an application with capture enabled, then replay the resulting gfxr with gfxrecon-replay, asserting that the
@@ -59,10 +60,10 @@ void capture_app(const char* test_name);
  *
  * @note expects the same environment variables as verify_gfxr().
  */
-void replay_and_count_recapture(const char*                     test_name,
-                                std::vector<std::string>        extra_replay_args,
-                                std::string const&              recapture_suffix,
-                                std::vector<std::string> const& function_names,
-                                std::map<std::string, int>*     counts);
+void replay_and_count_recapture(const char*                      test_name,
+                                std::vector<std::string>         extra_replay_args,
+                                const std::string&               recapture_suffix,
+                                const std::vector<std::string>&  function_names,
+                                std::map<std::string, uint32_t>& counts);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H
