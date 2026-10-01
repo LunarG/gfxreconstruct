@@ -22,7 +22,6 @@
 
 #include "decode/vulkan_replay_options.h"
 
-#include <cinttypes>
 #include <mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -57,8 +56,8 @@ void VulkanReplayOptions::MaybeWaitBeforeFirstSubmit(plugin::ReplayEventSink* ev
             if (time_elapsed_ms < wait_before_first_submit_ms)
             {
                 auto time_to_wait = wait_before_first_submit_ms - time_elapsed_ms;
-                GFXRECON_LOG_INFO("Waiting %" PRId64 " ms before first queue submit.",
-                                  static_cast<int64_t>(time_to_wait.count()));
+                GFXRECON_LOG_INFO("Waiting %lld ms before first queue submit.",
+                                  static_cast<long long>(time_to_wait.count()));
                 WaitAndEmitEvents(event_sink, static_cast<uint32_t>(time_to_wait.count()));
             }
         }

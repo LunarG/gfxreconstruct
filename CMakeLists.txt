@@ -208,7 +208,7 @@ if (MSVC)
 
     message(STATUS "GFXR_ARM_WINDOWS_BUILD: " ${GFXR_ARM_WINDOWS_BUILD})
 
-    # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
+    # Default to using the precompiled binaries for VisualStudio builds.
     set(PRECOMPILED_ARCH "64")
     if (CMAKE_SIZEOF_VOID_P EQUAL 4)
         set(PRECOMPILED_ARCH "32")
@@ -303,22 +303,10 @@ else (MSVC)
     # Turn off D3D12 support for non MSVC builds.
     set(D3D12_SUPPORT OFF)
     set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
-    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-        set(CMAKE_PREFIX_PATH
-                ${CMAKE_PREFIX_PATH}
-                "${PROJECT_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
-    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
-        set(CMAKE_PREFIX_PATH
-                ${CMAKE_PREFIX_PATH}
-                "${PROJECT_SOURCE_DIR}/external/precompiled/linux/lib/arm")
-    endif ()
 endif (MSVC)
 
 if (APPLE)
     add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
-    set(CMAKE_PREFIX_PATH
-            "${PROJECT_SOURCE_DIR}/external/precompiled/macos"
-            ${CMAKE_PREFIX_PATH})
 endif ()
 
 # GFXReconstruct provided find modules
@@ -326,18 +314,9 @@ if (WIN32)
     find_package(Detours)
 endif () # WIN32
 
-option(LZ4_OPTIONAL "Allow building without LZ4-compression" OFF)
 find_package(LZ4)
-
-if (NOT LZ4_FOUND)
-    if (LZ4_OPTIONAL)
-        message(STATUS "LZ4 library not found, but declared optional. LZ4 support is disabled.")
-    else ()
-        message(FATAL_ERROR "LZ4 library not found. Please install LZ4 or allow building without it by setting LZ4_OPTIONAL to ON.")
-    endif ()# LZ4_OPTIONAL
-endif ()# NOT LZ4_FOUND
-
 find_package(ZSTD)
+find_package(ZLIB)
 
 # Find and use nlohmann_json
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann-json")
@@ -358,11 +337,6 @@ if (UNIX AND NOT APPLE)
 endif (UNIX AND NOT APPLE)
 
 # CMake provided find modules
-if (BUILD_STATIC)
-    find_library(ZLIB NAMES libz.a REQUIRED PATH_SUFFIXES lib lib/x86_64-linux-gnu lib64)
-else ()
-    find_package(ZLIB)
-endif ()
 if (UNIX AND NOT APPLE)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     if (BUILD_WSI_XLIB_SUPPORT)

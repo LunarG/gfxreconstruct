@@ -1,102 +1,63 @@
 # FindZSTD
 # -------
 #
-# Find the ZSTD includes and library.
+# Build Zstandard from a pinned upstream source revision.
 #
-# This module is derived from the CMake FindZLIB.cmake module.
+# Targets
+# ^^^^^^^
 #
-# IMPORTED Targets
-# ^^^^^^^^^^^^^^^^
-#
-# This module defines :prop_tgt:`IMPORTED` target ``ZSTD::ZSTD``, if ZSTD has been found.
+# This module defines ``ZSTD::ZSTD`` as an ALIAS for the ``libzstd_static`` target.
 #
 # Result Variables
 # ^^^^^^^^^^^^^^^^
 #
 # This module defines the following variables:
 #
-#  ZSTD_FOUND        : True if ZSTD was found.
-#  ZSTD_INCLUDE_DIRS : The location of the ZSTD header files.
-#  ZSTD_LIBRARIES    : List of the ZSTD libraries.
-#
-# Hints
-# ^^^^^
-#
-# The ``ZSTD_ROOT`` value may be set to tell this module where to look.
-
-set(_ZSTD_SEARCH_PATH)
-
-if (ZSTD_ROOT)
-    set(_ZSTD_SEARCH_ROOT PATHS ${ZSTD_ROOT} NO_DEFAULT_PATH)
-    list(APPEND _ZSTD_SEARCH_PATH _ZSTD_SEARCH_ROOT)
+#  ZSTD_FOUND : True if ZSTD was found.
+if(TARGET ZSTD::ZSTD)
+    set(ZSTD_FOUND TRUE)
+    return()
 endif()
 
-# Normal search.
-set(_ZSTD_x86 "(x86)")
-set(_ZSTD_SEARCH_NORMAL
-    PATHS "$ENV{ProgramFiles}/zstd"
-          "$ENV{ProgramFiles${_ZSTD_x86}}/zstd")
-unset(_ZSTD_x86)
-list(APPEND _ZSTD_SEARCH_PATH _ZSTD_SEARCH_NORMAL)
+set(GFXRECON_ZSTD_REPOSITORY "https://github.com/facebook/zstd.git")
+set(GFXRECON_ZSTD_VERSION    "1.5.7")
+set(GFXRECON_ZSTD_TAG        "ac66b19e6bd6b83238bf008eecc1298105298532")
 
-set(ZSTD_NAMES zstd zstd_static libzstd libzstd_static)
-if(BUILD_STATIC)
-    set(ZSTD_NAMES libzstd.a ${ZSTD_NAMES})
-endif()
-set(ZSTD_NAMES_DEBUG zstdd zstd_staticd libzstdd libzstd_staticd)
+include(FetchContent)
 
-foreach(search ${_ZSTD_SEARCH_PATH})
-    find_path(ZSTD_INCLUDE_DIR NAMES zstd.h ${${search}} PATH_SUFFIXES include)
-endforeach()
+# zstd declares its build settings with option(), which ignores a plain set()
+# from the including project unless CMP0077 is NEW.
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-# Allow ZSTD_LIBRARY to be set manually, as the location of the zstd library
-if(NOT ZSTD_LIBRARY)
-    foreach(search ${_ZSTD_SEARCH_PATH})
-        find_library(ZSTD_LIBRARY_RELEASE NAMES ${ZSTD_NAMES} NAMES_PER_DIR ${${search}} PATH_SUFFIXES lib)
-        find_library(ZSTD_LIBRARY_DEBUG NAMES ${ZSTD_NAMES_DEBUG} NAMES_PER_DIR ${${search}} PATH_SUFFIXES lib)
-    endforeach()
+set(ZSTD_BUILD_STATIC ON)
+set(ZSTD_BUILD_SHARED OFF)
+set(ZSTD_BUILD_PROGRAMS OFF)
+set(ZSTD_BUILD_TESTS OFF)
+set(ZSTD_BUILD_CONTRIB OFF)
+set(ZSTD_LEGACY_SUPPORT OFF)
+set(ZSTD_MULTITHREAD_SUPPORT OFF)
 
-    include(SelectLibraryConfigurations)
-    select_library_configurations(ZSTD)
+set(_ZSTD_FETCH_EXCLUDE_ARGS "")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.28")
+    list(APPEND _ZSTD_FETCH_EXCLUDE_ARGS EXCLUDE_FROM_ALL)
 endif()
 
-unset(ZSTD_NAMES)
-unset(ZSTD_NAMES_DEBUG)
+message(STATUS "Building zstd ${GFXRECON_ZSTD_VERSION} from source (${GFXRECON_ZSTD_REPOSITORY})")
+FetchContent_Declare(zstd
+                     GIT_REPOSITORY ${GFXRECON_ZSTD_REPOSITORY}
+                     GIT_TAG        ${GFXRECON_ZSTD_TAG}
+                     SOURCE_SUBDIR  build/cmake
+                     ${_ZSTD_FETCH_EXCLUDE_ARGS})
+FetchContent_MakeAvailable(zstd)
 
-mark_as_advanced(ZSTD_INCLUDE_DIR)
+unset(_ZSTD_FETCH_EXCLUDE_ARGS)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ZSTD REQUIRED_VARS ZSTD_LIBRARY ZSTD_INCLUDE_DIR)
-
-if(ZSTD_FOUND)
-    set(ZSTD_INCLUDE_DIRS ${ZSTD_INCLUDE_DIR})
-
-    if(NOT ZSTD_LIBRARIES)
-        set(ZSTD_LIBRARIES ${ZSTD_LIBRARY})
-    endif()
-
-    if(NOT TARGET ZSTD::ZSTD)
-        add_library(ZSTD::ZSTD UNKNOWN IMPORTED)
-        set_target_properties(ZSTD::ZSTD PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_INCLUDE_DIRS}")
-
-        if(ZSTD_LIBRARY_RELEASE)
-            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY
-                IMPORTED_CONFIGURATIONS RELEASE)
-            set_target_properties(ZSTD::ZSTD PROPERTIES
-                IMPORTED_LOCATION_RELEASE "${ZSTD_LIBRARY_RELEASE}")
-        endif()
-
-        if(ZSTD_LIBRARY_DEBUG)
-            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY
-                IMPORTED_CONFIGURATIONS DEBUG)
-            set_target_properties(ZSTD::ZSTD PROPERTIES
-                IMPORTED_LOCATION_DEBUG "${ZSTD_LIBRARY_DEBUG}")
-        endif()
-
-        if(NOT ZSTD_LIBRARY_RELEASE AND NOT ZSTD_LIBRARY_DEBUG)
-            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY
-                IMPORTED_LOCATION "${ZSTD_LIBRARY}")
-        endif()
-    endif()
+if(NOT TARGET libzstd_static)
+    message(FATAL_ERROR
+            "zstd was fetched but the expected 'libzstd_static' target was not created. The upstream "
+            "CMake configuration may have changed; see cmake/FindZSTD.cmake.")
 endif()
+
+add_library(ZSTD::ZSTD ALIAS libzstd_static)
+
+set(ZSTD_FOUND TRUE)
