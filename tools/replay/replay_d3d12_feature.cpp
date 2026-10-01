@@ -66,6 +66,7 @@ const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]            = "--dx12-override-object-names";
 const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
 const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
+const char kBatchingHeapSizeArgument[]         = "--batching-heap-size";
 const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 
@@ -175,6 +176,22 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
                 "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
         }
     }
+
+    const std::string& batching_heap_size = arg_parser.GetArgumentValue(kBatchingHeapSizeArgument);
+    if (!batching_heap_size.empty())
+    {
+        const int batching_heap_size_int = std::stoi(batching_heap_size);
+        if (batching_heap_size_int >= 0)
+        {
+            replay_options.batching_heap_size = static_cast<uint32_t>(batching_heap_size_int);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("The parameter to --batching-heap-size must not be negative, will use %u as default "
+                                 "value.",
+                                 gfxrecon::decode::kDefaultBatchingHeapSize);
+        }
+    }
     return replay_options;
 }
 
@@ -212,6 +229,14 @@ std::vector<util::FeatureOptionDesc> ReplayD3d12Feature::GetOptionDescs() const
                  "available system memory and GPU memory." },
                true,
                kBatchingMemoryUsageArgument },
+             { "<MB>",
+               { "The maximum size, in MB, of the upload heap that replay allocates to",
+                 "stage resource data while it loads a trimmed capture file. The default",
+                 "is 256. A value of 0 disables the heap, and replay stages each resource",
+                 "through its own buffer. The heap size is also limited by the available",
+                 "memory and the value of --batching-memory-usage." },
+               true,
+               kBatchingHeapSizeArgument },
              // The entries below have no description, so they stay out of the usage text. They keep
              // the same undocumented behavior that the shared option strings gave them.
              { "", {}, false, AliasNames(kDiscardCachedPsosShortOption, kDiscardCachedPsosLongOption) },

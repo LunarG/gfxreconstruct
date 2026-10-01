@@ -101,10 +101,24 @@ class Dx12ResourceDataUtil
     dx12::ID3D12ResourceComPtr GetStagingBuffer(CopyType type, uint64_t required_buffer_size);
     dx12::ID3D12ResourceComPtr CreateStagingBuffer(CopyType type, uint64_t required_buffer_size);
 
-    dx12::ID3D12ResourceComPtr GetBatchStagingBuffer(uint64_t required_buffer_size);
-    void                       ResetBatchHeap();
-    void                       ReleaseBatchHeap();
-    void                       SetBatchHeapMemoryLimits(IDXGIAdapter3* adapter, double max_mem_usage, bool is_uma);
+    // Create the single reusable UPLOAD heap used to sub-allocate staging buffers for batched resource init.
+    // Returns S_OK when the heap was created; on failure the caller falls back to committed staging buffers.
+    HRESULT CreateHeapStagingBuffer(uint64_t heap_size);
+
+    // Total size of the heap staging buffer, or 0 when no heap was created.
+    uint64_t GetHeapStagingBufferTotalSize() const;
+
+    // Size still available in the heap staging buffer, accounting for placement alignment.
+    uint64_t GetHeapStagingBufferAvailableSize() const;
+
+    // Sub-allocate a placed staging buffer from the heap. Returns nullptr when it doesn't fit or on failure.
+    dx12::ID3D12ResourceComPtr GetHeapStagingBuffer(uint64_t required_buffer_size);
+
+    // Rewind the heap's bump cursor. Only safe once all previously placed staging buffers have been released.
+    void ResetHeapStagingBuffer();
+
+    // Fully free the heap staging buffer.
+    void ReleaseHeapStagingBuffer();
 
     HRESULT ExecuteAndWaitForCommandList(ID3D12CommandQueue* queue = nullptr);
 
@@ -145,8 +159,6 @@ class Dx12ResourceDataUtil
                                      const std::vector<uint64_t>& subresource_offsets,
                                      const std::vector<uint64_t>& subresource_sizes);
 
-    HRESULT EnsureBatchHeap(uint64_t min_capacity);
-
     ID3D12Device*                          device_;
     dx12::ID3D12CommandQueueComPtr         command_queue_;
     dx12::ID3D12CommandAllocatorComPtr     command_allocator_;
@@ -157,13 +169,9 @@ class Dx12ResourceDataUtil
     const uint64_t                         min_buffer_size_;
     uint64_t                               fence_value_;
 
-    dx12::ID3D12HeapComPtr batch_upload_heap_;
-    uint64_t               batch_heap_capacity_;
-    uint64_t               batch_heap_offset_;
-
-    dx12::IDXGIAdapter3ComPtr batch_heap_adapter_;
-    double                    batch_heap_max_mem_usage_;
-    bool                      batch_heap_is_uma_;
+    dx12::ID3D12HeapComPtr heap_staging_buffer_;
+    uint64_t               heap_staging_buffer_capacity_;
+    uint64_t               heap_staging_buffer_offset_;
 
     // Temporary buffers.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;
