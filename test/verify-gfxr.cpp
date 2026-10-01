@@ -394,9 +394,9 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
                          << " in path " << paths.base_path;
 }
 
-static void count_calls_in_json(const std::filesystem::path&    json_path,
-                                const std::vector<std::string>& function_names,
-                                std::map<std::string, int>&     counts)
+static void count_calls_in_json(const std::filesystem::path&     json_path,
+                                const std::vector<std::string>&  function_names,
+                                std::map<std::string, uint32_t>& counts)
 {
     std::ifstream json_file{ json_path };
     ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
@@ -453,11 +453,11 @@ void capture_app(const char* test_name)
     ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
 }
 
-void replay_and_count_recapture(const char*                     test_name,
-                                std::vector<std::string>        extra_replay_args,
-                                const std::string&              recapture_suffix,
-                                const std::vector<std::string>& function_names,
-                                std::map<std::string, int>&     counts)
+void replay_and_count_recapture(const char*                      test_name,
+                                std::vector<std::string>         extra_replay_args,
+                                const std::string&               recapture_suffix,
+                                const std::vector<std::string>&  function_names,
+                                std::map<std::string, uint32_t>& counts)
 {
     EnvironmentVariables env_vars;
     Paths                paths{ test_name, nullptr, false };

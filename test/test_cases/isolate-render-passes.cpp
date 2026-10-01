@@ -28,21 +28,21 @@ TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
     ASSERT_NO_FATAL_FAILURE(capture_app(test_name));
 
     // Replay the app with and without the option "--isolate-render-passes" to compare.
-    std::map<std::string, int> baseline;
+    std::map<std::string, uint32_t> baseline;
     ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
-    std::map<std::string, int> with_option;
+    std::map<std::string, uint32_t> with_option;
     ASSERT_NO_FATAL_FAILURE(
         replay_and_count_recapture(test_name, { "--isolate-render-passes" }, "_replay_option", counted, with_option));
 
-    const int render_passes = with_option["vkCmdBeginRenderPass"];
+    const uint32_t render_passes = with_option["vkCmdBeginRenderPass"];
 
     // The app has to actually begin render passes for the option to have anything to isolate.
-    ASSERT_GT(render_passes, 0);
+    ASSERT_GT(render_passes, 0u);
 
     EXPECT_EQ(render_passes, baseline["vkCmdBeginRenderPass"]);
 
     // The recording is cut twice per render pass.
-    const int cuts = 2 * render_passes;
+    const uint32_t cuts = 2 * render_passes;
 
     // Every cut ends the current command buffer and begins a fresh one.
     EXPECT_EQ(with_option["vkBeginCommandBuffer"] - baseline["vkBeginCommandBuffer"], cuts);
@@ -53,7 +53,7 @@ TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
 
     // Every command buffer this app records holds render passes, so each one is split and gets one injected timeline
     // semaphore that keeps the submits of its parts in order.
-    const int recorded_command_buffers = baseline["vkBeginCommandBuffer"];
-    ASSERT_GT(recorded_command_buffers, 0);
+    const uint32_t recorded_command_buffers = baseline["vkBeginCommandBuffer"];
+    ASSERT_GT(recorded_command_buffers, 0u);
     EXPECT_EQ(with_option["vkCreateSemaphore"] - baseline["vkCreateSemaphore"], recorded_command_buffers);
 }
