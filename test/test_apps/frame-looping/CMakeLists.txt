@@ -37,3 +37,17 @@ common_build_directives(gfxrecon-testapp-frame-looping-buffer-contents)
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS gfxrecon-testapp-frame-looping-buffer-contents RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-buffer-contents)
 endif()
+
+add_library(gfxrecon-testapp-frame-looping-image-contents frame-looping-image-contents.cpp)
+
+target_include_directories(gfxrecon-testapp-frame-looping-image-contents PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gfxrecon-testapp-frame-looping-image-contents
+    PUBLIC
+        gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-frame-looping-image-contents)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-frame-looping-image-contents RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-image-contents)
+endif()

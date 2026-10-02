@@ -53,6 +53,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-triangle-extra-device
     gfxrecon-testapp-deep-pnext-chain
     gfxrecon-testapp-frame-looping-buffer-contents
+    gfxrecon-testapp-frame-looping-image-contents
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
