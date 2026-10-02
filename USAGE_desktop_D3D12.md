@@ -221,6 +221,7 @@ Usage:
                         [--dump-resources-dir <dir>]
                         [--dump-resources-modifiable-state-only ]
                         [--pbi-all] [--pbis <index1,index2>]
+                        [--skip-index <index[,index|start-end]...>]
                         <file>
 
 Required arguments:
@@ -297,6 +298,12 @@ Optional arguments:
                         original capture devices.
   --pbi-all             Print all block information.
   --pbis <index1,index2>Print block information between block index1 and block index2.
+  --skip-index <index[,index|start-end]...>
+                        Skip API calls and metadata at 0-based block indices (0 to 4294967295).
+                        Accepts comma-separated indices and inclusive ranges. All blocks count toward
+                        the index; frame/state markers and annotations are always preserved.
+                        Invalid entries are ignored with a warning.
+                        Example: --skip-index 0,7,10-20.
 
   --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
                         (Same as --force-windowed-origin)
