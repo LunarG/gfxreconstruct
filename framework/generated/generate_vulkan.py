@@ -53,7 +53,6 @@ generate_targets = [
     'generated_vulkan_dispatch_table.h',
     'generated_vulkan_layer_func_table.h',
     'generated_vulkan_recapture_func_table.h',
-    'generated_vulkan_pnext_struct_encoder.cpp',
     'generated_vulkan_pnext_struct_decoder.cpp',
     'generated_vulkan_struct_decoders.h',
     'generated_vulkan_struct_decoders.cpp',
@@ -95,7 +94,17 @@ generate_targets = [
     'generated_vulkan_cpp_structs.cpp',
     'generated_vulkan_cpp_consumer_extension.h',
     'generated_vulkan_cpp_consumer_extension.cpp',
-    'generated_vulkan_stype_util.h',
+    'generated_vulkan_schema_types.h',
+    'generated_vulkan_schema_fields.h',
+    'generated_vulkan_schema.h',
+    'generated_vulkan_decode_api_element_traits.h',
+    'generated_vulkan_schema_native_struct_members.h',
+    'generated_vulkan_schema_decoded_struct_members.h',
+    'generated_vulkan_schema_decoded_command_members.h',
+    'generated_vulkan_encode_capture_wrappers.h',
+    'generated_vulkan_schema_binding_descriptor_for.h',
+    'generated_vulkan_schema_checks.cpp',
+    'generated_vulkan_schema_enumerants.h',
 ]
 
 

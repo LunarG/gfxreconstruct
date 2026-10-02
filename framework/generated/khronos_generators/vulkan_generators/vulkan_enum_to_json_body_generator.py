@@ -54,6 +54,7 @@ class VulkanEnumToJsonBodyGeneratorOptions(VulkanBaseGeneratorOptions):
 
         self.begin_end_file_data.specific_headers.extend((
             'generated_vulkan_enum_to_json.h',
+            'generated_vulkan_schema_enumerants.h',
             'util/to_string.h',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))

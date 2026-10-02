@@ -76,13 +76,13 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
             diag_file=diag_file
         )
 
+    def skip_struct_decoder_prototype(self, struct):
+        """Method override. Every decoder is declared by the template in decode/vulkan_decode_struct.h."""
+        return True
+
     def endFile(self):
         """Method override."""
         KhronosStructDecodersForwardGenerator.write_struct_decoder_forward_prototypes(self)
-        write('struct Decoded_VkBaseOutStructure;', file=self.outFile)
-        write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper);', file=self.outFile)
-
-        self.newline()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)

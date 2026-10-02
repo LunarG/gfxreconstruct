@@ -24,8 +24,8 @@
 #ifndef GFXRECON_DECODE_PNEXT_NODE_H
 #define GFXRECON_DECODE_PNEXT_NODE_H
 
-#include "generated/generated_vulkan_stype_util.h"
 #include "util/defines.h"
+#include "util/vulkan_stype_util.h"
 
 #include <cassert>
 #include <memory>
@@ -55,6 +55,11 @@ class PNextNode
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
+//  NOTE:
+// A node exists only for a non-null, encoded (kHasData), recognized structure; otherwise the pointer stays null.
+// DecodePNextStruct does not check kHasData. Callers that can see omitted data must check it first
+// (see TypedStructDecoder).
+//
 //  NOTE:
 // This functions as if it were a base class to all DecodedStruct_<SomeStruct>
 // As all DecodedStruct_<SomeStruct> are of the form SomeStruct *decoded_value; PNextNode *pNext;

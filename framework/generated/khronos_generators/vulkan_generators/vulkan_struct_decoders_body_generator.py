@@ -53,6 +53,7 @@ class VulkanStructDecodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
+            'decode/vulkan_decode_struct_impl.h',
             'generated/generated_vulkan_struct_decoders.h',
             '',
             'decode/custom_vulkan_struct_decoders.h',
@@ -80,28 +81,35 @@ class VulkanStructDecodersBodyGenerator(
             diag_file=diag_file
         )
 
-    def write_base_out_struct_decoder(self):
-        body = '\n'
-        body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBaseOutStructure* wrapper)\n'
-        body += '{\n'
-        body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
-        body += '\n'
-        body += '    size_t              bytes_read = 0;\n'
-        body += '    VkBaseOutStructure* value      = wrapper->decoded_value;\n'
-        body += '\n'
-        body += '    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));\n'
-        body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));\n'
-        body += '    value->pNext = wrapper->pNext ? reinterpret_cast<VkBaseOutStructure*>(wrapper->pNext->GetPointer()) : nullptr;\n'
-        body += '\n'
-        body += '    return bytes_read;\n'
-        body += '}\n'
-        write(body, file=self.outFile)
+    def skip_struct_decoder(self, struct):
+        """Method override. The schema field walk owns every decoder, so no procedural body is emitted."""
+        return True
+
+    def write_schema_driven_instantiations(self):
+        """One explicit instantiation for each structure the schema drives.
+
+        These sit where the bodies they replace sat. This translation unit already compiles every procedural
+        decoder, so making it the one that compiles the walk keeps the schema and the member-trait partitions out
+        of every other target rather than following DecodeStruct into each caller.
+        """
+        driven = sorted(self.get_all_filtered_struct_names())
+
+        write('// The schema drives these decoders. This is the only translation unit that compiles the walk.', file=self.outFile)
+
+        for struct in driven:
+            write(
+                'template size_t DecodeStruct<Decoded_{name}>(const uint8_t*, size_t, Decoded_{name}*);'.format(
+                    name=struct
+                ),
+                file=self.outFile
+            )
+
+        self.newline()
 
     def endFile(self):
         """Method override."""
         KhronosStructDecodersBodyGenerator.generate_struct_decoder_content(self)
-        self.write_base_out_struct_decoder()
-        self.newline()
+        self.write_schema_driven_instantiations()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)

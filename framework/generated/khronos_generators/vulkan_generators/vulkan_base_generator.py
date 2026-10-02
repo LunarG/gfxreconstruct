@@ -227,29 +227,15 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     Base class for Vulkan API parameter encoding and decoding generators.
     """
 
-    BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES = {
-        ('vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM', 'pProperties'): (
-            'VkQueueFamilyDataGraphOpticalFlowPropertiesARM',
-            'VkQueueFamilyDataGraphProcessingEnginePropertiesARM',
-        ),
-    }
-
-    def get_base_out_structure_type_info_overrides(self):
-        return self.BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES
-
-    def get_base_out_structure_type_info_list(self):
-        entries = []
-        seen = set()
-
-        for structs in self.get_base_out_structure_type_info_overrides().values():
-            for struct in structs:
-                if not struct or struct in seen or struct not in self.struct_type_names:
-                    continue
-
-                seen.add(struct)
-                entries.append((struct, self.struct_type_names[struct]))
-
-        return entries
+    def has_enumerants(self, enum):
+        """True when the schema emits Enumerants<enum>, which the C++ concept HasEnumerants<Enum> then detects: a real
+        enum type, so not an alias and not a 64-bit flag-bits typedef, with at least one enumerant. The enum-to-string
+        and enum-to-JSON bodies call NameOf for these.
+        """
+        return (
+            enum not in self.enumAliases and not self.is_flags_enum_64bit(enum)
+            and len(self.enumEnumerants.get(enum, {})) > 0
+        )
 
     def __init__(
         self,

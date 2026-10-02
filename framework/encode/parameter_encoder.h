@@ -43,10 +43,12 @@
 #include "util/platform.h"
 
 #include <cinttypes>
+#include <concepts>
 #include <cstring>
 #include <cwchar>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -60,21 +62,31 @@ class ParameterEncoder
 
     // Bound the element count of a fixed-extent array whose registry 'len' names a sibling count member, e.g.
     // VkPhysicalDeviceMemoryProperties::memoryTypes[VK_MAX_MEMORY_TYPES] with len="memoryTypeCount". The count is
-    // produced by the driver or application; a value above the array's capacity would read past the end of the
-    // source array, so it is clamped to the capacity and reported.
-    static size_t ClampStaticArrayLength(size_t length, size_t capacity, const char* name)
+    // produced by the driver or application, in the count member's own integer type; a value above the array's
+    // capacity would read past the end of the source array, and a negative one would be taken as a huge count, so
+    // both are clamped and reported. The result is the length an array encoder takes, a size_t no larger than the
+    // capacity; the count's type only decides the comparisons.
+    template <std::integral Count>
+    static size_t ClampStaticArrayLength(Count count, size_t capacity, const char* name)
     {
-        if (length > capacity)
+        if (std::cmp_less(count, 0))
         {
-            GFXRECON_LOG_WARNING("Element count (%" PRIuPTR ") for %s exceeds the array capacity (%" PRIuPTR
+            GFXRECON_LOG_WARNING("Element count (%" PRIdMAX ") for %s is negative; no elements will be encoded",
+                                 static_cast<intmax_t>(count),
+                                 name);
+            return 0;
+        }
+        if (std::cmp_greater(count, capacity))
+        {
+            GFXRECON_LOG_WARNING("Element count (%" PRIuMAX ") for %s exceeds the array capacity (%" PRIuPTR
                                  "); only the first %" PRIuPTR " elements will be encoded",
-                                 length,
+                                 static_cast<uintmax_t>(count),
                                  name,
                                  capacity,
                                  capacity);
             return capacity;
         }
-        return length;
+        return static_cast<size_t>(count);
     }
 
     // clang-format off
@@ -128,6 +140,19 @@ class ParameterEncoder
     void EncodeFlagsValue(T value)                                                                                    { EncodeValue(static_cast<format::FlagsEncodeType>(value)); }
     template<typename T>
     void EncodeFlags64Value(T value)                                                                                  { EncodeValue(static_cast<format::Flags64EncodeType>(value)); }
+
+    // Encode a value using the wire representation selected by its logical schema kind. Operation code that holds
+    // a Field can use this without restating the kind-to-wire-type mapping encoded in format::kind.
+    template <format::HasEncodeType Kind, typename T>
+    void Encode(Kind, T value)                                                                                        { EncodeValue(TypeCast<format::EncodeTypeFor<Kind>>(value)); }
+
+    // Encode a run of values, or a pointer to one value, recorded as one logical kind. Each named entry point above
+    // fixes a wire type; these reach the same converting bodies from the kind, which write the wire type's bytes for
+    // every kind whether or not a conversion was needed. The omit flags default as the named entry points' do.
+    template <format::HasEncodeType Kind, typename T>
+    void EncodeArray(Kind, const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                  { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len, omit_data, omit_addr); }
+    template <format::HasEncodeType Kind, typename T>
+    void EncodePointer(Kind, const T* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::EncodeTypeFor<Kind>>(ptr, omit_data, omit_addr); }
 
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
@@ -220,6 +245,30 @@ class ParameterEncoder
     void EncodeFlagsArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                   { EncodeArrayConverted<format::FlagsEncodeType>(arr, len, omit_data, omit_addr); }
     template<typename T>
     void EncodeFlags64Array(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArrayConverted<format::Flags64EncodeType>(arr, len, omit_data, omit_addr); }
+
+    // Encode a string in the wire representation and with the text attribute its logical kind selects. The kind is
+    // passed as a tag so it deduces like every other argument. The length runs to the terminator, as the named entry
+    // points below do. The tagged forms take no omit flags: no caller passes them, and a bool beside a size_t
+    // capacity makes an integer argument ambiguous. When a caller needs omit_data, add it in a form no integer selects.
+    template <format::IsTextKind Kind, typename T>
+    void EncodeString(Kind, const T* str)
+    {
+        EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, false, false);
+    }
+
+    // A fixed-extent string: capacity bounds the length count.
+    template <format::IsTextKind Kind, typename T>
+    void EncodeString(Kind, const T* str, size_t capacity)
+    {
+        EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, capacity, false, false);
+    }
+
+    // A run of strings, recorded as one text kind; the same tag form as EncodeString.
+    template <format::IsTextKind Kind, typename T>
+    void EncodeStringArray(Kind, const T* const* strings, size_t len)
+    {
+        EncodeBasicStringArray<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(strings, len, false, false);
+    }
 
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
     void EncodeWString(const wchar_t* str, bool omit_data = false, bool omit_addr = false)                            { EncodeBasicString<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, omit_data, omit_addr); }
@@ -859,8 +908,9 @@ class ParameterEncoder
         }
     }
 
-    template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
-    void EncodeBasicString(const CharT* str, bool omit_data, bool omit_addr)
+    // The shared body of EncodeBasicString; string_length is the length rule the caller chose.
+    template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib, typename StringLength>
+    void EncodeBasicStringImpl(const CharT* str, bool omit_data, bool omit_addr, StringLength string_length)
     {
         uint32_t pointer_attrib =
             EncodeAttrib | format::PointerAttributes::kIsSingle | GetPointerAttributeMask(str, omit_data, omit_addr);
@@ -875,7 +925,7 @@ class ParameterEncoder
             }
 
             // Always write the string length.
-            size_t len = util::platform::StringLength(str);
+            size_t len = string_length(str);
 
             EncodeSizeTValue(len);
 
@@ -884,6 +934,22 @@ class ParameterEncoder
                 EncodeBasicStringConverted<CharT, EncodeT>(str, len);
             }
         }
+    }
+
+    template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
+    void EncodeBasicString(const CharT* str, bool omit_data, bool omit_addr)
+    {
+        EncodeBasicStringImpl<CharT, EncodeT, EncodeAttrib>(
+            str, omit_data, omit_addr, [](const CharT* s) { return util::platform::StringLength(s); });
+    }
+
+    // A fixed-extent string: the length stops at capacity when no terminator precedes it.
+    template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
+    void EncodeBasicString(const CharT* str, size_t capacity, bool omit_data, bool omit_addr)
+    {
+        EncodeBasicStringImpl<CharT, EncodeT, EncodeAttrib>(str, omit_data, omit_addr, [capacity](const CharT* s) {
+            return util::platform::StringLength(s, capacity);
+        });
     }
 
     template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
