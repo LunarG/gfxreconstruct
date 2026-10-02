@@ -104,7 +104,6 @@ from vulkan_recapture_func_table_generator import VulkanRecaptureFuncTableGenera
 # Struct Encoders
 from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator, VulkanStructEncodersBodyGeneratorOptions
 from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator, VulkanStructEncodersHeaderGeneratorOptions
-from vulkan_pnext_struct_encode_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGenerator, VulkanStructDeepCopyBodyGeneratorOptions
@@ -835,18 +834,6 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    gen_opts['generated_vulkan_pnext_struct_encoder.cpp'] = [
-        EncodePNextStructGenerator,
-        EncodePNextStructGeneratorOptions(
-            filename='generated_vulkan_pnext_struct_encoder.cpp',
-            directory=directory,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
             protect_feature=False,
             extra_headers=extra_headers
         )

@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// KeyIndex, the key-to-position table, and VisitAt over a TypeList at a position the index found.
+// KeyIndex, the key-to-position table, and Visit over a TypeList at a position an index returned.
 
 #include <catch2/catch.hpp>
 
@@ -61,19 +61,35 @@ struct BlueTag
 
 // Deliberately out of value order: the index sorts, the list need not, and positions are list positions. The keys
 // array is written in the list's order by whoever owns the list; here, by hand.
-using Colors      = util::TypeList<BlueTag, RedTag, GreenTag>;
-using ColorsIndex = util::KeyIndex<Color, 3>;
+using Colors = util::TypeList<BlueTag, RedTag, GreenTag>;
+using Keys   = util::KeyIndex<Color, 3>;
 
-constexpr ColorsIndex kColors{ std::array<Color, 3>{ BlueTag::value, RedTag::value, GreenTag::value } };
+constexpr Keys kColors{ std::array<Color, 3>{ BlueTag::value, RedTag::value, GreenTag::value } };
 
-static_assert(std::same_as<ColorsIndex::key_type, Color>);
-static_assert(ColorsIndex::kSize == 3);
-static_assert(ColorsIndex::kMiss == 3);
+static_assert(std::same_as<Keys::key_type, Color>);
+static_assert(Keys::kSize == 3);
+static_assert(Keys::kMiss == 3);
 
 static_assert(kColors.Find(Color::Blue) == 0);
 static_assert(kColors.Find(Color::Red) == 1);
 static_assert(kColors.Find(Color::Green) == 2);
-static_assert(kColors.Find(static_cast<Color>(7)) == ColorsIndex::kMiss);
+static_assert(kColors.Find(static_cast<Color>(7)) == Keys::kMiss);
+
+// The list-aware index a Visit needs: the list, the size, a position type, and Find and End returning it. This is
+// the shape schema::StructureTypeIndex has; here it is written by hand over kColors.
+struct ColorsIndex
+{
+    using list     = Colors;
+    using position = util::IndexPosition<ColorsIndex>;
+
+    static constexpr size_t kSize = Keys::kSize;
+
+    static constexpr position Find(Color key) { return position{ kColors.Find(key) }; }
+    static constexpr position End() { return position{ kSize }; }
+};
+
+static_assert(ColorsIndex::Find(Color::Red) != ColorsIndex::End());
+static_assert(ColorsIndex::Find(static_cast<Color>(7)) == ColorsIndex::End());
 
 // An element array with a projection: the key is read from each element.
 struct Named
@@ -92,9 +108,9 @@ TEST_CASE("KeyIndex finds a key's position or reports a miss", "[util][keyindex]
     CHECK(kColors.Find(Color::Blue) == 0);
 
     // A value no element carries misses, whether it sorts before, between or after the keys.
-    CHECK(kColors.Find(static_cast<Color>(0)) == ColorsIndex::kMiss);
-    CHECK(kColors.Find(static_cast<Color>(7)) == ColorsIndex::kMiss);
-    CHECK(kColors.Find(static_cast<Color>(2000000000)) == ColorsIndex::kMiss);
+    CHECK(kColors.Find(static_cast<Color>(0)) == Keys::kMiss);
+    CHECK(kColors.Find(static_cast<Color>(7)) == Keys::kMiss);
+    CHECK(kColors.Find(static_cast<Color>(2000000000)) == Keys::kMiss);
 }
 
 TEST_CASE("KeyIndex builds from elements through a key projection", "[util][keyindex]")
@@ -106,16 +122,16 @@ TEST_CASE("KeyIndex builds from elements through a key projection", "[util][keyi
     CHECK(kNamed[kNamedIndex.Find(5)].name == "five");
 }
 
-TEST_CASE("VisitAt hands the element at a position to the visitor", "[util][typelist]")
+TEST_CASE("Visit hands the element at a position to the visitor", "[util][typelist]")
 {
     auto match = []<typename Element>() { return Element::id; };
 
-    CHECK(util::VisitAt<Colors>(kColors.Find(Color::Red), match) == RedTag::id);
-    CHECK(util::VisitAt<Colors>(kColors.Find(Color::Green), match) == GreenTag::id);
-    CHECK(util::VisitAt<Colors>(kColors.Find(Color::Blue), match) == BlueTag::id);
+    CHECK(util::Visit(ColorsIndex::Find(Color::Red), match) == RedTag::id);
+    CHECK(util::Visit(ColorsIndex::Find(Color::Green), match) == GreenTag::id);
+    CHECK(util::Visit(ColorsIndex::Find(Color::Blue), match) == BlueTag::id);
 }
 
-TEST_CASE("VisitAt passes the caller's functor and arguments through", "[util][typelist]")
+TEST_CASE("Visit passes the caller's functor and arguments through", "[util][typelist]")
 {
     int  handled = 0;
     auto match   = [&]<typename Element>(uint32_t scale) {
@@ -123,14 +139,17 @@ TEST_CASE("VisitAt passes the caller's functor and arguments through", "[util][t
         return static_cast<uint32_t>(Element::value) * scale;
     };
 
-    CHECK(util::VisitAt<Colors>(kColors.Find(Color::Green), match, 2u) == 2000u);
+    CHECK(util::Visit(ColorsIndex::Find(Color::Green), match, 2u) == 2000u);
     CHECK(handled == 1);
 }
 
-TEST_CASE("VisitAt over a single-element list", "[util][typelist]")
+TEST_CASE("An index's positions compare, and a miss is End", "[util][typelist]")
 {
-    using One  = util::TypeList<GreenTag>;
-    auto match = []<typename Element>() { return Element::id; };
+    const auto red  = ColorsIndex::Find(Color::Red);
+    const auto miss = ColorsIndex::Find(static_cast<Color>(3));
 
-    CHECK(util::VisitAt<One>(0, match) == GreenTag::id);
+    CHECK(red == ColorsIndex::Find(Color::Red));
+    CHECK(red != ColorsIndex::End());
+    CHECK(miss == ColorsIndex::End());
+    CHECK(red != miss);
 }

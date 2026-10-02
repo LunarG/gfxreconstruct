@@ -43,6 +43,14 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 template <typename ApiElement>
 struct Schema;
 
+// A structure the API discriminates by a type value in its first member carries that value on its descriptor.
+template <typename Descriptor>
+concept HasStructureType = requires
+{
+    Descriptor::structure_type;
+}
+&&std::is_enum_v<std::remove_cv_t<decltype(Descriptor::structure_type)>>;
+
 template <typename ApiElement>
 concept HasSchema = requires
 {
