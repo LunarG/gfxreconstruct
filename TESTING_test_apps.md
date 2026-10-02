@@ -93,6 +93,20 @@ To run the test apps and validate output against known good '.gfxr' files, build
 |Linux| build/linux/x64/output/test        |run-tests.sh|
 |macOS| build/darwin/universal/output/test |run-tests_macos.sh|
 
+## **Mock ICD**
+
+The test scripts point the Vulkan loader at the mock ICD in the `test/icd` directory.
+No GPU is needed.
+The mock ICD reports loader-driver interface version 7.
+At that version the loader can get the `vk_icd*` entry points through `vk_icdGetInstanceProcAddr`.
+A driver given to the loader with `VK_LUNARG_direct_driver_loading` needs this.
+
+The test scripts also set `GFXRECON_TESTAPP_MOCK_ICD` to the path of the mock ICD library.
+The test app base opens that library to read the test configuration, and keeps it open.
+A test app can get an export of the library with `TestAppBase::get_mock_icd_proc()`.
+The *direct-driver-loading* test app uses this to hand the mock ICD to the loader through the
+extension.
+
 ## **Run A Single Test App**
 
 The default of Test Script `run-tests.sh` runs whole test apps. It could also run a single test app by specifying the test name, e.g. `run-tests.sh triangle`.

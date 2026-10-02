@@ -1,7 +1,9 @@
 #ifndef GFXRECONSTRUCT_VERIFY_GFXR_H
 #define GFXRECONSTRUCT_VERIFY_GFXR_H
 
+#include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 void run_in_background(const char* test_name);
@@ -36,5 +38,37 @@ void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr, b
  * @note expects the same environment variables as verify_gfxr().
  */
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args = {});
+
+/**
+ * Options for the two-step form of capture_and_replay().
+ */
+struct CaptureReplayOptions
+{
+    // Environment variables for the capture step. Each one is restored to its earlier value before replay.
+    std::vector<std::pair<std::string, std::string>> capture_env;
+
+    // Additional arguments forwarded verbatim to gfxrecon-replay.
+    std::vector<std::string> replay_args;
+
+    // Environment variables for the replay step. Each one is restored to its earlier value afterwards.
+    std::vector<std::pair<std::string, std::string>> replay_env;
+
+    // Runs after the capture step and before the replay step. Optional.
+    std::function<void()> before_replay;
+
+    // False when the test expects gfxrecon-replay to exit with an error.
+    bool expect_replay_success{ true };
+};
+
+/**
+ * Run an application with capture enabled, then replay the resulting gfxr with gfxrecon-replay, with separate
+ * environments for the two steps and a choice of the expected replay result.
+ *
+ * @param test_name  - the name of the test app to launch and capture
+ * @param options    - see CaptureReplayOptions
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void capture_and_replay(const char* test_name, const CaptureReplayOptions& options);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H

@@ -641,6 +641,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--wait-before-frame MILLISECONDS]
                         [--serialize-queue-submissions]
                         [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
+                        [--direct-driver-lib <paths>] [--direct-driver-policy <policy>]
                         [--isolate-render-passes]
                         [--serialize-compute-and-transfer]
                         [--annotate-injected-commands]
@@ -918,6 +919,21 @@ Optional arguments:
               Parameters to forward to the replay event plugin. The format
               of the parameters is determined by the plugin and is not
               interpreted by the replay tool. (forwarded to replay tool)
+  --direct-driver-lib <paths>
+              Load the driver libraries for VK_LUNARG_direct_driver_loading
+              from these paths, as a comma-separated list in driver order,
+              instead of the paths that the capture recorded. An empty item
+              keeps the recorded path for that driver.
+  --direct-driver-policy <policy>
+              Choose how replay handles VK_LUNARG_direct_driver_loading in
+              vkCreateInstance.
+                  auto     Load the recorded driver libraries. When none
+                           load, remove the extension and use the drivers
+                           of the replay system. This is the default.
+                  strip    Always remove the extension and use the drivers
+                           of the replay system.
+                  require  Load the recorded driver libraries, and stop the
+                           replay when one of them fails to load.
   --isolate-render-passes
               Isolate render passes by splitting the command buffer into multiple submits.
   --serialize-compute-and-transfer
@@ -1024,6 +1040,44 @@ The `gfxrecon-replay` tool for Desktop supports the following key controls:
 During replay, swapchain indices for present can be different from captured indices. Causes for this can include the swapchain image count differing between capture and replay, and `vkAcquireNextImageKHR` returning a different `pImageIndex` at replay to the one that was captured. These issues can cause unexpected rendering or even crashes.
 
 Virtual Swapchain insulates higher layers in the Vulkan stack from these problems by creating a set of images, exactly matching the swapchain configuration at capture time, which it exposes for them to render into.  Before a present, it copies the virtual image to a target swapchain image for display. Since this issue can happen in many situations, virtual swapchain is the default setup. If the user wants to bypass the feature and use the captured indices to present directly on the swapchain of the replay implementation, they should add the `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
+
+### Direct Driver Loading
+
+An application can give the loader a driver of its own with the `VK_LUNARG_direct_driver_loading`
+extension.
+The application passes the `vkGetInstanceProcAddr` entry point of that driver in the `pNext` chain
+of `vkCreateInstance`.
+A function pointer from the captured process has no meaning at replay.
+The capture layer therefore records where each entry point came from.
+For each driver it writes a `SetDirectDriverInfoCommand` metadata block before the
+`vkCreateInstance` block.
+The block holds the path of the module that contains the entry point, the exported symbol name that
+resolves to it, and the offset from the module base.
+The `gfxrecon-info` and `gfxrecon-convert` tools show these blocks.
+
+At replay, `gfxrecon-replay` opens each recorded module and resolves the entry point.
+It gives that entry point to the loader in place of the captured pointer.
+The `--direct-driver-lib` option replaces the recorded paths.
+Use it for a driver that lives at a different path on the replay system, or for a driver built for a
+different platform.
+The `--direct-driver-policy` option selects what happens when a driver does not load.
+With the default `auto` policy, replay removes the extension and the driver list from
+`vkCreateInstance` and uses the drivers that the replay system provides.
+With `require`, replay stops.
+With `strip`, replay never loads the recorded drivers.
+
+Replay cannot load a driver in these cases:
+
+* The entry point was inside the executable of the captured application, for example a software
+  renderer that the application links in.
+  Give a driver library with `--direct-driver-lib`.
+* The recorded path is inside an Android APK.
+  Copy the library out of the APK and give its path with `--direct-driver-lib`.
+* The capture comes from a GFXReconstruct version that did not write the metadata block.
+  Give the driver library with `--direct-driver-lib`.
+
+Replay loads native code from a path that the capture file names.
+For a capture from a source that you do not trust, use `--direct-driver-policy strip`.
 
 ### Debug mode VMA errors
 

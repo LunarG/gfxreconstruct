@@ -123,6 +123,10 @@ class MetadataConsumerBase
                                                const uint8_t*                              data)
     {}
     virtual void ProcessExecuteBlocksFromFile(uint32_t n_blocks, int64_t offset, const std::string& filename) {}
+    virtual void ProcessSetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                                   std::string_view                          module_path,
+                                                   std::string_view                          symbol_name)
+    {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 

@@ -52,6 +52,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-triangle
     gfxrecon-testapp-triangle-extra-device
     gfxrecon-testapp-deep-pnext-chain
+    gfxrecon-testapp-direct-driver-loading
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")

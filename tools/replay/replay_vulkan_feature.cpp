@@ -114,6 +114,12 @@ const char kIsolateRenderPasses[]                   = "--isolate-render-passes";
 const char kSerializeComputeAndTransfer[]           = "--serialize-compute-and-transfer";
 const char kOmitNullHardwareBuffersShortOption[]    = "--onhb";
 const char kOmitNullHardwareBuffersLongOption[]     = "--omit-null-hardware-buffers";
+const char kDirectDriverLibArgument[]               = "--direct-driver-lib";
+const char kDirectDriverPolicyArgument[]            = "--direct-driver-policy";
+
+const char kDirectDriverPolicyAuto[]    = "auto";
+const char kDirectDriverPolicyStrip[]   = "strip";
+const char kDirectDriverPolicyRequire[] = "require";
 
 const char kMemoryTranslationNone[]    = "none";
 const char kMemoryTranslationRemap[]   = "remap";
@@ -138,6 +144,9 @@ const std::vector<std::string> kSwapchainValues   = { kSwapchainVirtual, kSwapch
 const std::vector<std::string> kPresentModeValues = {
     kPresentModeCapture, kPresentModeImmediate, kPresentModeMailbox, kPresentModeFifo, kPresentModeFifoRelaxed
 };
+const std::vector<std::string> kDirectDriverPolicyValues = { kDirectDriverPolicyAuto,
+                                                             kDirectDriverPolicyStrip,
+                                                             kDirectDriverPolicyRequire };
 
 static void CheckActiveLayers(const std::string& list)
 {
@@ -498,6 +507,34 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.isolate_render_passes          = arg_parser.IsOptionSet(kIsolateRenderPasses);
     replay_options.serialize_compute_and_transfer = arg_parser.IsOptionSet(kSerializeComputeAndTransfer);
 
+    // Split on commas and keep empty items, so that an empty item keeps the recorded path for that driver.
+    const std::string& direct_driver_libs = arg_parser.GetArgumentValue(kDirectDriverLibArgument);
+    if (!direct_driver_libs.empty())
+    {
+        size_t start = 0;
+        for (;;)
+        {
+            const size_t comma = direct_driver_libs.find(',', start);
+            replay_options.direct_driver_libraries.push_back(direct_driver_libs.substr(start, comma - start));
+            if (comma == std::string::npos)
+            {
+                break;
+            }
+            start = comma + 1;
+        }
+    }
+
+    const std::string& direct_driver_policy = arg_parser.GetArgumentValue(kDirectDriverPolicyArgument);
+    if (gfxrecon::util::platform::StringCompareNoCase(kDirectDriverPolicyStrip, direct_driver_policy.c_str()) == 0)
+    {
+        replay_options.direct_driver_policy = gfxrecon::decode::VulkanReplayOptions::DirectDriverPolicy::kStrip;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kDirectDriverPolicyRequire, direct_driver_policy.c_str()) ==
+             0)
+    {
+        replay_options.direct_driver_policy = gfxrecon::decode::VulkanReplayOptions::DirectDriverPolicy::kRequire;
+    }
+
     replay_options.screenshot_apply_prerotation = arg_parser.IsOptionSet(kScreenshotApplyPrerotationArgument);
 
     replay_options.omit_null_hardware_buffers = arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption);
@@ -564,6 +601,26 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                true,
                AliasNames(kMemoryPortabilityShortOption, kMemoryPortabilityLongOption),
                kMemoryTranslationValues },
+             { "<paths>",
+               { "Load the driver libraries for VK_LUNARG_direct_driver_loading from these",
+                 "paths, as a comma-separated list in driver order, instead of the paths",
+                 "that the capture recorded. An empty item keeps the recorded path for",
+                 "that driver." },
+               true,
+               kDirectDriverLibArgument },
+             { "<policy>",
+               { "Choose how replay handles VK_LUNARG_direct_driver_loading in",
+                 "vkCreateInstance.",
+                 "    auto     Load the recorded driver libraries. When none load,",
+                 "             remove the extension and use the drivers of the replay",
+                 "             system. This is the default.",
+                 "    strip    Always remove the extension and use the drivers of the",
+                 "             replay system.",
+                 "    require  Load the recorded driver libraries, and stop the replay",
+                 "             when one of them fails to load." },
+               true,
+               kDirectDriverPolicyArgument,
+               kDirectDriverPolicyValues },
              { "<mode>",
                { "Choose a swapchain mode to replay.",
                  "    virtual    A swapchain of images that match the swapchain in effect",

@@ -272,6 +272,19 @@ struct VulkanReplayOptions : public ReplayOptions
 
     // Prevent querying properties of AHardwareBuffer that couldn't be re-created at replay time.
     bool omit_null_hardware_buffers{ false };
+
+    /// How replay handles a VkDirectDriverLoadingListLUNARG in vkCreateInstance.
+    enum class DirectDriverPolicy
+    {
+        kAuto,   // Load the recorded driver libraries. When none load, remove the extension.
+        kStrip,  // Always remove the extension and use the drivers of the replay system.
+        kRequire // Load the recorded driver libraries, and stop when one fails.
+    };
+    DirectDriverPolicy direct_driver_policy{ DirectDriverPolicy::kAuto };
+
+    /// Replacement library paths for the recorded direct driver modules, in driver order. An empty entry keeps
+    /// the recorded path for that driver.
+    std::vector<std::string> direct_driver_libraries;
 };
 
 GFXRECON_END_NAMESPACE(decode)

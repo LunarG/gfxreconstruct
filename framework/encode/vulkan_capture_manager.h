@@ -1868,6 +1868,12 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
 
+    // Look up the module behind each driver entry point of VK_LUNARG_direct_driver_loading in the create info,
+    // and store the results in the instance wrapper.
+    static void RecordDirectDrivers(const VkInstanceCreateInfo*       create_info,
+                                    vulkan_wrappers::InstanceWrapper* instance_wrapper);
+    void        WriteSetDirectDriverInfoCommands(const vulkan_wrappers::InstanceWrapper* instance_wrapper);
+
     void WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
                                              format::HandleId object_id,
                                              size_t           data_size,

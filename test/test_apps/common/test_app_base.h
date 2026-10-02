@@ -357,6 +357,15 @@ class InstanceBuilder
     // Headless Mode does not load the required extensions for presentation. Defaults to true.
     InstanceBuilder& set_headless(bool headless = true);
 
+    // Add a structure to the pNext chain of VkInstanceCreateInfo.
+    // The structure must be valid when InstanceBuilder::build() is called.
+    template <typename T>
+    InstanceBuilder& add_pNext(T* structure)
+    {
+        info.pNext_elements.push_back(reinterpret_cast<VkBaseOutStructure*>(structure));
+        return *this;
+    }
+
     // Enables the validation layers. Will fail to create an instance if the validation layers aren't available.
     InstanceBuilder& enable_validation_layers(bool require_validation = true);
     // Checks if the validation layers are available and loads them if they are.
@@ -1129,6 +1138,10 @@ class TestAppBase
     virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config);
 
     uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
+
+    // Get an exported function of the mock ICD library that GFXRECON_TESTAPP_MOCK_ICD names.
+    // Return null when the library is not loaded or has no such export.
+    static void* get_mock_icd_proc(const char* name);
 
     InitInfo init;
 

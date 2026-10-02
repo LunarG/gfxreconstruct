@@ -384,6 +384,61 @@ void PrintEnvironmentVariableInfoText(gfxrecon::decode::InfoConsumer& info_consu
     }
 }
 
+const char* GetDirectDriverModeName(uint32_t mode)
+{
+    switch (mode)
+    {
+        case VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG:
+            return "exclusive";
+        case VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG:
+            return "inclusive";
+        default:
+            return "unknown";
+    }
+}
+
+nlohmann::json GetDirectDriverInfoJson(const gfxrecon::decode::InfoConsumer& info_consumer)
+{
+    nlohmann::json drivers = nlohmann::json::array();
+
+    for (const auto& driver : info_consumer.GetDirectDrivers())
+    {
+        nlohmann::json entry;
+        entry["index"]         = driver.header.driver_index;
+        entry["count"]         = driver.header.driver_count;
+        entry["mode"]          = GetDirectDriverModeName(driver.header.mode);
+        entry["module-path"]   = driver.module_path;
+        entry["symbol-name"]   = driver.symbol_name;
+        entry["in-executable"] = (driver.header.flags & gfxrecon::format::kDirectDriverInfoInExecutable) != 0;
+        drivers.push_back(entry);
+    }
+
+    return drivers;
+}
+
+void PrintDirectDriverInfoText(const gfxrecon::decode::InfoConsumer& info_consumer)
+{
+    const auto& drivers = info_consumer.GetDirectDrivers();
+    if (drivers.empty())
+    {
+        return;
+    }
+
+    WriteOutput("Direct driver loading (VK_LUNARG_direct_driver_loading):");
+    for (const auto& driver : drivers)
+    {
+        const bool in_executable = (driver.header.flags & gfxrecon::format::kDirectDriverInfoInExecutable) != 0;
+        WriteOutput("\tDriver %u of %u, %s mode: %s%s%s%s",
+                    driver.header.driver_index + 1,
+                    driver.header.driver_count,
+                    GetDirectDriverModeName(driver.header.mode),
+                    driver.module_path.empty() ? "(module not found)" : driver.module_path.c_str(),
+                    driver.symbol_name.empty() ? "" : ", symbol ",
+                    driver.symbol_name.c_str(),
+                    in_executable ? " (inside the application executable)" : "");
+    }
+}
+
 void PrintDetectedApiInfoText(uint32_t detected_api_count)
 {
     if (detected_api_count == 0)
@@ -631,6 +686,10 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 {
                     json_content["environment"] = GetEnvironmentVariableInfoJson(environment_variables);
                 }
+                if (!info_consumer.GetDirectDrivers().empty())
+                {
+                    json_content["direct-drivers"] = GetDirectDriverInfoJson(info_consumer);
+                }
                 json_content["file-info"] = GetFileFormatInfoJson(file_processor);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
@@ -662,6 +721,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             {
                 PrintDetectedApiInfoText(detected_apis.size());
                 PrintExeInfoText(info_consumer);
+                PrintDirectDriverInfoText(info_consumer);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
                     PrintApiAgnosticStatsText(file_processor, api_agnostic_stats, vulkan_found);

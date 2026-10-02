@@ -39,6 +39,7 @@
 #include <chrono>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <ranges>
 #include <unordered_map>
 
@@ -136,7 +137,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     ++blocks_written_;
 
     // Instance, device, and queue creation.
-    StandardCreateWrite<vulkan_wrappers::InstanceWrapper>(state_table);
+    WriteInstanceState(state_table);
     WritePhysicalDeviceState(state_table);
     WriteDeviceState(state_table);
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
@@ -255,6 +256,24 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     return blocks_written_;
     // clang-format on
+}
+
+void VulkanStateWriter::WriteInstanceState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::InstanceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            // The direct driver blocks must come directly before the vkCreateInstance block, as in a full
+            // capture.
+            WriteSetDirectDriverInfoCommands(wrapper);
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            processed.insert(wrapper->create_parameters.get());
+        }
+    });
 }
 
 void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_table)
@@ -588,7 +607,7 @@ void VulkanStateWriter::WriteSamplerState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_table)
 {
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
 
     state_table.VisitWrappers([&](const vulkan_wrappers::FramebufferWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -626,7 +645,7 @@ void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_t
 {
     // TODO: Temporary ds layouts are potentially created and destroyed by both WritePipelineLayoutState and
     // WritePipelineState; track temporary creation across calls to avoid duplicate temporary allocations.
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
 
     // Perform temporary creations for dependencies that are no longer live, and create the pipeline layout.
     state_table.VisitWrappers([&](const vulkan_wrappers::PipelineLayoutWrapper* wrapper) {
@@ -722,12 +741,12 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     std::vector<util::MemoryOutputStream*> ray_tracing_pipelines_khr;
     std::vector<util::MemoryOutputStream*> data_graph_pipelines;
 
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_shaders;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_layouts;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_deferred_operations;
-    std::unordered_map<format::HandleId, format::HandleId>                temp_deferred_operation_join_command;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_shaders;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_deferred_operations;
+    std::map<format::HandleId, format::HandleId>                temp_deferred_operation_join_command;
 
     // First pass over pipeline table to sort pipelines by type and determine which dependencies need to be created
     // temporarily.
@@ -1038,7 +1057,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 {
     std::set<util::MemoryOutputStream*> processed;
 
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
 
     // First pass over descriptor set table to determine which dependencies need to be created temporarily.
     state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) {
@@ -1139,7 +1158,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
 
     std::set<util::MemoryOutputStream*> processed;
 
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
 
     // First pass over descriptor set table to determine which dependencies need to be created temporarily.
     state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) {
@@ -4553,6 +4572,27 @@ void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surf
     ++blocks_written_;
 }
 
+void VulkanStateWriter::WriteSetDirectDriverInfoCommands(const vulkan_wrappers::InstanceWrapper* instance_wrapper)
+{
+    for (const DirectDriverRecord& record : instance_wrapper->direct_drivers)
+    {
+        format::SetDirectDriverInfoCommand command = {};
+        FillSetDirectDriverInfoCommand(record, thread_data_->thread_id_, &command);
+
+        output_stream_->Write(&command, sizeof(command));
+        if (!record.module_path.empty())
+        {
+            output_stream_->Write(record.module_path.data(), record.module_path.size());
+        }
+        if (!record.symbol_name.empty())
+        {
+            output_stream_->Write(record.symbol_name.data(), record.symbol_name.size());
+        }
+
+        ++blocks_written_;
+    }
+}
+
 void VulkanStateWriter::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
                                                         const VkPhysicalDeviceProperties& properties)
 {
@@ -5045,7 +5085,7 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
 
 void VulkanStateWriter::WriteDataGraphPipelineSessionMemoryState(const VulkanStateTable& state_table)
 {
-    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_pipelines;
+    std::map<format::HandleId, const util::MemoryOutputStream*> temp_pipelines;
 
     state_table.VisitWrappers([&](const vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr);
