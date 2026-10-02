@@ -332,8 +332,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     VulkanReplayConsumerBase::WaitDevicesIdle();
 
     // free the resources tracked per device
-    object_info_table_->VisitVkDeviceInfo(
-        [this](const VulkanDeviceInfo* info) { DestroyDeviceResources(info); });
+    object_info_table_->VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) { DestroyDeviceResources(info); });
 
     // process queued async tasks
     background_queue_.join_all();
