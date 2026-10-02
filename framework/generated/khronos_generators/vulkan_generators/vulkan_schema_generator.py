@@ -126,6 +126,7 @@ class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'format/format.h',
             'format/platform_types.h',
             'util/defines.h',
+            'util/type_list.h',
         ))
 
 
@@ -288,6 +289,7 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'generated/generated_vulkan_decode_api_element_traits.h',
             'generated/generated_vulkan_schema_enumerants.h',
             'generated/generated_vulkan_struct_decoders.h',
+            'generated/generated_vulkan_stype_util.h',
             'schema/schema.h',
             'util/defines.h',
             'util/enumerants.h',
@@ -454,6 +456,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             self.add_api_type(self.clean_return_type(return_type))
             for value in params:
                 self.add_api_type(value.base_type)
+
+        # Every structure the registry gives a type gets a descriptor, described or not, so a sieve over
+        # structure_type reaches the hand-written encoders of the structures the schema excludes.
+        for struct in self.struct_type_names:
+            if struct not in self.all_struct_aliases:
+                self.add_api_type(struct)
 
         if self.defaulted_types:
             write(
@@ -1076,16 +1084,57 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(api_types)', file=self.outFile)
 
         for name in sorted(self.api_type_kinds):
-            write(
-                'struct {} {{ using element_type = {}; using kind = format::kind::{}; }};'.format(
-                    name, self.api_type_elements[name], self.api_type_kinds[name]
-                ),
-                file=self.outFile
-            )
+            structure_type = self.get_structure_type(name)
+            if structure_type is None:
+                write(
+                    'struct {} {{ using element_type = {}; using kind = format::kind::{}; }};'.format(
+                        name, self.api_type_elements[name], self.api_type_kinds[name]
+                    ),
+                    file=self.outFile
+                )
+            else:
+                write(
+                    'struct {} {{ using element_type = {}; using kind = format::kind::{}; static constexpr {} structure_type = {}; }};'
+                    .format(
+                        name, self.api_type_elements[name], self.api_type_kinds[name],
+                        '::' + self.get_struct_type_enum_name(), structure_type
+                    ),
+                    file=self.outFile
+                )
 
         write('GFXRECON_END_NAMESPACE(api_types)', file=self.outFile)
+        self.newline()
+        write('// The catalog: what exists, per genre, as lists of descriptors by name. A sub-list is a fact the generator', file=self.outFile)
+        write('// applied, so no list is filtered at compile time.', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(catalog)', file=self.outFile)
+        self.newline()
+        structs = self.get_structure_descriptors()
+        self.write_catalog_list('structures', 'Every structure descriptor.', structs)
+        self.write_catalog_list(
+            'extensible_structures',
+            'The structures a pNext chain can hold: every descriptor with a structure_type.',
+            [struct for struct in structs if self.get_structure_type(struct) is not None]
+        )
+        write('GFXRECON_END_NAMESPACE(catalog)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
+
+    def write_catalog_list(self, name, comment, structs):
+        write('// {}'.format(comment), file=self.outFile)
+        write('using {} = util::TypeList<'.format(name), file=self.outFile)
+        for i, struct in enumerate(structs):
+            write('    api_types::{}{}'.format(struct, ',' if i + 1 < len(structs) else '>;'), file=self.outFile)
+        self.newline()
+
+    def get_structure_descriptors(self):
+        """Every descriptor of kind Struct, by name."""
+        return [name for name in sorted(self.api_type_kinds) if self.api_type_kinds[name] == 'Struct']
+
+    def get_structure_type(self, name):
+        """The registry's structure type enumerant for a structure descriptor, or None: an alias or a type without one."""
+        if name in self.all_struct_aliases or name not in self.struct_type_names:
+            return None
+        return self.struct_type_names[name]
 
     def write_command_tags(self):
         write(
@@ -1340,6 +1389,34 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
 
         self.newline()
+        self.newline()
+        write('// A descriptor carries structure_type exactly when the registry gives the structure one, and the value agrees', file=self.outFile)
+        write('// with the stype_util generator, which reads the same attribute.', file=self.outFile)
+
+        typed = 0
+        for struct in self.get_structure_descriptors():
+            element = 'schema::vulkan::api_types::{}'.format(struct)
+            if self.get_structure_type(struct) is None:
+                write('static_assert(!schema::HasStructureType<{}>);'.format(element), file=self.outFile)
+            else:
+                typed += 1
+                write('static_assert(schema::HasStructureType<{}>);'.format(element), file=self.outFile)
+                write(
+                    'static_assert({}::structure_type == util::GetSType<{}>());'.format(element, struct),
+                    file=self.outFile
+                )
+
+        self.newline()
+        write('// The catalog lists are counted here from the registry by the generator.', file=self.outFile)
+        write(
+            'static_assert(util::TypeListSizeV<schema::vulkan::catalog::structures> == {});'.format(len(self.get_structure_descriptors())),
+            file=self.outFile
+        )
+        write(
+            'static_assert(util::TypeListSizeV<schema::vulkan::catalog::extensible_structures> == {});'.format(typed),
+            file=self.outFile
+        )
+
         self.newline()
         write('// The generator predicate has_enumerants and the concept HasEnumerants are one predicate in two languages:', file=self.outFile)
         write('// every enum given Enumerants<Enum> entries satisfies the concept, and a 64-bit flag-bits typedef, which', file=self.outFile)

@@ -145,14 +145,18 @@ struct InvokerTable;
 template <typename Visitor, typename... Args, typename... Elements>
 struct InvokerTable<Visitor, TypeList<Args...>, TypeList<Elements...>>
 {
+    static_assert(sizeof...(Elements) > 0, "Visit: the list is empty");
+
     using Result = decltype(std::declval<Visitor&>().template operator()<typename FirstOf<Elements...>::type>(
         std::declval<Args>()...));
 
-    static_assert(
-        (std::same_as<Result,
-                      decltype(std::declval<Visitor&>().template operator()<Elements>(std::declval<Args>()...))> &&
-         ...),
-        "VisitAt: every operator()<Element> must return one type");
+    // WIP: a fold over a catalog-sized pack exceeds clang's nesting limit; the flat form is the next turn's
+    // (findings section 6, fold expressions nest).
+    // static_assert(
+    //     (std::same_as<Result,
+    //                   decltype(std::declval<Visitor&>().template operator()<Elements>(std::declval<Args>()...))> &&
+    //      ...),
+    //     "Visit: every operator()<Element> must return one type");
 
     using Invoker = Result (*)(Visitor&, Args&&...);
 
@@ -162,6 +166,8 @@ struct InvokerTable<Visitor, TypeList<Args...>, TypeList<Elements...>>
         return visitor.template operator()<Element>(std::forward<Args>(args)...);
     }
 
+    // Taking each address instantiates Invoke<Element>, and with it the visitor's operator()<Element>, for every
+    // element of the list, whether or not a call ever reaches it.
     static constexpr std::array<Invoker, sizeof...(Elements)> invokers{ &Invoke<Elements>... };
 };
 
@@ -174,14 +180,42 @@ struct TypeListSize<TypeList<Types...>> : std::integral_constant<size_t, sizeof.
 
 GFXRECON_END_NAMESPACE(detail)
 
-// Calls visitor.operator()<Element>(args...) for the element of List at position, which is the caller's to supply
-// and to have checked, for instance against a KeyIndex miss.
-template <TypeListType List, typename Visitor, typename... Args>
-decltype(auto) VisitAt(size_t position, Visitor&& visitor, Args&&... args)
+template <typename List>
+inline constexpr size_t TypeListSizeV = detail::TypeListSize<List>::value;
+
+// A class template, not a type nested in the index: Visit deduces Index from this parameter, and a type reached
+// through Index::, aliased or not, is non-deduced ([temp.deduct.type]/5).
+//
+// Where an index's Find landed in its list, or its End. The index constructs one; Visit reads it; nothing else
+// sees the position.
+template <typename Index>
+class IndexPosition
 {
-    using Table = detail::InvokerTable<std::remove_reference_t<Visitor>, TypeList<Args...>, List>;
-    GFXRECON_ASSERT(position < detail::TypeListSize<List>::value);
-    return Table::invokers[position](visitor, std::forward<Args>(args)...);
+  public:
+    using index_type = Index;
+
+    constexpr bool operator==(const IndexPosition&) const = default;
+
+  private:
+    friend Index;
+
+    template <typename I, typename Visitor, typename... Args>
+    friend decltype(auto) Visit(IndexPosition<I> position, Visitor&& visitor, Args&&... args);
+
+    constexpr explicit IndexPosition(size_t position) : position_(position) {}
+
+    size_t position_;
+};
+
+// Calls visitor.operator()<Element>(args...) for the element of the index's list at `position`. The caller has
+// compared `position` against Index::End(); the miss is the caller's.
+template <typename Index, typename Visitor, typename... Args>
+decltype(auto) Visit(IndexPosition<Index> position, Visitor&& visitor, Args&&... args)
+{
+    using Table = detail::InvokerTable<std::remove_reference_t<Visitor>, TypeList<Args...>, typename Index::list>;
+    static_assert(Table::invokers.size() == Index::kSize, "Visit: the index and the invoker table are over one list");
+    GFXRECON_ASSERT(position != Index::End());
+    return Table::invokers[position.position_](visitor, std::forward<Args>(args)...);
 }
 
 GFXRECON_END_NAMESPACE(util)
