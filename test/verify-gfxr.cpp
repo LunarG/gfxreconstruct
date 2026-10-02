@@ -352,13 +352,8 @@ void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigge
     }
 }
 
-void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
+static void run_capture_app(EnvironmentVariables& env_vars, const Paths& paths, const char* test_name)
 {
-    EnvironmentVariables env_vars;
-
-    Paths paths{ test_name, nullptr, false };
-    int   result;
-
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
@@ -370,11 +365,30 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
 
     // Run the app with capture enabled to produce the gfxr to replay.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
-    result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
 
     ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+}
+
+static void run_replay(const Paths& paths, const std::vector<std::string>& extra_replay_args)
+{
+    std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
+    replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
+    replay_args.push_back(paths.capture_path.string());
+
+    auto result = run_command(paths.base_path, paths.replay_path, replay_args);
+    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
+                         << " in path " << paths.base_path;
+}
+
+void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
+{
+    EnvironmentVariables env_vars;
+    Paths                paths{ test_name, nullptr, false };
+
+    ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name));
 
     // The gfxreconstruct capture layer is still enabled in the environment, so point GFXRECON_CAPTURE_FILE at a
     // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
@@ -383,15 +397,7 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     replay_capture_path.append(test_name + std::string("_replay.gfxr"));
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
 
-    // Replay the capture headless (offscreen swapchain) against the mock ICD, forwarding any extra arguments.
-    // Asserts the replay tool exits successfully (no crash, assertion, or replay error).
-    std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
-    replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
-    replay_args.push_back(paths.capture_path.string());
-
-    result = run_command(paths.base_path, paths.replay_path, replay_args);
-    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
-                         << " in path " << paths.base_path;
+    ASSERT_NO_FATAL_FAILURE(run_replay(paths, extra_replay_args));
 }
 
 static void count_calls_in_json(const std::filesystem::path&     json_path,
@@ -436,21 +442,7 @@ void capture_app(const char* test_name)
     EnvironmentVariables env_vars;
     Paths                paths{ test_name, nullptr, false };
 
-    bool working_directory_exists = std::filesystem::exists(paths.working_directory);
-    ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
-
-    // Remove stale captures so a failure to produce a capture file assume the stale capture was the one produced.
-    std::error_code remove_error;
-    std::filesystem::remove(paths.capture_path, remove_error);
-    ASSERT_FALSE(remove_error) << "could not remove stale capture file: " << paths.capture_path << " - "
-                               << remove_error.message();
-
-    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
-    auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
-    ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
-                         << paths.working_directory;
-
-    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+    ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name));
 }
 
 void replay_and_count_recapture(const char*                      test_name,
@@ -478,20 +470,14 @@ void replay_and_count_recapture(const char*                      test_name,
     // into this file. Pointing the layer here also keeps it from re-capturing over the input gfxr we are about to read.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", recapture_path.string().c_str());
 
-    std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
-    replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
-    replay_args.push_back(paths.capture_path.string());
-
-    auto result = run_command(paths.base_path, paths.replay_path, replay_args);
-    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
-                         << " in path " << paths.base_path;
+    ASSERT_NO_FATAL_FAILURE(run_replay(paths, extra_replay_args));
 
     ASSERT_TRUE(std::filesystem::exists(recapture_path))
         << "the replay was not recaptured into " << recapture_path
         << ": the gfxreconstruct capture layer did not load during replay";
 
     // convert the recapture
-    result = run_command(paths.base_path, paths.convert_path, { recapture_path.string() });
+    auto result = run_command(paths.base_path, paths.convert_path, { recapture_path.string() });
     ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << recapture_path << " in path "
                          << paths.base_path;
 
