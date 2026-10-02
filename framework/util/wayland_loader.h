@@ -33,7 +33,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-class wayland_xdg_shell_table;
+class WaylandXdgShellTable;
+class WaylandViewporterTable;
+class WaylandFractionalScaleV1Table;
 
 class WaylandLoader
 {
@@ -73,7 +75,9 @@ class WaylandLoader
         decltype(wl_shell_surface_interface)* shell_surface_interface;
 
         // additional protocols
-        std::unique_ptr<wayland_xdg_shell_table> xdg;
+        std::unique_ptr<WaylandXdgShellTable>          xdg;
+        std::unique_ptr<WaylandViewporterTable>        viewporter;
+        std::unique_ptr<WaylandFractionalScaleV1Table> frac_scale;
 
         // inline functions, adapted from wayland-client-protocol.h
         struct wl_surface* compositor_create_surface(struct wl_compositor* wl_compositor) const
@@ -308,5 +312,7 @@ GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #include "generated/generated_wayland_xdg_shell.h"
+#include "generated/generated_wayland_viewporter.h"
+#include "generated/generated_wayland_fractional_scale_v1.h"
 
 #endif // GFXRECON_UTIL_WAYLAND_LOADER_H
