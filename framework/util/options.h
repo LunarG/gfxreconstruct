@@ -57,11 +57,12 @@ enum class SwapchainOption : uint32_t
 
 enum class PresentModeOption : uint32_t
 {
-    kCapture     = 0,
-    kImmediate   = 1,
-    kMailbox     = 2,
-    kFifo        = 3,
-    kFifoRelaxed = 4,
+    kAuto        = 0,
+    kCapture     = 1,
+    kImmediate   = 2,
+    kMailbox     = 3,
+    kFifo        = 4,
+    kFifoRelaxed = 5,
 };
 
 const char kScreenshotFormatBmp[] = "bmp";
