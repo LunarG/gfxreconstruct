@@ -23,16 +23,30 @@
 #define GFXRECON_DECODE_SCREENSHOT_CONTROLLER_H
 
 #include "decode/replay_options.h"
+#include "decode/screenshot_json.h"
+#include "decode/screenshot_result.h"
+#include "format/format.h"
 #include "util/defines.h"
 #include "util/image_writer.h"
 #include "util/options.h"
 
+#include "vulkan/vulkan.h"
+
 #include <functional>
+#include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+struct Decoded_VkFrameBoundaryEXT;
+struct Decoded_VkPresentInfoKHR;
+struct VulkanQueueInfo;
+struct VulkanSemaphoreInfo;
+struct VulkanSurfaceKHRInfo;
+struct VulkanSwapchainKHRInfo;
 
 /**
  * @brief An image that has reached the CPU, ready to become a file.
@@ -121,6 +135,11 @@ class ScreenshotSource
  * Which frames to take, where the files go, what they are called, how big they
  * are, which way up they go, and the one call that writes them.  Each of those
  * used to live in a per-API consumer, thus only Vulkan had all of them.
+ *
+ * The controller can also keep a result JSON, "<prefix>.json" next to the
+ * screenshots, with one entry for each frame boundary of a screenshot frame:
+ * what ended the frame, each image it produced, and whether the file of each
+ * was written, and if not, why.
  */
 class ScreenshotController
 {
@@ -131,8 +150,12 @@ class ScreenshotController
      * A directory named by --screenshot-dir that does not exist is created; one
      * that exists as a file is fatal, as it was in the Vulkan consumer this
      * came from.
+     *
+     * @param write_result_json Whether to keep the result JSON described above.
      */
-    explicit ScreenshotController(const ReplayOptions& options);
+    explicit ScreenshotController(const ReplayOptions& options, bool write_result_json = false);
+
+    ~ScreenshotController();
 
     //! Whether any frame was asked for.  Nothing else need be called when false.
     bool Enabled() const { return !ranges_.empty(); }
@@ -140,8 +163,14 @@ class ScreenshotController
     //! Whether this frame is one of the frames asked for.
     bool IsScreenshotFrame() const;
 
-    //! Advances to the next frame.  Call once per frame, taken or not.
-    void EndFrame();
+    /**
+     * @brief Advances to the next frame.  Call once per frame, taken or not.
+     *
+     * Closes the entry of the frame in the result JSON, if one is open.  The
+     * replay result is the result of the call that ended the frame; a failed
+     * one is noted, because the pixels may not be what was captured.
+     */
+    void EndFrame(std::optional<VkResult> replay_result = std::nullopt);
 
     uint32_t GetCurrentFrame() const { return current_frame_; }
 
@@ -187,11 +216,122 @@ class ScreenshotController
      * A rotation needs four bytes per pixel, so an image in any other layout
      * is written un-rotated and says so.
      *
+     * The outcome is recorded as that of the current output of the result
+     * JSON, when a frame is open.
+     *
      * @return Whether the file was written.
      */
     bool Finish(const std::string& filename_base, const CpuImage& image, const Rotation& rotation);
 
+    /**
+     * @brief Reads an image through source and writes one file for each of its layers.
+     *
+     * add_output adds the entry of one layer to the open frame of the result
+     * JSON, and runs before that layer is written or recorded as not read.  The
+     * file of a layer is "<filename_base>_layer_<n>" when the request has more
+     * than one layer, and "<filename_base>" otherwise.
+     *
+     * @return Whether every layer was written.
+     */
+    bool WriteOutputs(ScreenshotSource&                          source,
+                      const ScreenshotRequest&                   request,
+                      const std::string&                         filename_base,
+                      const std::function<void(uint32_t layer)>& add_output);
+
+    // Everything below records into the result JSON, and does nothing when there is none or when the frame is not a
+    // screenshot frame.
+
+    void BeginFrameSwapchain(const char*             call_name,
+                             const VulkanQueueInfo*  queue_info,
+                             std::optional<VkResult> capture_result,
+                             uint64_t                block_index,
+                             uint32_t                swapchain_count)
+    {
+        BeginFrame("vkQueuePresentKHR", call_name, queue_info, capture_result, block_index);
+        SetBoundarySwapchain(swapchain_count);
+    }
+
+    void BeginFrameCommandBuffer(const char*             call_name,
+                                 const VulkanQueueInfo*  queue_info,
+                                 std::optional<VkResult> capture_result,
+                                 uint64_t                block_index,
+                                 format::HandleId        command_buffer_id)
+    {
+        BeginFrame("commandBufferFrameBoundary", call_name, queue_info, capture_result, block_index);
+        SetBoundaryCommandBuffer(command_buffer_id);
+    }
+
+    void BeginFrameFrameBoundaryEXT(const char*                       call_name,
+                                    const VulkanQueueInfo*            queue_info,
+                                    std::optional<VkResult>           capture_result,
+                                    uint64_t                          block_index,
+                                    const Decoded_VkFrameBoundaryEXT* frame_boundary)
+    {
+        BeginFrame("VkFrameBoundaryEXT", call_name, queue_info, capture_result, block_index);
+        SetBoundaryFrameBoundaryEXT(frame_boundary);
+    }
+
+    void BeginFrameFrameBoundaryANDROID(const char*                call_name,
+                                        const VulkanQueueInfo*     queue_info,
+                                        std::optional<VkResult>    capture_result,
+                                        uint64_t                   block_index,
+                                        const VulkanSemaphoreInfo* semaphore_info)
+    {
+        BeginFrame("vkFrameBoundaryANDROID", call_name, queue_info, capture_result, block_index);
+        SetBoundaryFrameBoundaryANDROID(semaphore_info);
+    }
+
+    //! Records that the whole frame produced no outputs, with a log line and a reason code.  Mirrors SkipOutput.
+    void SkipFrame(const char* code, const std::string& message, bool is_error);
+
+    //! Adds an output entry to the open frame and makes it the current output.  image_index records the position of
+    //! the image in the boundary's image list when there is one.
+    void AddOutput(const char*           source_kind,
+                   format::HandleId      image_id,
+                   uint32_t              layer,
+                   std::optional<size_t> image_index = std::nullopt);
+
+    //! Adds an output entry for one color attachment of a framebuffer rendered by a frame boundary command buffer.
+    void AddFramebufferAttachmentOutput(format::HandleId image_id,
+                                        format::HandleId framebuffer_id,
+                                        size_t           render_pass_index,
+                                        size_t           attachment_index,
+                                        format::HandleId image_view_id);
+
+    //! Adds an output entry for one swapchain of a present and records the swapchain slot.
+    void AddSwapchainOutput(const char*                     source_kind,
+                            format::HandleId                image_id,
+                            uint32_t                        layer,
+                            const Decoded_VkPresentInfoKHR* meta_info,
+                            uint32_t                        swapchain_index,
+                            format::HandleId                swapchain_id,
+                            uint32_t                        image_index,
+                            const VulkanSwapchainKHRInfo*   swapchain_info,
+                            const VulkanSurfaceKHRInfo*     surface_info);
+
+    //! The image behind the current output, as it was before any scale or rotation.
+    void SetOutputImage(VkFormat format, uint32_t width, uint32_t height, VkSurfaceTransformFlagBitsKHR pre_transform);
+
+    //! Records that the current output was not written, with a log line and a reason code.
+    void SkipOutput(const char* code, const std::string& message, bool is_error);
+
   private:
+    //! The result JSON with an entry open for the current frame, or null when the frame is not being recorded.
+    ScreenshotJson* GetOpenJsonFrame() { return ((json_ != nullptr) && json_->HasOpenFrame()) ? json_.get() : nullptr; }
+
+    //! Opens the entry of the current frame.  boundary_type says what ended the frame, call_name which call did.
+    void BeginFrame(const char*             boundary_type,
+                    const char*             call_name,
+                    const VulkanQueueInfo*  queue_info,
+                    std::optional<VkResult> capture_result,
+                    uint64_t                block_index);
+
+    // Boundary details of the open frame.
+    void SetBoundarySwapchain(uint32_t swapchain_count);
+    void SetBoundaryCommandBuffer(format::HandleId command_buffer_id);
+    void SetBoundaryFrameBoundaryEXT(const Decoded_VkFrameBoundaryEXT* frame_boundary);
+    void SetBoundaryFrameBoundaryANDROID(const VulkanSemaphoreInfo* semaphore_info);
+
     uint32_t                            current_frame_{ 1 };
     size_t                              current_range_{ 0 };
     std::vector<ScreenshotRange>        ranges_;
@@ -205,6 +345,8 @@ class ScreenshotController
 
     //! Reused between frames, because a rotation needs somewhere to put the result.
     std::vector<uint32_t> rotated_pixels_;
+
+    std::unique_ptr<ScreenshotJson> json_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
