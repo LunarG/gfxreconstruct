@@ -38,6 +38,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/command_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/command_writer.cpp
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_aliasing_writer.h>
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_aliasing_writer.cpp>
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_encoder_commands.h>
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_api_call_encoders.h>
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_api_call_encoders.cpp>

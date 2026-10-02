@@ -36,6 +36,14 @@ target_sources(gfxrecon-optimize
                    ${CMAKE_CURRENT_LIST_DIR}/optimize_vulkan_feature.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.h
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/call_modifier_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_modifier_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_file_optimizer.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_file_optimizer.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_groups.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_groups.cpp
+                   $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_modifier.h>
+                   $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_group_modifier.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/optimize_dx12_feature.h>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/optimize_dx12_feature.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.h>
@@ -64,6 +72,7 @@ target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_
 target_link_libraries(gfxrecon-optimize
                           gfxrecon_application
                           gfxrecon_decode
+                          gfxrecon_encode
                           gfxrecon_graphics
                           gfxrecon_format
                           platform_specific
@@ -73,6 +82,27 @@ target_link_libraries(gfxrecon-optimize
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
 
 common_build_directives(gfxrecon-optimize)
+
+if (${RUN_TESTS})
+    add_executable(gfxrecon_optimize_test "")
+    target_sources(gfxrecon_optimize_test PRIVATE
+            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/vulkan_aliasing_groups.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp)
+    target_include_directories(gfxrecon_optimize_test PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_link_libraries(gfxrecon_optimize_test PRIVATE gfxrecon_format gfxrecon_util)
+    if (MSVC)
+        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            target_link_options(gfxrecon_optimize_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+        else()
+            target_link_options(gfxrecon_optimize_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+        endif()
+    endif()
+    common_build_directives(gfxrecon_optimize_test)
+    common_test_directives(gfxrecon_optimize_test)
+endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/AgilitySDK.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/InstallDXC.cmake)
