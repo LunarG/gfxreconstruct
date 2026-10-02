@@ -22,22 +22,17 @@
 
 #include "decode/vulkan_resource_tracking_consumer.h"
 
+#include "graphics/vulkan_feature_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
+#include "graphics/vulkan_util.h"
+
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-const std::vector<std::string> kLoaderLibNames = {
-#if defined(_WIN32)
-    "vulkan-1.dll"
-#elif defined(__APPLE__)
-    "libvulkan.dylib", "libvulkan.1.dylib", "libMoltenVK.dylib"
-#else
-    "libvulkan.so", "libvulkan.so.1"
-#endif
-};
 
 VulkanResourceTrackingConsumer::VulkanResourceTrackingConsumer(
     const VulkanReplayOptions& options, VulkanTrackedObjectInfoTable* tracked_object_info_table) :
@@ -58,15 +53,13 @@ VulkanResourceTrackingConsumer::~VulkanResourceTrackingConsumer()
 
 void VulkanResourceTrackingConsumer::InitializeLoader()
 {
-    for (auto name : kLoaderLibNames)
+    // Use the same loader lookup as the replay consumer so that GFXRECON_VULKAN_LIBRARY_PATH is honored.
+    loader_handle_ = graphics::InitializeLoader(getenv("GFXRECON_VULKAN_LIBRARY_PATH"));
+
+    if (loader_handle_ != nullptr)
     {
-        loader_handle_ = util::platform::OpenLibrary(name.c_str());
-        if (loader_handle_ != nullptr)
-        {
-            get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
-                util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
-            break;
-        }
+        get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
     }
 
     if (get_instance_proc_addr_ != nullptr)
@@ -79,7 +72,7 @@ void VulkanResourceTrackingConsumer::InitializeLoader()
     {
         GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
                            "loader (eg. %s) has been added to the appropriate system path",
-                           kLoaderLibNames[0].c_str());
+                           graphics::kLoaderLibNames[0].c_str());
     }
 }
 
@@ -142,11 +135,67 @@ void VulkanResourceTrackingConsumer::Process_vkCreateInstance(const ApiCallInfo&
         InitializeLoader();
     }
 
-    // TODO(gfxrec-28): Replace WSI extension in extension list??
+    // Apply the same sanitizing to the create info that the replay consumer applies for the second pass, so that
+    // resource tracking does not fail where replay would succeed.
+    VkInstanceCreateInfo modified_create_info = *replay_create_info;
 
-    // TODO(gfxrec-28): Disable layers??
+    // Debug callback pointers recorded at capture are not valid in the replay process, and the loader may invoke
+    // them during vkCreateInstance. Resource tracking does not need debug messages, so remove the callback structures.
+    while (graphics::vulkan_struct_remove_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info) != nullptr)
+    {
+        GFXRECON_LOG_DEBUG(
+            "Removed VkDebugUtilsMessengerCreateInfoEXT from VkInstanceCreateInfo for resource tracking");
+    }
+    while (graphics::vulkan_struct_remove_pnext<VkDebugReportCallbackCreateInfoEXT>(&modified_create_info) != nullptr)
+    {
+        GFXRECON_LOG_DEBUG(
+            "Removed VkDebugReportCallbackCreateInfoEXT from VkInstanceCreateInfo for resource tracking");
+    }
 
-    VkResult result = create_instance_function_(replay_create_info, nullptr, replay_instance);
+    std::vector<const char*> modified_extensions;
+    if ((replay_create_info->ppEnabledExtensionNames != nullptr) && (replay_create_info->enabledExtensionCount > 0))
+    {
+        modified_extensions.assign(replay_create_info->ppEnabledExtensionNames,
+                                   replay_create_info->ppEnabledExtensionNames +
+                                       replay_create_info->enabledExtensionCount);
+    }
+
+    PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc = nullptr;
+    if (get_instance_proc_addr_ != nullptr)
+    {
+        instance_extension_proc = reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+            get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
+    }
+
+    std::vector<VkExtensionProperties> available_extensions;
+    if ((instance_extension_proc != nullptr) &&
+        (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS))
+    {
+        if (options_.remove_unsupported_features)
+        {
+            graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+        }
+        else
+        {
+            // Remove enabled extensions that are not available on the replay system, but
+            // that can still be safely ignored.
+            graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to get instance extensions during resource tracking. Cannot filter enabled "
+                             "extensions for availability on the replay system.");
+    }
+
+    modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+    modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
+
+    // Disable layers, as the replay consumer does. Layers needed for replay are enabled through the environment.
+    modified_create_info.enabledLayerCount   = 0;
+    modified_create_info.ppEnabledLayerNames = nullptr;
+
+    VkResult result = create_instance_function_(&modified_create_info, nullptr, replay_instance);
 
     if ((replay_instance != nullptr) && (result == VK_SUCCESS))
     {
@@ -179,7 +228,60 @@ void VulkanResourceTrackingConsumer::Process_vkCreateDevice(const ApiCallInfo& c
         auto replay_device      = args.pDevice.GetHandlePointer();
         assert((replay_create_info != nullptr) && (replay_device != nullptr));
 
-        result = create_device_proc(physical_device, replay_create_info, nullptr, replay_device);
+        // Filter the enabled extensions and features against what the replay device supports, as the replay
+        // consumer does for the second pass, so that resource tracking does not fail where replay would succeed.
+        VkDeviceCreateInfo       modified_create_info = *replay_create_info;
+        std::vector<const char*> modified_extensions;
+        if ((replay_create_info->ppEnabledExtensionNames != nullptr) && (replay_create_info->enabledExtensionCount > 0))
+        {
+            modified_extensions.assign(replay_create_info->ppEnabledExtensionNames,
+                                       replay_create_info->ppEnabledExtensionNames +
+                                           replay_create_info->enabledExtensionCount);
+        }
+
+        auto instance_table = GetInstanceTable(physical_device);
+        GFXRECON_ASSERT(instance_table != nullptr);
+
+        std::vector<VkExtensionProperties> available_extensions;
+        if (graphics::feature_util::GetDeviceExtensions(physical_device,
+                                                        instance_table->EnumerateDeviceExtensionProperties,
+                                                        &available_extensions) == VK_SUCCESS)
+        {
+            if (options_.remove_unsupported_features)
+            {
+                graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+            }
+            else
+            {
+                // Remove enabled extensions that are not available on the replay device, but
+                // that can still be safely ignored.
+                graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to get device extensions during resource tracking. Cannot filter enabled "
+                                 "extensions for availability on the replay device.");
+        }
+
+        modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+        modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
+
+        // Abort on/remove unsupported features.
+        graphics::feature_util::CheckUnsupportedFeatures(physical_device,
+                                                         instance_table->GetPhysicalDeviceFeatures,
+                                                         instance_table->GetPhysicalDeviceFeatures2,
+                                                         modified_create_info.pNext,
+                                                         modified_create_info.pEnabledFeatures,
+                                                         options_.remove_unsupported_features);
+
+        if (options_.remove_unsupported_features)
+        {
+            // Remove feature structures from pNext for extensions that are not enabled.
+            graphics::feature_util::FilterPNextFeatures(&modified_create_info, modified_extensions);
+        }
+
+        result = create_device_proc(physical_device, &modified_create_info, nullptr, replay_device);
 
         if ((replay_device != nullptr) && (result == VK_SUCCESS))
         {
@@ -837,7 +939,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2(const 
     auto                 image_info  = GetTrackedObjectInfoTable()->GetTrackedVkResourceInfo(args.image);
     VkDevice             in_device   = device_info->GetHandleId();
     VkImage              in_image    = image_info->GetImageReplayHandleId();
-    VkSubresourceLayout2 subresource_layout_playback_time;
+    VkSubresourceLayout2 subresource_layout_playback_time{ VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2 };
     auto                 layout_capture_time = args.pLayout.GetPointer();
 
     GFXRECON_ASSERT(layout_capture_time);
@@ -856,7 +958,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2KHR(con
     auto                    image_info  = GetTrackedObjectInfoTable()->GetTrackedVkResourceInfo(args.image);
     VkDevice                in_device   = device_info->GetHandleId();
     VkImage                 in_image    = image_info->GetImageReplayHandleId();
-    VkSubresourceLayout2KHR subresource_layout_playback_time;
+    VkSubresourceLayout2KHR subresource_layout_playback_time{ VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_KHR };
     auto                    layout_capture_time = args.pLayout.GetPointer();
 
     GFXRECON_ASSERT(layout_capture_time);
@@ -875,7 +977,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2EXT(con
     auto                    image_info  = GetTrackedObjectInfoTable()->GetTrackedVkResourceInfo(args.image);
     VkDevice                in_device   = device_info->GetHandleId();
     VkImage                 in_image    = image_info->GetImageReplayHandleId();
-    VkSubresourceLayout2KHR subresource_layout_playback_time;
+    VkSubresourceLayout2KHR subresource_layout_playback_time{ VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_KHR };
     auto                    layout_capture_time = args.pLayout.GetPointer();
 
     GFXRECON_ASSERT(layout_capture_time);
@@ -904,7 +1006,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetPhysicalDeviceProperties2(cons
 {
     auto physical_device_info = GetTrackedObjectInfoTable()->GetTrackedVkPhysicalDeviceInfo(args.physicalDevice);
     VkPhysicalDevice physical_device      = physical_device_info->GetHandleId();
-    VkPhysicalDeviceProperties2 replay_properties;
+    VkPhysicalDeviceProperties2 replay_properties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
 
     GetInstanceTable(physical_device)->GetPhysicalDeviceProperties2(physical_device, &replay_properties);
     physical_device_info->SetCaptureDevicePhysicalProperties(args.pProperties.GetPointer()->properties);
@@ -916,7 +1018,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
 {
     auto physical_device_info = GetTrackedObjectInfoTable()->GetTrackedVkPhysicalDeviceInfo(args.physicalDevice);
     VkPhysicalDevice physical_device      = physical_device_info->GetHandleId();
-    VkPhysicalDeviceProperties2 replay_properties;
+    VkPhysicalDeviceProperties2 replay_properties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
 
     GetInstanceTable(physical_device)->GetPhysicalDeviceProperties2KHR(physical_device, &replay_properties);
     physical_device_info->SetCaptureDevicePhysicalProperties(args.pProperties.GetPointer()->properties);
