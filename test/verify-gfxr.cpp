@@ -77,6 +77,19 @@ static const char* CONVERT_FILENAME = "gfxrecon-convert.exe";
 static const char* REPLAY_FILENAME  = "gfxrecon-replay.exe";
 #endif
 
+// Gets the name of the test app combined with the test suite running it. This allows the same app to be used in 
+// different test cases, as otherwise there might be conflicts with the same trace file.
+static std::string capture_file_name(const char* test_name)
+{
+    const auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+    if (test_info == nullptr)
+    {
+        return test_name;
+    }
+
+    return std::string{ test_name } + "_" + test_info->test_suite_name() + "_" + test_info->name();
+}
+
 struct Paths
 {
     std::filesystem::path base_path{ std::filesystem::current_path() };
@@ -136,12 +149,13 @@ struct Paths
             trimming_suffix = "_trim_trigger";
         }
 
-        std::string capture_trimming_file = test_name + trimming_suffix;
-        capture_trimming_file += ".gfxr";
-        capture_trimming_path.append(capture_trimming_file);
+        capture_trimming_path.append(capture_file_name(test_name) + trimming_suffix + ".gfxr");
+
+        std::string known_good_trimming_file = test_name + trimming_suffix;
+        known_good_trimming_file += ".gfxr";
 
         known_good_trimming_path.append("known_good");
-        known_good_trimming_path.append(capture_trimming_file);
+        known_good_trimming_path.append(known_good_trimming_file);
 
         app_trimming_json_path = std::filesystem::path{ capture_trimming_path };
         app_trimming_json_path.replace_extension(".json");
@@ -168,11 +182,10 @@ struct Paths
         convert_path.append(CONVERT_FILENAME);
         replay_path.append(REPLAY_FILENAME);
 
-        std::string gfxr_file_name = test_name + std::string(".gfxr");
-        capture_path.append(gfxr_file_name);
+        capture_path.append(capture_file_name(test_name) + std::string(".gfxr"));
 
         known_good_path.append("known_good");
-        known_good_path.append(gfxr_file_name);
+        known_good_path.append(test_name + std::string(".gfxr"));
 
         app_json_path = std::filesystem::path{ capture_path };
         app_json_path.replace_extension(".json");
@@ -394,7 +407,7 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
     // input gfxr we are about to read.
     std::filesystem::path replay_capture_path{ paths.base_path };
-    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    replay_capture_path.append(paths.capture_path.stem().string() + "_replay.gfxr");
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
 
     ASSERT_NO_FATAL_FAILURE(run_replay(paths, extra_replay_args));
