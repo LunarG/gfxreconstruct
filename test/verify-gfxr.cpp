@@ -407,7 +407,7 @@ static void count_calls_in_json(const std::filesystem::path&     json_path,
     std::ifstream json_file{ json_path };
     ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
 
-    auto json = nlohmann::json::parse(json_file, clean_gfxr_json);
+    auto json = nlohmann::json::parse(json_file);
 
     counts.clear();
     for (const auto& function_name : function_names)
