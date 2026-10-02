@@ -28,6 +28,8 @@
 
 #include "replay_d3d12_feature.h"
 
+#include "decode/dx12_default_allocator.h"
+#include "decode/dx12_rebind_allocator.h"
 #include "decode/dx_replay_options.h"
 #include "generated/generated_dx12_decoder.h"
 
@@ -69,6 +71,15 @@ const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
 const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 
+const char kMemoryPortabilityShortOption[] = "-m";
+const char kMemoryPortabilityLongOption[]  = "--memory-translation";
+
+const char kMemoryTranslationNone[]   = "none";
+const char kMemoryTranslationRebind[] = "rebind";
+
+// The closed sets of accepted values, in the order that the usage text lists them.
+const std::vector<std::string> kMemoryTranslationValues = { kMemoryTranslationNone, kMemoryTranslationRebind };
+
 // Only this Feature reads the two --dump-resources names above. The replay tool keeps them in
 // its shared option list, next to --dump-resources and --dump-resources-dir. Each platform
 // accepted the two names before the Features had their own command-line entries. An application
@@ -102,6 +113,35 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
         }
     }
     return msgs;
+}
+
+static gfxrecon::decode::Dx12ResourceAllocator* CreateDxDefaultAllocator()
+{
+    return new gfxrecon::decode::Dx12DefaultAllocator(
+        "Try replay with the '-m rebind' options to enable memory translation.");
+}
+
+static gfxrecon::decode::Dx12ResourceAllocator* CreateDxRebindAllocator()
+{
+    return new gfxrecon::decode::Dx12RebindAllocator();
+}
+
+static gfxrecon::decode::CreateDx12ResourceAllocator
+GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&    arg_parser,
+                               const gfxrecon::decode::DxReplayOptions& replay_options)
+{
+    gfxrecon::decode::CreateDx12ResourceAllocator func  = CreateDxDefaultAllocator;
+    const auto&                                   value = arg_parser.GetArgumentValue(kMemoryPortabilityShortOption);
+
+    if (!value.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationRebind, value.c_str()) == 0)
+        {
+            func = CreateDxRebindAllocator;
+        }
+    }
+
+    return func;
 }
 
 static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
@@ -175,6 +215,9 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
                 "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
         }
     }
+
+    replay_options.create_resource_allocator = GetCreateResourceAllocatorFunc(arg_parser, replay_options);
+
     return replay_options;
 }
 

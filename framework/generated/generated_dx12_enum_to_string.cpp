@@ -5221,7 +5221,7 @@ template <> std::string ToString<GUID>(const GUID& value, ToStringFlags toString
     if (value == IID_IDXGIFactory6) return "IID_IDXGIFactory6";
     if (value == IID_IDXGIFactory7) return "IID_IDXGIFactory7";
     if (value == IID_IUnknown) return "IID_IUnknown";
-    return "Invalid IID";
+    return GUIDToString(value);
 }
 
 
