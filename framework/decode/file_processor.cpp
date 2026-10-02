@@ -141,6 +141,13 @@ bool FileProcessor::Initialize(const std::string& filename)
     return success;
 }
 
+bool FileProcessor::ProcessPreFrame()
+{
+    const bool success = ProcessNextFrame();
+    GFXRECON_ASSERT(dispatch_frame_number_ == kFirstFrame);
+    return success;
+}
+
 bool FileProcessor::ProcessNextFrame()
 {
     GFXRECON_ASSERT(frame_processing_initialized_);
