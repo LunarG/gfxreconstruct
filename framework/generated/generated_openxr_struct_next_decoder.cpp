@@ -44,6 +44,7 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <cstring>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -60,7 +61,8 @@ size_t DecodeNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, Ope
         size_t type_offset = 0;
 
         // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.
-        attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));
+        // Copied rather than dereferenced: nothing aligns a value in the parameter buffer.
+        std::memcpy(&attrib, parameter_buffer, sizeof(attrib));
 
         if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
         {
@@ -75,13 +77,14 @@ size_t DecodeNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, Ope
 
         if ((type_offset != 0) && ((buffer_size - type_offset) >= sizeof(XrStructureType)))
         {
-            const XrStructureType* type = reinterpret_cast<const XrStructureType*>(parameter_buffer + type_offset);
+            XrStructureType type;
+            std::memcpy(&type, parameter_buffer + type_offset, sizeof(type));
 
-            switch (*type)
+            switch (type)
             {
             default:
                 // TODO: This may need to be a fatal error
-                GFXRECON_LOG_ERROR("Failed to decode next value with unrecognized XrStructureType = %s", (util::ToString(*type).c_str()));
+                GFXRECON_LOG_ERROR("Failed to decode next value with unrecognized XrStructureType = %s", (util::ToString(type).c_str()));
                 break;
             case XR_TYPE_ACTION_CREATE_INFO:
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrActionCreateInfo>>();
