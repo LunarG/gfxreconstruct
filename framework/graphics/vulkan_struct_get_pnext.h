@@ -25,7 +25,7 @@
 
 #include "util/defines.h"
 #include "format/platform_types.h"
-#include "generated/generated_vulkan_stype_util.h"
+#include "util/vulkan_stype_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)

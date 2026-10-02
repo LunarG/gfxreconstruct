@@ -46,6 +46,7 @@ target_link_libraries(gfxrecon_schema
 # tool, not just the targets that read them. A custom target puts them in the IDE and in no build.
 add_custom_target(gfxrecon_schema_headers
                   SOURCES
+                      ${CMAKE_CURRENT_LIST_DIR}/binding/descriptor_for.h
                       ${CMAKE_CURRENT_LIST_DIR}/field.h
                       ${CMAKE_CURRENT_LIST_DIR}/schema.h
                       ${CMAKE_CURRENT_LIST_DIR}/structure_type_index.h)

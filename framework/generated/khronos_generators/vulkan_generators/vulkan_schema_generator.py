@@ -251,12 +251,13 @@ class VulkanEncodeCaptureWrappersGeneratorOptions(VulkanSchemaBaseGeneratorOptio
         ))
 
 
-class VulkanEncodeDescriptorForGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the descriptor rows: one DescriptorFor specialization per described structure."""
+class VulkanSchemaBindingDescriptorForGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the descriptor binding rows: one DescriptorFor specialization per structure descriptor."""
 
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
-            'encode/vulkan_encode_descriptor_for.h',
+            'generated/generated_vulkan_schema_types.h',
+            'schema/binding/descriptor_for.h',
             'util/defines.h',
         ))
 
@@ -289,7 +290,6 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'generated/generated_vulkan_decode_api_element_traits.h',
             'generated/generated_vulkan_schema_enumerants.h',
             'generated/generated_vulkan_struct_decoders.h',
-            'generated/generated_vulkan_stype_util.h',
             'schema/schema.h',
             'util/defines.h',
             'util/enumerants.h',
@@ -1390,8 +1390,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         self.newline()
         self.newline()
-        write('// A descriptor carries structure_type exactly when the registry gives the structure one, and the value agrees', file=self.outFile)
-        write('// with the stype_util generator, which reads the same attribute.', file=self.outFile)
+        write('// A descriptor carries structure_type exactly when the registry gives the structure one.', file=self.outFile)
 
         typed = 0
         for struct in self.get_structure_descriptors():
@@ -1401,10 +1400,6 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             else:
                 typed += 1
                 write('static_assert(schema::HasStructureType<{}>);'.format(element), file=self.outFile)
-                write(
-                    'static_assert({}::structure_type == util::GetSType<{}>());'.format(element, struct),
-                    file=self.outFile
-                )
 
         self.newline()
         write('// The catalog lists are counted here from the registry by the generator.', file=self.outFile)
@@ -1661,13 +1656,15 @@ class VulkanEncodeCaptureWrappersGenerator(VulkanSchemaBaseGenerator):
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
 
 
-class VulkanEncodeDescriptorForGenerator(VulkanSchemaBaseGenerator):
-    """One DescriptorFor row per described structure: the native structure to its API type descriptor."""
+class VulkanSchemaBindingDescriptorForGenerator(VulkanSchemaBaseGenerator):
+    """One DescriptorFor row per structure descriptor: the native structure to its API type descriptor."""
 
     def write_part(self):
-        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(binding)', file=self.outFile)
         self.newline()
-        for struct in sorted(self.schema_structs):
-            write('GFXRECON_VULKAN_DESCRIPTOR_FOR({});'.format(struct), file=self.outFile)
+        for struct in sorted(self.get_structure_descriptors()):
+            write('GFXRECON_SCHEMA_DESCRIPTOR_FOR(::{0}, vulkan::api_types::{0});'.format(struct), file=self.outFile)
         self.newline()
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(binding)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)

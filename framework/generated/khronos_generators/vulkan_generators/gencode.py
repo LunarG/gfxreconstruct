@@ -70,7 +70,7 @@ from vulkan_schema_generator import (
     VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
     VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions,
     VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions,
-    VulkanEncodeDescriptorForGenerator, VulkanEncodeDescriptorForGeneratorOptions
+    VulkanSchemaBindingDescriptorForGenerator, VulkanSchemaBindingDescriptorForGeneratorOptions
 )
 
 # Consumers
@@ -127,7 +127,6 @@ from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator
 
 # Constants
 from vulkan_constant_maps_generator import VulkanConstantMapsGenerator, VulkanConstantMapsGeneratorOptions
-from vulkan_stype_util_generator import VulkanSTypeUtilGenerator, VulkanSTypeUtilGeneratorOptions
 
 # ToCpp
 from vulkan_cpp_struct_generator import VulkanCppStructGenerator, VulkanCppStructGeneratorOptions
@@ -368,8 +367,8 @@ def make_gen_opts(args):
          VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
         ('generated_vulkan_encode_capture_wrappers.h',
          VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions, True),
-        ('generated_vulkan_encode_descriptor_for.h',
-         VulkanEncodeDescriptorForGenerator, VulkanEncodeDescriptorForGeneratorOptions, True),
+        ('generated_vulkan_schema_binding_descriptor_for.h',
+         VulkanSchemaBindingDescriptorForGenerator, VulkanSchemaBindingDescriptorForGeneratorOptions, True),
         ('generated_vulkan_schema_checks.cpp',
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
         ('generated_vulkan_schema_enumerants.h',
@@ -1056,20 +1055,6 @@ def make_gen_opts(args):
         VulkanConstantMapsGenerator,
         VulkanConstantMapsGeneratorOptions(
             filename='generated_vulkan_constant_maps.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=True,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    gen_opts['generated_vulkan_stype_util.h'] = [
-        VulkanSTypeUtilGenerator,
-        VulkanSTypeUtilGeneratorOptions(
-            filename='generated_vulkan_stype_util.h',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
