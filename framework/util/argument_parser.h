@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -43,6 +44,16 @@ class ArgumentParser
 
     ArgumentParser(int32_t argc, const char** const argv, const std::string& options, const std::string& arguments);
     ArgumentParser(bool first_is_exe_name, const char* args, const std::string& options, const std::string& arguments);
+
+    // Constructs from a name/value map, such as settings received from a remote controller. Keys are the normalized
+    // form of a command-line option or argument: leading dashes removed and '-' replaced with '_', so "--loop-count" is
+    // "loop_count". Values are always strings; an option that takes no command-line value is set with "true"/"false". A
+    // key matching positional_key supplies the parser's positional argument.
+    ArgumentParser(const std::map<std::string, std::string>& settings,
+                   const std::string&                        options,
+                   const std::string&                        arguments,
+                   const std::string&                        positional_key = std::string());
+
     ~ArgumentParser() {}
 
     bool                            IsInvalid() const { return is_invalid_; }
@@ -50,10 +61,18 @@ class ArgumentParser
     bool                            IsOptionSet(const std::string& option) const;
     bool                            IsArgumentSet(const std::string& argument) const;
     const std::string&              GetArgumentValue(const std::string& argument) const;
+
+    // Overwrites the value of an argument already present on the command line. Does nothing for an unknown or unset
+    // argument, so it cannot introduce a value the user did not ask for.
+    void SetArgumentValue(const std::string& argument, const std::string& value);
+
     size_t                          GetPositionalArgumentsCount() const { return positional_arguments_present_.size(); }
     const std::vector<std::string>& GetPositionalArguments() const { return positional_arguments_present_; }
 
   private:
+    // The index-table setup shared by the command-line and settings-map paths.
+    void BuildIndices(const std::string& options, const std::string& arguments);
+
     void Init(std::vector<std::string> command_line_args, const std::string& options, const std::string& arguments);
 
     bool                     is_invalid_;
