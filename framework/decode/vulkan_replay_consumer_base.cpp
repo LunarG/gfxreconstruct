@@ -9167,7 +9167,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         bool                      colorspace_extension_used_unsupported = false;
         VulkanPhysicalDeviceInfo* physical_device_info =
             object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
-        VulkanInstanceInfo* instance_info = object_info_table_->GetVkInstanceInfo(physical_device_info->parent_id);
+        VulkanInstanceInfo* instance_info  = object_info_table_->GetVkInstanceInfo(physical_device_info->parent_id);
+        const auto          instance_table = GetInstanceTable(instance_info->handle);
 
         auto colorspace_extension_map_iterator = kColorSpaceExtensionMap.find(replay_create_info->imageColorSpace);
         if (colorspace_extension_map_iterator != kColorSpaceExtensionMap.end())
@@ -9182,7 +9183,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         // If supported surface formats were not queried before, query them now
         if (!physical_device_info->surface_formats && options_.swapchain_option != util::SwapchainOption::kOffscreen)
         {
-            const auto                       instance_table = GetInstanceTable(physical_device_info->handle);
             util::MarkInjectedCommandsHelper mark_injected_commands_helper;
             uint32_t                         surface_format_count = 0;
             auto                             result               = instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
@@ -9296,10 +9296,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             }
         }
 
-        if (options_.present_mode_option != util::PresentModeOption::kCapture)
+        // If replaying with `--swapchain offscreen`, present mode cannot be queried because
+        // modified_create_info.surface is a placeholder, but we can just "comment the option out" because the present
+        // mode doesn't matter when using the offscreen swapchain anyway
+        if (options_.swapchain_option != util::SwapchainOption::kOffscreen)
         {
             VkPresentModeKHR present_mode = modified_create_info.presentMode;
-
             switch (options_.present_mode_option)
             {
                 case util::PresentModeOption::kImmediate:
@@ -9319,7 +9321,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                     break;
             }
 
-            auto instance_table = GetInstanceTable(physical_device_info->parent);
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
 
             uint32_t present_mode_count;
             instance_table->GetPhysicalDeviceSurfacePresentModesKHR(
@@ -9339,10 +9341,25 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             {
                 modified_create_info.presentMode = present_mode;
             }
+            else if (options_.present_mode_option == util::PresentModeOption::kAuto)
+            {
+                GFXRECON_LOG_WARNING("Swapchain (ID = " PRIu64
+                                     ") present mode `%s` was requested at capture time but is not supported by the "
+                                     "replay device. Replay will continue using `VK_PRESENT_MODE_FIFO_KHR`.",
+                                     swapchain_info->capture_id,
+                                     util::ToString<VkPresentModeKHR>(present_mode).c_str());
+
+                modified_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+            }
             else
             {
-                GFXRECON_LOG_ERROR("Swapchain present mode '%s' is requested but not supported",
-                                   util::ToString<VkPresentModeKHR>(present_mode).c_str())
+                GFXRECON_LOG_ERROR("Swapchain (ID = " PRIu64
+                                   ") present mode `%s` is requested but not supported by the replay "
+                                   "device. Replayer will still try to use it.",
+                                   swapchain_info->capture_id,
+                                   util::ToString<VkPresentModeKHR>(present_mode).c_str());
+
+                modified_create_info.presentMode = present_mode;
             }
         }
 
