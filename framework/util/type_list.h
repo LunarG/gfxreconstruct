@@ -30,6 +30,7 @@
 #include <array>
 #include <concepts>
 #include <cstddef>
+#include <initializer_list>
 #include <type_traits>
 #include <utility>
 
@@ -51,27 +52,64 @@ struct IsTypeList<TypeList<Types...>> : std::true_type
 template <typename T>
 concept TypeListType = IsTypeList<T>::value;
 
-template <typename List, typename T>
-struct TypeListContains : std::false_type
-{};
+// A fold expression over a pack is instantiated as nested binary expressions, one level per element, and clang
+// stops at 256; a pack expanded into a braced list is one node at any length. Every algorithm here that reduces
+// a pack does so through an array and a constexpr loop, so a catalog-sized list is no different from a field list.
 
-template <typename T, typename... Types>
-struct TypeListContains<TypeList<Types...>, T> : std::bool_constant<(std::same_as<Types, T> || ...)>
-{};
-
-template <typename List, typename T>
-inline constexpr bool TypeListContainsV = TypeListContains<List, T>::value;
-
-template <typename... Types, typename Function>
-constexpr void ForEachTypeImpl(TypeList<Types...>, Function&& function)
+template <size_t N>
+constexpr size_t CountOf(const std::array<bool, N>& values)
 {
-    (function.template operator()<Types>(), ...);
+    size_t count = 0;
+    for (bool value : values)
+    {
+        count += value ? 1 : 0;
+    }
+    return count;
 }
 
-template <typename List, typename Function>
-constexpr void ForEachType(Function&& function)
+// The positions of the true entries, in order; Count is CountOf(values).
+template <size_t Count, size_t N>
+constexpr std::array<size_t, Count> PositionsOf(const std::array<bool, N>& values)
 {
-    ForEachTypeImpl(List{}, std::forward<Function>(function));
+    std::array<size_t, Count> positions{};
+    size_t                    next = 0;
+    for (size_t i = 0; i < N; ++i)
+    {
+        if (values[i])
+        {
+            positions[next++] = i;
+        }
+    }
+    return positions;
+}
+
+// A predicate over types is a constexpr callable with a template call operator and no parameters,
+// []<typename T>() { return ...; }, the shape TypeListForEach's visitors take; a concept is one in one line. The
+// algorithms take it by value and re-create it, which a captureless closure allows, so the call is a constant
+// expression.
+
+template <typename Predicate>
+struct Not
+{
+    template <typename T>
+    constexpr bool operator()() const
+    {
+        return !Predicate{}.template operator()<T>();
+    }
+};
+
+GFXRECON_BEGIN_NAMESPACE(detail)
+
+template <typename... Types, typename Predicate>
+constexpr size_t TypeListCountIfImpl(TypeList<Types...>, Predicate)
+{
+    return CountOf(std::array<bool, sizeof...(Types)>{ Predicate{}.template operator()<Types>()... });
+}
+
+template <typename... Types, typename Function>
+constexpr void TypeListForEachImpl(TypeList<Types...>, Function&& function)
+{
+    (void)std::initializer_list<int>{ (function.template operator()<Types>(), 0)... };
 }
 
 template <typename... Fields, typename Accessor, typename Function>
@@ -80,35 +118,83 @@ decltype(auto) ApplyFieldsImpl(TypeList<Fields...>, Accessor&& accessor, Functio
     return std::forward<Function>(function)(accessor(Fields{})...);
 }
 
+GFXRECON_END_NAMESPACE(detail)
+
+// How many elements satisfy the predicate. All, any and none are comparisons on it.
+template <typename List, typename Predicate>
+constexpr size_t TypeListCountIf(List, Predicate)
+{
+    return detail::TypeListCountIfImpl(List{}, Predicate{});
+}
+
+template <typename List, typename T>
+inline constexpr bool TypeListContainsV = TypeListCountIf(List{}, []<typename U>() { return std::is_same_v<T, U>; }) >
+                                          0;
+
+template <typename List, typename Function>
+constexpr void TypeListForEach(Function&& function)
+{
+    detail::TypeListForEachImpl(List{}, std::forward<Function>(function));
+}
+
 template <typename List, typename Accessor, typename Function>
 decltype(auto) ApplyFields(Accessor&& accessor, Function&& function)
 {
-    return ApplyFieldsImpl(List{}, std::forward<Accessor>(accessor), std::forward<Function>(function));
+    return detail::ApplyFieldsImpl(List{}, std::forward<Accessor>(accessor), std::forward<Function>(function));
 }
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-template <typename... Types>
-struct TypeListFragment
+// TypeListAt without recursion: one base per element, all inherited at once, and the element at I selected by overload
+// resolution on its position. std::tuple_element recurses on MSVC and is not used.
+template <size_t I, typename T>
+struct Indexed
 {
-    using type = TypeList<Types...>;
+    using type = T;
 };
 
-template <typename... Left, typename... Right>
-constexpr auto operator+(TypeListFragment<Left...>, TypeListFragment<Right...>) -> TypeListFragment<Left..., Right...>
+template <typename Sequence, typename... Types>
+struct Indexer;
+
+template <size_t... Is, typename... Types>
+struct Indexer<std::index_sequence<Is...>, Types...> : Indexed<Is, Types>...
+{};
+
+template <size_t I, typename T>
+Indexed<I, T> PickIndexed(Indexed<I, T>); // declared only; its type is the answer
+
+template <size_t I, typename List>
+struct TypeListAtImpl;
+
+template <size_t I, typename... Types>
+struct TypeListAtImpl<I, TypeList<Types...>>
 {
-    return {};
+    static_assert(I < sizeof...(Types), "TypeListAt: position past the end of the list");
+    using type = typename decltype(PickIndexed<I>(Indexer<std::index_sequence_for<Types...>, Types...>{}))::type;
+};
+
+// A constexpr array of positions as an index_sequence. The one value-to-template-argument step is here; a later
+// expansion takes the positions as template arguments and evaluates no subscript inside a template argument list,
+// which MSVC rejects for a raw array member (C3546).
+template <auto Positions, size_t... Is>
+std::index_sequence<Positions[Is]...> PositionSequenceImpl(std::index_sequence<Is...>);
+
+template <auto Positions>
+using PositionSequence = decltype(PositionSequenceImpl<Positions>(std::make_index_sequence<Positions.size()>{}));
+
+// The elements whose predicate holds: the predicate results as an array, their positions as an array, that array
+// as an index_sequence, and one expansion over it. Flat at every step.
+template <typename... Types, size_t... Positions>
+TypeList<typename TypeListAtImpl<Positions, TypeList<Types...>>::type...>
+    Pick(TypeList<Types...>, std::index_sequence<Positions...>); // declared only; its type is the answer
+
+template <typename... Types, typename Predicate>
+constexpr auto TypeListKeepImpl(TypeList<Types...>, Predicate)
+{
+    constexpr std::array<bool, sizeof...(Types)> kSelected{ Predicate{}.template operator()<Types>()... };
+    constexpr auto                               kPositions = PositionsOf<CountOf(kSelected)>(kSelected);
+    return decltype(Pick(TypeList<Types...>{}, PositionSequence<kPositions>{})){};
 }
-
-template <template <typename> class Predicate, typename... Types>
-constexpr auto TypeListKeepImpl(TypeList<Types...>) -> typename decltype((
-    TypeListFragment<>{} + ... +
-    std::conditional_t<Predicate<Types>::value, TypeListFragment<Types>, TypeListFragment<>>{}))::type;
-
-template <template <typename> class Predicate, typename... Types>
-constexpr auto TypeListDropImpl(TypeList<Types...>) -> typename decltype((
-    TypeListFragment<>{} + ... +
-    std::conditional_t<Predicate<Types>::value, TypeListFragment<>, TypeListFragment<Types>>{}))::type;
 
 template <typename List>
 struct TypeListSoleImpl;
@@ -121,22 +207,26 @@ struct TypeListSoleImpl<TypeList<Type>>
 
 GFXRECON_END_NAMESPACE(detail)
 
-template <typename List, template <typename> class Predicate>
-using TypeListKeep = decltype(detail::TypeListKeepImpl<Predicate>(List{}));
+template <size_t I, typename List>
+using TypeListAt = typename detail::TypeListAtImpl<I, List>::type;
 
-template <typename List, template <typename> class Predicate>
-using TypeListDrop = decltype(detail::TypeListDropImpl<Predicate>(List{}));
+// The list of elements whose predicate holds, as a value: using Kept = decltype(TypeListKeep(List{}, kPredicate));
+template <typename List, typename Predicate>
+constexpr auto TypeListKeep(List, Predicate)
+{
+    return detail::TypeListKeepImpl(List{}, Predicate{});
+}
+
+template <typename List, typename Predicate>
+constexpr auto TypeListDrop(List, Predicate)
+{
+    return TypeListKeep(List{}, Not<Predicate>{});
+}
 
 template <typename List>
 using TypeListSole = typename detail::TypeListSoleImpl<List>::type;
 
 GFXRECON_BEGIN_NAMESPACE(detail)
-
-template <typename First, typename...>
-struct FirstOf
-{
-    using type = First;
-};
 
 // One invoker per element, in list order; each calls visitor.operator()<Element>(args...).
 template <typename Visitor, typename ArgsList, typename Elements>
@@ -147,16 +237,17 @@ struct InvokerTable<Visitor, TypeList<Args...>, TypeList<Elements...>>
 {
     static_assert(sizeof...(Elements) > 0, "Visit: the list is empty");
 
-    using Result = decltype(std::declval<Visitor&>().template operator()<typename FirstOf<Elements...>::type>(
+    using Result = decltype(std::declval<Visitor&>().template operator()<TypeListAt<0, TypeList<Elements...>>>(
         std::declval<Args>()...));
 
-    // WIP: a fold over a catalog-sized pack exceeds clang's nesting limit; the flat form is the next turn's
-    // (findings section 6, fold expressions nest).
-    // static_assert(
-    //     (std::same_as<Result,
-    //                   decltype(std::declval<Visitor&>().template operator()<Elements>(std::declval<Args>()...))> &&
-    //      ...),
-    //     "Visit: every operator()<Element> must return one type");
+    static_assert(
+        TypeListCountIf(TypeList<Elements...>{},
+                        []<typename Element>() {
+                            return std::is_same_v<Result,
+                                                  decltype(std::declval<Visitor&>().template operator()<Element>(
+                                                      std::declval<Args>()...))>;
+                        }) == sizeof...(Elements),
+        "Visit: every operator()<Element> must return one type");
 
     using Invoker = Result (*)(Visitor&, Args&&...);
 

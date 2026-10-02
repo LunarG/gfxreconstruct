@@ -39,25 +39,26 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-template <typename First, typename...>
-struct FirstOf
-{
-    using type = First;
-};
-
-// The key type is the first descriptor's; a fold checks the rest agree. std::common_type_t recurses pairwise and
-// exceeds MSVC's depth on a catalog-sized list.
-// WIP: `HasStructureType... Descriptors` is a fold too, and exceeds clang's nesting limit over the catalog; the
-// expansion below fails on a descriptor without a structure_type, at the member, until the flat-forms pass gives
-// the check a better message (findings section 6, fold expressions nest).
+// The structure_type of each descriptor, as an array parallel to the list. Every descriptor carries one, and the
+// key type is the first descriptor's, which every other descriptor's must agree with. When a descriptor has no
+// structure_type, the assertion's message prints the list of those that do not; the filter that builds the list
+// is instantiated only then.
 template <typename... Descriptors>
-constexpr auto StructureTypes(util::TypeList<Descriptors...>)
+constexpr auto StructureTypesOf(util::TypeList<Descriptors...>)
 {
-    using Key = std::remove_cv_t<decltype(FirstOf<Descriptors...>::type::structure_type)>;
-    // WIP: a fold over a catalog-sized pack exceeds clang's nesting limit; the flat form is the next turn's
-    // (findings section 6, fold expressions nest).
-    // static_assert((std::same_as<Key, std::remove_cv_t<decltype(Descriptors::structure_type)>> && ...),
-    //               "StructureTypeIndex: one structure type enum per list");
+    using List                       = util::TypeList<Descriptors...>;
+    constexpr auto kHasStructureType = []<typename Descriptor>() { return HasStructureType<Descriptor>; };
+    if constexpr (util::TypeListCountIf(List{}, kHasStructureType) != sizeof...(Descriptors))
+    {
+        static_assert(std::same_as<decltype(util::TypeListDrop(List{}, kHasStructureType)), util::TypeList<>>,
+                      "StructureTypeIndex: descriptors without a structure_type");
+    }
+    using Key                  = std::remove_cv_t<decltype(util::TypeListAt<0, List>::structure_type)>;
+    constexpr auto kHasKeyType = []<typename Descriptor>() {
+        return std::is_same_v<Key, std::remove_cv_t<decltype(Descriptor::structure_type)>>;
+    };
+    static_assert(util::TypeListCountIf(List{}, kHasKeyType) == sizeof...(Descriptors),
+                  "StructureTypeIndex: one structure type enum per list");
     return std::array<Key, sizeof...(Descriptors)>{ Descriptors::structure_type... };
 }
 
@@ -71,7 +72,7 @@ class StructureTypeIndex
   public:
     using list     = List;
     using position = util::IndexPosition<StructureTypeIndex>;
-    using key_type = typename decltype(detail::StructureTypes(List{}))::value_type;
+    using key_type = typename decltype(detail::StructureTypesOf(List{}))::value_type;
 
     static constexpr size_t kSize = util::TypeListSizeV<List>;
 
@@ -79,7 +80,7 @@ class StructureTypeIndex
     static constexpr position End() { return position{ kSize }; }
 
   private:
-    static constexpr util::KeyIndex<key_type, kSize> kKeys{ detail::StructureTypes(List{}) };
+    static constexpr util::KeyIndex<key_type, kSize> kKeys{ detail::StructureTypesOf(List{}) };
 };
 
 GFXRECON_END_NAMESPACE(schema)

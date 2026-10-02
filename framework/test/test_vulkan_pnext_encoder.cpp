@@ -43,31 +43,14 @@ namespace
 using namespace gfxrecon;
 } // namespace
 
-// The pNext encoder's dispatch: for a structure the chain can hold, the entry point finds the node by its sType and
-// encodes it as EncodeStructPtr of that structure does, byte for byte. A zero-initialized instance with its sType set
-// is enough to tell the structures apart and needs no handles registered; the per-structure encoding is proven
-// elsewhere, this proves the dispatch reaches it.
-//
-// The walk samples the catalog rather than exhausting it: ForEachType is a fold, and a fold over 1,144 types exceeds
-// clang's nesting limit (findings, "fold expressions nest"). The sample takes the catalog's ends, structures whose
-// encoders are hand-written, and structures the schema excludes; the index itself is sized by the generated checks.
-TEST_CASE("EncodePNextStruct dispatches an extensible structure to its encoder", "[schema][encode][pnext]")
+// The pNext encoder's dispatch: for every structure the chain can hold, the entry point finds the node by its sType
+// and encodes it as EncodeStructPtr of that structure does, byte for byte. A zero-initialized instance with its
+// sType set is enough to tell the structures apart and needs no handles registered; the per-structure encoding is
+// proven elsewhere, this proves the dispatch reaches it.
+TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encoder", "[schema][encode][pnext]")
 {
-    namespace api_types        = schema::vulkan::api_types;
     using ExtensibleStructures = schema::vulkan::catalog::extensible_structures;
     using Index                = schema::StructureTypeIndex<ExtensibleStructures>;
-    using Sample               = util::TypeList<api_types::VkApplicationInfo,
-                                  api_types::VkDeviceCreateInfo,
-                                  api_types::VkAttachmentReferenceStencilLayout,
-                                  api_types::VkPhysicalDeviceFeatures2,
-                                  api_types::VkWriteDescriptorSet,
-                                  api_types::VkAccelerationStructureGeometryKHR,
-                                  api_types::VkDescriptorGetInfoEXT,
-                                  api_types::VkImageToMemoryCopy,
-                                  api_types::VkPushDescriptorSetWithTemplateInfo,
-                                  api_types::VkPipelineCreateInfoKHR,
-                                  api_types::VkRenderPassFragmentDensityMapOffsetEndInfoEXT,
-                                  api_types::VkDataGraphPipelineConstantARM>;
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
@@ -75,7 +58,7 @@ TEST_CASE("EncodePNextStruct dispatches an extensible structure to its encoder",
     };
 
     size_t visited = 0;
-    util::ForEachType<Sample>([&]<typename Descriptor>() {
+    util::TypeListForEach<ExtensibleStructures>([&]<typename Descriptor>() {
         using Struct = typename Descriptor::element_type;
         INFO(util::NameOf(Descriptor::structure_type));
 
@@ -94,7 +77,7 @@ TEST_CASE("EncodePNextStruct dispatches an extensible structure to its encoder",
         CHECK(Index::Find(Descriptor::structure_type) != Index::End());
         ++visited;
     });
-    CHECK(visited == util::TypeListSizeV<Sample>);
+    CHECK(visited == Index::kSize);
 
     // A null chain, and a chain whose only node is one the loader adds, both encode as a null pointer.
     {
