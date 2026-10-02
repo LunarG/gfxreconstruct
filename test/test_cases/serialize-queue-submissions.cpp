@@ -25,5 +25,5 @@ TEST(SerializeQueueSubmissions, ReplayCreatesOneTimelineSemaphorePerMultiEntrySu
     EXPECT_EQ(with_option["vkQueueSubmit"], 1u);
 
     // One timeline semaphore for the two-entry submit, reused by both of its entries.
-    EXPECT_EQ(with_option["vkCreateSemaphore"] - baseline["vkCreateSemaphore"], 1u);
+    EXPECT_EQ(with_option["vkCreateSemaphore"], baseline["vkCreateSemaphore"] + 1u);
 }

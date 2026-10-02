@@ -31,5 +31,5 @@ TEST(SerializeRenderPasses, ReplayInjectsBarrierBeforeEachRenderPass)
     EXPECT_EQ(render_passes, baseline["vkCmdBeginRenderPass"]);
 
     // Exactly one barrier injected before each of them.
-    EXPECT_EQ(with_option["vkCmdPipelineBarrier"] - baseline["vkCmdPipelineBarrier"], render_passes);
+    EXPECT_EQ(with_option["vkCmdPipelineBarrier"], baseline["vkCmdPipelineBarrier"] + render_passes);
 }

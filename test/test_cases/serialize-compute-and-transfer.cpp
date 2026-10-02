@@ -38,5 +38,5 @@ TEST(SerializeComputeAndTransfer, ReplayInjectsBarriersAroundDispatches)
         with_option["vkCmdDispatch"] + with_option["vkCmdDispatchBase"] + with_option["vkCmdDispatchIndirect"];
 
     // One barrier before and one after each of them.
-    EXPECT_EQ(with_option["vkCmdPipelineBarrier"] - baseline["vkCmdPipelineBarrier"], 2 * dispatches);
+    EXPECT_EQ(with_option["vkCmdPipelineBarrier"], baseline["vkCmdPipelineBarrier"] + 2 * dispatches);
 }
