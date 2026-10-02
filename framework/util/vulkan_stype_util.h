@@ -20,37 +20,30 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The native structure to its API type descriptor. Encode's storage is the API's own structure, which cannot carry
-// an api_element alias the way a decoded wrapper does, so the inverse of the descriptor's element_type is a trait.
-// The rows are generated, one per described structure, in generated/generated_vulkan_encode_descriptor_for.h;
-// this header carries the primary template and the row macro.
+// The VkStructureType of a Vulkan structure, read from its API type descriptor through the descriptor binding. A
+// structure the registry gives no structure type, or one with no descriptor, does not satisfy the constraint.
 
-#ifndef GFXRECON_ENCODE_VULKAN_ENCODE_DESCRIPTOR_FOR_H
-#define GFXRECON_ENCODE_VULKAN_ENCODE_DESCRIPTOR_FOR_H
+#ifndef GFXRECON_UTIL_VULKAN_STYPE_UTIL_H
+#define GFXRECON_UTIL_VULKAN_STYPE_UTIL_H
 
-#include "generated/generated_vulkan_schema_types.h"
+#include "generated/generated_vulkan_schema_binding_descriptor_for.h"
+#include "schema/binding/descriptor_for.h"
+#include "schema/schema.h"
 #include "util/defines.h"
 
+#include "vulkan/vulkan.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
-template <typename Struct>
-struct DescriptorFor;
-
-template <typename Struct>
-concept HasDescriptor = requires
+template <schema::binding::HasDescriptor Struct>
+requires schema::HasStructureType<typename schema::binding::DescriptorFor<Struct>::type>
+constexpr VkStructureType GetSType()
 {
-    typename DescriptorFor<Struct>::type;
-};
+    return schema::binding::DescriptorFor<Struct>::type::structure_type;
+}
 
-#define GFXRECON_VULKAN_DESCRIPTOR_FOR(Struct)          \
-    template <>                                         \
-    struct DescriptorFor<Struct>                        \
-    {                                                   \
-        using type = schema::vulkan::api_types::Struct; \
-    }
-
-GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_VULKAN_ENCODE_DESCRIPTOR_FOR_H
+#endif // GFXRECON_UTIL_VULKAN_STYPE_UTIL_H

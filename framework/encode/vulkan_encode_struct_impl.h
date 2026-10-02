@@ -28,11 +28,11 @@
 #define GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_IMPL_H
 
 #include "encode/vulkan_encode_action.h"
-#include "encode/vulkan_encode_descriptor_for.h"
 #include "encode/vulkan_encode_struct.h"
 #include "generated/generated_vulkan_encode_capture_wrappers.h"
-#include "generated/generated_vulkan_encode_descriptor_for.h"
 #include "generated/generated_vulkan_schema.h"
+#include "generated/generated_vulkan_schema_binding_descriptor_for.h"
+#include "schema/binding/descriptor_for.h"
 #include "schema/schema.h"
 #include "util/defines.h"
 
@@ -44,8 +44,9 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 template <typename Struct>
 void EncodeStruct(ParameterEncoder* encoder, const Struct& value)
 {
-    static_assert(HasDescriptor<Struct>, "A schema-driven structure must name its API type descriptor");
-    using ApiElement = typename DescriptorFor<Struct>::type;
+    static_assert(schema::binding::HasDescriptor<Struct>,
+                  "A schema-driven structure must name its API type descriptor");
+    using ApiElement = typename schema::binding::DescriptorFor<Struct>::type;
     static_assert(schema::HasSchema<ApiElement>, "A schema-driven structure's API element must have a schema");
 
     EncodeStructAction action(encoder);

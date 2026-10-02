@@ -24,8 +24,8 @@
 #ifndef GFXRECON_DECODE_PNEXT_NODE_H
 #define GFXRECON_DECODE_PNEXT_NODE_H
 
-#include "generated/generated_vulkan_stype_util.h"
 #include "util/defines.h"
+#include "util/vulkan_stype_util.h"
 
 #include <cassert>
 #include <memory>

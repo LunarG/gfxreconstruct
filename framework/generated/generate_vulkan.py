@@ -94,7 +94,6 @@ generate_targets = [
     'generated_vulkan_cpp_structs.cpp',
     'generated_vulkan_cpp_consumer_extension.h',
     'generated_vulkan_cpp_consumer_extension.cpp',
-    'generated_vulkan_stype_util.h',
     'generated_vulkan_schema_types.h',
     'generated_vulkan_schema_fields.h',
     'generated_vulkan_schema.h',
@@ -103,7 +102,7 @@ generate_targets = [
     'generated_vulkan_schema_decoded_struct_members.h',
     'generated_vulkan_schema_decoded_command_members.h',
     'generated_vulkan_encode_capture_wrappers.h',
-    'generated_vulkan_encode_descriptor_for.h',
+    'generated_vulkan_schema_binding_descriptor_for.h',
     'generated_vulkan_schema_checks.cpp',
     'generated_vulkan_schema_enumerants.h',
 ]
