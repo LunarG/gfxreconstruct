@@ -3275,6 +3275,36 @@ void VulkanReplayConsumerBase::OverrideDestroyInstance(
         DestroyInternalInstanceResources(instance_info);
     }
 
+    // Remove orphaned devices from object table
+    std::vector<format::HandleId> devices_for_removal;
+    object_info_table_->VisitVkDeviceInfo([&](const VulkanDeviceInfo* device_info) {
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        const auto* phys_dev_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+        if (phys_dev_info != nullptr)
+        {
+            const auto* parent_instance_info = object_info_table_->GetVkInstanceInfo(phys_dev_info->parent_id);
+            if (parent_instance_info == instance_info)
+            {
+                if (device_info->duplicate_source_id == format::kNullHandleId)
+                {
+                    ReleaseDeviceResources(device_info);
+                }
+
+                // VisitVkDeviceInfo is traversing the device info map. Defer RemoveHandle
+                devices_for_removal.push_back(device_info->capture_id);
+            }
+        }
+    });
+
+    for (const auto& device_id : devices_for_removal)
+    {
+        GFXRECON_LOG_WARNING("Instance %" PRIu64 " has been destroyed leaving device %" PRIu64 " orphaned.",
+                             instance_info->capture_id,
+                             device_id);
+        RemoveHandle(device_id, &CommonObjectInfoTable::RemoveVkDeviceInfo);
+    }
+
     VkInstance instance = instance_info->handle;
     func(instance, GetAllocationCallbacks(pAllocator));
 }
@@ -3871,16 +3901,11 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     return result;
 }
 
-void VulkanReplayConsumerBase::OverrideDestroyDevice(
-    PFN_vkDestroyDevice                                        func,
-    const VulkanDeviceInfo*                                    device_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReplayConsumerBase::ReleaseDeviceResources(const VulkanDeviceInfo* device_info)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
+    if (device_info != nullptr)
     {
-        device                  = device_info->handle;
+        const auto device       = device_info->handle;
         const auto device_table = GetInjectedDeviceCalls(device);
 
         // free replacer internal vulkan-resources for the device
@@ -3896,6 +3921,19 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         device_frame_warmups_.erase(device_info);
 
         device_info->allocator->Destroy();
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyDevice(
+    PFN_vkDestroyDevice                                        func,
+    const VulkanDeviceInfo*                                    device_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
+    {
+        ReleaseDeviceResources(device_info);
+
+        VkDevice device = device_info->handle;
         func(device, GetAllocationCallbacks(pAllocator));
     }
 }
