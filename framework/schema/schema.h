@@ -59,31 +59,32 @@ concept HasSchema = requires
 };
 
 // The return predicate treats an absent is_return member as false.
-template <typename Field>
-    struct IsReturnField : std::bool_constant < requires
-{
-    requires Field::is_return;
-} > {};
+inline constexpr auto kIsReturnField = []<typename Field>() {
+    return requires
+    {
+        requires Field::is_return;
+    };
+};
 
 template <HasSchema ApiElement>
-using ReturnMatches = util::TypeListKeep<typename Schema<ApiElement>::Fields, IsReturnField>;
+using ReturnFields = decltype(util::TypeListKeep(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 // A command schema is invalid when the partition finds zero or more than one return Field. The same validation
 // distinguishes a command schema from a structure schema.
 template <typename ApiElement>
 concept HasCommandSchema = HasSchema<ApiElement> && requires
 {
-    typename util::TypeListSole<ReturnMatches<ApiElement>>;
+    typename util::TypeListSole<ReturnFields<ApiElement>>;
 };
 
 template <HasCommandSchema ApiElement>
-using Return = util::TypeListSole<ReturnMatches<ApiElement>>;
+using Return = util::TypeListSole<ReturnFields<ApiElement>>;
 
 template <HasCommandSchema ApiElement>
 using ReturnType = ElementType<typename Return<ApiElement>::api_type>;
 
 template <HasCommandSchema ApiElement>
-using ParameterFields = util::TypeListDrop<typename Schema<ApiElement>::Fields, IsReturnField>;
+using ParameterFields = decltype(util::TypeListDrop(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 template <typename Action, typename Field, typename Storage>
 concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
@@ -96,7 +97,7 @@ concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
 template <HasSchema ApiElement, typename Action, typename Storage>
 void WalkFields(Action& action, Storage& storage)
 {
-    util::ForEachType<typename Schema<ApiElement>::Fields>([&]<typename Field>() {
+    util::TypeListForEach<typename Schema<ApiElement>::Fields>([&]<typename Field>() {
         if constexpr (FieldActionFor<Action, Field, Storage>)
         {
             action.Apply(Field{}, storage);

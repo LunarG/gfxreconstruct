@@ -30,6 +30,8 @@
 #include <array>
 #include <cstdint>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 namespace
 {
@@ -99,6 +101,36 @@ struct Named
 };
 constexpr std::array<Named, 3>   kNamed{ { { 9, "nine" }, { 5, "five" }, { 7, "seven" } } };
 constexpr util::KeyIndex<int, 3> kNamedIndex{ kNamed, [](const Named& element) { return element.key; } };
+
+// A list wider than clang's 256-level expression nesting limit, so every TypeList algorithm is shown flat.
+template <size_t I>
+struct Tag
+{
+    static constexpr size_t value = I;
+};
+
+template <size_t... Is>
+util::TypeList<Tag<Is>...> MakeTags(std::index_sequence<Is...>);
+
+constexpr size_t kWide = 300;
+using Wide             = decltype(MakeTags(std::make_index_sequence<kWide>{}));
+
+constexpr auto kIsEven = []<typename T>() { return (T::value % 2) == 0; };
+
+using Evens = decltype(util::TypeListKeep(Wide{}, kIsEven));
+using Odds  = decltype(util::TypeListDrop(Wide{}, kIsEven));
+
+static_assert(util::TypeListSizeV<Wide> == kWide);
+static_assert(util::TypeListCountIf(Wide{}, kIsEven) == kWide / 2);
+static_assert(util::TypeListCountIf(Wide{}, util::Not<decltype(kIsEven)>{}) == kWide / 2);
+static_assert(std::same_as<util::TypeListAt<0, Wide>, Tag<0>>);
+static_assert(std::same_as<util::TypeListAt<kWide - 1, Wide>, Tag<kWide - 1>>);
+static_assert(util::TypeListSizeV<Evens> == kWide / 2);
+static_assert(util::TypeListSizeV<Odds> == kWide / 2);
+static_assert(std::same_as<util::TypeListAt<1, Evens>, Tag<2>>);
+static_assert(std::same_as<util::TypeListAt<1, Odds>, Tag<3>>);
+static_assert(util::TypeListContainsV<Wide, Tag<kWide - 1>>);
+static_assert(!util::TypeListContainsV<Wide, Tag<kWide>>);
 } // namespace
 
 TEST_CASE("KeyIndex finds a key's position or reports a miss", "[util][keyindex]")
@@ -152,4 +184,17 @@ TEST_CASE("An index's positions compare, and a miss is End", "[util][typelist]")
     CHECK(red != ColorsIndex::End());
     CHECK(miss == ColorsIndex::End());
     CHECK(red != miss);
+}
+
+TEST_CASE("TypeListForEach walks a list wider than the fold limit, in order", "[util][typelist]")
+{
+    size_t count = 0;
+    size_t sum   = 0;
+    util::TypeListForEach<Wide>([&]<typename T>() {
+        CHECK(T::value == count);
+        ++count;
+        sum += T::value;
+    });
+    CHECK(count == kWide);
+    CHECK(sum == (kWide * (kWide - 1)) / 2);
 }

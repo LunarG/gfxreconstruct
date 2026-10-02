@@ -75,7 +75,7 @@ struct ExtensionChain
 {};
 
 // The return Field of a command that returns void. It has no runtime value, no storage member and no encoded
-// bytes; it exists so that every command schema carries exactly one return Field, which is what lets ReturnMatches
+// bytes; it exists so that every command schema carries exactly one return Field, which is what lets ReturnFields
 // find it and ParameterFields drop it. All 443 uses are a command's result, and there are no others.
 //
 // Not NoValue, which is the obvious name: X11's Xutil.h defines that as a macro, and vulkan.h reaches Xutil.h
