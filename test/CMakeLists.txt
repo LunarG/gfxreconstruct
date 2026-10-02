@@ -38,9 +38,11 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     add_subdirectory(test_apps)
 
     enable_testing()
-    set(INSTALL_GTEST OFF)
-    find_package(GoogleTest REQUIRED)
+    gfxrecon_require_googletest()
     include(GoogleTest)
+
+    add_library(gfxrecon_gtest_main_deps INTERFACE)
+    target_link_libraries(gfxrecon_gtest_main_deps INTERFACE GTest::gtest GTest::gtest_main)
 
     set(GFXRECON_TESTCASES
         test_cases/ahb.cpp
@@ -68,7 +70,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
     target_link_libraries(gfxrecon-testapp-runner
             gfxrecon_util
-            GTest::gtest GTest::gtest_main)
+            gfxrecon_gtest_main_deps)
     gtest_discover_tests(gfxrecon-testapp-runner)
 
     install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})

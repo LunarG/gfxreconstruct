@@ -385,9 +385,51 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     void ClearStagingResources() override;
 
   private:
+    class VmaBackend
+    {
+      public:
+        virtual ~VmaBackend() = default;
+
+        // Wrap image allocation entry points so unit tests can observe the selection inputs without touching VMA.
+        virtual void GetImageMemoryRequirements(VmaAllocator          allocator,
+                                                VkImage               image,
+                                                VkMemoryRequirements& memory_requirements,
+                                                bool&                 requires_dedicated_allocation,
+                                                bool&                 prefers_dedicated_allocation) = 0;
+
+        virtual VkResult CreateBuffer(VmaAllocator                   allocator,
+                                      const VkBufferCreateInfo*      create_info,
+                                      const VmaAllocationCreateInfo* allocation_create_info,
+                                      VkBuffer*                      buffer,
+                                      VmaAllocation*                 allocation,
+                                      VmaAllocationInfo*             allocation_info) = 0;
+
+        virtual VkResult AllocateMemoryForImage(VmaAllocator                   allocator,
+                                                VkImage                        image,
+                                                const VmaAllocationCreateInfo* allocation_create_info,
+                                                VmaAllocation*                 allocation,
+                                                VmaAllocationInfo*             allocation_info) = 0;
+
+        virtual VkResult AllocateMemory(VmaAllocator                   allocator,
+                                        const VkMemoryRequirements*    memory_requirements,
+                                        const VmaAllocationCreateInfo* allocation_create_info,
+                                        VmaAllocation*                 allocation,
+                                        VmaAllocationInfo*             allocation_info) = 0;
+
+        virtual void     FreeMemory(VmaAllocator allocator, VmaAllocation allocation)                       = 0;
+        virtual VkResult MapMemory(VmaAllocator allocator, VmaAllocation allocation, void** mapped_pointer) = 0;
+
+        virtual void
+        FlushAllocation(VmaAllocator allocator, VmaAllocation allocation, VkDeviceSize offset, VkDeviceSize size) = 0;
+
+        virtual void UnmapMemory(VmaAllocator allocator, VmaAllocation allocation) = 0;
+    };
+
     // VMA hook to clean our internal state (mutexes) when VMA clears blocks of memory
     friend VKAPI_ATTR void VKAPI_CALL
     OnVmaFreeDeviceMemory(VmaAllocator, uint32_t, VkDeviceMemory, VkDeviceSize, void*);
+
+    friend class VulkanRebindAllocatorTestAccess;
 
     struct MemoryAllocInfo;
 
@@ -748,6 +790,48 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // use VkDeviceMemory-handles as key to cover all allocations sharing the same block.
     std::mutex                                                      block_mutexes_guard_;
     std::unordered_map<VkDeviceMemory, std::unique_ptr<std::mutex>> block_mutexes_;
+
+    class DefaultVmaBackend final : public VmaBackend
+    {
+      public:
+        void GetImageMemoryRequirements(VmaAllocator          allocator,
+                                        VkImage               image,
+                                        VkMemoryRequirements& memory_requirements,
+                                        bool&                 requires_dedicated_allocation,
+                                        bool&                 prefers_dedicated_allocation) override;
+
+        VkResult CreateBuffer(VmaAllocator                   allocator,
+                              const VkBufferCreateInfo*      create_info,
+                              const VmaAllocationCreateInfo* allocation_create_info,
+                              VkBuffer*                      buffer,
+                              VmaAllocation*                 allocation,
+                              VmaAllocationInfo*             allocation_info) override;
+
+        VkResult AllocateMemoryForImage(VmaAllocator                   allocator,
+                                        VkImage                        image,
+                                        const VmaAllocationCreateInfo* allocation_create_info,
+                                        VmaAllocation*                 allocation,
+                                        VmaAllocationInfo*             allocation_info) override;
+
+        VkResult AllocateMemory(VmaAllocator                   allocator,
+                                const VkMemoryRequirements*    memory_requirements,
+                                const VmaAllocationCreateInfo* allocation_create_info,
+                                VmaAllocation*                 allocation,
+                                VmaAllocationInfo*             allocation_info) override;
+
+        void     FreeMemory(VmaAllocator allocator, VmaAllocation allocation) override;
+        VkResult MapMemory(VmaAllocator allocator, VmaAllocation allocation, void** mapped_pointer) override;
+
+        void FlushAllocation(VmaAllocator  allocator,
+                             VmaAllocation allocation,
+                             VkDeviceSize  offset,
+                             VkDeviceSize  size) override;
+
+        void UnmapMemory(VmaAllocator allocator, VmaAllocation allocation) override;
+    };
+
+    DefaultVmaBackend default_vma_backend_{};
+    VmaBackend*       vma_backend_{ &default_vma_backend_ };
 };
 
 GFXRECON_END_NAMESPACE(decode)
