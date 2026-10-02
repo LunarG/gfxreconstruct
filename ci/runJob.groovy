@@ -67,36 +67,42 @@ def gfxrBuildWindows(
                         }
 
                         buildModes.each { buildMode ->
-                            withEnv([
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/Windows-Build-Log-${buildMode}"
-                            ]) {
-                                bat(script: 'git submodule update --init --recursive --depth 1')
-                                bat(script: 'git describe --tags --always')
-                                bat(script: 'ci/buildGfxr.bat')
+                            // Contain each build mode's own failure here so Debug failing
+                            // doesn't stop Release from being attempted, and doesn't escape
+                            // to the outer try/catch (which would abort 'parallel builds'
+                            // before the Jenkinsfile ever builds the 'tests' map).
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                withEnv([
+                                    "BITS=64",
+                                    "BUILD_MODE=${buildMode}",
+                                    "RESULTS_DIR=../vulkantest-results/Windows-Build-Log-${buildMode}"
+                                ]) {
+                                    bat(script: 'git submodule update --init --recursive --depth 1')
+                                    bat(script: 'git describe --tags --always')
+                                    bat(script: 'ci/buildGfxr.bat')
+                                }
+                                def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                                stash name: "gfxr-windows-${buildMode}",
+                                    allowEmpty: false,
+                                    includes: [
+                                        "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
+                                        "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
+                                        "${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
+                                        "${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
+                                        "${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
+                                        "${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
+                                        "${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
+                                        "${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
+                                        "${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
+                                        "${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
+                                        "${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
+                                        "${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
+                                        "${buildDir}/tools/optimize/${buildMode}/D3D12/**",
+                                        "${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
+                                        "${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
+                                        "${buildDir}/tools/replay/${buildMode}/D3D12/**",
+                                    ].join(',')
                             }
-                            def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
-                            stash name: "gfxr-windows-${buildMode}",
-                                allowEmpty: false,
-                                includes: [
-                                "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
-                                "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
-                                "${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
-                                "${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
-                                "${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
-                                "${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
-                                "${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
-                                "${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
-                                "${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
-                                "${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
-                                "${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
-                                "${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
-                                "${buildDir}/tools/optimize/${buildMode}/D3D12/**",
-                                "${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
-                                "${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
-                                "${buildDir}/tools/replay/${buildMode}/D3D12/**",
-                            ].join(',')
 
                             // Probably need to stash/archive vulkantest-results for the build
                         }
@@ -157,9 +163,13 @@ def gfxrTestWindows(
                         }
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
-                        unstash "gfxr-windows-${buildMode}"
-
+                        // unstash moved inside catchError: a failed Windows build mode never
+                        // stashes its artifacts (see gfxrBuildWindows), so this can legitimately
+                        // throw here. Let it share the same containment as the rest of the run
+                        // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            unstash "gfxr-windows-${buildMode}"
+
                             withEnv([
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
@@ -174,12 +184,18 @@ def gfxrTestWindows(
                             }
                         }
                     }
-                    archiveArtifacts(
-                        artifacts: 'python-venv.txt,vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: false,
-                        onlyIfSuccessful: false,
-                    )
+                    // Nested the same way as the unstash above: when the upstream build
+                    // failed, this node never produced python-venv.txt or vulkantest-results,
+                    // so archiveArtifacts has nothing to match and would otherwise throw.
+                    // The stage is already marked FAILURE from the catchError above either way.
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        archiveArtifacts(
+                            artifacts: 'python-venv.txt,vulkantest-results/**',
+                            excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                            allowEmptyArchive: false,
+                            onlyIfSuccessful: false,
+                        )
+                    }
                     junit(
                         testResults: 'vulkantest-results/**/*.xml',
                         allowEmptyResults: true,
