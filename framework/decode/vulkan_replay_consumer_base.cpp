@@ -331,12 +331,9 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // Idle all devices before destroying other resources.
     VulkanReplayConsumerBase::WaitDevicesIdle();
 
-    // free replacer internal vulkan-resources
-    device_address_replacers_.clear();
-    device_command_buffer_utils_.clear();
-
-    // free frame warm up resources
-    device_frame_warmups_.clear();
+    // free the resources tracked per device
+    object_info_table_->VisitVkDeviceInfo(
+        [this](const VulkanDeviceInfo* info) { DestroyDeviceResources(info); });
 
     // process queued async tasks
     background_queue_.join_all();
@@ -3880,23 +3877,9 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
     if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
     {
-        device                  = device_info->handle;
-        const auto device_table = GetInjectedDeviceCalls(device);
+        device = device_info->handle;
 
-        // free replacer internal vulkan-resources for the device
-        device_address_replacers_.erase(device_info);
-
-        device_command_buffer_utils_.erase(device_info);
-
-        // free potential swapchain-resources for the device
-        GFXRECON_ASSERT(swapchain_)
-        swapchain_->CleanDeviceResources(device_info->handle, &device_table);
-
-        // free frame warm up resources before the device is destroyed
-        device_frame_warmups_.erase(device_info);
-
-        // free the timeline semaphores injected to serialize submits, while the device that owns them still exists
-        device_submit_job_executors_.erase(device_info);
+        DestroyDeviceResources(device_info);
 
         device_info->allocator->Destroy();
         func(device, GetAllocationCallbacks(pAllocator));
@@ -14619,6 +14602,27 @@ void VulkanReplayConsumerBase::DestroyInternalInstanceResources(const VulkanInst
     {
         instance_table->DestroyDebugUtilsMessengerEXT(instance, info->debug_messenger, nullptr);
     }
+}
+
+void VulkanReplayConsumerBase::DestroyDeviceResources(const VulkanDeviceInfo* device_info)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    // free replacer internal vulkan-resources
+    device_address_replacers_.erase(device_info);
+
+    device_command_buffer_utils_.erase(device_info);
+
+    // free potential swapchain-resources
+    GFXRECON_ASSERT(swapchain_)
+    const auto device_table = GetInjectedDeviceCalls(device_info->handle);
+    swapchain_->CleanDeviceResources(device_info->handle, &device_table);
+
+    // free frame warm up resources
+    device_frame_warmups_.erase(device_info);
+
+    // free the timeline semaphores injected to serialize submits
+    device_submit_job_executors_.erase(device_info);
 }
 
 void VulkanReplayConsumerBase::OverrideGetDeviceMemoryCommitment(PFN_vkGetDeviceMemoryCommitment func,
