@@ -24,23 +24,15 @@
 
 #include "graphics/vulkan_feature_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
+#include "graphics/vulkan_util.h"
 
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-const std::vector<std::string> kLoaderLibNames = {
-#if defined(_WIN32)
-    "vulkan-1.dll"
-#elif defined(__APPLE__)
-    "libvulkan.dylib", "libvulkan.1.dylib", "libMoltenVK.dylib"
-#else
-    "libvulkan.so", "libvulkan.so.1"
-#endif
-};
 
 VulkanResourceTrackingConsumer::VulkanResourceTrackingConsumer(
     const VulkanReplayOptions& options, VulkanTrackedObjectInfoTable* tracked_object_info_table) :
@@ -61,15 +53,13 @@ VulkanResourceTrackingConsumer::~VulkanResourceTrackingConsumer()
 
 void VulkanResourceTrackingConsumer::InitializeLoader()
 {
-    for (auto name : kLoaderLibNames)
+    // Use the same loader lookup as the replay consumer so that GFXRECON_VULKAN_LIBRARY_PATH is honored.
+    loader_handle_ = graphics::InitializeLoader(getenv("GFXRECON_VULKAN_LIBRARY_PATH"));
+
+    if (loader_handle_ != nullptr)
     {
-        loader_handle_ = util::platform::OpenLibrary(name.c_str());
-        if (loader_handle_ != nullptr)
-        {
-            get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
-                util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
-            break;
-        }
+        get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
     }
 
     if (get_instance_proc_addr_ != nullptr)
@@ -82,7 +72,7 @@ void VulkanResourceTrackingConsumer::InitializeLoader()
     {
         GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
                            "loader (eg. %s) has been added to the appropriate system path",
-                           kLoaderLibNames[0].c_str());
+                           graphics::kLoaderLibNames[0].c_str());
     }
 }
 
