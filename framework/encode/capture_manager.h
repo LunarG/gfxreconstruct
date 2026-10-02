@@ -248,6 +248,8 @@ class CommonCaptureManager
 
     bool ShouldTriggerScreenshot();
 
+    bool IsScreenshotHotkeyPressed();
+
     util::ScreenshotFormat GetScreenshotFormat()
     {
         return screenshot_format_;
@@ -639,6 +641,8 @@ class CommonCaptureManager
     bool                                    debug_device_lost_;
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
+    std::string                             screenshot_key_;
+    bool                                    previous_screenshot_hotkey_state_;
     bool                                    disable_dxr_;
     bool                                    disable_meta_command_;
     uint32_t                                accel_struct_padding_;
