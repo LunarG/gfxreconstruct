@@ -36,6 +36,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         add_subdirectory(android_mock)
     endif()
     add_subdirectory(test_apps)
+    add_subdirectory(replay_event_recorder)
 
     enable_testing()
     set(INSTALL_GTEST OFF)
@@ -54,6 +55,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/acquired-image.cpp
         test_cases/set-environment.cpp
         test_cases/deep-pnext-chain.cpp
+        test_cases/replay-wait-options.cpp
         verify-gfxr.cpp)
 
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
@@ -64,10 +66,13 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
 
     add_executable(gfxrecon-testapp-runner ${GFXRECON_TESTCASES})
 
-    add_dependencies(gfxrecon-testapp-runner gfxrecon-test-launcher VkICD_mock_icd gfxrecon-convert gfxrecon-replay VkLayer_gfxreconstruct)
+    add_dependencies(gfxrecon-testapp-runner gfxrecon-test-launcher VkICD_mock_icd gfxrecon-convert gfxrecon-replay VkLayer_gfxreconstruct gfxrecon_replay_event_recorder)
     target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_compile_definitions(gfxrecon-testapp-runner
+            PRIVATE REPLAY_EVENT_RECORDER_NAME="$<TARGET_FILE_NAME:gfxrecon_replay_event_recorder>")
     target_link_libraries(gfxrecon-testapp-runner
             gfxrecon_util
+            gfxrecon_replay_event_plugin_abi
             GTest::gtest GTest::gtest_main)
     gtest_discover_tests(gfxrecon-testapp-runner)
 
