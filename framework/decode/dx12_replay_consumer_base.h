@@ -209,11 +209,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
                                                    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
-    void PostCall_ID3D12Device_CreateSampler(const ApiCallInfo&                                call_info,
-                                             DxObjectInfo*                                     object_info,
-                                             StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC>* pDesc,
-                                             Decoded_D3D12_CPU_DESCRIPTOR_HANDLE               DestDescriptor);
-
     void
     PostCall_ID3D12Device_CreateShaderResourceView(const ApiCallInfo& call_info,
                                                    DxObjectInfo*      object_info,
@@ -1411,26 +1406,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                   D3D12_META_COMMAND_PARAMETER_STAGE stage,
                                   uint8_t*                           parameters_data,
                                   uint8_t                            parameters_data_sizeinbytes);
-
-    void TrackConstantBufferViewCreation(StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
-                                         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
-
-    void TrackShaderResourceViewCreation(format::HandleId                                               pResource,
-                                         StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
-                                         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
-
-    void TrackUnorderedAccessViewCreation(format::HandleId pResource,
-                                          format::HandleId pCounterResource,
-                                          StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
-                                          Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
-
-    void TrackRenderTargetViewCreation(format::HandleId                                             pResource,
-                                       StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
-                                       Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
-
-    void TrackDepthStencilViewCreation(format::HandleId                                             pResource,
-                                       StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
-                                       Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
