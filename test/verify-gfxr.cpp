@@ -77,7 +77,7 @@ static const char* CONVERT_FILENAME = "gfxrecon-convert.exe";
 static const char* REPLAY_FILENAME  = "gfxrecon-replay.exe";
 #endif
 
-// Gets the name of the test app combined with the test suite running it. This allows the same app to be used in 
+// Gets the name of the test app combined with the test suite running it. This allows the same app to be used in
 // different test cases, as otherwise there might be conflicts with the same trace file.
 static std::string capture_file_name(const char* test_name)
 {
