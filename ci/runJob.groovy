@@ -43,32 +43,30 @@ def gfxrBuildWindows(
 ) {
     return {
         node(label) {
-            stage('Building GFXR for Windows') {
+            try {
+                stage('Building GFXR for Windows') {
 
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                cleanWorkSpace()
+                    cleanWorkSpace()
 
-                dir('gfxreconstruct') {
-                    // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                    // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                    def scmVars = checkout([
-                        $class: 'GitSCM',
-                        branches: branches,
-                        doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                        extensions: scm.extensions,
-                        submoduleCfg: scm.submoduleCfg,
-                        userRemoteConfigs: scm.userRemoteConfigs
-                    ])
+                    dir('gfxreconstruct') {
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
 
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
                             bat(script: 'ci/cloneTests.bat')
                         }
-                    }
 
-                    buildModes.each { buildMode ->
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        buildModes.each { buildMode ->
                             withEnv([
                                 "BITS=64",
                                 "BUILD_MODE=${buildMode}",
@@ -78,32 +76,37 @@ def gfxrBuildWindows(
                                 bat(script: 'git describe --tags --always')
                                 bat(script: 'ci/buildGfxr.bat')
                             }
-                        }
-                        def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
-                        stash name: "gfxr-windows-${buildMode}",
-                            allowEmpty: false,
-                            includes: [
-                            "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
-                            "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
-                            "${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
-                            "${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
-                            "${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
-                            "${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
-                            "${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
-                            "${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
-                            "${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
-                            "${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
-                            "${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
-                            "${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
-                            "${buildDir}/tools/optimize/${buildMode}/D3D12/**",
-                            "${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
-                            "${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
-                            "${buildDir}/tools/replay/${buildMode}/D3D12/**",
-                        ].join(',')
+                            def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                            stash name: "gfxr-windows-${buildMode}",
+                                allowEmpty: false,
+                                includes: [
+                                "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
+                                "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
+                                "${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
+                                "${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
+                                "${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
+                                "${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
+                                "${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
+                                "${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
+                                "${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
+                                "${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
+                                "${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
+                                "${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
+                                "${buildDir}/tools/optimize/${buildMode}/D3D12/**",
+                                "${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
+                                "${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
+                                "${buildDir}/tools/replay/${buildMode}/D3D12/**",
+                            ].join(',')
 
-                        // Probably need to stash/archive vulkantest-results for the build
+                            // Probably need to stash/archive vulkantest-results for the build
+                        }
                     }
                 }
+            } catch(Exception e) {
+                echo "An exception occurred: ${e.message}"
+                throw e
+            } finally {
+                cleanWorkSpace()
             }
         }
     }
