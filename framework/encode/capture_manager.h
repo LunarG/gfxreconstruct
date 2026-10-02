@@ -136,6 +136,64 @@ class CommonCaptureManager
     // This method returns the composite with the apropos Lock initialized
     ApiCallLock AcquireCallLock() const;
 
+    // Suppress capture for a call into an external runtime.
+    //
+    // An OpenXR entry point in this layer calls the OpenXR runtime. The runtime can call the Vulkan
+    // entry points of this layer on the same thread before it returns. Those Vulkan calls are
+    // internal to the runtime. The capture must not record them, because replay reproduces them
+    // from the OpenXR call.
+    //
+    // A scope object increments a thread-local depth counter for the duration of the runtime call.
+    // The Begin*CallCapture functions and the frame and queue-submit hooks return early while the
+    // depth of the current thread is above zero. The counter is thread-local, so a runtime call on
+    // one thread never stops the capture of calls on another thread.
+    //
+    // The counter only affects tracking and writing. Handle wrapping is not affected.
+    class ScopedReentrantCaptureSuppression
+    {
+      public:
+        ScopedReentrantCaptureSuppression() { ++reentrant_suppression_depth_; }
+        ~ScopedReentrantCaptureSuppression()
+        {
+            GFXRECON_ASSERT(reentrant_suppression_depth_ > 0);
+            --reentrant_suppression_depth_;
+        }
+
+        ScopedReentrantCaptureSuppression(const ScopedReentrantCaptureSuppression&)            = delete;
+        ScopedReentrantCaptureSuppression(ScopedReentrantCaptureSuppression&&)                 = delete;
+        ScopedReentrantCaptureSuppression& operator=(const ScopedReentrantCaptureSuppression&) = delete;
+        ScopedReentrantCaptureSuppression& operator=(ScopedReentrantCaptureSuppression&&)      = delete;
+    };
+
+    // Returns true when the current thread is inside a ScopedReentrantCaptureSuppression.
+    static bool IsReentrantCaptureSuppressed() { return reentrant_suppression_depth_ > 0; }
+
+    // Hold the exclusive API call lock for a change of the trim state.
+    //
+    // The trim state machine runs from EndFrame and from the queue-submit hooks. The caller of a hook
+    // holds the shared API call lock, so two threads can reach a boundary at the same time. This
+    // class releases the shared lock of the caller, if the caller owns one, and holds the exclusive
+    // lock instead. The destructor releases the exclusive lock and takes the shared lock again.
+    //
+    // The class takes no lock when the caller already holds the exclusive lock. That is the case
+    // when command serialization is forced, and when the API call lock is not in use.
+    class ScopedTrimStateLock
+    {
+      public:
+        ScopedTrimStateLock(const CommonCaptureManager& manager, ApiSharedLockT& current_lock);
+        ~ScopedTrimStateLock();
+
+        ScopedTrimStateLock(const ScopedTrimStateLock&)            = delete;
+        ScopedTrimStateLock(ScopedTrimStateLock&&)                 = delete;
+        ScopedTrimStateLock& operator=(const ScopedTrimStateLock&) = delete;
+        ScopedTrimStateLock& operator=(ScopedTrimStateLock&&)      = delete;
+
+      private:
+        ApiSharedLockT&   current_lock_;
+        bool              had_shared_lock_;
+        ApiExclusiveLockT exclusive_lock_;
+    };
+
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
         auto thread_data = GetThreadData();
@@ -146,7 +204,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id)
     {
-        if (capture_mode_ != kModeDisabled)
+        if ((capture_mode_ != kModeDisabled) && !IsReentrantCaptureSuppressed())
         {
             return InitApiCallCapture(call_id);
         }
@@ -156,7 +214,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id)
     {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        if (((capture_mode_ & kModeWrite) == kModeWrite) && !IsReentrantCaptureSuppressed())
         {
 #if ENABLE_OPENXR_SUPPORT
             if (IsCaptureSkippingCurrentThread())
@@ -210,7 +268,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginTrackedMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
-        if (capture_mode_ != kModeDisabled)
+        if ((capture_mode_ != kModeDisabled) && !IsReentrantCaptureSuppressed())
         {
             return InitMethodCallCapture(call_id, object_id);
         }
@@ -220,7 +278,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        if (((capture_mode_ & kModeWrite) == kModeWrite) && !IsReentrantCaptureSuppressed())
         {
             return InitMethodCallCapture(call_id, object_id);
         }
@@ -253,13 +311,11 @@ class CommonCaptureManager
         return screenshot_format_;
     }
 
-    void CheckContinueCaptureForWriteMode(format::ApiFamilyId              api_family,
-                                          uint32_t                         current_boundary_count,
-                                          std::shared_lock<ApiCallMutexT>& current_lock);
+    // The caller must hold the exclusive API call lock. See ScopedTrimStateLock.
+    void CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
 
-    void CheckStartCaptureForTrackMode(format::ApiFamilyId              api_family,
-                                       uint32_t                         current_boundary_count,
-                                       std::shared_lock<ApiCallMutexT>& current_lock);
+    // The caller must hold the exclusive API call lock. See ScopedTrimStateLock.
+    void CheckStartCaptureForTrackMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
 
     void ActivateTrimmingDrawCalls(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
@@ -293,6 +349,7 @@ class CommonCaptureManager
     {
         return iunknown_wrapping_;
     }
+    // Returns the nested-call counter of the current thread. See avoid_api_call_lock_.
     int64_t& AvoidApiCallLock()
     {
         return avoid_api_call_lock_;
@@ -418,10 +475,6 @@ class CommonCaptureManager
     {
         return capture_mode_;
     }
-    void SetCaptureMode(CaptureMode new_mode)
-    {
-        capture_mode_ = new_mode;
-    }
     bool GetDebugLayerSetting() const
     {
         return debug_layer_;
@@ -446,7 +499,7 @@ class CommonCaptureManager
     {
         return force_fifo_present_mode_;
     }
-    auto GetTrimBoundary() const
+    CaptureSettings::TrimBoundary GetTrimBoundary() const
     {
         return trim_boundary_;
     }
@@ -454,7 +507,7 @@ class CommonCaptureManager
     {
         return trim_draw_calls_;
     }
-    auto GetQueueSubmitCount() const
+    uint32_t GetQueueSubmitCount() const
     {
         return queue_submit_count_;
     }
@@ -506,8 +559,9 @@ class CommonCaptureManager
     std::string                             CreateAssetFilename(const std::string& base_filename) const;
     bool CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void WriteCaptureOptions(std::string& operation_annotation);
-    void ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
-    void DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
+    // The caller must hold the exclusive API call lock. See ScopedTrimStateLock.
+    void ActivateTrimming();
+    void DeactivateTrimming();
 
     void WriteFileHeader(util::FileOutputStream* file_stream = nullptr);
 
@@ -586,6 +640,7 @@ class CommonCaptureManager
     static std::mutex                                     instance_lock_;
     static CommonCaptureManager*                          singleton_;
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
+    static thread_local uint32_t                          reentrant_suppression_depth_;
     static ApiCallMutexT                                  api_call_mutex_;
     static bool                                           initialize_log_;
     static std::atomic<format::HandleId>                  default_unique_id_counter_;
@@ -622,17 +677,25 @@ class CommonCaptureManager
     bool                                    page_guard_separate_read_;
     bool                                    page_guard_copy_on_map_;
     bool                                    page_guard_external_memory_;
-    bool                                    trim_enabled_;
-    CaptureSettings::TrimBoundary           trim_boundary_;
+    // The trim state machine writes these members under the exclusive API call lock. The frame and
+    // queue-submit hooks read them before they take that lock. The members are atomic so that
+    // those reads are not a data race.
+    std::atomic<bool>                          trim_enabled_;
+    std::atomic<CaptureSettings::TrimBoundary> trim_boundary_;
     std::vector<util::UintRange>            trim_ranges_;
     CaptureSettings::TrimDrawCalls          trim_draw_calls_;
     std::string                             trim_key_;
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
-    uint32_t                                current_frame_;
-    uint32_t                                queue_submit_count_;
-    CaptureMode                             capture_mode_;
+    // Any thread that ends a frame or submits work increments these counters under the shared API
+    // call lock. The counters are atomic so that no increment is lost.
+    std::atomic<uint32_t> current_frame_;
+    std::atomic<uint32_t> queue_submit_count_;
+    // The trim logic changes the capture mode from the thread that reaches a frame or queue-submit
+    // boundary. Every API entry point reads the mode. The member is atomic so that these reads
+    // and writes are not a data race.
+    std::atomic<CaptureMode>                capture_mode_;
     bool                                    previous_hotkey_state_;
     CaptureSettings::RuntimeTriggerState    previous_runtime_trigger_state_;
     bool                                    debug_layer_;
@@ -654,9 +717,12 @@ class CommonCaptureManager
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
     bool                                    skip_threads_with_invalid_data_;
-    static int64_t avoid_api_call_lock_; // A original function could call sub wrapped functions. If the
-                                         // force_command_serialization is enabled, the sub wrapped functions could
-                                         // cause deadlock. The sub wrapped functions shouldn't be locked.
+    // A wrapped function that holds the API call lock can call other wrapped functions on the same
+    // thread. Those nested calls must not take the lock again. When force_command_serialization is
+    // enabled, the outer call holds the exclusive lock, and a nested lock would deadlock. The
+    // counter is above zero while a thread is inside such a nested call. It is thread-local, so a
+    // nested call on one thread does not remove the lock from the calls of other threads.
+    static thread_local int64_t avoid_api_call_lock_;
 
     struct
     {
