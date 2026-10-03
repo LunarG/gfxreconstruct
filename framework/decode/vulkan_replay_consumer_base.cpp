@@ -6284,80 +6284,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         }
 #endif
 
-        // Since the file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process
-        // we create a new FD at replay by allocating an exportable allocation and importing that FD
-        // instead.
-        VkDeviceMemory external_fd_backing_memory = VK_NULL_HANDLE;
-        int            replacement_import_fd      = -1;
-        auto* import_fd_info = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
-
+        // The file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process. The allocator replaces
+        // it with a valid one when it can preserve the external memory.
         if (!CanPreserveExternalMemory(device_info))
         {
             graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
-            import_fd_info = nullptr;
-        }
-
-        if (import_fd_info != nullptr)
-        {
-            auto device_table = GetInjectedDeviceCalls(device_info->handle);
-            auto injected     = device_table.Open();
-
-            VkExportMemoryAllocateInfo backing_export_info = { VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO };
-            backing_export_info.handleTypes                = import_fd_info->handleType;
-
-            VkMemoryAllocateInfo backing_allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-            backing_allocate_info.pNext                = &backing_export_info;
-            backing_allocate_info.allocationSize       = modified_allocate_info->allocationSize;
-            backing_allocate_info.memoryTypeIndex      = modified_allocate_info->memoryTypeIndex;
-
-            // Since external memory is commonly dedicated
-            VkMemoryDedicatedAllocateInfo backing_dedicated_info = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO };
-            if (const auto* dedicated_info =
-                    graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info))
-            {
-                backing_dedicated_info.image  = dedicated_info->image;
-                backing_dedicated_info.buffer = dedicated_info->buffer;
-                backing_dedicated_info.pNext  = &backing_export_info;
-                backing_allocate_info.pNext   = &backing_dedicated_info;
-            }
-
-            VkResult backing_result = injected->AllocateMemory(
-                device_info->handle, &backing_allocate_info, nullptr, &external_fd_backing_memory);
-
-            if (backing_result == VK_SUCCESS)
-            {
-                VkMemoryGetFdInfoKHR get_fd_info = { VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR };
-                get_fd_info.memory               = external_fd_backing_memory;
-                get_fd_info.handleType           = import_fd_info->handleType;
-
-                backing_result = injected->GetMemoryFdKHR(device_info->handle, &get_fd_info, &replacement_import_fd);
-                if (backing_result != VK_SUCCESS)
-                {
-                    replacement_import_fd = -1;
-                }
-            }
-
-            if (backing_result == VK_SUCCESS)
-            {
-                import_fd_info->fd = replacement_import_fd;
-            }
-            else
-            {
-                // Strip the external memory struct if we could not create a new FD
-                GFXRECON_LOG_WARNING(
-                    "Could not synthesize a replacement import FD for vkAllocateMemory (%s); stripping "
-                    "VkImportMemoryFdInfoKHR and allocating non-external memory instead.",
-                    util::ToString<VkResult>(backing_result).c_str());
-
-                graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
-                import_fd_info = nullptr;
-
-                if (external_fd_backing_memory != VK_NULL_HANDLE)
-                {
-                    injected->FreeMemory(device_info->handle, external_fd_backing_memory, nullptr);
-                    external_fd_backing_memory = VK_NULL_HANDLE;
-                }
-            }
         }
 
         VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
@@ -6468,20 +6399,6 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         {
             external_memory_.emplace(*replay_memory,
                                      std::make_pair(external_memory_guard.release(), host_pointer_size));
-        }
-
-        // Imported memory holds its own reference to the payload and the FD ownership has transferred to the driver.
-        // On failure the import did not consume the FD, so close it to avoid a leak.
-        if (external_fd_backing_memory != VK_NULL_HANDLE)
-        {
-            auto device_table = GetInjectedDeviceCalls(device_info->handle);
-            auto injected     = device_table.Open();
-            injected->FreeMemory(device_info->handle, external_fd_backing_memory, nullptr);
-
-            if (result != VK_SUCCESS && replacement_import_fd >= 0)
-            {
-                util::platform::FileClose(replacement_import_fd);
-            }
         }
     }
     else
@@ -13047,8 +12964,7 @@ bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* dev
 
 bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const
 {
-    // -m rebind manages memory via VMA and does not preserve external memory
-    if (device_info == nullptr || UseAddressReplacement(device_info))
+    if (device_info == nullptr)
     {
         return false;
     }

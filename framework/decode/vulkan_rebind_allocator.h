@@ -515,6 +515,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkDeviceSize                                     mapped_offset{ 0 };
         AHardwareBuffer*                                 ahb{ nullptr };
         VkDeviceMemory                                   ahb_memory{ VK_NULL_HANDLE };
+        VkExternalMemoryHandleTypeFlagBits               import_fd_handle_type{}; // Non-zero if the memory is imported.
+        VmaMemoryInfo*                                   imported_mem_info{ nullptr };
+        VkBuffer                                         import_dedicated_buffer{ VK_NULL_HANDLE };
+        VkImage                                          import_dedicated_image{ VK_NULL_HANDLE };
         std::unique_ptr<uint8_t[]>                       original_content;
         std::unordered_map<uint64_t, ResourceAllocInfo*> original_objects; // Key is object handle.
 
@@ -694,7 +698,19 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                VkBuffer                    dedicated_buffer,
                                VkImage                     dedicated_image,
                                VmaMemoryUsage              usage,
+                               const ResourceAllocInfo&    resource_alloc_info,
                                VmaMemoryInfo**             vma_mem_info);
+
+    // Creates the payload of imported external memory on the replay device and imports it. The memory type is chosen
+    // from replay_req and create_info like other rebind allocations, and the import uses the same type and size as the
+    // exported payload.
+    VkResult AllocateImportedMemory(MemoryAllocInfo&               memory_alloc_info,
+                                    VkDeviceSize                   memory_offset,
+                                    const VkMemoryRequirements&    capture_req,
+                                    const VkMemoryRequirements&    replay_req,
+                                    const VmaAllocationCreateInfo& create_info,
+                                    const ResourceAllocInfo&       resource_alloc_info,
+                                    VmaMemoryInfo**                vma_mem_info);
 
     static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                   VkDeviceSize                   original_offset,
