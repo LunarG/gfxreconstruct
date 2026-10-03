@@ -87,6 +87,13 @@ constexpr size_t GetAnnotationBlockBaseSize()
     return (sizeof(AnnotationHeader) - sizeof(BlockHeader));
 }
 
+/// @brief Build the block header for an annotation block. The label and the data are expected to be written
+///        immediately after the header, in that order.
+/// @param type The annotation payload type, e.g. kText or kJson.
+/// @param label_length The length, in bytes, of the annotation label.
+/// @param data_length The length, in bytes, of the annotation payload.
+AnnotationHeader MakeAnnotationHeader(AnnotationType type, size_t label_length, size_t data_length);
+
 // Utilities for format validation.
 bool ValidateFileHeader(const FileHeader& header);
 
