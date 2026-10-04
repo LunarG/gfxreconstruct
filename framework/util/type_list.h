@@ -25,7 +25,11 @@
 
 #include "util/defines.h"
 
+#include "util/logging.h"
+
+#include <array>
 #include <concepts>
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 
@@ -125,6 +129,60 @@ using TypeListDrop = decltype(detail::TypeListDropImpl<Predicate>(List{}));
 
 template <typename List>
 using TypeListSole = typename detail::TypeListSoleImpl<List>::type;
+
+GFXRECON_BEGIN_NAMESPACE(detail)
+
+template <typename First, typename...>
+struct FirstOf
+{
+    using type = First;
+};
+
+// One invoker per element, in list order; each calls visitor.operator()<Element>(args...).
+template <typename Visitor, typename ArgsList, typename Elements>
+struct InvokerTable;
+
+template <typename Visitor, typename... Args, typename... Elements>
+struct InvokerTable<Visitor, TypeList<Args...>, TypeList<Elements...>>
+{
+    using Result = decltype(std::declval<Visitor&>().template operator()<typename FirstOf<Elements...>::type>(
+        std::declval<Args>()...));
+
+    static_assert(
+        (std::same_as<Result,
+                      decltype(std::declval<Visitor&>().template operator()<Elements>(std::declval<Args>()...))> &&
+         ...),
+        "VisitAt: every operator()<Element> must return one type");
+
+    using Invoker = Result (*)(Visitor&, Args&&...);
+
+    template <typename Element>
+    static Result Invoke(Visitor& visitor, Args&&... args)
+    {
+        return visitor.template operator()<Element>(std::forward<Args>(args)...);
+    }
+
+    static constexpr std::array<Invoker, sizeof...(Elements)> invokers{ &Invoke<Elements>... };
+};
+
+template <typename List>
+struct TypeListSize;
+
+template <typename... Types>
+struct TypeListSize<TypeList<Types...>> : std::integral_constant<size_t, sizeof...(Types)>
+{};
+
+GFXRECON_END_NAMESPACE(detail)
+
+// Calls visitor.operator()<Element>(args...) for the element of List at position, which is the caller's to supply
+// and to have checked, for instance against a KeyIndex miss.
+template <TypeListType List, typename Visitor, typename... Args>
+decltype(auto) VisitAt(size_t position, Visitor&& visitor, Args&&... args)
+{
+    using Table = detail::InvokerTable<std::remove_reference_t<Visitor>, TypeList<Args...>, List>;
+    GFXRECON_ASSERT(position < detail::TypeListSize<List>::value);
+    return Table::invokers[position](visitor, std::forward<Args>(args)...);
+}
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -132,6 +132,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/thread_safe_queue.h
                     ${CMAKE_CURRENT_LIST_DIR}/type_list.h
+                    ${CMAKE_CURRENT_LIST_DIR}/key_index.h
+                    ${CMAKE_CURRENT_LIST_DIR}/enumerants.h
                     ${CMAKE_CURRENT_LIST_DIR}/type_traits_extras.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
@@ -139,6 +141,7 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_enumerants.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
@@ -276,6 +279,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_image_writer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_key_index.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>

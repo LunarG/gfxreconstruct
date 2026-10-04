@@ -260,6 +260,19 @@ class VulkanEncodeDescriptorForGeneratorOptions(VulkanSchemaBaseGeneratorOptions
         ))
 
 
+class VulkanSchemaEnumerantsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the enumerants: one Enumerants<Enum> specialization per enum, value and name in registry order.
+    The index and the name lookup over them are hand-written in util/enumerants.h.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'format/platform_types.h',
+            'util/defines.h',
+            'util/enumerants.h',
+        ))
+
+
 class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Options for the cross-generator agreement checks. Compiled only by the framework test target, so it costs a
     product build nothing and can include whatever it needs to check. Compiling it is the test; there is nothing to
@@ -273,9 +286,11 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'generated/generated_vulkan_decoder_args.h',
             'generated/generated_vulkan_schema.h',
             'generated/generated_vulkan_decode_api_element_traits.h',
+            'generated/generated_vulkan_schema_enumerants.h',
             'generated/generated_vulkan_struct_decoders.h',
             'schema/schema.h',
             'util/defines.h',
+            'util/enumerants.h',
         ))
         begin_end.system_headers.append('type_traits')
 
@@ -1325,6 +1340,20 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
 
         self.newline()
+        self.newline()
+        write('// The generator predicate has_enumerants and the concept HasEnumerants are one predicate in two languages:', file=self.outFile)
+        write('// every enum given Enumerants<Enum> entries satisfies the concept, and a 64-bit flag-bits typedef, which', file=self.outFile)
+        write('// cannot be given them, does not. A rename on either side fails here by name.', file=self.outFile)
+
+        for enum in sorted(self.enum_names):
+            if enum in self.enumAliases:
+                continue
+            if self.has_enumerants(enum):
+                write('static_assert(util::HasEnumerants<{}>);'.format(enum), file=self.outFile)
+            elif self.is_flags_enum_64bit(enum):
+                write('static_assert(!util::HasEnumerants<{}>);'.format(enum), file=self.outFile)
+
+        self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
 
     def write_member_partition_prologue(self, description):
@@ -1449,6 +1478,41 @@ class VulkanSchemaTypesGenerator(VulkanSchemaBaseGenerator):
 
     def write_part(self):
         self.write_schema_part(self.write_api_type_descriptors, self.write_command_tags)
+
+
+class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
+    """Generates Enumerants<Enum>::entries for every enum has_enumerants admits."""
+
+    def write_part(self):
+        write(
+            '// Enumerants: one specialization per enum, the enumerants in registry order with the name the API',
+            file=self.outFile
+        )
+        write(
+            '// spells. An alias adds no entry. util/enumerants.h builds the sorted index and the name table from these.',
+            file=self.outFile
+        )
+        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
+        self.newline()
+
+        for enum in sorted(self.enum_names):
+            if not self.has_enumerants(enum):
+                continue
+            enumerants = self.enumEnumerants[enum]
+            write('template <>', file=self.outFile)
+            write('struct Enumerants<{}>'.format(enum), file=self.outFile)
+            write('{', file=self.outFile)
+            write(
+                '    static constexpr std::array<Enumerant<{}>, {}> entries = {{ {{'.format(enum, len(enumerants)),
+                file=self.outFile
+            )
+            for enumerant in enumerants:
+                write('        {{ {0}, "{0}" }},'.format(enumerant), file=self.outFile)
+            write('    } };', file=self.outFile)
+            write('};', file=self.outFile)
+            self.newline()
+
+        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
 
 
 class VulkanSchemaFieldsGenerator(VulkanSchemaBaseGenerator):

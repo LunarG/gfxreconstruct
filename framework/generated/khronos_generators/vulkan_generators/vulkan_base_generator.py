@@ -227,6 +227,15 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     Base class for Vulkan API parameter encoding and decoding generators.
     """
 
+    def has_enumerants(self, enum):
+        """True when the schema emits Enumerants<enum>, which the C++ concept HasEnumerants<Enum> then detects: a real
+        enum type, so not an alias and not a 64-bit flag-bits typedef, with at least one enumerant.
+        """
+        return (
+            enum not in self.enumAliases and not self.is_flags_enum_64bit(enum)
+            and len(self.enumEnumerants.get(enum, {})) > 0
+        )
+
     def __init__(
         self,
         err_file=sys.stderr,
