@@ -350,6 +350,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '                i += 1;\n'
             body += '            }\n'
             body += '        }\n'
+            body += '        ' + values[-1].prefixed_name + '.SetLength(' + values[-2].prefixed_name + ');\n'
             body += '        if (' + values[-2].prefixed_name + ' > 0)\n'
             body += '        {\n'
             body += '            ' + self.genCallReplayConsumer(return_type, name, values)

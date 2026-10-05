@@ -1655,6 +1655,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindBufferMemory2(call_info, args);
@@ -1701,6 +1702,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindImageMemory2(call_info, args);
@@ -2716,6 +2718,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindBufferMemory2KHR(call_info, args);
@@ -2762,6 +2765,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindImageMemory2KHR(call_info, args);
@@ -3351,6 +3355,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindAccelerationStructureMemoryNV(call_info, args);
@@ -3991,6 +3996,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, args);
@@ -4392,6 +4398,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
                 i += 1;
             }
         }
+        args.pBindInfos.SetLength(args.bindInfoCount);
         if (args.bindInfoCount > 0)
         {
             VulkanReplayConsumer::Process_vkBindDataGraphPipelineSessionMemoryARM(call_info, args);
