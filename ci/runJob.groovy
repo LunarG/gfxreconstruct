@@ -207,7 +207,81 @@ def gfxrTestWindows(
 
 def gfxrBuildMac(){}
 
-def gfxrBuildLinux(){}
+def gfxrBuildLinux(
+    String label,
+    def branches,
+    List buildModes
+) {
+    return {
+        node(label) {
+            try {
+                stage('Building GFXR for Linux') {
+
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
+                    cleanWorkSpace()
+
+                    dir('gfxreconstruct') {
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+
+                        withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
+                            sh(script: 'ci/cloneTests.sh')
+                        }
+
+                        buildModes.each { buildMode ->
+                            // Contain each build mode's own failure here so Debug failing
+                            // doesn't stop Release from being attempted, and doesn't escape
+                            // to the outer try/catch (which would abort 'parallel builds'
+                            // before the Jenkinsfile ever builds the 'tests' map).
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                withEnv([
+                                    "BITS=64",
+                                    "BUILD_MODE=${buildMode}",
+                                    "RESULTS_DIR=../vulkantest-results/Linux-Build-Log-${buildMode}"
+                                ]) {
+                                    sh(script: 'git submodule update --init --recursive --depth 1')
+                                    sh(script: 'git describe --tags --always')
+                                    sh(script: 'sh ci/buildGfxr.sh')
+                                }
+                                def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                                stash name: "gfxr-linux-${buildMode}",
+                                    allowEmpty: false,
+                                    includes: [
+                                        "${buildDir}/layer/libVkLayer_gfxreconstruct.so",
+                                        "${buildDir}/layer/VkLayer_gfxreconstruct.json",
+                                        "${buildDir}/tools/compress/gfxrecon-compress",
+                                        "${buildDir}/tools/convert/gfxrecon-convert",
+                                        "${buildDir}/tools/extract/gfxrecon-extract",
+                                        "${buildDir}/tools/info/gfxrecon-info",
+                                        "${buildDir}/tools/tocpp/gfxrecon-tocpp",
+                                        "${buildDir}/tools/optimize/gfxrecon-optimize",
+                                        "${buildDir}/tools/replay/gfxrecon-replay",
+                                        "../vulkantest-results/**",
+                                    ].join(',')
+                            }
+
+                            // Probably need to stash/archive vulkantest-results for the build
+                        }
+                    }
+                }
+            } catch(Exception e) {
+                echo "An exception occurred: ${e.message}"
+                throw e
+            } finally {
+                cleanWorkSpace()
+            }
+        }
+    }
+}
 
 def gfxrTestLinux(
     String name,
@@ -246,7 +320,13 @@ def gfxrTestLinux(
                         }
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
+                        // unstash moved inside catchError: a failed Linux build mode never
+                        // stashes its artifacts (see gfxrBuildLinux), so this can legitimately
+                        // throw here. Let it share the same containment as the rest of the run
+                        // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            unstash "gfxr-linux-${buildMode}"
+
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
                                 "PROJECT_COMMIT=${projectCommit}",
@@ -257,21 +337,24 @@ def gfxrTestLinux(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                sh(script: 'git submodule update --init --recursive --depth 1')
-                                sh(script: 'git describe --tags --always')
                                 sh(script: 'ci/cloneTests.sh')
-                                sh(script: 'sh ci/buildGfxr.sh')
                                 sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/runTest.sh')
                             }
                         }
                     }
-                    archiveArtifacts(
-                        artifacts: 'python-venv.txt,vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: false,
-                        onlyIfSuccessful: false,
-                    )
+                    // Nested the same way as the unstash above: when the upstream build
+                    // failed, this node never produced python-venv.txt or vulkantest-results,
+                    // so archiveArtifacts has nothing to match and would otherwise throw.
+                    // The stage is already marked FAILURE from the catchError above either way.
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        archiveArtifacts(
+                            artifacts: 'python-venv.txt,vulkantest-results/**',
+                            excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                            allowEmptyArchive: false,
+                            onlyIfSuccessful: false,
+                        )
+                    }
                     junit(
                         testResults: 'vulkantest-results/**/*.xml',
                         allowEmptyResults: true,
