@@ -2979,7 +2979,7 @@ void TestAppBase::run(const std::string& window_name)
     configure_device_builder(device_builder, init.physical_device, init.test_config);
     device_initialization_phase_4(device_builder, init);
 
-    if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr || !init.instance.is_headless())
+    if (!init.instance.is_headless())
     {
         SwapchainBuilder swapchain_builder{ init.device };
         configure_swapchain_builder(swapchain_builder, init.test_config);

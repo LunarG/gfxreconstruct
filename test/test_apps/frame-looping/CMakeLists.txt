@@ -51,3 +51,45 @@ common_build_directives(gfxrecon-testapp-frame-looping-image-contents)
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS gfxrecon-testapp-frame-looping-image-contents RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-image-contents)
 endif()
+
+add_library(gfxrecon-testapp-frame-looping-event-state frame-looping-event-state.cpp)
+
+target_include_directories(gfxrecon-testapp-frame-looping-event-state PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gfxrecon-testapp-frame-looping-event-state
+    PUBLIC
+        gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-frame-looping-event-state)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-frame-looping-event-state RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-event-state)
+endif()
+
+add_library(gfxrecon-testapp-frame-looping-fence-state frame-looping-fence-state.cpp)
+
+target_include_directories(gfxrecon-testapp-frame-looping-fence-state PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gfxrecon-testapp-frame-looping-fence-state
+    PUBLIC
+        gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-frame-looping-fence-state)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-frame-looping-fence-state RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-fence-state)
+endif()
+
+add_library(gfxrecon-testapp-frame-looping-semaphore-state frame-looping-semaphore-state.cpp)
+
+target_include_directories(gfxrecon-testapp-frame-looping-semaphore-state PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gfxrecon-testapp-frame-looping-semaphore-state
+    PUBLIC
+        gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-frame-looping-semaphore-state)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-frame-looping-semaphore-state RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-semaphore-state)
+endif()

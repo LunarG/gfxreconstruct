@@ -54,6 +54,9 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-deep-pnext-chain
     gfxrecon-testapp-frame-looping-buffer-contents
     gfxrecon-testapp-frame-looping-image-contents
+    gfxrecon-testapp-frame-looping-event-state
+    gfxrecon-testapp-frame-looping-fence-state
+    gfxrecon-testapp-frame-looping-semaphore-state
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")

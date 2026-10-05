@@ -38,6 +38,9 @@
 #include <deep_pnext_chain_app.h>
 #include <frame_looping_buffer_contents_app.h>
 #include <frame_looping_image_contents_app.h>
+#include <frame_looping_event_state_app.h>
+#include <frame_looping_fence_state_app.h>
+#include <frame_looping_semaphore_state_app.h>
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <ahb_app.h>
 #endif
@@ -84,6 +87,9 @@ static const char* kAppNames[] = {
     "deep-pnext-chain",
     "frame-looping-buffer-contents",
     "frame-looping-image-contents",
+    "frame-looping-event-state",
+    "frame-looping-fence-state",
+    "frame-looping-semaphore-state",
 #ifdef __linux__
     "external-memory-fd-export",
     "external-memory-fd-import",
@@ -207,6 +213,18 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "frame-looping-image-contents")
     {
         app = std::make_unique<gfxrecon::test_app::frame_looping_image_contents::App>();
+    }
+    else if (app_name == "frame-looping-event-state")
+    {
+        app = std::make_unique<gfxrecon::test_app::frame_looping_event_state::App>();
+    }
+    else if (app_name == "frame-looping-fence-state")
+    {
+        app = std::make_unique<gfxrecon::test_app::frame_looping_fence_state::App>();
+    }
+    else if (app_name == "frame-looping-semaphore-state")
+    {
+        app = std::make_unique<gfxrecon::test_app::frame_looping_semaphore_state::App>();
     }
 #ifdef __linux__
     else if (app_name == "external-memory-fd-export")
