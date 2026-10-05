@@ -39,8 +39,8 @@ GFXRECON_BEGIN_NAMESPACE(serialize_queue_submissions)
  */
 class App : public test::TestAppBase
 {
-    VkQueue       graphics_queue_;
-    VkCommandPool command_pool_;
+    VkQueue       graphics_queue_ = VK_NULL_HANDLE;
+    VkCommandPool command_pool_   = VK_NULL_HANDLE;
 
     void cleanup() override;
     bool frame(const int frame_num) override;
