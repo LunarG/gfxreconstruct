@@ -40,7 +40,7 @@ void verify_gfxr(const char* test_name, const char* trimming_frames = nullptr, b
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args = {});
 
 /**
- * Run a test app with capture enabled, producing <test_name>.gfxr next to the test runner for a later replay.
+ * Run a test app with capture enabled, producing <test_name>_<test_suite>_<test_case>.gfxr next to the test runner for a later replay.
  *
  * @param test_name - the name of the test app to launch and capture
  *
