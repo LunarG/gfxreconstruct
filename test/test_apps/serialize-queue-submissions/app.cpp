@@ -98,7 +98,8 @@ void App::setup()
 
 void App::cleanup()
 {
-    if (command_pool_ != VK_NULL_HANDLE){
+    if (command_pool_ != VK_NULL_HANDLE)
+    {
         init.disp.destroyCommandPool(command_pool_, nullptr);
     }
 }
