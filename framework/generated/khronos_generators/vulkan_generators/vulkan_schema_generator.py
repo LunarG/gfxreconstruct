@@ -55,6 +55,7 @@ Two Field descriptor properties differ from the design text, because the registr
     ExtensionChainShapeField concept, but it does not define the complete set.
 """
 
+import json
 import sys
 from khronos_base_generator import write
 from khronos_struct_decoders_header_generator import KhronosStructDecodersHeaderGenerator
@@ -132,11 +133,13 @@ class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
 
 
 class VulkanSchemaCatalogGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the catalog: the lists of descriptors per genre, which only the sieves read."""
+    """Options for the catalog: the master list of descriptors per genre, the curated lists, and the derived lists as
+    relations the C++ evaluates. Only the sieves read it."""
 
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
             'generated/generated_vulkan_schema_types.h',
+            'schema/schema.h',
             'util/defines.h',
             'util/type_list.h',
         ))
@@ -518,6 +521,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for struct in self.struct_type_names:
             if struct not in self.all_struct_aliases:
                 self.add_api_type(struct)
+
+        # The structures deep copy does not handle, from the blacklists file; the deep-copy generator reads the same
+        # list. Emitted as catalog data for the names that are structure descriptors.
+        with open(self.genOpts.blacklists, 'r') as blacklists:
+            self.deep_copy_exclusions = json.load(blacklists)['structures-deep-copy']
 
         # Every enumerated type gets a descriptor, named or not, so its enumerant table has a key.
         for enum in self.enum_names:
@@ -1180,21 +1188,31 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
 
     def write_catalog(self):
-        write('// The catalog: what exists, per genre, as lists of descriptors by name. A sub-list is a fact the generator', file=self.outFile)
-        write('// applied, so no list is filtered at compile time.', file=self.outFile)
+        write('// The catalog: what exists, per genre. The master list and the curated lists are generated; every other', file=self.outFile)
+        write('// entry is a relation, base plus predicate or base plus exclude list, evaluated here. The checks file', file=self.outFile)
+        write('// asserts each derived size against the generator\'s count.', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(catalog)', file=self.outFile)
         self.newline()
-        structs = self.get_structure_descriptors()
-        self.write_catalog_list('structures', 'Every structure descriptor.', structs)
+        self.write_catalog_list('structures', 'Every structure descriptor.', self.get_structure_descriptors())
+        write('// The structures a pNext chain can hold: every descriptor with a structure_type.', file=self.outFile)
+        write('using extensible_structures = decltype(util::TypeListKeep(structures{}, kHasStructureType));', file=self.outFile)
+        self.newline()
         self.write_catalog_list(
-            'extensible_structures',
-            'The structures a pNext chain can hold: every descriptor with a structure_type.',
-            [struct for struct in structs if self.get_structure_type(struct) is not None]
+            'deep_copy_exclusions',
+            'The structures vulkan_struct_deep_copy does not handle: structures-deep-copy in the blacklists file.',
+            self.get_deep_copy_excluded_descriptors()
         )
+        write('// What vulkan_struct_deep_copy_stype dispatches over.', file=self.outFile)
+        write('using deep_copyable_structures = decltype(util::TypeListExclude(extensible_structures{}, deep_copy_exclusions{}));', file=self.outFile)
+        self.newline()
         write('GFXRECON_END_NAMESPACE(catalog)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
+
+    def get_deep_copy_excluded_descriptors(self):
+        """The deep-copy exclusions that are structure descriptors, by name; an alias in the list names no descriptor."""
+        return [name for name in self.get_structure_descriptors() if name in self.deep_copy_exclusions]
 
     def get_enumerated_types(self):
         """Every enumerated type, by name; its descriptor and its table carry the same name."""
@@ -1513,6 +1531,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         )
         write(
             'static_assert(util::TypeListSizeV<schema::vulkan::catalog::extensible_structures> == {});'.format(typed),
+            file=self.outFile
+        )
+        excluded = self.get_deep_copy_excluded_descriptors()
+        excluded_typed = [name for name in excluded if self.get_structure_type(name) is not None]
+        write(
+            'static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copy_exclusions> == {});'.format(len(excluded)),
+            file=self.outFile
+        )
+        write(
+            'static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copyable_structures> == {});'.format(typed - len(excluded_typed)),
             file=self.outFile
         )
 

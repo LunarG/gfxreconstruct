@@ -51,6 +51,9 @@ concept HasStructureType = requires
 }
 &&std::is_enum_v<std::remove_cv_t<decltype(Descriptor::structure_type)>>;
 
+// The concept as a value predicate, for the list algorithms.
+inline constexpr auto kHasStructureType = []<typename Descriptor>() { return HasStructureType<Descriptor>; };
+
 // An enumerated type's descriptor names its enumerant table.
 template <typename Descriptor>
 concept HasEnumerants = requires

@@ -9247,6 +9247,8 @@ static_assert(schema::HasStructureType<schema::vulkan::api_types::VkXlibSurfaceC
 // The catalog lists are counted here from the registry by the generator.
 static_assert(util::TypeListSizeV<schema::vulkan::catalog::structures> == 1367);
 static_assert(util::TypeListSizeV<schema::vulkan::catalog::extensible_structures> == 1144);
+static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copy_exclusions> == 9);
+static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copyable_structures> == 1136);
 
 // Every enumerated type's descriptor names its table, and every one but a 64-bit flag-bits type is bound to
 // its native enum. Nothing is bound to the bare integer types that the 64-bit flag-bits and the Flags

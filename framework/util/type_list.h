@@ -223,6 +223,13 @@ constexpr auto TypeListDrop(List, Predicate)
     return TypeListKeep(List{}, Not<Predicate>{});
 }
 
+// The elements of List that are not in Excluded.
+template <typename List, typename Excluded>
+constexpr auto TypeListExclude(List, Excluded)
+{
+    return TypeListDrop(List{}, []<typename T>() { return TypeListContainsV<Excluded, T>; });
+}
+
 template <typename List>
 using TypeListSole = typename detail::TypeListSoleImpl<List>::type;
 

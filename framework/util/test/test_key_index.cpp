@@ -130,6 +130,9 @@ static_assert(util::TypeListSizeV<Odds> == kWide / 2);
 static_assert(std::same_as<util::TypeListAt<1, Evens>, Tag<2>>);
 static_assert(std::same_as<util::TypeListAt<1, Odds>, Tag<3>>);
 static_assert(util::TypeListContainsV<Wide, Tag<kWide - 1>>);
+static_assert(
+    util::TypeListSizeV<decltype(util::TypeListExclude(Wide{}, util::TypeList<Tag<1>, Tag<3>, Tag<kWide>>{}))> ==
+    kWide - 2);
 static_assert(!util::TypeListContainsV<Wide, Tag<kWide>>);
 } // namespace
 
