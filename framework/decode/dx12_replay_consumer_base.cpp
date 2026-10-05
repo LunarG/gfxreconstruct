@@ -5224,162 +5224,6 @@ void Dx12ReplayConsumerBase::MapMetaCommandParameters(ID3D12Device5*            
     }
 }
 
-void Dx12ReplayConsumerBase::TrackConstantBufferViewCreation(
-    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
-{
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-
-    heap_extra_info->cbv_srv_uav_infos[DestDescriptor.index].cbv.replay_handle = (*DestDescriptor.decoded_value);
-}
-
-void Dx12ReplayConsumerBase::TrackShaderResourceViewCreation(
-    format::HandleId                                               pResource,
-    StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
-{
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-
-    DHCbvSrvUavInfo info;
-    info.type              = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    auto& srv_info         = info.srv;
-    srv_info.resource_id   = pResource;
-    srv_info.replay_handle = *DestDescriptor.decoded_value;
-    if (pDesc->IsNull())
-    {
-        srv_info.is_desc_null = true;
-        srv_info.subresource_indices.emplace_back(0);
-    }
-    else
-    {
-        srv_info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
-        srv_info.is_desc_null = false;
-
-        if (options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            if (pResource != format::kNullHandleId)
-            {
-                auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
-                dump_resources_->GetDescriptorSubresourceIndices(srv_info, res_obj);
-            }
-        }
-    }
-    heap_extra_info->cbv_srv_uav_infos[DestDescriptor.index] = std::move(info);
-}
-
-void Dx12ReplayConsumerBase::TrackUnorderedAccessViewCreation(
-    format::HandleId                                                pResource,
-    format::HandleId                                                pCounterResource,
-    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
-{
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-
-    DHCbvSrvUavInfo info;
-    info.type                    = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-    auto& uav_info               = info.uav;
-    uav_info.resource_id         = pResource;
-    uav_info.counter_resource_id = pCounterResource;
-    uav_info.replay_handle       = *DestDescriptor.decoded_value;
-    if (pDesc->IsNull())
-    {
-        uav_info.is_desc_null = true;
-        uav_info.subresource_indices.emplace_back(0);
-    }
-    else
-    {
-        uav_info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
-        uav_info.is_desc_null = false;
-
-        if (options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            if (pResource != format::kNullHandleId)
-            {
-                auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
-                dump_resources_->GetDescriptorSubresourceIndices(uav_info, res_obj);
-            }
-        }
-    }
-    heap_extra_info->cbv_srv_uav_infos[DestDescriptor.index] = std::move(info);
-}
-
-void Dx12ReplayConsumerBase::TrackRenderTargetViewCreation(
-    format::HandleId                                             pResource,
-    StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
-{
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-
-    DHRenderTargetViewInfo info;
-    info.resource_id   = pResource;
-    info.replay_handle = *DestDescriptor.decoded_value;
-    if (pDesc->IsNull())
-    {
-        info.is_desc_null = true;
-        info.subresource_indices.emplace_back(0);
-    }
-    else
-    {
-        info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
-        info.is_desc_null = false;
-
-        if (options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            if (pResource != format::kNullHandleId)
-            {
-                auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
-                dump_resources_->GetDescriptorSubresourceIndices(info, res_obj);
-            }
-        }
-    }
-    heap_extra_info->rtv_infos[DestDescriptor.index] = std::move(info);
-}
-
-void Dx12ReplayConsumerBase::TrackDepthStencilViewCreation(
-    format::HandleId                                             pResource,
-    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
-{
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-
-    DHDepthStencilViewInfo info;
-    info.resource_id   = pResource;
-    info.replay_handle = *DestDescriptor.decoded_value;
-    if (pDesc->IsNull())
-    {
-        info.is_desc_null = true;
-        info.subresource_indices.emplace_back(0);
-    }
-    else
-    {
-        info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
-        info.is_desc_null = false;
-
-        if (options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            if (pResource != format::kNullHandleId)
-            {
-                auto res_obj = GetObjectInfo(pResource);
-                GFXRECON_ASSERT(res_obj);
-                dump_resources_->GetDescriptorSubresourceIndices(info, res_obj);
-            }
-        }
-    }
-    heap_extra_info->dsv_infos[DestDescriptor.index] = std::move(info);
-}
-
 std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id)
 {
     std::wstring object_creator = util::GetDx12CallIdString(call_id);
@@ -5485,21 +5329,10 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12Device_CreateConstantBufferView(
     StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-    GFXRECON_ASSERT(pDesc != nullptr);
-    auto desc = pDesc->GetMetaStructPointer();
-
-    if (desc != nullptr)
+    if (options_.enable_dump_resources)
     {
-        // The decoded D3D12_CONSTANT_BUFFER_VIEW_DESC pointer from pDesc is an optional parameter in the API
-        // ID3D12Device::CreateConstantBufferView. In this case, the meta struct pointer returned from the
-        // StructPointerDecoder could be null, so check for it.
-        DHCbvSrvUavInfo info;
-        info.type              = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-        info.cbv.captured_desc = *(desc->decoded_value);
-
-        heap_extra_info->cbv_srv_uav_infos[DestDescriptor.index] = std::move(info);
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackConstantBufferViewDesc(pDesc, DestDescriptor);
     }
 }
 
@@ -5509,24 +5342,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateConstantBufferView(
     StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    TrackConstantBufferViewCreation(pDesc, DestDescriptor);
-}
-
-void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateSampler(
-    const ApiCallInfo&                                call_info,
-    DxObjectInfo*                                     object_info,
-    StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC>* pDesc,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE               DestDescriptor)
-{
-    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
-    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-    GFXRECON_ASSERT(pDesc != nullptr);
-    auto desc = pDesc->GetMetaStructPointer();
-
-    DHSamplerInfo info;
-    info.desc                                            = *(desc->decoded_value);
-    info.replay_handle                                   = (*DestDescriptor.decoded_value);
-    heap_extra_info->sampler_infos[DestDescriptor.index] = std::move(info);
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackConstantBufferViewCreation(DestDescriptor);
+    }
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
@@ -5536,7 +5356,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
     StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    TrackShaderResourceViewCreation(pResource, pDesc, DestDescriptor);
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackShaderResourceViewCreation(pResource, pDesc, DestDescriptor);
+    }
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateUnorderedAccessView(
@@ -5547,7 +5371,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateUnorderedAccessView(
     StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
 {
-    TrackUnorderedAccessViewCreation(pResource, pCounterResource, pDesc, DestDescriptor);
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackUnorderedAccessViewCreation(pResource, pCounterResource, pDesc, DestDescriptor);
+    }
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
@@ -5557,7 +5385,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
     StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
 {
-    TrackRenderTargetViewCreation(pResource, pDesc, DestDescriptor);
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackRenderTargetViewCreation(pResource, pDesc, DestDescriptor);
+    }
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
@@ -5567,7 +5399,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
     StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
 {
-    TrackDepthStencilViewCreation(pResource, pDesc, DestDescriptor);
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackDepthStencilViewCreation(pResource, pDesc, DestDescriptor);
+    }
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateConstantBufferView(
@@ -5578,9 +5414,10 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateConstantBufferView
     StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    if (SUCCEEDED(capture_return_value))
+    if (options_.enable_dump_resources && SUCCEEDED(capture_return_value))
     {
-        TrackConstantBufferViewCreation(pDesc, DestDescriptor);
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackConstantBufferViewCreation(DestDescriptor);
     }
 }
 
@@ -5593,9 +5430,10 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateShaderResourceView
     StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
 {
-    if (SUCCEEDED(capture_return_value))
+    if (options_.enable_dump_resources && SUCCEEDED(capture_return_value))
     {
-        TrackShaderResourceViewCreation(pResource, pDesc, DestDescriptor);
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackShaderResourceViewCreation(pResource, pDesc, DestDescriptor);
     }
 }
 
@@ -5609,9 +5447,10 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateUnorderedAccessVie
     StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
 {
-    if (SUCCEEDED(capture_return_value))
+    if (options_.enable_dump_resources && SUCCEEDED(capture_return_value))
     {
-        TrackUnorderedAccessViewCreation(pResource, pCounterResource, pDesc, DestDescriptor);
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackUnorderedAccessViewCreation(pResource, pCounterResource, pDesc, DestDescriptor);
     }
 }
 
@@ -5624,9 +5463,10 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateRenderTargetView(
     StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
 {
-    if (SUCCEEDED(capture_return_value))
+    if (options_.enable_dump_resources && SUCCEEDED(capture_return_value))
     {
-        TrackRenderTargetViewCreation(pResource, pDesc, DestDescriptor);
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackRenderTargetViewCreation(pResource, pDesc, DestDescriptor);
     }
 }
 
@@ -5639,9 +5479,10 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device15_TryCreateDepthStencilView(
     StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
 {
-    if (SUCCEEDED(capture_return_value))
+    if (options_.enable_dump_resources && SUCCEEDED(capture_return_value))
     {
-        TrackDepthStencilViewCreation(pResource, pDesc, DestDescriptor);
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackDepthStencilViewCreation(pResource, pDesc, DestDescriptor);
     }
 }
 
@@ -5773,67 +5614,15 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CopyDescriptors(
     PointerDecoder<UINT>*                                      pSrcDescriptorRangeSizes,
     D3D12_DESCRIPTOR_HEAP_TYPE                                 DescriptorHeapsType)
 {
-    UINT dest_range_i = 0;
-    UINT src_range_i  = 0;
-    UINT dest_i       = 0;
-    UINT src_i        = 0;
-
-    auto dest_range_sizes = pDestDescriptorRangeSizes->GetPointer();
-    auto src_range_sizes  = pSrcDescriptorRangeSizes->GetPointer();
-
-    auto dest_range_starts = pDestDescriptorRangeStarts->GetMetaStructPointer();
-    auto src_range_starts  = pSrcDescriptorRangeStarts->GetMetaStructPointer();
-
-    while (dest_range_i < NumDestDescriptorRanges && src_range_i < NumSrcDescriptorRanges)
+    if (options_.enable_dump_resources)
     {
-        auto dest_range_size = (dest_range_sizes != nullptr) ? dest_range_sizes[dest_range_i] : 1;
-        auto src_range_size  = (src_range_sizes != nullptr) ? src_range_sizes[src_range_i] : 1;
-
-        auto dest_size = dest_range_size - dest_i;
-        auto src_size  = src_range_size - src_i;
-
-        auto copy_size = std::min(dest_size, src_size);
-
-        // DUMPTODO: Test, cleanup, and share with code from CopyDescriptorsSimple
-        auto dest_descriptor_info  = dest_range_starts[dest_range_i];
-        auto dest_heap_object_info = GetObjectInfo(dest_descriptor_info.heap_id);
-        auto dest_heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(dest_heap_object_info);
-        auto src_descriptor_info   = src_range_starts[src_range_i];
-        auto src_heap_object_info  = GetObjectInfo(src_descriptor_info.heap_id);
-        auto src_heap_extra_info   = GetExtraInfo<D3D12DescriptorHeapInfo>(src_heap_object_info);
-
-        for (UINT i = 0; i < copy_size; ++i)
-        {
-            auto dest_idx = dest_descriptor_info.index + dest_i + i;
-            auto src_idx  = src_descriptor_info.index + src_i + i;
-
-            if (src_heap_extra_info->cbv_srv_uav_infos.count(src_idx) > 0)
-            {
-                dest_heap_extra_info->cbv_srv_uav_infos[dest_idx] = src_heap_extra_info->cbv_srv_uav_infos[src_idx];
-            }
-            if (src_heap_extra_info->rtv_infos.count(src_idx) > 0)
-            {
-                dest_heap_extra_info->rtv_infos[dest_idx] = src_heap_extra_info->rtv_infos[src_idx];
-            }
-            if (src_heap_extra_info->dsv_infos.count(src_idx) > 0)
-            {
-                dest_heap_extra_info->dsv_infos[dest_idx] = src_heap_extra_info->dsv_infos[src_idx];
-            }
-        }
-
-        dest_i += copy_size;
-        src_i += copy_size;
-
-        if (dest_i == dest_range_size)
-        {
-            dest_i = 0;
-            ++dest_range_i;
-        }
-        if (src_i == src_range_size)
-        {
-            src_i = 0;
-            ++src_range_i;
-        }
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackCopyDescriptors(NumDestDescriptorRanges,
+                                              pDestDescriptorRangeStarts,
+                                              pDestDescriptorRangeSizes,
+                                              NumSrcDescriptorRanges,
+                                              pSrcDescriptorRangeStarts,
+                                              pSrcDescriptorRangeSizes);
     }
 }
 
@@ -5845,28 +5634,10 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CopyDescriptorsSimple(
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
     D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType)
 {
-    auto dest_heap_object_info = GetObjectInfo(DestDescriptorRangeStart.heap_id);
-    auto dest_heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(dest_heap_object_info);
-    auto src_heap_object_info  = GetObjectInfo(SrcDescriptorRangeStart.heap_id);
-    auto src_heap_extra_info   = GetExtraInfo<D3D12DescriptorHeapInfo>(src_heap_object_info);
-
-    for (UINT i = 0; i < NumDescriptors; ++i)
+    if (options_.enable_dump_resources)
     {
-        auto dest_idx = DestDescriptorRangeStart.index + i;
-        auto src_idx  = SrcDescriptorRangeStart.index + i;
-
-        if (src_heap_extra_info->cbv_srv_uav_infos.count(src_idx) > 0)
-        {
-            dest_heap_extra_info->cbv_srv_uav_infos[dest_idx] = src_heap_extra_info->cbv_srv_uav_infos[src_idx];
-        }
-        if (src_heap_extra_info->rtv_infos.count(src_idx) > 0)
-        {
-            dest_heap_extra_info->rtv_infos[dest_idx] = src_heap_extra_info->rtv_infos[src_idx];
-        }
-        if (src_heap_extra_info->dsv_infos.count(src_idx) > 0)
-        {
-            dest_heap_extra_info->dsv_infos[dest_idx] = src_heap_extra_info->dsv_infos[src_idx];
-        }
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->TrackCopyDescriptorsSimple(NumDescriptors, DestDescriptorRangeStart, SrcDescriptorRangeStart);
     }
 }
 
