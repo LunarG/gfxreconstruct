@@ -25,7 +25,7 @@
 
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_util.h"
 #include "util/defines.h"

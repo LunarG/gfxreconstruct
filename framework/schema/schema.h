@@ -58,16 +58,20 @@ concept HasEnumerants = requires
     typename Descriptor::enumerants;
 };
 
-// An enumerated type whose values are bits of a mask: the registry declares it a bitmask.
+// A bits enum: its values compose into a mask of the type bitmask names. The registry declares the group a bitmask
+// and states the width.
 template <typename Descriptor>
-concept IsMask = HasEnumerants<Descriptor> && Descriptor::is_mask;
-
-// A flags type's descriptor names the descriptor of its flag-bits type.
-template <typename Descriptor>
-concept HasFlagBits = requires
+concept HasBitmask = HasEnumerants<Descriptor> && requires
 {
-    typename Descriptor::flag_bits;
-    requires IsMask<typename Descriptor::flag_bits>;
+    typename Descriptor::bitmask;
+};
+
+// A mask typedef's descriptor names the descriptor of the bits enum whose values compose it.
+template <typename Descriptor>
+concept HasBitvalues = requires
+{
+    typename Descriptor::bitvalues;
+    requires HasBitmask<typename Descriptor::bitvalues>;
 };
 
 template <typename ApiElement>

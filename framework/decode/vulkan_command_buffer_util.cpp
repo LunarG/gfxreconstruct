@@ -21,7 +21,7 @@
 */
 #include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_submit_info_helper.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "util/callbacks.h"
 #include "util/logging.h"
 #include "util/to_string.h"

@@ -25,7 +25,7 @@
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include PROJECT_VERSION_HEADER_FILE
 #include "util/file_path.h"
 #include "util/logging.h"

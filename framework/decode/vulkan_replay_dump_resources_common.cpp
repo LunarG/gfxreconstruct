@@ -28,7 +28,7 @@
 #include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_decoders.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_submit_info_util.h"
 #include "graphics/vulkan_util.h"

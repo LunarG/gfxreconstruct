@@ -26,7 +26,7 @@
 #include "util/platform.h"
 #include "graphics/vulkan_resources_util.h"
 #include "decode/decoder_util.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 

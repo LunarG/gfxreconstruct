@@ -288,6 +288,35 @@ class VulkanSchemaEnumerantsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
         ))
 
 
+class VulkanEnumToStringHeaderGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the enum ToString declarations: explicit specializations of util/to_string.h's primaries, one per
+    native enum and one more per 32-bit mask enum. A specialization is found wherever the primary is, by the generic
+    formatters too, which an overload would not be. Callers include only this; the tables stay in the .cpp.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'format/platform_types.h',
+            'schema/schema.h',
+            'util/defines.h',
+            'util/to_string.h',
+        ))
+
+
+class VulkanEnumToStringBodyGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the enum ToString definitions, one line each over the enumerant tables, and the explicit
+    instantiations of the descriptor-keyed forms for the 64-bit flag-bits types. The bodies they forward to are in
+    util/vulkan_enum_to_string_impl.h, which only this file includes."""
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema_enumerants.h',
+            'generated/generated_vulkan_schema_types.h',
+            'util/defines.h',
+            'util/vulkan_enum_to_string_impl.h',
+        ))
+
+
 class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Options for the cross-generator agreement checks. Compiled only by the framework test target, so it costs a
     product build nothing and can include whatever it needs to check. Compiling it is the test; there is nothing to
@@ -428,13 +457,17 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.api_type_kinds = dict()  # Descriptor name to format::kind expression.
         self.api_type_elements = dict()  # Descriptor name to element type expression.
         self.defaulted_types = set()  # Registry types that reached the Scalar fallback without being classified.
-        self.mask_enums = set()  # Enum groups the registry declares type="bitmask": their values are bits of a mask.
+        # Enum groups the registry declares type="bitmask", to the mask type their values compose into: the API's
+        # 32-bit flags type unless the group states bitwidth="64".
+        self.bitmask_types = dict()
 
     def genGroup(self, groupinfo, group_name, alias):
-        """Method override: also record whether the registry declares the group a bitmask."""
+        """Method override: also record the mask type of a group the registry declares a bitmask."""
         VulkanBaseGenerator.genGroup(self, groupinfo, group_name, alias)
         if groupinfo.elem.get('type') == 'bitmask':
-            self.mask_enums.add(group_name)
+            api_data = self.get_api_data()
+            wide = groupinfo.elem.get('bitwidth') == '64'
+            self.bitmask_types[group_name] = api_data.flags_64_type if wide else api_data.flags_type
 
     #
     # Model
@@ -1122,7 +1155,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(api_types)', file=self.outFile)
 
-        flag_bits = self.get_flag_bits_of_flags()
+        bitvalues = self.get_bitvalues_of_bitmasks()
         for name in sorted(self.api_type_kinds):
             members = 'using element_type = {0}; using kind = format::kind::{1}; static constexpr std::string_view name = "{2}";'.format(
                 self.api_type_elements[name], self.api_type_kinds[name], self.api_type_elements[name].lstrip(':')
@@ -1135,11 +1168,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             # Qualified from the global namespace: within the descriptor an unqualified enumerants would change
             # meaning once the member of that name is declared.
             if self.is_enumerated(name):
-                members += ' using enumerants = ::gfxrecon::schema::vulkan::enumerants::{}; static constexpr bool is_mask = {};'.format(
-                    name, 'true' if name in self.mask_enums else 'false'
-                )
-            elif name in flag_bits:
-                members += ' using flag_bits = ::gfxrecon::schema::vulkan::api_types::{};'.format(flag_bits[name])
+                members += ' using enumerants = ::gfxrecon::schema::vulkan::enumerants::{};'.format(name)
+                if name in self.bitmask_types:
+                    members += ' using bitmask = ::{};'.format(self.bitmask_types[name])
+            elif name in bitvalues:
+                members += ' using bitvalues = ::gfxrecon::schema::vulkan::api_types::{};'.format(bitvalues[name])
             write('struct {} {{ {} }};'.format(name, members), file=self.outFile)
 
         write('GFXRECON_END_NAMESPACE(api_types)', file=self.outFile)
@@ -1167,11 +1200,23 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """Every enumerated type, by name; its descriptor and its table carry the same name."""
         return sorted(enum for enum in self.enum_names if self.is_enumerated(enum))
 
-    def get_flag_bits_of_flags(self):
-        """Flags descriptor name to the descriptor name of its flag-bits type, for the enumerated flag-bits types."""
+    def get_native_enumerated_types(self):
+        """The enumerated types that are C enums, by name: every enumerated type but the 64-bit flag-bits typedefs."""
+        return [enum for enum in self.get_enumerated_types() if self.api_type_kinds[self.get_descriptor_name(enum)] == 'Enum']
+
+    def get_wide_bitmask_pairs(self):
+        """(bits descriptor, typedef descriptor) for each 64-bit flag-bits type whose typedef has a descriptor."""
+        return sorted(
+            (enum, flags) for flags, enum in self.get_bitvalues_of_bitmasks().items()
+            if flags in self.api_type_kinds and self.api_type_kinds[self.get_descriptor_name(enum)] == 'Flags64'
+        )
+
+    def get_bitvalues_of_bitmasks(self):
+        """Mask typedef descriptor name to the descriptor name of the bits enum whose values compose it, from the
+        registry's requires or bitvalues attribute on the typedef, for the typedefs that have a descriptor."""
         result = dict()
         for enum in self.get_enumerated_types():
-            if 'FlagBits' not in enum:
+            if enum not in self.bitmask_types:
                 continue
             flags = self.get_flags_type_from_enum(enum)
             if flags is not None:
@@ -1490,7 +1535,18 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for enum in self.get_enumerated_types():
             element = 'schema::{}'.format(self.get_descriptor_path(enum))
             write(
-                'static_assert({}schema::IsMask<{}>);'.format('' if 'FlagBits' in enum else '!', element),
+                'static_assert({}schema::HasBitmask<{}>);'.format('' if 'FlagBits' in enum else '!', element),
+                file=self.outFile
+            )
+        self.newline()
+        write('// A mask typedef\'s own type is the type its bits compose into: the typedef\'s base type against the bits', file=self.outFile)
+        write('// group\'s bitwidth, two places the registry states one width.', file=self.outFile)
+        for flags, enum in sorted(self.get_bitvalues_of_bitmasks().items()):
+            if flags not in self.api_type_kinds:
+                continue
+            element = 'schema::{}'.format(self.get_descriptor_path(flags))
+            write(
+                'static_assert(std::is_same_v<{0}::element_type, {0}::bitvalues::bitmask>);'.format(element),
                 file=self.outFile
             )
         self.newline()
@@ -1665,6 +1721,72 @@ class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
         write('GFXRECON_END_NAMESPACE(enumerants)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
+
+
+class VulkanEnumToStringHeaderGenerator(VulkanSchemaBaseGenerator):
+    """Generates the ToString specialization declarations for every native enum."""
+
+    def write_part(self):
+        flags_type = self.get_api_data().flags_type
+        flags_64_type = self.get_api_data().flags_64_type
+        write('// Explicit specializations of util/to_string.h\'s primaries, one per enum and one more per 32-bit mask enum,', file=self.outFile)
+        write('// defined in generated_vulkan_enum_to_string.cpp over the enumerant tables.', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
+        self.newline()
+        write('// Keyed on the API type descriptor, for the types spelled as a bare integer in C: the 64-bit flag-bits types,', file=self.outFile)
+        write('// instantiated in generated_vulkan_enum_to_string.cpp.', file=self.outFile)
+        self.newline()
+        write('// Requires a descriptor with an enumerant table: one enumerant to its name.', file=self.outFile)
+        write('template <schema::HasEnumerants Descriptor>', file=self.outFile)
+        write('std::string ToString(typename Descriptor::element_type value, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);', file=self.outFile)
+        self.newline()
+        write('// Requires a mask typedef\'s descriptor: the set bits of a mask, by name.', file=self.outFile)
+        write('template <schema::HasBitvalues Descriptor>', file=self.outFile)
+        write('std::string ToString({} flags, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);'.format(flags_64_type), file=self.outFile)
+        self.newline()
+        for enum in self.get_native_enumerated_types():
+            write(
+                'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'.format(enum),
+                file=self.outFile
+            )
+            if enum in self.bitmask_types:
+                write(
+                    'template <> std::string ToString<{0}>({1} vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'.format(enum, flags_type),
+                    file=self.outFile
+                )
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
+
+
+class VulkanEnumToStringBodyGenerator(VulkanSchemaBaseGenerator):
+    """Generates the ToString specialization definitions and the 64-bit explicit instantiations."""
+
+    def write_part(self):
+        api_data = self.get_api_data()
+        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
+        self.newline()
+        write('// One line per enum: the lookup over its table. A mask enum also expands a {}.'.format(api_data.flags_type), file=self.outFile)
+        for enum in self.get_native_enumerated_types():
+            table = 'schema::vulkan::enumerants::{}'.format(enum)
+            write(
+                'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t) {{ return detail::EnumerantToString<{1}>(value); }}'.format(enum, table),
+                file=self.outFile
+            )
+            if enum in self.bitmask_types:
+                write(
+                    'template <> std::string ToString<{0}>({1} vkFlags, ToStringFlags, uint32_t, uint32_t) {{ return detail::EnumerantMaskToString<{2}>(vkFlags); }}'.format(enum, api_data.flags_type, table),
+                    file=self.outFile
+                )
+        self.newline()
+        write('// The 64-bit flag-bits types, by descriptor: the bits descriptor names one enumerant, the typedef\'s expands a mask.', file=self.outFile)
+        for bits, flags in self.get_wide_bitmask_pairs():
+            for descriptor in (bits, flags):
+                write(
+                    'template std::string ToString<schema::vulkan::api_types::{0}>({1}, ToStringFlags, uint32_t, uint32_t);'.format(descriptor, api_data.flags_64_type),
+                    file=self.outFile
+                )
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
 
 
 class VulkanSchemaFieldsGenerator(VulkanSchemaBaseGenerator):

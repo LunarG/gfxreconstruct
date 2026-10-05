@@ -84,10 +84,6 @@ concept HasEnumerantTable =
 template <HasEnumerantTable Enum>
 using EnumerantTableOf = typename schema::binding::DescriptorFor<Enum>::type::enumerants;
 
-// The table of an enum whose values are bits of a mask.
-template <typename Enum>
-concept HasMaskTable = HasEnumerantTable<Enum> && schema::IsMask<typename schema::binding::DescriptorFor<Enum>::type>;
-
 template <HasEnumerantTable Enum>
 constexpr std::string_view NameOf(Enum value)
 {

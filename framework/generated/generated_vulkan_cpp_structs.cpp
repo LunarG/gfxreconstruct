@@ -31,7 +31,7 @@
 #include "generated/generated_vulkan_cpp_structs.h"
 #include "generated/generated_vulkan_cpp_consumer.h"
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 #include <algorithm>
 

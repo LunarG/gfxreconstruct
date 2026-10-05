@@ -50,7 +50,7 @@
 #include "generated/generated_vulkan_schema_native_struct_members.h"
 #include "generated/generated_vulkan_schema_binding_descriptor_for.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "test/schema_fill.h"
 

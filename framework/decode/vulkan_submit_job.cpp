@@ -23,7 +23,7 @@
 #include "decode/vulkan_submit_job.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_struct_get_pnext.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 #include <algorithm>
 

@@ -74,6 +74,8 @@ generate_targets = [
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp',
     'generated_vulkan_feature_util.cpp',
+    'generated_vulkan_enum_to_string.h',
+    'generated_vulkan_enum_to_string.cpp',
     'generated_vulkan_object_info_table_base2.h',
     'generated_vulkan_state_table.h',
     'generated_vulkan_handle_wrapper_util.cpp',

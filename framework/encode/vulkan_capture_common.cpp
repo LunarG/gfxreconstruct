@@ -22,7 +22,7 @@
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan_capture_common.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/logging.h"

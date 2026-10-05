@@ -70,6 +70,8 @@ from vulkan_schema_generator import (
     VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
     VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
     VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions,
+    VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions,
+    VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions,
     VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions,
     VulkanSchemaBindingDescriptorForGenerator, VulkanSchemaBindingDescriptorForGeneratorOptions
 )
@@ -374,6 +376,10 @@ def make_gen_opts(args):
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
         ('generated_vulkan_schema_enumerants.h',
          VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions, True),
+        ('generated_vulkan_enum_to_string.h',
+         VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions, True),
+        ('generated_vulkan_enum_to_string.cpp',
+         VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions, False),
     ):
         gen_opts[schema_filename] = [
             schema_generator,

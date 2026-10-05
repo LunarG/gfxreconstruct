@@ -70,10 +70,6 @@ class DecodePNextStructGenerator(VulkanBaseGenerator, KhronosDecodeExtendedStruc
             diag_file=diag_file
         )
 
-    def get_enum_to_string_header(self):
-        """Method override."""
-        return 'util/vulkan_enum_to_string.h'
-
     def beginFile(self, gen_opts):
         """Method override."""
         VulkanBaseGenerator.beginFile(self, gen_opts)

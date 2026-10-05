@@ -34,7 +34,8 @@
 #include "util/date_time.h"
 #include "util/file_path.h"
 #include "util/logging.h"
-#include "util/vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_schema_types.h"
 
 using namespace gfxrecon::util::strings;
 using namespace gfxrecon::util::datetime;
