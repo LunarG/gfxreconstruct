@@ -26,6 +26,7 @@
 
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
+#include "generated/generated_vulkan_schema_catalog.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "schema/schema.h"

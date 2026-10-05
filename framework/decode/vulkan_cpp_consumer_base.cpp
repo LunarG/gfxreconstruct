@@ -25,7 +25,7 @@
 #include "decode/vulkan_cpp_structs.h"
 #include <generated/generated_vulkan_cpp_structs.h>
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 
 #include <algorithm>
 #include <cmath>

@@ -549,7 +549,7 @@ class VulkanCppConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             'decode/vulkan_cpp_consumer_base.h',
             'decode/vulkan_cpp_structs.h',
             'generated/generated_vulkan_cpp_structs.h',
-            'generated/generated_vulkan_enum_to_string.h',
+            'util/vulkan_enum_to_string.h',
             'generated/generated_vulkan_cpp_consumer_extension.h',
             'util/defines.h',
         ))

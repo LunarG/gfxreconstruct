@@ -24,7 +24,7 @@
 #include "vulkan_frame_warm_up.h"
 
 #include "decoder_util.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_util.h"

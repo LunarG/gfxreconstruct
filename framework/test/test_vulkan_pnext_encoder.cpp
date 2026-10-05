@@ -27,6 +27,8 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "generated/generated_vulkan_schema_binding_descriptor_for.h"
+#include "generated/generated_vulkan_schema_catalog.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_encoders.h"

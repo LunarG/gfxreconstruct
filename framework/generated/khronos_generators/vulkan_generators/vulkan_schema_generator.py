@@ -128,6 +128,18 @@ class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'util/defines.h',
             'util/type_list.h',
         ))
+        begin_end.system_headers.append('string_view')
+
+
+class VulkanSchemaCatalogGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Options for the catalog: the lists of descriptors per genre, which only the sieves read."""
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema_types.h',
+            'util/defines.h',
+            'util/type_list.h',
+        ))
 
 
 class VulkanSchemaFieldsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
@@ -263,13 +275,14 @@ class VulkanSchemaBindingDescriptorForGeneratorOptions(VulkanSchemaBaseGenerator
 
 
 class VulkanSchemaEnumerantsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the enumerants: one Enumerants<Enum> specialization per enum, value and name in registry order.
-    The index and the name lookup over them are hand-written in util/enumerants.h.
+    """Options for the enumerant tables: one per enumerated type, value and name in registry order. The index and the
+    name lookup over them are hand-written in util/enumerants.h.
     """
 
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
             'format/platform_types.h',
+            'generated/generated_vulkan_schema_types.h',
             'util/defines.h',
             'util/enumerants.h',
         ))
@@ -288,8 +301,11 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'generated/generated_vulkan_decoder_args.h',
             'generated/generated_vulkan_schema.h',
             'generated/generated_vulkan_decode_api_element_traits.h',
+            'generated/generated_vulkan_schema_binding_descriptor_for.h',
+            'generated/generated_vulkan_schema_catalog.h',
             'generated/generated_vulkan_schema_enumerants.h',
             'generated/generated_vulkan_struct_decoders.h',
+            'schema/binding/descriptor_for.h',
             'schema/schema.h',
             'util/defines.h',
             'util/enumerants.h',
@@ -412,6 +428,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.api_type_kinds = dict()  # Descriptor name to format::kind expression.
         self.api_type_elements = dict()  # Descriptor name to element type expression.
         self.defaulted_types = set()  # Registry types that reached the Scalar fallback without being classified.
+        self.mask_enums = set()  # Enum groups the registry declares type="bitmask": their values are bits of a mask.
+
+    def genGroup(self, groupinfo, group_name, alias):
+        """Method override: also record whether the registry declares the group a bitmask."""
+        VulkanBaseGenerator.genGroup(self, groupinfo, group_name, alias)
+        if groupinfo.elem.get('type') == 'bitmask':
+            self.mask_enums.add(group_name)
 
     #
     # Model
@@ -462,6 +485,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for struct in self.struct_type_names:
             if struct not in self.all_struct_aliases:
                 self.add_api_type(struct)
+
+        # Every enumerated type gets a descriptor, named or not, so its enumerant table has a key.
+        for enum in self.enum_names:
+            if self.is_enumerated(enum):
+                self.add_api_type(enum)
 
         if self.defaulted_types:
             write(
@@ -629,6 +657,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         if self.is_flags(resolved):
             return 'Flags64' if self.is_64bit_flags(resolved) else 'Flags'
+
+        # A 64-bit flag-bits type is declared as an enum in the registry and is a typedef of the 64-bit flags type in C.
+        if self.is_enum(resolved) and self.is_flags_enum_64bit(resolved):
+            return 'Flags64'
 
         if self.is_enum(resolved):
             return 'Enum'
@@ -1081,31 +1113,43 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             file=self.outFile
         )
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
+        self.newline()
+        write('// The enumerant tables, defined in generated_vulkan_schema_enumerants.h. A descriptor names its own.', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(enumerants)', file=self.outFile)
+        for enum in self.get_enumerated_types():
+            write('struct {};'.format(enum), file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(enumerants)', file=self.outFile)
+        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(api_types)', file=self.outFile)
 
+        flag_bits = self.get_flag_bits_of_flags()
         for name in sorted(self.api_type_kinds):
+            members = 'using element_type = {0}; using kind = format::kind::{1}; static constexpr std::string_view name = "{2}";'.format(
+                self.api_type_elements[name], self.api_type_kinds[name], self.api_type_elements[name].lstrip(':')
+            )
             structure_type = self.get_structure_type(name)
-            if structure_type is None:
-                write(
-                    'struct {} {{ using element_type = {}; using kind = format::kind::{}; }};'.format(
-                        name, self.api_type_elements[name], self.api_type_kinds[name]
-                    ),
-                    file=self.outFile
+            if structure_type is not None:
+                members += ' static constexpr {} structure_type = {};'.format(
+                    '::' + self.get_struct_type_enum_name(), structure_type
                 )
-            else:
-                write(
-                    'struct {} {{ using element_type = {}; using kind = format::kind::{}; static constexpr {} structure_type = {}; }};'
-                    .format(
-                        name, self.api_type_elements[name], self.api_type_kinds[name],
-                        '::' + self.get_struct_type_enum_name(), structure_type
-                    ),
-                    file=self.outFile
+            # Qualified from the global namespace: within the descriptor an unqualified enumerants would change
+            # meaning once the member of that name is declared.
+            if self.is_enumerated(name):
+                members += ' using enumerants = ::gfxrecon::schema::vulkan::enumerants::{}; static constexpr bool is_mask = {};'.format(
+                    name, 'true' if name in self.mask_enums else 'false'
                 )
+            elif name in flag_bits:
+                members += ' using flag_bits = ::gfxrecon::schema::vulkan::api_types::{};'.format(flag_bits[name])
+            write('struct {} {{ {} }};'.format(name, members), file=self.outFile)
 
         write('GFXRECON_END_NAMESPACE(api_types)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
+
+    def write_catalog(self):
         write('// The catalog: what exists, per genre, as lists of descriptors by name. A sub-list is a fact the generator', file=self.outFile)
         write('// applied, so no list is filtered at compile time.', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(catalog)', file=self.outFile)
         self.newline()
         structs = self.get_structure_descriptors()
@@ -1118,6 +1162,21 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('GFXRECON_END_NAMESPACE(catalog)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
+
+    def get_enumerated_types(self):
+        """Every enumerated type, by name; its descriptor and its table carry the same name."""
+        return sorted(enum for enum in self.enum_names if self.is_enumerated(enum))
+
+    def get_flag_bits_of_flags(self):
+        """Flags descriptor name to the descriptor name of its flag-bits type, for the enumerated flag-bits types."""
+        result = dict()
+        for enum in self.get_enumerated_types():
+            if 'FlagBits' not in enum:
+                continue
+            flags = self.get_flags_type_from_enum(enum)
+            if flags is not None:
+                result[self.get_descriptor_name(flags)] = enum
+        return result
 
     def write_catalog_list(self, name, comment, structs):
         write('// {}'.format(comment), file=self.outFile)
@@ -1413,17 +1472,30 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         )
 
         self.newline()
-        write('// The generator predicate has_enumerants and the concept HasEnumerants are one predicate in two languages:', file=self.outFile)
-        write('// every enum given Enumerants<Enum> entries satisfies the concept, and a 64-bit flag-bits typedef, which', file=self.outFile)
-        write('// cannot be given them, does not. A rename on either side fails here by name.', file=self.outFile)
+        write('// Every enumerated type\'s descriptor names its table, and every one but a 64-bit flag-bits type is bound to', file=self.outFile)
+        write('// its native enum. Nothing is bound to the bare integer types that the 64-bit flag-bits and the Flags', file=self.outFile)
+        write('// typedefs are spelled as, which would draw their ToString calls into the enumerant overloads.', file=self.outFile)
 
-        for enum in sorted(self.enum_names):
-            if enum in self.enumAliases:
-                continue
-            if self.has_enumerants(enum):
-                write('static_assert(util::HasEnumerants<{}>);'.format(enum), file=self.outFile)
-            elif self.is_flags_enum_64bit(enum):
-                write('static_assert(!util::HasEnumerants<{}>);'.format(enum), file=self.outFile)
+        for enum in self.get_enumerated_types():
+            element = 'schema::{}'.format(self.get_descriptor_path(enum))
+            write('static_assert(schema::HasEnumerants<{}>);'.format(element), file=self.outFile)
+            if not self.is_flags_enum_64bit(enum):
+                write(
+                    'static_assert(std::is_same_v<schema::binding::DescriptorFor<::{}>::type, {}>);'.format(enum, element),
+                    file=self.outFile
+                )
+        self.newline()
+        write('// The registry declares a group a bitmask exactly when its name says FlagBits. The two are separate sources,', file=self.outFile)
+        write('// so a group that breaks the convention fails here by name.', file=self.outFile)
+        for enum in self.get_enumerated_types():
+            element = 'schema::{}'.format(self.get_descriptor_path(enum))
+            write(
+                'static_assert({}schema::IsMask<{}>);'.format('' if 'FlagBits' in enum else '!', element),
+                file=self.outFile
+            )
+        self.newline()
+        write('static_assert(!schema::binding::HasDescriptor<uint32_t>);', file=self.outFile)
+        write('static_assert(!schema::binding::HasDescriptor<uint64_t>);', file=self.outFile)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -1552,39 +1624,47 @@ class VulkanSchemaTypesGenerator(VulkanSchemaBaseGenerator):
         self.write_schema_part(self.write_api_type_descriptors, self.write_command_tags)
 
 
-class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
-    """Generates Enumerants<Enum>::entries for every enum has_enumerants admits."""
+class VulkanSchemaCatalogGenerator(VulkanSchemaBaseGenerator):
+    """Generates the catalog lists."""
 
     def write_part(self):
-        write(
-            '// Enumerants: one specialization per enum, the enumerants in registry order with the name the API',
-            file=self.outFile
-        )
-        write(
-            '// spells. An alias adds no entry. util/enumerants.h builds the sorted index and the name table from these.',
-            file=self.outFile
-        )
-        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
+        self.write_schema_part(self.write_catalog)
+
+
+class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
+    """Generates the enumerant table of every enumerated type."""
+
+    def write_part(self):
+        write('// Enumerants: one table per enumerated type, in registry order, with the name the API spells. For a flag-bits', file=self.outFile)
+        write('// type the table holds single bits, combined masks and zero alike: lookups go from value to name, so they', file=self.outFile)
+        write('// are not told apart. An alias adds no entry. The type\'s API type descriptor names its table, and each entry', file=self.outFile)
+        write('// names the descriptor.', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(enumerants)', file=self.outFile)
         self.newline()
 
-        for enum in sorted(self.enum_names):
-            if not self.has_enumerants(enum):
-                continue
+        for enum in self.get_enumerated_types():
             enumerants = self.enumEnumerants[enum]
-            write('template <>', file=self.outFile)
-            write('struct Enumerants<{}>'.format(enum), file=self.outFile)
+            entry = 'util::Enumerant<{}>'.format(self.get_descriptor_reference(self.get_descriptor_name(enum)))
+            write('struct {}'.format(enum), file=self.outFile)
             write('{', file=self.outFile)
-            write(
-                '    static constexpr std::array<Enumerant<{}>, {}> entries = {{ {{'.format(enum, len(enumerants)),
-                file=self.outFile
-            )
-            for enumerant in enumerants:
-                write('        {{ {0}, "{0}" }},'.format(enumerant), file=self.outFile)
-            write('    } };', file=self.outFile)
+            if enumerants:
+                write(
+                    '    static constexpr std::array<{}, {}> entries = {{ {{'.format(entry, len(enumerants)),
+                    file=self.outFile
+                )
+                for enumerant in enumerants:
+                    write('        {{ {0}, "{0}" }},'.format(enumerant), file=self.outFile)
+                write('    } };', file=self.outFile)
+            else:
+                write('    static constexpr std::array<{}, 0> entries{{}};'.format(entry), file=self.outFile)
             write('};', file=self.outFile)
             self.newline()
 
-        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(enumerants)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
 
 
 class VulkanSchemaFieldsGenerator(VulkanSchemaBaseGenerator):
@@ -1665,6 +1745,11 @@ class VulkanSchemaBindingDescriptorForGenerator(VulkanSchemaBaseGenerator):
         self.newline()
         for struct in sorted(self.get_structure_descriptors()):
             write('GFXRECON_SCHEMA_DESCRIPTOR_FOR(::{0}, vulkan::api_types::{0});'.format(struct), file=self.outFile)
+        self.newline()
+        # A 64-bit flag-bits type is spelled VkFlags64, so a row for it would bind the bare integer type.
+        for enum in self.get_enumerated_types():
+            if not self.is_flags_enum_64bit(enum):
+                write('GFXRECON_SCHEMA_DESCRIPTOR_FOR(::{0}, vulkan::api_types::{0});'.format(enum), file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(binding)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)

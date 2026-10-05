@@ -20,16 +20,18 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The enumerants of an enum as data, and the one lookup over them. Enumerants<Enum>::entries is generated; the index
-// and the name table are built from it here, at compile time.
+// The lookup over an enumerant table. The tables are generated schema content, one per enumerated type, each holding
+// only entries; an entry names the type's API type descriptor, which gives the value type and the type's name. The
+// index is built from entries here, at compile time.
 #ifndef GFXRECON_UTIL_ENUMERANTS_H
 #define GFXRECON_UTIL_ENUMERANTS_H
 
+#include "schema/binding/descriptor_for.h"
+#include "schema/schema.h"
 #include "util/defines.h"
 #include "util/key_index.h"
 
 #include <array>
-#include <concepts>
 #include <cstddef>
 #include <string_view>
 #include <type_traits>
@@ -37,45 +39,59 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-// One enumerant: its value and the name the API spells it with.
-template <typename Enum>
+// One enumerant of the type Descriptor describes: its value and the name the API spells it with.
+template <typename Descriptor>
 struct Enumerant
 {
-    Enum             value;
-    std::string_view name;
+    using descriptor = Descriptor;
+
+    typename Descriptor::element_type value;
+    std::string_view                  name;
 };
 
-// The enumerants of one enum in registry order. Generated, one specialization per enum, holding `entries` and
-// nothing else. An alias adds no entry, so each value appears once.
-template <typename Enum>
-struct Enumerants;
+// The descriptor of the type whose enumerants Table holds.
+template <typename Table>
+using EnumerantDescriptorOf = typename std::remove_cv_t<decltype(Table::entries)>::value_type::descriptor;
 
-template <typename Enum>
-concept HasEnumerants = std::is_enum_v<Enum> && requires
-{
-    {
-        Enumerants<Enum>::entries.size()
-        } -> std::convertible_to<size_t>;
-};
-
-// The sorted index over Enumerants<Enum>::entries; a position found through it reads the entry it came from.
-template <HasEnumerants Enum>
+// The sorted index over Table::entries; a position found through it reads the entry it came from.
+template <typename Table>
 struct EnumerantLookup
 {
-    static constexpr size_t kSize = Enumerants<Enum>::entries.size();
+    using value_type = typename EnumerantDescriptorOf<Table>::element_type;
 
-    using Index = KeyIndex<Enum, kSize>;
+    static constexpr size_t kSize = Table::entries.size();
 
-    static constexpr Index index{ Enumerants<Enum>::entries, [](const Enumerant<Enum>& entry) { return entry.value; } };
+    using Index = KeyIndex<value_type, kSize>;
+
+    static constexpr Index index{ Table::entries,
+                                  [](const Enumerant<EnumerantDescriptorOf<Table>>& entry) { return entry.value; } };
 };
 
-// The name of an enumerant, or an empty view when value is not one. What a miss means is the caller's.
-template <HasEnumerants Enum>
+// The name of an enumerant in Table, or an empty view when value is not one. What a miss means is the caller's.
+template <typename Table>
+constexpr std::string_view NameIn(typename EnumerantDescriptorOf<Table>::element_type value)
+{
+    using Lookup          = EnumerantLookup<Table>;
+    const size_t position = Lookup::index.Find(value);
+    return (position == Lookup::Index::kMiss) ? std::string_view{} : Table::entries[position].name;
+}
+
+// The table of an enum bound to an enumerated descriptor.
+template <typename Enum>
+concept HasEnumerantTable =
+    schema::binding::HasDescriptor<Enum> && schema::HasEnumerants<typename schema::binding::DescriptorFor<Enum>::type>;
+
+template <HasEnumerantTable Enum>
+using EnumerantTableOf = typename schema::binding::DescriptorFor<Enum>::type::enumerants;
+
+// The table of an enum whose values are bits of a mask.
+template <typename Enum>
+concept HasMaskTable = HasEnumerantTable<Enum> && schema::IsMask<typename schema::binding::DescriptorFor<Enum>::type>;
+
+template <HasEnumerantTable Enum>
 constexpr std::string_view NameOf(Enum value)
 {
-    using Lookup          = EnumerantLookup<Enum>;
-    const size_t position = Lookup::index.Find(value);
-    return (position == Lookup::Index::kMiss) ? std::string_view{} : Enumerants<Enum>::entries[position].name;
+    return NameIn<EnumerantTableOf<Enum>>(value);
 }
 
 GFXRECON_END_NAMESPACE(util)

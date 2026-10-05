@@ -28,7 +28,7 @@
 #include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
 #include "decode/vulkan_replay_options.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "decode/vulkan_descriptor_utils.h"
 #include "graphics/vulkan_resources_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"

@@ -51,6 +51,25 @@ concept HasStructureType = requires
 }
 &&std::is_enum_v<std::remove_cv_t<decltype(Descriptor::structure_type)>>;
 
+// An enumerated type's descriptor names its enumerant table.
+template <typename Descriptor>
+concept HasEnumerants = requires
+{
+    typename Descriptor::enumerants;
+};
+
+// An enumerated type whose values are bits of a mask: the registry declares it a bitmask.
+template <typename Descriptor>
+concept IsMask = HasEnumerants<Descriptor> && Descriptor::is_mask;
+
+// A flags type's descriptor names the descriptor of its flag-bits type.
+template <typename Descriptor>
+concept HasFlagBits = requires
+{
+    typename Descriptor::flag_bits;
+    requires IsMask<typename Descriptor::flag_bits>;
+};
+
 template <typename ApiElement>
 concept HasSchema = requires
 {

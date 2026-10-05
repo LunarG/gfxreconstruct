@@ -30,6 +30,10 @@ class KhronosDecodeExtendedStructGenerator():
     Generates C++ code for a Khronos API's extended structure decoding.
     """
 
+    def get_enum_to_string_header(self):
+        """The header that declares the API's enum ToString."""
+        return 'generated/generated_{}_enum_to_string.h'.format(self.get_api_data().api_name.lower())
+
     def write_common_headers(self, gen_opts):
         # Get the current API and generate the items relavent to that
         current_api_data = self.get_api_data()
@@ -60,11 +64,7 @@ class KhronosDecodeExtendedStructGenerator():
             format(lower_api_name),
             file=self.outFile
         )
-        write(
-            '#include "generated/generated_{}_enum_to_string.h"'.
-            format(lower_api_name),
-            file=self.outFile
-        )
+        write('#include "{}"'.format(self.get_enum_to_string_header()), file=self.outFile)
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)

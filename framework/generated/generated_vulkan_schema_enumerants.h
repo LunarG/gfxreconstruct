@@ -31,6 +31,7 @@
 #define  GFXRECON_GENERATED_VULKAN_SCHEMA_ENUMERANTS_H
 
 #include "format/platform_types.h"
+#include "generated/generated_vulkan_schema_types.h"
 #include "util/defines.h"
 #include "util/enumerants.h"
 
@@ -53,14 +54,17 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-// Enumerants: one specialization per enum, the enumerants in registry order with the name the API
-// spells. An alias adds no entry. util/enumerants.h builds the sorted index and the name table from these.
-GFXRECON_BEGIN_NAMESPACE(util)
+// Enumerants: one table per enumerated type, in registry order, with the name the API spells. For a flag-bits
+// type the table holds single bits, combined masks and zero alike: lookups go from value to name, so they
+// are not told apart. An alias adds no entry. The type's API type descriptor names its table, and each entry
+// names the descriptor.
+GFXRECON_BEGIN_NAMESPACE(schema)
+GFXRECON_BEGIN_NAMESPACE(vulkan)
+GFXRECON_BEGIN_NAMESPACE(enumerants)
 
-template <>
-struct Enumerants<StdVideoAV1ChromaSamplePosition>
+struct StdVideoAV1ChromaSamplePosition
 {
-    static constexpr std::array<Enumerant<StdVideoAV1ChromaSamplePosition>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1ChromaSamplePosition>, 5> entries = { {
         { STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN" },
         { STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_VERTICAL, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_VERTICAL" },
         { STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_COLOCATED, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_COLOCATED" },
@@ -69,10 +73,9 @@ struct Enumerants<StdVideoAV1ChromaSamplePosition>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1ColorPrimaries>
+struct StdVideoAV1ColorPrimaries
 {
-    static constexpr std::array<Enumerant<StdVideoAV1ColorPrimaries>, 13> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1ColorPrimaries>, 13> entries = { {
         { STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709" },
         { STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED, "STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED" },
         { STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M" },
@@ -89,10 +92,9 @@ struct Enumerants<StdVideoAV1ColorPrimaries>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1FrameRestorationType>
+struct StdVideoAV1FrameRestorationType
 {
-    static constexpr std::array<Enumerant<StdVideoAV1FrameRestorationType>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1FrameRestorationType>, 5> entries = { {
         { STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE" },
         { STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_WIENER, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_WIENER" },
         { STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SGRPROJ, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SGRPROJ" },
@@ -101,10 +103,9 @@ struct Enumerants<StdVideoAV1FrameRestorationType>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1FrameType>
+struct StdVideoAV1FrameType
 {
-    static constexpr std::array<Enumerant<StdVideoAV1FrameType>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1FrameType>, 5> entries = { {
         { STD_VIDEO_AV1_FRAME_TYPE_KEY, "STD_VIDEO_AV1_FRAME_TYPE_KEY" },
         { STD_VIDEO_AV1_FRAME_TYPE_INTER, "STD_VIDEO_AV1_FRAME_TYPE_INTER" },
         { STD_VIDEO_AV1_FRAME_TYPE_INTRA_ONLY, "STD_VIDEO_AV1_FRAME_TYPE_INTRA_ONLY" },
@@ -113,10 +114,9 @@ struct Enumerants<StdVideoAV1FrameType>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1InterpolationFilter>
+struct StdVideoAV1InterpolationFilter
 {
-    static constexpr std::array<Enumerant<StdVideoAV1InterpolationFilter>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1InterpolationFilter>, 6> entries = { {
         { STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP" },
         { STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH" },
         { STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SHARP, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SHARP" },
@@ -126,10 +126,9 @@ struct Enumerants<StdVideoAV1InterpolationFilter>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1Level>
+struct StdVideoAV1Level
 {
-    static constexpr std::array<Enumerant<StdVideoAV1Level>, 25> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1Level>, 25> entries = { {
         { STD_VIDEO_AV1_LEVEL_2_0, "STD_VIDEO_AV1_LEVEL_2_0" },
         { STD_VIDEO_AV1_LEVEL_2_1, "STD_VIDEO_AV1_LEVEL_2_1" },
         { STD_VIDEO_AV1_LEVEL_2_2, "STD_VIDEO_AV1_LEVEL_2_2" },
@@ -158,10 +157,9 @@ struct Enumerants<StdVideoAV1Level>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1MatrixCoefficients>
+struct StdVideoAV1MatrixCoefficients
 {
-    static constexpr std::array<Enumerant<StdVideoAV1MatrixCoefficients>, 16> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1MatrixCoefficients>, 16> entries = { {
         { STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY" },
         { STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_709, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_709" },
         { STD_VIDEO_AV1_MATRIX_COEFFICIENTS_UNSPECIFIED, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_UNSPECIFIED" },
@@ -181,10 +179,9 @@ struct Enumerants<StdVideoAV1MatrixCoefficients>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1Profile>
+struct StdVideoAV1Profile
 {
-    static constexpr std::array<Enumerant<StdVideoAV1Profile>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1Profile>, 4> entries = { {
         { STD_VIDEO_AV1_PROFILE_MAIN, "STD_VIDEO_AV1_PROFILE_MAIN" },
         { STD_VIDEO_AV1_PROFILE_HIGH, "STD_VIDEO_AV1_PROFILE_HIGH" },
         { STD_VIDEO_AV1_PROFILE_PROFESSIONAL, "STD_VIDEO_AV1_PROFILE_PROFESSIONAL" },
@@ -192,10 +189,9 @@ struct Enumerants<StdVideoAV1Profile>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1ReferenceName>
+struct StdVideoAV1ReferenceName
 {
-    static constexpr std::array<Enumerant<StdVideoAV1ReferenceName>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1ReferenceName>, 9> entries = { {
         { STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME, "STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME" },
         { STD_VIDEO_AV1_REFERENCE_NAME_LAST_FRAME, "STD_VIDEO_AV1_REFERENCE_NAME_LAST_FRAME" },
         { STD_VIDEO_AV1_REFERENCE_NAME_LAST2_FRAME, "STD_VIDEO_AV1_REFERENCE_NAME_LAST2_FRAME" },
@@ -208,10 +204,9 @@ struct Enumerants<StdVideoAV1ReferenceName>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1TransferCharacteristics>
+struct StdVideoAV1TransferCharacteristics
 {
-    static constexpr std::array<Enumerant<StdVideoAV1TransferCharacteristics>, 20> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1TransferCharacteristics>, 20> entries = { {
         { STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0" },
         { STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_709, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_709" },
         { STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_UNSPECIFIED, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_UNSPECIFIED" },
@@ -235,10 +230,9 @@ struct Enumerants<StdVideoAV1TransferCharacteristics>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoAV1TxMode>
+struct StdVideoAV1TxMode
 {
-    static constexpr std::array<Enumerant<StdVideoAV1TxMode>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoAV1TxMode>, 4> entries = { {
         { STD_VIDEO_AV1_TX_MODE_ONLY_4X4, "STD_VIDEO_AV1_TX_MODE_ONLY_4X4" },
         { STD_VIDEO_AV1_TX_MODE_LARGEST, "STD_VIDEO_AV1_TX_MODE_LARGEST" },
         { STD_VIDEO_AV1_TX_MODE_SELECT, "STD_VIDEO_AV1_TX_MODE_SELECT" },
@@ -246,20 +240,18 @@ struct Enumerants<StdVideoAV1TxMode>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoDecodeH264FieldOrderCount>
+struct StdVideoDecodeH264FieldOrderCount
 {
-    static constexpr std::array<Enumerant<StdVideoDecodeH264FieldOrderCount>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoDecodeH264FieldOrderCount>, 3> entries = { {
         { STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP" },
         { STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_BOTTOM, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_BOTTOM" },
         { STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_INVALID, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_INVALID" },
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264AspectRatioIdc>
+struct StdVideoH264AspectRatioIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264AspectRatioIdc>, 19> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264AspectRatioIdc>, 19> entries = { {
         { STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED, "STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED" },
         { STD_VIDEO_H264_ASPECT_RATIO_IDC_SQUARE, "STD_VIDEO_H264_ASPECT_RATIO_IDC_SQUARE" },
         { STD_VIDEO_H264_ASPECT_RATIO_IDC_12_11, "STD_VIDEO_H264_ASPECT_RATIO_IDC_12_11" },
@@ -282,10 +274,9 @@ struct Enumerants<StdVideoH264AspectRatioIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264CabacInitIdc>
+struct StdVideoH264CabacInitIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264CabacInitIdc>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264CabacInitIdc>, 4> entries = { {
         { STD_VIDEO_H264_CABAC_INIT_IDC_0, "STD_VIDEO_H264_CABAC_INIT_IDC_0" },
         { STD_VIDEO_H264_CABAC_INIT_IDC_1, "STD_VIDEO_H264_CABAC_INIT_IDC_1" },
         { STD_VIDEO_H264_CABAC_INIT_IDC_2, "STD_VIDEO_H264_CABAC_INIT_IDC_2" },
@@ -293,10 +284,9 @@ struct Enumerants<StdVideoH264CabacInitIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264ChromaFormatIdc>
+struct StdVideoH264ChromaFormatIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264ChromaFormatIdc>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264ChromaFormatIdc>, 5> entries = { {
         { STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME" },
         { STD_VIDEO_H264_CHROMA_FORMAT_IDC_420, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_420" },
         { STD_VIDEO_H264_CHROMA_FORMAT_IDC_422, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_422" },
@@ -305,10 +295,9 @@ struct Enumerants<StdVideoH264ChromaFormatIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264DisableDeblockingFilterIdc>
+struct StdVideoH264DisableDeblockingFilterIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264DisableDeblockingFilterIdc>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264DisableDeblockingFilterIdc>, 4> entries = { {
         { STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED" },
         { STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_ENABLED, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_ENABLED" },
         { STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_PARTIAL, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_PARTIAL" },
@@ -316,10 +305,9 @@ struct Enumerants<StdVideoH264DisableDeblockingFilterIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264LevelIdc>
+struct StdVideoH264LevelIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264LevelIdc>, 20> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264LevelIdc>, 20> entries = { {
         { STD_VIDEO_H264_LEVEL_IDC_1_0, "STD_VIDEO_H264_LEVEL_IDC_1_0" },
         { STD_VIDEO_H264_LEVEL_IDC_1_1, "STD_VIDEO_H264_LEVEL_IDC_1_1" },
         { STD_VIDEO_H264_LEVEL_IDC_1_2, "STD_VIDEO_H264_LEVEL_IDC_1_2" },
@@ -343,10 +331,9 @@ struct Enumerants<StdVideoH264LevelIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264MemMgmtControlOp>
+struct StdVideoH264MemMgmtControlOp
 {
-    static constexpr std::array<Enumerant<StdVideoH264MemMgmtControlOp>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264MemMgmtControlOp>, 8> entries = { {
         { STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END" },
         { STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_SHORT_TERM, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_SHORT_TERM" },
         { STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_LONG_TERM, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_LONG_TERM" },
@@ -358,10 +345,9 @@ struct Enumerants<StdVideoH264MemMgmtControlOp>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264ModificationOfPicNumsIdc>
+struct StdVideoH264ModificationOfPicNumsIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264ModificationOfPicNumsIdc>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264ModificationOfPicNumsIdc>, 5> entries = { {
         { STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT" },
         { STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_ADD, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_ADD" },
         { STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_LONG_TERM, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_LONG_TERM" },
@@ -370,10 +356,9 @@ struct Enumerants<StdVideoH264ModificationOfPicNumsIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264NonVclNaluType>
+struct StdVideoH264NonVclNaluType
 {
-    static constexpr std::array<Enumerant<StdVideoH264NonVclNaluType>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264NonVclNaluType>, 8> entries = { {
         { STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS" },
         { STD_VIDEO_H264_NON_VCL_NALU_TYPE_PPS, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PPS" },
         { STD_VIDEO_H264_NON_VCL_NALU_TYPE_AUD, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_AUD" },
@@ -385,10 +370,9 @@ struct Enumerants<StdVideoH264NonVclNaluType>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264PictureType>
+struct StdVideoH264PictureType
 {
-    static constexpr std::array<Enumerant<StdVideoH264PictureType>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264PictureType>, 5> entries = { {
         { STD_VIDEO_H264_PICTURE_TYPE_P, "STD_VIDEO_H264_PICTURE_TYPE_P" },
         { STD_VIDEO_H264_PICTURE_TYPE_B, "STD_VIDEO_H264_PICTURE_TYPE_B" },
         { STD_VIDEO_H264_PICTURE_TYPE_I, "STD_VIDEO_H264_PICTURE_TYPE_I" },
@@ -397,10 +381,9 @@ struct Enumerants<StdVideoH264PictureType>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264PocType>
+struct StdVideoH264PocType
 {
-    static constexpr std::array<Enumerant<StdVideoH264PocType>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264PocType>, 4> entries = { {
         { STD_VIDEO_H264_POC_TYPE_0, "STD_VIDEO_H264_POC_TYPE_0" },
         { STD_VIDEO_H264_POC_TYPE_1, "STD_VIDEO_H264_POC_TYPE_1" },
         { STD_VIDEO_H264_POC_TYPE_2, "STD_VIDEO_H264_POC_TYPE_2" },
@@ -408,10 +391,9 @@ struct Enumerants<StdVideoH264PocType>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264ProfileIdc>
+struct StdVideoH264ProfileIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264ProfileIdc>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264ProfileIdc>, 7> entries = { {
         { STD_VIDEO_H264_PROFILE_IDC_BASELINE, "STD_VIDEO_H264_PROFILE_IDC_BASELINE" },
         { STD_VIDEO_H264_PROFILE_IDC_MAIN, "STD_VIDEO_H264_PROFILE_IDC_MAIN" },
         { STD_VIDEO_H264_PROFILE_IDC_HIGH, "STD_VIDEO_H264_PROFILE_IDC_HIGH" },
@@ -422,10 +404,9 @@ struct Enumerants<StdVideoH264ProfileIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264SliceType>
+struct StdVideoH264SliceType
 {
-    static constexpr std::array<Enumerant<StdVideoH264SliceType>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264SliceType>, 4> entries = { {
         { STD_VIDEO_H264_SLICE_TYPE_P, "STD_VIDEO_H264_SLICE_TYPE_P" },
         { STD_VIDEO_H264_SLICE_TYPE_B, "STD_VIDEO_H264_SLICE_TYPE_B" },
         { STD_VIDEO_H264_SLICE_TYPE_I, "STD_VIDEO_H264_SLICE_TYPE_I" },
@@ -433,10 +414,9 @@ struct Enumerants<StdVideoH264SliceType>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoH264WeightedBipredIdc>
+struct StdVideoH264WeightedBipredIdc
 {
-    static constexpr std::array<Enumerant<StdVideoH264WeightedBipredIdc>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoH264WeightedBipredIdc>, 4> entries = { {
         { STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT" },
         { STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_EXPLICIT, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_EXPLICIT" },
         { STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_IMPLICIT, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_IMPLICIT" },
@@ -444,10 +424,9 @@ struct Enumerants<StdVideoH264WeightedBipredIdc>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoVP9ColorSpace>
+struct StdVideoVP9ColorSpace
 {
-    static constexpr std::array<Enumerant<StdVideoVP9ColorSpace>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoVP9ColorSpace>, 9> entries = { {
         { STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN, "STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN" },
         { STD_VIDEO_VP9_COLOR_SPACE_BT_601, "STD_VIDEO_VP9_COLOR_SPACE_BT_601" },
         { STD_VIDEO_VP9_COLOR_SPACE_BT_709, "STD_VIDEO_VP9_COLOR_SPACE_BT_709" },
@@ -460,20 +439,18 @@ struct Enumerants<StdVideoVP9ColorSpace>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoVP9FrameType>
+struct StdVideoVP9FrameType
 {
-    static constexpr std::array<Enumerant<StdVideoVP9FrameType>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoVP9FrameType>, 3> entries = { {
         { STD_VIDEO_VP9_FRAME_TYPE_KEY, "STD_VIDEO_VP9_FRAME_TYPE_KEY" },
         { STD_VIDEO_VP9_FRAME_TYPE_NON_KEY, "STD_VIDEO_VP9_FRAME_TYPE_NON_KEY" },
         { STD_VIDEO_VP9_FRAME_TYPE_INVALID, "STD_VIDEO_VP9_FRAME_TYPE_INVALID" },
     } };
 };
 
-template <>
-struct Enumerants<StdVideoVP9InterpolationFilter>
+struct StdVideoVP9InterpolationFilter
 {
-    static constexpr std::array<Enumerant<StdVideoVP9InterpolationFilter>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoVP9InterpolationFilter>, 6> entries = { {
         { STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP" },
         { STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH" },
         { STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP" },
@@ -483,10 +460,9 @@ struct Enumerants<StdVideoVP9InterpolationFilter>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoVP9Level>
+struct StdVideoVP9Level
 {
-    static constexpr std::array<Enumerant<StdVideoVP9Level>, 15> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoVP9Level>, 15> entries = { {
         { STD_VIDEO_VP9_LEVEL_1_0, "STD_VIDEO_VP9_LEVEL_1_0" },
         { STD_VIDEO_VP9_LEVEL_1_1, "STD_VIDEO_VP9_LEVEL_1_1" },
         { STD_VIDEO_VP9_LEVEL_2_0, "STD_VIDEO_VP9_LEVEL_2_0" },
@@ -505,10 +481,9 @@ struct Enumerants<StdVideoVP9Level>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoVP9Profile>
+struct StdVideoVP9Profile
 {
-    static constexpr std::array<Enumerant<StdVideoVP9Profile>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoVP9Profile>, 5> entries = { {
         { STD_VIDEO_VP9_PROFILE_0, "STD_VIDEO_VP9_PROFILE_0" },
         { STD_VIDEO_VP9_PROFILE_1, "STD_VIDEO_VP9_PROFILE_1" },
         { STD_VIDEO_VP9_PROFILE_2, "STD_VIDEO_VP9_PROFILE_2" },
@@ -517,10 +492,9 @@ struct Enumerants<StdVideoVP9Profile>
     } };
 };
 
-template <>
-struct Enumerants<StdVideoVP9ReferenceName>
+struct StdVideoVP9ReferenceName
 {
-    static constexpr std::array<Enumerant<StdVideoVP9ReferenceName>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::StdVideoVP9ReferenceName>, 5> entries = { {
         { STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME, "STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME" },
         { STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME, "STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME" },
         { STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME, "STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME" },
@@ -529,67 +503,60 @@ struct Enumerants<StdVideoVP9ReferenceName>
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureBuildTypeKHR>
+struct VkAccelerationStructureBuildTypeKHR
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureBuildTypeKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureBuildTypeKHR>, 3> entries = { {
         { VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR, "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR" },
         { VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR" },
         { VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR, "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureCompatibilityKHR>
+struct VkAccelerationStructureCompatibilityKHR
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureCompatibilityKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureCompatibilityKHR>, 2> entries = { {
         { VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR, "VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR" },
         { VK_ACCELERATION_STRUCTURE_COMPATIBILITY_INCOMPATIBLE_KHR, "VK_ACCELERATION_STRUCTURE_COMPATIBILITY_INCOMPATIBLE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureCreateFlagBitsKHR>
+struct VkAccelerationStructureCreateFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureCreateFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureCreateFlagBitsKHR>, 3> entries = { {
         { VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR, "VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR" },
         { VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT, "VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT" },
         { VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV, "VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureMemoryRequirementsTypeNV>
+struct VkAccelerationStructureMemoryRequirementsTypeNV
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureMemoryRequirementsTypeNV>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureMemoryRequirementsTypeNV>, 3> entries = { {
         { VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV, "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV" },
         { VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV, "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV" },
         { VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV, "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureMotionInstanceTypeNV>
+struct VkAccelerationStructureMotionInstanceTypeNV
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureMotionInstanceTypeNV>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureMotionInstanceTypeNV>, 3> entries = { {
         { VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV, "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV" },
         { VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV, "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV" },
         { VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV, "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureSerializedBlockTypeKHR>
+struct VkAccelerationStructureSerializedBlockTypeKHR
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureSerializedBlockTypeKHR>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureSerializedBlockTypeKHR>, 1> entries = { {
         { VK_ACCELERATION_STRUCTURE_SERIALIZED_BLOCK_TYPE_OPACITY_MICROMAP_KHR, "VK_ACCELERATION_STRUCTURE_SERIALIZED_BLOCK_TYPE_OPACITY_MICROMAP_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkAccelerationStructureTypeKHR>
+struct VkAccelerationStructureTypeKHR
 {
-    static constexpr std::array<Enumerant<VkAccelerationStructureTypeKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccelerationStructureTypeKHR>, 4> entries = { {
         { VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR, "VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR" },
         { VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR, "VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR" },
         { VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR, "VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR" },
@@ -597,10 +564,9 @@ struct Enumerants<VkAccelerationStructureTypeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkAccessFlagBits>
+struct VkAccessFlagBits
 {
-    static constexpr std::array<Enumerant<VkAccessFlagBits>, 29> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccessFlagBits>, 29> entries = { {
         { VK_ACCESS_INDIRECT_COMMAND_READ_BIT, "VK_ACCESS_INDIRECT_COMMAND_READ_BIT" },
         { VK_ACCESS_INDEX_READ_BIT, "VK_ACCESS_INDEX_READ_BIT" },
         { VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, "VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT" },
@@ -633,10 +599,78 @@ struct Enumerants<VkAccessFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkAddressCommandFlagBitsKHR>
+struct VkAccessFlagBits2
 {
-    static constexpr std::array<Enumerant<VkAddressCommandFlagBitsKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAccessFlagBits2>, 51> entries = { {
+        { VK_ACCESS_2_NONE, "VK_ACCESS_2_NONE" },
+        { VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT, "VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT" },
+        { VK_ACCESS_2_INDEX_READ_BIT, "VK_ACCESS_2_INDEX_READ_BIT" },
+        { VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT, "VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT" },
+        { VK_ACCESS_2_UNIFORM_READ_BIT, "VK_ACCESS_2_UNIFORM_READ_BIT" },
+        { VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT, "VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT" },
+        { VK_ACCESS_2_SHADER_READ_BIT, "VK_ACCESS_2_SHADER_READ_BIT" },
+        { VK_ACCESS_2_SHADER_WRITE_BIT, "VK_ACCESS_2_SHADER_WRITE_BIT" },
+        { VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT, "VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT" },
+        { VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT, "VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT" },
+        { VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT, "VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT" },
+        { VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, "VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT" },
+        { VK_ACCESS_2_TRANSFER_READ_BIT, "VK_ACCESS_2_TRANSFER_READ_BIT" },
+        { VK_ACCESS_2_TRANSFER_WRITE_BIT, "VK_ACCESS_2_TRANSFER_WRITE_BIT" },
+        { VK_ACCESS_2_HOST_READ_BIT, "VK_ACCESS_2_HOST_READ_BIT" },
+        { VK_ACCESS_2_HOST_WRITE_BIT, "VK_ACCESS_2_HOST_WRITE_BIT" },
+        { VK_ACCESS_2_MEMORY_READ_BIT, "VK_ACCESS_2_MEMORY_READ_BIT" },
+        { VK_ACCESS_2_MEMORY_WRITE_BIT, "VK_ACCESS_2_MEMORY_WRITE_BIT" },
+        { VK_ACCESS_2_SHADER_SAMPLED_READ_BIT, "VK_ACCESS_2_SHADER_SAMPLED_READ_BIT" },
+        { VK_ACCESS_2_SHADER_STORAGE_READ_BIT, "VK_ACCESS_2_SHADER_STORAGE_READ_BIT" },
+        { VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT, "VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT" },
+        { VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR, "VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR" },
+        { VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR, "VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR" },
+        { VK_ACCESS_2_SAMPLER_HEAP_READ_BIT_EXT, "VK_ACCESS_2_SAMPLER_HEAP_READ_BIT_EXT" },
+        { VK_ACCESS_2_RESOURCE_HEAP_READ_BIT_EXT, "VK_ACCESS_2_RESOURCE_HEAP_READ_BIT_EXT" },
+        { VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR, "VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR" },
+        { VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR, "VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR" },
+        { VK_ACCESS_2_SHADER_TILE_ATTACHMENT_READ_BIT_QCOM, "VK_ACCESS_2_SHADER_TILE_ATTACHMENT_READ_BIT_QCOM" },
+        { VK_ACCESS_2_SHADER_TILE_ATTACHMENT_WRITE_BIT_QCOM, "VK_ACCESS_2_SHADER_TILE_ATTACHMENT_WRITE_BIT_QCOM" },
+        { VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT, "VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT" },
+        { VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT, "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT" },
+        { VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT, "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT" },
+        { VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT, "VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT" },
+        { VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_EXT, "VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_EXT" },
+        { VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_EXT, "VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_EXT" },
+        { VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR, "VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR" },
+        { VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR, "VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR" },
+        { VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR, "VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR" },
+        { VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT, "VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT" },
+        { VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT, "VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT" },
+        { VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT, "VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT" },
+        { VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI, "VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI" },
+        { VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR, "VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR" },
+        { VK_ACCESS_2_MICROMAP_READ_BIT_EXT, "VK_ACCESS_2_MICROMAP_READ_BIT_EXT" },
+        { VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT, "VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT" },
+        { VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV, "VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV" },
+        { VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV, "VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV" },
+        { VK_ACCESS_2_DATA_GRAPH_READ_BIT_ARM, "VK_ACCESS_2_DATA_GRAPH_READ_BIT_ARM" },
+        { VK_ACCESS_2_DATA_GRAPH_WRITE_BIT_ARM, "VK_ACCESS_2_DATA_GRAPH_WRITE_BIT_ARM" },
+        { VK_ACCESS_2_MEMORY_DECOMPRESSION_READ_BIT_EXT, "VK_ACCESS_2_MEMORY_DECOMPRESSION_READ_BIT_EXT" },
+        { VK_ACCESS_2_MEMORY_DECOMPRESSION_WRITE_BIT_EXT, "VK_ACCESS_2_MEMORY_DECOMPRESSION_WRITE_BIT_EXT" },
+    } };
+};
+
+struct VkAccessFlagBits3KHR
+{
+    static constexpr std::array<util::Enumerant<api_types::VkAccessFlagBits3KHR>, 1> entries = { {
+        { VK_ACCESS_3_NONE_KHR, "VK_ACCESS_3_NONE_KHR" },
+    } };
+};
+
+struct VkAcquireProfilingLockFlagBitsKHR
+{
+    static constexpr std::array<util::Enumerant<api_types::VkAcquireProfilingLockFlagBitsKHR>, 0> entries{};
+};
+
+struct VkAddressCommandFlagBitsKHR
+{
+    static constexpr std::array<util::Enumerant<api_types::VkAddressCommandFlagBitsKHR>, 6> entries = { {
         { VK_ADDRESS_COMMAND_PROTECTED_BIT_KHR, "VK_ADDRESS_COMMAND_PROTECTED_BIT_KHR" },
         { VK_ADDRESS_COMMAND_FULLY_BOUND_BIT_KHR, "VK_ADDRESS_COMMAND_FULLY_BOUND_BIT_KHR" },
         { VK_ADDRESS_COMMAND_STORAGE_BUFFER_USAGE_BIT_KHR, "VK_ADDRESS_COMMAND_STORAGE_BUFFER_USAGE_BIT_KHR" },
@@ -646,49 +680,44 @@ struct Enumerants<VkAddressCommandFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkAddressCopyFlagBitsKHR>
+struct VkAddressCopyFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkAddressCopyFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAddressCopyFlagBitsKHR>, 3> entries = { {
         { VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR, "VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR" },
         { VK_ADDRESS_COPY_SPARSE_BIT_KHR, "VK_ADDRESS_COPY_SPARSE_BIT_KHR" },
         { VK_ADDRESS_COPY_PROTECTED_BIT_KHR, "VK_ADDRESS_COPY_PROTECTED_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkAntiLagModeAMD>
+struct VkAntiLagModeAMD
 {
-    static constexpr std::array<Enumerant<VkAntiLagModeAMD>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAntiLagModeAMD>, 3> entries = { {
         { VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD, "VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD" },
         { VK_ANTI_LAG_MODE_ON_AMD, "VK_ANTI_LAG_MODE_ON_AMD" },
         { VK_ANTI_LAG_MODE_OFF_AMD, "VK_ANTI_LAG_MODE_OFF_AMD" },
     } };
 };
 
-template <>
-struct Enumerants<VkAntiLagStageAMD>
+struct VkAntiLagStageAMD
 {
-    static constexpr std::array<Enumerant<VkAntiLagStageAMD>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAntiLagStageAMD>, 2> entries = { {
         { VK_ANTI_LAG_STAGE_INPUT_AMD, "VK_ANTI_LAG_STAGE_INPUT_AMD" },
         { VK_ANTI_LAG_STAGE_PRESENT_AMD, "VK_ANTI_LAG_STAGE_PRESENT_AMD" },
     } };
 };
 
-template <>
-struct Enumerants<VkAttachmentDescriptionFlagBits>
+struct VkAttachmentDescriptionFlagBits
 {
-    static constexpr std::array<Enumerant<VkAttachmentDescriptionFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAttachmentDescriptionFlagBits>, 3> entries = { {
         { VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT, "VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT" },
         { VK_ATTACHMENT_DESCRIPTION_RESOLVE_SKIP_TRANSFER_FUNCTION_BIT_KHR, "VK_ATTACHMENT_DESCRIPTION_RESOLVE_SKIP_TRANSFER_FUNCTION_BIT_KHR" },
         { VK_ATTACHMENT_DESCRIPTION_RESOLVE_ENABLE_TRANSFER_FUNCTION_BIT_KHR, "VK_ATTACHMENT_DESCRIPTION_RESOLVE_ENABLE_TRANSFER_FUNCTION_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkAttachmentLoadOp>
+struct VkAttachmentLoadOp
 {
-    static constexpr std::array<Enumerant<VkAttachmentLoadOp>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAttachmentLoadOp>, 4> entries = { {
         { VK_ATTACHMENT_LOAD_OP_LOAD, "VK_ATTACHMENT_LOAD_OP_LOAD" },
         { VK_ATTACHMENT_LOAD_OP_CLEAR, "VK_ATTACHMENT_LOAD_OP_CLEAR" },
         { VK_ATTACHMENT_LOAD_OP_DONT_CARE, "VK_ATTACHMENT_LOAD_OP_DONT_CARE" },
@@ -696,20 +725,18 @@ struct Enumerants<VkAttachmentLoadOp>
     } };
 };
 
-template <>
-struct Enumerants<VkAttachmentStoreOp>
+struct VkAttachmentStoreOp
 {
-    static constexpr std::array<Enumerant<VkAttachmentStoreOp>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkAttachmentStoreOp>, 3> entries = { {
         { VK_ATTACHMENT_STORE_OP_STORE, "VK_ATTACHMENT_STORE_OP_STORE" },
         { VK_ATTACHMENT_STORE_OP_DONT_CARE, "VK_ATTACHMENT_STORE_OP_DONT_CARE" },
         { VK_ATTACHMENT_STORE_OP_NONE, "VK_ATTACHMENT_STORE_OP_NONE" },
     } };
 };
 
-template <>
-struct Enumerants<VkBlendFactor>
+struct VkBlendFactor
 {
-    static constexpr std::array<Enumerant<VkBlendFactor>, 19> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBlendFactor>, 19> entries = { {
         { VK_BLEND_FACTOR_ZERO, "VK_BLEND_FACTOR_ZERO" },
         { VK_BLEND_FACTOR_ONE, "VK_BLEND_FACTOR_ONE" },
         { VK_BLEND_FACTOR_SRC_COLOR, "VK_BLEND_FACTOR_SRC_COLOR" },
@@ -732,10 +759,9 @@ struct Enumerants<VkBlendFactor>
     } };
 };
 
-template <>
-struct Enumerants<VkBlendOp>
+struct VkBlendOp
 {
-    static constexpr std::array<Enumerant<VkBlendOp>, 51> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBlendOp>, 51> entries = { {
         { VK_BLEND_OP_ADD, "VK_BLEND_OP_ADD" },
         { VK_BLEND_OP_SUBTRACT, "VK_BLEND_OP_SUBTRACT" },
         { VK_BLEND_OP_REVERSE_SUBTRACT, "VK_BLEND_OP_REVERSE_SUBTRACT" },
@@ -790,29 +816,26 @@ struct Enumerants<VkBlendOp>
     } };
 };
 
-template <>
-struct Enumerants<VkBlendOverlapEXT>
+struct VkBlendOverlapEXT
 {
-    static constexpr std::array<Enumerant<VkBlendOverlapEXT>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBlendOverlapEXT>, 3> entries = { {
         { VK_BLEND_OVERLAP_UNCORRELATED_EXT, "VK_BLEND_OVERLAP_UNCORRELATED_EXT" },
         { VK_BLEND_OVERLAP_DISJOINT_EXT, "VK_BLEND_OVERLAP_DISJOINT_EXT" },
         { VK_BLEND_OVERLAP_CONJOINT_EXT, "VK_BLEND_OVERLAP_CONJOINT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkBlockMatchWindowCompareModeQCOM>
+struct VkBlockMatchWindowCompareModeQCOM
 {
-    static constexpr std::array<Enumerant<VkBlockMatchWindowCompareModeQCOM>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBlockMatchWindowCompareModeQCOM>, 2> entries = { {
         { VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM, "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM" },
         { VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM, "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM" },
     } };
 };
 
-template <>
-struct Enumerants<VkBorderColor>
+struct VkBorderColor
 {
-    static constexpr std::array<Enumerant<VkBorderColor>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBorderColor>, 8> entries = { {
         { VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK, "VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK" },
         { VK_BORDER_COLOR_INT_TRANSPARENT_BLACK, "VK_BORDER_COLOR_INT_TRANSPARENT_BLACK" },
         { VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, "VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK" },
@@ -824,10 +847,9 @@ struct Enumerants<VkBorderColor>
     } };
 };
 
-template <>
-struct Enumerants<VkBufferCreateFlagBits>
+struct VkBufferCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkBufferCreateFlagBits>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBufferCreateFlagBits>, 7> entries = { {
         { VK_BUFFER_CREATE_SPARSE_BINDING_BIT, "VK_BUFFER_CREATE_SPARSE_BINDING_BIT" },
         { VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT, "VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT" },
         { VK_BUFFER_CREATE_SPARSE_ALIASED_BIT, "VK_BUFFER_CREATE_SPARSE_ALIASED_BIT" },
@@ -838,10 +860,9 @@ struct Enumerants<VkBufferCreateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkBufferUsageFlagBits>
+struct VkBufferUsageFlagBits
 {
-    static constexpr std::array<Enumerant<VkBufferUsageFlagBits>, 28> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBufferUsageFlagBits>, 28> entries = { {
         { VK_BUFFER_USAGE_TRANSFER_SRC_BIT, "VK_BUFFER_USAGE_TRANSFER_SRC_BIT" },
         { VK_BUFFER_USAGE_TRANSFER_DST_BIT, "VK_BUFFER_USAGE_TRANSFER_DST_BIT" },
         { VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, "VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT" },
@@ -873,10 +894,47 @@ struct Enumerants<VkBufferUsageFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkBuildAccelerationStructureFlagBitsKHR>
+struct VkBufferUsageFlagBits2
 {
-    static constexpr std::array<Enumerant<VkBuildAccelerationStructureFlagBitsKHR>, 13> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBufferUsageFlagBits2>, 32> entries = { {
+        { VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT, "VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT" },
+        { VK_BUFFER_USAGE_2_TRANSFER_DST_BIT, "VK_BUFFER_USAGE_2_TRANSFER_DST_BIT" },
+        { VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT, "VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT, "VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT, "VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT, "VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT, "VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT, "VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT, "VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT" },
+        { VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT, "VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT" },
+        { VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX, "VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX" },
+        { VK_BUFFER_USAGE_2_DESCRIPTOR_HEAP_BIT_EXT, "VK_BUFFER_USAGE_2_DESCRIPTOR_HEAP_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT, "VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT, "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT, "VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR, "VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT, "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT, "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR, "VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR, "VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR, "VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR, "VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR, "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR, "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR" },
+        { VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT, "VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT, "VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT, "VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_COMPRESSED_DATA_DGF1_BIT_AMDX, "VK_BUFFER_USAGE_2_COMPRESSED_DATA_DGF1_BIT_AMDX" },
+        { VK_BUFFER_USAGE_2_DATA_GRAPH_FOREIGN_DESCRIPTOR_BIT_ARM, "VK_BUFFER_USAGE_2_DATA_GRAPH_FOREIGN_DESCRIPTOR_BIT_ARM" },
+        { VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM, "VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM" },
+        { VK_BUFFER_USAGE_2_MEMORY_DECOMPRESSION_BIT_EXT, "VK_BUFFER_USAGE_2_MEMORY_DECOMPRESSION_BIT_EXT" },
+        { VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT, "VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT" },
+    } };
+};
+
+struct VkBuildAccelerationStructureFlagBitsKHR
+{
+    static constexpr std::array<util::Enumerant<api_types::VkBuildAccelerationStructureFlagBitsKHR>, 13> entries = { {
         { VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR, "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR" },
         { VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR, "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR" },
         { VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR, "VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR" },
@@ -893,46 +951,41 @@ struct Enumerants<VkBuildAccelerationStructureFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkBuildAccelerationStructureModeKHR>
+struct VkBuildAccelerationStructureModeKHR
 {
-    static constexpr std::array<Enumerant<VkBuildAccelerationStructureModeKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBuildAccelerationStructureModeKHR>, 2> entries = { {
         { VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR, "VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR" },
         { VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR, "VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkBuildMicromapFlagBitsEXT>
+struct VkBuildMicromapFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkBuildMicromapFlagBitsEXT>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBuildMicromapFlagBitsEXT>, 3> entries = { {
         { VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT, "VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT" },
         { VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT, "VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT" },
         { VK_BUILD_MICROMAP_ALLOW_COMPACTION_BIT_EXT, "VK_BUILD_MICROMAP_ALLOW_COMPACTION_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkBuildMicromapModeEXT>
+struct VkBuildMicromapModeEXT
 {
-    static constexpr std::array<Enumerant<VkBuildMicromapModeEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkBuildMicromapModeEXT>, 1> entries = { {
         { VK_BUILD_MICROMAP_MODE_BUILD_EXT, "VK_BUILD_MICROMAP_MODE_BUILD_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkChromaLocation>
+struct VkChromaLocation
 {
-    static constexpr std::array<Enumerant<VkChromaLocation>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkChromaLocation>, 2> entries = { {
         { VK_CHROMA_LOCATION_COSITED_EVEN, "VK_CHROMA_LOCATION_COSITED_EVEN" },
         { VK_CHROMA_LOCATION_MIDPOINT, "VK_CHROMA_LOCATION_MIDPOINT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCoarseSampleOrderTypeNV>
+struct VkCoarseSampleOrderTypeNV
 {
-    static constexpr std::array<Enumerant<VkCoarseSampleOrderTypeNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCoarseSampleOrderTypeNV>, 4> entries = { {
         { VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV, "VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV" },
         { VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV, "VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV" },
         { VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV, "VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV" },
@@ -940,10 +993,9 @@ struct Enumerants<VkCoarseSampleOrderTypeNV>
     } };
 };
 
-template <>
-struct Enumerants<VkColorComponentFlagBits>
+struct VkColorComponentFlagBits
 {
-    static constexpr std::array<Enumerant<VkColorComponentFlagBits>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkColorComponentFlagBits>, 4> entries = { {
         { VK_COLOR_COMPONENT_R_BIT, "VK_COLOR_COMPONENT_R_BIT" },
         { VK_COLOR_COMPONENT_G_BIT, "VK_COLOR_COMPONENT_G_BIT" },
         { VK_COLOR_COMPONENT_B_BIT, "VK_COLOR_COMPONENT_B_BIT" },
@@ -951,10 +1003,9 @@ struct Enumerants<VkColorComponentFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkColorSpaceKHR>
+struct VkColorSpaceKHR
 {
-    static constexpr std::array<Enumerant<VkColorSpaceKHR>, 16> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkColorSpaceKHR>, 16> entries = { {
         { VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, "VK_COLOR_SPACE_SRGB_NONLINEAR_KHR" },
         { VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT, "VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT" },
         { VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT, "VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT" },
@@ -974,55 +1025,49 @@ struct Enumerants<VkColorSpaceKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkCommandBufferLevel>
+struct VkCommandBufferLevel
 {
-    static constexpr std::array<Enumerant<VkCommandBufferLevel>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCommandBufferLevel>, 2> entries = { {
         { VK_COMMAND_BUFFER_LEVEL_PRIMARY, "VK_COMMAND_BUFFER_LEVEL_PRIMARY" },
         { VK_COMMAND_BUFFER_LEVEL_SECONDARY, "VK_COMMAND_BUFFER_LEVEL_SECONDARY" },
     } };
 };
 
-template <>
-struct Enumerants<VkCommandBufferResetFlagBits>
+struct VkCommandBufferResetFlagBits
 {
-    static constexpr std::array<Enumerant<VkCommandBufferResetFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCommandBufferResetFlagBits>, 1> entries = { {
         { VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT, "VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCommandBufferUsageFlagBits>
+struct VkCommandBufferUsageFlagBits
 {
-    static constexpr std::array<Enumerant<VkCommandBufferUsageFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCommandBufferUsageFlagBits>, 3> entries = { {
         { VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, "VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT" },
         { VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, "VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT" },
         { VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, "VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCommandPoolCreateFlagBits>
+struct VkCommandPoolCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkCommandPoolCreateFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCommandPoolCreateFlagBits>, 3> entries = { {
         { VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, "VK_COMMAND_POOL_CREATE_TRANSIENT_BIT" },
         { VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, "VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT" },
         { VK_COMMAND_POOL_CREATE_PROTECTED_BIT, "VK_COMMAND_POOL_CREATE_PROTECTED_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCommandPoolResetFlagBits>
+struct VkCommandPoolResetFlagBits
 {
-    static constexpr std::array<Enumerant<VkCommandPoolResetFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCommandPoolResetFlagBits>, 1> entries = { {
         { VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT, "VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCompareOp>
+struct VkCompareOp
 {
-    static constexpr std::array<Enumerant<VkCompareOp>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCompareOp>, 8> entries = { {
         { VK_COMPARE_OP_NEVER, "VK_COMPARE_OP_NEVER" },
         { VK_COMPARE_OP_LESS, "VK_COMPARE_OP_LESS" },
         { VK_COMPARE_OP_EQUAL, "VK_COMPARE_OP_EQUAL" },
@@ -1034,10 +1079,9 @@ struct Enumerants<VkCompareOp>
     } };
 };
 
-template <>
-struct Enumerants<VkComponentSwizzle>
+struct VkComponentSwizzle
 {
-    static constexpr std::array<Enumerant<VkComponentSwizzle>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkComponentSwizzle>, 7> entries = { {
         { VK_COMPONENT_SWIZZLE_IDENTITY, "VK_COMPONENT_SWIZZLE_IDENTITY" },
         { VK_COMPONENT_SWIZZLE_ZERO, "VK_COMPONENT_SWIZZLE_ZERO" },
         { VK_COMPONENT_SWIZZLE_ONE, "VK_COMPONENT_SWIZZLE_ONE" },
@@ -1048,10 +1092,9 @@ struct Enumerants<VkComponentSwizzle>
     } };
 };
 
-template <>
-struct Enumerants<VkComponentTypeKHR>
+struct VkComponentTypeKHR
 {
-    static constexpr std::array<Enumerant<VkComponentTypeKHR>, 21> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkComponentTypeKHR>, 21> entries = { {
         { VK_COMPONENT_TYPE_FLOAT16_KHR, "VK_COMPONENT_TYPE_FLOAT16_KHR" },
         { VK_COMPONENT_TYPE_FLOAT32_KHR, "VK_COMPONENT_TYPE_FLOAT32_KHR" },
         { VK_COMPONENT_TYPE_FLOAT64_KHR, "VK_COMPONENT_TYPE_FLOAT64_KHR" },
@@ -1076,10 +1119,9 @@ struct Enumerants<VkComponentTypeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkCompositeAlphaFlagBitsKHR>
+struct VkCompositeAlphaFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkCompositeAlphaFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCompositeAlphaFlagBitsKHR>, 4> entries = { {
         { VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, "VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR" },
         { VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR, "VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR" },
         { VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR, "VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR" },
@@ -1087,36 +1129,32 @@ struct Enumerants<VkCompositeAlphaFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkConditionalRenderingFlagBitsEXT>
+struct VkConditionalRenderingFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkConditionalRenderingFlagBitsEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkConditionalRenderingFlagBitsEXT>, 1> entries = { {
         { VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT, "VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkConservativeRasterizationModeEXT>
+struct VkConservativeRasterizationModeEXT
 {
-    static constexpr std::array<Enumerant<VkConservativeRasterizationModeEXT>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkConservativeRasterizationModeEXT>, 3> entries = { {
         { VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT, "VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT" },
         { VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT, "VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT" },
         { VK_CONSERVATIVE_RASTERIZATION_MODE_UNDERESTIMATE_EXT, "VK_CONSERVATIVE_RASTERIZATION_MODE_UNDERESTIMATE_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCooperativeMatrixFlagBitsEXT>
+struct VkCooperativeMatrixFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkCooperativeMatrixFlagBitsEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCooperativeMatrixFlagBitsEXT>, 1> entries = { {
         { VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT, "VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkCooperativeVectorMatrixLayoutNV>
+struct VkCooperativeVectorMatrixLayoutNV
 {
-    static constexpr std::array<Enumerant<VkCooperativeVectorMatrixLayoutNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCooperativeVectorMatrixLayoutNV>, 4> entries = { {
         { VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_ROW_MAJOR_NV, "VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_ROW_MAJOR_NV" },
         { VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_COLUMN_MAJOR_NV, "VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_COLUMN_MAJOR_NV" },
         { VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_INFERENCING_OPTIMAL_NV, "VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_INFERENCING_OPTIMAL_NV" },
@@ -1124,10 +1162,9 @@ struct Enumerants<VkCooperativeVectorMatrixLayoutNV>
     } };
 };
 
-template <>
-struct Enumerants<VkCopyAccelerationStructureModeKHR>
+struct VkCopyAccelerationStructureModeKHR
 {
-    static constexpr std::array<Enumerant<VkCopyAccelerationStructureModeKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCopyAccelerationStructureModeKHR>, 4> entries = { {
         { VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR, "VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR" },
         { VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR, "VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR" },
         { VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR, "VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR" },
@@ -1135,10 +1172,9 @@ struct Enumerants<VkCopyAccelerationStructureModeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkCopyMicromapModeEXT>
+struct VkCopyMicromapModeEXT
 {
-    static constexpr std::array<Enumerant<VkCopyMicromapModeEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCopyMicromapModeEXT>, 4> entries = { {
         { VK_COPY_MICROMAP_MODE_CLONE_EXT, "VK_COPY_MICROMAP_MODE_CLONE_EXT" },
         { VK_COPY_MICROMAP_MODE_SERIALIZE_EXT, "VK_COPY_MICROMAP_MODE_SERIALIZE_EXT" },
         { VK_COPY_MICROMAP_MODE_DESERIALIZE_EXT, "VK_COPY_MICROMAP_MODE_DESERIALIZE_EXT" },
@@ -1146,10 +1182,9 @@ struct Enumerants<VkCopyMicromapModeEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkCoverageModulationModeNV>
+struct VkCoverageModulationModeNV
 {
-    static constexpr std::array<Enumerant<VkCoverageModulationModeNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCoverageModulationModeNV>, 4> entries = { {
         { VK_COVERAGE_MODULATION_MODE_NONE_NV, "VK_COVERAGE_MODULATION_MODE_NONE_NV" },
         { VK_COVERAGE_MODULATION_MODE_RGB_NV, "VK_COVERAGE_MODULATION_MODE_RGB_NV" },
         { VK_COVERAGE_MODULATION_MODE_ALPHA_NV, "VK_COVERAGE_MODULATION_MODE_ALPHA_NV" },
@@ -1157,19 +1192,17 @@ struct Enumerants<VkCoverageModulationModeNV>
     } };
 };
 
-template <>
-struct Enumerants<VkCoverageReductionModeNV>
+struct VkCoverageReductionModeNV
 {
-    static constexpr std::array<Enumerant<VkCoverageReductionModeNV>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCoverageReductionModeNV>, 2> entries = { {
         { VK_COVERAGE_REDUCTION_MODE_MERGE_NV, "VK_COVERAGE_REDUCTION_MODE_MERGE_NV" },
         { VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV, "VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkCubicFilterWeightsQCOM>
+struct VkCubicFilterWeightsQCOM
 {
-    static constexpr std::array<Enumerant<VkCubicFilterWeightsQCOM>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCubicFilterWeightsQCOM>, 4> entries = { {
         { VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM, "VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM" },
         { VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM, "VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM" },
         { VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM, "VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM" },
@@ -1177,10 +1210,9 @@ struct Enumerants<VkCubicFilterWeightsQCOM>
     } };
 };
 
-template <>
-struct Enumerants<VkCullModeFlagBits>
+struct VkCullModeFlagBits
 {
-    static constexpr std::array<Enumerant<VkCullModeFlagBits>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkCullModeFlagBits>, 4> entries = { {
         { VK_CULL_MODE_NONE, "VK_CULL_MODE_NONE" },
         { VK_CULL_MODE_FRONT_BIT, "VK_CULL_MODE_FRONT_BIT" },
         { VK_CULL_MODE_BACK_BIT, "VK_CULL_MODE_BACK_BIT" },
@@ -1188,28 +1220,25 @@ struct Enumerants<VkCullModeFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphModelCacheTypeQCOM>
+struct VkDataGraphModelCacheTypeQCOM
 {
-    static constexpr std::array<Enumerant<VkDataGraphModelCacheTypeQCOM>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphModelCacheTypeQCOM>, 1> entries = { {
         { VK_DATA_GRAPH_MODEL_CACHE_TYPE_GENERIC_BINARY_QCOM, "VK_DATA_GRAPH_MODEL_CACHE_TYPE_GENERIC_BINARY_QCOM" },
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphOpticalFlowCreateFlagBitsARM>
+struct VkDataGraphOpticalFlowCreateFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphOpticalFlowCreateFlagBitsARM>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphOpticalFlowCreateFlagBitsARM>, 3> entries = { {
         { VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_HINT_BIT_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_ENABLE_COST_BIT_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_CREATE_RESERVED_30_BIT_ARM" },
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphOpticalFlowExecuteFlagBitsARM>
+struct VkDataGraphOpticalFlowExecuteFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphOpticalFlowExecuteFlagBitsARM>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphOpticalFlowExecuteFlagBitsARM>, 5> entries = { {
         { VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_INPUT_UNCHANGED_BIT_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_EXECUTE_REFERENCE_UNCHANGED_BIT_ARM" },
@@ -1218,10 +1247,9 @@ struct Enumerants<VkDataGraphOpticalFlowExecuteFlagBitsARM>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphOpticalFlowGridSizeFlagBitsARM>
+struct VkDataGraphOpticalFlowGridSizeFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphOpticalFlowGridSizeFlagBitsARM>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphOpticalFlowGridSizeFlagBitsARM>, 5> entries = { {
         { VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_ARM" },
@@ -1230,10 +1258,9 @@ struct Enumerants<VkDataGraphOpticalFlowGridSizeFlagBitsARM>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphOpticalFlowImageUsageFlagBitsARM>
+struct VkDataGraphOpticalFlowImageUsageFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphOpticalFlowImageUsageFlagBitsARM>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphOpticalFlowImageUsageFlagBitsARM>, 5> entries = { {
         { VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_UNKNOWN_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_INPUT_BIT_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_IMAGE_USAGE_OUTPUT_BIT_ARM" },
@@ -1242,10 +1269,9 @@ struct Enumerants<VkDataGraphOpticalFlowImageUsageFlagBitsARM>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphOpticalFlowPerformanceLevelARM>
+struct VkDataGraphOpticalFlowPerformanceLevelARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphOpticalFlowPerformanceLevelARM>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphOpticalFlowPerformanceLevelARM>, 4> entries = { {
         { VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_ARM" },
         { VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_ARM, "VK_DATA_GRAPH_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_ARM" },
@@ -1253,10 +1279,14 @@ struct Enumerants<VkDataGraphOpticalFlowPerformanceLevelARM>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphPipelineNodeConnectionTypeARM>
+struct VkDataGraphPipelineDispatchFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphPipelineNodeConnectionTypeARM>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelineDispatchFlagBitsARM>, 0> entries{};
+};
+
+struct VkDataGraphPipelineNodeConnectionTypeARM
+{
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelineNodeConnectionTypeARM>, 5> entries = { {
         { VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_INPUT_ARM, "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_INPUT_ARM" },
         { VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_REFERENCE_ARM, "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_REFERENCE_ARM" },
         { VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_HINT_ARM, "VK_DATA_GRAPH_PIPELINE_NODE_CONNECTION_TYPE_OPTICAL_FLOW_HINT_ARM" },
@@ -1265,18 +1295,16 @@ struct Enumerants<VkDataGraphPipelineNodeConnectionTypeARM>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphPipelineNodeTypeARM>
+struct VkDataGraphPipelineNodeTypeARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphPipelineNodeTypeARM>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelineNodeTypeARM>, 1> entries = { {
         { VK_DATA_GRAPH_PIPELINE_NODE_TYPE_OPTICAL_FLOW_ARM, "VK_DATA_GRAPH_PIPELINE_NODE_TYPE_OPTICAL_FLOW_ARM" },
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphPipelinePropertyARM>
+struct VkDataGraphPipelinePropertyARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphPipelinePropertyARM>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelinePropertyARM>, 4> entries = { {
         { VK_DATA_GRAPH_PIPELINE_PROPERTY_CREATION_LOG_ARM, "VK_DATA_GRAPH_PIPELINE_PROPERTY_CREATION_LOG_ARM" },
         { VK_DATA_GRAPH_PIPELINE_PROPERTY_IDENTIFIER_ARM, "VK_DATA_GRAPH_PIPELINE_PROPERTY_IDENTIFIER_ARM" },
         { VK_DATA_GRAPH_PIPELINE_PROPERTY_NEURAL_ACCELERATOR_DEBUG_DATABASE_ARM, "VK_DATA_GRAPH_PIPELINE_PROPERTY_NEURAL_ACCELERATOR_DEBUG_DATABASE_ARM" },
@@ -1284,28 +1312,33 @@ struct Enumerants<VkDataGraphPipelinePropertyARM>
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphPipelineSessionBindPointARM>
+struct VkDataGraphPipelineSessionBindPointARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphPipelineSessionBindPointARM>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelineSessionBindPointARM>, 3> entries = { {
         { VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TRANSIENT_ARM, "VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TRANSIENT_ARM" },
         { VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM, "VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_OPTICAL_FLOW_CACHE_ARM" },
         { VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_NEURAL_ACCELERATOR_STATISTICS_ARM, "VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_NEURAL_ACCELERATOR_STATISTICS_ARM" },
     } };
 };
 
-template <>
-struct Enumerants<VkDataGraphPipelineSessionBindPointTypeARM>
+struct VkDataGraphPipelineSessionBindPointTypeARM
 {
-    static constexpr std::array<Enumerant<VkDataGraphPipelineSessionBindPointTypeARM>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelineSessionBindPointTypeARM>, 1> entries = { {
         { VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM, "VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM" },
     } };
 };
 
-template <>
-struct Enumerants<VkDebugReportFlagBitsEXT>
+struct VkDataGraphPipelineSessionCreateFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkDebugReportFlagBitsEXT>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDataGraphPipelineSessionCreateFlagBitsARM>, 2> entries = { {
+        { VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM, "VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM" },
+        { VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_OPTICAL_FLOW_CACHE_BIT_ARM, "VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_OPTICAL_FLOW_CACHE_BIT_ARM" },
+    } };
+};
+
+struct VkDebugReportFlagBitsEXT
+{
+    static constexpr std::array<util::Enumerant<api_types::VkDebugReportFlagBitsEXT>, 5> entries = { {
         { VK_DEBUG_REPORT_INFORMATION_BIT_EXT, "VK_DEBUG_REPORT_INFORMATION_BIT_EXT" },
         { VK_DEBUG_REPORT_WARNING_BIT_EXT, "VK_DEBUG_REPORT_WARNING_BIT_EXT" },
         { VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, "VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT" },
@@ -1314,10 +1347,9 @@ struct Enumerants<VkDebugReportFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkDebugReportObjectTypeEXT>
+struct VkDebugReportObjectTypeEXT
 {
-    static constexpr std::array<Enumerant<VkDebugReportObjectTypeEXT>, 41> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDebugReportObjectTypeEXT>, 41> entries = { {
         { VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, "VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT" },
         { VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, "VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT" },
         { VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, "VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT" },
@@ -1362,10 +1394,9 @@ struct Enumerants<VkDebugReportObjectTypeEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkDebugUtilsMessageSeverityFlagBitsEXT>
+struct VkDebugUtilsMessageSeverityFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkDebugUtilsMessageSeverityFlagBitsEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDebugUtilsMessageSeverityFlagBitsEXT>, 4> entries = { {
         { VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT, "VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT" },
         { VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT, "VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT" },
         { VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT, "VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT" },
@@ -1373,10 +1404,9 @@ struct Enumerants<VkDebugUtilsMessageSeverityFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkDebugUtilsMessageTypeFlagBitsEXT>
+struct VkDebugUtilsMessageTypeFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkDebugUtilsMessageTypeFlagBitsEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDebugUtilsMessageTypeFlagBitsEXT>, 4> entries = { {
         { VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT, "VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT" },
         { VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT, "VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT" },
         { VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT, "VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT" },
@@ -1384,19 +1414,17 @@ struct Enumerants<VkDebugUtilsMessageTypeFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkDefaultVertexAttributeValueKHR>
+struct VkDefaultVertexAttributeValueKHR
 {
-    static constexpr std::array<Enumerant<VkDefaultVertexAttributeValueKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDefaultVertexAttributeValueKHR>, 2> entries = { {
         { VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ZERO_KHR, "VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ZERO_KHR" },
         { VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ONE_KHR, "VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ONE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkDependencyFlagBits>
+struct VkDependencyFlagBits
 {
-    static constexpr std::array<Enumerant<VkDependencyFlagBits>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDependencyFlagBits>, 6> entries = { {
         { VK_DEPENDENCY_BY_REGION_BIT, "VK_DEPENDENCY_BY_REGION_BIT" },
         { VK_DEPENDENCY_DEVICE_GROUP_BIT, "VK_DEPENDENCY_DEVICE_GROUP_BIT" },
         { VK_DEPENDENCY_VIEW_LOCAL_BIT, "VK_DEPENDENCY_VIEW_LOCAL_BIT" },
@@ -1406,29 +1434,26 @@ struct Enumerants<VkDependencyFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkDepthBiasRepresentationEXT>
+struct VkDepthBiasRepresentationEXT
 {
-    static constexpr std::array<Enumerant<VkDepthBiasRepresentationEXT>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDepthBiasRepresentationEXT>, 3> entries = { {
         { VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT, "VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT" },
         { VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT, "VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT" },
         { VK_DEPTH_BIAS_REPRESENTATION_FLOAT_EXT, "VK_DEPTH_BIAS_REPRESENTATION_FLOAT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDepthClampModeEXT>
+struct VkDepthClampModeEXT
 {
-    static constexpr std::array<Enumerant<VkDepthClampModeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDepthClampModeEXT>, 2> entries = { {
         { VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT, "VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT" },
         { VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT, "VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDescriptorBindingFlagBits>
+struct VkDescriptorBindingFlagBits
 {
-    static constexpr std::array<Enumerant<VkDescriptorBindingFlagBits>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDescriptorBindingFlagBits>, 4> entries = { {
         { VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT, "VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT" },
         { VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT, "VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT" },
         { VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT, "VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT" },
@@ -1436,10 +1461,9 @@ struct Enumerants<VkDescriptorBindingFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkDescriptorPoolCreateFlagBits>
+struct VkDescriptorPoolCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkDescriptorPoolCreateFlagBits>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDescriptorPoolCreateFlagBits>, 5> entries = { {
         { VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT, "VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT" },
         { VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT, "VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT" },
         { VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_EXT, "VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_EXT" },
@@ -1448,10 +1472,9 @@ struct Enumerants<VkDescriptorPoolCreateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkDescriptorSetLayoutCreateFlagBits>
+struct VkDescriptorSetLayoutCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkDescriptorSetLayoutCreateFlagBits>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDescriptorSetLayoutCreateFlagBits>, 7> entries = { {
         { VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT, "VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT" },
         { VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT, "VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT" },
         { VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT, "VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT" },
@@ -1462,10 +1485,9 @@ struct Enumerants<VkDescriptorSetLayoutCreateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkDescriptorType>
+struct VkDescriptorType
 {
-    static constexpr std::array<Enumerant<VkDescriptorType>, 19> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDescriptorType>, 19> entries = { {
         { VK_DESCRIPTOR_TYPE_SAMPLER, "VK_DESCRIPTOR_TYPE_SAMPLER" },
         { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, "VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER" },
         { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, "VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE" },
@@ -1488,36 +1510,32 @@ struct Enumerants<VkDescriptorType>
     } };
 };
 
-template <>
-struct Enumerants<VkDescriptorUpdateTemplateType>
+struct VkDescriptorUpdateTemplateType
 {
-    static constexpr std::array<Enumerant<VkDescriptorUpdateTemplateType>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDescriptorUpdateTemplateType>, 2> entries = { {
         { VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET, "VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET" },
         { VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS, "VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS" },
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceAddressBindingFlagBitsEXT>
+struct VkDeviceAddressBindingFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkDeviceAddressBindingFlagBitsEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceAddressBindingFlagBitsEXT>, 1> entries = { {
         { VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT, "VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceAddressBindingTypeEXT>
+struct VkDeviceAddressBindingTypeEXT
 {
-    static constexpr std::array<Enumerant<VkDeviceAddressBindingTypeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceAddressBindingTypeEXT>, 2> entries = { {
         { VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT, "VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT" },
         { VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT, "VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceDiagnosticsConfigFlagBitsNV>
+struct VkDeviceDiagnosticsConfigFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkDeviceDiagnosticsConfigFlagBitsNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceDiagnosticsConfigFlagBitsNV>, 4> entries = { {
         { VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV, "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV" },
         { VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV, "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV" },
         { VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV, "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV" },
@@ -1525,18 +1543,16 @@ struct Enumerants<VkDeviceDiagnosticsConfigFlagBitsNV>
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceEventTypeEXT>
+struct VkDeviceEventTypeEXT
 {
-    static constexpr std::array<Enumerant<VkDeviceEventTypeEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceEventTypeEXT>, 1> entries = { {
         { VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT, "VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceFaultAddressTypeKHR>
+struct VkDeviceFaultAddressTypeKHR
 {
-    static constexpr std::array<Enumerant<VkDeviceFaultAddressTypeKHR>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceFaultAddressTypeKHR>, 7> entries = { {
         { VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_KHR, "VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_KHR" },
         { VK_DEVICE_FAULT_ADDRESS_TYPE_READ_INVALID_KHR, "VK_DEVICE_FAULT_ADDRESS_TYPE_READ_INVALID_KHR" },
         { VK_DEVICE_FAULT_ADDRESS_TYPE_WRITE_INVALID_KHR, "VK_DEVICE_FAULT_ADDRESS_TYPE_WRITE_INVALID_KHR" },
@@ -1547,10 +1563,9 @@ struct Enumerants<VkDeviceFaultAddressTypeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceFaultFlagBitsKHR>
+struct VkDeviceFaultFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkDeviceFaultFlagBitsKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceFaultFlagBitsKHR>, 6> entries = { {
         { VK_DEVICE_FAULT_FLAG_DEVICE_LOST_KHR, "VK_DEVICE_FAULT_FLAG_DEVICE_LOST_KHR" },
         { VK_DEVICE_FAULT_FLAG_MEMORY_ADDRESS_KHR, "VK_DEVICE_FAULT_FLAG_MEMORY_ADDRESS_KHR" },
         { VK_DEVICE_FAULT_FLAG_INSTRUCTION_ADDRESS_KHR, "VK_DEVICE_FAULT_FLAG_INSTRUCTION_ADDRESS_KHR" },
@@ -1560,18 +1575,16 @@ struct Enumerants<VkDeviceFaultFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceFaultVendorBinaryHeaderVersionKHR>
+struct VkDeviceFaultVendorBinaryHeaderVersionKHR
 {
-    static constexpr std::array<Enumerant<VkDeviceFaultVendorBinaryHeaderVersionKHR>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceFaultVendorBinaryHeaderVersionKHR>, 1> entries = { {
         { VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR, "VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceGroupPresentModeFlagBitsKHR>
+struct VkDeviceGroupPresentModeFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkDeviceGroupPresentModeFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceGroupPresentModeFlagBitsKHR>, 4> entries = { {
         { VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR, "VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR" },
         { VK_DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR, "VK_DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR" },
         { VK_DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR, "VK_DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR" },
@@ -1579,10 +1592,9 @@ struct Enumerants<VkDeviceGroupPresentModeFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceMemoryReportEventTypeEXT>
+struct VkDeviceMemoryReportEventTypeEXT
 {
-    static constexpr std::array<Enumerant<VkDeviceMemoryReportEventTypeEXT>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceMemoryReportEventTypeEXT>, 5> entries = { {
         { VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT, "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT" },
         { VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_FREE_EXT, "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_FREE_EXT" },
         { VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_IMPORT_EXT, "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_IMPORT_EXT" },
@@ -1591,55 +1603,49 @@ struct Enumerants<VkDeviceMemoryReportEventTypeEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkDeviceQueueCreateFlagBits>
+struct VkDeviceQueueCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkDeviceQueueCreateFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDeviceQueueCreateFlagBits>, 2> entries = { {
         { VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT, "VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT" },
         { VK_DEVICE_QUEUE_CREATE_INTERNALLY_SYNCHRONIZED_BIT_KHR, "VK_DEVICE_QUEUE_CREATE_INTERNALLY_SYNCHRONIZED_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkDirectDriverLoadingModeLUNARG>
+struct VkDirectDriverLoadingModeLUNARG
 {
-    static constexpr std::array<Enumerant<VkDirectDriverLoadingModeLUNARG>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDirectDriverLoadingModeLUNARG>, 2> entries = { {
         { VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG, "VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG" },
         { VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG, "VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG" },
     } };
 };
 
-template <>
-struct Enumerants<VkDiscardRectangleModeEXT>
+struct VkDiscardRectangleModeEXT
 {
-    static constexpr std::array<Enumerant<VkDiscardRectangleModeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDiscardRectangleModeEXT>, 2> entries = { {
         { VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT, "VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT" },
         { VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT, "VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDisplacementMicromapFormatNV>
+struct VkDisplacementMicromapFormatNV
 {
-    static constexpr std::array<Enumerant<VkDisplacementMicromapFormatNV>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDisplacementMicromapFormatNV>, 3> entries = { {
         { VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV, "VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV" },
         { VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV, "VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV" },
         { VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV, "VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkDisplayEventTypeEXT>
+struct VkDisplayEventTypeEXT
 {
-    static constexpr std::array<Enumerant<VkDisplayEventTypeEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDisplayEventTypeEXT>, 1> entries = { {
         { VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT, "VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDisplayPlaneAlphaFlagBitsKHR>
+struct VkDisplayPlaneAlphaFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkDisplayPlaneAlphaFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDisplayPlaneAlphaFlagBitsKHR>, 4> entries = { {
         { VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR, "VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR" },
         { VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR, "VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR" },
         { VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR, "VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR" },
@@ -1647,20 +1653,18 @@ struct Enumerants<VkDisplayPlaneAlphaFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkDisplayPowerStateEXT>
+struct VkDisplayPowerStateEXT
 {
-    static constexpr std::array<Enumerant<VkDisplayPowerStateEXT>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDisplayPowerStateEXT>, 3> entries = { {
         { VK_DISPLAY_POWER_STATE_OFF_EXT, "VK_DISPLAY_POWER_STATE_OFF_EXT" },
         { VK_DISPLAY_POWER_STATE_SUSPEND_EXT, "VK_DISPLAY_POWER_STATE_SUSPEND_EXT" },
         { VK_DISPLAY_POWER_STATE_ON_EXT, "VK_DISPLAY_POWER_STATE_ON_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkDisplaySurfaceStereoTypeNV>
+struct VkDisplaySurfaceStereoTypeNV
 {
-    static constexpr std::array<Enumerant<VkDisplaySurfaceStereoTypeNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDisplaySurfaceStereoTypeNV>, 4> entries = { {
         { VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV, "VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV" },
         { VK_DISPLAY_SURFACE_STEREO_TYPE_ONBOARD_DIN_NV, "VK_DISPLAY_SURFACE_STEREO_TYPE_ONBOARD_DIN_NV" },
         { VK_DISPLAY_SURFACE_STEREO_TYPE_HDMI_3D_NV, "VK_DISPLAY_SURFACE_STEREO_TYPE_HDMI_3D_NV" },
@@ -1668,10 +1672,9 @@ struct Enumerants<VkDisplaySurfaceStereoTypeNV>
     } };
 };
 
-template <>
-struct Enumerants<VkDriverId>
+struct VkDriverId
 {
-    static constexpr std::array<Enumerant<VkDriverId>, 31> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDriverId>, 31> entries = { {
         { VK_DRIVER_ID_AMD_PROPRIETARY, "VK_DRIVER_ID_AMD_PROPRIETARY" },
         { VK_DRIVER_ID_AMD_OPEN_SOURCE, "VK_DRIVER_ID_AMD_OPEN_SOURCE" },
         { VK_DRIVER_ID_MESA_RADV, "VK_DRIVER_ID_MESA_RADV" },
@@ -1706,10 +1709,9 @@ struct Enumerants<VkDriverId>
     } };
 };
 
-template <>
-struct Enumerants<VkDynamicState>
+struct VkDynamicState
 {
-    static constexpr std::array<Enumerant<VkDynamicState>, 73> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkDynamicState>, 73> entries = { {
         { VK_DYNAMIC_STATE_VIEWPORT, "VK_DYNAMIC_STATE_VIEWPORT" },
         { VK_DYNAMIC_STATE_SCISSOR, "VK_DYNAMIC_STATE_SCISSOR" },
         { VK_DYNAMIC_STATE_LINE_WIDTH, "VK_DYNAMIC_STATE_LINE_WIDTH" },
@@ -1786,27 +1788,24 @@ struct Enumerants<VkDynamicState>
     } };
 };
 
-template <>
-struct Enumerants<VkEventCreateFlagBits>
+struct VkEventCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkEventCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkEventCreateFlagBits>, 1> entries = { {
         { VK_EVENT_CREATE_DEVICE_ONLY_BIT, "VK_EVENT_CREATE_DEVICE_ONLY_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkExternalFenceFeatureFlagBits>
+struct VkExternalFenceFeatureFlagBits
 {
-    static constexpr std::array<Enumerant<VkExternalFenceFeatureFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalFenceFeatureFlagBits>, 2> entries = { {
         { VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT, "VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT" },
         { VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT, "VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkExternalFenceHandleTypeFlagBits>
+struct VkExternalFenceHandleTypeFlagBits
 {
-    static constexpr std::array<Enumerant<VkExternalFenceHandleTypeFlagBits>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalFenceHandleTypeFlagBits>, 4> entries = { {
         { VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT, "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT" },
         { VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT, "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT" },
         { VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT, "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT" },
@@ -1814,30 +1813,27 @@ struct Enumerants<VkExternalFenceHandleTypeFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkExternalMemoryFeatureFlagBits>
+struct VkExternalMemoryFeatureFlagBits
 {
-    static constexpr std::array<Enumerant<VkExternalMemoryFeatureFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalMemoryFeatureFlagBits>, 3> entries = { {
         { VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT, "VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT" },
         { VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT, "VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT" },
         { VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT, "VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkExternalMemoryFeatureFlagBitsNV>
+struct VkExternalMemoryFeatureFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkExternalMemoryFeatureFlagBitsNV>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalMemoryFeatureFlagBitsNV>, 3> entries = { {
         { VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV, "VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV" },
         { VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV, "VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV" },
         { VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV, "VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkExternalMemoryHandleTypeFlagBits>
+struct VkExternalMemoryHandleTypeFlagBits
 {
-    static constexpr std::array<Enumerant<VkExternalMemoryHandleTypeFlagBits>, 18> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalMemoryHandleTypeFlagBits>, 18> entries = { {
         { VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT, "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT" },
         { VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT, "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT" },
         { VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT, "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT" },
@@ -1859,10 +1855,9 @@ struct Enumerants<VkExternalMemoryHandleTypeFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkExternalMemoryHandleTypeFlagBitsNV>
+struct VkExternalMemoryHandleTypeFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkExternalMemoryHandleTypeFlagBitsNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalMemoryHandleTypeFlagBitsNV>, 4> entries = { {
         { VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV, "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV" },
         { VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV, "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV" },
         { VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV, "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV" },
@@ -1870,19 +1865,17 @@ struct Enumerants<VkExternalMemoryHandleTypeFlagBitsNV>
     } };
 };
 
-template <>
-struct Enumerants<VkExternalSemaphoreFeatureFlagBits>
+struct VkExternalSemaphoreFeatureFlagBits
 {
-    static constexpr std::array<Enumerant<VkExternalSemaphoreFeatureFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalSemaphoreFeatureFlagBits>, 2> entries = { {
         { VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT, "VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT" },
         { VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT, "VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkExternalSemaphoreHandleTypeFlagBits>
+struct VkExternalSemaphoreHandleTypeFlagBits
 {
-    static constexpr std::array<Enumerant<VkExternalSemaphoreHandleTypeFlagBits>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkExternalSemaphoreHandleTypeFlagBits>, 6> entries = { {
         { VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT, "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT" },
         { VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT, "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT" },
         { VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT, "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT" },
@@ -1892,36 +1885,32 @@ struct Enumerants<VkExternalSemaphoreHandleTypeFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkFenceCreateFlagBits>
+struct VkFenceCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkFenceCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFenceCreateFlagBits>, 1> entries = { {
         { VK_FENCE_CREATE_SIGNALED_BIT, "VK_FENCE_CREATE_SIGNALED_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkFenceImportFlagBits>
+struct VkFenceImportFlagBits
 {
-    static constexpr std::array<Enumerant<VkFenceImportFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFenceImportFlagBits>, 1> entries = { {
         { VK_FENCE_IMPORT_TEMPORARY_BIT, "VK_FENCE_IMPORT_TEMPORARY_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkFilter>
+struct VkFilter
 {
-    static constexpr std::array<Enumerant<VkFilter>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFilter>, 3> entries = { {
         { VK_FILTER_NEAREST, "VK_FILTER_NEAREST" },
         { VK_FILTER_LINEAR, "VK_FILTER_LINEAR" },
         { VK_FILTER_CUBIC_EXT, "VK_FILTER_CUBIC_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkFormat>
+struct VkFormat
 {
-    static constexpr std::array<Enumerant<VkFormat>, 298> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFormat>, 298> entries = { {
         { VK_FORMAT_UNDEFINED, "VK_FORMAT_UNDEFINED" },
         { VK_FORMAT_R4G4_UNORM_PACK8, "VK_FORMAT_R4G4_UNORM_PACK8" },
         { VK_FORMAT_R4G4B4A4_UNORM_PACK16, "VK_FORMAT_R4G4B4A4_UNORM_PACK16" },
@@ -2223,10 +2212,9 @@ struct Enumerants<VkFormat>
     } };
 };
 
-template <>
-struct Enumerants<VkFormatFeatureFlagBits>
+struct VkFormatFeatureFlagBits
 {
-    static constexpr std::array<Enumerant<VkFormatFeatureFlagBits>, 31> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFormatFeatureFlagBits>, 31> entries = { {
         { VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT, "VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT" },
         { VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT, "VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT" },
         { VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT, "VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT" },
@@ -2261,10 +2249,79 @@ struct Enumerants<VkFormatFeatureFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkFragmentShadingRateCombinerOpKHR>
+struct VkFormatFeatureFlagBits2
 {
-    static constexpr std::array<Enumerant<VkFragmentShadingRateCombinerOpKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFormatFeatureFlagBits2>, 59> entries = { {
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT" },
+        { VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT, "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT" },
+        { VK_FORMAT_FEATURE_2_STORAGE_IMAGE_ATOMIC_BIT, "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_ATOMIC_BIT" },
+        { VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT, "VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT" },
+        { VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT, "VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT" },
+        { VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_ATOMIC_BIT, "VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_ATOMIC_BIT" },
+        { VK_FORMAT_FEATURE_2_VERTEX_BUFFER_BIT, "VK_FORMAT_FEATURE_2_VERTEX_BUFFER_BIT" },
+        { VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BIT, "VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BIT" },
+        { VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BLEND_BIT, "VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BLEND_BIT" },
+        { VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT, "VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT" },
+        { VK_FORMAT_FEATURE_2_BLIT_SRC_BIT, "VK_FORMAT_FEATURE_2_BLIT_SRC_BIT" },
+        { VK_FORMAT_FEATURE_2_BLIT_DST_BIT, "VK_FORMAT_FEATURE_2_BLIT_DST_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_BIT" },
+        { VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT, "VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT" },
+        { VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT, "VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_MINMAX_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_MINMAX_BIT" },
+        { VK_FORMAT_FEATURE_2_MIDPOINT_CHROMA_SAMPLES_BIT, "VK_FORMAT_FEATURE_2_MIDPOINT_CHROMA_SAMPLES_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT" },
+        { VK_FORMAT_FEATURE_2_DISJOINT_BIT, "VK_FORMAT_FEATURE_2_DISJOINT_BIT" },
+        { VK_FORMAT_FEATURE_2_COSITED_CHROMA_SAMPLES_BIT, "VK_FORMAT_FEATURE_2_COSITED_CHROMA_SAMPLES_BIT" },
+        { VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT, "VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT" },
+        { VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT, "VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_CUBIC_BIT, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_CUBIC_BIT" },
+        { VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT, "VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT" },
+        { VK_FORMAT_FEATURE_2_VIDEO_DECODE_OUTPUT_BIT_KHR, "VK_FORMAT_FEATURE_2_VIDEO_DECODE_OUTPUT_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_VIDEO_DECODE_DPB_BIT_KHR, "VK_FORMAT_FEATURE_2_VIDEO_DECODE_DPB_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR, "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT, "VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT" },
+        { VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, "VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR, "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR, "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_BLOCK_MATCHING_SXD_BIT_QCOM, "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_SXD_BIT_QCOM" },
+        { VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_RADIUS_BUFFER_BIT_NV, "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_RADIUS_BUFFER_BIT_NV" },
+        { VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV, "VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV" },
+        { VK_FORMAT_FEATURE_2_WEIGHT_IMAGE_BIT_QCOM, "VK_FORMAT_FEATURE_2_WEIGHT_IMAGE_BIT_QCOM" },
+        { VK_FORMAT_FEATURE_2_WEIGHT_SAMPLED_IMAGE_BIT_QCOM, "VK_FORMAT_FEATURE_2_WEIGHT_SAMPLED_IMAGE_BIT_QCOM" },
+        { VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM, "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM" },
+        { VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM, "VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM" },
+        { VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM, "VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM" },
+        { VK_FORMAT_FEATURE_2_TENSOR_IMAGE_ALIASING_BIT_ARM, "VK_FORMAT_FEATURE_2_TENSOR_IMAGE_ALIASING_BIT_ARM" },
+        { VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV, "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV" },
+        { VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV, "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV" },
+        { VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV, "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV" },
+        { VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM, "VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM" },
+        { VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR, "VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR, "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR, "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG, "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG" },
+        { VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR, "VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_TRANSFER_QUEUE_BIT_KHR, "VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_TRANSFER_QUEUE_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_STENCIL_COPY_ON_COMPUTE_QUEUE_BIT_KHR, "VK_FORMAT_FEATURE_2_STENCIL_COPY_ON_COMPUTE_QUEUE_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_STENCIL_COPY_ON_TRANSFER_QUEUE_BIT_KHR, "VK_FORMAT_FEATURE_2_STENCIL_COPY_ON_TRANSFER_QUEUE_BIT_KHR" },
+        { VK_FORMAT_FEATURE_2_DATA_GRAPH_OPTICAL_FLOW_IMAGE_BIT_ARM, "VK_FORMAT_FEATURE_2_DATA_GRAPH_OPTICAL_FLOW_IMAGE_BIT_ARM" },
+        { VK_FORMAT_FEATURE_2_DATA_GRAPH_OPTICAL_FLOW_VECTOR_BIT_ARM, "VK_FORMAT_FEATURE_2_DATA_GRAPH_OPTICAL_FLOW_VECTOR_BIT_ARM" },
+        { VK_FORMAT_FEATURE_2_DATA_GRAPH_OPTICAL_FLOW_COST_BIT_ARM, "VK_FORMAT_FEATURE_2_DATA_GRAPH_OPTICAL_FLOW_COST_BIT_ARM" },
+    } };
+};
+
+struct VkFormatFeatureFlagBits4KHR
+{
+    static constexpr std::array<util::Enumerant<api_types::VkFormatFeatureFlagBits4KHR>, 0> entries{};
+};
+
+struct VkFragmentShadingRateCombinerOpKHR
+{
+    static constexpr std::array<util::Enumerant<api_types::VkFragmentShadingRateCombinerOpKHR>, 5> entries = { {
         { VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR, "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR" },
         { VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR, "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR" },
         { VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR, "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR" },
@@ -2273,10 +2330,9 @@ struct Enumerants<VkFragmentShadingRateCombinerOpKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkFragmentShadingRateNV>
+struct VkFragmentShadingRateNV
 {
-    static constexpr std::array<Enumerant<VkFragmentShadingRateNV>, 12> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFragmentShadingRateNV>, 12> entries = { {
         { VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV, "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV" },
         { VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_1X2_PIXELS_NV, "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_1X2_PIXELS_NV" },
         { VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X1_PIXELS_NV, "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X1_PIXELS_NV" },
@@ -2292,44 +2348,39 @@ struct Enumerants<VkFragmentShadingRateNV>
     } };
 };
 
-template <>
-struct Enumerants<VkFragmentShadingRateTypeNV>
+struct VkFragmentShadingRateTypeNV
 {
-    static constexpr std::array<Enumerant<VkFragmentShadingRateTypeNV>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFragmentShadingRateTypeNV>, 2> entries = { {
         { VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV, "VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV" },
         { VK_FRAGMENT_SHADING_RATE_TYPE_ENUMS_NV, "VK_FRAGMENT_SHADING_RATE_TYPE_ENUMS_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkFrameBoundaryFlagBitsEXT>
+struct VkFrameBoundaryFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkFrameBoundaryFlagBitsEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFrameBoundaryFlagBitsEXT>, 1> entries = { {
         { VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT, "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkFramebufferCreateFlagBits>
+struct VkFramebufferCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkFramebufferCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFramebufferCreateFlagBits>, 1> entries = { {
         { VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT, "VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkFrontFace>
+struct VkFrontFace
 {
-    static constexpr std::array<Enumerant<VkFrontFace>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFrontFace>, 2> entries = { {
         { VK_FRONT_FACE_COUNTER_CLOCKWISE, "VK_FRONT_FACE_COUNTER_CLOCKWISE" },
         { VK_FRONT_FACE_CLOCKWISE, "VK_FRONT_FACE_CLOCKWISE" },
     } };
 };
 
-template <>
-struct Enumerants<VkFullScreenExclusiveEXT>
+struct VkFullScreenExclusiveEXT
 {
-    static constexpr std::array<Enumerant<VkFullScreenExclusiveEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkFullScreenExclusiveEXT>, 4> entries = { {
         { VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT, "VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT" },
         { VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT, "VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT" },
         { VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT, "VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT" },
@@ -2337,19 +2388,17 @@ struct Enumerants<VkFullScreenExclusiveEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkGeometryFlagBitsKHR>
+struct VkGeometryFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkGeometryFlagBitsKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGeometryFlagBitsKHR>, 2> entries = { {
         { VK_GEOMETRY_OPAQUE_BIT_KHR, "VK_GEOMETRY_OPAQUE_BIT_KHR" },
         { VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR, "VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkGeometryInstanceFlagBitsKHR>
+struct VkGeometryInstanceFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkGeometryInstanceFlagBitsKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGeometryInstanceFlagBitsKHR>, 6> entries = { {
         { VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR, "VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR" },
         { VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR, "VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR" },
         { VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR, "VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR" },
@@ -2359,10 +2408,9 @@ struct Enumerants<VkGeometryInstanceFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkGeometryTypeKHR>
+struct VkGeometryTypeKHR
 {
-    static constexpr std::array<Enumerant<VkGeometryTypeKHR>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGeometryTypeKHR>, 7> entries = { {
         { VK_GEOMETRY_TYPE_TRIANGLES_KHR, "VK_GEOMETRY_TYPE_TRIANGLES_KHR" },
         { VK_GEOMETRY_TYPE_AABBS_KHR, "VK_GEOMETRY_TYPE_AABBS_KHR" },
         { VK_GEOMETRY_TYPE_INSTANCES_KHR, "VK_GEOMETRY_TYPE_INSTANCES_KHR" },
@@ -2373,10 +2421,9 @@ struct Enumerants<VkGeometryTypeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkGpaDeviceClockModeAMD>
+struct VkGpaDeviceClockModeAMD
 {
-    static constexpr std::array<Enumerant<VkGpaDeviceClockModeAMD>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGpaDeviceClockModeAMD>, 6> entries = { {
         { VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD, "VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD" },
         { VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD, "VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD" },
         { VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD, "VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD" },
@@ -2386,10 +2433,9 @@ struct Enumerants<VkGpaDeviceClockModeAMD>
     } };
 };
 
-template <>
-struct Enumerants<VkGpaPerfBlockAMD>
+struct VkGpaPerfBlockAMD
 {
-    static constexpr std::array<Enumerant<VkGpaPerfBlockAMD>, 57> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGpaPerfBlockAMD>, 57> entries = { {
         { VK_GPA_PERF_BLOCK_CPF_AMD, "VK_GPA_PERF_BLOCK_CPF_AMD" },
         { VK_GPA_PERF_BLOCK_IA_AMD, "VK_GPA_PERF_BLOCK_IA_AMD" },
         { VK_GPA_PERF_BLOCK_VGT_AMD, "VK_GPA_PERF_BLOCK_VGT_AMD" },
@@ -2450,20 +2496,18 @@ struct Enumerants<VkGpaPerfBlockAMD>
     } };
 };
 
-template <>
-struct Enumerants<VkGpaSampleTypeAMD>
+struct VkGpaSampleTypeAMD
 {
-    static constexpr std::array<Enumerant<VkGpaSampleTypeAMD>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGpaSampleTypeAMD>, 3> entries = { {
         { VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD, "VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD" },
         { VK_GPA_SAMPLE_TYPE_TRACE_AMD, "VK_GPA_SAMPLE_TYPE_TRACE_AMD" },
         { VK_GPA_SAMPLE_TYPE_TIMING_AMD, "VK_GPA_SAMPLE_TYPE_TIMING_AMD" },
     } };
 };
 
-template <>
-struct Enumerants<VkGpaSqShaderStageFlagBitsAMD>
+struct VkGpaSqShaderStageFlagBitsAMD
 {
-    static constexpr std::array<Enumerant<VkGpaSqShaderStageFlagBitsAMD>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGpaSqShaderStageFlagBitsAMD>, 7> entries = { {
         { VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD, "VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD" },
         { VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD, "VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD" },
         { VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD, "VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD" },
@@ -2474,10 +2518,9 @@ struct Enumerants<VkGpaSqShaderStageFlagBitsAMD>
     } };
 };
 
-template <>
-struct Enumerants<VkGraphicsPipelineLibraryFlagBitsEXT>
+struct VkGraphicsPipelineLibraryFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkGraphicsPipelineLibraryFlagBitsEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkGraphicsPipelineLibraryFlagBitsEXT>, 4> entries = { {
         { VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT, "VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT" },
         { VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT, "VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT" },
         { VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT, "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT" },
@@ -2485,18 +2528,16 @@ struct Enumerants<VkGraphicsPipelineLibraryFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkHostImageCopyFlagBits>
+struct VkHostImageCopyFlagBits
 {
-    static constexpr std::array<Enumerant<VkHostImageCopyFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkHostImageCopyFlagBits>, 1> entries = { {
         { VK_HOST_IMAGE_COPY_MEMCPY_BIT, "VK_HOST_IMAGE_COPY_MEMCPY_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkImageAspectFlagBits>
+struct VkImageAspectFlagBits
 {
-    static constexpr std::array<Enumerant<VkImageAspectFlagBits>, 12> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageAspectFlagBits>, 12> entries = { {
         { VK_IMAGE_ASPECT_COLOR_BIT, "VK_IMAGE_ASPECT_COLOR_BIT" },
         { VK_IMAGE_ASPECT_DEPTH_BIT, "VK_IMAGE_ASPECT_DEPTH_BIT" },
         { VK_IMAGE_ASPECT_STENCIL_BIT, "VK_IMAGE_ASPECT_STENCIL_BIT" },
@@ -2512,10 +2553,9 @@ struct Enumerants<VkImageAspectFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkImageCompressionFixedRateFlagBitsEXT>
+struct VkImageCompressionFixedRateFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkImageCompressionFixedRateFlagBitsEXT>, 25> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageCompressionFixedRateFlagBitsEXT>, 25> entries = { {
         { VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT, "VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT" },
         { VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT, "VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT" },
         { VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT, "VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT" },
@@ -2544,10 +2584,9 @@ struct Enumerants<VkImageCompressionFixedRateFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkImageCompressionFlagBitsEXT>
+struct VkImageCompressionFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkImageCompressionFlagBitsEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageCompressionFlagBitsEXT>, 4> entries = { {
         { VK_IMAGE_COMPRESSION_DEFAULT_EXT, "VK_IMAGE_COMPRESSION_DEFAULT_EXT" },
         { VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT, "VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT" },
         { VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT, "VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT" },
@@ -2555,10 +2594,9 @@ struct Enumerants<VkImageCompressionFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkImageCreateFlagBits>
+struct VkImageCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkImageCreateFlagBits>, 21> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageCreateFlagBits>, 21> entries = { {
         { VK_IMAGE_CREATE_SPARSE_BINDING_BIT, "VK_IMAGE_CREATE_SPARSE_BINDING_BIT" },
         { VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT, "VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT" },
         { VK_IMAGE_CREATE_SPARSE_ALIASED_BIT, "VK_IMAGE_CREATE_SPARSE_ALIASED_BIT" },
@@ -2583,10 +2621,36 @@ struct Enumerants<VkImageCreateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkImageLayout>
+struct VkImageCreateFlagBits2KHR
 {
-    static constexpr std::array<Enumerant<VkImageLayout>, 32> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageCreateFlagBits2KHR>, 21> entries = { {
+        { VK_IMAGE_CREATE_2_SPARSE_BINDING_BIT_KHR, "VK_IMAGE_CREATE_2_SPARSE_BINDING_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_SPARSE_RESIDENCY_BIT_KHR, "VK_IMAGE_CREATE_2_SPARSE_RESIDENCY_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_SPARSE_ALIASED_BIT_KHR, "VK_IMAGE_CREATE_2_SPARSE_ALIASED_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_MUTABLE_FORMAT_BIT_KHR, "VK_IMAGE_CREATE_2_MUTABLE_FORMAT_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_CUBE_COMPATIBLE_BIT_KHR, "VK_IMAGE_CREATE_2_CUBE_COMPATIBLE_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_ALIAS_SINGLE_LAYER_DESCRIPTOR_BIT_KHR, "VK_IMAGE_CREATE_2_ALIAS_SINGLE_LAYER_DESCRIPTOR_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_2D_ARRAY_COMPATIBLE_BIT_KHR, "VK_IMAGE_CREATE_2_2D_ARRAY_COMPATIBLE_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR, "VK_IMAGE_CREATE_2_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT_KHR, "VK_IMAGE_CREATE_2_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_EXTENDED_USAGE_BIT_KHR, "VK_IMAGE_CREATE_2_EXTENDED_USAGE_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_DISJOINT_BIT_KHR, "VK_IMAGE_CREATE_2_DISJOINT_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_ALIAS_BIT_KHR, "VK_IMAGE_CREATE_2_ALIAS_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_PROTECTED_BIT_KHR, "VK_IMAGE_CREATE_2_PROTECTED_BIT_KHR" },
+        { VK_IMAGE_CREATE_2_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT, "VK_IMAGE_CREATE_2_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT" },
+        { VK_IMAGE_CREATE_2_CORNER_SAMPLED_BIT_NV, "VK_IMAGE_CREATE_2_CORNER_SAMPLED_BIT_NV" },
+        { VK_IMAGE_CREATE_2_SUBSAMPLED_BIT_EXT, "VK_IMAGE_CREATE_2_SUBSAMPLED_BIT_EXT" },
+        { VK_IMAGE_CREATE_2_FRAGMENT_DENSITY_MAP_OFFSET_BIT_EXT, "VK_IMAGE_CREATE_2_FRAGMENT_DENSITY_MAP_OFFSET_BIT_EXT" },
+        { VK_IMAGE_CREATE_2_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT, "VK_IMAGE_CREATE_2_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT" },
+        { VK_IMAGE_CREATE_2_2D_VIEW_COMPATIBLE_BIT_EXT, "VK_IMAGE_CREATE_2_2D_VIEW_COMPATIBLE_BIT_EXT" },
+        { VK_IMAGE_CREATE_2_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT, "VK_IMAGE_CREATE_2_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT" },
+        { VK_IMAGE_CREATE_2_VIDEO_PROFILE_INDEPENDENT_BIT_KHR, "VK_IMAGE_CREATE_2_VIDEO_PROFILE_INDEPENDENT_BIT_KHR" },
+    } };
+};
+
+struct VkImageLayout
+{
+    static constexpr std::array<util::Enumerant<api_types::VkImageLayout>, 32> entries = { {
         { VK_IMAGE_LAYOUT_UNDEFINED, "VK_IMAGE_LAYOUT_UNDEFINED" },
         { VK_IMAGE_LAYOUT_GENERAL, "VK_IMAGE_LAYOUT_GENERAL" },
         { VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, "VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL" },
@@ -2622,40 +2686,36 @@ struct Enumerants<VkImageLayout>
     } };
 };
 
-template <>
-struct Enumerants<VkImageTiling>
+struct VkImageTiling
 {
-    static constexpr std::array<Enumerant<VkImageTiling>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageTiling>, 3> entries = { {
         { VK_IMAGE_TILING_OPTIMAL, "VK_IMAGE_TILING_OPTIMAL" },
         { VK_IMAGE_TILING_LINEAR, "VK_IMAGE_TILING_LINEAR" },
         { VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT, "VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkImageTilingControlEXT>
+struct VkImageTilingControlEXT
 {
-    static constexpr std::array<Enumerant<VkImageTilingControlEXT>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageTilingControlEXT>, 3> entries = { {
         { VK_IMAGE_TILING_CONTROL_DEFAULT_EXT, "VK_IMAGE_TILING_CONTROL_DEFAULT_EXT" },
         { VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT, "VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT" },
         { VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT, "VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkImageType>
+struct VkImageType
 {
-    static constexpr std::array<Enumerant<VkImageType>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageType>, 3> entries = { {
         { VK_IMAGE_TYPE_1D, "VK_IMAGE_TYPE_1D" },
         { VK_IMAGE_TYPE_2D, "VK_IMAGE_TYPE_2D" },
         { VK_IMAGE_TYPE_3D, "VK_IMAGE_TYPE_3D" },
     } };
 };
 
-template <>
-struct Enumerants<VkImageUsageFlagBits>
+struct VkImageUsageFlagBits
 {
-    static constexpr std::array<Enumerant<VkImageUsageFlagBits>, 25> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageUsageFlagBits>, 25> entries = { {
         { VK_IMAGE_USAGE_TRANSFER_SRC_BIT, "VK_IMAGE_USAGE_TRANSFER_SRC_BIT" },
         { VK_IMAGE_USAGE_TRANSFER_DST_BIT, "VK_IMAGE_USAGE_TRANSFER_DST_BIT" },
         { VK_IMAGE_USAGE_SAMPLED_BIT, "VK_IMAGE_USAGE_SAMPLED_BIT" },
@@ -2684,20 +2744,49 @@ struct Enumerants<VkImageUsageFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkImageViewCreateFlagBits>
+struct VkImageUsageFlagBits2KHR
 {
-    static constexpr std::array<Enumerant<VkImageViewCreateFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageUsageFlagBits2KHR>, 25> entries = { {
+        { VK_IMAGE_USAGE_2_TRANSFER_SRC_BIT_KHR, "VK_IMAGE_USAGE_2_TRANSFER_SRC_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_TRANSFER_DST_BIT_KHR, "VK_IMAGE_USAGE_2_TRANSFER_DST_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_SAMPLED_BIT_KHR, "VK_IMAGE_USAGE_2_SAMPLED_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_STORAGE_BIT_KHR, "VK_IMAGE_USAGE_2_STORAGE_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_COLOR_ATTACHMENT_BIT_KHR, "VK_IMAGE_USAGE_2_COLOR_ATTACHMENT_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_DEPTH_STENCIL_ATTACHMENT_BIT_KHR, "VK_IMAGE_USAGE_2_DEPTH_STENCIL_ATTACHMENT_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR, "VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_INPUT_ATTACHMENT_BIT_KHR, "VK_IMAGE_USAGE_2_INPUT_ATTACHMENT_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, "VK_IMAGE_USAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_FRAGMENT_DENSITY_MAP_BIT_EXT, "VK_IMAGE_USAGE_2_FRAGMENT_DENSITY_MAP_BIT_EXT" },
+        { VK_IMAGE_USAGE_2_VIDEO_DECODE_DST_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_DECODE_DST_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_VIDEO_DECODE_DPB_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_DECODE_DPB_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_VIDEO_ENCODE_DPB_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_ENCODE_DPB_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_INVOCATION_MASK_BIT_HUAWEI, "VK_IMAGE_USAGE_2_INVOCATION_MASK_BIT_HUAWEI" },
+        { VK_IMAGE_USAGE_2_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT, "VK_IMAGE_USAGE_2_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT" },
+        { VK_IMAGE_USAGE_2_SAMPLE_WEIGHT_BIT_QCOM, "VK_IMAGE_USAGE_2_SAMPLE_WEIGHT_BIT_QCOM" },
+        { VK_IMAGE_USAGE_2_SAMPLE_BLOCK_MATCH_BIT_QCOM, "VK_IMAGE_USAGE_2_SAMPLE_BLOCK_MATCH_BIT_QCOM" },
+        { VK_IMAGE_USAGE_2_HOST_TRANSFER_BIT_KHR, "VK_IMAGE_USAGE_2_HOST_TRANSFER_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_TENSOR_ALIASING_BIT_ARM, "VK_IMAGE_USAGE_2_TENSOR_ALIASING_BIT_ARM" },
+        { VK_IMAGE_USAGE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR, "VK_IMAGE_USAGE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR" },
+        { VK_IMAGE_USAGE_2_TILE_MEMORY_BIT_QCOM, "VK_IMAGE_USAGE_2_TILE_MEMORY_BIT_QCOM" },
+    } };
+};
+
+struct VkImageViewCreateFlagBits
+{
+    static constexpr std::array<util::Enumerant<api_types::VkImageViewCreateFlagBits>, 3> entries = { {
         { VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT, "VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT" },
         { VK_IMAGE_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT, "VK_IMAGE_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT" },
         { VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DEFERRED_BIT_EXT, "VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DEFERRED_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkImageViewType>
+struct VkImageViewType
 {
-    static constexpr std::array<Enumerant<VkImageViewType>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkImageViewType>, 7> entries = { {
         { VK_IMAGE_VIEW_TYPE_1D, "VK_IMAGE_VIEW_TYPE_1D" },
         { VK_IMAGE_VIEW_TYPE_2D, "VK_IMAGE_VIEW_TYPE_2D" },
         { VK_IMAGE_VIEW_TYPE_3D, "VK_IMAGE_VIEW_TYPE_3D" },
@@ -2708,10 +2797,9 @@ struct Enumerants<VkImageViewType>
     } };
 };
 
-template <>
-struct Enumerants<VkIndexType>
+struct VkIndexType
 {
-    static constexpr std::array<Enumerant<VkIndexType>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndexType>, 4> entries = { {
         { VK_INDEX_TYPE_UINT16, "VK_INDEX_TYPE_UINT16" },
         { VK_INDEX_TYPE_UINT32, "VK_INDEX_TYPE_UINT32" },
         { VK_INDEX_TYPE_UINT8, "VK_INDEX_TYPE_UINT8" },
@@ -2719,38 +2807,34 @@ struct Enumerants<VkIndexType>
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectCommandsInputModeFlagBitsEXT>
+struct VkIndirectCommandsInputModeFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkIndirectCommandsInputModeFlagBitsEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectCommandsInputModeFlagBitsEXT>, 2> entries = { {
         { VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT, "VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT" },
         { VK_INDIRECT_COMMANDS_INPUT_MODE_DXGI_INDEX_BUFFER_EXT, "VK_INDIRECT_COMMANDS_INPUT_MODE_DXGI_INDEX_BUFFER_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectCommandsLayoutUsageFlagBitsEXT>
+struct VkIndirectCommandsLayoutUsageFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkIndirectCommandsLayoutUsageFlagBitsEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectCommandsLayoutUsageFlagBitsEXT>, 2> entries = { {
         { VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT, "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT" },
         { VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT, "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectCommandsLayoutUsageFlagBitsNV>
+struct VkIndirectCommandsLayoutUsageFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkIndirectCommandsLayoutUsageFlagBitsNV>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectCommandsLayoutUsageFlagBitsNV>, 3> entries = { {
         { VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV, "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV" },
         { VK_INDIRECT_COMMANDS_LAYOUT_USAGE_INDEXED_SEQUENCES_BIT_NV, "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_INDEXED_SEQUENCES_BIT_NV" },
         { VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV, "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectCommandsTokenTypeEXT>
+struct VkIndirectCommandsTokenTypeEXT
 {
-    static constexpr std::array<Enumerant<VkIndirectCommandsTokenTypeEXT>, 17> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectCommandsTokenTypeEXT>, 17> entries = { {
         { VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT, "VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT" },
         { VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT, "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT" },
         { VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT, "VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT" },
@@ -2771,10 +2855,9 @@ struct Enumerants<VkIndirectCommandsTokenTypeEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectCommandsTokenTypeNV>
+struct VkIndirectCommandsTokenTypeNV
 {
-    static constexpr std::array<Enumerant<VkIndirectCommandsTokenTypeNV>, 12> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectCommandsTokenTypeNV>, 12> entries = { {
         { VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV, "VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV" },
         { VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV, "VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV" },
         { VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV, "VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV" },
@@ -2790,43 +2873,38 @@ struct Enumerants<VkIndirectCommandsTokenTypeNV>
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectExecutionSetInfoTypeEXT>
+struct VkIndirectExecutionSetInfoTypeEXT
 {
-    static constexpr std::array<Enumerant<VkIndirectExecutionSetInfoTypeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectExecutionSetInfoTypeEXT>, 2> entries = { {
         { VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT, "VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT" },
         { VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT, "VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkIndirectStateFlagBitsNV>
+struct VkIndirectStateFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkIndirectStateFlagBitsNV>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkIndirectStateFlagBitsNV>, 1> entries = { {
         { VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV, "VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkInstanceCreateFlagBits>
+struct VkInstanceCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkInstanceCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkInstanceCreateFlagBits>, 1> entries = { {
         { VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR, "VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkInternalAllocationType>
+struct VkInternalAllocationType
 {
-    static constexpr std::array<Enumerant<VkInternalAllocationType>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkInternalAllocationType>, 1> entries = { {
         { VK_INTERNAL_ALLOCATION_TYPE_EXECUTABLE, "VK_INTERNAL_ALLOCATION_TYPE_EXECUTABLE" },
     } };
 };
 
-template <>
-struct Enumerants<VkLatencyMarkerNV>
+struct VkLatencyMarkerNV
 {
-    static constexpr std::array<Enumerant<VkLatencyMarkerNV>, 12> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkLatencyMarkerNV>, 12> entries = { {
         { VK_LATENCY_MARKER_SIMULATION_START_NV, "VK_LATENCY_MARKER_SIMULATION_START_NV" },
         { VK_LATENCY_MARKER_SIMULATION_END_NV, "VK_LATENCY_MARKER_SIMULATION_END_NV" },
         { VK_LATENCY_MARKER_RENDERSUBMIT_START_NV, "VK_LATENCY_MARKER_RENDERSUBMIT_START_NV" },
@@ -2842,10 +2920,9 @@ struct Enumerants<VkLatencyMarkerNV>
     } };
 };
 
-template <>
-struct Enumerants<VkLayerSettingTypeEXT>
+struct VkLayerSettingTypeEXT
 {
-    static constexpr std::array<Enumerant<VkLayerSettingTypeEXT>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkLayerSettingTypeEXT>, 8> entries = { {
         { VK_LAYER_SETTING_TYPE_BOOL32_EXT, "VK_LAYER_SETTING_TYPE_BOOL32_EXT" },
         { VK_LAYER_SETTING_TYPE_INT32_EXT, "VK_LAYER_SETTING_TYPE_INT32_EXT" },
         { VK_LAYER_SETTING_TYPE_INT64_EXT, "VK_LAYER_SETTING_TYPE_INT64_EXT" },
@@ -2857,19 +2934,17 @@ struct Enumerants<VkLayerSettingTypeEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkLayeredDriverUnderlyingApiMSFT>
+struct VkLayeredDriverUnderlyingApiMSFT
 {
-    static constexpr std::array<Enumerant<VkLayeredDriverUnderlyingApiMSFT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkLayeredDriverUnderlyingApiMSFT>, 2> entries = { {
         { VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT, "VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT" },
         { VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT, "VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT" },
     } };
 };
 
-template <>
-struct Enumerants<VkLineRasterizationMode>
+struct VkLineRasterizationMode
 {
-    static constexpr std::array<Enumerant<VkLineRasterizationMode>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkLineRasterizationMode>, 4> entries = { {
         { VK_LINE_RASTERIZATION_MODE_DEFAULT, "VK_LINE_RASTERIZATION_MODE_DEFAULT" },
         { VK_LINE_RASTERIZATION_MODE_RECTANGULAR, "VK_LINE_RASTERIZATION_MODE_RECTANGULAR" },
         { VK_LINE_RASTERIZATION_MODE_BRESENHAM, "VK_LINE_RASTERIZATION_MODE_BRESENHAM" },
@@ -2877,10 +2952,9 @@ struct Enumerants<VkLineRasterizationMode>
     } };
 };
 
-template <>
-struct Enumerants<VkLogicOp>
+struct VkLogicOp
 {
-    static constexpr std::array<Enumerant<VkLogicOp>, 16> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkLogicOp>, 16> entries = { {
         { VK_LOGIC_OP_CLEAR, "VK_LOGIC_OP_CLEAR" },
         { VK_LOGIC_OP_AND, "VK_LOGIC_OP_AND" },
         { VK_LOGIC_OP_AND_REVERSE, "VK_LOGIC_OP_AND_REVERSE" },
@@ -2900,10 +2974,9 @@ struct Enumerants<VkLogicOp>
     } };
 };
 
-template <>
-struct Enumerants<VkMemoryAllocateFlagBits>
+struct VkMemoryAllocateFlagBits
 {
-    static constexpr std::array<Enumerant<VkMemoryAllocateFlagBits>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryAllocateFlagBits>, 4> entries = { {
         { VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT, "VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT" },
         { VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT, "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT" },
         { VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT, "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT" },
@@ -2911,38 +2984,41 @@ struct Enumerants<VkMemoryAllocateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkMemoryHeapFlagBits>
+struct VkMemoryDecompressionMethodFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkMemoryHeapFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryDecompressionMethodFlagBitsEXT>, 1> entries = { {
+        { VK_MEMORY_DECOMPRESSION_METHOD_GDEFLATE_1_0_BIT_EXT, "VK_MEMORY_DECOMPRESSION_METHOD_GDEFLATE_1_0_BIT_EXT" },
+    } };
+};
+
+struct VkMemoryHeapFlagBits
+{
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryHeapFlagBits>, 3> entries = { {
         { VK_MEMORY_HEAP_DEVICE_LOCAL_BIT, "VK_MEMORY_HEAP_DEVICE_LOCAL_BIT" },
         { VK_MEMORY_HEAP_MULTI_INSTANCE_BIT, "VK_MEMORY_HEAP_MULTI_INSTANCE_BIT" },
         { VK_MEMORY_HEAP_TILE_MEMORY_BIT_QCOM, "VK_MEMORY_HEAP_TILE_MEMORY_BIT_QCOM" },
     } };
 };
 
-template <>
-struct Enumerants<VkMemoryMapFlagBits>
+struct VkMemoryMapFlagBits
 {
-    static constexpr std::array<Enumerant<VkMemoryMapFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryMapFlagBits>, 1> entries = { {
         { VK_MEMORY_MAP_PLACED_BIT_EXT, "VK_MEMORY_MAP_PLACED_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkMemoryOverallocationBehaviorAMD>
+struct VkMemoryOverallocationBehaviorAMD
 {
-    static constexpr std::array<Enumerant<VkMemoryOverallocationBehaviorAMD>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryOverallocationBehaviorAMD>, 3> entries = { {
         { VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD, "VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD" },
         { VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD, "VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD" },
         { VK_MEMORY_OVERALLOCATION_BEHAVIOR_DISALLOWED_AMD, "VK_MEMORY_OVERALLOCATION_BEHAVIOR_DISALLOWED_AMD" },
     } };
 };
 
-template <>
-struct Enumerants<VkMemoryPropertyFlagBits>
+struct VkMemoryPropertyFlagBits
 {
-    static constexpr std::array<Enumerant<VkMemoryPropertyFlagBits>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryPropertyFlagBits>, 9> entries = { {
         { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, "VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT" },
         { VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT" },
         { VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, "VK_MEMORY_PROPERTY_HOST_COHERENT_BIT" },
@@ -2955,45 +3031,40 @@ struct Enumerants<VkMemoryPropertyFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkMemoryUnmapFlagBits>
+struct VkMemoryUnmapFlagBits
 {
-    static constexpr std::array<Enumerant<VkMemoryUnmapFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMemoryUnmapFlagBits>, 1> entries = { {
         { VK_MEMORY_UNMAP_RESERVE_BIT_EXT, "VK_MEMORY_UNMAP_RESERVE_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkMicromapCreateFlagBitsEXT>
+struct VkMicromapCreateFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkMicromapCreateFlagBitsEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMicromapCreateFlagBitsEXT>, 1> entries = { {
         { VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT, "VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkMicromapTypeEXT>
+struct VkMicromapTypeEXT
 {
-    static constexpr std::array<Enumerant<VkMicromapTypeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkMicromapTypeEXT>, 2> entries = { {
         { VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT, "VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT" },
         { VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV, "VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkNeuralAcceleratorStatisticsModeARM>
+struct VkNeuralAcceleratorStatisticsModeARM
 {
-    static constexpr std::array<Enumerant<VkNeuralAcceleratorStatisticsModeARM>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkNeuralAcceleratorStatisticsModeARM>, 3> entries = { {
         { VK_NEURAL_ACCELERATOR_STATISTICS_MODE_DISABLED_ARM, "VK_NEURAL_ACCELERATOR_STATISTICS_MODE_DISABLED_ARM" },
         { VK_NEURAL_ACCELERATOR_STATISTICS_MODE_STATISTICS0_ARM, "VK_NEURAL_ACCELERATOR_STATISTICS_MODE_STATISTICS0_ARM" },
         { VK_NEURAL_ACCELERATOR_STATISTICS_MODE_STATISTICS1_ARM, "VK_NEURAL_ACCELERATOR_STATISTICS_MODE_STATISTICS1_ARM" },
     } };
 };
 
-template <>
-struct Enumerants<VkObjectType>
+struct VkObjectType
 {
-    static constexpr std::array<Enumerant<VkObjectType>, 60> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkObjectType>, 60> entries = { {
         { VK_OBJECT_TYPE_UNKNOWN, "VK_OBJECT_TYPE_UNKNOWN" },
         { VK_OBJECT_TYPE_INSTANCE, "VK_OBJECT_TYPE_INSTANCE" },
         { VK_OBJECT_TYPE_PHYSICAL_DEVICE, "VK_OBJECT_TYPE_PHYSICAL_DEVICE" },
@@ -3057,19 +3128,17 @@ struct Enumerants<VkObjectType>
     } };
 };
 
-template <>
-struct Enumerants<VkOpacityMicromapFormatKHR>
+struct VkOpacityMicromapFormatKHR
 {
-    static constexpr std::array<Enumerant<VkOpacityMicromapFormatKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpacityMicromapFormatKHR>, 2> entries = { {
         { VK_OPACITY_MICROMAP_FORMAT_2_STATE_KHR, "VK_OPACITY_MICROMAP_FORMAT_2_STATE_KHR" },
         { VK_OPACITY_MICROMAP_FORMAT_4_STATE_KHR, "VK_OPACITY_MICROMAP_FORMAT_4_STATE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkOpacityMicromapSpecialIndexKHR>
+struct VkOpacityMicromapSpecialIndexKHR
 {
-    static constexpr std::array<Enumerant<VkOpacityMicromapSpecialIndexKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpacityMicromapSpecialIndexKHR>, 5> entries = { {
         { VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_KHR, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_KHR" },
         { VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_KHR, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_KHR" },
         { VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_KHR, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_KHR" },
@@ -3078,18 +3147,16 @@ struct Enumerants<VkOpacityMicromapSpecialIndexKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkOpticalFlowExecuteFlagBitsNV>
+struct VkOpticalFlowExecuteFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkOpticalFlowExecuteFlagBitsNV>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpticalFlowExecuteFlagBitsNV>, 1> entries = { {
         { VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV, "VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkOpticalFlowGridSizeFlagBitsNV>
+struct VkOpticalFlowGridSizeFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkOpticalFlowGridSizeFlagBitsNV>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpticalFlowGridSizeFlagBitsNV>, 5> entries = { {
         { VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV, "VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV" },
         { VK_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_NV, "VK_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_NV" },
         { VK_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_NV, "VK_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_NV" },
@@ -3098,10 +3165,9 @@ struct Enumerants<VkOpticalFlowGridSizeFlagBitsNV>
     } };
 };
 
-template <>
-struct Enumerants<VkOpticalFlowPerformanceLevelNV>
+struct VkOpticalFlowPerformanceLevelNV
 {
-    static constexpr std::array<Enumerant<VkOpticalFlowPerformanceLevelNV>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpticalFlowPerformanceLevelNV>, 4> entries = { {
         { VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV, "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV" },
         { VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_NV, "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_NV" },
         { VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_NV, "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_NV" },
@@ -3109,10 +3175,9 @@ struct Enumerants<VkOpticalFlowPerformanceLevelNV>
     } };
 };
 
-template <>
-struct Enumerants<VkOpticalFlowSessionBindingPointNV>
+struct VkOpticalFlowSessionBindingPointNV
 {
-    static constexpr std::array<Enumerant<VkOpticalFlowSessionBindingPointNV>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpticalFlowSessionBindingPointNV>, 9> entries = { {
         { VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV, "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV" },
         { VK_OPTICAL_FLOW_SESSION_BINDING_POINT_INPUT_NV, "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_INPUT_NV" },
         { VK_OPTICAL_FLOW_SESSION_BINDING_POINT_REFERENCE_NV, "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_REFERENCE_NV" },
@@ -3125,10 +3190,9 @@ struct Enumerants<VkOpticalFlowSessionBindingPointNV>
     } };
 };
 
-template <>
-struct Enumerants<VkOpticalFlowSessionCreateFlagBitsNV>
+struct VkOpticalFlowSessionCreateFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkOpticalFlowSessionCreateFlagBitsNV>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpticalFlowSessionCreateFlagBitsNV>, 5> entries = { {
         { VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV, "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV" },
         { VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_COST_BIT_NV, "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_COST_BIT_NV" },
         { VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_GLOBAL_FLOW_BIT_NV, "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_GLOBAL_FLOW_BIT_NV" },
@@ -3137,10 +3201,9 @@ struct Enumerants<VkOpticalFlowSessionCreateFlagBitsNV>
     } };
 };
 
-template <>
-struct Enumerants<VkOpticalFlowUsageFlagBitsNV>
+struct VkOpticalFlowUsageFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkOpticalFlowUsageFlagBitsNV>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOpticalFlowUsageFlagBitsNV>, 6> entries = { {
         { VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV, "VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV" },
         { VK_OPTICAL_FLOW_USAGE_INPUT_BIT_NV, "VK_OPTICAL_FLOW_USAGE_INPUT_BIT_NV" },
         { VK_OPTICAL_FLOW_USAGE_OUTPUT_BIT_NV, "VK_OPTICAL_FLOW_USAGE_OUTPUT_BIT_NV" },
@@ -3150,19 +3213,17 @@ struct Enumerants<VkOpticalFlowUsageFlagBitsNV>
     } };
 };
 
-template <>
-struct Enumerants<VkOutOfBandQueueTypeNV>
+struct VkOutOfBandQueueTypeNV
 {
-    static constexpr std::array<Enumerant<VkOutOfBandQueueTypeNV>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkOutOfBandQueueTypeNV>, 2> entries = { {
         { VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV, "VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV" },
         { VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV, "VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkPartitionedAccelerationStructureInstanceFlagBitsNV>
+struct VkPartitionedAccelerationStructureInstanceFlagBitsNV
 {
-    static constexpr std::array<Enumerant<VkPartitionedAccelerationStructureInstanceFlagBitsNV>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPartitionedAccelerationStructureInstanceFlagBitsNV>, 5> entries = { {
         { VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FACING_CULL_DISABLE_BIT_NV, "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FACING_CULL_DISABLE_BIT_NV" },
         { VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FLIP_FACING_BIT_NV, "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FLIP_FACING_BIT_NV" },
         { VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_FORCE_OPAQUE_BIT_NV, "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_FORCE_OPAQUE_BIT_NV" },
@@ -3171,29 +3232,26 @@ struct Enumerants<VkPartitionedAccelerationStructureInstanceFlagBitsNV>
     } };
 };
 
-template <>
-struct Enumerants<VkPartitionedAccelerationStructureOpTypeNV>
+struct VkPartitionedAccelerationStructureOpTypeNV
 {
-    static constexpr std::array<Enumerant<VkPartitionedAccelerationStructureOpTypeNV>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPartitionedAccelerationStructureOpTypeNV>, 3> entries = { {
         { VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_INSTANCE_NV, "VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_INSTANCE_NV" },
         { VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_UPDATE_INSTANCE_NV, "VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_UPDATE_INSTANCE_NV" },
         { VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_PARTITION_TRANSLATION_NV, "VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_PARTITION_TRANSLATION_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkPastPresentationTimingFlagBitsEXT>
+struct VkPastPresentationTimingFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkPastPresentationTimingFlagBitsEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPastPresentationTimingFlagBitsEXT>, 2> entries = { {
         { VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT, "VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT" },
         { VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT, "VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkPeerMemoryFeatureFlagBits>
+struct VkPeerMemoryFeatureFlagBits
 {
-    static constexpr std::array<Enumerant<VkPeerMemoryFeatureFlagBits>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPeerMemoryFeatureFlagBits>, 4> entries = { {
         { VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT, "VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT" },
         { VK_PEER_MEMORY_FEATURE_COPY_DST_BIT, "VK_PEER_MEMORY_FEATURE_COPY_DST_BIT" },
         { VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT, "VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT" },
@@ -3201,10 +3259,9 @@ struct Enumerants<VkPeerMemoryFeatureFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkPerfHintTypeQCOM>
+struct VkPerfHintTypeQCOM
 {
-    static constexpr std::array<Enumerant<VkPerfHintTypeQCOM>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerfHintTypeQCOM>, 4> entries = { {
         { VK_PERF_HINT_TYPE_DEFAULT_QCOM, "VK_PERF_HINT_TYPE_DEFAULT_QCOM" },
         { VK_PERF_HINT_TYPE_FREQUENCY_MIN_QCOM, "VK_PERF_HINT_TYPE_FREQUENCY_MIN_QCOM" },
         { VK_PERF_HINT_TYPE_FREQUENCY_MAX_QCOM, "VK_PERF_HINT_TYPE_FREQUENCY_MAX_QCOM" },
@@ -3212,37 +3269,33 @@ struct Enumerants<VkPerfHintTypeQCOM>
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceConfigurationTypeINTEL>
+struct VkPerformanceConfigurationTypeINTEL
 {
-    static constexpr std::array<Enumerant<VkPerformanceConfigurationTypeINTEL>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceConfigurationTypeINTEL>, 1> entries = { {
         { VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL, "VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL" },
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceCounterDescriptionFlagBitsKHR>
+struct VkPerformanceCounterDescriptionFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkPerformanceCounterDescriptionFlagBitsKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceCounterDescriptionFlagBitsKHR>, 2> entries = { {
         { VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR, "VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR" },
         { VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR, "VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceCounterScopeKHR>
+struct VkPerformanceCounterScopeKHR
 {
-    static constexpr std::array<Enumerant<VkPerformanceCounterScopeKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceCounterScopeKHR>, 3> entries = { {
         { VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR, "VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR" },
         { VK_PERFORMANCE_COUNTER_SCOPE_RENDER_PASS_KHR, "VK_PERFORMANCE_COUNTER_SCOPE_RENDER_PASS_KHR" },
         { VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_KHR, "VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceCounterStorageKHR>
+struct VkPerformanceCounterStorageKHR
 {
-    static constexpr std::array<Enumerant<VkPerformanceCounterStorageKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceCounterStorageKHR>, 6> entries = { {
         { VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR, "VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR" },
         { VK_PERFORMANCE_COUNTER_STORAGE_INT64_KHR, "VK_PERFORMANCE_COUNTER_STORAGE_INT64_KHR" },
         { VK_PERFORMANCE_COUNTER_STORAGE_UINT32_KHR, "VK_PERFORMANCE_COUNTER_STORAGE_UINT32_KHR" },
@@ -3252,10 +3305,9 @@ struct Enumerants<VkPerformanceCounterStorageKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceCounterUnitKHR>
+struct VkPerformanceCounterUnitKHR
 {
-    static constexpr std::array<Enumerant<VkPerformanceCounterUnitKHR>, 11> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceCounterUnitKHR>, 11> entries = { {
         { VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR, "VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR" },
         { VK_PERFORMANCE_COUNTER_UNIT_PERCENTAGE_KHR, "VK_PERFORMANCE_COUNTER_UNIT_PERCENTAGE_KHR" },
         { VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR, "VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR" },
@@ -3270,28 +3322,25 @@ struct Enumerants<VkPerformanceCounterUnitKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceOverrideTypeINTEL>
+struct VkPerformanceOverrideTypeINTEL
 {
-    static constexpr std::array<Enumerant<VkPerformanceOverrideTypeINTEL>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceOverrideTypeINTEL>, 2> entries = { {
         { VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL, "VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL" },
         { VK_PERFORMANCE_OVERRIDE_TYPE_FLUSH_GPU_CACHES_INTEL, "VK_PERFORMANCE_OVERRIDE_TYPE_FLUSH_GPU_CACHES_INTEL" },
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceParameterTypeINTEL>
+struct VkPerformanceParameterTypeINTEL
 {
-    static constexpr std::array<Enumerant<VkPerformanceParameterTypeINTEL>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceParameterTypeINTEL>, 2> entries = { {
         { VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL, "VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL" },
         { VK_PERFORMANCE_PARAMETER_TYPE_STREAM_MARKER_VALID_BITS_INTEL, "VK_PERFORMANCE_PARAMETER_TYPE_STREAM_MARKER_VALID_BITS_INTEL" },
     } };
 };
 
-template <>
-struct Enumerants<VkPerformanceValueTypeINTEL>
+struct VkPerformanceValueTypeINTEL
 {
-    static constexpr std::array<Enumerant<VkPerformanceValueTypeINTEL>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPerformanceValueTypeINTEL>, 5> entries = { {
         { VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL, "VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL" },
         { VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL, "VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL" },
         { VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL, "VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL" },
@@ -3300,10 +3349,9 @@ struct Enumerants<VkPerformanceValueTypeINTEL>
     } };
 };
 
-template <>
-struct Enumerants<VkPhysicalDeviceDataGraphOperationTypeARM>
+struct VkPhysicalDeviceDataGraphOperationTypeARM
 {
-    static constexpr std::array<Enumerant<VkPhysicalDeviceDataGraphOperationTypeARM>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPhysicalDeviceDataGraphOperationTypeARM>, 4> entries = { {
         { VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_SPIRV_EXTENDED_INSTRUCTION_SET_ARM, "VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_SPIRV_EXTENDED_INSTRUCTION_SET_ARM" },
         { VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_NEURAL_MODEL_QCOM, "VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_NEURAL_MODEL_QCOM" },
         { VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_BUILTIN_MODEL_QCOM, "VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_BUILTIN_MODEL_QCOM" },
@@ -3311,20 +3359,18 @@ struct Enumerants<VkPhysicalDeviceDataGraphOperationTypeARM>
     } };
 };
 
-template <>
-struct Enumerants<VkPhysicalDeviceDataGraphProcessingEngineTypeARM>
+struct VkPhysicalDeviceDataGraphProcessingEngineTypeARM
 {
-    static constexpr std::array<Enumerant<VkPhysicalDeviceDataGraphProcessingEngineTypeARM>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPhysicalDeviceDataGraphProcessingEngineTypeARM>, 3> entries = { {
         { VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_DEFAULT_ARM, "VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_DEFAULT_ARM" },
         { VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_NEURAL_QCOM, "VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_NEURAL_QCOM" },
         { VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_COMPUTE_QCOM, "VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_COMPUTE_QCOM" },
     } };
 };
 
-template <>
-struct Enumerants<VkPhysicalDeviceLayeredApiKHR>
+struct VkPhysicalDeviceLayeredApiKHR
 {
-    static constexpr std::array<Enumerant<VkPhysicalDeviceLayeredApiKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPhysicalDeviceLayeredApiKHR>, 5> entries = { {
         { VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR, "VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR" },
         { VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR, "VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR" },
         { VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR, "VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR" },
@@ -3333,10 +3379,17 @@ struct Enumerants<VkPhysicalDeviceLayeredApiKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkPhysicalDeviceType>
+struct VkPhysicalDeviceSchedulingControlsFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkPhysicalDeviceType>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPhysicalDeviceSchedulingControlsFlagBitsARM>, 2> entries = { {
+        { VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM, "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM" },
+        { VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_DISPATCH_PARAMETERS_ARM, "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_DISPATCH_PARAMETERS_ARM" },
+    } };
+};
+
+struct VkPhysicalDeviceType
+{
+    static constexpr std::array<util::Enumerant<api_types::VkPhysicalDeviceType>, 5> entries = { {
         { VK_PHYSICAL_DEVICE_TYPE_OTHER, "VK_PHYSICAL_DEVICE_TYPE_OTHER" },
         { VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU" },
         { VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU" },
@@ -3345,10 +3398,9 @@ struct Enumerants<VkPhysicalDeviceType>
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineBindPoint>
+struct VkPipelineBindPoint
 {
-    static constexpr std::array<Enumerant<VkPipelineBindPoint>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineBindPoint>, 6> entries = { {
         { VK_PIPELINE_BIND_POINT_GRAPHICS, "VK_PIPELINE_BIND_POINT_GRAPHICS" },
         { VK_PIPELINE_BIND_POINT_COMPUTE, "VK_PIPELINE_BIND_POINT_COMPUTE" },
         { VK_PIPELINE_BIND_POINT_EXECUTION_GRAPH_AMDX, "VK_PIPELINE_BIND_POINT_EXECUTION_GRAPH_AMDX" },
@@ -3358,36 +3410,37 @@ struct Enumerants<VkPipelineBindPoint>
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineCacheCreateFlagBits>
+struct VkPipelineCacheCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkPipelineCacheCreateFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineCacheCreateFlagBits>, 2> entries = { {
         { VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT, "VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT" },
         { VK_PIPELINE_CACHE_CREATE_INTERNALLY_SYNCHRONIZED_MERGE_BIT_KHR, "VK_PIPELINE_CACHE_CREATE_INTERNALLY_SYNCHRONIZED_MERGE_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineCacheHeaderVersion>
+struct VkPipelineCacheHeaderVersion
 {
-    static constexpr std::array<Enumerant<VkPipelineCacheHeaderVersion>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineCacheHeaderVersion>, 2> entries = { {
         { VK_PIPELINE_CACHE_HEADER_VERSION_ONE, "VK_PIPELINE_CACHE_HEADER_VERSION_ONE" },
         { VK_PIPELINE_CACHE_HEADER_VERSION_DATA_GRAPH_QCOM, "VK_PIPELINE_CACHE_HEADER_VERSION_DATA_GRAPH_QCOM" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineColorBlendStateCreateFlagBits>
+struct VkPipelineColorBlendStateCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkPipelineColorBlendStateCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineColorBlendStateCreateFlagBits>, 1> entries = { {
         { VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT, "VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineCreateFlagBits>
+struct VkPipelineCompilerControlFlagBitsAMD
 {
-    static constexpr std::array<Enumerant<VkPipelineCreateFlagBits>, 31> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineCompilerControlFlagBitsAMD>, 0> entries{};
+};
+
+struct VkPipelineCreateFlagBits
+{
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineCreateFlagBits>, 31> entries = { {
         { VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT, "VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT" },
         { VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT, "VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT" },
         { VK_PIPELINE_CREATE_DERIVATIVE_BIT, "VK_PIPELINE_CREATE_DERIVATIVE_BIT" },
@@ -3422,29 +3475,74 @@ struct Enumerants<VkPipelineCreateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineCreationFeedbackFlagBits>
+struct VkPipelineCreateFlagBits2
 {
-    static constexpr std::array<Enumerant<VkPipelineCreationFeedbackFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineCreateFlagBits2>, 42> entries = { {
+        { VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT, "VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT" },
+        { VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT, "VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT" },
+        { VK_PIPELINE_CREATE_2_DERIVATIVE_BIT, "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT" },
+        { VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT, "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT" },
+        { VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT, "VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT" },
+        { VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT, "VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT" },
+        { VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT, "VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT" },
+        { VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT, "VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT" },
+        { VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT, "VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT" },
+        { VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX, "VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX" },
+        { VK_PIPELINE_CREATE_2_DESCRIPTOR_HEAP_BIT_EXT, "VK_PIPELINE_CREATE_2_DESCRIPTOR_HEAP_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_SPHERES_AND_LINEAR_SWEPT_SPHERES_BIT_NV, "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_SPHERES_AND_LINEAR_SWEPT_SPHERES_BIT_NV" },
+        { VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT, "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV, "VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV" },
+        { VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR, "VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR, "VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT, "VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT, "VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR, "VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV, "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV, "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV" },
+        { VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT, "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT, "VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT, "VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV, "VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV" },
+        { VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT, "VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM, "VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM" },
+        { VK_PIPELINE_CREATE_2_INSTRUMENT_SHADERS_BIT_ARM, "VK_PIPELINE_CREATE_2_INSTRUMENT_SHADERS_BIT_ARM" },
+        { VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR, "VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT, "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT" },
+        { VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE, "VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE" },
+        { VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_KHR, "VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_OPACITY_MICROMAP_DISALLOW_MIXED_SPECIAL_INDEX_BIT_KHR, "VK_PIPELINE_CREATE_2_OPACITY_MICROMAP_DISALLOW_MIXED_SPECIAL_INDEX_BIT_KHR" },
+        { VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT, "VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT" },
+    } };
+};
+
+struct VkPipelineCreationFeedbackFlagBits
+{
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineCreationFeedbackFlagBits>, 3> entries = { {
         { VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT, "VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT" },
         { VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT, "VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT" },
         { VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT, "VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineDepthStencilStateCreateFlagBits>
+struct VkPipelineDepthStencilStateCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkPipelineDepthStencilStateCreateFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineDepthStencilStateCreateFlagBits>, 2> entries = { {
         { VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_EXT, "VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_EXT" },
         { VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_STENCIL_ACCESS_BIT_EXT, "VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_STENCIL_ACCESS_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineExecutableStatisticFormatKHR>
+struct VkPipelineExecutableStatisticFormatKHR
 {
-    static constexpr std::array<Enumerant<VkPipelineExecutableStatisticFormatKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineExecutableStatisticFormatKHR>, 4> entries = { {
         { VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR, "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR" },
         { VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR, "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR" },
         { VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR, "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR" },
@@ -3452,19 +3550,17 @@ struct Enumerants<VkPipelineExecutableStatisticFormatKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineLayoutCreateFlagBits>
+struct VkPipelineLayoutCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkPipelineLayoutCreateFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineLayoutCreateFlagBits>, 2> entries = { {
         { VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT, "VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT" },
         { VK_PIPELINE_LAYOUT_CREATE_NO_TASK_SHADER_BIT_KHR, "VK_PIPELINE_LAYOUT_CREATE_NO_TASK_SHADER_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineRobustnessBufferBehavior>
+struct VkPipelineRobustnessBufferBehavior
 {
-    static constexpr std::array<Enumerant<VkPipelineRobustnessBufferBehavior>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineRobustnessBufferBehavior>, 4> entries = { {
         { VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT, "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT" },
         { VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED, "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED" },
         { VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS, "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS" },
@@ -3472,10 +3568,9 @@ struct Enumerants<VkPipelineRobustnessBufferBehavior>
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineRobustnessImageBehavior>
+struct VkPipelineRobustnessImageBehavior
 {
-    static constexpr std::array<Enumerant<VkPipelineRobustnessImageBehavior>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineRobustnessImageBehavior>, 4> entries = { {
         { VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT, "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT" },
         { VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED, "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED" },
         { VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS, "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS" },
@@ -3483,19 +3578,17 @@ struct Enumerants<VkPipelineRobustnessImageBehavior>
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineShaderStageCreateFlagBits>
+struct VkPipelineShaderStageCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkPipelineShaderStageCreateFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineShaderStageCreateFlagBits>, 2> entries = { {
         { VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT, "VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT" },
         { VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT, "VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkPipelineStageFlagBits>
+struct VkPipelineStageFlagBits
 {
-    static constexpr std::array<Enumerant<VkPipelineStageFlagBits>, 27> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineStageFlagBits>, 27> entries = { {
         { VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, "VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT" },
         { VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, "VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT" },
         { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, "VK_PIPELINE_STAGE_VERTEX_INPUT_BIT" },
@@ -3526,19 +3619,69 @@ struct Enumerants<VkPipelineStageFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkPointClippingBehavior>
+struct VkPipelineStageFlagBits2
 {
-    static constexpr std::array<Enumerant<VkPointClippingBehavior>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPipelineStageFlagBits2>, 46> entries = { {
+        { VK_PIPELINE_STAGE_2_NONE, "VK_PIPELINE_STAGE_2_NONE" },
+        { VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT, "VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT" },
+        { VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT, "VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT" },
+        { VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT, "VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT" },
+        { VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT, "VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT" },
+        { VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT, "VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT" },
+        { VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT, "VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT" },
+        { VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT, "VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT" },
+        { VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, "VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT" },
+        { VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT, "VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT" },
+        { VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT, "VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT" },
+        { VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT, "VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT" },
+        { VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT, "VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT" },
+        { VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT, "VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT" },
+        { VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT, "VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT" },
+        { VK_PIPELINE_STAGE_2_HOST_BIT, "VK_PIPELINE_STAGE_2_HOST_BIT" },
+        { VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, "VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT" },
+        { VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, "VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT" },
+        { VK_PIPELINE_STAGE_2_COPY_BIT, "VK_PIPELINE_STAGE_2_COPY_BIT" },
+        { VK_PIPELINE_STAGE_2_RESOLVE_BIT, "VK_PIPELINE_STAGE_2_RESOLVE_BIT" },
+        { VK_PIPELINE_STAGE_2_BLIT_BIT, "VK_PIPELINE_STAGE_2_BLIT_BIT" },
+        { VK_PIPELINE_STAGE_2_CLEAR_BIT, "VK_PIPELINE_STAGE_2_CLEAR_BIT" },
+        { VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT, "VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT" },
+        { VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT, "VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT" },
+        { VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT, "VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT" },
+        { VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR, "VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR, "VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT, "VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT, "VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_EXT, "VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, "VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR, "VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT, "VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT, "VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT, "VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_SUBPASS_SHADER_BIT_HUAWEI, "VK_PIPELINE_STAGE_2_SUBPASS_SHADER_BIT_HUAWEI" },
+        { VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI, "VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI" },
+        { VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR, "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT, "VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT" },
+        { VK_PIPELINE_STAGE_2_CLUSTER_CULLING_SHADER_BIT_HUAWEI, "VK_PIPELINE_STAGE_2_CLUSTER_CULLING_SHADER_BIT_HUAWEI" },
+        { VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV, "VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV" },
+        { VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV, "VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV" },
+        { VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM, "VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM" },
+        { VK_PIPELINE_STAGE_2_COPY_INDIRECT_BIT_KHR, "VK_PIPELINE_STAGE_2_COPY_INDIRECT_BIT_KHR" },
+        { VK_PIPELINE_STAGE_2_MEMORY_DECOMPRESSION_BIT_EXT, "VK_PIPELINE_STAGE_2_MEMORY_DECOMPRESSION_BIT_EXT" },
+    } };
+};
+
+struct VkPointClippingBehavior
+{
+    static constexpr std::array<util::Enumerant<api_types::VkPointClippingBehavior>, 2> entries = { {
         { VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES, "VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES" },
         { VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY, "VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY" },
     } };
 };
 
-template <>
-struct Enumerants<VkPolygonMode>
+struct VkPolygonMode
 {
-    static constexpr std::array<Enumerant<VkPolygonMode>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPolygonMode>, 4> entries = { {
         { VK_POLYGON_MODE_FILL, "VK_POLYGON_MODE_FILL" },
         { VK_POLYGON_MODE_LINE, "VK_POLYGON_MODE_LINE" },
         { VK_POLYGON_MODE_POINT, "VK_POLYGON_MODE_POINT" },
@@ -3546,20 +3689,18 @@ struct Enumerants<VkPolygonMode>
     } };
 };
 
-template <>
-struct Enumerants<VkPresentGravityFlagBitsKHR>
+struct VkPresentGravityFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkPresentGravityFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPresentGravityFlagBitsKHR>, 3> entries = { {
         { VK_PRESENT_GRAVITY_MIN_BIT_KHR, "VK_PRESENT_GRAVITY_MIN_BIT_KHR" },
         { VK_PRESENT_GRAVITY_MAX_BIT_KHR, "VK_PRESENT_GRAVITY_MAX_BIT_KHR" },
         { VK_PRESENT_GRAVITY_CENTERED_BIT_KHR, "VK_PRESENT_GRAVITY_CENTERED_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkPresentModeKHR>
+struct VkPresentModeKHR
 {
-    static constexpr std::array<Enumerant<VkPresentModeKHR>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPresentModeKHR>, 7> entries = { {
         { VK_PRESENT_MODE_IMMEDIATE_KHR, "VK_PRESENT_MODE_IMMEDIATE_KHR" },
         { VK_PRESENT_MODE_MAILBOX_KHR, "VK_PRESENT_MODE_MAILBOX_KHR" },
         { VK_PRESENT_MODE_FIFO_KHR, "VK_PRESENT_MODE_FIFO_KHR" },
@@ -3570,20 +3711,18 @@ struct Enumerants<VkPresentModeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkPresentScalingFlagBitsKHR>
+struct VkPresentScalingFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkPresentScalingFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPresentScalingFlagBitsKHR>, 3> entries = { {
         { VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR, "VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR" },
         { VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_KHR, "VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_KHR" },
         { VK_PRESENT_SCALING_STRETCH_BIT_KHR, "VK_PRESENT_SCALING_STRETCH_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkPresentStageFlagBitsEXT>
+struct VkPresentStageFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkPresentStageFlagBitsEXT>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPresentStageFlagBitsEXT>, 4> entries = { {
         { VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT, "VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT" },
         { VK_PRESENT_STAGE_REQUEST_DEQUEUED_BIT_EXT, "VK_PRESENT_STAGE_REQUEST_DEQUEUED_BIT_EXT" },
         { VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_OUT_BIT_EXT, "VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_OUT_BIT_EXT" },
@@ -3591,19 +3730,17 @@ struct Enumerants<VkPresentStageFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkPresentTimingInfoFlagBitsEXT>
+struct VkPresentTimingInfoFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkPresentTimingInfoFlagBitsEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPresentTimingInfoFlagBitsEXT>, 2> entries = { {
         { VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT, "VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT" },
         { VK_PRESENT_TIMING_INFO_PRESENT_AT_NEAREST_REFRESH_CYCLE_BIT_EXT, "VK_PRESENT_TIMING_INFO_PRESENT_AT_NEAREST_REFRESH_CYCLE_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkPrimitiveTopology>
+struct VkPrimitiveTopology
 {
-    static constexpr std::array<Enumerant<VkPrimitiveTopology>, 11> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPrimitiveTopology>, 11> entries = { {
         { VK_PRIMITIVE_TOPOLOGY_POINT_LIST, "VK_PRIMITIVE_TOPOLOGY_POINT_LIST" },
         { VK_PRIMITIVE_TOPOLOGY_LINE_LIST, "VK_PRIMITIVE_TOPOLOGY_LINE_LIST" },
         { VK_PRIMITIVE_TOPOLOGY_LINE_STRIP, "VK_PRIMITIVE_TOPOLOGY_LINE_STRIP" },
@@ -3618,35 +3755,31 @@ struct Enumerants<VkPrimitiveTopology>
     } };
 };
 
-template <>
-struct Enumerants<VkPrivateDataSlotCreateFlagBits>
+struct VkPrivateDataSlotCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkPrivateDataSlotCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkPrivateDataSlotCreateFlagBits>, 1> entries = { {
         { VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV, "VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkProvokingVertexModeEXT>
+struct VkProvokingVertexModeEXT
 {
-    static constexpr std::array<Enumerant<VkProvokingVertexModeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkProvokingVertexModeEXT>, 2> entries = { {
         { VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT, "VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT" },
         { VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT, "VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkQueryControlFlagBits>
+struct VkQueryControlFlagBits
 {
-    static constexpr std::array<Enumerant<VkQueryControlFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryControlFlagBits>, 1> entries = { {
         { VK_QUERY_CONTROL_PRECISE_BIT, "VK_QUERY_CONTROL_PRECISE_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkQueryPipelineStatisticFlagBits>
+struct VkQueryPipelineStatisticFlagBits
 {
-    static constexpr std::array<Enumerant<VkQueryPipelineStatisticFlagBits>, 14> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryPipelineStatisticFlagBits>, 14> entries = { {
         { VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT, "VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT" },
         { VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT, "VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT" },
         { VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT, "VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT" },
@@ -3664,26 +3797,23 @@ struct Enumerants<VkQueryPipelineStatisticFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkQueryPoolCreateFlagBits>
+struct VkQueryPoolCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkQueryPoolCreateFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryPoolCreateFlagBits>, 1> entries = { {
         { VK_QUERY_POOL_CREATE_RESET_BIT_KHR, "VK_QUERY_POOL_CREATE_RESET_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkQueryPoolSamplingModeINTEL>
+struct VkQueryPoolSamplingModeINTEL
 {
-    static constexpr std::array<Enumerant<VkQueryPoolSamplingModeINTEL>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryPoolSamplingModeINTEL>, 1> entries = { {
         { VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL, "VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL" },
     } };
 };
 
-template <>
-struct Enumerants<VkQueryResultFlagBits>
+struct VkQueryResultFlagBits
 {
-    static constexpr std::array<Enumerant<VkQueryResultFlagBits>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryResultFlagBits>, 5> entries = { {
         { VK_QUERY_RESULT_64_BIT, "VK_QUERY_RESULT_64_BIT" },
         { VK_QUERY_RESULT_WAIT_BIT, "VK_QUERY_RESULT_WAIT_BIT" },
         { VK_QUERY_RESULT_WITH_AVAILABILITY_BIT, "VK_QUERY_RESULT_WITH_AVAILABILITY_BIT" },
@@ -3692,10 +3822,9 @@ struct Enumerants<VkQueryResultFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkQueryResultStatusKHR>
+struct VkQueryResultStatusKHR
 {
-    static constexpr std::array<Enumerant<VkQueryResultStatusKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryResultStatusKHR>, 4> entries = { {
         { VK_QUERY_RESULT_STATUS_ERROR_KHR, "VK_QUERY_RESULT_STATUS_ERROR_KHR" },
         { VK_QUERY_RESULT_STATUS_NOT_READY_KHR, "VK_QUERY_RESULT_STATUS_NOT_READY_KHR" },
         { VK_QUERY_RESULT_STATUS_COMPLETE_KHR, "VK_QUERY_RESULT_STATUS_COMPLETE_KHR" },
@@ -3703,10 +3832,9 @@ struct Enumerants<VkQueryResultStatusKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkQueryType>
+struct VkQueryType
 {
-    static constexpr std::array<Enumerant<VkQueryType>, 18> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueryType>, 18> entries = { {
         { VK_QUERY_TYPE_OCCLUSION, "VK_QUERY_TYPE_OCCLUSION" },
         { VK_QUERY_TYPE_PIPELINE_STATISTICS, "VK_QUERY_TYPE_PIPELINE_STATISTICS" },
         { VK_QUERY_TYPE_TIMESTAMP, "VK_QUERY_TYPE_TIMESTAMP" },
@@ -3728,10 +3856,9 @@ struct Enumerants<VkQueryType>
     } };
 };
 
-template <>
-struct Enumerants<VkQueueFlagBits>
+struct VkQueueFlagBits
 {
-    static constexpr std::array<Enumerant<VkQueueFlagBits>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueueFlagBits>, 9> entries = { {
         { VK_QUEUE_GRAPHICS_BIT, "VK_QUEUE_GRAPHICS_BIT" },
         { VK_QUEUE_COMPUTE_BIT, "VK_QUEUE_COMPUTE_BIT" },
         { VK_QUEUE_TRANSFER_BIT, "VK_QUEUE_TRANSFER_BIT" },
@@ -3744,10 +3871,9 @@ struct Enumerants<VkQueueFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkQueueGlobalPriority>
+struct VkQueueGlobalPriority
 {
-    static constexpr std::array<Enumerant<VkQueueGlobalPriority>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkQueueGlobalPriority>, 4> entries = { {
         { VK_QUEUE_GLOBAL_PRIORITY_LOW, "VK_QUEUE_GLOBAL_PRIORITY_LOW" },
         { VK_QUEUE_GLOBAL_PRIORITY_MEDIUM, "VK_QUEUE_GLOBAL_PRIORITY_MEDIUM" },
         { VK_QUEUE_GLOBAL_PRIORITY_HIGH, "VK_QUEUE_GLOBAL_PRIORITY_HIGH" },
@@ -3755,75 +3881,67 @@ struct Enumerants<VkQueueGlobalPriority>
     } };
 };
 
-template <>
-struct Enumerants<VkRasterizationOrderAMD>
+struct VkRasterizationOrderAMD
 {
-    static constexpr std::array<Enumerant<VkRasterizationOrderAMD>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRasterizationOrderAMD>, 2> entries = { {
         { VK_RASTERIZATION_ORDER_STRICT_AMD, "VK_RASTERIZATION_ORDER_STRICT_AMD" },
         { VK_RASTERIZATION_ORDER_RELAXED_AMD, "VK_RASTERIZATION_ORDER_RELAXED_AMD" },
     } };
 };
 
-template <>
-struct Enumerants<VkRayTracingInvocationReorderModeEXT>
+struct VkRayTracingInvocationReorderModeEXT
 {
-    static constexpr std::array<Enumerant<VkRayTracingInvocationReorderModeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRayTracingInvocationReorderModeEXT>, 2> entries = { {
         { VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_EXT, "VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_EXT" },
         { VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_EXT, "VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkRayTracingLssIndexingModeNV>
+struct VkRayTracingLssIndexingModeNV
 {
-    static constexpr std::array<Enumerant<VkRayTracingLssIndexingModeNV>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRayTracingLssIndexingModeNV>, 2> entries = { {
         { VK_RAY_TRACING_LSS_INDEXING_MODE_LIST_NV, "VK_RAY_TRACING_LSS_INDEXING_MODE_LIST_NV" },
         { VK_RAY_TRACING_LSS_INDEXING_MODE_SUCCESSIVE_NV, "VK_RAY_TRACING_LSS_INDEXING_MODE_SUCCESSIVE_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkRayTracingLssPrimitiveEndCapsModeNV>
+struct VkRayTracingLssPrimitiveEndCapsModeNV
 {
-    static constexpr std::array<Enumerant<VkRayTracingLssPrimitiveEndCapsModeNV>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRayTracingLssPrimitiveEndCapsModeNV>, 2> entries = { {
         { VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_NONE_NV, "VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_NONE_NV" },
         { VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_CHAINED_NV, "VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_CHAINED_NV" },
     } };
 };
 
-template <>
-struct Enumerants<VkRayTracingShaderGroupTypeKHR>
+struct VkRayTracingShaderGroupTypeKHR
 {
-    static constexpr std::array<Enumerant<VkRayTracingShaderGroupTypeKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRayTracingShaderGroupTypeKHR>, 3> entries = { {
         { VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR, "VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR" },
         { VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR, "VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR" },
         { VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR, "VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkRenderPassCreateFlagBits>
+struct VkRenderPassCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkRenderPassCreateFlagBits>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRenderPassCreateFlagBits>, 2> entries = { {
         { VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM, "VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM" },
         { VK_RENDER_PASS_CREATE_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE, "VK_RENDER_PASS_CREATE_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE" },
     } };
 };
 
-template <>
-struct Enumerants<VkRenderingAttachmentFlagBitsKHR>
+struct VkRenderingAttachmentFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkRenderingAttachmentFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRenderingAttachmentFlagBitsKHR>, 3> entries = { {
         { VK_RENDERING_ATTACHMENT_INPUT_ATTACHMENT_FEEDBACK_BIT_KHR, "VK_RENDERING_ATTACHMENT_INPUT_ATTACHMENT_FEEDBACK_BIT_KHR" },
         { VK_RENDERING_ATTACHMENT_RESOLVE_SKIP_TRANSFER_FUNCTION_BIT_KHR, "VK_RENDERING_ATTACHMENT_RESOLVE_SKIP_TRANSFER_FUNCTION_BIT_KHR" },
         { VK_RENDERING_ATTACHMENT_RESOLVE_ENABLE_TRANSFER_FUNCTION_BIT_KHR, "VK_RENDERING_ATTACHMENT_RESOLVE_ENABLE_TRANSFER_FUNCTION_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkRenderingFlagBits>
+struct VkRenderingFlagBits
 {
-    static constexpr std::array<Enumerant<VkRenderingFlagBits>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkRenderingFlagBits>, 9> entries = { {
         { VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT, "VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT" },
         { VK_RENDERING_SUSPENDING_BIT, "VK_RENDERING_SUSPENDING_BIT" },
         { VK_RENDERING_RESUMING_BIT, "VK_RENDERING_RESUMING_BIT" },
@@ -3836,19 +3954,17 @@ struct Enumerants<VkRenderingFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkResolveImageFlagBitsKHR>
+struct VkResolveImageFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkResolveImageFlagBitsKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkResolveImageFlagBitsKHR>, 2> entries = { {
         { VK_RESOLVE_IMAGE_SKIP_TRANSFER_FUNCTION_BIT_KHR, "VK_RESOLVE_IMAGE_SKIP_TRANSFER_FUNCTION_BIT_KHR" },
         { VK_RESOLVE_IMAGE_ENABLE_TRANSFER_FUNCTION_BIT_KHR, "VK_RESOLVE_IMAGE_ENABLE_TRANSFER_FUNCTION_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkResolveModeFlagBits>
+struct VkResolveModeFlagBits
 {
-    static constexpr std::array<Enumerant<VkResolveModeFlagBits>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkResolveModeFlagBits>, 7> entries = { {
         { VK_RESOLVE_MODE_NONE, "VK_RESOLVE_MODE_NONE" },
         { VK_RESOLVE_MODE_SAMPLE_ZERO_BIT, "VK_RESOLVE_MODE_SAMPLE_ZERO_BIT" },
         { VK_RESOLVE_MODE_AVERAGE_BIT, "VK_RESOLVE_MODE_AVERAGE_BIT" },
@@ -3859,10 +3975,9 @@ struct Enumerants<VkResolveModeFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkResult>
+struct VkResult
 {
-    static constexpr std::array<Enumerant<VkResult>, 50> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkResult>, 50> entries = { {
         { VK_SUCCESS, "VK_SUCCESS" },
         { VK_NOT_READY, "VK_NOT_READY" },
         { VK_TIMEOUT, "VK_TIMEOUT" },
@@ -3916,10 +4031,9 @@ struct Enumerants<VkResult>
     } };
 };
 
-template <>
-struct Enumerants<VkSampleCountFlagBits>
+struct VkSampleCountFlagBits
 {
-    static constexpr std::array<Enumerant<VkSampleCountFlagBits>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSampleCountFlagBits>, 7> entries = { {
         { VK_SAMPLE_COUNT_1_BIT, "VK_SAMPLE_COUNT_1_BIT" },
         { VK_SAMPLE_COUNT_2_BIT, "VK_SAMPLE_COUNT_2_BIT" },
         { VK_SAMPLE_COUNT_4_BIT, "VK_SAMPLE_COUNT_4_BIT" },
@@ -3930,10 +4044,9 @@ struct Enumerants<VkSampleCountFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkSamplerAddressMode>
+struct VkSamplerAddressMode
 {
-    static constexpr std::array<Enumerant<VkSamplerAddressMode>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSamplerAddressMode>, 5> entries = { {
         { VK_SAMPLER_ADDRESS_MODE_REPEAT, "VK_SAMPLER_ADDRESS_MODE_REPEAT" },
         { VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT, "VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT" },
         { VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, "VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE" },
@@ -3942,10 +4055,9 @@ struct Enumerants<VkSamplerAddressMode>
     } };
 };
 
-template <>
-struct Enumerants<VkSamplerCreateFlagBits>
+struct VkSamplerCreateFlagBits
 {
-    static constexpr std::array<Enumerant<VkSamplerCreateFlagBits>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSamplerCreateFlagBits>, 5> entries = { {
         { VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT, "VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT" },
         { VK_SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT, "VK_SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT" },
         { VK_SAMPLER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT, "VK_SAMPLER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT" },
@@ -3954,19 +4066,17 @@ struct Enumerants<VkSamplerCreateFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkSamplerMipmapMode>
+struct VkSamplerMipmapMode
 {
-    static constexpr std::array<Enumerant<VkSamplerMipmapMode>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSamplerMipmapMode>, 2> entries = { {
         { VK_SAMPLER_MIPMAP_MODE_NEAREST, "VK_SAMPLER_MIPMAP_MODE_NEAREST" },
         { VK_SAMPLER_MIPMAP_MODE_LINEAR, "VK_SAMPLER_MIPMAP_MODE_LINEAR" },
     } };
 };
 
-template <>
-struct Enumerants<VkSamplerReductionMode>
+struct VkSamplerReductionMode
 {
-    static constexpr std::array<Enumerant<VkSamplerReductionMode>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSamplerReductionMode>, 4> entries = { {
         { VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE, "VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE" },
         { VK_SAMPLER_REDUCTION_MODE_MIN, "VK_SAMPLER_REDUCTION_MODE_MIN" },
         { VK_SAMPLER_REDUCTION_MODE_MAX, "VK_SAMPLER_REDUCTION_MODE_MAX" },
@@ -3974,10 +4084,9 @@ struct Enumerants<VkSamplerReductionMode>
     } };
 };
 
-template <>
-struct Enumerants<VkSamplerYcbcrModelConversion>
+struct VkSamplerYcbcrModelConversion
 {
-    static constexpr std::array<Enumerant<VkSamplerYcbcrModelConversion>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSamplerYcbcrModelConversion>, 5> entries = { {
         { VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY, "VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY" },
         { VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY, "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY" },
         { VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709, "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709" },
@@ -3986,19 +4095,17 @@ struct Enumerants<VkSamplerYcbcrModelConversion>
     } };
 };
 
-template <>
-struct Enumerants<VkSamplerYcbcrRange>
+struct VkSamplerYcbcrRange
 {
-    static constexpr std::array<Enumerant<VkSamplerYcbcrRange>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSamplerYcbcrRange>, 2> entries = { {
         { VK_SAMPLER_YCBCR_RANGE_ITU_FULL, "VK_SAMPLER_YCBCR_RANGE_ITU_FULL" },
         { VK_SAMPLER_YCBCR_RANGE_ITU_NARROW, "VK_SAMPLER_YCBCR_RANGE_ITU_NARROW" },
     } };
 };
 
-template <>
-struct Enumerants<VkScopeKHR>
+struct VkScopeKHR
 {
-    static constexpr std::array<Enumerant<VkScopeKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkScopeKHR>, 4> entries = { {
         { VK_SCOPE_DEVICE_KHR, "VK_SCOPE_DEVICE_KHR" },
         { VK_SCOPE_WORKGROUP_KHR, "VK_SCOPE_WORKGROUP_KHR" },
         { VK_SCOPE_SUBGROUP_KHR, "VK_SCOPE_SUBGROUP_KHR" },
@@ -4006,44 +4113,44 @@ struct Enumerants<VkScopeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkSemaphoreImportFlagBits>
+struct VkSemaphoreImportFlagBits
 {
-    static constexpr std::array<Enumerant<VkSemaphoreImportFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSemaphoreImportFlagBits>, 1> entries = { {
         { VK_SEMAPHORE_IMPORT_TEMPORARY_BIT, "VK_SEMAPHORE_IMPORT_TEMPORARY_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkSemaphoreType>
+struct VkSemaphoreType
 {
-    static constexpr std::array<Enumerant<VkSemaphoreType>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSemaphoreType>, 2> entries = { {
         { VK_SEMAPHORE_TYPE_BINARY, "VK_SEMAPHORE_TYPE_BINARY" },
         { VK_SEMAPHORE_TYPE_TIMELINE, "VK_SEMAPHORE_TYPE_TIMELINE" },
     } };
 };
 
-template <>
-struct Enumerants<VkSemaphoreWaitFlagBits>
+struct VkSemaphoreWaitFlagBits
 {
-    static constexpr std::array<Enumerant<VkSemaphoreWaitFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSemaphoreWaitFlagBits>, 1> entries = { {
         { VK_SEMAPHORE_WAIT_ANY_BIT, "VK_SEMAPHORE_WAIT_ANY_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkShaderCodeTypeEXT>
+struct VkShaderCodeTypeEXT
 {
-    static constexpr std::array<Enumerant<VkShaderCodeTypeEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShaderCodeTypeEXT>, 2> entries = { {
         { VK_SHADER_CODE_TYPE_BINARY_EXT, "VK_SHADER_CODE_TYPE_BINARY_EXT" },
         { VK_SHADER_CODE_TYPE_SPIRV_EXT, "VK_SHADER_CODE_TYPE_SPIRV_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkShaderCreateFlagBitsEXT>
+struct VkShaderCorePropertiesFlagBitsAMD
 {
-    static constexpr std::array<Enumerant<VkShaderCreateFlagBitsEXT>, 13> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShaderCorePropertiesFlagBitsAMD>, 0> entries{};
+};
+
+struct VkShaderCreateFlagBitsEXT
+{
+    static constexpr std::array<util::Enumerant<api_types::VkShaderCreateFlagBitsEXT>, 13> entries = { {
         { VK_SHADER_CREATE_LINK_STAGE_BIT_EXT, "VK_SHADER_CREATE_LINK_STAGE_BIT_EXT" },
         { VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT, "VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT" },
         { VK_SHADER_CREATE_INSTRUMENT_SHADER_BIT_ARM, "VK_SHADER_CREATE_INSTRUMENT_SHADER_BIT_ARM" },
@@ -4060,20 +4167,18 @@ struct Enumerants<VkShaderCreateFlagBitsEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkShaderFloatControlsIndependence>
+struct VkShaderFloatControlsIndependence
 {
-    static constexpr std::array<Enumerant<VkShaderFloatControlsIndependence>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShaderFloatControlsIndependence>, 3> entries = { {
         { VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY, "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY" },
         { VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_ALL, "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_ALL" },
         { VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE, "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE" },
     } };
 };
 
-template <>
-struct Enumerants<VkShaderGroupShaderKHR>
+struct VkShaderGroupShaderKHR
 {
-    static constexpr std::array<Enumerant<VkShaderGroupShaderKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShaderGroupShaderKHR>, 4> entries = { {
         { VK_SHADER_GROUP_SHADER_GENERAL_KHR, "VK_SHADER_GROUP_SHADER_GENERAL_KHR" },
         { VK_SHADER_GROUP_SHADER_CLOSEST_HIT_KHR, "VK_SHADER_GROUP_SHADER_CLOSEST_HIT_KHR" },
         { VK_SHADER_GROUP_SHADER_ANY_HIT_KHR, "VK_SHADER_GROUP_SHADER_ANY_HIT_KHR" },
@@ -4081,20 +4186,18 @@ struct Enumerants<VkShaderGroupShaderKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkShaderInfoTypeAMD>
+struct VkShaderInfoTypeAMD
 {
-    static constexpr std::array<Enumerant<VkShaderInfoTypeAMD>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShaderInfoTypeAMD>, 3> entries = { {
         { VK_SHADER_INFO_TYPE_STATISTICS_AMD, "VK_SHADER_INFO_TYPE_STATISTICS_AMD" },
         { VK_SHADER_INFO_TYPE_BINARY_AMD, "VK_SHADER_INFO_TYPE_BINARY_AMD" },
         { VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD, "VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD" },
     } };
 };
 
-template <>
-struct Enumerants<VkShaderStageFlagBits>
+struct VkShaderStageFlagBits
 {
-    static constexpr std::array<Enumerant<VkShaderStageFlagBits>, 18> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShaderStageFlagBits>, 18> entries = { {
         { VK_SHADER_STAGE_VERTEX_BIT, "VK_SHADER_STAGE_VERTEX_BIT" },
         { VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, "VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT" },
         { VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, "VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT" },
@@ -4116,10 +4219,9 @@ struct Enumerants<VkShaderStageFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkShadingRatePaletteEntryNV>
+struct VkShadingRatePaletteEntryNV
 {
-    static constexpr std::array<Enumerant<VkShadingRatePaletteEntryNV>, 12> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkShadingRatePaletteEntryNV>, 12> entries = { {
         { VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV, "VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV" },
         { VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV, "VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV" },
         { VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV, "VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV" },
@@ -4135,47 +4237,42 @@ struct Enumerants<VkShadingRatePaletteEntryNV>
     } };
 };
 
-template <>
-struct Enumerants<VkSharingMode>
+struct VkSharingMode
 {
-    static constexpr std::array<Enumerant<VkSharingMode>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSharingMode>, 2> entries = { {
         { VK_SHARING_MODE_EXCLUSIVE, "VK_SHARING_MODE_EXCLUSIVE" },
         { VK_SHARING_MODE_CONCURRENT, "VK_SHARING_MODE_CONCURRENT" },
     } };
 };
 
-template <>
-struct Enumerants<VkSparseImageFormatFlagBits>
+struct VkSparseImageFormatFlagBits
 {
-    static constexpr std::array<Enumerant<VkSparseImageFormatFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSparseImageFormatFlagBits>, 3> entries = { {
         { VK_SPARSE_IMAGE_FORMAT_SINGLE_MIPTAIL_BIT, "VK_SPARSE_IMAGE_FORMAT_SINGLE_MIPTAIL_BIT" },
         { VK_SPARSE_IMAGE_FORMAT_ALIGNED_MIP_SIZE_BIT, "VK_SPARSE_IMAGE_FORMAT_ALIGNED_MIP_SIZE_BIT" },
         { VK_SPARSE_IMAGE_FORMAT_NONSTANDARD_BLOCK_SIZE_BIT, "VK_SPARSE_IMAGE_FORMAT_NONSTANDARD_BLOCK_SIZE_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkSparseMemoryBindFlagBits>
+struct VkSparseMemoryBindFlagBits
 {
-    static constexpr std::array<Enumerant<VkSparseMemoryBindFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSparseMemoryBindFlagBits>, 1> entries = { {
         { VK_SPARSE_MEMORY_BIND_METADATA_BIT, "VK_SPARSE_MEMORY_BIND_METADATA_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkStencilFaceFlagBits>
+struct VkStencilFaceFlagBits
 {
-    static constexpr std::array<Enumerant<VkStencilFaceFlagBits>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkStencilFaceFlagBits>, 3> entries = { {
         { VK_STENCIL_FACE_FRONT_BIT, "VK_STENCIL_FACE_FRONT_BIT" },
         { VK_STENCIL_FACE_BACK_BIT, "VK_STENCIL_FACE_BACK_BIT" },
         { VK_STENCIL_FACE_FRONT_AND_BACK, "VK_STENCIL_FACE_FRONT_AND_BACK" },
     } };
 };
 
-template <>
-struct Enumerants<VkStencilOp>
+struct VkStencilOp
 {
-    static constexpr std::array<Enumerant<VkStencilOp>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkStencilOp>, 8> entries = { {
         { VK_STENCIL_OP_KEEP, "VK_STENCIL_OP_KEEP" },
         { VK_STENCIL_OP_ZERO, "VK_STENCIL_OP_ZERO" },
         { VK_STENCIL_OP_REPLACE, "VK_STENCIL_OP_REPLACE" },
@@ -4187,10 +4284,9 @@ struct Enumerants<VkStencilOp>
     } };
 };
 
-template <>
-struct Enumerants<VkStructureType>
+struct VkStructureType
 {
-    static constexpr std::array<Enumerant<VkStructureType>, 1260> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkStructureType>, 1260> entries = { {
         { VK_STRUCTURE_TYPE_APPLICATION_INFO, "VK_STRUCTURE_TYPE_APPLICATION_INFO" },
         { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, "VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO" },
         { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, "VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO" },
@@ -5454,10 +5550,9 @@ struct Enumerants<VkStructureType>
     } };
 };
 
-template <>
-struct Enumerants<VkSubgroupFeatureFlagBits>
+struct VkSubgroupFeatureFlagBits
 {
-    static constexpr std::array<Enumerant<VkSubgroupFeatureFlagBits>, 11> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSubgroupFeatureFlagBits>, 11> entries = { {
         { VK_SUBGROUP_FEATURE_BASIC_BIT, "VK_SUBGROUP_FEATURE_BASIC_BIT" },
         { VK_SUBGROUP_FEATURE_VOTE_BIT, "VK_SUBGROUP_FEATURE_VOTE_BIT" },
         { VK_SUBGROUP_FEATURE_ARITHMETIC_BIT, "VK_SUBGROUP_FEATURE_ARITHMETIC_BIT" },
@@ -5472,28 +5567,25 @@ struct Enumerants<VkSubgroupFeatureFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkSubmitFlagBits>
+struct VkSubmitFlagBits
 {
-    static constexpr std::array<Enumerant<VkSubmitFlagBits>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSubmitFlagBits>, 1> entries = { {
         { VK_SUBMIT_PROTECTED_BIT, "VK_SUBMIT_PROTECTED_BIT" },
     } };
 };
 
-template <>
-struct Enumerants<VkSubpassContents>
+struct VkSubpassContents
 {
-    static constexpr std::array<Enumerant<VkSubpassContents>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSubpassContents>, 3> entries = { {
         { VK_SUBPASS_CONTENTS_INLINE, "VK_SUBPASS_CONTENTS_INLINE" },
         { VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS, "VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS" },
         { VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_KHR, "VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkSubpassDescriptionFlagBits>
+struct VkSubpassDescriptionFlagBits
 {
-    static constexpr std::array<Enumerant<VkSubpassDescriptionFlagBits>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSubpassDescriptionFlagBits>, 9> entries = { {
         { VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX, "VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX" },
         { VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX, "VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX" },
         { VK_SUBPASS_DESCRIPTION_TILE_SHADING_APRON_BIT_QCOM, "VK_SUBPASS_DESCRIPTION_TILE_SHADING_APRON_BIT_QCOM" },
@@ -5506,10 +5598,9 @@ struct Enumerants<VkSubpassDescriptionFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkSubpassMergeStatusEXT>
+struct VkSubpassMergeStatusEXT
 {
-    static constexpr std::array<Enumerant<VkSubpassMergeStatusEXT>, 14> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSubpassMergeStatusEXT>, 14> entries = { {
         { VK_SUBPASS_MERGE_STATUS_MERGED_EXT, "VK_SUBPASS_MERGE_STATUS_MERGED_EXT" },
         { VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT, "VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT" },
         { VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT, "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT" },
@@ -5527,18 +5618,16 @@ struct Enumerants<VkSubpassMergeStatusEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkSurfaceCounterFlagBitsEXT>
+struct VkSurfaceCounterFlagBitsEXT
 {
-    static constexpr std::array<Enumerant<VkSurfaceCounterFlagBitsEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSurfaceCounterFlagBitsEXT>, 1> entries = { {
         { VK_SURFACE_COUNTER_VBLANK_BIT_EXT, "VK_SURFACE_COUNTER_VBLANK_BIT_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkSurfaceTransformFlagBitsKHR>
+struct VkSurfaceTransformFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkSurfaceTransformFlagBitsKHR>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSurfaceTransformFlagBitsKHR>, 9> entries = { {
         { VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR, "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR" },
         { VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR, "VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR" },
         { VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR, "VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR" },
@@ -5551,10 +5640,9 @@ struct Enumerants<VkSurfaceTransformFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkSwapchainCreateFlagBitsKHR>
+struct VkSwapchainCreateFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkSwapchainCreateFlagBitsKHR>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSwapchainCreateFlagBitsKHR>, 8> entries = { {
         { VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR, "VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR" },
         { VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR, "VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR" },
         { VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR, "VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR" },
@@ -5566,10 +5654,9 @@ struct Enumerants<VkSwapchainCreateFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkSystemAllocationScope>
+struct VkSystemAllocationScope
 {
-    static constexpr std::array<Enumerant<VkSystemAllocationScope>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkSystemAllocationScope>, 5> entries = { {
         { VK_SYSTEM_ALLOCATION_SCOPE_COMMAND, "VK_SYSTEM_ALLOCATION_SCOPE_COMMAND" },
         { VK_SYSTEM_ALLOCATION_SCOPE_OBJECT, "VK_SYSTEM_ALLOCATION_SCOPE_OBJECT" },
         { VK_SYSTEM_ALLOCATION_SCOPE_CACHE, "VK_SYSTEM_ALLOCATION_SCOPE_CACHE" },
@@ -5578,10 +5665,19 @@ struct Enumerants<VkSystemAllocationScope>
     } };
 };
 
-template <>
-struct Enumerants<VkTensorTilingARM>
+struct VkTensorCreateFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkTensorTilingARM>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkTensorCreateFlagBitsARM>, 4> entries = { {
+        { VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM, "VK_TENSOR_CREATE_MUTABLE_FORMAT_BIT_ARM" },
+        { VK_TENSOR_CREATE_PROTECTED_BIT_ARM, "VK_TENSOR_CREATE_PROTECTED_BIT_ARM" },
+        { VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM, "VK_TENSOR_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_ARM" },
+        { VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM, "VK_TENSOR_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM" },
+    } };
+};
+
+struct VkTensorTilingARM
+{
+    static constexpr std::array<util::Enumerant<api_types::VkTensorTilingARM>, 7> entries = { {
         { VK_TENSOR_TILING_OPTIMAL_ARM, "VK_TENSOR_TILING_OPTIMAL_ARM" },
         { VK_TENSOR_TILING_LINEAR_ARM, "VK_TENSOR_TILING_LINEAR_ARM" },
         { VK_TENSOR_TILING_BRICK_16_WIDE_ARM, "VK_TENSOR_TILING_BRICK_16_WIDE_ARM" },
@@ -5592,38 +5688,52 @@ struct Enumerants<VkTensorTilingARM>
     } };
 };
 
-template <>
-struct Enumerants<VkTessellationDomainOrigin>
+struct VkTensorUsageFlagBitsARM
 {
-    static constexpr std::array<Enumerant<VkTessellationDomainOrigin>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkTensorUsageFlagBitsARM>, 5> entries = { {
+        { VK_TENSOR_USAGE_SHADER_BIT_ARM, "VK_TENSOR_USAGE_SHADER_BIT_ARM" },
+        { VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM, "VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM" },
+        { VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM, "VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM" },
+        { VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM, "VK_TENSOR_USAGE_IMAGE_ALIASING_BIT_ARM" },
+        { VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM, "VK_TENSOR_USAGE_DATA_GRAPH_BIT_ARM" },
+    } };
+};
+
+struct VkTensorViewCreateFlagBitsARM
+{
+    static constexpr std::array<util::Enumerant<api_types::VkTensorViewCreateFlagBitsARM>, 1> entries = { {
+        { VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM, "VK_TENSOR_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_ARM" },
+    } };
+};
+
+struct VkTessellationDomainOrigin
+{
+    static constexpr std::array<util::Enumerant<api_types::VkTessellationDomainOrigin>, 2> entries = { {
         { VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT, "VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT" },
         { VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT, "VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT" },
     } };
 };
 
-template <>
-struct Enumerants<VkThrottleHintTypeSEC>
+struct VkThrottleHintTypeSEC
 {
-    static constexpr std::array<Enumerant<VkThrottleHintTypeSEC>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkThrottleHintTypeSEC>, 3> entries = { {
         { VK_THROTTLE_HINT_TYPE_DEFAULT_SEC, "VK_THROTTLE_HINT_TYPE_DEFAULT_SEC" },
         { VK_THROTTLE_HINT_TYPE_LOW_SEC, "VK_THROTTLE_HINT_TYPE_LOW_SEC" },
         { VK_THROTTLE_HINT_TYPE_HIGH_SEC, "VK_THROTTLE_HINT_TYPE_HIGH_SEC" },
     } };
 };
 
-template <>
-struct Enumerants<VkTileShadingRenderPassFlagBitsQCOM>
+struct VkTileShadingRenderPassFlagBitsQCOM
 {
-    static constexpr std::array<Enumerant<VkTileShadingRenderPassFlagBitsQCOM>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkTileShadingRenderPassFlagBitsQCOM>, 2> entries = { {
         { VK_TILE_SHADING_RENDER_PASS_ENABLE_BIT_QCOM, "VK_TILE_SHADING_RENDER_PASS_ENABLE_BIT_QCOM" },
         { VK_TILE_SHADING_RENDER_PASS_PER_TILE_EXECUTION_BIT_QCOM, "VK_TILE_SHADING_RENDER_PASS_PER_TILE_EXECUTION_BIT_QCOM" },
     } };
 };
 
-template <>
-struct Enumerants<VkTimeDomainKHR>
+struct VkTimeDomainKHR
 {
-    static constexpr std::array<Enumerant<VkTimeDomainKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkTimeDomainKHR>, 6> entries = { {
         { VK_TIME_DOMAIN_DEVICE_KHR, "VK_TIME_DOMAIN_DEVICE_KHR" },
         { VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR, "VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR" },
         { VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR, "VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR" },
@@ -5633,10 +5743,9 @@ struct Enumerants<VkTimeDomainKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkToolPurposeFlagBits>
+struct VkToolPurposeFlagBits
 {
-    static constexpr std::array<Enumerant<VkToolPurposeFlagBits>, 7> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkToolPurposeFlagBits>, 7> entries = { {
         { VK_TOOL_PURPOSE_VALIDATION_BIT, "VK_TOOL_PURPOSE_VALIDATION_BIT" },
         { VK_TOOL_PURPOSE_PROFILING_BIT, "VK_TOOL_PURPOSE_PROFILING_BIT" },
         { VK_TOOL_PURPOSE_TRACING_BIT, "VK_TOOL_PURPOSE_TRACING_BIT" },
@@ -5647,27 +5756,24 @@ struct Enumerants<VkToolPurposeFlagBits>
     } };
 };
 
-template <>
-struct Enumerants<VkValidationCacheHeaderVersionEXT>
+struct VkValidationCacheHeaderVersionEXT
 {
-    static constexpr std::array<Enumerant<VkValidationCacheHeaderVersionEXT>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkValidationCacheHeaderVersionEXT>, 1> entries = { {
         { VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT, "VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkValidationCheckEXT>
+struct VkValidationCheckEXT
 {
-    static constexpr std::array<Enumerant<VkValidationCheckEXT>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkValidationCheckEXT>, 2> entries = { {
         { VK_VALIDATION_CHECK_ALL_EXT, "VK_VALIDATION_CHECK_ALL_EXT" },
         { VK_VALIDATION_CHECK_SHADERS_EXT, "VK_VALIDATION_CHECK_SHADERS_EXT" },
     } };
 };
 
-template <>
-struct Enumerants<VkValidationFeatureDisableEXT>
+struct VkValidationFeatureDisableEXT
 {
-    static constexpr std::array<Enumerant<VkValidationFeatureDisableEXT>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkValidationFeatureDisableEXT>, 8> entries = { {
         { VK_VALIDATION_FEATURE_DISABLE_ALL_EXT, "VK_VALIDATION_FEATURE_DISABLE_ALL_EXT" },
         { VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT, "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT" },
         { VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT, "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" },
@@ -5679,10 +5785,9 @@ struct Enumerants<VkValidationFeatureDisableEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkValidationFeatureEnableEXT>
+struct VkValidationFeatureEnableEXT
 {
-    static constexpr std::array<Enumerant<VkValidationFeatureEnableEXT>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkValidationFeatureEnableEXT>, 5> entries = { {
         { VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT" },
         { VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT" },
         { VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT, "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT" },
@@ -5691,10 +5796,9 @@ struct Enumerants<VkValidationFeatureEnableEXT>
     } };
 };
 
-template <>
-struct Enumerants<VkVendorId>
+struct VkVendorId
 {
-    static constexpr std::array<Enumerant<VkVendorId>, 9> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVendorId>, 9> entries = { {
         { VK_VENDOR_ID_KHRONOS, "VK_VENDOR_ID_KHRONOS" },
         { VK_VENDOR_ID_VIV, "VK_VENDOR_ID_VIV" },
         { VK_VENDOR_ID_VSI, "VK_VENDOR_ID_VSI" },
@@ -5707,28 +5811,25 @@ struct Enumerants<VkVendorId>
     } };
 };
 
-template <>
-struct Enumerants<VkVertexInputRate>
+struct VkVertexInputRate
 {
-    static constexpr std::array<Enumerant<VkVertexInputRate>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVertexInputRate>, 2> entries = { {
         { VK_VERTEX_INPUT_RATE_VERTEX, "VK_VERTEX_INPUT_RATE_VERTEX" },
         { VK_VERTEX_INPUT_RATE_INSTANCE, "VK_VERTEX_INPUT_RATE_INSTANCE" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoCapabilityFlagBitsKHR>
+struct VkVideoCapabilityFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoCapabilityFlagBitsKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoCapabilityFlagBitsKHR>, 2> entries = { {
         { VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR, "VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR" },
         { VK_VIDEO_CAPABILITY_SEPARATE_REFERENCE_IMAGES_BIT_KHR, "VK_VIDEO_CAPABILITY_SEPARATE_REFERENCE_IMAGES_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoChromaSubsamplingFlagBitsKHR>
+struct VkVideoChromaSubsamplingFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoChromaSubsamplingFlagBitsKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoChromaSubsamplingFlagBitsKHR>, 5> entries = { {
         { VK_VIDEO_CHROMA_SUBSAMPLING_INVALID_KHR, "VK_VIDEO_CHROMA_SUBSAMPLING_INVALID_KHR" },
         { VK_VIDEO_CHROMA_SUBSAMPLING_MONOCHROME_BIT_KHR, "VK_VIDEO_CHROMA_SUBSAMPLING_MONOCHROME_BIT_KHR" },
         { VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR, "VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR" },
@@ -5737,10 +5838,9 @@ struct Enumerants<VkVideoChromaSubsamplingFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoCodecOperationFlagBitsKHR>
+struct VkVideoCodecOperationFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoCodecOperationFlagBitsKHR>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoCodecOperationFlagBitsKHR>, 8> entries = { {
         { VK_VIDEO_CODEC_OPERATION_NONE_KHR, "VK_VIDEO_CODEC_OPERATION_NONE_KHR" },
         { VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR, "VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR" },
         { VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR, "VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR" },
@@ -5752,20 +5852,18 @@ struct Enumerants<VkVideoCodecOperationFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoCodingControlFlagBitsKHR>
+struct VkVideoCodingControlFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoCodingControlFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoCodingControlFlagBitsKHR>, 3> entries = { {
         { VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR, "VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR" },
         { VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR, "VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR" },
         { VK_VIDEO_CODING_CONTROL_ENCODE_QUALITY_LEVEL_BIT_KHR, "VK_VIDEO_CODING_CONTROL_ENCODE_QUALITY_LEVEL_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoComponentBitDepthFlagBitsKHR>
+struct VkVideoComponentBitDepthFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoComponentBitDepthFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoComponentBitDepthFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_COMPONENT_BIT_DEPTH_INVALID_KHR, "VK_VIDEO_COMPONENT_BIT_DEPTH_INVALID_KHR" },
         { VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR, "VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR" },
         { VK_VIDEO_COMPONENT_BIT_DEPTH_10_BIT_KHR, "VK_VIDEO_COMPONENT_BIT_DEPTH_10_BIT_KHR" },
@@ -5773,29 +5871,26 @@ struct Enumerants<VkVideoComponentBitDepthFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoDecodeCapabilityFlagBitsKHR>
+struct VkVideoDecodeCapabilityFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoDecodeCapabilityFlagBitsKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoDecodeCapabilityFlagBitsKHR>, 2> entries = { {
         { VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR, "VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR" },
         { VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR, "VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoDecodeH264PictureLayoutFlagBitsKHR>
+struct VkVideoDecodeH264PictureLayoutFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoDecodeH264PictureLayoutFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoDecodeH264PictureLayoutFlagBitsKHR>, 3> entries = { {
         { VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR, "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR" },
         { VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR, "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR" },
         { VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR, "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoDecodeUsageFlagBitsKHR>
+struct VkVideoDecodeUsageFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoDecodeUsageFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoDecodeUsageFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_DECODE_USAGE_DEFAULT_KHR, "VK_VIDEO_DECODE_USAGE_DEFAULT_KHR" },
         { VK_VIDEO_DECODE_USAGE_TRANSCODING_BIT_KHR, "VK_VIDEO_DECODE_USAGE_TRANSCODING_BIT_KHR" },
         { VK_VIDEO_DECODE_USAGE_OFFLINE_BIT_KHR, "VK_VIDEO_DECODE_USAGE_OFFLINE_BIT_KHR" },
@@ -5803,10 +5898,9 @@ struct Enumerants<VkVideoDecodeUsageFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeAV1CapabilityFlagBitsKHR>
+struct VkVideoEncodeAV1CapabilityFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeAV1CapabilityFlagBitsKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeAV1CapabilityFlagBitsKHR>, 6> entries = { {
         { VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR, "VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_CAPABILITY_GENERATE_OBU_EXTENSION_HEADER_BIT_KHR, "VK_VIDEO_ENCODE_AV1_CAPABILITY_GENERATE_OBU_EXTENSION_HEADER_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_CAPABILITY_PRIMARY_REFERENCE_CDF_ONLY_BIT_KHR, "VK_VIDEO_ENCODE_AV1_CAPABILITY_PRIMARY_REFERENCE_CDF_ONLY_BIT_KHR" },
@@ -5816,10 +5910,9 @@ struct Enumerants<VkVideoEncodeAV1CapabilityFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeAV1PredictionModeKHR>
+struct VkVideoEncodeAV1PredictionModeKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeAV1PredictionModeKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeAV1PredictionModeKHR>, 4> entries = { {
         { VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR, "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR" },
         { VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_SINGLE_REFERENCE_KHR, "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_SINGLE_REFERENCE_KHR" },
         { VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_UNIDIRECTIONAL_COMPOUND_KHR, "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_UNIDIRECTIONAL_COMPOUND_KHR" },
@@ -5827,10 +5920,9 @@ struct Enumerants<VkVideoEncodeAV1PredictionModeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeAV1RateControlFlagBitsKHR>
+struct VkVideoEncodeAV1RateControlFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeAV1RateControlFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeAV1RateControlFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR, "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_RATE_CONTROL_TEMPORAL_LAYER_PATTERN_DYADIC_BIT_KHR, "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_TEMPORAL_LAYER_PATTERN_DYADIC_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR, "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR" },
@@ -5838,20 +5930,18 @@ struct Enumerants<VkVideoEncodeAV1RateControlFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeAV1RateControlGroupKHR>
+struct VkVideoEncodeAV1RateControlGroupKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeAV1RateControlGroupKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeAV1RateControlGroupKHR>, 3> entries = { {
         { VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR, "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR" },
         { VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_PREDICTIVE_KHR, "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_PREDICTIVE_KHR" },
         { VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_BIPREDICTIVE_KHR, "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_BIPREDICTIVE_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeAV1StdFlagBitsKHR>
+struct VkVideoEncodeAV1StdFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeAV1StdFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeAV1StdFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR, "VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_STD_SKIP_MODE_PRESENT_UNSET_BIT_KHR, "VK_VIDEO_ENCODE_AV1_STD_SKIP_MODE_PRESENT_UNSET_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_STD_PRIMARY_REF_FRAME_BIT_KHR, "VK_VIDEO_ENCODE_AV1_STD_PRIMARY_REF_FRAME_BIT_KHR" },
@@ -5859,19 +5949,17 @@ struct Enumerants<VkVideoEncodeAV1StdFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>
+struct VkVideoEncodeAV1SuperblockSizeFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>, 2> entries = { {
         { VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR, "VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR" },
         { VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_128_BIT_KHR, "VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_128_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeCapabilityFlagBitsKHR>
+struct VkVideoEncodeCapabilityFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeCapabilityFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeCapabilityFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR, "VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR" },
         { VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR, "VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR" },
         { VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR, "VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR" },
@@ -5879,10 +5967,9 @@ struct Enumerants<VkVideoEncodeCapabilityFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeContentFlagBitsKHR>
+struct VkVideoEncodeContentFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeContentFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeContentFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR, "VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR" },
         { VK_VIDEO_ENCODE_CONTENT_CAMERA_BIT_KHR, "VK_VIDEO_ENCODE_CONTENT_CAMERA_BIT_KHR" },
         { VK_VIDEO_ENCODE_CONTENT_DESKTOP_BIT_KHR, "VK_VIDEO_ENCODE_CONTENT_DESKTOP_BIT_KHR" },
@@ -5890,10 +5977,9 @@ struct Enumerants<VkVideoEncodeContentFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeFeedbackFlagBitsKHR>
+struct VkVideoEncodeFeedbackFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeFeedbackFlagBitsKHR>, 10> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeFeedbackFlagBitsKHR>, 10> entries = { {
         { VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR, "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR" },
         { VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR, "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR" },
         { VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR, "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR" },
@@ -5907,20 +5993,18 @@ struct Enumerants<VkVideoEncodeFeedbackFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeFlagBitsKHR>
+struct VkVideoEncodeFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeFlagBitsKHR>, 3> entries = { {
         { VK_VIDEO_ENCODE_INTRA_REFRESH_BIT_KHR, "VK_VIDEO_ENCODE_INTRA_REFRESH_BIT_KHR" },
         { VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR, "VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR" },
         { VK_VIDEO_ENCODE_WITH_EMPHASIS_MAP_BIT_KHR, "VK_VIDEO_ENCODE_WITH_EMPHASIS_MAP_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeH264CapabilityFlagBitsKHR>
+struct VkVideoEncodeH264CapabilityFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeH264CapabilityFlagBitsKHR>, 11> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeH264CapabilityFlagBitsKHR>, 11> entries = { {
         { VK_VIDEO_ENCODE_H264_CAPABILITY_HRD_COMPLIANCE_BIT_KHR, "VK_VIDEO_ENCODE_H264_CAPABILITY_HRD_COMPLIANCE_BIT_KHR" },
         { VK_VIDEO_ENCODE_H264_CAPABILITY_PREDICTION_WEIGHT_TABLE_GENERATED_BIT_KHR, "VK_VIDEO_ENCODE_H264_CAPABILITY_PREDICTION_WEIGHT_TABLE_GENERATED_BIT_KHR" },
         { VK_VIDEO_ENCODE_H264_CAPABILITY_ROW_UNALIGNED_SLICE_BIT_KHR, "VK_VIDEO_ENCODE_H264_CAPABILITY_ROW_UNALIGNED_SLICE_BIT_KHR" },
@@ -5935,10 +6019,9 @@ struct Enumerants<VkVideoEncodeH264CapabilityFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeH264RateControlFlagBitsKHR>
+struct VkVideoEncodeH264RateControlFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeH264RateControlFlagBitsKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeH264RateControlFlagBitsKHR>, 5> entries = { {
         { VK_VIDEO_ENCODE_H264_RATE_CONTROL_ATTEMPT_HRD_COMPLIANCE_BIT_KHR, "VK_VIDEO_ENCODE_H264_RATE_CONTROL_ATTEMPT_HRD_COMPLIANCE_BIT_KHR" },
         { VK_VIDEO_ENCODE_H264_RATE_CONTROL_REGULAR_GOP_BIT_KHR, "VK_VIDEO_ENCODE_H264_RATE_CONTROL_REGULAR_GOP_BIT_KHR" },
         { VK_VIDEO_ENCODE_H264_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR, "VK_VIDEO_ENCODE_H264_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR" },
@@ -5947,10 +6030,9 @@ struct Enumerants<VkVideoEncodeH264RateControlFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeH264StdFlagBitsKHR>
+struct VkVideoEncodeH264StdFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeH264StdFlagBitsKHR>, 20> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeH264StdFlagBitsKHR>, 20> entries = { {
         { VK_VIDEO_ENCODE_H264_STD_SEPARATE_COLOR_PLANE_FLAG_SET_BIT_KHR, "VK_VIDEO_ENCODE_H264_STD_SEPARATE_COLOR_PLANE_FLAG_SET_BIT_KHR" },
         { VK_VIDEO_ENCODE_H264_STD_QPPRIME_Y_ZERO_TRANSFORM_BYPASS_FLAG_SET_BIT_KHR, "VK_VIDEO_ENCODE_H264_STD_QPPRIME_Y_ZERO_TRANSFORM_BYPASS_FLAG_SET_BIT_KHR" },
         { VK_VIDEO_ENCODE_H264_STD_SCALING_MATRIX_PRESENT_FLAG_SET_BIT_KHR, "VK_VIDEO_ENCODE_H264_STD_SCALING_MATRIX_PRESENT_FLAG_SET_BIT_KHR" },
@@ -5974,20 +6056,18 @@ struct Enumerants<VkVideoEncodeH264StdFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeH265CtbSizeFlagBitsKHR>
+struct VkVideoEncodeH265CtbSizeFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeH265CtbSizeFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeH265CtbSizeFlagBitsKHR>, 3> entries = { {
         { VK_VIDEO_ENCODE_H265_CTB_SIZE_16_BIT_KHR, "VK_VIDEO_ENCODE_H265_CTB_SIZE_16_BIT_KHR" },
         { VK_VIDEO_ENCODE_H265_CTB_SIZE_32_BIT_KHR, "VK_VIDEO_ENCODE_H265_CTB_SIZE_32_BIT_KHR" },
         { VK_VIDEO_ENCODE_H265_CTB_SIZE_64_BIT_KHR, "VK_VIDEO_ENCODE_H265_CTB_SIZE_64_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeIntraRefreshModeFlagBitsKHR>
+struct VkVideoEncodeIntraRefreshModeFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeIntraRefreshModeFlagBitsKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeIntraRefreshModeFlagBitsKHR>, 5> entries = { {
         { VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_NONE_KHR, "VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_NONE_KHR" },
         { VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_PER_PICTURE_PARTITION_BIT_KHR, "VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_PER_PICTURE_PARTITION_BIT_KHR" },
         { VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_BLOCK_BASED_BIT_KHR, "VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_BLOCK_BASED_BIT_KHR" },
@@ -5996,20 +6076,18 @@ struct Enumerants<VkVideoEncodeIntraRefreshModeFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodePerPartitionFeedbackFlagBitsKHR>
+struct VkVideoEncodePerPartitionFeedbackFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodePerPartitionFeedbackFlagBitsKHR>, 3> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodePerPartitionFeedbackFlagBitsKHR>, 3> entries = { {
         { VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR, "VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR" },
         { VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR, "VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR" },
         { VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR, "VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeRateControlModeFlagBitsKHR>
+struct VkVideoEncodeRateControlModeFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeRateControlModeFlagBitsKHR>, 4> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeRateControlModeFlagBitsKHR>, 4> entries = { {
         { VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR, "VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR" },
         { VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR, "VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR" },
         { VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR, "VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR" },
@@ -6017,19 +6095,17 @@ struct Enumerants<VkVideoEncodeRateControlModeFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeRgbChromaOffsetFlagBitsVALVE>
+struct VkVideoEncodeRgbChromaOffsetFlagBitsVALVE
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeRgbChromaOffsetFlagBitsVALVE>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeRgbChromaOffsetFlagBitsVALVE>, 2> entries = { {
         { VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE" },
         { VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeRgbModelConversionFlagBitsVALVE>
+struct VkVideoEncodeRgbModelConversionFlagBitsVALVE
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeRgbModelConversionFlagBitsVALVE>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeRgbModelConversionFlagBitsVALVE>, 5> entries = { {
         { VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE" },
         { VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE" },
         { VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE" },
@@ -6038,19 +6114,17 @@ struct Enumerants<VkVideoEncodeRgbModelConversionFlagBitsVALVE>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeRgbRangeCompressionFlagBitsVALVE>
+struct VkVideoEncodeRgbRangeCompressionFlagBitsVALVE
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeRgbRangeCompressionFlagBitsVALVE>, 2> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeRgbRangeCompressionFlagBitsVALVE>, 2> entries = { {
         { VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE" },
         { VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE, "VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE" },
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeTuningModeKHR>
+struct VkVideoEncodeTuningModeKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeTuningModeKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeTuningModeKHR>, 5> entries = { {
         { VK_VIDEO_ENCODE_TUNING_MODE_DEFAULT_KHR, "VK_VIDEO_ENCODE_TUNING_MODE_DEFAULT_KHR" },
         { VK_VIDEO_ENCODE_TUNING_MODE_HIGH_QUALITY_KHR, "VK_VIDEO_ENCODE_TUNING_MODE_HIGH_QUALITY_KHR" },
         { VK_VIDEO_ENCODE_TUNING_MODE_LOW_LATENCY_KHR, "VK_VIDEO_ENCODE_TUNING_MODE_LOW_LATENCY_KHR" },
@@ -6059,10 +6133,9 @@ struct Enumerants<VkVideoEncodeTuningModeKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoEncodeUsageFlagBitsKHR>
+struct VkVideoEncodeUsageFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoEncodeUsageFlagBitsKHR>, 5> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoEncodeUsageFlagBitsKHR>, 5> entries = { {
         { VK_VIDEO_ENCODE_USAGE_DEFAULT_KHR, "VK_VIDEO_ENCODE_USAGE_DEFAULT_KHR" },
         { VK_VIDEO_ENCODE_USAGE_TRANSCODING_BIT_KHR, "VK_VIDEO_ENCODE_USAGE_TRANSCODING_BIT_KHR" },
         { VK_VIDEO_ENCODE_USAGE_STREAMING_BIT_KHR, "VK_VIDEO_ENCODE_USAGE_STREAMING_BIT_KHR" },
@@ -6071,10 +6144,9 @@ struct Enumerants<VkVideoEncodeUsageFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoSessionCreateFlagBitsKHR>
+struct VkVideoSessionCreateFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoSessionCreateFlagBitsKHR>, 6> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoSessionCreateFlagBitsKHR>, 6> entries = { {
         { VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR, "VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR" },
         { VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_PARAMETER_OPTIMIZATIONS_BIT_KHR, "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_PARAMETER_OPTIMIZATIONS_BIT_KHR" },
         { VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR, "VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR" },
@@ -6084,18 +6156,16 @@ struct Enumerants<VkVideoSessionCreateFlagBitsKHR>
     } };
 };
 
-template <>
-struct Enumerants<VkVideoSessionParametersCreateFlagBitsKHR>
+struct VkVideoSessionParametersCreateFlagBitsKHR
 {
-    static constexpr std::array<Enumerant<VkVideoSessionParametersCreateFlagBitsKHR>, 1> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkVideoSessionParametersCreateFlagBitsKHR>, 1> entries = { {
         { VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR, "VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR" },
     } };
 };
 
-template <>
-struct Enumerants<VkViewportCoordinateSwizzleNV>
+struct VkViewportCoordinateSwizzleNV
 {
-    static constexpr std::array<Enumerant<VkViewportCoordinateSwizzleNV>, 8> entries = { {
+    static constexpr std::array<util::Enumerant<api_types::VkViewportCoordinateSwizzleNV>, 8> entries = { {
         { VK_VIEWPORT_COORDINATE_SWIZZLE_POSITIVE_X_NV, "VK_VIEWPORT_COORDINATE_SWIZZLE_POSITIVE_X_NV" },
         { VK_VIEWPORT_COORDINATE_SWIZZLE_NEGATIVE_X_NV, "VK_VIEWPORT_COORDINATE_SWIZZLE_NEGATIVE_X_NV" },
         { VK_VIEWPORT_COORDINATE_SWIZZLE_POSITIVE_Y_NV, "VK_VIEWPORT_COORDINATE_SWIZZLE_POSITIVE_Y_NV" },
@@ -6107,7 +6177,9 @@ struct Enumerants<VkViewportCoordinateSwizzleNV>
     } };
 };
 
-GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(enumerants)
+GFXRECON_END_NAMESPACE(vulkan)
+GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_GENERATED_VULKAN_SCHEMA_ENUMERANTS_H

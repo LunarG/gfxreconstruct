@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "vulkan_descriptor_utils.h"

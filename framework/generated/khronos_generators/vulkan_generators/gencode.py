@@ -61,6 +61,7 @@ from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, Dec
 # Field Schema
 from vulkan_schema_generator import (
     VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions,
+    VulkanSchemaCatalogGenerator, VulkanSchemaCatalogGeneratorOptions,
     VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions,
     VulkanSchemaGenerator, VulkanSchemaGeneratorOptions,
     VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions,
@@ -110,8 +111,6 @@ from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGener
 from vulkan_struct_deep_copy_stype_body_generator import VulkanStructDeepCopySTypeBodyGenerator, VulkanStructDeepCopySTypeBodyGeneratorOptions
 
 # To String
-from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
-from vulkan_enum_to_string_header_generator import VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions
 
 from vulkan_handle_wrapper_util_body_generator import VulkanHandleWrapperUtilBodyGenerator, VulkanHandleWrapperUtilBodyGeneratorOptions
 from vulkan_handle_mapping_util_body_generator import VulkanHandleMappingUtilBodyGenerator, VulkanHandleMappingUtilBodyGeneratorOptions
@@ -353,6 +352,8 @@ def make_gen_opts(args):
     for schema_filename, schema_generator, schema_options, schema_protect in (
         ('generated_vulkan_schema_types.h',
          VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions, True),
+        ('generated_vulkan_schema_catalog.h',
+         VulkanSchemaCatalogGenerator, VulkanSchemaCatalogGeneratorOptions, True),
         ('generated_vulkan_schema_fields.h',
          VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions, True),
         ('generated_vulkan_schema.h',
@@ -857,36 +858,6 @@ def make_gen_opts(args):
             filename='generated_vulkan_struct_handle_wrappers.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    #
-    # To string generators
-    gen_opts['generated_vulkan_enum_to_string.h'] = [
-        VulkanEnumToStringHeaderGenerator,
-        VulkanEnumToStringHeaderGeneratorOptions(
-            filename='generated_vulkan_enum_to_string.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=True,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    gen_opts['generated_vulkan_enum_to_string.cpp'] = [
-        VulkanEnumToStringBodyGenerator,
-        VulkanEnumToStringBodyGeneratorOptions(
-            filename='generated_vulkan_enum_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,

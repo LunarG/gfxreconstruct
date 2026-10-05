@@ -48,8 +48,9 @@
 #include "generated/generated_vulkan_schema_decoded_command_members.h"
 #include "generated/generated_vulkan_schema_decoded_struct_members.h"
 #include "generated/generated_vulkan_schema_native_struct_members.h"
+#include "generated/generated_vulkan_schema_binding_descriptor_for.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "test/schema_fill.h"
 
@@ -3047,13 +3048,13 @@ TEST_CASE("The schema filler populates every described field", "[schema][fill]")
     CHECK(info.pNext == nullptr);
 }
 
-// Enumerants<Enum> names every enumerant, and the two name functions read it: ToString substitutes its unhandled
-// string on a miss, to_json the hex form. VkStructureType is the largest enum and the sieves' key;
+// The enumerant table names every enumerant, and the two name functions agree with it: ToString substitutes its
+// unhandled string on a miss, to_json the hex form. VkStructureType is the largest enum and the sieves' key;
 // VkImageUsageFlagBits stands for the flag-bits enums, whose per-bit expansion reads the same entries.
 TEST_CASE("Enumerants names every enumerant and both name functions read it", "[schema][enumerants]")
 {
     auto check_every_entry = []<typename Enum>() {
-        for (const util::Enumerant<Enum>& entry : util::Enumerants<Enum>::entries)
+        for (const auto& entry : util::EnumerantTableOf<Enum>::entries)
         {
             CHECK(util::NameOf(entry.value) == entry.name);
             CHECK(util::ToString(entry.value) == std::string(entry.name));
