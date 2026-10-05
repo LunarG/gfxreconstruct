@@ -88,8 +88,8 @@ pipeline {
                     builds = [
                         'Windows Build': runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode]),
                         'Linux Build': runJob.gfxrBuildLinux(runJob.LinuxBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode])
-                        // 'Mac Build': runJob.gfxrBuildMac()
-                        // 'Android Build': runJob.gfxrBuildAndroid()
+                        // 'Mac Build': runJob.gfxrBuildMac(),
+                        // 'Android Build': runJob.gfxrBuildAndroid(runJob.AndroidBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode]),
                     ]
                     parallel builds
 
