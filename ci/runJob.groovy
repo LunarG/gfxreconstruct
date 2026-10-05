@@ -36,6 +36,45 @@ def cleanWorkSpace() {
         bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 }
 
+def checkoutScm(def branches) {
+    def scmVars
+    // Use a curated subset of SCM fields: enough to preserve checkout behavior
+    // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+    // Retry to ride out transient network failures during the clone.
+    retry(3) {
+        try {
+            scmVars = checkout([
+                $class: 'GitSCM',
+                branches: branches,
+                doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                extensions: scm.extensions,
+                submoduleCfg: scm.submoduleCfg,
+                userRemoteConfigs: scm.userRemoteConfigs
+            ])
+        } catch (Exception e) {
+            sleep(time: 5)
+            throw e
+        }
+    }
+    return scmVars
+}
+
+def checkoutManual(String projectRepo, String projectBranch) {
+    // Retry to ride out transient network failures during the clone.
+    retry(3) {
+        try {
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: projectBranch]],
+                userRemoteConfigs: [[url: projectRepo]]
+            ])
+        } catch (Exception e) {
+            sleep(time: 5)
+            throw e
+        }
+    }
+}
+
 def gfxrBuildWindows(
     String label,
     def branches,
@@ -51,16 +90,7 @@ def gfxrBuildWindows(
                     cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        def scmVars = checkout([
-                            $class: 'GitSCM',
-                            branches: branches,
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        def scmVars = checkoutScm(branches)
 
                         withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
                             bat(script: 'ci/cloneTests.bat')
@@ -137,25 +167,7 @@ def gfxrTestWindows(
                     cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        // Retry to ride out transient network failures during the clone.
-                        def scmVars
-                        retry(3) {
-                            try {
-                                scmVars = checkout([
-                                    $class: 'GitSCM',
-                                    branches: branches,
-                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                                    extensions: scm.extensions,
-                                    submoduleCfg: scm.submoduleCfg,
-                                    userRemoteConfigs: scm.userRemoteConfigs
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        def scmVars = checkoutScm(branches)
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         // unstash moved inside catchError: a failed Windows build mode never
@@ -299,25 +311,7 @@ def gfxrTestLinux(
                     cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        // Retry to ride out transient network failures during the clone.
-                        def scmVars
-                        retry(3) {
-                            try {
-                                scmVars = checkout([
-                                    $class: 'GitSCM',
-                                    branches: branches,
-                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                                    extensions: scm.extensions,
-                                    submoduleCfg: scm.submoduleCfg,
-                                    userRemoteConfigs: scm.userRemoteConfigs
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        def scmVars = checkoutScm(branches)
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         // unstash moved inside catchError: a failed Linux build mode never
@@ -461,25 +455,7 @@ def gfxrTestAndroid(
                     cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        // Retry to ride out transient network failures during the clone.
-                        def scmVars
-                        retry(3) {
-                            try {
-                                scmVars = checkout([
-                                    $class: 'GitSCM',
-                                    branches: branches,
-                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                                    extensions: scm.extensions,
-                                    submoduleCfg: scm.submoduleCfg,
-                                    userRemoteConfigs: scm.userRemoteConfigs
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        def scmVars = checkoutScm(branches)
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         // unstash moved inside catchError: a failed Android build mode never
@@ -577,19 +553,7 @@ def gfxrTestWindowsManual(
                     bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        // Retry to ride out transient network failures during the clone.
-                        retry(3) {
-                            try {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: projectBranch]],
-                                    userRemoteConfigs: [[url: projectRepo]]
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        checkoutManual(projectRepo, projectBranch)
 
                         def commitHash = bat(script: '@git rev-parse HEAD', returnStdout: true).trim()
 
@@ -672,19 +636,7 @@ def gfxrTestLinuxManual(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        // Retry to ride out transient network failures during the clone.
-                        retry(3) {
-                            try {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: projectBranch]],
-                                    userRemoteConfigs: [[url: projectRepo]]
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        checkoutManual(projectRepo, projectBranch)
 
                         def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
@@ -767,19 +719,7 @@ def gfxrTestAndroidManual(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        // Retry to ride out transient network failures during the clone.
-                        retry(3) {
-                            try {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: projectBranch]],
-                                    userRemoteConfigs: [[url: projectRepo]]
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        checkoutManual(projectRepo, projectBranch)
 
                         def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
