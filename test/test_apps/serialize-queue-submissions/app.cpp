@@ -98,7 +98,9 @@ void App::setup()
 
 void App::cleanup()
 {
-    init.disp.destroyCommandPool(command_pool_, nullptr);
+    if (command_pool_ != VK_NULL_HANDLE){
+        init.disp.destroyCommandPool(command_pool_, nullptr);
+    }
 }
 
 GFXRECON_END_NAMESPACE(serialize_queue_submissions)
