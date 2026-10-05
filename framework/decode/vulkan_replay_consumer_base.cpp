@@ -338,6 +338,9 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // free frame warm up resources
     device_frame_warmups_.clear();
 
+    // free injected timeline semaphores
+    device_submit_job_executors_.clear();
+
     // process queued async tasks
     background_queue_.join_all();
     main_thread_queue_.poll();
