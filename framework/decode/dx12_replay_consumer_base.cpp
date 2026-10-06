@@ -119,11 +119,11 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                const DxReplayOptions&                    options) :
-    application_(application),
-    options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
-    frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
-    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
-    fps_info_(nullptr), unique_proxy_window_id_counter_(0), frame_end_marker_count_(0)
+    application_(application), options_(options), current_message_length_(0), info_queue_(nullptr),
+    resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
+    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
+    set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr),
+    unique_proxy_window_id_counter_(0), frame_end_marker_count_(0)
 {
     if (options_.enable_validation_layer)
     {
@@ -591,11 +591,10 @@ void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId de
         auto extra_device_info = GetExtraInfo<D3D12DeviceInfo>(device_info);
         if ((extra_device_info != nullptr) && (extra_device_info->adapter3 != nullptr))
         {
-            const uint64_t memory_headroom =
-                std::min(graphics::dx12::GetAvailableGpuAdapterMemory(
-                             extra_device_info->adapter3, pct, extra_device_info->is_uma),
-                         graphics::dx12::GetAvailableCpuMemory(pct));
-            heap_size = std::min(static_cast<uint64_t>(options_.batching_heap_size) * 1024 * 1024,
+            const uint64_t memory_headroom = std::min(graphics::dx12::GetAvailableGpuAdapterMemory(
+                                                          extra_device_info->adapter3, pct, extra_device_info->is_uma),
+                                                      graphics::dx12::GetAvailableCpuMemory(pct));
+            heap_size                      = std::min(static_cast<uint64_t>(options_.batching_heap_size) * 1024 * 1024,
                                  static_cast<uint64_t>(memory_headroom / graphics::dx12::kMemoryTolerance));
         }
     }

@@ -249,8 +249,8 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
 
 Dx12ResourceDataUtil::Dx12ResourceDataUtil(ID3D12Device* device, uint64_t min_buffer_size) :
     device_(device), staging_buffers_{ nullptr, nullptr }, staging_buffer_sizes_{ 0, 0 },
-    min_buffer_size_(min_buffer_size), fence_value_(0), heap_staging_buffer_(nullptr),
-    heap_staging_buffer_capacity_(0), heap_staging_buffer_offset_(0)
+    min_buffer_size_(min_buffer_size), fence_value_(0), heap_staging_buffer_(nullptr), heap_staging_buffer_capacity_(0),
+    heap_staging_buffer_offset_(0)
 {
     HRESULT result = E_FAIL;
 
@@ -988,12 +988,8 @@ dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetHeapStagingBuffer(uint64_t r
     desc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
     dx12::ID3D12ResourceComPtr placed;
-    HRESULT                    result = device_->CreatePlacedResource(heap_staging_buffer_,
-                                               aligned_offset,
-                                               &desc,
-                                               D3D12_RESOURCE_STATE_GENERIC_READ,
-                                               nullptr,
-                                               IID_PPV_ARGS(&placed));
+    HRESULT                    result = device_->CreatePlacedResource(
+        heap_staging_buffer_, aligned_offset, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&placed));
     if (FAILED(result))
     {
         // Treat as a fit failure; the caller falls back to a committed staging buffer.
