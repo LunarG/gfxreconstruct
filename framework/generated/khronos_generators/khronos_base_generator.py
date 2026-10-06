@@ -45,6 +45,7 @@ import json
 import copy
 from collections import OrderedDict
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures
+from generated_file_util import finish_output_file
 
 def write(*args, **kwargs):
     file = kwargs.pop('file', sys.stdout)
@@ -833,8 +834,8 @@ class KhronosBaseGenerator(OutputGenerator):
         if len(body):
             write('\n'.join(body), file=self.outFile)
 
-        # Finish processing in superclass
-        OutputGenerator.endFile(self)
+        # Finish processing as the superclass would, leaving an unchanged target untouched
+        finish_output_file(self)
 
     def get_feature_protect(self, interface):
         """Intended to be overridden."""
