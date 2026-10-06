@@ -57,6 +57,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-frame-looping-event-state
     gfxrecon-testapp-frame-looping-fence-state
     gfxrecon-testapp-frame-looping-semaphore-state
+    gfxrecon-testapp-frame-looping-query-pool-state
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")

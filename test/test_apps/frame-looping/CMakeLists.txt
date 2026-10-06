@@ -93,3 +93,17 @@ common_build_directives(gfxrecon-testapp-frame-looping-semaphore-state)
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS gfxrecon-testapp-frame-looping-semaphore-state RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-semaphore-state)
 endif()
+
+add_library(gfxrecon-testapp-frame-looping-query-pool-state frame-looping-query-pool-state.cpp)
+
+target_include_directories(gfxrecon-testapp-frame-looping-query-pool-state PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gfxrecon-testapp-frame-looping-query-pool-state
+    PUBLIC
+        gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-frame-looping-query-pool-state)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-frame-looping-query-pool-state RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/frame-looping-query-pool-state)
+endif()
