@@ -25,6 +25,8 @@ import sys
 
 # Relative path to dxgi code generators for trace encode/decode.
 GENERATOR_PATH = './dx12_generators'
+# Relative path to generator utilities shared with the Khronos generators.
+KHRONOS_GENERATOR_PATH = './khronos_generators'
 LIB_CPPHEADERPARSER_PATH = '../../external'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -109,11 +111,15 @@ if __name__ == '__main__':
 
     CURRENT_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
     GENERATOR_DIR = os.path.normpath(os.path.join(CURRENT_DIR, GENERATOR_PATH))
+    KHRONOS_GENERATOR_DIR = os.path.normpath(
+        os.path.join(CURRENT_DIR, KHRONOS_GENERATOR_PATH)
+    )
     LIB_CPPHEADERPARSER_DIR = os.path.normpath(
         os.path.join(CURRENT_DIR, LIB_CPPHEADERPARSER_PATH)
     )
 
     sys.path.append(GENERATOR_DIR)
+    sys.path.append(KHRONOS_GENERATOR_DIR)
     sys.path.append(LIB_CPPHEADERPARSER_DIR)
 
     from gencode import GenCode

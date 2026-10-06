@@ -44,7 +44,9 @@ import sys
 import json
 import copy
 from collections import OrderedDict
+from pathlib import Path
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures
+from generated_file_util import existing_newline, replace_if_changed
 
 def write(*args, **kwargs):
     file = kwargs.pop('file', sys.stdout)
@@ -754,6 +756,11 @@ class KhronosBaseGenerator(OutputGenerator):
         # Base class saves gen_opts as self.genOpts
         OutputGenerator.beginFile(self, gen_opts)
 
+        # Match the target's existing line endings so endFile can detect unchanged output
+        if gen_opts.filename is not None:
+            self.outFile.reconfigure(
+                newline=existing_newline(Path(gen_opts.directory) / gen_opts.filename)
+            )
 
         if gen_opts.blacklists:
             self.__load_blacklists(gen_opts.blacklists)
@@ -830,8 +837,20 @@ class KhronosBaseGenerator(OutputGenerator):
         if len(body):
             write('\n'.join(body), file=self.outFile)
 
-        # Finish processing in superclass
-        OutputGenerator.endFile(self)
+        # Copied from the registry's OutputGenerator.endFile (generator.py), patched to skip
+        # overwriting a target whose content is unchanged
+        for log_file in (self.errFile, self.warnFile, self.diagFile):
+            if log_file:
+                log_file.flush()
+        if self.genOpts.filename is not None:
+            self.outFile.close()
+            replace_if_changed(
+                self.outFile.name,
+                Path(self.genOpts.directory) / self.genOpts.filename
+            )
+        else:
+            self.outFile.flush()
+        self.genOpts = None
 
     def get_feature_protect(self, interface):
         """Intended to be overridden."""

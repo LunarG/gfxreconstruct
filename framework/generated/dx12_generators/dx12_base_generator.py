@@ -23,9 +23,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import json,os,re,shutil,sys,tempfile
+import json,os,re,sys,tempfile
 
 from collections import OrderedDict
+from generated_file_util import existing_newline, replace_if_changed
 
 try:
     from pathlib import Path
@@ -501,9 +502,11 @@ class Dx12BaseGenerator():
             except ImportError:
                 self.apidict = None
 
-        # Open a temporary file for accumulating output.
+        # Open a temporary file for accumulating output, matching the target's existing line
+        # endings so endFile can detect unchanged output.
         if self.genOpts.filename is not None:
-            self.outFile = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', newline='\n', delete=False)
+            newline = existing_newline(Path(self.genOpts.directory) / self.genOpts.filename)
+            self.outFile = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', newline=newline, delete=False)
         else:
             self.outFile = sys.stdout
 
@@ -549,14 +552,9 @@ class Dx12BaseGenerator():
                 raise MissingGeneratorOptionsError()
 
             # On successfully generating output, move the temporary file to the
-            # target file.
+            # target file if its content changed.
             if self.genOpts.filename is not None:
-                directory = Path(self.genOpts.directory)
-                if sys.platform == 'win32':
-                    if not Path.exists(directory):
-                        os.makedirs(directory)
-                shutil.copy(self.outFile.name, directory / self.genOpts.filename)
-                os.remove(self.outFile.name)
+                replace_if_changed(self.outFile.name, Path(self.genOpts.directory) / self.genOpts.filename)
         self.genOpts = None
 
     def beginFeature(self, interface, emit):
