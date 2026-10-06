@@ -137,6 +137,7 @@ using structures = util::TypeList<
     api_types::VkAccelerationStructureCreateInfoNV,
     api_types::VkAccelerationStructureDeviceAddressInfoKHR,
     api_types::VkAccelerationStructureGeometryAabbsDataKHR,
+    api_types::VkAccelerationStructureGeometryDataKHR,
     api_types::VkAccelerationStructureGeometryInstancesDataKHR,
     api_types::VkAccelerationStructureGeometryKHR,
     api_types::VkAccelerationStructureGeometryLinearSweptSpheresDataNV,
@@ -149,6 +150,8 @@ using structures = util::TypeList<
     api_types::VkAccelerationStructureMatrixMotionInstanceNV,
     api_types::VkAccelerationStructureMemoryRequirementsInfoNV,
     api_types::VkAccelerationStructureMotionInfoNV,
+    api_types::VkAccelerationStructureMotionInstanceDataNV,
+    api_types::VkAccelerationStructureMotionInstanceNV,
     api_types::VkAccelerationStructureSRTMotionInstanceNV,
     api_types::VkAccelerationStructureTrianglesDisplacementMicromapNV,
     api_types::VkAccelerationStructureTrianglesOpacityMicromapEXT,
@@ -176,6 +179,7 @@ using structures = util::TypeList<
     api_types::VkAttachmentReferenceStencilLayout,
     api_types::VkAttachmentSampleCountInfoAMD,
     api_types::VkAttachmentSampleLocationsEXT,
+    api_types::VkBaseInStructure,
     api_types::VkBaseOutStructure,
     api_types::VkBeginCustomResolveInfoEXT,
     api_types::VkBindAccelerationStructureMemoryInfoNV,
@@ -325,8 +329,10 @@ using structures = util::TypeList<
     api_types::VkDescriptorBufferBindingInfoEXT,
     api_types::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT,
     api_types::VkDescriptorBufferInfo,
+    api_types::VkDescriptorDataEXT,
     api_types::VkDescriptorGetInfoEXT,
     api_types::VkDescriptorGetTensorInfoARM,
+    api_types::VkDescriptorImageInfo,
     api_types::VkDescriptorPoolCreateInfo,
     api_types::VkDescriptorPoolInlineUniformBlockCreateInfo,
     api_types::VkDescriptorPoolSize,
@@ -547,8 +553,10 @@ using structures = util::TypeList<
     api_types::VkIndirectCommandsLayoutTokenNV,
     api_types::VkIndirectCommandsPushConstantTokenEXT,
     api_types::VkIndirectCommandsStreamNV,
+    api_types::VkIndirectCommandsTokenDataEXT,
     api_types::VkIndirectCommandsVertexBufferTokenEXT,
     api_types::VkIndirectExecutionSetCreateInfoEXT,
+    api_types::VkIndirectExecutionSetInfoEXT,
     api_types::VkIndirectExecutionSetPipelineInfoEXT,
     api_types::VkIndirectExecutionSetShaderInfoEXT,
     api_types::VkIndirectExecutionSetShaderLayoutInfoEXT,
@@ -643,6 +651,7 @@ using structures = util::TypeList<
     api_types::VkPerformanceOverrideInfoINTEL,
     api_types::VkPerformanceQuerySubmitInfoKHR,
     api_types::VkPerformanceStreamMarkerInfoINTEL,
+    api_types::VkPerformanceValueDataINTEL,
     api_types::VkPerformanceValueINTEL,
     api_types::VkPhysicalDevice16BitStorageFeatures,
     api_types::VkPhysicalDevice4444FormatsFeaturesEXT,
@@ -1435,9 +1444,18 @@ using structures = util::TypeList<
 // The structures a pNext chain can hold: every descriptor with a structure_type.
 using extensible_structures = decltype(util::TypeListKeep(structures{}, kHasStructureType));
 
+// The list of non-decodable structures, that cannot be present in an encode, nor instantiated.
+using non_decodable_structures = util::TypeList<
+    api_types::VkBaseInStructure,
+    api_types::VkBaseOutStructure>;
+
+// The decodable structures by exclusion.
+using decodable_structures = decltype(util::TypeListExclude(structures{}, non_decodable_structures{}));
+
 // The structures vulkan_struct_deep_copy does not handle: structures-deep-copy in the blacklists file.
 using deep_copy_exclusions = util::TypeList<
     api_types::VkAndroidSurfaceCreateInfoKHR,
+    api_types::VkBaseInStructure,
     api_types::VkBaseOutStructure,
     api_types::VkDirectFBSurfaceCreateInfoEXT,
     api_types::VkImportAndroidHardwareBufferInfoANDROID,

@@ -59,9 +59,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// Declared the way the generated struct decoders declare it; there is no header that publishes it.
-size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
-
 // There is no table here joining a logical kind to a wire type, and no wire type is named. ValueDecoder and
 // PointerDecoder each take a kind, and format/format.h carries the width on the kind itself, so this operation says
 // only what a field's kind is -- which the schema already told it.

@@ -47,7 +47,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 namespace
 {
 
-using Index = schema::StructureTypeIndex<schema::vulkan::catalog::extensible_structures>;
+using PNextSTypeIndex = schema::StructureTypeIndex<schema::vulkan::catalog::extensible_structures>;
 
 // Encodes the node as the structure its descriptor names, the way the generated case for that structure did.
 struct EncodeNode
@@ -81,7 +81,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         return;
     }
 
-    if (const auto position = Index::Find(base->sType); position != Index::End())
+    if (const auto position = PNextSTypeIndex::Find(base->sType); position != PNextSTypeIndex::End())
     {
         util::Visit(position, EncodeNode{}, encoder, base);
         return;

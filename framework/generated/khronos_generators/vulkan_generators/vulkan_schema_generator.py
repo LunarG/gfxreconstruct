@@ -473,6 +473,20 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             self.bitmask_types[group_name] = api_data.flags_64_type if wide else api_data.flags_type
 
     #
+    # Utilities for the model
+    #
+    def get_base_structs(self):
+        api_data = self.get_api_data()
+        if (api_data) :
+            return (api_data.base_in_struct, api_data.base_out_struct)
+        return ()
+
+    def get_decodable_struct_names(self):
+        """All decodable structures: excludes base structures as they are never instantiated."""
+        base_structs = self.get_base_structs()
+        return [key for key in self.all_struct_members if key not in base_structs]
+
+    #
     # Model
     #
 
@@ -481,6 +495,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         # Every filtered structure gets a Schema: that set already holds no alias, no union and none of the
         # structures whose decoders or encoders are hand-written.
         self.schema_structs = list(self.get_all_filtered_struct_names())
+
+        # Every decodable structure gets a traits row, hand-written decoder or not, so schema-driven code can
+        # reach its Decoded_ type.
+        self.schema_decodable_structs = list(self.get_decodable_struct_names())
 
         self.schema_commands = list(self.get_all_filtered_cmd_names())
 
@@ -502,13 +520,17 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.api_type_kinds[self.OPAQUE_BYTES_DESCRIPTOR] = 'UInt8'
         self.api_type_elements[self.OPAQUE_BYTES_DESCRIPTOR] = 'uint8_t'
 
-        for struct in self.schema_structs:
+        for struct in self.schema_decodable_structs:
             # Every element that gets a Schema also gets a descriptor, because the decoded representation traits key
             # on the descriptor even when no Field names the type.
             self.add_api_type(struct)
 
             for value in self.all_struct_members[struct]:
                 self.add_api_type(value.base_type)
+
+        # The base structures get a descriptor so the catalog can name them in non_decodable_structures.
+        for base_struct in self.get_base_structs():
+            self.add_api_type(base_struct)
 
         for command in self.schema_commands:
             return_type, _, params = self.all_cmd_params[command]
@@ -1198,6 +1220,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// The structures a pNext chain can hold: every descriptor with a structure_type.', file=self.outFile)
         write('using extensible_structures = decltype(util::TypeListKeep(structures{}, kHasStructureType));', file=self.outFile)
         self.newline()
+
+        # In Vulkan, currently only the base structures are non-decodable.
+        self.write_catalog_list('non_decodable_structures', 'The list of non-decodable structures, that cannot be present in an encode, nor instantiated.', list(self.get_base_structs()))
+        write('// The decodable structures by exclusion.', file=self.outFile)
+        write('using decodable_structures = decltype(util::TypeListExclude(structures{}, non_decodable_structures{}));', file=self.outFile)
+        self.newline()
+
         self.write_catalog_list(
             'deep_copy_exclusions',
             'The structures vulkan_struct_deep_copy does not handle: structures-deep-copy in the blacklists file.',
@@ -1349,7 +1378,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         )
         write('// already carries.', file=self.outFile)
 
-        for struct in self.schema_structs:
+        for struct in self.schema_decodable_structs:
             write(
                 'template <> struct ApiElementTraits<schema::vulkan::api_types::{name}> '
                 '{{ using decoded_type = Decoded_{name}; }};'.format(name=struct),
@@ -1524,15 +1553,27 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 write('static_assert(schema::HasStructureType<{}>);'.format(element), file=self.outFile)
 
         self.newline()
-        write('// The catalog lists are counted here from the registry by the generator.', file=self.outFile)
+        write('// The sizes the generator counted, then the relation checked arithmetically.', file=self.outFile)
         write(
-            'static_assert(util::TypeListSizeV<schema::vulkan::catalog::structures> == {});'.format(len(self.get_structure_descriptors())),
+            'constexpr size_t kStructuresCount = util::TypeListSizeV<schema::vulkan::catalog::structures>;\n' +
+            'static_assert(kStructuresCount == {});'.format(len(self.get_structure_descriptors())),
             file=self.outFile
         )
         write(
             'static_assert(util::TypeListSizeV<schema::vulkan::catalog::extensible_structures> == {});'.format(typed),
             file=self.outFile
         )
+        write(
+            'constexpr size_t kNonDecodableCount = util::TypeListSizeV<schema::vulkan::catalog::non_decodable_structures>;\n' +
+            'static_assert(kNonDecodableCount == {});'.format(len(self.get_base_structs())),
+            file=self.outFile
+        )
+        write(
+            'constexpr size_t kDecodableCount = util::TypeListSizeV<schema::vulkan::catalog::decodable_structures>;\n' +
+            'static_assert(kDecodableCount == (kStructuresCount - kNonDecodableCount));',
+            file=self.outFile
+        )
+
         excluded = self.get_deep_copy_excluded_descriptors()
         excluded_typed = [name for name in excluded if self.get_structure_type(name) is not None]
         write(

@@ -193,11 +193,13 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkPipelineLayoutC
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkSamplerCreateInfo> { using decoded_type = Decoded_VkSamplerCreateInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkCopyDescriptorSet> { using decoded_type = Decoded_VkCopyDescriptorSet; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorBufferInfo> { using decoded_type = Decoded_VkDescriptorBufferInfo; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorImageInfo> { using decoded_type = Decoded_VkDescriptorImageInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorPoolSize> { using decoded_type = Decoded_VkDescriptorPoolSize; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorPoolCreateInfo> { using decoded_type = Decoded_VkDescriptorPoolCreateInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorSetAllocateInfo> { using decoded_type = Decoded_VkDescriptorSetAllocateInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorSetLayoutBinding> { using decoded_type = Decoded_VkDescriptorSetLayoutBinding; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorSetLayoutCreateInfo> { using decoded_type = Decoded_VkDescriptorSetLayoutCreateInfo; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkWriteDescriptorSet> { using decoded_type = Decoded_VkWriteDescriptorSet; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDrawIndexedIndirectCommand> { using decoded_type = Decoded_VkDrawIndexedIndirectCommand; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDrawIndirectCommand> { using decoded_type = Decoded_VkDrawIndirectCommand; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkStencilOpState> { using decoded_type = Decoded_VkStencilOpState; };
@@ -418,6 +420,10 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceM
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkBindMemoryStatus> { using decoded_type = Decoded_VkBindMemoryStatus; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceHostImageCopyFeatures> { using decoded_type = Decoded_VkPhysicalDeviceHostImageCopyFeatures; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceHostImageCopyProperties> { using decoded_type = Decoded_VkPhysicalDeviceHostImageCopyProperties; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkMemoryToImageCopy> { using decoded_type = Decoded_VkMemoryToImageCopy; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkImageToMemoryCopy> { using decoded_type = Decoded_VkImageToMemoryCopy; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkCopyMemoryToImageInfo> { using decoded_type = Decoded_VkCopyMemoryToImageInfo; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkCopyImageToMemoryInfo> { using decoded_type = Decoded_VkCopyImageToMemoryInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkCopyImageToImageInfo> { using decoded_type = Decoded_VkCopyImageToImageInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkHostImageLayoutTransitionInfo> { using decoded_type = Decoded_VkHostImageLayoutTransitionInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkSubresourceHostMemcpySize> { using decoded_type = Decoded_VkSubresourceHostMemcpySize; };
@@ -430,6 +436,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceP
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkBindDescriptorSetsInfo> { using decoded_type = Decoded_VkBindDescriptorSetsInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPushConstantsInfo> { using decoded_type = Decoded_VkPushConstantsInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPushDescriptorSetInfo> { using decoded_type = Decoded_VkPushDescriptorSetInfo; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkPushDescriptorSetWithTemplateInfo> { using decoded_type = Decoded_VkPushDescriptorSetWithTemplateInfo; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDevicePipelineProtectedAccessFeatures> { using decoded_type = Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDevicePipelineRobustnessFeatures> { using decoded_type = Decoded_VkPhysicalDevicePipelineRobustnessFeatures; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDevicePipelineRobustnessProperties> { using decoded_type = Decoded_VkPhysicalDevicePipelineRobustnessProperties; };
@@ -904,6 +911,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkPastPresentatio
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPresentTimingInfoEXT> { using decoded_type = Decoded_VkPresentTimingInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPresentTimingsInfoEXT> { using decoded_type = Decoded_VkPresentTimingsInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL> { using decoded_type = Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkPerformanceValueINTEL> { using decoded_type = Decoded_VkPerformanceValueINTEL; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkInitializePerformanceApiInfoINTEL> { using decoded_type = Decoded_VkInitializePerformanceApiInfoINTEL; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkQueryPoolPerformanceQueryCreateInfoINTEL> { using decoded_type = Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPerformanceMarkerInfoINTEL> { using decoded_type = Decoded_VkPerformanceMarkerInfoINTEL; };
@@ -1002,6 +1010,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceD
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorAddressInfoEXT> { using decoded_type = Decoded_VkDescriptorAddressInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorBufferBindingInfoEXT> { using decoded_type = Decoded_VkDescriptorBufferBindingInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT> { using decoded_type = Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkDescriptorGetInfoEXT> { using decoded_type = Decoded_VkDescriptorGetInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkBufferCaptureDescriptorDataInfoEXT> { using decoded_type = Decoded_VkBufferCaptureDescriptorDataInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkImageCaptureDescriptorDataInfoEXT> { using decoded_type = Decoded_VkImageCaptureDescriptorDataInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkImageViewCaptureDescriptorDataInfoEXT> { using decoded_type = Decoded_VkImageViewCaptureDescriptorDataInfoEXT; };
@@ -1021,6 +1030,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStr
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureMatrixMotionInstanceNV> { using decoded_type = Decoded_VkAccelerationStructureMatrixMotionInstanceNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkSRTDataNV> { using decoded_type = Decoded_VkSRTDataNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureSRTMotionInstanceNV> { using decoded_type = Decoded_VkAccelerationStructureSRTMotionInstanceNV; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceNV> { using decoded_type = Decoded_VkAccelerationStructureMotionInstanceNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV> { using decoded_type = Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT> { using decoded_type = Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT> { using decoded_type = Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT; };
@@ -1208,6 +1218,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceE
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV> { using decoded_type = Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT> { using decoded_type = Decoded_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT> { using decoded_type = Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkLayerSettingEXT> { using decoded_type = Decoded_VkLayerSettingEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkLayerSettingsCreateInfoEXT> { using decoded_type = Decoded_VkLayerSettingsCreateInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM> { using decoded_type = Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM> { using decoded_type = Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM; };
@@ -1222,6 +1233,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkSwapchainLatenc
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkOutOfBandQueueTypeInfoNV> { using decoded_type = Decoded_VkOutOfBandQueueTypeInfoNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkLatencySurfaceCapabilitiesNV> { using decoded_type = Decoded_VkLatencySurfaceCapabilitiesNV; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkPhysicalDeviceDataGraphFeaturesARM> { using decoded_type = Decoded_VkPhysicalDeviceDataGraphFeaturesARM; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkDataGraphPipelineConstantARM> { using decoded_type = Decoded_VkDataGraphPipelineConstantARM; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDataGraphPipelineResourceInfoARM> { using decoded_type = Decoded_VkDataGraphPipelineResourceInfoARM; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDataGraphPipelineCompilerControlCreateInfoARM> { using decoded_type = Decoded_VkDataGraphPipelineCompilerControlCreateInfoARM; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDataGraphPipelineCreateInfoARM> { using decoded_type = Decoded_VkDataGraphPipelineCreateInfoARM; };
@@ -1294,12 +1306,14 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkGeneratedComman
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectExecutionSetPipelineInfoEXT> { using decoded_type = Decoded_VkIndirectExecutionSetPipelineInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectExecutionSetShaderLayoutInfoEXT> { using decoded_type = Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectExecutionSetShaderInfoEXT> { using decoded_type = Decoded_VkIndirectExecutionSetShaderInfoEXT; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectExecutionSetCreateInfoEXT> { using decoded_type = Decoded_VkIndirectExecutionSetCreateInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkGeneratedCommandsInfoEXT> { using decoded_type = Decoded_VkGeneratedCommandsInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkWriteIndirectExecutionSetPipelineEXT> { using decoded_type = Decoded_VkWriteIndirectExecutionSetPipelineEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectCommandsPushConstantTokenEXT> { using decoded_type = Decoded_VkIndirectCommandsPushConstantTokenEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectCommandsVertexBufferTokenEXT> { using decoded_type = Decoded_VkIndirectCommandsVertexBufferTokenEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectCommandsIndexBufferTokenEXT> { using decoded_type = Decoded_VkIndirectCommandsIndexBufferTokenEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectCommandsExecutionSetTokenEXT> { using decoded_type = Decoded_VkIndirectCommandsExecutionSetTokenEXT; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectCommandsLayoutTokenEXT> { using decoded_type = Decoded_VkIndirectCommandsLayoutTokenEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkIndirectCommandsLayoutCreateInfoEXT> { using decoded_type = Decoded_VkIndirectCommandsLayoutCreateInfoEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkDrawIndirectCountIndirectCommandEXT> { using decoded_type = Decoded_VkDrawIndirectCountIndirectCommandEXT; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkBindVertexBufferIndirectCommandEXT> { using decoded_type = Decoded_VkBindVertexBufferIndirectCommandEXT; };
@@ -1387,6 +1401,7 @@ template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStr
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureGeometryTrianglesDataKHR> { using decoded_type = Decoded_VkAccelerationStructureGeometryTrianglesDataKHR; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureGeometryAabbsDataKHR> { using decoded_type = Decoded_VkAccelerationStructureGeometryAabbsDataKHR; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureGeometryInstancesDataKHR> { using decoded_type = Decoded_VkAccelerationStructureGeometryInstancesDataKHR; };
+template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureGeometryKHR> { using decoded_type = Decoded_VkAccelerationStructureGeometryKHR; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureBuildGeometryInfoKHR> { using decoded_type = Decoded_VkAccelerationStructureBuildGeometryInfoKHR; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkAccelerationStructureCreateInfoKHR> { using decoded_type = Decoded_VkAccelerationStructureCreateInfoKHR; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::VkWriteDescriptorSetAccelerationStructureKHR> { using decoded_type = Decoded_VkWriteDescriptorSetAccelerationStructureKHR; };

@@ -43,13 +43,6 @@
 
 #include <vector>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
-// Defined in the generated pNext decoder, which has no header.
-size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
-GFXRECON_END_NAMESPACE(decode)
-GFXRECON_END_NAMESPACE(gfxrecon)
-
 const VkBuffer                   kBufferHandles[] = { gfxrecon::format::FromHandleId<VkBuffer>(0xabcd),
                                                       gfxrecon::format::FromHandleId<VkBuffer>(0xbcda),
                                                       gfxrecon::format::FromHandleId<VkBuffer>(0xcdab),

@@ -129,6 +129,7 @@ GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureCreateInfoKHR, vulkan::a
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureCreateInfoNV, vulkan::api_types::VkAccelerationStructureCreateInfoNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureDeviceAddressInfoKHR, vulkan::api_types::VkAccelerationStructureDeviceAddressInfoKHR);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureGeometryAabbsDataKHR, vulkan::api_types::VkAccelerationStructureGeometryAabbsDataKHR);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureGeometryDataKHR, vulkan::api_types::VkAccelerationStructureGeometryDataKHR);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureGeometryInstancesDataKHR, vulkan::api_types::VkAccelerationStructureGeometryInstancesDataKHR);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureGeometryKHR, vulkan::api_types::VkAccelerationStructureGeometryKHR);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureGeometryLinearSweptSpheresDataNV, vulkan::api_types::VkAccelerationStructureGeometryLinearSweptSpheresDataNV);
@@ -141,6 +142,8 @@ GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureInstanceKHR, vulkan::api
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureMatrixMotionInstanceNV, vulkan::api_types::VkAccelerationStructureMatrixMotionInstanceNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureMemoryRequirementsInfoNV, vulkan::api_types::VkAccelerationStructureMemoryRequirementsInfoNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureMotionInfoNV, vulkan::api_types::VkAccelerationStructureMotionInfoNV);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureMotionInstanceDataNV, vulkan::api_types::VkAccelerationStructureMotionInstanceDataNV);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureMotionInstanceNV, vulkan::api_types::VkAccelerationStructureMotionInstanceNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureSRTMotionInstanceNV, vulkan::api_types::VkAccelerationStructureSRTMotionInstanceNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureTrianglesDisplacementMicromapNV, vulkan::api_types::VkAccelerationStructureTrianglesDisplacementMicromapNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAccelerationStructureTrianglesOpacityMicromapEXT, vulkan::api_types::VkAccelerationStructureTrianglesOpacityMicromapEXT);
@@ -168,6 +171,7 @@ GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAttachmentReference2, vulkan::api_types::VkAt
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAttachmentReferenceStencilLayout, vulkan::api_types::VkAttachmentReferenceStencilLayout);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAttachmentSampleCountInfoAMD, vulkan::api_types::VkAttachmentSampleCountInfoAMD);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkAttachmentSampleLocationsEXT, vulkan::api_types::VkAttachmentSampleLocationsEXT);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkBaseInStructure, vulkan::api_types::VkBaseInStructure);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkBaseOutStructure, vulkan::api_types::VkBaseOutStructure);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkBeginCustomResolveInfoEXT, vulkan::api_types::VkBeginCustomResolveInfoEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkBindAccelerationStructureMemoryInfoNV, vulkan::api_types::VkBindAccelerationStructureMemoryInfoNV);
@@ -317,8 +321,10 @@ GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorAddressInfoEXT, vulkan::api_types::
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorBufferBindingInfoEXT, vulkan::api_types::VkDescriptorBufferBindingInfoEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT, vulkan::api_types::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorBufferInfo, vulkan::api_types::VkDescriptorBufferInfo);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorDataEXT, vulkan::api_types::VkDescriptorDataEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorGetInfoEXT, vulkan::api_types::VkDescriptorGetInfoEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorGetTensorInfoARM, vulkan::api_types::VkDescriptorGetTensorInfoARM);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorImageInfo, vulkan::api_types::VkDescriptorImageInfo);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorPoolCreateInfo, vulkan::api_types::VkDescriptorPoolCreateInfo);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorPoolInlineUniformBlockCreateInfo, vulkan::api_types::VkDescriptorPoolInlineUniformBlockCreateInfo);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkDescriptorPoolSize, vulkan::api_types::VkDescriptorPoolSize);
@@ -539,8 +545,10 @@ GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectCommandsLayoutTokenEXT, vulkan::api_t
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectCommandsLayoutTokenNV, vulkan::api_types::VkIndirectCommandsLayoutTokenNV);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectCommandsPushConstantTokenEXT, vulkan::api_types::VkIndirectCommandsPushConstantTokenEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectCommandsStreamNV, vulkan::api_types::VkIndirectCommandsStreamNV);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectCommandsTokenDataEXT, vulkan::api_types::VkIndirectCommandsTokenDataEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectCommandsVertexBufferTokenEXT, vulkan::api_types::VkIndirectCommandsVertexBufferTokenEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectExecutionSetCreateInfoEXT, vulkan::api_types::VkIndirectExecutionSetCreateInfoEXT);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectExecutionSetInfoEXT, vulkan::api_types::VkIndirectExecutionSetInfoEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectExecutionSetPipelineInfoEXT, vulkan::api_types::VkIndirectExecutionSetPipelineInfoEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectExecutionSetShaderInfoEXT, vulkan::api_types::VkIndirectExecutionSetShaderInfoEXT);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkIndirectExecutionSetShaderLayoutInfoEXT, vulkan::api_types::VkIndirectExecutionSetShaderLayoutInfoEXT);
@@ -635,6 +643,7 @@ GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPerformanceMarkerInfoINTEL, vulkan::api_types
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPerformanceOverrideInfoINTEL, vulkan::api_types::VkPerformanceOverrideInfoINTEL);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPerformanceQuerySubmitInfoKHR, vulkan::api_types::VkPerformanceQuerySubmitInfoKHR);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPerformanceStreamMarkerInfoINTEL, vulkan::api_types::VkPerformanceStreamMarkerInfoINTEL);
+GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPerformanceValueDataINTEL, vulkan::api_types::VkPerformanceValueDataINTEL);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPerformanceValueINTEL, vulkan::api_types::VkPerformanceValueINTEL);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPhysicalDevice16BitStorageFeatures, vulkan::api_types::VkPhysicalDevice16BitStorageFeatures);
 GFXRECON_SCHEMA_DESCRIPTOR_FOR(::VkPhysicalDevice4444FormatsFeaturesEXT, vulkan::api_types::VkPhysicalDevice4444FormatsFeaturesEXT);

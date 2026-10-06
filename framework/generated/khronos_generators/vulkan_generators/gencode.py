@@ -56,7 +56,6 @@ from vulkan_decoder_args_header_generator import VulkanDecoderArgsHeaderGenerato
 from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
 from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
-from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
 # Field Schema
 from vulkan_schema_generator import (
@@ -393,18 +392,6 @@ def make_gen_opts(args):
                 extra_headers=extra_headers
             )
         ]
-
-    gen_opts['generated_vulkan_pnext_struct_decoder.cpp'] = [
-        DecodePNextStructGenerator,
-        DecodePNextStructGeneratorOptions(
-            filename='generated_vulkan_pnext_struct_decoder.cpp',
-            directory=directory,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
 
     #
     # Consumer generation

@@ -7328,6 +7328,7 @@ static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerati
 static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureCreateFlagsKHR>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureCreateFlagsKHR::kind>));
 static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureMemoryRequirementsTypeNV>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureMemoryRequirementsTypeNV::kind>));
 static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureMotionInfoFlagsNV>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureMotionInfoFlagsNV::kind>));
+static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceFlagsNV>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceFlagsNV::kind>));
 static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceTypeNV>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceTypeNV::kind>));
 static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureSerializedBlockTypeKHR>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureSerializedBlockTypeKHR::kind>));
 static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::VkAccelerationStructureTypeKHR>) == sizeof(format::EncodeTypeFor<schema::vulkan::api_types::VkAccelerationStructureTypeKHR::kind>));
@@ -7949,6 +7950,7 @@ static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAcceleration
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureCreateInfoNV>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureDeviceAddressInfoKHR>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureGeometryAabbsDataKHR>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureGeometryDataKHR>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureGeometryInstancesDataKHR>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureGeometryKHR>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureGeometryLinearSweptSpheresDataNV>);
@@ -7961,6 +7963,8 @@ static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAcceleratio
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureMatrixMotionInstanceNV>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureMemoryRequirementsInfoNV>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureMotionInfoNV>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceDataNV>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureMotionInstanceNV>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureSRTMotionInstanceNV>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureTrianglesDisplacementMicromapNV>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAccelerationStructureTrianglesOpacityMicromapEXT>);
@@ -7988,6 +7992,7 @@ static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAttachmentRe
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAttachmentReferenceStencilLayout>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkAttachmentSampleCountInfoAMD>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkAttachmentSampleLocationsEXT>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkBaseInStructure>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkBaseOutStructure>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkBeginCustomResolveInfoEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkBindAccelerationStructureMemoryInfoNV>);
@@ -8137,8 +8142,10 @@ static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorAd
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorBufferBindingInfoEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkDescriptorBufferInfo>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkDescriptorDataEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorGetInfoEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorGetTensorInfoARM>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkDescriptorImageInfo>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorPoolCreateInfo>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkDescriptorPoolInlineUniformBlockCreateInfo>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkDescriptorPoolSize>);
@@ -8359,8 +8366,10 @@ static_assert(schema::HasStructureType<schema::vulkan::api_types::VkIndirectComm
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkIndirectCommandsLayoutTokenNV>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkIndirectCommandsPushConstantTokenEXT>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkIndirectCommandsStreamNV>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkIndirectCommandsTokenDataEXT>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkIndirectCommandsVertexBufferTokenEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkIndirectExecutionSetCreateInfoEXT>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkIndirectExecutionSetInfoEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkIndirectExecutionSetPipelineInfoEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkIndirectExecutionSetShaderInfoEXT>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkIndirectExecutionSetShaderLayoutInfoEXT>);
@@ -8455,6 +8464,7 @@ static_assert(schema::HasStructureType<schema::vulkan::api_types::VkPerformanceM
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkPerformanceOverrideInfoINTEL>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkPerformanceQuerySubmitInfoKHR>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkPerformanceStreamMarkerInfoINTEL>);
+static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkPerformanceValueDataINTEL>);
 static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkPerformanceValueINTEL>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkPhysicalDevice16BitStorageFeatures>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkPhysicalDevice4444FormatsFeaturesEXT>);
@@ -9244,10 +9254,15 @@ static_assert(!schema::HasStructureType<schema::vulkan::api_types::VkXYColorEXT>
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkXcbSurfaceCreateInfoKHR>);
 static_assert(schema::HasStructureType<schema::vulkan::api_types::VkXlibSurfaceCreateInfoKHR>);
 
-// The catalog lists are counted here from the registry by the generator.
-static_assert(util::TypeListSizeV<schema::vulkan::catalog::structures> == 1367);
+// The sizes the generator counted, then the relation checked arithmetically.
+constexpr size_t kStructuresCount = util::TypeListSizeV<schema::vulkan::catalog::structures>;
+static_assert(kStructuresCount == 1376);
 static_assert(util::TypeListSizeV<schema::vulkan::catalog::extensible_structures> == 1144);
-static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copy_exclusions> == 9);
+constexpr size_t kNonDecodableCount = util::TypeListSizeV<schema::vulkan::catalog::non_decodable_structures>;
+static_assert(kNonDecodableCount == 2);
+constexpr size_t kDecodableCount = util::TypeListSizeV<schema::vulkan::catalog::decodable_structures>;
+static_assert(kDecodableCount == (kStructuresCount - kNonDecodableCount));
+static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copy_exclusions> == 10);
 static_assert(util::TypeListSizeV<schema::vulkan::catalog::deep_copyable_structures> == 1136);
 
 // Every enumerated type's descriptor names its table, and every one but a 64-bit flag-bits type is bound to

@@ -86,6 +86,8 @@ const T* GetPNextMetaStruct(const PNextNode* pnext)
     return nullptr;
 }
 
+size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
