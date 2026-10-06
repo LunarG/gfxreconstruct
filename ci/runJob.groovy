@@ -75,6 +75,34 @@ def checkoutManual(String projectRepo, String projectBranch) {
     }
 }
 
+def runGfxrScripts(
+    List<String> scripts,
+    String buildMode,
+    String resultsDir,
+    String testSuite = '',
+    String projectRepo = '',
+    String projectCommit = ''
+) {
+    withEnv([
+        "PROJECT_REPO=${projectRepo}",
+        "PROJECT_COMMIT=${projectCommit}",
+        "TEST_REPO=git@github.com:LunarG/VulkanTests",
+        "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+        "TEST_SUITE=${testSuite}",
+        "BITS=64",
+        "BUILD_MODE=${buildMode}",
+        "RESULTS_DIR=${resultsDir}"
+    ]) {
+        scripts.each { script ->
+            if (isUnix()) {
+                sh(script: script)
+            } else {
+                bat(script: script)
+            }
+        }
+    }
+}
+
 def gfxrBuildWindows(
     String label,
     def branches,
@@ -102,40 +130,40 @@ def gfxrBuildWindows(
                             // to the outer try/catch (which would abort 'parallel builds'
                             // before the Jenkinsfile ever builds the 'tests' map).
                             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                withEnv([
-                                    "BITS=64",
-                                    "BUILD_MODE=${buildMode}",
-                                    "RESULTS_DIR=../vulkantest-results/Windows-Build-Log-${buildMode}"
-                                ]) {
-                                    bat(script: 'git submodule update --init --recursive --depth 1')
-                                    bat(script: 'git describe --tags --always')
-                                    bat(script: 'ci/buildGfxr.bat')
-                                }
+                                runGfxrScripts(
+                                    [
+                                        'git submodule update --init --recursive --depth 1',
+                                        'git describe --tags --always',
+                                        'ci/buildGfxr.bat'
+                                    ],
+                                    buildMode,
+                                    "../vulkantest-results/Windows-Build-Log-${buildMode}"
+                                )
                                 def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
-                                stash name: "gfxr-windows-${buildMode}",
-                                    allowEmpty: false,
-                                    includes: [
-                                        "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
-                                        "${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
-                                        "${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
-                                        "${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
-                                        "${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
-                                        "${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
-                                        "${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
-                                        "${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
-                                        "${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
-                                        "${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
-                                        "${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
-                                        "${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
-                                        "${buildDir}/tools/optimize/${buildMode}/D3D12/**",
-                                        "${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
-                                        "${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
-                                        "${buildDir}/tools/replay/${buildMode}/D3D12/**",
-                                        "../vulkantest-results/**",
-                                    ].join(',')
+                                dir('..') {
+                                    stash name: "gfxr-windows-${buildMode}",
+                                        allowEmpty: false,
+                                        includes: [
+                                            "gfxreconstruct/${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
+                                            "gfxreconstruct/${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
+                                            "gfxreconstruct/${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
+                                            "gfxreconstruct/${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
+                                            "gfxreconstruct/${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
+                                            "gfxreconstruct/${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
+                                            "gfxreconstruct/${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
+                                            "gfxreconstruct/${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
+                                            "gfxreconstruct/${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
+                                            "gfxreconstruct/${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/${buildMode}/D3D12/**",
+                                            "gfxreconstruct/${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
+                                            "gfxreconstruct/${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
+                                            "gfxreconstruct/${buildDir}/tools/replay/${buildMode}/D3D12/**",
+                                            "vulkantest-results/**",
+                                        ].join(',')
+                                }
                             }
-
-                            // Probably need to stash/archive vulkantest-results for the build
                         }
                     }
                 }
@@ -175,20 +203,20 @@ def gfxrTestWindows(
                         // throw here. Let it share the same containment as the rest of the run
                         // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            unstash "gfxr-windows-${buildMode}"
-
-                            withEnv([
-                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                                "TEST_SUITE=${testSuite}",
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/${name}"
-                            ]) {
-                                bat(script: 'ci/cloneTests.bat')
-                                bat(script: 'ci/cloneSuites.bat')
-                                bat(script: 'ci/runTest.bat')
+                            dir('..') {
+                                unstash "gfxr-windows-${buildMode}"
                             }
+
+                            runGfxrScripts(
+                                [
+                                    'ci/cloneTests.bat',
+                                    'ci/cloneSuites.bat',
+                                    'ci/runTest.bat'
+                                ],
+                                buildMode,
+                                "../vulkantest-results/${name}",
+                                testSuite
+                            )
                         }
                     }
                     // Nested the same way as the unstash above: when the upstream build
@@ -255,33 +283,33 @@ def gfxrBuildLinux(
                             // to the outer try/catch (which would abort 'parallel builds'
                             // before the Jenkinsfile ever builds the 'tests' map).
                             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                withEnv([
-                                    "BITS=64",
-                                    "BUILD_MODE=${buildMode}",
-                                    "RESULTS_DIR=../vulkantest-results/Linux-Build-Log-${buildMode}"
-                                ]) {
-                                    sh(script: 'git submodule update --init --recursive --depth 1')
-                                    sh(script: 'git describe --tags --always')
-                                    sh(script: 'sh ci/buildGfxr.sh')
-                                }
+                                runGfxrScripts(
+                                    [
+                                        'git submodule update --init --recursive --depth 1',
+                                        'git describe --tags --always',
+                                        'sh ci/buildGfxr.sh'
+                                    ],
+                                    buildMode,
+                                    "../vulkantest-results/Linux-Build-Log-${buildMode}"
+                                )
                                 def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
-                                stash name: "gfxr-linux-${buildMode}",
-                                    allowEmpty: false,
-                                    includes: [
-                                        "${buildDir}/layer/libVkLayer_gfxreconstruct.so",
-                                        "${buildDir}/layer/VkLayer_gfxreconstruct.json",
-                                        "${buildDir}/tools/compress/gfxrecon-compress",
-                                        "${buildDir}/tools/convert/gfxrecon-convert",
-                                        "${buildDir}/tools/extract/gfxrecon-extract",
-                                        "${buildDir}/tools/info/gfxrecon-info",
-                                        "${buildDir}/tools/tocpp/gfxrecon-tocpp",
-                                        "${buildDir}/tools/optimize/gfxrecon-optimize",
-                                        "${buildDir}/tools/replay/gfxrecon-replay",
-                                        "../vulkantest-results/**",
-                                    ].join(',')
+                                dir('..') {
+                                    stash name: "gfxr-linux-${buildMode}",
+                                        allowEmpty: false,
+                                        includes: [
+                                            "gfxreconstruct/${buildDir}/layer/libVkLayer_gfxreconstruct.so",
+                                            "gfxreconstruct/${buildDir}/layer/VkLayer_gfxreconstruct.json",
+                                            "gfxreconstruct/${buildDir}/tools/compress/gfxrecon-compress",
+                                            "gfxreconstruct/${buildDir}/tools/convert/gfxrecon-convert",
+                                            "gfxreconstruct/${buildDir}/tools/extract/gfxrecon-extract",
+                                            "gfxreconstruct/${buildDir}/tools/info/gfxrecon-info",
+                                            "gfxreconstruct/${buildDir}/tools/tocpp/gfxrecon-tocpp",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/gfxrecon-optimize",
+                                            "gfxreconstruct/${buildDir}/tools/replay/gfxrecon-replay",
+                                            "vulkantest-results/**",
+                                        ].join(',')
+                                }
                             }
-
-                            // Probably need to stash/archive vulkantest-results for the build
                         }
                     }
                 }
@@ -319,22 +347,22 @@ def gfxrTestLinux(
                         // throw here. Let it share the same containment as the rest of the run
                         // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            unstash "gfxr-linux-${buildMode}"
-
-                            withEnv([
-                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${projectCommit}",
-                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                                "TEST_SUITE=${testSuite}",
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/${name}"
-                            ]) {
-                                sh(script: 'ci/cloneTests.sh')
-                                sh(script: 'ci/cloneSuites.sh')
-                                sh(script: 'ci/runTest.sh')
+                            dir('..') {
+                                unstash "gfxr-linux-${buildMode}"
                             }
+
+                            runGfxrScripts(
+                                [
+                                    'ci/cloneTests.sh',
+                                    'ci/cloneSuites.sh',
+                                    'ci/runTest.sh'
+                                ],
+                                buildMode,
+                                "../vulkantest-results/${name}",
+                                testSuite,
+                                scm.userRemoteConfigs.first().url,
+                                projectCommit
+                            )
                         }
                     }
                     // Nested the same way as the unstash above: when the upstream build
@@ -399,33 +427,33 @@ def gfxrBuildAndroid(
                             // to the outer try/catch (which would abort 'parallel builds'
                             // before the Jenkinsfile ever builds the 'tests' map).
                             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                withEnv([
-                                    "BITS=64",
-                                    "BUILD_MODE=${buildMode}",
-                                    "RESULTS_DIR=../vulkantest-results/Android-Build-Log-${buildMode}"
-                                ]) {
-                                    sh(script: 'git submodule update --init --recursive --depth 1')
-                                    sh(script: 'git describe --tags --always')
-                                    sh(script: 'sh ci/buildGfxrAndroid.sh')
-                                }
+                                runGfxrScripts(
+                                    [
+                                        'git submodule update --init --recursive --depth 1',
+                                        'git describe --tags --always',
+                                        'sh ci/buildGfxrAndroid.sh'
+                                    ],
+                                    buildMode,
+                                    "../vulkantest-results/Android-Build-Log-${buildMode}"
+                                )
                                 def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
-                                stash name: "gfxr-android-${buildMode}",
-                                    allowEmpty: false,
-                                    includes: [
-                                        "${buildDir}/layer/libVkLayer_gfxreconstruct.so",
-                                        "${buildDir}/layer/VkLayer_gfxreconstruct.json",
-                                        "${buildDir}/tools/compress/gfxrecon-compress",
-                                        "${buildDir}/tools/convert/gfxrecon-convert",
-                                        "${buildDir}/tools/extract/gfxrecon-extract",
-                                        "${buildDir}/tools/info/gfxrecon-info",
-                                        "${buildDir}/tools/tocpp/gfxrecon-tocpp",
-                                        "${buildDir}/tools/optimize/gfxrecon-optimize",
-                                        "${buildDir}/tools/replay/gfxrecon-replay",
-                                        "../vulkantest-results/**",
-                                    ].join(',')
+                                dir('..') {
+                                    stash name: "gfxr-android-${buildMode}",
+                                        allowEmpty: false,
+                                        includes: [
+                                            "gfxreconstruct/${buildDir}/layer/libVkLayer_gfxreconstruct.so",
+                                            "gfxreconstruct/${buildDir}/layer/VkLayer_gfxreconstruct.json",
+                                            "gfxreconstruct/${buildDir}/tools/compress/gfxrecon-compress",
+                                            "gfxreconstruct/${buildDir}/tools/convert/gfxrecon-convert",
+                                            "gfxreconstruct/${buildDir}/tools/extract/gfxrecon-extract",
+                                            "gfxreconstruct/${buildDir}/tools/info/gfxrecon-info",
+                                            "gfxreconstruct/${buildDir}/tools/tocpp/gfxrecon-tocpp",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/gfxrecon-optimize",
+                                            "gfxreconstruct/${buildDir}/tools/replay/gfxrecon-replay",
+                                            "vulkantest-results/**",
+                                        ].join(',')
+                                }
                             }
-
-                            // Probably need to stash/archive vulkantest-results for the build
                         }
                     }
                 }
@@ -463,22 +491,22 @@ def gfxrTestAndroid(
                         // throw here. Let it share the same containment as the rest of the run
                         // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            unstash "gfxr-android-${buildMode}"
-
-                            withEnv([
-                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${projectCommit}",
-                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                                "TEST_SUITE=${testSuite}",
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/${name}"
-                            ]) {
-                                sh(script: 'ci/cloneTests.sh')
-                                sh(script: 'ci/cloneSuites.sh')
-                                sh(script: 'ci/runTestAndroid.sh')
+                            dir('..') {
+                                unstash "gfxr-android-${buildMode}"
                             }
+
+                            runGfxrScripts(
+                                [
+                                    'ci/cloneTests.sh',
+                                    'ci/cloneSuites.sh',
+                                    'ci/runTestAndroid.sh'
+                                ],
+                                buildMode,
+                                "../vulkantest-results/${name}",
+                                testSuite,
+                                scm.userRemoteConfigs.first().url,
+                                projectCommit
+                            )
                         }
                     }
                     // Nested the same way as the unstash above: when the upstream build
