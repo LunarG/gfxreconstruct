@@ -121,6 +121,12 @@ class FileProcessor
     // occurred.  Use GetErrorState() to determine error condition.
     virtual bool ProcessNextFrame();
 
+    /// Processes the pre-frame blocks and frame 0, plus frame 1 when the file does not declare frame markers.
+    /// This is enough to read the capture metadata and detect the frame delimiter type.
+    ///
+    /// Returns false if processing failed. Use `GetErrorState()` to determine error condition.
+    bool ProcessCaptureStart();
+
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 

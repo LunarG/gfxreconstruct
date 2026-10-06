@@ -208,6 +208,25 @@ bool FileProcessor::ProcessNextFrameSync()
     return ContinueProcessing(process_result);
 }
 
+bool FileProcessor::ProcessCaptureStart()
+{
+    // ProcessPreFrame() consumes the blocks that come before frame 0.
+    bool success = ProcessPreFrame();
+    if (success)
+    {
+        // Then processes frame 0.
+        success = ProcessNextFrame();
+    }
+    if (success && !UsesFrameMarkers())
+    {
+        // A format 0.0 file can use explicit frame markers without declaring them.
+        // Its frame 0 ends at the present call, so one more call is needed to read
+        // the frame end marker that sets UsesFrameMarkers().
+        success = ProcessNextFrame();
+    }
+    return success;
+}
+
 bool FileProcessor::ProcessAllFrames()
 {
     if (!frame_processing_initialized_)
