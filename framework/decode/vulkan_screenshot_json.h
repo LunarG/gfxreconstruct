@@ -144,6 +144,14 @@ class VulkanScreenshotJson
                                              size_t           attachment_index,
                                              format::HandleId image_view_id) const;
 
+    // Describes one attachment of a vkCmdBeginRendering rendered by a frame boundary command buffer. attachment_kind
+    // is "color", "depth" or "stencil"; attachment_index is the position among the color attachments.
+    OutputSource DynamicRenderingAttachmentSource(format::HandleId      image_id,
+                                                  size_t                rendering_index,
+                                                  const char*           attachment_kind,
+                                                  std::optional<size_t> attachment_index,
+                                                  format::HandleId      image_view_id) const;
+
     // Describes one swapchain of a present, with everything from VkPresentInfoKHR and its pNext chain that applies
     // to that swapchain, plus what replay knows about the surface.
     OutputSource SwapchainSource(const char*                     source_kind,

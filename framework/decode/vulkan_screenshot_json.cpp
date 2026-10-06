@@ -442,6 +442,32 @@ VulkanScreenshotJson::FramebufferAttachmentSource(format::HandleId image_id,
     return output_source;
 }
 
+VulkanScreenshotJson::OutputSource
+VulkanScreenshotJson::DynamicRenderingAttachmentSource(format::HandleId      image_id,
+                                                       size_t                rendering_index,
+                                                       const char*           attachment_kind,
+                                                       std::optional<size_t> attachment_index,
+                                                       format::HandleId      image_view_id) const
+{
+    OutputSource output_source = ImageSource("dynamicRenderingAttachment", image_id);
+
+    if (!frame_open_)
+    {
+        return output_source;
+    }
+
+    auto& source             = output_source.source;
+    source["renderingIndex"] = rendering_index;
+    source["attachment"]     = attachment_kind;
+    if (attachment_index)
+    {
+        source["attachmentIndex"] = attachment_index.value();
+    }
+    source["imageViewId"] = image_view_id;
+
+    return output_source;
+}
+
 VulkanScreenshotJson::OutputSource VulkanScreenshotJson::SwapchainSource(const char*                     source_kind,
                                                                          format::HandleId                image_id,
                                                                          const Decoded_VkPresentInfoKHR* meta_info,

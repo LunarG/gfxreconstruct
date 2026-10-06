@@ -2910,17 +2910,24 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                 instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
             }
 
-            if (command_buffer_info->frame_buffer_ids.empty())
+            const auto& frame_buffer_ids   = command_buffer_info->render_pass_contexts.frame_buffer_ids;
+            const auto& rendering_contexts = command_buffer_info->dynamic_rendering_contexts;
+
+            if (frame_buffer_ids.empty() && rendering_contexts.empty())
             {
-                screenshot_json_->SkipFrame(screenshot_reason::kNoFramebuffers,
-                                            "The frame boundary command buffer rendered to no framebuffer",
-                                            false);
+                screenshot_json_->SkipFrame(
+                    screenshot_reason::kNoFramebuffers,
+                    "The frame boundary command buffer rendered to no framebuffer or dynamic rendering attachment",
+                    false);
             }
 
-            for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
+            const std::string filename_base = screenshot_controller_->FilenameFor();
+
+            // Attachments of the framebuffers bound by vkCmdBeginRenderPass.
+            for (size_t i = 0; i < frame_buffer_ids.size(); ++i)
             {
-                auto framebuffer_info =
-                    object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+                const format::HandleId framebuffer_id   = frame_buffer_ids[i];
+                auto                   framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
                 if (framebuffer_info == nullptr)
                 {
                     screenshot_json_->SkipOutput(
@@ -2928,99 +2935,86 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                         nullptr,
                         0,
                         screenshot_reason::kUnknownFramebuffer,
-                        "Framebuffer " + std::to_string(command_buffer_info->frame_buffer_ids[i]) + " (render pass " +
-                            std::to_string(i) + ") is not known to replay",
+                        "Framebuffer " + std::to_string(framebuffer_id) + " (render pass " + std::to_string(i) +
+                            ") is not known to replay",
                         true);
                     continue;
                 }
 
                 for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
                 {
-                    auto                   image_view_id   = framebuffer_info->attachment_image_view_ids[j];
-                    auto                   image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-                    const format::HandleId image_id =
-                        (image_view_info != nullptr) ? image_view_info->image_id : format::kNullHandleId;
-                    auto image_info =
-                        (image_view_info != nullptr) ? object_info_table_->GetVkImageInfo(image_id) : nullptr;
+                    const format::HandleId image_view_id = framebuffer_info->attachment_image_view_ids[j];
 
-                    const auto json_source = screenshot_json_->FramebufferAttachmentSource(
-                        image_id, command_buffer_info->frame_buffer_ids[i], i, j, image_view_id);
+                    WriteFrameBoundaryAttachmentScreenshot(
+                        device_info,
+                        memory_properties,
+                        image_view_id,
+                        [&](format::HandleId image_id) {
+                            return screenshot_json_->FramebufferAttachmentSource(
+                                image_id, framebuffer_id, i, j, image_view_id);
+                        },
+                        "Attachment " + std::to_string(j) + " of framebuffer " + std::to_string(framebuffer_id),
+                        filename_base + "_renderpass_" + std::to_string(i) + "_attachment_" + std::to_string(j));
+                }
+            }
 
-                    if (image_info == nullptr)
+            // Attachments of vkCmdBeginRendering, which has no framebuffer. Every attachment is checked for color
+            // attachment usage, as a framebuffer's are.
+            for (size_t i = 0; i < rendering_contexts.size(); ++i)
+            {
+                const auto&       context          = rendering_contexts[i];
+                const std::string rendering_name   = " of dynamic rendering " + std::to_string(i);
+                const std::string rendering_prefix = filename_base + "_rendering_" + std::to_string(i);
+
+                for (size_t j = 0; j < context.color_attachment_ids.size(); ++j)
+                {
+                    const format::HandleId image_view_id = context.color_attachment_ids[j];
+
+                    // A null image view is an unused color attachment slot.
+                    if (image_view_id == format::kNullHandleId)
                     {
-                        screenshot_json_->SkipOutput(json_source,
-                                                     nullptr,
-                                                     0,
-                                                     screenshot_reason::kUnknownImage,
-                                                     "Attachment " + std::to_string(j) + " of framebuffer " +
-                                                         std::to_string(command_buffer_info->frame_buffer_ids[i]) +
-                                                         ((image_view_info == nullptr)
-                                                              ? ": image view " + std::to_string(image_view_id)
-                                                              : ": image " + std::to_string(image_id)) +
-                                                         " is not known to replay",
-                                                     true);
                         continue;
                     }
 
-                    const VulkanScreenshotJson::OutputImage json_output_image{ image_info->format,
-                                                                               image_info->extent.width,
-                                                                               image_info->extent.height,
-                                                                               VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };
+                    WriteFrameBoundaryAttachmentScreenshot(
+                        device_info,
+                        memory_properties,
+                        image_view_id,
+                        [&](format::HandleId image_id) {
+                            return screenshot_json_->DynamicRenderingAttachmentSource(
+                                image_id, i, "color", j, image_view_id);
+                        },
+                        "Color attachment " + std::to_string(j) + rendering_name,
+                        rendering_prefix + "_attachment_" + std::to_string(j));
+                }
 
-                    // Only screenshot images that are color attachments.
-                    if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+                struct
+                {
+                    const char*      kind;
+                    const char*      name;
+                    format::HandleId image_view_id;
+                } const depth_stencil_attachments[] = {
+                    { "depth", "Depth attachment", context.depth_attachment },
+                    { "stencil", "Stencil attachment", context.stencil_attachment }
+                };
+
+                for (const auto& attachment : depth_stencil_attachments)
+                {
+                    if (attachment.image_view_id == format::kNullHandleId)
                     {
-                        screenshot_json_->SkipOutput(json_source,
-                                                     &json_output_image,
-                                                     0,
-                                                     screenshot_reason::kNotColorAttachment,
-                                                     "Attachment " + std::to_string(j) + " of framebuffer " +
-                                                         std::to_string(command_buffer_info->frame_buffer_ids[i]) +
-                                                         " is not a color attachment",
-                                                     false);
                         continue;
                     }
 
-                    std::string filename_prefix = screenshot_controller_->FilenameFor();
-
-                    if (command_buffer_info->frame_buffer_ids.size() > 0)
-                    {
-                        filename_prefix += "_renderpass_";
-                        filename_prefix += std::to_string(i);
-                    }
-
-                    if (framebuffer_info->attachment_image_view_ids.size() > 0)
-                    {
-                        filename_prefix += "_attachment_";
-                        filename_prefix += std::to_string(j);
-                    }
-
-                    ScreenshotRequest request;
-                    request.width  = image_info->extent.width;
-                    request.height = image_info->extent.height;
-                    request.scale =
-                        screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
-                    request.filename_base = filename_prefix;
-
-                    const VkImageLayout image_layout =
-                        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
-
-                    VulkanScreenshotSource::Image source_image;
-                    source_image.handle             = image_info->handle;
-                    source_image.format             = image_info->format;
-                    source_image.type               = image_info->type;
-                    source_image.tiling             = image_info->tiling;
-                    source_image.sample_count       = image_info->sample_count;
-                    source_image.layer_layouts      = { image_layout };
-                    source_image.queue_family_index = image_info->queue_family_index;
-
-                    VulkanScreenshotSource source(device_info,
-                                                  GetInjectedDeviceCalls(device_info->handle),
-                                                  GetInstanceTable(device_info->parent),
-                                                  memory_properties,
-                                                  source_image);
-
-                    WriteScreenshotOutput(source, request, json_output_image, json_source);
+                    WriteFrameBoundaryAttachmentScreenshot(
+                        device_info,
+                        memory_properties,
+                        attachment.image_view_id,
+                        [&](format::HandleId image_id) {
+                            return screenshot_json_->DynamicRenderingAttachmentSource(
+                                image_id, i, attachment.kind, std::nullopt, attachment.image_view_id);
+                        },
+                        attachment.name + rendering_name,
+                        rendering_prefix + "_" + attachment.kind);
                 }
             }
         }
@@ -3029,6 +3023,79 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
         return true;
     }
     return false;
+}
+
+void VulkanReplayConsumerBase::WriteFrameBoundaryAttachmentScreenshot(
+    const VulkanDeviceInfo*                                                             device_info,
+    const VkPhysicalDeviceMemoryProperties&                                             memory_properties,
+    format::HandleId                                                                    image_view_id,
+    const std::function<VulkanScreenshotJson::OutputSource(format::HandleId image_id)>& make_json_source,
+    const std::string&                                                                  attachment_name,
+    const std::string&                                                                  filename_prefix)
+{
+    GFXRECON_ASSERT((device_info != nullptr) && (screenshot_controller_ != nullptr) && (screenshot_json_ != nullptr));
+
+    const auto             image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+    const format::HandleId image_id = (image_view_info != nullptr) ? image_view_info->image_id : format::kNullHandleId;
+    const auto image_info = (image_view_info != nullptr) ? object_info_table_->GetVkImageInfo(image_id) : nullptr;
+
+    const auto json_source = make_json_source(image_id);
+
+    if (image_info == nullptr)
+    {
+        screenshot_json_->SkipOutput(json_source,
+                                     nullptr,
+                                     0,
+                                     screenshot_reason::kUnknownImage,
+                                     attachment_name +
+                                         ((image_view_info == nullptr) ? ": image view " + std::to_string(image_view_id)
+                                                                       : ": image " + std::to_string(image_id)) +
+                                         " is not known to replay",
+                                     true);
+        return;
+    }
+
+    const VulkanScreenshotJson::OutputImage json_output_image{
+        image_info->format, image_info->extent.width, image_info->extent.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+    };
+
+    // Only screenshot images that are color attachments.
+    if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+    {
+        screenshot_json_->SkipOutput(json_source,
+                                     &json_output_image,
+                                     0,
+                                     screenshot_reason::kNotColorAttachment,
+                                     attachment_name + " is not a color attachment",
+                                     false);
+        return;
+    }
+
+    ScreenshotRequest request;
+    request.width         = image_info->extent.width;
+    request.height        = image_info->extent.height;
+    request.scale         = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+    request.filename_base = filename_prefix;
+
+    const VkImageLayout image_layout =
+        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+
+    VulkanScreenshotSource::Image source_image;
+    source_image.handle             = image_info->handle;
+    source_image.format             = image_info->format;
+    source_image.type               = image_info->type;
+    source_image.tiling             = image_info->tiling;
+    source_image.sample_count       = image_info->sample_count;
+    source_image.layer_layouts      = { image_layout };
+    source_image.queue_family_index = image_info->queue_family_index;
+
+    VulkanScreenshotSource source(device_info,
+                                  GetInjectedDeviceCalls(device_info->handle),
+                                  GetInstanceTable(device_info->parent),
+                                  memory_properties,
+                                  source_image);
+
+    WriteScreenshotOutput(source, request, json_output_image, json_source);
 }
 
 bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
@@ -11503,10 +11570,8 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr)
     command_buffer_info->is_frame_boundary = false;
-    command_buffer_info->frame_buffer_ids.clear();
-    command_buffer_info->active_render_pass_id = format::kNullHandleId;
-    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.Reset();
+    command_buffer_info->dynamic_rendering_contexts.clear();
     command_buffer_info->image_layout_barriers.clear();
     command_buffer_info->bound_pipelines.clear();
     command_buffer_info->push_constant_data.clear();
@@ -11901,17 +11966,17 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
-    command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
-    command_buffer_info->active_framebuffer_id = framebuffer_id;
-    command_buffer_info->active_render_pass_id = render_pass_id;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = framebuffer_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_id = render_pass_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        command_buffer_info->active_render_pass_attachment_image_view_ids =
+        command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids =
             GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
@@ -11937,17 +12002,17 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
-    command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
-    command_buffer_info->active_framebuffer_id = framebuffer_id;
-    command_buffer_info->active_render_pass_id = render_pass_id;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = framebuffer_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_id = render_pass_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        command_buffer_info->active_render_pass_attachment_image_view_ids =
+        command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids =
             GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
@@ -11959,13 +12024,15 @@ void VulkanReplayConsumerBase::UpdateTrackedRenderPassFinalLayouts(VulkanCommand
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
 
-    const auto& attachment_image_view_ids = command_buffer_info->active_render_pass_attachment_image_view_ids;
+    const auto& attachment_image_view_ids =
+        command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids;
     if (attachment_image_view_ids.empty())
     {
         return;
     }
 
-    auto render_pass_info = object_info_table_->GetVkRenderPassInfo(command_buffer_info->active_render_pass_id);
+    auto render_pass_info =
+        object_info_table_->GetVkRenderPassInfo(command_buffer_info->render_pass_contexts.active_render_pass_id);
     if (render_pass_info == nullptr)
     {
         return;
@@ -12147,9 +12214,9 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass  
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     func(command_buffer_info->handle);
     UpdateTrackedRenderPassFinalLayouts(command_buffer_info);
-    command_buffer_info->active_render_pass_id = format::kNullHandleId;
-    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
 
     if (options_.isolate_render_passes)
@@ -12167,9 +12234,9 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     func(command_buffer_info->handle, pSubpassEndInfo->GetPointer());
     UpdateTrackedRenderPassFinalLayouts(command_buffer_info);
-    command_buffer_info->active_render_pass_id = format::kNullHandleId;
-    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
 
     if (options_.isolate_render_passes)
@@ -12190,6 +12257,47 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
         GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
+    }
+
+    const VkRenderingInfo*         rendering_info      = rendering_info_decoder->GetPointer();
+    const Decoded_VkRenderingInfo* rendering_info_meta = rendering_info_decoder->GetMetaStructPointer();
+    if ((rendering_info != nullptr) && (rendering_info_meta != nullptr))
+    {
+        VulkanCommandBufferInfo::DynamicRenderingContext context;
+
+        if ((rendering_info->pColorAttachments != nullptr) && (rendering_info_meta->pColorAttachments != nullptr))
+        {
+            const Decoded_VkRenderingAttachmentInfo* color_meta =
+                rendering_info_meta->pColorAttachments->GetMetaStructPointer();
+            const size_t color_count = std::min(static_cast<size_t>(rendering_info->colorAttachmentCount),
+                                                rendering_info_meta->pColorAttachments->GetLength());
+            for (size_t i = 0; (color_meta != nullptr) && (i < color_count); ++i)
+            {
+                context.color_attachment_ids.push_back(color_meta[i].imageView);
+            }
+        }
+
+        if ((rendering_info->pDepthAttachment != nullptr) && (rendering_info_meta->pDepthAttachment != nullptr))
+        {
+            const Decoded_VkRenderingAttachmentInfo* depth_meta =
+                rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
+            if (depth_meta != nullptr)
+            {
+                context.depth_attachment = depth_meta->imageView;
+            }
+        }
+
+        if ((rendering_info->pStencilAttachment != nullptr) && (rendering_info_meta->pStencilAttachment != nullptr))
+        {
+            const Decoded_VkRenderingAttachmentInfo* stencil_meta =
+                rendering_info_meta->pStencilAttachment->GetMetaStructPointer();
+            if (stencil_meta != nullptr)
+            {
+                context.stencil_attachment = stencil_meta->imageView;
+            }
+        }
+
+        command_buffer_info->dynamic_rendering_contexts.push_back(std::move(context));
     }
 
     MaybeInjectExecutionBarrier(command_buffer_info);

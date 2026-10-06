@@ -2104,6 +2104,23 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                 const VulkanQueueInfo*         queue_info,
                                                 VkResult                       original_result,
                                                 VkResult                       replay_result);
+
+    /**
+     * @brief Screenshots one attachment a frame boundary command buffer rendered to, or records in the screenshot
+     *        JSON why it was skipped. Only images usable as color attachments are written.
+     *
+     * @param image_view_id     The attachment's image view.
+     * @param make_json_source  Builds the output's JSON source once the image behind the view is known.
+     * @param attachment_name   Names the attachment in messages, e.g. "Attachment 1 of framebuffer 42".
+     * @param filename_prefix   The file name to write, without the extension.
+     */
+    void WriteFrameBoundaryAttachmentScreenshot(
+        const VulkanDeviceInfo*                                                             device_info,
+        const VkPhysicalDeviceMemoryProperties&                                             memory_properties,
+        format::HandleId                                                                    image_view_id,
+        const std::function<VulkanScreenshotJson::OutputSource(format::HandleId image_id)>& make_json_source,
+        const std::string&                                                                  attachment_name,
+        const std::string&                                                                  filename_prefix);
     bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
                                          const PNextNode*        pnext,
                                          const char*             call_name,
