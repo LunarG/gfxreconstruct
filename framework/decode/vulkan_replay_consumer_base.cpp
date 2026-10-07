@@ -11704,7 +11704,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
 
     VkResult result = func(command_buffer, flags);
 
-    if (options_.isolate_render_passes)
+    if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
     {
         auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
         GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(command_buffer_info);
