@@ -640,12 +640,17 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_OMSetRend
     StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
     auto& cmd_list_info = command_list_infos_[object_id];
-    if (!pRenderTargetDescriptors->IsNull() && NumRenderTargetDescriptors > 0)
+    if (!pDepthStencilDescriptor->IsNull())
     {
-        if (!pDepthStencilDescriptor->IsNull())
-        {
-            cmd_list_info.dsv_descriptor = *pDepthStencilDescriptor->GetMetaStructPointer();
-        }
+        cmd_list_info.dsv_descriptor = *pDepthStencilDescriptor->GetMetaStructPointer();
+    }
+
+    if (pRenderTargetDescriptors->IsNull() || NumRenderTargetDescriptors == 0)
+    {
+        cmd_list_info.rtv_descriptors.clear();
+    }
+    else
+    {
         cmd_list_info.rtv_descriptors.resize(NumRenderTargetDescriptors);
         if (RTsSingleHandleToDescriptorRange)
         {
