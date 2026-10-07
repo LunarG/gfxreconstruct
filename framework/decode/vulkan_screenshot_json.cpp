@@ -91,6 +91,10 @@ VulkanScreenshotJson::VulkanScreenshotJson(const ReplayOptions& options, const S
     {
         GFXRECON_LOG_WARNING("Screenshot results will not be recorded: could not open %s", filename.c_str());
     }
+    else
+    {
+        GFXRECON_LOG_INFO("Writing screenshot results to %s", filename.c_str());
+    }
 }
 
 VulkanScreenshotJson::~VulkanScreenshotJson()

@@ -111,14 +111,14 @@ std::string ScreenshotController::FilenameFor(uint32_t index, uint32_t count) co
     return filename;
 }
 
-std::string ScreenshotController::LayerFilename(const ScreenshotRequest& request, uint32_t layer)
+std::string ScreenshotController::LayerFilename(const std::string& filename_base, uint32_t layer_count, uint32_t layer)
 {
-    if (request.layer_count <= 1)
+    if (layer_count <= 1)
     {
-        return request.filename_base;
+        return filename_base;
     }
 
-    return request.filename_base + "_layer_" + std::to_string(layer);
+    return filename_base + "_layer_" + std::to_string(layer);
 }
 
 std::optional<std::array<float, 2>> ScreenshotController::ResolveScale(uint32_t width, uint32_t height) const

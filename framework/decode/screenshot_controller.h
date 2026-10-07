@@ -80,7 +80,6 @@ struct ScreenshotRequest
     uint32_t                            layer_count{ 1 };
     std::optional<std::array<float, 2>> scale;    //!< From ScreenshotController::ResolveScale.
     Rotation                            rotation; //!< Applied by Finish, not by the read-back.
-    std::string                         filename_base;
 };
 
 /**
@@ -171,7 +170,7 @@ class ScreenshotController
      * the request's filename_base itself otherwise, so a single-layer image
      * keeps the name FilenameFor gave it.
      */
-    static std::string LayerFilename(const ScreenshotRequest& request, uint32_t layer);
+    static std::string LayerFilename(const std::string& filename_base, uint32_t layer_count, uint32_t layer);
 
     /**
      * @brief The scale to read an image of this size back at.

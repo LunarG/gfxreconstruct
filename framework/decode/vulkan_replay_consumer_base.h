@@ -2078,6 +2078,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool WriteScreenshotOutput(ScreenshotSource&                         source,
                                const ScreenshotRequest&                  request,
+                               const std::string&                        base_filename,
                                const VulkanScreenshotJson::OutputImage&  json_output_image,
                                const VulkanScreenshotJson::OutputSource& json_source);
 

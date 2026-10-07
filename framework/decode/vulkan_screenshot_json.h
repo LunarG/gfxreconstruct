@@ -178,6 +178,10 @@ class VulkanScreenshotJson
                     const std::string&  message,
                     bool                is_error);
 
+    void AddFrameMessage(const std::string&      code,
+                         const std::string&      message,
+                         std::optional<VkResult> vk_result = std::nullopt);
+
   private:
     bool Open(const std::string& filename);
 
@@ -198,8 +202,6 @@ class VulkanScreenshotJson
 
     // Writes the open frame's block and adds it to the counters.
     void CloseFrame();
-
-    void AddFrameMessage(const std::string& code, const std::string& message, std::optional<VkResult> vk_result);
 
     // Fills the "present" part of a swapchain's output. surface_extension and window_size are absent when replay has
     // no window.

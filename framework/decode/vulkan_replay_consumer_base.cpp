@@ -2613,6 +2613,7 @@ void VulkanReplayConsumerBase::EndScreenshotFrame(std::optional<VkResult> replay
 
 bool VulkanReplayConsumerBase::WriteScreenshotOutput(ScreenshotSource&                         source,
                                                      const ScreenshotRequest&                  request,
+                                                     const std::string&                        base_filename,
                                                      const VulkanScreenshotJson::OutputImage&  json_output_image,
                                                      const VulkanScreenshotJson::OutputSource& json_source)
 {
@@ -2642,7 +2643,10 @@ bool VulkanReplayConsumerBase::WriteScreenshotOutput(ScreenshotSource&          
 
         ScreenshotWriteResult result;
         if (screenshot_controller_->Finish(
-                ScreenshotController::LayerFilename(request, layer), cpu_image, request.rotation, &result))
+                ScreenshotController::LayerFilename(base_filename, request.layer_count, layer),
+                cpu_image,
+                request.rotation,
+                &result))
         {
             ++layers_written;
         }
@@ -2778,23 +2782,18 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     }
                     else
                     {
-                        screenshot_json_->SkipOutput(json_source,
-                                                     nullptr,
-                                                     0,
-                                                     screenshot_reason::kUnknownImage,
-                                                     "Present override image " +
-                                                         std::to_string(present_override_image_id_) +
-                                                         " is not known to replay",
-                                                     true);
+                        screenshot_json_->AddFrameMessage(
+                            screenshot_reason::kUnknownImage,
+                            "Present override image " + std::to_string(present_override_image_id_) +
+                                " is not known to replay. Falling back to swapchain images");
                     }
                 }
 
                 ScreenshotRequest request;
-                request.width         = image_width;
-                request.height        = image_height;
-                request.layer_count   = num_layers;
-                request.scale         = screenshot_controller_->ResolveScale(image_width, image_height);
-                request.filename_base = filename_prefix;
+                request.width       = image_width;
+                request.height      = image_height;
+                request.layer_count = num_layers;
+                request.scale       = screenshot_controller_->ResolveScale(image_width, image_height);
                 if (screenshot_controller_->ApplyPreRotation())
                 {
                     request.rotation = RotationForSurfaceTransform(swapchain_info->pre_transform);
@@ -2834,7 +2833,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                               memory_properties,
                                               source_image);
 
-                WriteScreenshotOutput(source, request, json_output_image, json_source);
+                WriteScreenshotOutput(source, request, filename_prefix, json_output_image, json_source);
             }
             else if (swapchain_info == nullptr)
             {
@@ -3072,10 +3071,9 @@ void VulkanReplayConsumerBase::WriteFrameBoundaryAttachmentScreenshot(
     }
 
     ScreenshotRequest request;
-    request.width         = image_info->extent.width;
-    request.height        = image_info->extent.height;
-    request.scale         = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
-    request.filename_base = filename_prefix;
+    request.width  = image_info->extent.width;
+    request.height = image_info->extent.height;
+    request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
 
     const VkImageLayout image_layout =
         image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
@@ -3095,7 +3093,7 @@ void VulkanReplayConsumerBase::WriteFrameBoundaryAttachmentScreenshot(
                                   memory_properties,
                                   source_image);
 
-    WriteScreenshotOutput(source, request, json_output_image, json_source);
+    WriteScreenshotOutput(source, request, filename_prefix, json_output_image, json_source);
 }
 
 bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
@@ -3169,7 +3167,6 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
             request.width  = image_info->extent.width;
             request.height = image_info->extent.height;
             request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
-            request.filename_base = filename_prefix;
 
             const VkImageLayout image_layout =
                 image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
@@ -3192,7 +3189,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
             const VulkanScreenshotJson::OutputImage json_output_image{
                 image_info->format, request.width, request.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
             };
-            WriteScreenshotOutput(source, request, json_output_image, json_source);
+            WriteScreenshotOutput(source, request, filename_prefix, json_output_image, json_source);
         }
     }
 
@@ -12645,7 +12642,6 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                 request.height = image_info->extent.height;
                 request.scale =
                     screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
-                request.filename_base = filename_prefix;
 
                 const VkImageLayout image_layout =
                     image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
@@ -12669,7 +12665,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                 const VulkanScreenshotJson::OutputImage json_output_image{
                     image_info->format, request.width, request.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
                 };
-                WriteScreenshotOutput(source, request, json_output_image, image_source);
+                WriteScreenshotOutput(source, request, filename_prefix, json_output_image, image_source);
             }
             else
             {
