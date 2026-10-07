@@ -27,10 +27,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanReplayOptions::MaybeWaitBeforeFirstSubmit() const
+static void WaitAndEmitEvents(plugin::ReplayEventSink* event_sink, std::chrono::milliseconds duration)
+{
+    if (event_sink != nullptr)
+    {
+        event_sink->WaitBegin(static_cast<uint32_t>(duration.count()));
+    }
+
+    std::this_thread::sleep_for(duration);
+
+    if (event_sink != nullptr)
+    {
+        event_sink->WaitEnd();
+    }
+}
+
+void VulkanReplayOptions::MaybeWaitBeforeFirstSubmit(plugin::ReplayEventSink* event_sink) const
 {
     static std::once_flag flag;
-    std::call_once(flag, [this]() {
+    std::call_once(flag, [this, event_sink]() {
         if (wait_before_first_submit > 0)
         {
             auto current_time    = std::chrono::high_resolution_clock::now();
@@ -41,18 +56,18 @@ void VulkanReplayOptions::MaybeWaitBeforeFirstSubmit() const
                 auto time_to_wait = wait_before_first_submit_ms - time_elapsed_ms;
                 GFXRECON_LOG_INFO("Waiting %lld ms before first queue submit.",
                                   static_cast<long long>(time_to_wait.count()));
-                std::this_thread::sleep_for(time_to_wait);
+                WaitAndEmitEvents(event_sink, time_to_wait);
             }
         }
     });
 }
 
-void VulkanReplayOptions::MaybeWaitBeforeFrame() const
+void VulkanReplayOptions::MaybeWaitBeforeFrame(plugin::ReplayEventSink* event_sink) const
 {
     if (wait_before_frame > 0)
     {
         GFXRECON_LOG_INFO("Waiting %u ms before starting to replay the frame.", wait_before_frame);
-        std::this_thread::sleep_for(std::chrono::milliseconds(wait_before_frame));
+        WaitAndEmitEvents(event_sink, std::chrono::milliseconds(wait_before_frame));
     }
 }
 

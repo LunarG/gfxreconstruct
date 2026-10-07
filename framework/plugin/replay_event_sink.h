@@ -45,6 +45,8 @@ constexpr EventTraits kEventTraits[] = {
     { GFXR_REPLAY_EVENT_FRAME_END, sizeof(GfxrReplayFrameEndEvent), 1 },
     { GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN, sizeof(GfxrReplayStateSetupBeginEvent), 2 },
     { GFXR_REPLAY_EVENT_STATE_SETUP_END, sizeof(GfxrReplayStateSetupEndEvent), 2 },
+    { GFXR_REPLAY_EVENT_WAIT_BEGIN, sizeof(GfxrReplayWaitBeginEvent), 3 },
+    { GFXR_REPLAY_EVENT_WAIT_END, sizeof(GfxrReplayWaitEndEvent), 3 },
 };
 
 uint32_t GetEventAbiVersion(GfxrReplayEventType type);
@@ -66,6 +68,9 @@ class ReplayEventSink
     void FrameBegin(uint64_t frame_index);
     void FrameEnd();
 
+    void WaitBegin(uint32_t requested_duration_ms);
+    void WaitEnd();
+
     bool IsFrameActive() const { return frame_active_; }
 
   protected:
@@ -75,6 +80,8 @@ class ReplayEventSink
     virtual void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event)     = 0;
     virtual void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event)             = 0;
     virtual void EmitFrameEnd(const GfxrReplayFrameEndEvent& event)                 = 0;
+    virtual void EmitWaitBegin(const GfxrReplayWaitBeginEvent& event)               = 0;
+    virtual void EmitWaitEnd(const GfxrReplayWaitEndEvent& event)                   = 0;
 
   private:
     GfxrReplayEventHeader CreateEventHeader(GfxrReplayEventType type);
@@ -96,6 +103,8 @@ class NullReplayEventSink final : public ReplayEventSink
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent&) override {}
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent&) override {}
     void EmitFrameEnd(const GfxrReplayFrameEndEvent&) override {}
+    void EmitWaitBegin(const GfxrReplayWaitBeginEvent&) override {}
+    void EmitWaitEnd(const GfxrReplayWaitEndEvent&) override {}
 };
 
 class PluginReplayEventSink final : public ReplayEventSink
@@ -116,6 +125,8 @@ class PluginReplayEventSink final : public ReplayEventSink
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override;
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override;
     void EmitFrameEnd(const GfxrReplayFrameEndEvent& event) override;
+    void EmitWaitBegin(const GfxrReplayWaitBeginEvent& event) override;
+    void EmitWaitEnd(const GfxrReplayWaitEndEvent& event) override;
 
   private:
     void Forward(const GfxrReplayEventHeader& event);
