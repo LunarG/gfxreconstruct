@@ -88,6 +88,23 @@ class InfoConsumer
         env_vars = util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);
     }
 
+    // One driver that the application gave to the loader with VK_LUNARG_direct_driver_loading.
+    struct DirectDriverInfo
+    {
+        format::SetDirectDriverInfoCommand header;
+        std::string                        module_path;
+        std::string                        symbol_name;
+    };
+
+    const std::vector<DirectDriverInfo>& GetDirectDrivers() const { return direct_drivers_; }
+
+    void Process_SetDirectDriverInfoCommand(const format::SetDirectDriverInfoCommand& header,
+                                            std::string_view                          module_path,
+                                            std::string_view                          symbol_name)
+    {
+        direct_drivers_.push_back({ header, std::string(module_path), std::string(symbol_name) });
+    }
+
   private:
     static int const                   MaxBlockIdx                                               = 50;
     char                               driver_info[gfxrecon::util::filepath::kMaxDriverInfoSize] = {};
@@ -97,6 +114,7 @@ class InfoConsumer
     gfxrecon::util::filepath::FileInfo exe_info = {};
     bool                               found_exe_info_{ false };
     std::vector<std::string>           env_vars;
+    std::vector<DirectDriverInfo>      direct_drivers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

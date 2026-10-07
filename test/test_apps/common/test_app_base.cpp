@@ -859,6 +859,9 @@ Instance InstanceBuilder::build() const
         pNext_chain.push_back(reinterpret_cast<VkBaseOutStructure*>(&checks));
     }
 
+    // Structures that the test app added come after the ones that the builder owns.
+    pNext_chain.insert(pNext_chain.end(), info.pNext_elements.begin(), info.pNext_elements.end());
+
     VkInstanceCreateInfo instance_create_info = {};
     instance_create_info.sType                = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     detail::setup_pNext_chain(instance_create_info, pNext_chain);
@@ -2902,6 +2905,14 @@ void device_initialization_phase_5(SwapchainBuilder& swapchain_builder, InitInfo
     init.swapchain_image_views = init.swapchain.get_image_views();
 }
 
+// The mock ICD library stays loaded for the life of the process, so that a test app can hand its entry point to
+// the loader.
+#if defined(__linux__) || defined(__APPLE__)
+static void* mock_icd_library = nullptr;
+#elif defined(_WIN32)
+static HMODULE mock_icd_library = nullptr;
+#endif
+
 static vkmock::TestConfig* try_load_test_config()
 {
     char const* mock_icd_location = std::getenv("GFXRECON_TESTAPP_MOCK_ICD");
@@ -2910,21 +2921,21 @@ static vkmock::TestConfig* try_load_test_config()
         return nullptr;
     }
 #if defined(__linux__) || defined(__APPLE__)
-    auto library = dlopen(mock_icd_location, RTLD_NOW | RTLD_LOCAL);
-    if (library == nullptr)
+    mock_icd_library = dlopen(mock_icd_location, RTLD_NOW | RTLD_LOCAL);
+    if (mock_icd_library == nullptr)
     {
         return nullptr;
     }
     PFN_mockICD_getTestConfig getTestConfig =
-        reinterpret_cast<PFN_mockICD_getTestConfig>(dlsym(library, "mockICD_getTestConfig"));
+        reinterpret_cast<PFN_mockICD_getTestConfig>(dlsym(mock_icd_library, "mockICD_getTestConfig"));
 #elif defined(_WIN32)
-    auto module = LoadLibrary(TEXT(mock_icd_location));
-    if (module == nullptr)
+    mock_icd_library = LoadLibrary(TEXT(mock_icd_location));
+    if (mock_icd_library == nullptr)
     {
         return nullptr;
     }
     PFN_mockICD_getTestConfig getTestConfig =
-        reinterpret_cast<PFN_mockICD_getTestConfig>(GetProcAddress(module, "mockICD_getTestConfig"));
+        reinterpret_cast<PFN_mockICD_getTestConfig>(GetProcAddress(mock_icd_library, "mockICD_getTestConfig"));
 #else
     static_assert(false && "Unsupported platform");
 #endif
@@ -2933,6 +2944,19 @@ static vkmock::TestConfig* try_load_test_config()
         return nullptr;
     }
     return getTestConfig();
+}
+
+void* TestAppBase::get_mock_icd_proc(const char* name)
+{
+    if (mock_icd_library == nullptr)
+    {
+        return nullptr;
+    }
+#if defined(__linux__) || defined(__APPLE__)
+    return dlsym(mock_icd_library, name);
+#elif defined(_WIN32)
+    return reinterpret_cast<void*>(GetProcAddress(mock_icd_library, name));
+#endif
 }
 
 void cleanup_init(InitInfo& init)

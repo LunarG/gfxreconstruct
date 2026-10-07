@@ -67,6 +67,15 @@ The tool's output is an ordered list of JSON structures, or a single JSON struct
 {"index":9,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":null}}}
 ```
 
+When the captured application gave a driver to the loader with `VK_LUNARG_direct_driver_loading`, a
+`SetDirectDriverInfoCommand` block comes before the `vkCreateInstance` block.
+There is one block per driver.
+The `flags` list names the facts that the capture layer could find out about the entry point.
+
+```json
+{"index":2,"meta":{"name":"SetDirectDriverInfoCommand","args":{"thread_id":1,"driver_index":0,"driver_count":1,"mode":"VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG","flags":["module_found","symbol_found"],"capture_address":"0x7f143f143d64","module_path":"/opt/app/lib/libvendor_icd.so","module_offset":"0x9d64","symbol_name":"vk_icdGetInstanceProcAddr"}}}
+```
+
 Subsequent examples are from captures converted with "--format jsonl" and then pretty-printed with jq.
 
 The file begins with a header object containing some metadata, followed by a

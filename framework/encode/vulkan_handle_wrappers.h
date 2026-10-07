@@ -25,6 +25,7 @@
 #define GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPERS_H
 
 #include "encode/descriptor_update_template_info.h"
+#include "encode/vulkan_direct_driver_info.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_acceleration_structure_build_state.h"
@@ -164,6 +165,10 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
     graphics::VulkanInstanceUtilInfo    util_info{};
     bool                                have_device_properties{ false };
     uint32_t                            api_version{ VK_MAKE_VERSION(1, 0, 0) };
+
+    // One record per VkDirectDriverLoadingInfoLUNARG entry in the create info. Empty when the application did
+    // not use VK_LUNARG_direct_driver_loading.
+    std::vector<DirectDriverRecord> direct_drivers;
 };
 
 struct QueueWrapper : public HandleWrapper<VkQueue>

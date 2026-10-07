@@ -180,6 +180,7 @@ enum class MetaDataType : uint16_t
     kReserved45                                         = 45, // LunarG internal use
     kReserved46                                         = 46, // LunarG internal use
     kReserved47                                         = 47, // LunarG internal use
+    kSetDirectDriverInfoCommand                         = 48,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -735,6 +736,30 @@ struct SetEnvironmentVariablesCommand
 
     // In the capture file, a string will immediately follow this block
     // containing a list of environment variables and their values
+};
+
+// Flags for SetDirectDriverInfoCommand::flags.
+enum DirectDriverInfoFlagBits : uint32_t
+{
+    kDirectDriverInfoModuleFound  = 0x00000001, // module_path and module_offset are valid.
+    kDirectDriverInfoSymbolFound  = 0x00000002, // The symbol name resolves to the entry point.
+    kDirectDriverInfoInExecutable = 0x00000004, // The module is the executable of the captured process.
+};
+
+// Describes one entry of the VkDirectDriverLoadingListLUNARG that the next vkCreateInstance call passes to
+// the loader. One block is written per entry. The blocks come directly before the vkCreateInstance block.
+struct SetDirectDriverInfoCommand
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    uint32_t       driver_index;       // Index into VkDirectDriverLoadingListLUNARG::pDrivers.
+    uint32_t       driver_count;       // VkDirectDriverLoadingListLUNARG::driverCount.
+    uint32_t       mode;               // VkDirectDriverLoadingModeLUNARG.
+    uint32_t       flags;              // DirectDriverInfoFlagBits.
+    uint64_t       capture_address;    // The pfnGetInstanceProcAddr value in the captured process.
+    uint64_t       module_offset;      // capture_address minus the base address of the module.
+    uint32_t       module_path_length; // Byte count of the module path that follows this block. No terminator.
+    uint32_t       symbol_name_length; // Byte count of the symbol name that follows the module path. No terminator.
 };
 
 struct VulkanMetaBuildAccelerationStructuresHeader
