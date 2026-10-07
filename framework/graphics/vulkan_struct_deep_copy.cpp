@@ -26,37 +26,25 @@
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "schema/structure_type_index.h"
 #include "util/logging.h"
+#include "util/vulkan_stype_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-inline uint8_t* offset_ptr(uint8_t* ptr, uint64_t offset)
-{
-    return ptr != nullptr ? ptr + offset : nullptr;
-}
-
 size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
 {
-
-    uint64_t offset = 0;
     GFXRECON_ASSERT(pNext != nullptr);
-    auto     base    = reinterpret_cast<const VkBaseInStructure*>(pNext);
-    uint8_t* out_ptr = offset_ptr(out_data, offset);
+    const auto s_type = reinterpret_cast<const VkBaseInStructure*>(pNext)->sType;
 
-    using DeepCopyIndex = schema::StructureTypeIndex<schema::vulkan::catalog::deep_copyable_structures>;
-    if (const auto position = DeepCopyIndex::Find(base->sType); position != DeepCopyIndex::End())
-    {
-        auto visitor = [&offset, pNext, out_ptr]<schema::HasStructureType Descriptor>() {
-            offset +=
-                vulkan_struct_deep_copy(reinterpret_cast<const typename Descriptor::element_type*>(pNext), 1, out_ptr);
-        };
-        util::Visit(position, visitor);
-    }
-    else
-    {
-        GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_stype: unknown struct-type: %d", base->sType);
-    }
-    return offset;
+    auto on_find = [pNext, out_data]<schema::HasStructureType Descriptor>() {
+        return vulkan_struct_deep_copy(util::StructureTypeCast<Descriptor>(pNext), 1, out_data);
+    };
+    auto on_miss = [s_type]() {
+        GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_stype: unknown struct-type: %d", s_type);
+        return size_t(0);
+    };
+    using List = schema::vulkan::catalog::deep_copyable_structures;
+    return schema::StructureTypeVisit<List>(s_type, on_find, on_miss);
 }
 
 GFXRECON_END_NAMESPACE(graphics)

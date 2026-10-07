@@ -70,22 +70,18 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
             // The sType isn't part of the attributes, so we exclude it from the fail condition byte count.
             ValueDecoder::DecodeEnumValue((buffer + peek_bytes), (buffer_size - peek_bytes), &structure_type);
 
-            using PNextSTypeIndex = schema::StructureTypeIndex<schema::vulkan::catalog::extensible_structures>;
-            if (const auto position = PNextSTypeIndex::Find(structure_type); position != PNextSTypeIndex::End())
-            {
-                auto decode_visitor = [&bytes_read, &pNext, buffer, buffer_size]<decode::HasDecodedType Descriptor>() {
-                    (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded<Descriptor>>>();
-                    // The Decode() starts from the beginning of the buffer, so we can ignore the peeked bytes.
-                    bytes_read = (*pNext)->Decode(buffer, buffer_size);
-                };
-                util::Visit(position, decode_visitor);
-            }
-            else
-            {
+            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<decode::HasDecodedType Descriptor>() {
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded<Descriptor>>>();
+                // The Decode() starts from the beginning of the buffer, so we can ignore the peeked bytes.
+                bytes_read = (*pNext)->Decode(buffer, buffer_size);
+            };
+            auto on_miss = [&structure_type]() {
                 // TODO: This may need to be a fatal error
                 GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s",
                                    (util::ToString(structure_type).c_str()));
-            }
+            };
+            using List = schema::vulkan::catalog::extensible_structures;
+            schema::StructureTypeVisit<List>(structure_type, on_find, on_miss);
         }
     }
 

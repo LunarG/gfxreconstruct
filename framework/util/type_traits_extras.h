@@ -68,6 +68,17 @@ struct IsByteEquivalent : ExactTypeMatchesAny<std::remove_cv_t<T>, std::byte, ch
 template <typename T>
 inline constexpr bool IsByteEquivalent_v = IsByteEquivalent<T>::value;
 
+// Create a pointer type to Specific that has the same constness as Generic.
+template <typename Generic, typename Specific>
+requires std::is_pointer_v<Generic> &&(!std::is_pointer_v<Specific>)struct CopyPointerConst
+{
+    static constexpr bool kGenericConst = std::is_const_v<std::remove_pointer_t<Generic>>;
+    using Target                        = std::remove_cv_t<Specific>;
+    using type                          = std::conditional_t<kGenericConst, const Target*, Target*>;
+};
+template <typename Generic, typename Specific>
+using CopyPointerConst_t = typename CopyPointerConst<Generic, Specific>::type;
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

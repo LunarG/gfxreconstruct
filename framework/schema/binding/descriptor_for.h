@@ -29,6 +29,7 @@
 #define GFXRECON_SCHEMA_BINDING_DESCRIPTOR_FOR_H
 
 #include "util/defines.h"
+#include "schema/schema.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
@@ -42,6 +43,11 @@ concept HasDescriptor = requires
 {
     typename DescriptorFor<Native>::type;
 };
+
+// The native structure's descriptor carries a structure type
+template <typename NativeStruct>
+concept HasSchemaStructureType =
+    HasDescriptor<NativeStruct> && schema::HasStructureType<typename DescriptorFor<NativeStruct>::type>;
 
 // One row: Native is the API's structure, Descriptor its API type descriptor.
 #define GFXRECON_SCHEMA_DESCRIPTOR_FOR(Native, Descriptor) \

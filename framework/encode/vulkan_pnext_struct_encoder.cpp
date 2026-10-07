@@ -47,15 +47,13 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 namespace
 {
 
-using PNextSTypeIndex = schema::StructureTypeIndex<schema::vulkan::catalog::extensible_structures>;
-
 // Encodes the node as the structure its descriptor names, the way the generated case for that structure did.
 struct EncodeNode
 {
     template <schema::HasStructureType Descriptor>
     void operator()(ParameterEncoder* encoder, const VkBaseInStructure* base) const
     {
-        EncodeStructPtr(encoder, reinterpret_cast<const typename Descriptor::element_type*>(base));
+        EncodeStructPtr(encoder, util::StructureTypeCast<Descriptor>(base));
     }
 };
 
@@ -81,28 +79,26 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         return;
     }
 
-    if (const auto position = PNextSTypeIndex::Find(base->sType); position != PNextSTypeIndex::End())
-    {
-        util::Visit(position, EncodeNode{}, encoder, base);
-        return;
-    }
-
-    // pNext is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see
-    // if it points to a recognized value.
-    int32_t                 message_size = std::snprintf(nullptr,
-                                         0,
-                                         "A pNext value with unrecognized VkStructureType = %d was omitted from the "
-                                                         "capture file, which may cause replay to fail.",
-                                         base->sType);
-    std::unique_ptr<char[]> message      = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.
-    std::snprintf(message.get(),
-                  (message_size + 1),
-                  "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may "
-                  "cause replay to fail.",
-                  base->sType);
-    VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());
-    GFXRECON_LOG_WARNING("%s", message.get());
-    EncodePNextStructIfValid(encoder, base->pNext);
+    auto on_miss = [](ParameterEncoder* encoder_arg, const VkBaseInStructure* base_arg) {
+        int32_t message_size =
+            std::snprintf(nullptr,
+                          0,
+                          "A pNext value with unrecognized VkStructureType = %d was omitted from the "
+                          "capture file, which may cause replay to fail.",
+                          base_arg->sType);
+        std::unique_ptr<char[]> message = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.
+        std::snprintf(
+            message.get(),
+            (message_size + 1),
+            "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may "
+            "cause replay to fail.",
+            base_arg->sType);
+        VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());
+        GFXRECON_LOG_WARNING("%s", message.get());
+        EncodePNextStructIfValid(encoder_arg, base_arg->pNext);
+    };
+    using List = schema::vulkan::catalog::extensible_structures;
+    schema::StructureTypeVisit<List>(base->sType, EncodeNode{}, on_miss, encoder, base);
 }
 
 GFXRECON_END_NAMESPACE(encode)

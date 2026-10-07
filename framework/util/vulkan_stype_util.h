@@ -36,11 +36,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-template <schema::binding::HasDescriptor Struct>
-requires schema::HasStructureType<typename schema::binding::DescriptorFor<Struct>::type>
+template <schema::binding::HasSchemaStructureType Struct>
 constexpr VkStructureType GetSType()
 {
     return schema::binding::DescriptorFor<Struct>::type::structure_type;
+}
+
+template <schema::binding::HasSchemaStructureType Specific, typename Generic>
+requires std::is_pointer_v<Generic> &&(!std::is_pointer_v<Specific>)auto StructureTypeCast(Generic generic)
+{
+    using Result    = CopyPointerConst_t<Generic, Specific>;
+    Result specific = reinterpret_cast<Result>(generic);
+    GFXRECON_ASSERT((specific == NULL) || (GetSType<Specific>() == specific->sType));
+    return specific;
+}
+
+template <schema::HasStructureType Descriptor, typename Generic>
+auto StructureTypeCast(Generic generic) requires std::is_pointer_v<Generic>
+{
+    return StructureTypeCast<typename Descriptor::element_type>(generic);
 }
 
 GFXRECON_END_NAMESPACE(util)

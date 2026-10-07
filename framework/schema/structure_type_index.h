@@ -33,6 +33,7 @@
 #include <concepts>
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
@@ -83,6 +84,27 @@ class StructureTypeIndex
     static constexpr util::KeyIndex<key_type, kSize> kKeys{ detail::StructureTypesOf(List{}) };
 };
 
+// Visits the descriptor in List whose structure_type is key: on_find.operator()<Descriptor>(args...) when found,
+// on_miss(args...) when not. The two take the same arguments and return the same type. Every descriptor's
+// operator() is instantiated, so on_find's constraint must hold for all of List.
+template <typename List, typename Key, typename OnFind, typename OnMiss, typename... Args>
+decltype(auto) StructureTypeVisit(const Key& key, OnFind&& on_find, OnMiss&& on_miss, Args&&... args)
+{
+    using Index = StructureTypeIndex<List>;
+    static_assert(std::is_same_v<Key, typename Index::key_type>, "StructureTypeVisit: key type mismatch");
+
+    if (const auto position = Index::Find(key); position != Index::End())
+    {
+        auto visitor = [&on_find]<HasStructureType Descriptor>(Args&&... arg_pack) {
+            return on_find.template operator()<Descriptor>(std::forward<Args>(arg_pack)...);
+        };
+        return util::Visit(position, visitor, std::forward<Args>(args)...);
+    }
+    else
+    {
+        return on_miss(std::forward<Args>(args)...);
+    }
+}
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
