@@ -1,0 +1,127 @@
+[
+{
+  "header": {
+    "schemaVersion": 1,
+    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "vulkanVersion": "1.4.363",
+    "api": "vulkan",
+    "captureFile": "screenshot-frame-boundary-android.gfxr",
+    "options": {
+      "ranges": [
+        {
+          "first": 1,
+          "last": 4294967295
+        }
+      ],
+      "interval": 1,
+      "format": "bmp",
+      "dir": "",
+      "prefix": "screenshot-frame-boundary-android-screenshots",
+      "scale": null,
+      "size": null,
+      "applyPrerotation": false,
+      "ignoreFrameBoundaryAndroid": false
+    }
+  }
+},
+{
+  "frame": 1,
+  "blockIndex": 50,
+  "boundary": {
+    "type": "vkFrameBoundaryANDROID",
+    "call": "vkFrameBoundaryANDROID",
+    "queueId": null,
+    "captureResult": null,
+    "replayResult": null,
+    "semaphoreId": 18
+  },
+  "status": "written",
+  "outputs": [
+    {
+      "source": {
+        "kind": "frameBoundaryImage",
+        "imageId": 7,
+        "layer": 0,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-android-screenshots_frame_1.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "frame": 2,
+  "blockIndex": 65,
+  "boundary": {
+    "type": "vkFrameBoundaryANDROID",
+    "call": "vkFrameBoundaryANDROID",
+    "queueId": null,
+    "captureResult": null,
+    "replayResult": null,
+    "semaphoreId": null
+  },
+  "status": "skipped",
+  "reason": {
+    "code": "FRAME_BOUNDARY_ANDROID_NO_IMAGE",
+    "message": "vkFrameBoundaryANDROID was called without an image"
+  },
+  "outputs": [],
+  "messages": []
+},
+{
+  "frame": 3,
+  "blockIndex": 80,
+  "boundary": {
+    "type": "vkFrameBoundaryANDROID",
+    "call": "vkFrameBoundaryANDROID",
+    "queueId": null,
+    "captureResult": null,
+    "replayResult": null,
+    "semaphoreId": null
+  },
+  "status": "written",
+  "outputs": [
+    {
+      "source": {
+        "kind": "frameBoundaryImage",
+        "imageId": 10,
+        "layer": 0,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-android-screenshots_frame_3.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "summary": {
+    "framesSeen": 3,
+    "framesRequested": 3,
+    "framesWritten": 2,
+    "framesPartial": 0,
+    "framesSkipped": 1,
+    "framesFailed": 0,
+    "filesWritten": 2
+  }
+}
+]

@@ -1,0 +1,178 @@
+[
+{
+  "header": {
+    "schemaVersion": 1,
+    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "vulkanVersion": "1.4.363",
+    "api": "vulkan",
+    "captureFile": "screenshot-frame-boundary-ext.gfxr",
+    "options": {
+      "ranges": [
+        {
+          "first": 1,
+          "last": 4294967295
+        }
+      ],
+      "interval": 1,
+      "format": "bmp",
+      "dir": "",
+      "prefix": "screenshot-frame-boundary-ext-screenshots",
+      "scale": null,
+      "size": null,
+      "applyPrerotation": false,
+      "ignoreFrameBoundaryAndroid": false
+    }
+  }
+},
+{
+  "frame": 1,
+  "blockIndex": 47,
+  "boundary": {
+    "type": "VkFrameBoundaryEXT",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "frameBoundaryEXT": {
+      "flags": "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT",
+      "frameID": 0,
+      "imageCount": 1,
+      "images": [
+        7
+      ],
+      "bufferCount": 0,
+      "tagName": 0,
+      "tagSize": 0
+    }
+  },
+  "status": "written",
+  "outputs": [
+    {
+      "source": {
+        "kind": "frameBoundaryImage",
+        "imageId": 7,
+        "layer": 0,
+        "imageIndex": 0,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-ext-screenshots_frame_1.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "frame": 2,
+  "blockIndex": 61,
+  "boundary": {
+    "type": "VkFrameBoundaryEXT",
+    "call": "vkQueueSubmit2",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "frameBoundaryEXT": {
+      "flags": "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT",
+      "frameID": 1,
+      "imageCount": 2,
+      "images": [
+        7,
+        10
+      ],
+      "bufferCount": 0,
+      "tagName": 0,
+      "tagSize": 0
+    }
+  },
+  "status": "written",
+  "outputs": [
+    {
+      "source": {
+        "kind": "frameBoundaryImage",
+        "imageId": 7,
+        "layer": 0,
+        "imageIndex": 0,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-ext-screenshots_frame_2_image_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "frameBoundaryImage",
+        "imageId": 10,
+        "layer": 0,
+        "imageIndex": 1,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-ext-screenshots_frame_2_image_1.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "frame": 3,
+  "blockIndex": 75,
+  "boundary": {
+    "type": "VkFrameBoundaryEXT",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "frameBoundaryEXT": {
+      "flags": "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT",
+      "frameID": 2,
+      "imageCount": 0,
+      "images": [],
+      "bufferCount": 0,
+      "tagName": 0,
+      "tagSize": 0
+    }
+  },
+  "status": "skipped",
+  "reason": {
+    "code": "FRAME_BOUNDARY_NO_IMAGES",
+    "message": "VkFrameBoundaryEXT on vkQueueSubmit lists no images; nothing to screenshot"
+  },
+  "outputs": [],
+  "messages": []
+},
+{
+  "summary": {
+    "framesSeen": 3,
+    "framesRequested": 3,
+    "framesWritten": 2,
+    "framesPartial": 0,
+    "framesSkipped": 1,
+    "framesFailed": 0,
+    "filesWritten": 3
+  }
+}
+]
