@@ -324,6 +324,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {\n'
             body += '        ' + values[-1].base_type + '* raw_infos = ' + values[-1].prefixed_name + '.GetPointer();\n'
             body += '        Decoded_' + values[-1].base_type + '* meta_ptr = ' + values[-1].prefixed_name + '.GetMetaStructPointer();\n'
+            body += '        uint32_t original_count = ' + values[-1].prefixed_array_length + ';\n'
             body += '        for (uint32_t i = 0; i < ' + values[-1].prefixed_array_length + ';)\n'
             body += '        {\n'
             body += '            const Decoded_' + values[-1].base_type + '& meta = meta_ptr[i];\n'
@@ -345,7 +346,8 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '                meta_ptr[i].decoded_value = &raw_infos[i];\n'
             body += '                ' + values[-2].prefixed_name + ' -= 1;\n'
             body += '            }\n'
-            body += '            else {\n'
+            body += '            else\n'
+            body += '            {\n'
             body += '                boundMemory[' + prefixed_info_object + '] = meta.memory;\n'
             body += '                i += 1;\n'
             body += '            }\n'
@@ -355,6 +357,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        {\n'
             body += '            ' + self.genCallReplayConsumer(return_type, name, values)
             body += '        }\n'
+            body += '        ' + values[-1].prefixed_array_length + ' = original_count;\n'
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED:

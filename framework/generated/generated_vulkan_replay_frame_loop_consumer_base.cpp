@@ -1629,6 +1629,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
     {
         VkBindBufferMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindBufferMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindBufferMemoryInfo& meta = meta_ptr[i];
@@ -1650,7 +1651,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.buffer] = meta.memory;
                 i += 1;
             }
@@ -1660,6 +1662,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
         {
             VulkanReplayConsumer::Process_vkBindBufferMemory2(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
@@ -1676,6 +1679,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
     {
         VkBindImageMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindImageMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindImageMemoryInfo& meta = meta_ptr[i];
@@ -1697,7 +1701,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.image] = meta.memory;
                 i += 1;
             }
@@ -1707,6 +1712,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2(
         {
             VulkanReplayConsumer::Process_vkBindImageMemory2(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
@@ -2692,6 +2698,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
     {
         VkBindBufferMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindBufferMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindBufferMemoryInfo& meta = meta_ptr[i];
@@ -2713,7 +2720,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.buffer] = meta.memory;
                 i += 1;
             }
@@ -2723,6 +2731,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
         {
             VulkanReplayConsumer::Process_vkBindBufferMemory2KHR(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
@@ -2739,6 +2748,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
     {
         VkBindImageMemoryInfo* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindImageMemoryInfo* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindImageMemoryInfo& meta = meta_ptr[i];
@@ -2760,7 +2770,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.image] = meta.memory;
                 i += 1;
             }
@@ -2770,6 +2781,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindImageMemory2KHR(
         {
             VulkanReplayConsumer::Process_vkBindImageMemory2KHR(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
@@ -3329,6 +3341,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
     {
         VkBindAccelerationStructureMemoryInfoNV* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindAccelerationStructureMemoryInfoNV* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindAccelerationStructureMemoryInfoNV& meta = meta_ptr[i];
@@ -3350,7 +3363,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.accelerationStructure] = meta.memory;
                 i += 1;
             }
@@ -3360,6 +3374,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindAccelerationStructureMemor
         {
             VulkanReplayConsumer::Process_vkBindAccelerationStructureMemoryNV(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
@@ -3970,6 +3985,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
     {
         VkBindTensorMemoryInfoARM* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindTensorMemoryInfoARM* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindTensorMemoryInfoARM& meta = meta_ptr[i];
@@ -3991,7 +4007,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.tensor] = meta.memory;
                 i += 1;
             }
@@ -4001,6 +4018,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
         {
             VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
@@ -4372,6 +4390,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
     {
         VkBindDataGraphPipelineSessionMemoryInfoARM* raw_infos = args.pBindInfos.GetPointer();
         Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM* meta_ptr = args.pBindInfos.GetMetaStructPointer();
+        uint32_t original_count = args.bindInfoCount;
         for (uint32_t i = 0; i < args.bindInfoCount;)
         {
             const Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM& meta = meta_ptr[i];
@@ -4393,7 +4412,8 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
                 meta_ptr[i].decoded_value = &raw_infos[i];
                 args.bindInfoCount -= 1;
             }
-            else {
+            else
+            {
                 boundMemory[meta.session] = meta.memory;
                 i += 1;
             }
@@ -4403,6 +4423,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMe
         {
             VulkanReplayConsumer::Process_vkBindDataGraphPipelineSessionMemoryARM(call_info, args);
         }
+        args.bindInfoCount = original_count;
     }
 }
 
