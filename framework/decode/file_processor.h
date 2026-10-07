@@ -113,9 +113,19 @@ class FileProcessor
     // skipped blocks, not merely that the process thread has read and omitted them.
     bool IsSkippingFinished() const { return dispatch_skipping_finished_; }
 
+    /// Replays the pre-frame blocks and returns before the first block of frame 0.
+    /// Call once, before the first ProcessNextFrame().
+    bool ProcessPreFrame();
+
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
     virtual bool ProcessNextFrame();
+
+    /// Processes the pre-frame blocks and frame 0, plus frame 1 when the file does not declare frame markers.
+    /// This is enough to read the capture metadata and detect the frame delimiter type.
+    ///
+    /// Returns false if processing failed. Use `GetErrorState()` to determine error condition.
+    bool ProcessCaptureStart();
 
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
