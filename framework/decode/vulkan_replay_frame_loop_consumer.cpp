@@ -1071,19 +1071,19 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             // keep tracked query availability in sync with the injected reset
             cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
-    } else if (!frame_loop_info_.IsLooping())
+    }
+    else if (!frame_loop_info_.IsLooping())
     {
         VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkFreeCommandBuffers(
-    const ApiCallInfo&                          call_info,
-    args::FreeCommandBuffers&                   args)
+void VulkanReplayFrameLoopConsumer::Process_vkFreeCommandBuffers(const ApiCallInfo&        call_info,
+                                                                 args::FreeCommandBuffers& args)
 {
     GFXRECON_LOG_INFO("In FreeCommandBuffers.");
     // Don't free any command buffers while inside the loop range
-    if (frame_loop_info_.IsLooping())
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsFinalIteration())
     {
         return;
     }
