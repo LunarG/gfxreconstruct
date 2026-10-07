@@ -640,25 +640,28 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_OMSetRend
     StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
     auto& cmd_list_info = command_list_infos_[object_id];
-    if (!pDepthStencilDescriptor->IsNull())
+    if (!pRenderTargetDescriptors->IsNull() && NumRenderTargetDescriptors > 0)
     {
-        cmd_list_info.dsv_descriptor = *pDepthStencilDescriptor->GetMetaStructPointer();
-    }
-    cmd_list_info.rtv_descriptors.resize(NumRenderTargetDescriptors);
-    if (RTsSingleHandleToDescriptorRange)
-    {
-        auto rtv_descriptor = pRenderTargetDescriptors->GetMetaStructPointer()[0];
-        for (UINT i = 0; i < NumRenderTargetDescriptors; ++i)
+        if (!pDepthStencilDescriptor->IsNull())
         {
-            cmd_list_info.rtv_descriptors[i] = rtv_descriptor;
-            rtv_descriptor.index += 1;
+            cmd_list_info.dsv_descriptor = *pDepthStencilDescriptor->GetMetaStructPointer();
         }
-    }
-    else
-    {
-        for (UINT i = 0; i < NumRenderTargetDescriptors; ++i)
+        cmd_list_info.rtv_descriptors.resize(NumRenderTargetDescriptors);
+        if (RTsSingleHandleToDescriptorRange)
         {
-            cmd_list_info.rtv_descriptors[i] = pRenderTargetDescriptors->GetMetaStructPointer()[i];
+            auto rtv_descriptor = pRenderTargetDescriptors->GetMetaStructPointer()[0];
+            for (UINT i = 0; i < NumRenderTargetDescriptors; ++i)
+            {
+                cmd_list_info.rtv_descriptors[i] = rtv_descriptor;
+                rtv_descriptor.index += 1;
+            }
+        }
+        else
+        {
+            for (UINT i = 0; i < NumRenderTargetDescriptors; ++i)
+            {
+                cmd_list_info.rtv_descriptors[i] = pRenderTargetDescriptors->GetMetaStructPointer()[i];
+            }
         }
     }
 }
