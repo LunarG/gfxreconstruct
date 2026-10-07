@@ -216,6 +216,7 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
+                        [--batching-heap-size <MB>]
                         [--dump-resources <submit-index,command-index,draw-call-index>]
                         [--dump-resources-before-draw]
                         [--dump-resources-dir <dir>]
@@ -322,6 +323,12 @@ Optional arguments:
                         only limits memory use for batching and does not guarantee overall max memory usage.
                         Acceptable values range from 0 to 100 (default: 80). 0 means no batching, 100 means
                         use all available system and GPU memory.
+  --batching-heap-size <MB>
+                        Limits the max size, in MB, of the upload heap that is allocated to stage resource
+                        data during trim state load. Staging resource data through a single heap avoids the
+                        cost of creating a buffer for each resource. The heap size is also limited by the
+                        available memory and by the value of --batching-memory-usage. Default is 256. 0
+                        disables the heap, and each resource is staged through its own buffer.
   --dump-resources <submit-index,command-index,draw-call-index>
                         Output binary resources for a specific draw call.  The draw call is specified as a
                         submit index, command index, and draw call index triplet.  The output includes vertex,
