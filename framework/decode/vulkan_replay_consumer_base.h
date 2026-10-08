@@ -2055,8 +2055,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                   VkImage*                 image,
                                   VulkanImageInfo*         image_info);
 
-    void ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info);
-
     void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
     void
