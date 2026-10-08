@@ -68,6 +68,7 @@ class KhronosDecodeExtendedStructGenerator():
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
+        write('#include <cstring>', file=self.outFile)
 
     def write_decode_struct_definition_prefix(self):
         current_api_data = self.get_api_data()
@@ -106,7 +107,11 @@ class KhronosDecodeExtendedStructGenerator():
             file=self.outFile
         )
         write(
-            '        attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));',
+            '        // Copied rather than dereferenced: nothing aligns a value in the parameter buffer.',
+            file=self.outFile
+        )
+        write(
+            '        std::memcpy(&attrib, parameter_buffer, sizeof(attrib));',
             file=self.outFile
         )
         self.newline()
@@ -145,17 +150,20 @@ class KhronosDecodeExtendedStructGenerator():
         )
         write('        {', file=self.outFile)
         write(
-            '            const {struct_type}* {} = reinterpret_cast<const {struct_type}*>(parameter_buffer + {});'
-            .format(
-                current_api_data.struct_type_variable,
-                offset_var,
-                struct_type=current_api_data.struct_type_enum
+            '            {} {};'.format(
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_variable
             ),
+            file=self.outFile
+        )
+        write(
+            '            std::memcpy(&{var}, parameter_buffer + {}, sizeof({var}));'
+            .format(offset_var, var=current_api_data.struct_type_variable),
             file=self.outFile
         )
         self.newline()
         write(
-            '            switch (*{})'.format(
+            '            switch ({})'.format(
                 current_api_data.struct_type_variable
             ),
             file=self.outFile
@@ -167,7 +175,7 @@ class KhronosDecodeExtendedStructGenerator():
             file=self.outFile
         )
         write(
-            '                GFXRECON_LOG_ERROR("Failed to decode {} value with unrecognized {} = %s", (util::ToString(*{}).c_str()));'
+            '                GFXRECON_LOG_ERROR("Failed to decode {} value with unrecognized {} = %s", (util::ToString({}).c_str()));'
             .format(
                 current_api_data.extended_struct_variable,
                 current_api_data.struct_type_enum,

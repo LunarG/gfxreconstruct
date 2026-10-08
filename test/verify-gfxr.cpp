@@ -499,3 +499,96 @@ void replay_and_count_recapture(const char*                      test_name,
 
     ASSERT_NO_FATAL_FAILURE(count_calls_in_json(recapture_json_path, function_names, counts));
 }
+
+// Keeps every block of a screenshot results json but the header: its versions, capture path and options differ
+// between builds and machines, while the frame blocks and the summary are what the test checks.
+static bool clean_screenshot_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
+{
+    if (event == nlohmann::json::parse_event_t::object_end && depth == 1 && parsed.contains("header"))
+    {
+        return false;
+    }
+    return true;
+}
+
+void capture_and_verify_screenshots(const char* test_name, std::vector<std::string> screenshot_args)
+{
+    EnvironmentVariables env_vars;
+
+    Paths paths{ test_name, nullptr, false };
+    int   result;
+
+    bool working_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
+
+    // Run the app with capture enabled to produce the gfxr to replay.
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
+                         << paths.working_directory;
+
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+
+    // The capture layer is still enabled, so give the replay step a throwaway capture path (see capture_and_replay).
+    std::filesystem::path replay_capture_path{ paths.base_path };
+    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
+
+    // The screenshots and the results json carry this prefix and land in the test directory, where replay runs. With
+    // no --screenshot-dir the file names in the json hold no path separator, so they match on every platform.
+    const std::string     prefix = test_name + std::string("-screenshots");
+    std::filesystem::path result_json_path{ paths.base_path };
+    result_json_path.append(prefix + ".json");
+
+    // A replay that fails to write the json must not pass against the file of an earlier run.
+    std::filesystem::remove(result_json_path);
+
+    std::vector<std::string> replay_args = {
+        "--swapchain", "offscreen", "--screenshot-prefix", prefix, "--screenshot-results"
+    };
+    replay_args.insert(replay_args.end(), screenshot_args.begin(), screenshot_args.end());
+    replay_args.push_back(paths.capture_path.string());
+
+    result = run_command(paths.base_path, paths.replay_path, replay_args);
+    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
+                         << " in path " << paths.base_path;
+
+    std::ifstream result_file{ result_json_path };
+    ASSERT_TRUE(result_file.is_open()) << "screenshot results json: " << result_json_path << " would not open";
+    auto result_json = nlohmann::json::parse(result_file, clean_screenshot_json);
+
+    std::filesystem::path reference_json_path{ paths.base_path };
+    reference_json_path.append("known_good");
+    reference_json_path.append("screenshots");
+    reference_json_path.append(test_name + std::string(".json"));
+
+    std::ifstream reference_file{ reference_json_path };
+    ASSERT_TRUE(reference_file.is_open())
+        << "reference screenshot results json: " << reference_json_path << " would not open";
+    auto reference_json = nlohmann::json::parse(reference_file, clean_screenshot_json);
+
+    auto diff = nlohmann::json::diff(reference_json, result_json);
+    ASSERT_EQ(diff.size(), 0) << std::setw(4) << diff;
+
+    // Every output the json reports as written must be on disk.
+    for (const auto& block : result_json)
+    {
+        if (!block.contains("outputs"))
+        {
+            continue;
+        }
+
+        for (const auto& output : block["outputs"])
+        {
+            if (output.value("status", "") != "written")
+            {
+                continue;
+            }
+
+            std::filesystem::path file_path{ paths.base_path };
+            file_path.append(output["file"].get<std::string>());
+            ASSERT_TRUE(std::filesystem::exists(file_path))
+                << "screenshot file reported as written is missing: " << file_path;
+        }
+    }
+}

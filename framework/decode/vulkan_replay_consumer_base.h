@@ -28,6 +28,7 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/vulkan_screenshot_handler.h"
+#include "decode/vulkan_screenshot_json.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_decoder_base.h"
 #include "decode/vulkan_device_address_tracker.h"
@@ -2063,7 +2064,31 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
-    void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
+    void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info,
+                          const VulkanQueueInfo*          queue_info,
+                          VkResult                        original_result);
+
+    /**
+     * @brief Reads an image back, writes one file per layer, and records each outcome in the screenshot JSON.
+     *
+     * @param format         The format of the source image, for the record.
+     * @param pre_transform  The surface transform the file was turned by, or identity.
+     * @param json_source    What the image is, for the record. Each layer's entry starts from it.
+     * @return Whether any file was written.
+     */
+    bool WriteScreenshotOutput(ScreenshotSource&                         source,
+                               const ScreenshotRequest&                  request,
+                               const std::string&                        base_filename,
+                               const VulkanScreenshotJson::OutputImage&  json_output_image,
+                               const VulkanScreenshotJson::OutputSource& json_source);
+
+    /**
+     * @brief Ends the current frame for screenshots: closes its entry in the screenshot JSON, then advances the
+     *        controller to the next frame. Call once per frame, taken or not.
+     *
+     * @param replay_result  What the call that ended the frame returned in replay, when it returns a result.
+     */
+    void EndScreenshotFrame(std::optional<VkResult> replay_result);
 
     /**
      * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
@@ -2075,8 +2100,34 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     void PropagateImageLayouts(const VulkanCommandBufferInfo* command_buffer_info);
 
-    bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info);
-    bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info, const PNextNode* pnext);
+    bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info,
+                                                const char*                    call_name,
+                                                const VulkanQueueInfo*         queue_info,
+                                                VkResult                       original_result,
+                                                VkResult                       replay_result);
+
+    /**
+     * @brief Screenshots one attachment a frame boundary command buffer rendered to, or records in the screenshot
+     *        JSON why it was skipped. Only images usable as color attachments are written.
+     *
+     * @param image_view_id     The attachment's image view.
+     * @param make_json_source  Builds the output's JSON source once the image behind the view is known.
+     * @param attachment_name   Names the attachment in messages, e.g. "Attachment 1 of framebuffer 42".
+     * @param filename_prefix   The file name to write, without the extension.
+     */
+    void WriteFrameBoundaryAttachmentScreenshot(
+        const VulkanDeviceInfo*                                                             device_info,
+        const VkPhysicalDeviceMemoryProperties&                                             memory_properties,
+        format::HandleId                                                                    image_view_id,
+        const std::function<VulkanScreenshotJson::OutputSource(format::HandleId image_id)>& make_json_source,
+        const std::string&                                                                  attachment_name,
+        const std::string&                                                                  filename_prefix);
+    bool CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
+                                         const PNextNode*        pnext,
+                                         const char*             call_name,
+                                         const VulkanQueueInfo*  queue_info,
+                                         VkResult                original_result,
+                                         VkResult                replay_result);
 
     void UpdateDescriptorSetInfoWithTemplate(VulkanDescriptorSetInfo*                  desc_set_info,
                                              const VulkanDescriptorUpdateTemplateInfo* template_info,
@@ -2250,9 +2301,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     HardwareBufferMap                                                        hardware_buffers_;
     HardwareBufferMemoryMap                                                  hardware_buffer_memory_info_;
     std::unique_ptr<ScreenshotController>                                    screenshot_controller_;
-    std::unique_ptr<VulkanSwapchain>                                         swapchain_;
-    graphics::FpsInfo*                                                       fps_info_;
-    VulkanDecoder*                                                           decoder_ = nullptr;
+    // Declared after the controller: its destructor closes the JSON with the controller's frame count.
+    std::unique_ptr<VulkanScreenshotJson> screenshot_json_;
+    std::unique_ptr<VulkanSwapchain>      swapchain_;
+    graphics::FpsInfo*                    fps_info_;
+    VulkanDecoder*                        decoder_ = nullptr;
 
     VulkanPerDeviceAddressTrackers    device_address_trackers_;
     VulkanPerDeviceAddressReplacers   device_address_replacers_;

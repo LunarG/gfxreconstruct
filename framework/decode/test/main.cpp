@@ -38,8 +38,17 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 
 #include "decode/block_parser.h"
+#include "decode/decode_allocator.h"
+#include "decode/vulkan_pnext_node.h"
 
 #include <vector>
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
+// Defined in the generated pNext decoder, which has no header.
+size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 const VkBuffer                   kBufferHandles[] = { gfxrecon::format::FromHandleId<VkBuffer>(0xabcd),
                                                       gfxrecon::format::FromHandleId<VkBuffer>(0xbcda),
@@ -669,4 +678,51 @@ TEST_CASE("ScreenshotController writes the file, rotating when asked", "[screens
         CpuImage empty;
         REQUIRE_FALSE(controller.Finish("screenshot_controller_empty", empty, Rotation{}));
     }
+}
+
+TEST_CASE("DecodePNextStruct decodes a pNext value at an unaligned offset", "[pnext]")
+{
+    using gfxrecon::format::PointerAttributes;
+
+    // Nothing aligns a value in a parameter buffer; a pNext value that follows an odd-length string starts at an odd
+    // offset. A decoder that dereferences the buffer in place makes misaligned loads, which -fsanitize=alignment
+    // reports.
+    const uint32_t attrib = PointerAttributes::kIsSingle | PointerAttributes::kIsStruct |
+                            PointerAttributes::kHasAddress | PointerAttributes::kHasData;
+    const gfxrecon::format::AddressEncodeType address     = 0x1000;
+    const gfxrecon::format::EnumEncodeType    s_type      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES;
+    const uint32_t                            no_pnext    = PointerAttributes::kIsNull;
+    const uint32_t                            features[4] = { VK_TRUE, VK_FALSE, VK_TRUE, VK_FALSE };
+
+    std::vector<uint8_t> buffer(1, 0);
+    auto                 append = [&buffer](const auto& value) {
+        const auto* bytes = reinterpret_cast<const uint8_t*>(&value);
+        buffer.insert(buffer.end(), bytes, bytes + sizeof(value));
+    };
+    append(attrib);
+    append(address);
+    append(s_type);
+    append(no_pnext);
+    append(features);
+
+    const uint8_t* encoded      = buffer.data() + 1;
+    const size_t   encoded_size = buffer.size() - 1;
+
+    gfxrecon::decode::DecodeAllocator::Begin();
+
+    gfxrecon::decode::PNextNode* pnext      = nullptr;
+    const size_t                 bytes_read = gfxrecon::decode::DecodePNextStruct(encoded, encoded_size, &pnext);
+
+    REQUIRE(bytes_read == encoded_size);
+    REQUIRE(pnext != nullptr);
+
+    const auto* decoded = static_cast<const VkPhysicalDevice16BitStorageFeatures*>(pnext->GetPointer());
+    CHECK(decoded->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES);
+    CHECK(decoded->pNext == nullptr);
+    CHECK(decoded->storageBuffer16BitAccess == VK_TRUE);
+    CHECK(decoded->uniformAndStorageBuffer16BitAccess == VK_FALSE);
+    CHECK(decoded->storagePushConstant16 == VK_TRUE);
+    CHECK(decoded->storageInputOutput16 == VK_FALSE);
+
+    gfxrecon::decode::DecodeAllocator::End();
 }

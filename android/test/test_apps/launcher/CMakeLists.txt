@@ -45,7 +45,6 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
@@ -66,7 +65,8 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-wait-for-present
     gfxrecon-testapp-trigger-trimming
     gfxrecon-testapp-ahb
-    gfxrecon-testapp-deep-pnext-chain)
+    gfxrecon-testapp-deep-pnext-chain
+    gfxrecon-testapp-screenshot-frame-boundaries)
 
 target_link_libraries(${PROJECT_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})

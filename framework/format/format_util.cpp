@@ -56,7 +56,7 @@ bool ValidateFileHeader(const FileHeader& header)
     else if (!VersionSupported(header))
     {
 
-        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%",
+        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%u",
                            header.major_version,
                            header.minor_version,
                            GFXRECON_CURRENT_FILE_MAJOR,
@@ -64,6 +64,18 @@ bool ValidateFileHeader(const FileHeader& header)
         valid = false;
     }
     return valid;
+}
+
+AnnotationHeader MakeAnnotationHeader(AnnotationType type, size_t label_length, size_t data_length)
+{
+    AnnotationHeader annotation{};
+    annotation.block_header.size = GetAnnotationBlockBaseSize() + label_length + data_length;
+    annotation.block_header.type = BlockType::kAnnotation;
+    annotation.annotation_type   = type;
+    GFXRECON_NARROWING_ASSIGN(annotation.label_length, label_length);
+    annotation.data_length = data_length;
+
+    return annotation;
 }
 
 util::Compressor* CreateCompressor(CompressionType type)

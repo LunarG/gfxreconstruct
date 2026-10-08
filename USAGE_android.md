@@ -777,6 +777,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-prefix PREFIX]
                           [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
+                          [--screenshot-results]
                           [--capture]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
@@ -881,6 +882,10 @@ options:
                         Scale screenshot dimensions. Overrides --screenshot-
                         size, if specified. Expects a number which can be
                         decimal
+  --screenshot-results  Write a JSON file next to the screenshots, named after
+                        the screenshot prefix, that records for each requested
+                        frame which files were written and why any image was
+                        skipped (forwarded to replay tool)
   --capture             Capture the replaying GFXR file. Capture uses the same log
                         options as replay. All other capture option behavior and
                         usage is the same as when capturing with the GFXR layer. The

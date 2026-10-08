@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
 FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_size, bool append) :
-    file_(nullptr), own_file_(true)
+    file_(nullptr), own_file_(true), filename_(filename)
 {
     const char* mode   = append ? "ab" : "wb";
     int32_t     result = platform::FileOpen(&file_, filename.c_str(), mode);
@@ -54,20 +54,39 @@ FileOutputStream::FileOutputStream(FILE* file, bool owned) : file_(file), own_fi
 
 FileOutputStream::~FileOutputStream()
 {
-    if ((file_ != nullptr) && own_file_)
-    {
-        platform::FileClose(file_);
-    }
+    Close();
 }
 
 void FileOutputStream::Reset(FILE* file)
 {
-    if ((file_ != nullptr) && own_file_)
-    {
-        platform::FileClose(file_);
-    }
+    Close();
 
     file_ = file;
+    filename_.clear();
+}
+
+void FileOutputStream::Close()
+{
+    if ((file_ != nullptr) && own_file_)
+    {
+        const char* name = filename_.empty() ? "<unnamed>" : filename_.c_str();
+
+        // Flush separately so a failed write of buffered data is not reported as a close failure.
+        if (platform::FileFlush(file_) != 0)
+        {
+            const int error = errno;
+            GFXRECON_LOG_ERROR(
+                "Failed to flush buffered data to file \"%s\" (errno %d: %s)", name, error, strerror(error));
+        }
+
+        if (platform::FileClose(file_) != 0)
+        {
+            const int error = errno;
+            GFXRECON_LOG_ERROR("Failed to close file \"%s\" (errno %d: %s)", name, error, strerror(error));
+        }
+    }
+
+    file_ = nullptr;
 }
 
 bool FileOutputStream::Write(const void* data, size_t len)

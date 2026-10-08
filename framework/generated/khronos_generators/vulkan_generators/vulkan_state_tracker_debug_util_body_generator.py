@@ -150,9 +150,26 @@ class VulkanStateTrackerDebugUtilBodyGenerator(VulkanBaseGenerator):
         code += '\n'
         code += '    // clang-format off\n'
 
+        # The state writer omits the creation call for these object types when a handle the object was created
+        # from has been destroyed. Such objects do not exist at replay, so the debug utils calls that reference
+        # them must be omitted as well.
+        validity_checks = {
+            'BufferView': 'IsBufferViewValid',
+            'ImageView': 'IsImageViewValid',
+            'Framebuffer': 'IsFramebufferValid',
+        }
+
         for _, _, short_name in self.get_object_type_handles():
-            code += '    state_table.VisitWrappers([&](const vulkan_wrappers::{}Wrapper* wrapper) {{ write_debug_utils_calls(wrapper); }});\n'.format(
-                short_name
+            validity_check = validity_checks.get(short_name)
+            if validity_check is None:
+                visit_body = 'write_debug_utils_calls(wrapper);'
+            else:
+                visit_body = 'if ({}(wrapper->handle_id, state_table)) {{ write_debug_utils_calls(wrapper); }}'.format(
+                    validity_check
+                )
+
+            code += '    state_table.VisitWrappers([&](const vulkan_wrappers::{}Wrapper* wrapper) {{ {} }});\n'.format(
+                short_name, visit_body
             )
 
         code += '    // clang-format on\n'
