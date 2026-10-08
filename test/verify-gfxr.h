@@ -37,4 +37,19 @@ void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr, b
  */
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args = {});
 
+/**
+ * Run an application with capture enabled, replay the resulting gfxr with screenshots and --screenshot-results, and
+ * compare the json that replay writes about those screenshots to known_good/screenshots/<test_name>.json.
+ *
+ * Replay runs offscreen in the test directory with the screenshot prefix "<test_name>-screenshots", so the json is
+ * "<test_name>-screenshots.json" and the images "<test_name>-screenshots_frame_N...". The json header, which holds
+ * versions and the capture path, is left out of the comparison. Every image the json reports as written must exist.
+ *
+ * @param test_name        - the name of the test app to launch and capture
+ * @param screenshot_args  - which frames to screenshot, e.g. {"--screenshot-all"} or {"--screenshots", "1-2"}
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void capture_and_verify_screenshots(const char* test_name, std::vector<std::string> screenshot_args);
+
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H
