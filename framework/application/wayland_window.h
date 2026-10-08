@@ -98,23 +98,36 @@ class WaylandWindow : public decode::Window
         void* data, util::XdgToplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states);
     static void HandleXdgToplevelClose(void* data, util::XdgToplevel* xdg_toplevel);
 
+    static void HandlePreferredScale(void* data, util::WpFractionalScaleV1* fractional_scale, uint32_t scale);
+
     void UpdateWindowSize();
 
+    void UpdateViewportDestination();
+
   private:
-    static struct wl_surface_listener       surface_listener_;
-    static struct wl_shell_surface_listener shell_surface_listener_;
-    static util::XdgSurfaceListener         xdg_surface_listener_;
-    static util::XdgToplevelListener        xdg_toplevel_listener_;
-    WaylandContext*                         wayland_context_;
-    struct wl_surface*                      surface_;
-    struct wl_shell_surface*                shell_surface_;
-    util::XdgSurface*                       xdg_surface_;
-    util::XdgToplevel*                      xdg_toplevel_;
-    uint32_t                                width_;
-    uint32_t                                height_;
-    int32_t                                 scale_;
-    struct wl_output*                       output_;
-    bool                                    xdg_surface_configured_;
+    // The unit of the scale that wp_fractional_scale_v1 reports: 120 is 1.0, 150 is 1.25, 180 is 1.5.
+    static constexpr uint32_t kFractionalScaleOne = 120;
+
+    // width_ and height_ are the buffer size in pixels. preferred_scale_ is the display scale in
+    // units of kFractionalScaleOne, or 0 until the compositor reports it.
+    static struct wl_surface_listener        surface_listener_;
+    static struct wl_shell_surface_listener  shell_surface_listener_;
+    static util::XdgSurfaceListener          xdg_surface_listener_;
+    static util::XdgToplevelListener         xdg_toplevel_listener_;
+    static util::WpFractionalScaleV1Listener fractional_scale_listener_;
+    WaylandContext*                          wayland_context_;
+    struct wl_surface*                       surface_;
+    struct wl_shell_surface*                 shell_surface_;
+    util::XdgSurface*                        xdg_surface_;
+    util::XdgToplevel*                       xdg_toplevel_;
+    util::WpViewport*                        viewport_;
+    util::WpFractionalScaleV1*               fractional_scale_;
+    uint32_t                                 width_;
+    uint32_t                                 height_;
+    uint32_t                                 preferred_scale_;
+    int32_t                                  scale_;
+    struct wl_output*                        output_;
+    bool                                     xdg_surface_configured_;
 };
 
 class WaylandWindowFactory : public decode::WindowFactory

@@ -32,14 +32,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-struct wl_surface_listener       WaylandWindow::surface_listener_;
-struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
-util::XdgSurfaceListener         WaylandWindow::xdg_surface_listener_;
-util::XdgToplevelListener        WaylandWindow::xdg_toplevel_listener_;
+struct wl_surface_listener        WaylandWindow::surface_listener_;
+struct wl_shell_surface_listener  WaylandWindow::shell_surface_listener_;
+util::XdgSurfaceListener          WaylandWindow::xdg_surface_listener_;
+util::XdgToplevelListener         WaylandWindow::xdg_toplevel_listener_;
+util::WpFractionalScaleV1Listener WaylandWindow::fractional_scale_listener_;
 
 WaylandWindow::WaylandWindow(WaylandContext* wayland_context) :
     wayland_context_(wayland_context), surface_(nullptr), shell_surface_(nullptr), xdg_surface_(nullptr),
-    xdg_toplevel_(nullptr), width_(0), height_(0), scale_(1), output_(nullptr), xdg_surface_configured_(false)
+    xdg_toplevel_(nullptr), viewport_(nullptr), fractional_scale_(nullptr), width_(0), height_(0), preferred_scale_(0),
+    scale_(1), output_(nullptr), xdg_surface_configured_(false)
 {
     assert(wayland_context_ != nullptr);
 
@@ -55,6 +57,8 @@ WaylandWindow::WaylandWindow(WaylandContext* wayland_context) :
 
     xdg_toplevel_listener_.configure = HandleXdgToplevelConfigure;
     xdg_toplevel_listener_.close     = HandleXdgToplevelClose;
+
+    fractional_scale_listener_.preferred_scale = HandlePreferredScale;
 }
 
 WaylandWindow::~WaylandWindow()
@@ -62,6 +66,16 @@ WaylandWindow::~WaylandWindow()
     if (surface_ != nullptr)
     {
         auto& wl = wayland_context_->GetWaylandFunctionTable();
+
+        if (fractional_scale_ != nullptr)
+        {
+            wl.fractional_scale->wp_fractional_scale_v1_destroy(fractional_scale_);
+        }
+
+        if (viewport_ != nullptr)
+        {
+            wl.viewporter->wp_viewport_destroy(viewport_);
+        }
 
         if (xdg_toplevel_ != nullptr)
         {
@@ -95,6 +109,25 @@ bool WaylandWindow::Create(const std::string& title,
     {
         GFXRECON_LOG_ERROR("Failed to create Wayland surface");
         return false;
+    }
+
+    // The viewport sets the logical size of the window. See UpdateViewportDestination.
+
+    if (wayland_context_->GetViewporter() != nullptr)
+    {
+        viewport_ = wl.viewporter->wp_viewporter_get_viewport(wayland_context_->GetViewporter(), surface_);
+    }
+
+    if ((viewport_ != nullptr) && (wayland_context_->GetFractionalScaleManager() != nullptr))
+    {
+        fractional_scale_ = wl.fractional_scale->wp_fractional_scale_manager_v1_get_fractional_scale(
+            wayland_context_->GetFractionalScaleManager(), surface_);
+
+        if (fractional_scale_ != nullptr)
+        {
+            wl.fractional_scale->wp_fractional_scale_v1_add_listener(
+                fractional_scale_, &WaylandWindow::fractional_scale_listener_, this);
+        }
     }
 
     // If we have the choice between xdg_toplevel and wl_shell_surface, chose the xdg_toplevel
@@ -165,6 +198,18 @@ bool WaylandWindow::Destroy()
         wayland_context_->UnregisterWaylandWindow(this);
 
         auto& wl = wayland_context_->GetWaylandFunctionTable();
+
+        if (fractional_scale_ != nullptr)
+        {
+            wl.fractional_scale->wp_fractional_scale_v1_destroy(fractional_scale_);
+            fractional_scale_ = nullptr;
+        }
+
+        if (viewport_ != nullptr)
+        {
+            wl.viewporter->wp_viewport_destroy(viewport_);
+            viewport_ = nullptr;
+        }
 
         if (xdg_toplevel_ != nullptr)
         {
@@ -289,11 +334,16 @@ void WaylandWindow::DestroySurface(const graphics::VulkanInstanceTable* table,
 void WaylandWindow::UpdateWindowSize()
 {
     auto& wl = wayland_context_->GetWaylandFunctionTable();
+
+    UpdateViewportDestination();
+
     if (output_)
     {
         auto& output_info = wayland_context_->GetOutputInfo(output_);
 
-        if (output_info.scale > 0 && output_info.scale != scale_)
+        // Without a viewport, the integer buffer scale is the only way to keep one buffer pixel
+        // on one display pixel.
+        if (viewport_ == nullptr && output_info.scale > 0 && output_info.scale != scale_)
         {
             wl.surface_set_buffer_scale(surface_, output_info.scale);
             scale_ = output_info.scale;
@@ -318,6 +368,75 @@ void WaylandWindow::UpdateWindowSize()
     else if (shell_surface_ != nullptr)
     {
         wl.shell_surface_set_toplevel(shell_surface_);
+    }
+}
+
+void WaylandWindow::UpdateViewportDestination()
+{
+    if ((viewport_ == nullptr) || (width_ == 0) || (height_ == 0))
+    {
+        return;
+    }
+
+    // The viewport destination is the logical size of the window. The buffer keeps its pixel size
+    // and the compositor maps it onto the destination, so the window covers as many display
+    // pixels as the buffer has. wl_surface::set_buffer_scale cannot do this on a fractionally
+    // scaled display: it takes an integer, and a compositor at 125% or 150% reports 2 to clients
+    // that do not use wp_fractional_scale_v1, which shrinks the window to half its size.
+    //
+    // Until the compositor reports a preferred scale, use the integer scale of the output, which
+    // is the same value the set_buffer_scale fallback would use.
+    uint32_t scale = preferred_scale_;
+
+    if (scale == 0)
+    {
+        scale = kFractionalScaleOne;
+
+        if (output_ != nullptr)
+        {
+            const auto& output_info = wayland_context_->GetOutputInfo(output_);
+
+            if (output_info.scale > 0)
+            {
+                scale *= static_cast<uint32_t>(output_info.scale);
+            }
+        }
+    }
+
+    const auto to_logical = [scale](uint32_t pixels) {
+        const uint64_t scaled = (static_cast<uint64_t>(pixels) * kFractionalScaleOne) + (scale / 2);
+        return static_cast<int32_t>(scaled / scale);
+    };
+
+    const int32_t logical_width  = to_logical(width_);
+    const int32_t logical_height = to_logical(height_);
+
+    // The destination applies at the next wl_surface::commit, which the Vulkan WSI does when it
+    // presents.
+    auto& wl = wayland_context_->GetWaylandFunctionTable();
+    wl.viewporter->wp_viewport_set_destination(viewport_, logical_width, logical_height);
+
+    GFXRECON_LOG_DEBUG("Wayland viewport destination %dx%d for a %ux%u pixel buffer at scale %u/%u",
+                       logical_width,
+                       logical_height,
+                       width_,
+                       height_,
+                       scale,
+                       kFractionalScaleOne);
+}
+
+void WaylandWindow::HandlePreferredScale(void* data, util::WpFractionalScaleV1* fractional_scale, uint32_t scale)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(fractional_scale);
+
+    auto window = reinterpret_cast<WaylandWindow*>(data);
+
+    GFXRECON_LOG_DEBUG("Wayland compositor reports a preferred scale of %u/%u", scale, kFractionalScaleOne);
+
+    if ((scale != 0) && (scale != window->preferred_scale_))
+    {
+        window->preferred_scale_ = scale;
+        window->UpdateViewportDestination();
     }
 }
 

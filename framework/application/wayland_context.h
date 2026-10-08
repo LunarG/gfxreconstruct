@@ -63,6 +63,12 @@ class WaylandContext : public WsiContext
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
+    // Null when the compositor does not advertise the protocol.
+    util::WpViewporter* GetViewporter() const { return viewporter_; }
+
+    // Null when the compositor does not advertise the protocol.
+    util::WpFractionalScaleManagerV1* GetFractionalScaleManager() const { return fractional_scale_manager_; }
+
     const OutputInfo& GetOutputInfo(const struct wl_output* wl_output) { return output_info_map_[wl_output]; }
 
     bool RegisterWaylandWindow(WaylandWindow* window);
@@ -148,6 +154,8 @@ class WaylandContext : public WsiContext
     struct wl_shell*                   shell_{};
     util::XdgWmBase*                   xdg_wm_base_{};
     struct wl_compositor*              compositor_{};
+    util::WpViewporter*                viewporter_{};
+    util::WpFractionalScaleManagerV1*  fractional_scale_manager_{};
     struct wl_registry*                registry_{};
     struct wl_seat*                    seat_{};
     struct wl_pointer*                 pointer_{};

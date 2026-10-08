@@ -140,6 +140,10 @@ bool WaylandLoader::Initialize()
             // additional protocols
             function_table_.xdg = std::make_unique<WaylandXdgShellTable>();
             function_table_.xdg->initialize(this);
+            function_table_.viewporter = std::make_unique<WaylandViewporterTable>();
+            function_table_.viewporter->initialize(this);
+            function_table_.fractional_scale = std::make_unique<WaylandFractionalScaleV1Table>();
+            function_table_.fractional_scale->initialize(this);
         }
         else
         {

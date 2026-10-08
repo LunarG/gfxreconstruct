@@ -470,6 +470,8 @@ def clone_wayland_protocols():
 def main():
     clone_wayland_protocols()
     generate(os.path.join(PROTOCOLS_DIR, 'stable', 'xdg-shell', 'xdg-shell.xml'))
+    generate(os.path.join(PROTOCOLS_DIR, 'stable', 'viewporter', 'viewporter.xml'))
+    generate(os.path.join(PROTOCOLS_DIR, 'staging', 'fractional-scale', 'fractional-scale-v1.xml'))
 
 
 if __name__ == '__main__':
