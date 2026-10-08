@@ -372,6 +372,7 @@ struct D3D12FenceInfo : DxObjectExtraInfo
     D3D12FenceInfo() : DxObjectExtraInfo(kType) {}
 
     uint64_t                               last_signaled_value{ 0 };
+    uint64_t                               last_signaled_value_gpu{ 0 };
     std::map<uint64_t, FenceValueSyncInfo> waiting_objects;
 };
 
