@@ -70,7 +70,7 @@ Application::Application(const std::string&     name,
     pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension),
     fps_info_(nullptr), frame_loop_info_{ nullptr }
 {
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     android_app_           = reinterpret_cast<struct android_app*>(platform_specific_wsi_data);
     android_app_->userData = this;
 #endif
@@ -203,6 +203,8 @@ void Application::Run()
 
     file_processor_->InitializeFrameProcessing(params_);
 
+    bool pre_frame_processed = false;
+
     while (running_)
     {
         ProcessEvents(paused_);
@@ -210,6 +212,17 @@ void Application::Run()
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
         {
+            if (!pre_frame_processed)
+            {
+                // Explicitly process the pre-frame phase before advancing to the next frame.
+                if (!file_processor_->ProcessPreFrame())
+                {
+                    running_ = false;
+                    break;
+                }
+                pre_frame_processed = true;
+            }
+
             // Add one to match "trim frame range semantic"
             uint64_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 

@@ -1543,9 +1543,13 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
             continue;
         }
 
-        const VulkanImageInfo* image_info = render_targets.color_att_imgs[i];
-        const ImageDumpResult  can_dump_image =
-            CanDumpImage(instance_table_, device_info->parent, image_info, device_info->property_feature_info);
+        const VulkanImageInfo* image_info     = render_targets.color_att_imgs[i];
+        const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_,
+                                                            device_info->parent,
+                                                            image_info,
+                                                            device_info->property_feature_info,
+                                                            device_info->version_extension_info);
+
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
                                                                               DumpResourceType::kRtv,
                                                                               static_cast<uint32_t>(i),
@@ -1613,8 +1617,11 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
     {
         const VulkanImageInfo* image_info = render_targets.depth_att_img;
 
-        const ImageDumpResult can_dump_image =
-            CanDumpImage(instance_table_, device_info->parent, image_info, device_info->property_feature_info);
+        const ImageDumpResult can_dump_image = CanDumpImage(instance_table_,
+                                                            device_info->parent,
+                                                            image_info,
+                                                            device_info->property_feature_info,
+                                                            device_info->version_extension_info);
         // The "before" depth target will be at the back() of the vector
         GFXRECON_ASSERT(image_info != nullptr);
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
@@ -1749,8 +1756,11 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                         continue;
                     }
 
-                    const ImageDumpResult can_dump_image = CanDumpImage(
-                        instance_table_, device_info->parent, image_info, device_info->property_feature_info);
+                    const ImageDumpResult can_dump_image = CanDumpImage(instance_table_,
+                                                                        device_info->parent,
+                                                                        image_info,
+                                                                        device_info->property_feature_info,
+                                                                        device_info->version_extension_info);
 
                     auto& new_dumped_desc =
                         dc_params.dumped_resources.dumped_descriptors.emplace_back(dumped_resource_base,

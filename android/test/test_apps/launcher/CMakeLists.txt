@@ -56,6 +56,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-pipeline-binaries
     gfxrecon-testapp-shader-objects
     gfxrecon-testapp-serialize-compute-and-transfer
+    gfxrecon-testapp-serialize-queue-submissions
     gfxrecon-testapp-sparse-resources
     gfxrecon-testapp-triangle
     gfxrecon-testapp-triangle-extra-device
@@ -64,7 +65,8 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-wait-for-present
     gfxrecon-testapp-trigger-trimming
     gfxrecon-testapp-ahb
-    gfxrecon-testapp-deep-pnext-chain)
+    gfxrecon-testapp-deep-pnext-chain
+    gfxrecon-testapp-screenshot-frame-boundaries)
 
 target_link_libraries(${PROJECT_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})

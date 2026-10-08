@@ -484,10 +484,7 @@ bool GatherAndPrintExeInfo(const std::string& input_filename)
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
         file_processor.InitializeFrameProcessing();
-        if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
+        file_processor.ProcessCaptureStart();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             PrintExeInfoText(info_consumer);
@@ -509,10 +506,7 @@ bool GatherAndPrintFileFormatInfo(const std::string& input_filename)
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
         file_processor.InitializeFrameProcessing();
-        if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
+        file_processor.ProcessCaptureStart();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             WriteOutput("File format info:");
@@ -533,10 +527,7 @@ bool GatherAndPrintEnvVars(const std::string& input_filename)
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
         file_processor.InitializeFrameProcessing();
-        if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
+        file_processor.ProcessCaptureStart();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             PrintEnvironmentVariableInfoText(info_consumer);

@@ -111,6 +111,16 @@ std::string ScreenshotController::FilenameFor(uint32_t index, uint32_t count) co
     return filename;
 }
 
+std::string ScreenshotController::LayerFilename(const std::string& filename_base, uint32_t layer_count, uint32_t layer)
+{
+    if (layer_count <= 1)
+    {
+        return filename_base;
+    }
+
+    return filename_base + "_layer_" + std::to_string(layer);
+}
+
 std::optional<std::array<float, 2>> ScreenshotController::ResolveScale(uint32_t width, uint32_t height) const
 {
     if (scale_)
@@ -127,12 +137,25 @@ std::optional<std::array<float, 2>> ScreenshotController::ResolveScale(uint32_t 
     return {};
 }
 
-bool ScreenshotController::Finish(const std::string& filename_base, const CpuImage& image, const Rotation& rotation)
+bool ScreenshotController::Finish(const std::string&     filename_base,
+                                  const CpuImage&        image,
+                                  const Rotation&        rotation,
+                                  ScreenshotWriteResult* result)
 {
     if (image.pixels == nullptr)
     {
-        GFXRECON_LOG_ERROR("Screenshot could not be created: the image was not read back");
+        static constexpr char kMessage[] = "Screenshot could not be created: the image was not read back";
+        GFXRECON_LOG_ERROR("%s", kMessage);
+        if (result != nullptr)
+        {
+            *result = ScreenshotWriteResult::Failed(screenshot_reason::kReadbackFailed, kMessage);
+        }
         return false;
+    }
+
+    if (result != nullptr)
+    {
+        *result = ScreenshotWriteResult();
     }
 
     uint32_t    width      = image.width;
@@ -147,7 +170,13 @@ bool ScreenshotController::Finish(const std::string& filename_base, const CpuIma
         // which is better than writing it wrongly turned.
         if (util::imagewriter::DataFormatsSizes(image.format) != 4)
         {
-            GFXRECON_LOG_WARNING_ONCE("A screenshot in this format cannot be rotated, thus it is written unrotated.");
+            static constexpr char kMessage[] =
+                "A screenshot in this format cannot be rotated, thus it is written unrotated.";
+            GFXRECON_LOG_WARNING_ONCE("%s", kMessage);
+            if (result != nullptr)
+            {
+                result->messages.push_back({ screenshot_reason::kRotationSkipped, kMessage });
+            }
         }
         else
         {
@@ -175,8 +204,36 @@ bool ScreenshotController::Finish(const std::string& filename_base, const CpuIma
         }
     }
 
-    return util::imagewriter::WriteScreenshotFile(
-        filename_base, format_, width, height, write_from, pitch, image.format);
+    std::string filename;
+    const bool  written = util::imagewriter::WriteScreenshotFile(
+        filename_base, format_, width, height, write_from, pitch, image.format, &filename);
+
+    if (result != nullptr)
+    {
+#ifndef GFXRECON_ENABLE_PNG_SCREENSHOT
+        if (format_ == util::ScreenshotFormat::kPng)
+        {
+            result->messages.push_back(
+                { screenshot_reason::kFormatFallback,
+                  "This build has no PNG support, thus the screenshot is written as a BMP file." });
+        }
+#endif
+        if (written)
+        {
+            result->status = ScreenshotStatus::kWritten;
+            result->file   = filename;
+            result->width  = width;
+            result->height = height;
+        }
+        else
+        {
+            result->status      = ScreenshotStatus::kFailed;
+            result->reason_code = screenshot_reason::kFileWriteFailed;
+            result->message     = "Screenshot could not be created: failed to write file " + filename;
+        }
+    }
+
+    return written;
 }
 
 GFXRECON_END_NAMESPACE(decode)

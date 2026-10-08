@@ -758,11 +758,32 @@ struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                          is_frame_boundary{ false };
-    std::vector<format::HandleId> frame_buffer_ids;
-    format::HandleId              active_render_pass_id{ format::kNullHandleId };
-    format::HandleId              active_framebuffer_id{ format::kNullHandleId };
-    std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+    bool is_frame_boundary{ false };
+
+    struct
+    {
+        std::vector<format::HandleId> frame_buffer_ids;
+        format::HandleId              active_render_pass_id{ format::kNullHandleId };
+        format::HandleId              active_framebuffer_id{ format::kNullHandleId };
+        std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+
+        void Reset()
+        {
+            frame_buffer_ids.clear();
+            active_render_pass_id = format::kNullHandleId;
+            active_framebuffer_id = format::kNullHandleId;
+            active_render_pass_attachment_image_view_ids.clear();
+        }
+    } render_pass_contexts;
+
+    struct DynamicRenderingContext
+    {
+        std::vector<format::HandleId> color_attachment_ids;
+        format::HandleId              depth_attachment{ format::kNullHandleId };
+        format::HandleId              stencil_attachment{ format::kNullHandleId };
+    };
+
+    std::vector<DynamicRenderingContext> dynamic_rendering_contexts;
 
     std::unordered_map<format::HandleId, graphics::ImageLayoutMap> image_layout_barriers;
 
