@@ -168,7 +168,7 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                    use_colorspace_fallback{ false };
     bool                    offscreen_swapchain_frame_boundary{ false };
     util::SwapchainOption   swapchain_option{ util::SwapchainOption::kVirtual };
-    util::PresentModeOption present_mode_option{ util::PresentModeOption::kCapture };
+    util::PresentModeOption present_mode_option{ util::PresentModeOption::kAuto };
     bool                    virtual_swapchain_skip_blit{ false };
     bool                    annotate_injected_commands{ false };
 
