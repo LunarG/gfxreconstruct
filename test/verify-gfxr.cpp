@@ -388,7 +388,7 @@ void run_trimming_app(const Paths& paths, const char* test_name, const char* tri
     auto known_trimming_json = nlohmann::json::parse(known_trimming_file, clean_gfxr_json);
 
     auto trimming_diff = nlohmann::json::diff(known_trimming_json, app_trimming_json);
-    ASSERT_EQ(trimming_diff.size(), 0) << std::setw(4) << trimming_diff;
+    ASSERT_EQ(trimming_diff.size(), 0u) << std::setw(4) << trimming_diff;
 }
 
 void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigger_trimming)
@@ -432,7 +432,7 @@ void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigge
     auto known_json = nlohmann::json::parse(known_file, clean_gfxr_json);
 
     auto diff = nlohmann::json::diff(known_json, app_json);
-    ASSERT_EQ(diff.size(), 0) << std::setw(4) << diff;
+    ASSERT_EQ(diff.size(), 0u) << std::setw(4) << diff;
 
     if (trimming_frames || trigger_trimming)
     {

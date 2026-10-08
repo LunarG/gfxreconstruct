@@ -35,19 +35,20 @@ python3 scripts/build.py --skip-check-code-style --test-apps
 The install directory is `build/<platform>/<arch>/output`.
 `ctest` starts each case from `<install>/test`, so the install must exist before a run.
 
-Run everything from the build directory:
+Run everything from the CMake build directory.
+`scripts/build.py` puts it in `build/<platform>/<arch>/cmake_output`:
 
 ```bash
-ctest --test-dir build/linux/x64 --output-on-failure
+ctest --test-dir build/linux/x64/cmake_output --output-on-failure
 ```
 
 Select cases by label or by name:
 
 ```bash
-ctest --test-dir build/linux/x64 -L unit          # The Catch2 unit tests only.
-ctest --test-dir build/linux/x64 -L smoke         # The test app cases only.
-ctest --test-dir build/linux/x64 -R Triangle      # Every case whose name matches.
-ctest --test-dir build/linux/x64 -N               # List the cases and run nothing.
+ctest --test-dir build/linux/x64/cmake_output -L unit          # The Catch2 unit tests only.
+ctest --test-dir build/linux/x64/cmake_output -L smoke         # The test app cases only.
+ctest --test-dir build/linux/x64/cmake_output -R Triangle      # Every case whose name matches.
+ctest --test-dir build/linux/x64/cmake_output -N               # List the cases and run nothing.
 ```
 
 The `unit` label exists only when the build had `RUN_TESTS` on.
