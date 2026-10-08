@@ -973,15 +973,20 @@ class VulkanCaptureManager : public ApiCaptureManager
                                           VkDependencyFlags,
                                           uint32_t,
                                           const VkMemoryBarrier*,
-                                          uint32_t,
-                                          const VkBufferMemoryBarrier*,
-                                          uint32_t                    imageMemoryBarrierCount,
-                                          const VkImageMemoryBarrier* pImageMemoryBarriers)
+                                          uint32_t                     bufferMemoryBarrierCount,
+                                          const VkBufferMemoryBarrier* pBufferMemoryBarriers,
+                                          uint32_t                     imageMemoryBarrierCount,
+                                          const VkImageMemoryBarrier*  pImageMemoryBarriers)
     {
         if (IsCaptureModeTrack())
         {
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackImageBarriers(commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
+            state_tracker_->TrackOwnershipTransfers(commandBuffer,
+                                                    bufferMemoryBarrierCount,
+                                                    pBufferMemoryBarriers,
+                                                    imageMemoryBarrierCount,
+                                                    pImageMemoryBarriers);
         }
     }
 
@@ -992,6 +997,42 @@ class VulkanCaptureManager : public ApiCaptureManager
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackImageBarriers2KHR(
                 commandBuffer, pDependencyInfo->imageMemoryBarrierCount, pDependencyInfo->pImageMemoryBarriers);
+            state_tracker_->TrackOwnershipTransfers2(commandBuffer, 1, pDependencyInfo);
+        }
+    }
+
+    void PostProcess_vkCmdWaitEvents(VkCommandBuffer commandBuffer,
+                                     uint32_t,
+                                     const VkEvent*,
+                                     VkPipelineStageFlags,
+                                     VkPipelineStageFlags,
+                                     uint32_t,
+                                     const VkMemoryBarrier*,
+                                     uint32_t                     bufferMemoryBarrierCount,
+                                     const VkBufferMemoryBarrier* pBufferMemoryBarriers,
+                                     uint32_t                     imageMemoryBarrierCount,
+                                     const VkImageMemoryBarrier*  pImageMemoryBarriers)
+    {
+        if (IsCaptureModeTrack())
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackOwnershipTransfers(commandBuffer,
+                                                    bufferMemoryBarrierCount,
+                                                    pBufferMemoryBarriers,
+                                                    imageMemoryBarrierCount,
+                                                    pImageMemoryBarriers);
+        }
+    }
+
+    void PostProcess_vkCmdWaitEvents2(VkCommandBuffer commandBuffer,
+                                      uint32_t        eventCount,
+                                      const VkEvent*,
+                                      const VkDependencyInfo* pDependencyInfos)
+    {
+        if (IsCaptureModeTrack())
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackOwnershipTransfers2(commandBuffer, eventCount, pDependencyInfos);
         }
     }
 
