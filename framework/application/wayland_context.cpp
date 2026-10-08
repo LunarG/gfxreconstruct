@@ -277,12 +277,12 @@ void WaylandContext::HandleSeatCapabilities(void* data, wl_seat* seat, uint32_t 
     }
 
     // Subscribe to keyboard events.
-    if (caps & WL_SEAT_CAPABILITY_KEYBOARD)
+    if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && (wayland_context->keyboard_ == nullptr))
     {
         wayland_context->keyboard_ = wl.seat_get_keyboard(seat);
         wl.keyboard_add_listener(wayland_context->keyboard_, &keyboard_listener_, wayland_context);
     }
-    else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD))
+    else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && (wayland_context->keyboard_ != nullptr))
     {
         wl.keyboard_destroy(wayland_context->keyboard_);
         wayland_context->keyboard_ = nullptr;
