@@ -47,6 +47,8 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/debug-utils.cpp
         test_cases/isolate-render-passes.cpp
         test_cases/serialize-compute-and-transfer.cpp
+        test_cases/serialize-render-passes.cpp
+        test_cases/serialize-queue-submissions.cpp
         test_cases/triangle.cpp
         test_cases/multisample-depth.cpp
         test_cases/shader-objects.cpp
