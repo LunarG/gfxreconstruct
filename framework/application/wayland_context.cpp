@@ -37,7 +37,7 @@ struct wl_keyboard_listener WaylandContext::keyboard_listener_;
 struct wl_seat_listener     WaylandContext::seat_listener_;
 struct wl_registry_listener WaylandContext::registry_listener_;
 struct wl_output_listener   WaylandContext::output_listener_;
-struct xdg_wm_base_listener WaylandContext::xdg_wm_base_listener_;
+util::XdgWmBaseListener     WaylandContext::xdg_wm_base_listener_;
 
 WaylandContext::WaylandContext(Application* application) : WsiContext(application)
 {
@@ -220,7 +220,7 @@ void WaylandContext::HandleRegistryGlobal(
     else if (util::platform::StringCompare(interface, wl.xdg->xdg_wm_base_interface.name) == 0)
     {
         wayland_context->xdg_wm_base_ =
-            reinterpret_cast<xdg_wm_base*>(wl.registry_bind(registry, id, &wl.xdg->xdg_wm_base_interface, 1));
+            reinterpret_cast<util::XdgWmBase*>(wl.registry_bind(registry, id, &wl.xdg->xdg_wm_base_interface, 1));
         wl.xdg->xdg_wm_base_add_listener(wayland_context->xdg_wm_base_, &xdg_wm_base_listener_, wayland_context);
     }
     else if (util::platform::StringCompare(interface, wl.seat_interface->name) == 0)
@@ -419,7 +419,7 @@ void WaylandContext::HandleOutputScale(void* data, struct wl_output* wl_output, 
     output_info.scale     = factor;
 }
 
-void WaylandContext::HandleXdgWmBasePing(void* data, struct xdg_wm_base* xdg_wm_base, uint32_t serial)
+void WaylandContext::HandleXdgWmBasePing(void* data, util::XdgWmBase* xdg_wm_base, uint32_t serial)
 {
     auto& wl = reinterpret_cast<WaylandContext*>(data)->GetWaylandFunctionTable();
     wl.xdg->xdg_wm_base_pong(xdg_wm_base, serial);

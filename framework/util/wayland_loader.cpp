@@ -138,7 +138,7 @@ bool WaylandLoader::Initialize()
                 util::platform::GetProcAddress(libwayland_, "wl_shell_surface_interface"));
 
             // additional protocols
-            function_table_.xdg = std::make_unique<wayland_xdg_shell_table>();
+            function_table_.xdg = std::make_unique<WaylandXdgShellTable>();
             function_table_.xdg->initialize(this);
         }
         else
