@@ -188,8 +188,7 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 endif()
 
 if (APPLE)
-    find_library(COREGRAPHICS_LIBRARY CoreGraphics)
-    target_link_libraries(gfxrecon_util ${COREGRAPHICS_LIBRARY})
+    target_link_libraries(gfxrecon_util "-framework CoreGraphics")
 endif()
 
 if (XCB_LIBRARY)

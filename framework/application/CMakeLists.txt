@@ -92,10 +92,8 @@ target_link_libraries(gfxrecon_application
 common_build_directives(gfxrecon_application)
 
 if (APPLE)
-    find_library(APPKIT_LIBRARY AppKit)
-    find_library(QUARTZCORE_LIBRARY QuartzCore)
     target_compile_options(gfxrecon_application PRIVATE -fobjc-arc)
-    target_link_libraries(gfxrecon_application ${APPKIT_LIBRARY} ${QUARTZCORE_LIBRARY})
+    target_link_libraries(gfxrecon_application "-framework AppKit" "-framework QuartzCore")
 endif(APPLE)
 
 if (${RUN_TESTS})
