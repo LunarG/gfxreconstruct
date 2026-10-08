@@ -24,6 +24,7 @@
 #define GFXRECON_OPTIMIZE_VULKAN_FEATURE_H
 
 #include "optimize_feature.h"
+#include "vulkan_file_optimizer.h"
 
 #include "decode/vulkan_detection_consumer.h"
 #include "format/format.h"
@@ -32,6 +33,7 @@
 #include <memory>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(optimize)
@@ -45,6 +47,8 @@ class OptimizeVulkanFeature : public OptimizeFeature
     std::string Label() const override { return "Vulkan"; }
     std::string CompiledHeaderVersionString() const override;
 
+    std::vector<util::FeatureOptionDesc> GetOptionDescs() const override;
+
     void RegisterDetectionDecoder(decode::FileProcessor& file_processor, uint64_t block_limit) override;
     bool WasDetected() const override;
     bool ShouldRun(const util::ArgumentParser& args) const override;
@@ -53,14 +57,18 @@ class OptimizeVulkanFeature : public OptimizeFeature
                   const util::ArgumentParser& args) override;
 
   private:
-    // Pass 1: collect handles that were never referenced in a command buffer submission.
-    bool GetUnreferencedResources(const std::string&                    input_filename,
-                                  std::unordered_set<format::HandleId>& unreferenced_ids);
+    // Pass 1: collect handles that were never referenced in a command buffer submission, and let each
+    // modifier collect the state it needs.  Modifiers that found no work are dropped.
+    static bool ScanInput(const std::string&                    input_filename,
+                          const util::ArgumentParser&           args,
+                          std::unordered_set<format::HandleId>& unreferenced_ids,
+                          VulkanFileOptimizer::Modifiers&       modifiers);
 
-    // Passes 2-3: determine unreferenced block indices, then write the filtered output file.
-    bool FilterUnreferencedResources(const std::string&                          input_filename,
-                                     const std::string&                          output_filename,
-                                     const std::unordered_set<format::HandleId>& unreferenced_ids);
+    // Passes 2-3: determine unreferenced block indices, then write the optimized output file.
+    bool WriteOptimizedFile(const std::string&                          input_filename,
+                            const std::string&                          output_filename,
+                            const std::unordered_set<format::HandleId>& unreferenced_ids,
+                            VulkanFileOptimizer::Modifiers              modifiers);
 
     std::unique_ptr<decode::VulkanDetectionConsumer> detection_consumer_;
     std::unique_ptr<decode::VulkanDecoder>           detection_decoder_;
