@@ -44,6 +44,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-isolate-render-passes
     gfxrecon-testapp-serialize-compute-and-transfer
+    gfxrecon-testapp-serialize-queue-submissions
     gfxrecon-testapp-multisample-depth
     gfxrecon-testapp-pipeline-binaries
     gfxrecon-testapp-set-environment

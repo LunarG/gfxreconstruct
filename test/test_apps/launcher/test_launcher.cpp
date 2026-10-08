@@ -33,6 +33,7 @@
 #include <debug_utils_app.h>
 #include <isolate_render_passes_app.h>
 #include <serialize_compute_and_transfer_app.h>
+#include <serialize_queue_submissions_app.h>
 #include <triangle_app.h>
 #include <triangle_extra_device_app.h>
 #include <deep_pnext_chain_app.h>
@@ -71,6 +72,7 @@ static const char* kAppNames[] = {
     "host-image-copy",
     "isolate-render-passes",
     "serialize-compute-and-transfer",
+    "serialize-queue-submissions",
     "multisample-depth",
     "pipeline-binaries",
 #ifndef __ANDROID__
@@ -173,6 +175,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "serialize-compute-and-transfer")
     {
         app = std::make_unique<gfxrecon::test_app::serialize_compute_and_transfer::App>();
+    }
+    else if (app_name == "serialize-queue-submissions")
+    {
+        app = std::make_unique<gfxrecon::test_app::serialize_queue_submissions::App>();
     }
     else if (app_name == "multisample-depth")
     {
