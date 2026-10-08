@@ -28,6 +28,10 @@
 #include "util/image_writer.h"
 #include "util/logging.h"
 
+#if defined(_WIN32)
+#include <d3d12video.h>
+#endif
+
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -1718,6 +1722,49 @@ uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t d
     return static_cast<uint64_t>(mip_depth) * depth_pitch;
 }
 #endif
+
+size_t GetResolveQueryDataSize(D3D12_QUERY_TYPE type, UINT num_queries)
+{
+    size_t element_size = 0;
+    switch (type)
+    {
+        case D3D12_QUERY_TYPE_OCCLUSION:
+        case D3D12_QUERY_TYPE_BINARY_OCCLUSION:
+        case D3D12_QUERY_TYPE_TIMESTAMP:
+            element_size = sizeof(UINT64);
+            break;
+        case D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS:
+            // D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS is not listed as a supported type in the
+            // ID3D12Device::ResolveQueryData spec (CPU Timeline Query Resolution). Additionally, GFXR
+            // does not support the video decode API. Allocate based on the correct struct size anyway
+            // so that if the driver accepts the call the buffer is large enough; if the driver rejects
+            // it, CheckReplayResult will handle the HRESULT mismatch.
+            GFXRECON_LOG_WARNING_ONCE(
+                "GetResolveQueryDataSize: D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS is not listed as a "
+                "supported query type for ID3D12Device::ResolveQueryData (CPU-timeline resolution). "
+                "GFXR does not support the video decode API.");
+            element_size = sizeof(D3D12_QUERY_DATA_VIDEO_DECODE_STATISTICS);
+            break;
+        case D3D12_QUERY_TYPE_PIPELINE_STATISTICS:
+            element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS);
+            break;
+        case D3D12_QUERY_TYPE_PIPELINE_STATISTICS1:
+            element_size = sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS1);
+            break;
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM0:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM1:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM2:
+        case D3D12_QUERY_TYPE_SO_STATISTICS_STREAM3:
+            element_size = sizeof(D3D12_QUERY_DATA_SO_STATISTICS);
+            break;
+        default:
+            GFXRECON_LOG_WARNING("GetResolveQueryDataSize: unknown D3D12_QUERY_TYPE %d, using sizeof(UINT64)",
+                                 static_cast<int>(type));
+            element_size = sizeof(UINT64);
+            break;
+    }
+    return element_size * static_cast<size_t>(num_queries);
+}
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

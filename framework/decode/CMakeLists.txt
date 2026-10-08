@@ -145,6 +145,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_handler.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_json.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_screenshot_json.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_result.h
                     ${CMAKE_CURRENT_LIST_DIR}/string_array_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/string_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_decoder.h
@@ -417,15 +420,13 @@ elseif(APPLE)
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/macos/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 elseif(ANDROID)
     target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
-                               ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include)
+                               ${GFXRECON_SOURCE_DIR}/external)
 else()
     target_include_directories(gfxrecon_decode
                            PRIVATE
@@ -434,42 +435,14 @@ else()
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
-endif()
-
-if (NOT ANDROID)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        if (WIN32)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/win64/lib)
-        elseif(APPLE)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/macos/lib)
-        else()
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
-        endif()
-    else (CMAKE_SIZEOF_VOID_P EQUAL 4)
-        if (WIN32)
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/win32/lib)
-        else()
-            target_link_directories(gfxrecon_decode
-                                    PUBLIC
-                                        ${GFXRECON_SOURCE_DIR}/external/precompiled/linux/lib/x86)
-        endif()
-    endif()
 endif()
 
 target_link_libraries(gfxrecon_decode
                         gfxrecon_graphics
                         gfxrecon_format
                         gfxrecon_util
+                        project_version
                         $<$<BOOL:${ANDROID}>:gfxrecon_replay_event_plugin_loader>
                         vulkan_registry
                         vulkan_memory_allocator

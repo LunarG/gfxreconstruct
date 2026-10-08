@@ -36,6 +36,7 @@
 #include <triangle_app.h>
 #include <triangle_extra_device_app.h>
 #include <deep_pnext_chain_app.h>
+#include <screenshot_frame_boundaries_app.h>
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <ahb_app.h>
 #endif
@@ -80,6 +81,9 @@ static const char* kAppNames[] = {
     "triangle",
     "triangle-extra-device",
     "deep-pnext-chain",
+    "screenshot-frame-boundary-command-buffer",
+    "screenshot-frame-boundary-ext",
+    "screenshot-frame-boundary-android",
 #ifdef __linux__
     "external-memory-fd-export",
     "external-memory-fd-import",
@@ -195,6 +199,21 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "deep-pnext-chain")
     {
         app = std::make_unique<gfxrecon::test_app::deep_pnext_chain::App>();
+    }
+    else if (app_name == "screenshot-frame-boundary-command-buffer")
+    {
+        using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
+        app       = std::make_unique<App>(App::Boundary::kCommandBufferLabel);
+    }
+    else if (app_name == "screenshot-frame-boundary-ext")
+    {
+        using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
+        app       = std::make_unique<App>(App::Boundary::kFrameBoundaryEXT);
+    }
+    else if (app_name == "screenshot-frame-boundary-android")
+    {
+        using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
+        app       = std::make_unique<App>(App::Boundary::kFrameBoundaryANDROID);
     }
 #ifdef __linux__
     else if (app_name == "external-memory-fd-export")

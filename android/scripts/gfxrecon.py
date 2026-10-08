@@ -112,6 +112,7 @@ def CreateReplayParser():
     parser.add_argument('--screenshot-prefix', metavar='PREFIX', help='Prefix to apply to the screenshot file name.  Default is "screenshot" (forwarded to replay tool)')
     parser.add_argument('--screenshot-size', metavar='SIZE', help='Screenshot dimensions. Ignored if --screenshot-scale is specified.  Expected format is <width>x<height>.')
     parser.add_argument('--screenshot-scale', metavar='SCALE', help='Scale screenshot dimensions. Overrides --screenshot-size, if specified. Expects a number which can be decimal')
+    parser.add_argument('--screenshot-results', action='store_true', default=False, help='Write a JSON file next to the screenshots, named after the screenshot prefix, that records for each requested frame which files were written and why any image was skipped (forwarded to replay tool)')
     parser.add_argument('--capture', action='store_true', default=False, help='Capture the replaying GFXR file. Capture option behavior and usage is the same as when capturing with the GFXR layer. The capture functionality is included in the `gfxrecon-replay` executable--no GFXR capture layer is added to the Vulkan layer chain.')
     parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
     parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache and skip calls to vkGetPipelineCacheData (forwarded to replay tool)')
@@ -229,6 +230,9 @@ def MakeExtrasString(args):
     if args.screenshot_scale:
         arg_list.append('--screenshot-scale')
         arg_list.append('{}'.format(args.screenshot_scale))
+
+    if args.screenshot_results:
+        arg_list.append('--screenshot-results')
 
     if args.capture:
         arg_list.append('--capture')

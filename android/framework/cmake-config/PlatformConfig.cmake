@@ -9,6 +9,10 @@ find_package(nlohmann_json REQUIRED CONFIG PATHS "${nlohmann_json_DIR}" NO_DEFAU
 set(CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/external/cmake-modules")
 list(APPEND CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/cmake")
 
+find_package(LZ4)
+find_package(ZSTD)
+find_package(ZLIB)
+
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
@@ -70,6 +74,9 @@ target_include_directories(project_version PUBLIC "${CMAKE_BINARY_DIR}")
 # For now, Android requires Vulkan to be enabled
 set(GFXRECON_ENABLE_VULKAN ON)
 add_definitions(-DGFXRECON_ENABLE_VULKAN)
+
+set(BUILD_ANDROID_APP ON)
+add_definitions(-DBUILD_ANDROID_APP)
 
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE
