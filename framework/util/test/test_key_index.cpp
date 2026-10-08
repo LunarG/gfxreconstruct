@@ -122,7 +122,7 @@ using Odds  = decltype(util::TypeListDrop(Wide{}, kIsEven));
 
 static_assert(util::TypeListSizeV<Wide> == kWide);
 static_assert(util::TypeListCountIf(Wide{}, kIsEven) == kWide / 2);
-static_assert(util::TypeListCountIf(Wide{}, util::Not<decltype(kIsEven)>{}) == kWide / 2);
+static_assert(util::TypeListCountIf(Wide{}, util::detail::Not<decltype(kIsEven)>{}) == kWide / 2);
 static_assert(std::same_as<util::TypeListAt<0, Wide>, Tag<0>>);
 static_assert(std::same_as<util::TypeListAt<kWide - 1, Wide>, Tag<kWide - 1>>);
 static_assert(util::TypeListSizeV<Evens> == kWide / 2);

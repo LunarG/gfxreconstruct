@@ -2524,7 +2524,8 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(
         if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
         {
             assert(*meta_header->sType ==
-                   gfxrecon::util::GetSType<typename Decoded_VkImportAndroidHardwareBufferInfoANDROID::struct_type>());
+                   gfxrecon::binding::StructureTypeOf<
+                       typename Decoded_VkImportAndroidHardwareBufferInfoANDROID::struct_type>());
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
             const Decoded_VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info =

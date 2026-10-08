@@ -88,6 +88,9 @@ constexpr std::array<size_t, Count> PositionsOf(const std::array<bool, N>& value
 // algorithms take it by value and re-create it, which a captureless closure allows, so the call is a constant
 // expression.
 
+GFXRECON_BEGIN_NAMESPACE(detail)
+
+// The negation of a predicate, for TypeListDrop.
 template <typename Predicate>
 struct Not
 {
@@ -97,8 +100,6 @@ struct Not
         return !Predicate{}.template operator()<T>();
     }
 };
-
-GFXRECON_BEGIN_NAMESPACE(detail)
 
 template <typename... Types, typename Predicate>
 constexpr size_t TypeListCountIfImpl(TypeList<Types...>, Predicate)
@@ -220,7 +221,7 @@ constexpr auto TypeListKeep(List, Predicate)
 template <typename List, typename Predicate>
 constexpr auto TypeListDrop(List, Predicate)
 {
-    return TypeListKeep(List{}, Not<Predicate>{});
+    return TypeListKeep(List{}, detail::Not<Predicate>{});
 }
 
 // The elements of List that are not in Excluded.

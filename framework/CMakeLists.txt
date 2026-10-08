@@ -4,6 +4,7 @@ add_subdirectory(graphics)
 add_subdirectory(format)
 add_subdirectory(encode)
 add_subdirectory(schema)
+add_subdirectory(binding)
 add_subdirectory(decode)
 add_subdirectory(application)
 

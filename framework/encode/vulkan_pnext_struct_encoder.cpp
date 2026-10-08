@@ -24,8 +24,10 @@
 // case per structure. A node is found by its sType in the StructureTypeIndex and encoded through the EncodeStructPtr
 // its descriptor names; an unrecognized node is reported and skipped, and the hop past it is probed (DF-2).
 
+#include "binding/structure_type.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
+#include "generated/generated_vulkan_binding_descriptor_for.h"
 #include "generated/generated_vulkan_schema_catalog.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_encoders.h"
@@ -53,7 +55,7 @@ struct EncodeNode
     template <schema::HasStructureType Descriptor>
     void operator()(ParameterEncoder* encoder, const VkBaseInStructure* base) const
     {
-        EncodeStructPtr(encoder, util::StructureTypeCast<Descriptor>(base));
+        EncodeStructPtr(encoder, binding::StructureTypeCast<Descriptor>(base));
     }
 };
 

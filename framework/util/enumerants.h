@@ -26,7 +26,7 @@
 #ifndef GFXRECON_UTIL_ENUMERANTS_H
 #define GFXRECON_UTIL_ENUMERANTS_H
 
-#include "schema/binding/descriptor_for.h"
+#include "binding/descriptor_for.h"
 #include "schema/schema.h"
 #include "util/defines.h"
 #include "util/key_index.h"
@@ -79,10 +79,10 @@ constexpr std::string_view NameIn(typename EnumerantDescriptorOf<Table>::element
 // The table of an enum bound to an enumerated descriptor.
 template <typename Enum>
 concept HasEnumerantTable =
-    schema::binding::HasDescriptor<Enum> && schema::HasEnumerants<typename schema::binding::DescriptorFor<Enum>::type>;
+    binding::HasDescriptor<Enum> && schema::HasEnumerants<typename binding::DescriptorFor<Enum>::type>;
 
 template <HasEnumerantTable Enum>
-using EnumerantTableOf = typename schema::binding::DescriptorFor<Enum>::type::enumerants;
+using EnumerantTableOf = typename binding::DescriptorFor<Enum>::type::enumerants;
 
 template <HasEnumerantTable Enum>
 constexpr std::string_view NameOf(Enum value)

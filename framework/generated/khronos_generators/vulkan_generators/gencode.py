@@ -368,7 +368,7 @@ def make_gen_opts(args):
          VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
         ('generated_vulkan_encode_capture_wrappers.h',
          VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions, True),
-        ('generated_vulkan_schema_binding_descriptor_for.h',
+        ('generated_vulkan_binding_descriptor_for.h',
          VulkanSchemaBindingDescriptorForGenerator, VulkanSchemaBindingDescriptorForGeneratorOptions, True),
         ('generated_vulkan_schema_checks.cpp',
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),

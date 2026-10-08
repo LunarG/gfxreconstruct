@@ -25,14 +25,13 @@
 // lookup. The primary template is API-agnostic; each API's rows are generated, keyed on its native types, which
 // never collide across APIs.
 
-#ifndef GFXRECON_SCHEMA_BINDING_DESCRIPTOR_FOR_H
-#define GFXRECON_SCHEMA_BINDING_DESCRIPTOR_FOR_H
+#ifndef GFXRECON_BINDING_DESCRIPTOR_FOR_H
+#define GFXRECON_BINDING_DESCRIPTOR_FOR_H
 
-#include "util/defines.h"
 #include "schema/schema.h"
+#include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(schema)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
 template <typename Native>
@@ -44,21 +43,20 @@ concept HasDescriptor = requires
     typename DescriptorFor<Native>::type;
 };
 
-// The native structure's descriptor carries a structure type
+// The native structure's descriptor carries a structure type.
 template <typename NativeStruct>
 concept HasSchemaStructureType =
     HasDescriptor<NativeStruct> && schema::HasStructureType<typename DescriptorFor<NativeStruct>::type>;
 
 // One row: Native is the API's structure, Descriptor its API type descriptor.
-#define GFXRECON_SCHEMA_DESCRIPTOR_FOR(Native, Descriptor) \
-    template <>                                            \
-    struct DescriptorFor<Native>                           \
-    {                                                      \
-        using type = Descriptor;                           \
+#define GFXRECON_BINDING_DESCRIPTOR_FOR(Native, Descriptor) \
+    template <>                                             \
+    struct DescriptorFor<Native>                            \
+    {                                                       \
+        using type = Descriptor;                            \
     }
 
 GFXRECON_END_NAMESPACE(binding)
-GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_SCHEMA_BINDING_DESCRIPTOR_FOR_H
+#endif // GFXRECON_BINDING_DESCRIPTOR_FOR_H

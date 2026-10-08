@@ -450,6 +450,7 @@ endif()
 
 target_link_libraries(gfxrecon_decode
                         gfxrecon_schema
+                        gfxrecon_binding
                         gfxrecon_graphics
                         gfxrecon_format
                         gfxrecon_util

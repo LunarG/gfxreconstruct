@@ -272,7 +272,7 @@ class VulkanSchemaBindingDescriptorForGeneratorOptions(VulkanSchemaBaseGenerator
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
             'generated/generated_vulkan_schema_types.h',
-            'schema/binding/descriptor_for.h',
+            'binding/descriptor_for.h',
             'util/defines.h',
         ))
 
@@ -333,11 +333,11 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'generated/generated_vulkan_decoder_args.h',
             'generated/generated_vulkan_schema.h',
             'generated/generated_vulkan_decode_api_element_traits.h',
-            'generated/generated_vulkan_schema_binding_descriptor_for.h',
+            'generated/generated_vulkan_binding_descriptor_for.h',
             'generated/generated_vulkan_schema_catalog.h',
             'generated/generated_vulkan_schema_enumerants.h',
             'generated/generated_vulkan_struct_decoders.h',
-            'schema/binding/descriptor_for.h',
+            'binding/descriptor_for.h',
             'schema/schema.h',
             'util/defines.h',
             'util/enumerants.h',
@@ -1595,7 +1595,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             write('static_assert(schema::HasEnumerants<{}>);'.format(element), file=self.outFile)
             if not self.is_flags_enum_64bit(enum):
                 write(
-                    'static_assert(std::is_same_v<schema::binding::DescriptorFor<::{}>::type, {}>);'.format(enum, element),
+                    'static_assert(std::is_same_v<binding::DescriptorFor<::{}>::type, {}>);'.format(enum, element),
                     file=self.outFile
                 )
         self.newline()
@@ -1619,8 +1619,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 file=self.outFile
             )
         self.newline()
-        write('static_assert(!schema::binding::HasDescriptor<uint32_t>);', file=self.outFile)
-        write('static_assert(!schema::binding::HasDescriptor<uint64_t>);', file=self.outFile)
+        write('static_assert(!binding::HasDescriptor<uint32_t>);', file=self.outFile)
+        write('static_assert(!binding::HasDescriptor<uint64_t>);', file=self.outFile)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -1931,16 +1931,14 @@ class VulkanSchemaBindingDescriptorForGenerator(VulkanSchemaBaseGenerator):
     """One DescriptorFor row per structure descriptor: the native structure to its API type descriptor."""
 
     def write_part(self):
-        write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(binding)', file=self.outFile)
         self.newline()
         for struct in sorted(self.get_structure_descriptors()):
-            write('GFXRECON_SCHEMA_DESCRIPTOR_FOR(::{0}, vulkan::api_types::{0});'.format(struct), file=self.outFile)
+            write('GFXRECON_BINDING_DESCRIPTOR_FOR(::{0}, schema::vulkan::api_types::{0});'.format(struct), file=self.outFile)
         self.newline()
         # A 64-bit flag-bits type is spelled VkFlags64, so a row for it would bind the bare integer type.
         for enum in self.get_enumerated_types():
             if not self.is_flags_enum_64bit(enum):
-                write('GFXRECON_SCHEMA_DESCRIPTOR_FOR(::{0}, vulkan::api_types::{0});'.format(enum), file=self.outFile)
+                write('GFXRECON_BINDING_DESCRIPTOR_FOR(::{0}, schema::vulkan::api_types::{0});'.format(enum), file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(binding)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)

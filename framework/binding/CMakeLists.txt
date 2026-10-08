@@ -29,23 +29,17 @@
 # Generated content is not here. An API's descriptors, Field descriptors and schemas are generated into
 # framework/generated and listed by the target that compiles them.
 
-add_library(gfxrecon_schema INTERFACE)
+add_library(gfxrecon_binding INTERFACE)
 
-target_include_directories(gfxrecon_schema
+target_include_directories(gfxrecon_binding
                            INTERFACE
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-# util supplies defines.h and the TypeList facility; format supplies the kinds a Field names and their widths.
-target_link_libraries(gfxrecon_schema
+target_link_libraries(gfxrecon_binding
                       INTERFACE
-                          gfxrecon_util
-                          gfxrecon_format)
+                          gfxrecon_schema)
 
-# The headers are listed on a target of their own rather than on gfxrecon_schema. INTERFACE sources are a usage
-# requirement, so listing them there would add both to every target that links this one, transitively -- every
-# tool, not just the targets that read them. A custom target puts them in the IDE and in no build.
-add_custom_target(gfxrecon_schema_headers
+add_custom_target(gfxrecon_binding_headers
                   SOURCES
-                      ${CMAKE_CURRENT_LIST_DIR}/field.h
-                      ${CMAKE_CURRENT_LIST_DIR}/schema.h
-                      ${CMAKE_CURRENT_LIST_DIR}/structure_type_index.h)
+                      ${CMAKE_CURRENT_LIST_DIR}/descriptor_for.h
+                      ${CMAKE_CURRENT_LIST_DIR}/structure_type.h)

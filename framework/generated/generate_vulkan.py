@@ -101,7 +101,7 @@ generate_targets = [
     'generated_vulkan_schema_decoded_struct_members.h',
     'generated_vulkan_schema_decoded_command_members.h',
     'generated_vulkan_encode_capture_wrappers.h',
-    'generated_vulkan_schema_binding_descriptor_for.h',
+    'generated_vulkan_binding_descriptor_for.h',
     'generated_vulkan_schema_checks.cpp',
     'generated_vulkan_schema_enumerants.h',
 ]

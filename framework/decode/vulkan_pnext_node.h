@@ -25,7 +25,8 @@
 #define GFXRECON_DECODE_PNEXT_NODE_H
 
 #include "util/defines.h"
-#include "util/vulkan_stype_util.h"
+#include "binding/structure_type.h"
+#include "generated/generated_vulkan_binding_descriptor_for.h"
 
 #include <cassert>
 #include <memory>
@@ -77,7 +78,7 @@ const T* GetPNextMetaStruct(const PNextNode* pnext)
     while (pnext != nullptr)
     {
         const auto* header = reinterpret_cast<const VulkanMetaStructHeader*>(pnext->GetMetaStructPointer());
-        if (*header->sType == gfxrecon::util::GetSType<typename T::struct_type>())
+        if (*header->sType == gfxrecon::binding::StructureTypeOf<typename T::struct_type>())
         {
             return reinterpret_cast<const T*>(header);
         }
