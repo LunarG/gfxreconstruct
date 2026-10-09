@@ -84,43 +84,62 @@ pipeline {
                         runJob = load 'ci/runJob.groovy'
                     }
 
-                    def builds
-                    builds = [
-                        'Windows Build': runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode]),
-                        'Linux Build': runJob.gfxrBuildLinux(runJob.LinuxBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode])
-                        // 'Mac Build': runJob.gfxrBuildMac(),
-                        // 'Android Build': runJob.gfxrBuildAndroid(runJob.AndroidBuildMachineLabel, scm.branches, [runJob.ReleaseMode,runJob.DebugMode]),
-                    ]
-                    parallel builds
+                    def suite = "commit-suite.json"
+                    def modes = [runJob.ReleaseMode, runJob.DebugMode]
 
-                    def tests
-                    tests = [
-                        // 'Android Rel': runJob.gfxrTestAndroid('Android Rel', runJob.ReleaseMode, runJob.AndroidLabel, "commit-suite.json", scm.branches),
-                        'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel', runJob.ReleaseMode, runJob.LinuxMesaLabel, "commit-suite.json", scm.branches),
-                        'Linux Mesa Dbg': runJob.gfxrTestLinux('Linux Mesa Dbg', runJob.DebugMode, runJob.LinuxMesaLabel, "commit-suite.json", scm.branches),
-                        'Linux Nnvidia Rel': runJob.gfxrTestLinux('Linux Nvidia Rel', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, "commit-suite.json", scm.branches),
-                        'Linux Nnvidia Dbg': runJob.gfxrTestLinux('Linux Nvidia Dbg', runJob.DebugMode, runJob.LinuxNvidiaLabel, "commit-suite.json", scm.branches),
-                        'Linux Mesa 9070 Rel': runJob.gfxrTestLinux('Linux Mesa 9070 Rel', runJob.ReleaseMode, runJob.LinuxMesa9070Label, "commit-suite.json", scm.branches),
-                        'Linux Mesa 9070 Dbg': runJob.gfxrTestLinux('Linux Mesa 9070 Dbg', runJob.DebugMode, runJob.LinuxMesa9070Label, "commit-suite.json", scm.branches),
-                        'Linux Nvidia 5080 Rel': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, "commit-suite.json", scm.branches),
-                        'Linux Nvidia 5080 Dbg': runJob.gfxrTestLinux('Linux Nvidia 5080 Dbg', runJob.DebugMode, runJob.LinuxNvidia5080Label, "commit-suite.json", scm.branches),
-                        // 'Mac': runJob.gfxrTestLinux('Mac', runJob.ReleaseMode, runJob.MacLabel, "commit-suite.json", scm.branches),
-                        'Windows AMD Rel': runJob.gfxrTestWindows('Win AMD Rel', runJob.ReleaseMode, runJob.WinAMDLabel, "commit-suite.json", scm.branches),
-                        'Windows AMD Dbg': runJob.gfxrTestWindows('Win AMD Dbg', runJob.DebugMode, runJob.WinAMDLabel, "commit-suite.json", scm.branches),
-                        'Windows Nvidia Rel': runJob.gfxrTestWindows('Win Nvidia Rel', runJob.ReleaseMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),
-                        'Windows Nvidia Dbg': runJob.gfxrTestWindows('Win Nvidia Dbg', runJob.DebugMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),
-                        'Windows11 ARM Rel': runJob.gfxrTestWindows('Win11 ARM Rel', runJob.ReleaseMode, runJob.Win11ARMLabel, "commit-suite.json", scm.branches),
-                        'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Win11 ARM Dbg', runJob.DebugMode, runJob.Win11ARMLabel, "commit-suite.json", scm.branches),
-                        'Windows11 AMD 9070 Rel': runJob.gfxrTestWindows('Win11 AMD 9070 Rel', runJob.ReleaseMode, runJob.Win11AMD9070Label, "commit-suite.json", scm.branches),
-                        'Windows11 AMD 9070 Dbg': runJob.gfxrTestWindows('Win11 AMD 9070 Dbg', runJob.DebugMode, runJob.Win11AMD9070Label, "commit-suite.json", scm.branches),
-                        'Windows11 Nvidia 5080 Rel': runJob.gfxrTestWindows('Win11 Nvidia 5080 Rel', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, "commit-suite.json", scm.branches),
-                        'Windows11 Nvidia 5080 Dbg': runJob.gfxrTestWindows('Win11 Nvidia 5080 Dbg', runJob.DebugMode, runJob.Win11Nvidia50XXLabel, "commit-suite.json", scm.branches),
+                    def linuxTests = [
+                        'Linux Mesa Rel':        runJob.gfxrTestLinux('Linux Mesa Rel',        runJob.ReleaseMode, runJob.LinuxMesaLabel,       suite, scm.branches),
+                        'Linux Mesa Dbg':        runJob.gfxrTestLinux('Linux Mesa Dbg',        runJob.DebugMode,   runJob.LinuxMesaLabel,       suite, scm.branches),
+                        'Linux Nvidia Rel':      runJob.gfxrTestLinux('Linux Nvidia Rel',      runJob.ReleaseMode, runJob.LinuxNvidiaLabel,     suite, scm.branches),
+                        'Linux Nvidia Dbg':      runJob.gfxrTestLinux('Linux Nvidia Dbg',      runJob.DebugMode,   runJob.LinuxNvidiaLabel,     suite, scm.branches),
+                        'Linux Mesa 9070 Rel':   runJob.gfxrTestLinux('Linux Mesa 9070 Rel',   runJob.ReleaseMode, runJob.LinuxMesa9070Label,   suite, scm.branches),
+                        'Linux Mesa 9070 Dbg':   runJob.gfxrTestLinux('Linux Mesa 9070 Dbg',   runJob.DebugMode,   runJob.LinuxMesa9070Label,   suite, scm.branches),
+                        'Linux Nvidia 5080 Rel': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, suite, scm.branches),
+                        'Linux Nvidia 5080 Dbg': runJob.gfxrTestLinux('Linux Nvidia 5080 Dbg', runJob.DebugMode,   runJob.LinuxNvidia5080Label, suite, scm.branches),
                     ]
 
-                    // Run the test closures in parallel.  This is outside the
-                    // setup node above, so each closure allocates its own test
-                    // machine instead of sharing one workspace.
-                    parallel tests
+                    def windowsTests = [
+                        'Windows AMD Rel':           runJob.gfxrTestWindows('Win AMD Rel',           runJob.ReleaseMode, runJob.WinAMDLabel,          suite, scm.branches),
+                        'Windows AMD Dbg':           runJob.gfxrTestWindows('Win AMD Dbg',           runJob.DebugMode,   runJob.WinAMDLabel,          suite, scm.branches),
+                        'Windows Nvidia Rel':        runJob.gfxrTestWindows('Win Nvidia Rel',        runJob.ReleaseMode, runJob.WinNvidiaLabel,       suite, scm.branches),
+                        'Windows Nvidia Dbg':        runJob.gfxrTestWindows('Win Nvidia Dbg',        runJob.DebugMode,   runJob.WinNvidiaLabel,       suite, scm.branches),
+                        'Windows11 ARM Rel':         runJob.gfxrTestWindows('Win11 ARM Rel',         runJob.ReleaseMode, runJob.Win11ARMLabel,        suite, scm.branches),
+                        'Windows11 ARM Dbg':         runJob.gfxrTestWindows('Win11 ARM Dbg',         runJob.DebugMode,   runJob.Win11ARMLabel,        suite, scm.branches),
+                        'Windows11 AMD 9070 Rel':    runJob.gfxrTestWindows('Win11 AMD 9070 Rel',    runJob.ReleaseMode, runJob.Win11AMD9070Label,    suite, scm.branches),
+                        'Windows11 AMD 9070 Dbg':    runJob.gfxrTestWindows('Win11 AMD 9070 Dbg',    runJob.DebugMode,   runJob.Win11AMD9070Label,    suite, scm.branches),
+                        'Windows11 Nvidia 5080 Rel': runJob.gfxrTestWindows('Win11 Nvidia 5080 Rel', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, suite, scm.branches),
+                        'Windows11 Nvidia 5080 Dbg': runJob.gfxrTestWindows('Win11 Nvidia 5080 Dbg', runJob.DebugMode,   runJob.Win11Nvidia50XXLabel, suite, scm.branches),
+                    ]
+
+                    // def androidTests = [
+                    //     'Android Rel': runJob.gfxrTestAndroid('Android Rel', runJob.ReleaseMode, runJob.AndroidLabel, suite, scm.branches),
+                    // ]
+                    // def macTests = [
+                    //     'Mac': runJob.gfxrTestMac('Mac', runJob.ReleaseMode, runJob.MacLabel, suite, scm.branches),
+                    // ]
+
+                    def platforms = [
+                        'Linux':   [build: runJob.gfxrBuildLinux(runJob.LinuxBuildMachineLabel, scm.branches, modes),     tests: linuxTests],
+                        'Windows': [build: runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, modes), tests: windowsTests],
+                        // 'Android': [build: runJob.gfxrBuildAndroid(runJob.AndroidBuildMachineLabel, scm.branches, modes), tests: androidTests],
+                        // 'Mac':     [build: runJob.gfxrBuildMac(),                                                       tests: macTests],
+                    ]
+
+                    def pipelines = [:]
+                    platforms.each { name, p ->
+                        pipelines[name] = {
+                            stage("${name} Build") {
+                                p.build()
+                            }
+                            stage("${name} Tests") {
+                                if (p.tests) {
+                                    parallel p.tests
+                                }
+                            }
+                        }
+                    }
+
+                    parallel pipelines
                 }
             }
         }
