@@ -383,6 +383,7 @@ void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                  
             VulkanCommandBufferInfo* command_buffer_info = object_table_->GetVkCommandBufferInfo(command_buffer_id);
             command_buffer_info->handle                  = split_info->FreeAssociatedHandles(command_pool);
 
+            original_command_buffer_id_.erase(command_buffer_info->handle);
             split_infos_.erase(command_buffer_id);
         }
     }
