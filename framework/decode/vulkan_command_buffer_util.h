@@ -95,6 +95,9 @@ class VulkanCommandBufferAssociatedInfo
     VulkanCommandBufferAssociatedInfo& operator=(VulkanCommandBufferAssociatedInfo&&)      = default;
     ~VulkanCommandBufferAssociatedInfo()                                                   = default;
 
+    /// @return The original handle of the split info.
+    [[nodiscard]] VkCommandBuffer GetOriginalHandle() const { return original_handle_; }
+
     /// @brief Sets the handle of the command buffer info to the next associated handle.
     ///
     /// If no handle is free, the function allocates more. The new handle is not reset and
@@ -192,6 +195,10 @@ class VulkanCommandBufferUtil
                                         const std::span<VkSubmitInfo2>             current_submits_span,
                                         const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
+    /// @brief Removes any state associated with the command buffers allocated from the specified command pool.
+    /// The caller is responsible for freeing the command pool and its command buffers.
+    void DestroyCommandPool(const VulkanCommandPoolInfo* pool_info);
+
     /// @brief Removes the split state of command buffers that the application frees.
     ///
     /// When replay frees command buffers, call this function. The function clears the
@@ -232,6 +239,12 @@ class VulkanCommandBufferUtil
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo> submits_span);
     std::vector<std::vector<VkCommandBuffer>>
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span);
+
+    /// @brief Removes any state associated with the command buffer ID.
+    /// @param command_pool Command pool from which the command buffer was allocated.
+    /// @param command_buffer_id Command buffer ID whose split info should be destroyed.
+    /// @param destroy_handles Whether to destroy the associated handles.
+    void DestroySplitInfo(VkCommandPool command_pool, format::HandleId command_buffer_id, bool destroy_handles);
 
     /// Returns the split info of the command buffer. Creates it on first use.
     VulkanCommandBufferAssociatedInfo& GetOrCreateAssociatedInfo(format::HandleId command_buffer_id);

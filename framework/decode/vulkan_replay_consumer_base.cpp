@@ -11666,11 +11666,10 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
             {
                 resource_dumper_->ResetCommandBuffer(cb_info->handle);
             }
-
-            if (options_.isolate_render_passes)
-            {
-                GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
-            }
+        }
+        if (options_.isolate_render_passes)
+        {
+            GetDeviceCommandBufferUtil(device_info).DestroyCommandPool(pool_info);
         }
     }
 
