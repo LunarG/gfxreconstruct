@@ -1372,12 +1372,6 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-        write(
-            '// A structure needs no decoded_value_type: that is its element type, which its API type descriptor',
-            file=self.outFile
-        )
-        write('// already carries.', file=self.outFile)
-
         for struct in self.schema_decodable_structs:
             write(
                 'template <> struct ApiElementTraits<schema::vulkan::api_types::{name}> '

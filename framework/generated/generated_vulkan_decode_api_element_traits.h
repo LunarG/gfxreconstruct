@@ -59,8 +59,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// A structure needs no decoded_value_type: that is its element type, which its API type descriptor
-// already carries.
 template <> struct ApiElementTraits<schema::vulkan::api_types::StdVideoH264SpsVuiFlags> { using decoded_type = Decoded_StdVideoH264SpsVuiFlags; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::StdVideoH264HrdParameters> { using decoded_type = Decoded_StdVideoH264HrdParameters; };
 template <> struct ApiElementTraits<schema::vulkan::api_types::StdVideoH264SequenceParameterSetVui> { using decoded_type = Decoded_StdVideoH264SequenceParameterSetVui; };

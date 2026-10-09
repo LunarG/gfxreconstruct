@@ -55,23 +55,11 @@ concept HasDecodedType = requires
     typename ApiElementTraits<ApiElement>::decoded_type;
 };
 
-template <typename ApiElement>
-concept HasDecodedValueType = requires
-{
-    typename ApiElementTraits<ApiElement>::decoded_value_type;
-};
-
 // The concrete Decoded_Vk* and args:: declarations remain real types. This alias provides generic access without
 // changing their type identity, linkage, or forward declarations.
 template <typename ApiElement>
 requires HasDecodedType<ApiElement>
 using Decoded = typename ApiElementTraits<ApiElement>::decoded_type;
-
-// A structure's decoded value type is its element type, which its API type descriptor already carries, so only a
-// command declares one: a command's formal API-signature storage is not the element type of anything.
-template <typename ApiElement>
-requires HasDecodedValueType<ApiElement>
-using DecodedValue = typename ApiElementTraits<ApiElement>::decoded_value_type;
 
 // A decoded wrapper names the API element it represents, as api_element, the way it names its native type as
 // struct_type. An operation handed a wrapper reaches the schema and the traits through that member, so no inverse

@@ -366,9 +366,8 @@ class DecodeStructAction
 
     size_t Remaining() const { return buffer_size_ - bytes_read_; }
 
-    // Named for the wrapper member it returns: every decoded wrapper calls this pointer decoded_value, and the
-    // trait that would name its type calls it decoded_value_type. Ref for what GetRef means by it, and because the
-    // plain name is taken by the DecodedValue alias in this namespace.
+    // Named for the wrapper member it returns: every decoded wrapper calls this pointer decoded_value
+    // and Ref for what GetRef means by it.
     template <typename Storage>
     static typename Storage::struct_type& DecodedValueRef(Storage& storage)
     {
