@@ -14,7 +14,7 @@ jobs:
   check-format:
     name: "Format Check"
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
     - name: Install dependencies
       run: |
@@ -45,7 +45,7 @@ jobs:
 
   clang-tidy:
     name: "Check code quality with clang-tidy"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
     - uses: actions/checkout@v4
       with:
@@ -71,7 +71,7 @@ jobs:
         config:
           - {
             name: "Ubuntu GCC Release",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-dev-ubuntu-gcc-release",
             test_failure_artifact: "gfxreconstruct-dev-test-failure-ubuntu-gcc-release",
             type: "release",
@@ -80,7 +80,7 @@ jobs:
           }
           - {
             name: "Ubuntu GCC Debug",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-dev-ubuntu-gcc-debug",
             test_failure_artifact: "gfxreconstruct-dev-test-failure-ubuntu-gcc-debug",
             type: "debug",
@@ -148,7 +148,7 @@ jobs:
 
   linux-vulkan-openxr-disabled:
     name: "Ubuntu GCC Release (Vulkan/OpenXR Disabled)"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
     - name: Require Python 3.10
       uses: actions/setup-python@v5
@@ -353,14 +353,14 @@ jobs:
         config:
           - {
             name: "Android Debug",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             type: "debug",
             artifact: "gfxreconstruct-dev-android-debug",
             test_failure_artifact: "gfxreconstruct-dev-test-failure-android-debug"
           }
           - {
             name: "Android Release",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             type: "release",
             artifact: "gfxreconstruct-dev-android-release",
             test_failure_artifact: "gfxreconstruct-dev-test-failure-android-release"
