@@ -419,6 +419,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;
+
+    // THIS IS A HACK THAT SUCKS!!!
+    std::set<format::HandleId> cbs_begun_this_frame_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
