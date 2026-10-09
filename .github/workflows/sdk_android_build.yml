@@ -30,7 +30,7 @@ jobs:
         config:
         - {
             name: "Android Release/Debug",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-android"
           }
     steps:
@@ -68,7 +68,7 @@ jobs:
 
   release:
     name: Create Release for Tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: android
     steps:
     - name: Get sdk version string
@@ -110,7 +110,7 @@ jobs:
         config:
         - {
             name: "Upload Android Release Tar Gzip Artifact",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-android",
             command: "tar czf",
             suffix: "android.tar.gz",
@@ -118,7 +118,7 @@ jobs:
           }
         - {
             name: "Upload Android Release Zip Artifact",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-android",
             command: "zip -r",
             suffix: "android.zip",

@@ -42,7 +42,7 @@ jobs:
         config:
         - {
             name: "Ubuntu GCC Release",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-ubuntu-gcc-release",
             cc: "gcc", cxx: "g++"
           }
@@ -155,13 +155,13 @@ jobs:
         config:
           - {
             name: "Android Debug",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             type: "debug",
             artifact: "gfxreconstruct-android-debug",
           }
           - {
             name: "Android Release",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             type: "release",
             artifact: "gfxreconstruct-android-release",
           }
@@ -210,7 +210,7 @@ jobs:
 
   release:
     name: Create Release for Tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [ linux, windows, android, macOS ]
     if: ${{ github.event_name == 'push' }}
     steps:
@@ -260,7 +260,7 @@ jobs:
         config:
         - {
             name: "Upload Ubuntu Release Artifact",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-ubuntu-gcc-release",
             command: "tar czf",
             suffix: "ubuntu-gcc.tar.gz",
@@ -268,7 +268,7 @@ jobs:
           }
         - {
             name: "Upload Windows Release Artifact",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-windows-msvc-release",
             command: "zip -r",
             suffix: "windows-msvc.zip",
@@ -276,7 +276,7 @@ jobs:
           }
         - {
           name: "Upload MacOS Release Artifact",
-          os: ubuntu-latest,
+          os: ubuntu-26.04,
           artifact: "gfxreconstruct-macos-release",
           command: "tar czf",
           suffix: "macos.tar.gz",
@@ -284,7 +284,7 @@ jobs:
         }
         - {
             name: "Upload Android Release Artifact",
-            os: ubuntu-latest,
+            os: ubuntu-26.04,
             artifact: "gfxreconstruct-android",
             command: "zip -r",
             suffix: "android.zip",
