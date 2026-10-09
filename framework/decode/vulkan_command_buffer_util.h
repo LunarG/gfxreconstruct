@@ -197,6 +197,7 @@ class VulkanCommandBufferUtil
     /// When replay frees command buffers, call this function. The function clears the
     /// recorded state of each command buffer. If a command buffer was split, the function
     /// frees its associated handles and restores its original handle.
+    /// The caller is responsible for freeing the restored handle.
     /// @param command_pool Pool that owns the command buffers.
     /// @param command_buffer_ids Capture IDs of the command buffers.
     void FreeCommandBuffers(VkCommandPool command_pool, const std::span<const format::HandleId> command_buffer_ids);

@@ -6623,12 +6623,32 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
 
     if (options_.isolate_render_passes)
     {
-        GetDeviceCommandBufferUtil(device_info)
-            .FreeCommandBuffers(command_pool_info->handle, pCommandBuffers->GetSpan());
-    }
+        auto command_buffer_ids = pCommandBuffers->GetSpan();
+        // The splitter frees the split handles and restores the original handle in each info.
+        GetDeviceCommandBufferUtil(device_info).FreeCommandBuffers(command_pool_info->handle, command_buffer_ids);
 
-    const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
-    func(device_info->handle, command_pool_info->handle, command_buffer_count, in_pCommandBuffers);
+        // pCommandBuffers was mapped before that, so free the handles from the infos.
+        std::span<const VkCommandBuffer> command_buffer_handles = pCommandBuffers->GetHandleSpan();
+        std::vector<VkCommandBuffer>     original_command_buffers(command_buffer_count);
+        for (size_t i = 0; i < command_buffer_count; ++i)
+        {
+            const VulkanCommandBufferInfo* info = object_info_table_->GetVkCommandBufferInfo(command_buffer_ids[i]);
+            if (info != nullptr)
+            {
+                original_command_buffers[i] = info->handle;
+            }
+            else
+            {
+                original_command_buffers[i] = command_buffer_handles[i];
+            }
+        }
+        func(device_info->handle, command_pool_info->handle, command_buffer_count, original_command_buffers.data());
+    }
+    else
+    {
+        const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
+        func(device_info->handle, command_pool_info->handle, command_buffer_count, in_pCommandBuffers);
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
