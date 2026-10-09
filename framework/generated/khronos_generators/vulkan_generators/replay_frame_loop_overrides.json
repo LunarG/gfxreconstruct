@@ -150,7 +150,6 @@
   "comment" : "executing the first looping iteration.",
   "resourceAllocateNotFullyImplemented":
   [
-    "vkAllocateCommandBuffers",
     "vkBindOpticalFlowSessionImageNV",
     "vkBindVideoSessionMemoryKHR",
     "vkCreatePipelineBinariesKHR",
