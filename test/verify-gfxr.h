@@ -68,6 +68,27 @@ void replay_and_count_recapture(const char*                      test_name,
                                 std::map<std::string, uint32_t>& counts);
 
 /**
+ * The state bound at a draw call, keyed by the command that bound it. The value is the arguments of each such
+ * command recorded into that draw's command buffer, concatenated in the order they were recorded.
+ */
+using DrawCallState = std::map<std::string, std::string>;
+
+/**
+ * Replay and record the state bound at each draw to test reissuing command buffer states.
+ *
+ * @param test_name         - the name of the test app whose capture to replay
+ * @param extra_replay_args - additional arguments forwarded verbatim to gfxrecon-replay
+ * @param recapture_suffix  - distinguishes this replay's recapture from another's, e.g. "_replay_baseline"
+ * @param[out] draw_states  - the state bound at each draw, in the order the draws were recorded
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void replay_and_record_draw_states(const char*                 test_name,
+                                   std::vector<std::string>    extra_replay_args,
+                                   const std::string&          recapture_suffix,
+                                   std::vector<DrawCallState>& draw_states);
+
+/**
  * Run an application with capture enabled, replay the resulting gfxr with screenshots and --screenshot-results, and
  * compare the json that replay writes about those screenshots to known_good/screenshots/<test_name>.json.
  *
