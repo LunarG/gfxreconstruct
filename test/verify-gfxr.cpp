@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <filesystem>
+#include <set>
 #include <system_error>
 #include <nlohmann/json.hpp>
 #include <stdlib.h>
@@ -458,11 +459,10 @@ void capture_app(const char* test_name)
     ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name));
 }
 
-void replay_and_count_recapture(const char*                      test_name,
-                                std::vector<std::string>         extra_replay_args,
-                                const std::string&               recapture_suffix,
-                                const std::vector<std::string>&  function_names,
-                                std::map<std::string, uint32_t>& counts)
+static void replay_and_convert_recapture(const char*                     test_name,
+                                         const std::vector<std::string>& extra_replay_args,
+                                         const std::string&              recapture_suffix,
+                                         std::filesystem::path&          recapture_json_path)
 {
     EnvironmentVariables env_vars;
     Paths                paths{ test_name, nullptr, false };
@@ -473,7 +473,7 @@ void replay_and_count_recapture(const char*                      test_name,
     std::filesystem::path recapture_path{ paths.base_path };
     recapture_path.append(paths.capture_path.stem().string() + recapture_suffix + ".gfxr");
 
-    // Remove stale recaptures so the counts cannot come from a stale file.
+    // Remove stale recaptures so the results cannot come from a stale file.
     std::error_code remove_error;
     std::filesystem::remove(recapture_path, remove_error);
     ASSERT_FALSE(remove_error) << "could not remove stale recapture file: " << recapture_path << " - "
@@ -494,10 +494,106 @@ void replay_and_count_recapture(const char*                      test_name,
     ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << recapture_path << " in path "
                          << paths.base_path;
 
-    std::filesystem::path recapture_json_path{ recapture_path };
+    recapture_json_path = recapture_path;
     recapture_json_path.replace_extension(".json");
+}
+
+void replay_and_count_recapture(const char*                      test_name,
+                                std::vector<std::string>         extra_replay_args,
+                                const std::string&               recapture_suffix,
+                                const std::vector<std::string>&  function_names,
+                                std::map<std::string, uint32_t>& counts)
+{
+    std::filesystem::path recapture_json_path;
+    ASSERT_NO_FATAL_FAILURE(
+        replay_and_convert_recapture(test_name, extra_replay_args, recapture_suffix, recapture_json_path));
 
     ASSERT_NO_FATAL_FAILURE(count_calls_in_json(recapture_json_path, function_names, counts));
+}
+
+// The commands whose state gets reissues from VulkanStateRecordingDecoder::IsVulkanStateCommand.
+static const std::set<std::string> kStateCommands = {
+    "vkCmdBindPipeline",  "vkCmdBindDescriptorSets", "vkCmdBindVertexBuffers", "vkCmdBindIndexBuffer",
+    "vkCmdPushConstants", "vkCmdSetViewport",        "vkCmdSetScissor",
+};
+
+static void record_draw_states_in_json(const std::filesystem::path& json_path, std::vector<DrawCallState>& draw_states)
+{
+    std::ifstream json_file{ json_path };
+    ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
+
+    auto json = nlohmann::json::parse(json_file);
+
+    draw_states.clear();
+
+    // Keyed by the command buffer handle each command was recorded into.
+    std::map<uint64_t, DrawCallState> state;
+
+    for (const auto& block : json)
+    {
+        auto function = block.find(gfxrecon::format::kNameFunction);
+        if (function == block.end())
+        {
+            continue;
+        }
+
+        auto name = function->find(gfxrecon::format::kNameName);
+        if (name == function->end() || !name->is_string())
+        {
+            continue;
+        }
+
+        auto args = function->find(gfxrecon::format::kNameArgs);
+        if (args == function->end())
+        {
+            continue;
+        }
+
+        auto command_buffer = args->find("commandBuffer");
+        if (command_buffer == args->end() || !command_buffer->is_number_unsigned())
+        {
+            continue;
+        }
+
+        const auto     function_name     = name->get<std::string>();
+        const uint64_t command_buffer_id = command_buffer->get<uint64_t>();
+        DrawCallState& bound             = state[command_buffer_id];
+
+        // Reset bound state when beginning the command buffer.
+        if (function_name == "vkBeginCommandBuffer")
+        {
+            bound.clear();
+        }
+        else if (kStateCommands.count(function_name) != 0)
+        {
+            // The state is all the arguments except the command buffer.
+            nlohmann::json described = *args;
+            // Command buffer handles may differ.
+            described.erase("commandBuffer");
+
+            // Concatenate the states of the same commands, Eg: multiple `vkCmdSetViewports` with different ranges.
+            // Since reissuing doesn't reorder the states and just replays in order, the order of commands being
+            // concatenated should be kept the same.
+            bound[function_name] += described.dump();
+        }
+        // Update draw states when a command starts with `vkCmdDraw`.
+        else if (function_name.rfind("vkCmdDraw", 0) == 0)
+        {
+            draw_states.push_back(bound);
+        }
+    }
+}
+
+void replay_and_record_draw_states(const char*                 test_name,
+                                   std::vector<std::string>    extra_replay_args,
+                                   const std::string&          recapture_suffix,
+                                   std::vector<DrawCallState>& draw_states)
+{
+    std::filesystem::path recapture_json_path;
+    ASSERT_NO_FATAL_FAILURE(
+        replay_and_convert_recapture(test_name, extra_replay_args, recapture_suffix, recapture_json_path));
+
+    ASSERT_NO_FATAL_FAILURE(record_draw_states_in_json(recapture_json_path, draw_states));
 }
 
 // Keeps every block of a screenshot results json but the header: its versions, capture path and options differ

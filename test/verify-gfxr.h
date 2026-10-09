@@ -68,6 +68,27 @@ void replay_and_count_recapture(const char*                      test_name,
                                 std::map<std::string, uint32_t>& counts);
 
 /**
+ * The state bound at a draw call, keyed by the command that bound it. The value is the arguments of each such
+ * command recorded into that draw's command buffer, concatenated in the order they were recorded.
+ */
+using DrawCallState = std::map<std::string, std::string>;
+
+/**
+ * Replay and record the state bound at each draw to test reissuing command buffer states.
+ *
+ * @param test_name         - the name of the test app whose capture to replay
+ * @param extra_replay_args - additional arguments forwarded verbatim to gfxrecon-replay
+ * @param recapture_suffix  - distinguishes this replay's recapture from another's, e.g. "_replay_baseline"
+ * @param[out] draw_states  - the state bound at each draw, in the order the draws were recorded
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void replay_and_record_draw_states(const char*                 test_name,
+                                   std::vector<std::string>    extra_replay_args,
+                                   const std::string&          recapture_suffix,
+                                   std::vector<DrawCallState>& draw_states);
+
+/**
  * Run an application with capture enabled, replay the resulting gfxr with screenshots and --screenshot-results, and
  * compare the json that replay writes about those screenshots to known_good/screenshots/<test_name>.json.
  *
@@ -81,33 +102,5 @@ void replay_and_count_recapture(const char*                      test_name,
  * @note expects the same environment variables as verify_gfxr().
  */
 void capture_and_verify_screenshots(const char* test_name, std::vector<std::string> screenshot_args);
-
-/**
- * Run a test app with capture enabled, producing <test_name>_<test_suite>_<test_case>.gfxr next to the test runner for
- * a later replay.
- *
- * @param test_name - the name of the test app to launch and capture
- *
- * @note expects the same environment variables as verify_gfxr().
- */
-void capture_app(const char* test_name);
-
-/**
- * Replay the gfxr that capture_app() produced for test_name, headless (--swapchain offscreen) against the mock ICD
- * with extra_replay_args forwarded to gfxrecon-replay. It then saves the counts of specified Vulkan commands.
- *
- * @param test_name         - the name of the test app whose capture to replay
- * @param extra_replay_args - additional arguments forwarded verbatim to gfxrecon-replay
- * @param recapture_suffix  - distinguishes this replay's recapture from another's, e.g. "_replay_baseline"
- * @param function_names    - the Vulkan commands to count, e.g. { "vkCmdPipelineBarrier" }
- * @param[out] counts       - how often each of function_names was recorded, keyed by command name
- *
- * @note expects the same environment variables as verify_gfxr().
- */
-void replay_and_count_recapture(const char*                      test_name,
-                                std::vector<std::string>         extra_replay_args,
-                                const std::string&               recapture_suffix,
-                                const std::vector<std::string>&  function_names,
-                                std::map<std::string, uint32_t>& counts);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H
