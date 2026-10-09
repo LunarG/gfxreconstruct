@@ -572,7 +572,7 @@ static void record_draw_states_in_json(const std::filesystem::path& json_path, s
             described.erase("commandBuffer");
 
             // Concatenate the states of the same commands, Eg: multiple `vkCmdSetViewports` with different ranges.
-            // Since reissuing doesn't reorder the states and just replays in order, the order of commands being 
+            // Since reissuing doesn't reorder the states and just replays in order, the order of commands being
             // concatenated should be kept the same.
             bound[function_name] += described.dump();
         }
