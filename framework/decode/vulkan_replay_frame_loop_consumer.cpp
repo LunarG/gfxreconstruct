@@ -988,9 +988,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInf
 void VulkanReplayFrameLoopConsumer::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
                                                                  args::ResetCommandBuffer& args)
 {
-    GFXRECON_LOG_INFO("In ResetCommandBuffer (capture-time handle == %" PRIu64 ")", args.commandBuffer);
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition() &&
+        cbs_begun_this_frame_.contains(args.commandBuffer))
     {
+        GFXRECON_LOG_DEBUG("Replacing cb (capture-time handle == %" PRIu64 ")", args.commandBuffer);
         VulkanCommandBufferInfo* cb_info     = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
         VulkanDeviceInfo*        device_info = GetObjectInfoTable().GetVkDeviceInfo(cb_info->parent_id);
         VulkanCommandBufferUtil& cbu         = GetDeviceCommandBufferUtil(device_info);
@@ -1040,7 +1041,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCal
 void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
                                                                  args::BeginCommandBuffer& args)
 {
-    GFXRECON_LOG_INFO("In BeginCommandBuffer (capture-time handle == %" PRIu64 ")", args.commandBuffer);
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         // While looping, we'll be submitting the command buffer repeatedly,
@@ -1076,6 +1076,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
     {
         VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
     }
+    cbs_begun_this_frame_.insert(args.commandBuffer);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkFreeCommandBuffers(const ApiCallInfo&        call_info,
@@ -1481,6 +1482,8 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
             CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
             FixupDeviceObjects(queue_info->parent_id, queue);
+
+            cbs_begun_this_frame_.clear();
         }
     }
 }
@@ -2272,7 +2275,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo&
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
-    GFXRECON_LOG_INFO("In QueueSubmit.");
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
     if (frame_loop_info_.IsLooping())
@@ -2373,6 +2375,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
         FixupDeviceObjects(queue_info->parent_id, args.queue);
+
+        cbs_begun_this_frame_.clear();
     }
 }
 
