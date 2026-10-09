@@ -43,6 +43,58 @@ jobs:
           exit 1
         fi
 
+  # TEMPORARY: format the whole tree to measure the effect of a clang-format version change.
+  # Remove this job before merge.
+  check-format-whole-tree:
+    name: "Whole-Tree Format (clang-format-${{ matrix.config.version }}, TEMPORARY)"
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { version: 14, os: ubuntu-24.04 }
+          - { version: 22, os: ubuntu-26.04 }
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format-${{ matrix.config.version }}
+    - name: Clone repository
+      uses: actions/checkout@v7
+    - name: Run clang-format on all files
+      run: |
+        set -euo pipefail
+        clang-format-${{ matrix.config.version }} --version
+        git ls-files -z -- \
+          '*.c' '*.h' '*.cpp' '*.hpp' '*.mm' \
+          ':!framework/generated/' ':!external/' \
+          ':!*generated_*' ':!*.def' | \
+          xargs -0 -P "$(nproc)" -n 20 clang-format-${{ matrix.config.version }} -i -style=file
+        git diff > whole-tree-format.diff
+        {
+          echo "## clang-format-${{ matrix.config.version }}: whole-tree reformat"
+          echo
+          echo "Files changed: $(git diff --name-only | wc -l)"
+          echo
+          echo '```'
+          git diff --shortstat
+          echo '```'
+          echo
+          echo "### Top 50 files by changed lines"
+          echo
+          echo '```'
+          git diff --numstat | awk '{ print $1 + $2 "\t" $3 }' | sort -rn | head -50
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        git diff --stat | tail -1
+        git diff --quiet
+    - name: Upload reformat diff
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: whole-tree-format-clang-format-${{ matrix.config.version }}
+        path: whole-tree-format.diff
+
   clang-tidy:
     name: "Check code quality with clang-tidy"
     runs-on: ubuntu-26.04
