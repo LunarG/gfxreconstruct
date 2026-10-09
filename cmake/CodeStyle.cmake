@@ -30,10 +30,10 @@ option(CHECK_CPP_CODE_STYLE_BASE "Git branch/commit for C++ code style compariso
 set(check_code_style_script_ "${CMAKE_CURRENT_LIST_DIR}/../scripts/check_code_style.py")
 
 if(${APPLY_CPP_CODE_STYLE} OR ${CHECK_CPP_CODE_STYLE})
-    find_program(CLANG_FORMAT clang-format-14 DOC "Clang format executable")
+    find_program(CLANG_FORMAT clang-format-22 DOC "Clang format executable")
 
     if(CLANG_FORMAT-NOTFOUND STREQUAL ${CLANG_FORMAT})
-        message(FATAL_ERROR "Failed to find clang-format-14 in system path! Install clang-format-14 or set both APPLY_CPP_CODE_STYLE and CHECK_CPP_CODE_STYLE to OFF")
+        message(FATAL_ERROR "Failed to find clang-format-22 in system path! Install clang-format-22 or set both APPLY_CPP_CODE_STYLE and CHECK_CPP_CODE_STYLE to OFF")
     endif()
     # Python
     if(CMAKE_HOST_WIN32)

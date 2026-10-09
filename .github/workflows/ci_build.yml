@@ -19,9 +19,9 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang-format-14
+        sudo apt-get install -y clang-format-22
     - name: Clone repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Run clang-format script
@@ -29,7 +29,7 @@ jobs:
         set -euo pipefail
         BASE="origin/${{ github.base_ref }}"
         git fetch origin "${{ github.base_ref }}"
-        clang-format-14 --version
+        clang-format-22 --version
         DIFF_OUTPUT=$(git diff -U0 "$BASE"...HEAD -- \
           '*.c' '*.h' '*.cpp' '*.hpp' '*.mm' \
           ':!framework/generated/' ':!external/' \
@@ -39,7 +39,7 @@ jobs:
           echo "$DIFF_OUTPUT"
           echo
           echo "Formatting issues found on changed lines. Apply the diff above with 'git apply',"
-          echo "or run 'git clang-format-14' locally."
+          echo "or run 'git clang-format-22' locally."
           exit 1
         fi
 
@@ -47,18 +47,18 @@ jobs:
     name: "Check code quality with clang-tidy"
     runs-on: ubuntu-26.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: 'recursive'
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang-tidy-18 libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+        sudo apt-get install -y clang-tidy-22 libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - name: Configure
       run: cmake -S . -B tidy-build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     - name: Run clang-tidy
       run: |
-        run-clang-tidy-18 -p tidy-build -quiet \
+        run-clang-tidy-22 -p tidy-build -quiet \
           -warnings-as-errors='*' \
           '(framework/(?!generated/)|tools/|layer/)'
 
@@ -88,24 +88,22 @@ jobs:
             cc: "gcc", cxx: "g++"
           }
     steps:
-    - name: Require Python 3.10
-      uses: actions/setup-python@v5
+    - name: Require Python 3.14
+      uses: actions/setup-python@v7
       with:
-        python-version: '3.10'
+        python-version: '3.14'
     - run: pip install pyparsing
     - name: Clone repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: 'recursive'
     - name: Setup sccache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.11
     - name: Install build dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev
     - uses: lukka/get-cmake@latest
-      with:
-        cmakeVersion: 3.24
     - name: Check generated code
       if: matrix.config.type == 'debug'
       run: |
@@ -126,7 +124,7 @@ jobs:
         cd ${{matrix.config.build_dir}}/linux/x64/output/test
         sudo -n ./run-tests.sh
     - name: Upload test failure artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
@@ -141,7 +139,7 @@ jobs:
         mv ${{ matrix.config.build_dir }}/linux/x64/output/lib*/*.so gfxreconstruct-dev/
         mv ${{ matrix.config.build_dir }}/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -150,24 +148,22 @@ jobs:
     name: "Ubuntu GCC Release (Vulkan/OpenXR Disabled)"
     runs-on: ubuntu-26.04
     steps:
-    - name: Require Python 3.10
-      uses: actions/setup-python@v5
+    - name: Require Python 3.14
+      uses: actions/setup-python@v7
       with:
-        python-version: '3.10'
+        python-version: '3.14'
     - run: pip install pyparsing
     - name: Clone repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: 'recursive'
     - name: Setup sccache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.11
     - name: Install build dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - uses: lukka/get-cmake@latest
-      with:
-        cmakeVersion: 3.24
     - name: Run build script
       run: |
         python3 scripts/build.py --config release --skip-check-code-style --skip-tests --parallel 0 --cmake-extra "GFXRECON_ENABLE_VULKAN=OFF" --cmake-extra "GFXRECON_ENABLE_OPENXR=OFF"
@@ -202,23 +198,23 @@ jobs:
             cc: "cl", cxx: "cl"
           }
     steps:
-    - name: Require Python 3.10
-      uses: actions/setup-python@v5
+    - name: Require Python 3.14
+      uses: actions/setup-python@v7
       with:
-        python-version: '3.10'
+        python-version: '3.14'
     - name: Install Ply Python Module
       run: pip install ply
     - name: Run with VsDevCmd
       uses: ilammy/msvc-dev-cmd@v1
     - name: Install SDK 26100
-      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.5
       with:
         sdk-version: 26100
     - name: Set WindowsSDKVersion
       run:
         echo ("WindowsSDKVersion=10.0.26100.0\") >> $env:GITHUB_ENV
     - name: Clone repository from merge of PR branch and dev branch
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: 'recursive'
     - name: Check generated code
@@ -238,7 +234,7 @@ jobs:
         cd ${{matrix.config.build_dir}}\windows\x64\output\test
         ./run-tests.ps1
     - name: Upload test failure artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
@@ -252,7 +248,7 @@ jobs:
         copy layer\vk_layer_settings.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
         move ${{ matrix.config.build_dir }}\windows\x64\output\bin gfxreconstruct-dev
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
@@ -282,11 +278,11 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: 'recursive'
     - name: Setup sccache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.11
     - name: Run build script
       run: |
         python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
@@ -316,7 +312,7 @@ jobs:
         sudo chmod -R g+w .
         sudo su - test -c "cd $WORKING_PATH && VULKAN_LIBRARY_PATH=$(pwd)/VulkanSDK/1.3.304.0/macOS/lib/libvulkan.dylib ./run-tests_macos.sh"
     - name: Upload test failure artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
@@ -339,7 +335,7 @@ jobs:
         cd gfxreconstruct-dev
         zip -r9 "../${{ matrix.config.artifact }}.zip" *
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.config.artifact }}
         path: ${{ matrix.config.artifact }}.zip
@@ -367,15 +363,15 @@ jobs:
           }
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: 'recursive'
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.11
       - name: Set up Java
-        uses: "actions/setup-java@v4"
+        uses: "actions/setup-java@v6"
         with:
-          java-version: 17
+          java-version: 25
           distribution: "temurin"
       - name: Gradle build
         run: |
@@ -407,7 +403,7 @@ jobs:
           fi
           cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.config.artifact }}
           path: ./gfxreconstruct-dev
