@@ -14312,6 +14312,11 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
     VkDescriptorGetInfoEXT* in_pDescriptorInfo = pDescriptorInfo->GetPointer();
     void*                   out_pDescriptor    = pDescriptor->GetOutputPointer();
 
+    // An application might pass a dataSize larger than the descriptor size, leaving trailing bytes unwritten by the
+    // driver; seed with captured bytes so they match in the check below.
+    util::platform::MemoryCopy(
+        out_pDescriptor, pDescriptor->GetOutputLength(), pDescriptor->GetPointer(), pDescriptor->GetLength());
+
     func(device, in_pDescriptorInfo, dataSize, out_pDescriptor);
 
     if (UseAddressReplacement(device_info))
@@ -14325,7 +14330,6 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
     else
     {
         // relying on 'descriptorBufferCaptureReplay' we assume this data to match
-        GFXRECON_ASSERT(pDescriptor->GetLength() == pDescriptor->GetOutputLength());
         GFXRECON_ASSERT(memcmp(pDescriptor->GetPointer(), pDescriptor->GetOutputPointer(), pDescriptor->GetLength()) ==
                         0);
     }
