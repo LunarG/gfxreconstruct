@@ -29,6 +29,7 @@
 #include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
 
+#include <optional>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -241,11 +242,10 @@ class VulkanCommandBufferUtil
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span);
 
     /// @brief Removes any state associated with the command buffer ID.
-    /// @param command_pool Command pool from which the command buffer was allocated.
-    /// @param command_buffer_id Command buffer ID whose split info should be destroyed.
-    /// @param destroy_handles Whether to destroy the associated handles. If true, also writes the
-    ///        original handle back into the command buffer info.
-    void DestroySplitInfo(VkCommandPool command_pool, format::HandleId command_buffer_id, bool destroy_handles);
+    /// @param command_buffer_id Command buffer ID whose split info should be removed.
+    /// @return The removed split info, or no value if the command buffer was not split.
+    ///         The caller decides whether to free its associated handles.
+    std::optional<VulkanCommandBufferAssociatedInfo> RemoveSplitInfo(format::HandleId command_buffer_id);
 
     /// Returns the split info of the command buffer. Creates it on first use.
     VulkanCommandBufferAssociatedInfo& GetOrCreateAssociatedInfo(format::HandleId command_buffer_id);
