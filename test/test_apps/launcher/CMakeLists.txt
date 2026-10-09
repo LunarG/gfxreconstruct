@@ -35,34 +35,11 @@ target_include_directories(${TARGET_NAME}
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
                                ${CMAKE_CURRENT_SOURCE_DIR}
-                               ${CMAKE_SOURCE_DIR})
+                               ${CMAKE_SOURCE_DIR}
+                               ${GFXRECON_TEST_APP_LIST_DIR})
 
-set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
-    gfxrecon-testapp-acquired-image
-    gfxrecon-testapp-ahb
-    gfxrecon-testapp-debug-utils
-    gfxrecon-testapp-host-image-copy
-    gfxrecon-testapp-isolate-render-passes
-    gfxrecon-testapp-serialize-compute-and-transfer
-    gfxrecon-testapp-serialize-queue-submissions
-    gfxrecon-testapp-multisample-depth
-    gfxrecon-testapp-pipeline-binaries
-    gfxrecon-testapp-set-environment
-    gfxrecon-testapp-shader-objects
-    gfxrecon-testapp-sparse-resources
-    gfxrecon-testapp-triangle
-    gfxrecon-testapp-triangle-extra-device
-    gfxrecon-testapp-deep-pnext-chain
-    gfxrecon-testapp-screenshot-frame-boundaries
-)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    list(APPEND GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
-            gfxrecon-testapp-external-memory-fd-export
-            gfxrecon-testapp-external-memory-fd-import
-            gfxrecon-testapp-wait-for-present
-            gfxrecon-testapp-trigger-trimming)
-endif()
+# The libraries come from test/test_apps/TestAppList.cmake.
+set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES ${GFXRECON_TEST_APP_LIBRARIES})
 
 target_link_libraries(${TARGET_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES}
