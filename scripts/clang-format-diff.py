@@ -58,8 +58,8 @@ def main():
   parser.add_argument('-style',
                       help='formatting style to apply (LLVM, Google, Chromium, '
                       'Mozilla, WebKit)')
-  parser.add_argument('-binary', default='clang-format-14',
-                      help='location of binary to use for clang-format-14')
+  parser.add_argument('-binary', default='clang-format-22',
+                      help='location of binary to use for clang-format-22')
   args = parser.parse_args()
 
   # Extract changed lines for each file.

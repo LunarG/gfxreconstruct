@@ -226,7 +226,7 @@ usage.  These classes should conform to STL naming rules for their public interf
 
 C++ Code formatting is managed with a custom ClangFormat configuration file.
 This is the `.clang-format` file found at the base of the repo tree.
-It is intended for use with **ClangFormat version 14** (see
+It is intended for use with **ClangFormat version 22** (see
 [Platform-specific ClangFormat Installation](#platform-specific-clangformat-installation)
 for instructions on installing this version for your particular platform)
 
@@ -244,7 +244,7 @@ $ git add -u .
 
 # Run clang-format on the files in the staging area
 # any changes will appear in the unstaged portion of git
-$ git clang-format-14
+$ git clang-format-22
 
 # Check for changes applied by clang-format, and if so:
 $ git add -u .
@@ -483,17 +483,17 @@ pull request or other contribution to GitHub.
 
 ## Platform-specific ClangFormat Installation
 
-The following is a collection of notes for obtaining ClangFormat version 14
+The following is a collection of notes for obtaining ClangFormat version 22
 on various platforms.
 
 ### Visual Studio
 
 - Different versions of Visual Studio have different versions of clang-format
   built in. To ensure the best compatibility with GFXR's GitHub checks, version
-  14 should be used:
-  - Install version 14 of clang-format.exe.
-    - clang-format.exe 14 is included when installing LLVM 14
-    - The LLVM 14 release download is available on the [LLVM 14.0.6 release page on GitHub](https://github.com/llvm/llvm-project/releases/tag/llvmorg-14.0.6)
+  22 should be used:
+  - Install version 22 of clang-format.exe.
+    - clang-format.exe 22 is included when installing LLVM 22
+    - The LLVM 22 release download is available on the [LLVM 22.1.8 release page on GitHub](https://github.com/llvm/llvm-project/releases/tag/llvmorg-22.1.8)
   - Point Visual Studio to use the custom clang-format.exe:
     - Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
       At the bottom is a checkbox for **Use custom path to clang-format.exe**.
@@ -502,19 +502,19 @@ on various platforms.
 
 ### Ubuntu
 
-Currently supported versions of Ubuntu provide clang-format-14 in the package manager.
+Ubuntu 26.04 and later provide clang-format-22 in the package manager.
 
 ```bash
 sudo apt update
-sudo apt-get install clang-format-14 clang-tidy-14
+sudo apt-get install clang-format-22 clang-tidy-22
 ```
 
-For earlier versions of Ubuntu, the required version of `clang-format` can be
+For earlier versions of Ubuntu, such as 24.04, the required version of `clang-format` can be
 obtained through the [LLVM toolchain repository](https://apt.llvm.org).
 
 Configure `clang-format` and `clang-tidy` so that the new version is used by default:
 
 ```bash
-sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 900
-sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-14 900
+sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-22 900
+sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-22 900
 ```
