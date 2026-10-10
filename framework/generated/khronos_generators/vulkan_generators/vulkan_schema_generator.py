@@ -1381,8 +1381,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         self.newline()
 
-        # A command's decoded wrapper is today's args structure. The formal API-signature storage the design also
-        # names does not exist yet, so no decoded_value_type is emitted for a command either.
+        # A command's traits name its args structure as the decoded type and carry its call id.
         #
         # Every command gets traits, including the one whose args structure is hand-written because its decoder is.
         # That structure is a derivation of the same schema and must have the canonical shape; the member-trait

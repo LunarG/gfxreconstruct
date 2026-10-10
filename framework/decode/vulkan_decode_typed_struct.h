@@ -40,9 +40,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// The generated sType sieve, defined in generated_vulkan_pnext_struct_decoder.cpp.
-size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
-
 class TypedStructDecoder : public PointerDecoderBase
 {
   public:
