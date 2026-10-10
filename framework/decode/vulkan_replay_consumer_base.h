@@ -2206,6 +2206,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     void MaybeInjectComputeTransferBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
 
+    void ReleaseDeviceResources(const VulkanDeviceInfo* device_info);
+
   private:
     struct HardwareBufferInfo
     {
