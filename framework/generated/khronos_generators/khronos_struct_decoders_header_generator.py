@@ -60,11 +60,20 @@ class KhronosStructDecodersHeaderGenerator():
                 continue
             self.write_decoded_parent_child_struct_definitions(api_data, struct)
 
+    def make_api_element_alias(self, struct):
+        """The line naming the wrapper's API element in its schema, or empty for an API without a schema.
+
+        A wrapper that names its element is its own key into the schema and the representation traits, so an
+        operation handed a wrapper needs no inverse trait to find them.
+        """
+        return ''
+
     def write_decoded_struct_definition(self, struct):
         body = '\n'
         body += 'struct Decoded_{}\n'.format(struct)
         body += '{\n'
         body += '    using struct_type = {};\n'.format(struct)
+        body += self.make_api_element_alias(struct)
         body += '\n'
         body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
 
@@ -94,6 +103,7 @@ class KhronosStructDecodersHeaderGenerator():
         body += 'struct Decoded_{}\n'.format(struct)
         body += '{\n'
         body += '    using struct_type = {};\n'.format(struct)
+        body += self.make_api_element_alias(struct)
         body += '    using union_size_type = {};\n'.format(size_union_name)
         body += '\n'
         body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)

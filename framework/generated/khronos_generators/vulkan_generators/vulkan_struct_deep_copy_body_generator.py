@@ -21,6 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import json
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
@@ -328,20 +329,12 @@ class VulkanStructDeepCopyBodyGenerator(VulkanBaseGenerator):
         self.newline()
 
     def checkType(self, typeinfo, typename):
-        if typename in ['VkBaseInStructure',
-                        'VkBaseOutStructure',
-                        'VkXlibSurfaceCreateInfoKHR',
-                        'VkXcbSurfaceCreateInfoKHR',
-                        'VkWaylandSurfaceCreateInfoKHR',
-                        'VkAndroidSurfaceCreateInfoKHR',
-                        'VkImportAndroidHardwareBufferInfoANDROID',
-                        'VkMetalSurfaceCreateInfoEXT',
-                        'VkDirectFBSurfaceCreateInfoEXT',
-                        'VkScreenSurfaceCreateInfoQNX',
-                        'VkPushDescriptorSetWithTemplateInfoKHR'
-                        ]:
-            return False
-        return True
+        """The structures deep copy does not handle: the structures-deep-copy list in the blacklists file, which the
+        schema generator also reads to emit catalog::deep_copy_exclusions."""
+        if not hasattr(self, 'deep_copy_exclusions'):
+            with open(self.genOpts.blacklists, 'r') as blacklists:
+                self.deep_copy_exclusions = json.load(blacklists)['structures-deep-copy']
+        return typename not in self.deep_copy_exclusions
 
     def getPointerCountExpression(self, typename, pointer_value):
         if typename == "VkPipelineMultisampleStateCreateInfo" and pointer_value.name == "pSampleMask":
