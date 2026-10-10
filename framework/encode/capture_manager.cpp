@@ -88,6 +88,16 @@ extern "C"
         const CommonCaptureManager* manager = CommonCaptureManager::Get();
         return manager != nullptr ? manager->GetCaptureMode() : 0;
     }
+
+#if defined(GFXRECON_ENABLE_HEAP_ACCOUNTING)
+    GFXR_EXPORT void GFXRGetHeapStats(util::heap_accounting::HeapStats* stats)
+    {
+        if (stats != nullptr)
+        {
+            *stats = util::heap_accounting::GetHeapStats();
+        }
+    }
+#endif
 }
 
 format::HandleId CommonCaptureManager::GetUniqueId()
