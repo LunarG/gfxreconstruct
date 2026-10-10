@@ -5312,7 +5312,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     VulkanSubmitJobPlan plan;
 
-    if (options_.isolate_render_passes)
+    if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
     {
         auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
         plan.Push(0,
@@ -5597,7 +5597,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     VulkanSubmitJobPlan plan;
 
-    if (options_.isolate_render_passes)
+    if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
     {
         auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
         plan.Push(0,
@@ -11745,7 +11745,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
 
     VkResult result = func(command_buffer, flags);
 
-    if (options_.isolate_render_passes)
+    if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
     {
         auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
         GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(command_buffer_info);
@@ -11803,7 +11803,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
                 resource_dumper_->ResetCommandBuffer(cb_info->handle);
             }
 
-            if (options_.isolate_render_passes)
+            if (options_.isolate_render_passes || application_->GetFrameLoopInfo() != nullptr)
             {
                 GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
             }

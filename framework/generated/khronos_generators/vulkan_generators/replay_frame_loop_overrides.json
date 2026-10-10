@@ -14,6 +14,7 @@
     "vkCreateDebugReportCallbackEXT",
     "vkCreateDebugUtilsMessengerEXT",
     "vkCreateDeferredOperationKHR",
+    "vkCreateCommandPool",
     "vkCreateDescriptorPool",
     "vkCreateDescriptorSetLayout",
     "vkCreateDescriptorUpdateTemplate",
@@ -149,7 +150,6 @@
   "comment" : "executing the first looping iteration.",
   "resourceAllocateNotFullyImplemented":
   [
-    "vkAllocateCommandBuffers",
     "vkBindOpticalFlowSessionImageNV",
     "vkBindVideoSessionMemoryKHR",
     "vkCreatePipelineBinariesKHR",
@@ -176,12 +176,19 @@
     "vkDestroyAccelerationStructureNV",
     "vkUnmapMemory2",
     "vkUnmapMemory2KHR",
-    "vkFreeCommandBuffers",
     "vkReleaseCapturedPipelineDataKHR",
     "vkReleaseDisplayEXT",
     "vkReleaseFullScreenExclusiveModeEXT",
     "vkReleasePerformanceConfigurationINTEL",
     "vkReleaseSwapchainImagesEXT",
     "vkReleaseSwapchainImagesKHR"
-  ]
+  ],
+    
+  "comment" : "These are entry points for command buffer state commands",
+  "comment" : "that don't start with vkCmd",
+    "commandBufferState": [
+        "vkAllocateCommandBuffers",
+        "vkEndCommandBuffer",
+        "vkTrimCommandPool"
+    ]
 }
