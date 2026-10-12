@@ -1097,7 +1097,14 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC2& value)
     encoder->EncodeFloatValue(value.MipLODBias);
     encoder->EncodeUInt32Value(value.MaxAnisotropy);
     encoder->EncodeEnumValue(value.ComparisonFunc);
-    encoder->EncodeFloatArray(value.FloatBorderColor, 4);
+    if (value.Flags & D3D12_SAMPLER_FLAG_UINT_BORDER_COLOR)
+    {
+        encoder->EncodeUInt32Array(value.UintBorderColor, 4);
+    }
+    else
+    {
+        encoder->EncodeFloatArray(value.FloatBorderColor, 4);
+    }
     encoder->EncodeFloatValue(value.MinLOD);
     encoder->EncodeFloatValue(value.MaxLOD);
     encoder->EncodeEnumValue(value.Flags);
