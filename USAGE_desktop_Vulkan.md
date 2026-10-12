@@ -34,6 +34,7 @@ to one of these other documents:
     2. [Key Controls](#key-controls)
     3. [Virtual Swapchain](#virtual-swapchain)
     4. [Dumping resources](#dumping-resources)
+    5. [Frame Looping](#frame-looping)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -610,7 +611,9 @@ arguments:
 
 ```text
 gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--gpu <index>]
-                        [--pause-frame <N>] [--paused] [--sync] [--screenshot-all]
+                        [--pause-frame <N>] [--paused]
+                        [--loop-frame <N>] [--loop-count <N>]
+                        [--sync] [--screenshot-all]
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
@@ -683,6 +686,12 @@ Optional arguments:
   --pause-frame <N>     Pause after replaying frame number N.
   --paused              Pause after replaying the first frame (same
                         as --pause-frame 1).
+  --loop-frame <N>      Enable frame repeat (experimental).
+                        N specifies the frame number to repeat, where 1 is
+                        the first frame.
+  --loop-count <N>      Specify the total number of times to play the loop
+                        frame. Default is to repeat the frame until replay
+                        is interrupted.
   --screenshot-all
                         Generate screenshots for all frames.  When this
                         option is specified, --screenshots is ignored.
@@ -1047,6 +1056,26 @@ The `--sgfr` option specify at which frames these conditions apply. If `--sgfr` 
 ### Dumping resources
 
 GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
+
+### Frame Looping
+
+Frame looping is currently experimental.
+
+Frame looping replays a single frame repeatedly instead of playing the capture
+through to the end.  It is intended for profiling a frame.
+
+`--loop-frame <N>` enables looping and selects the frame to repeat.  `N` is a
+1-based frame number. Replay proceeds normally up to and including frame `N`,
+and then replays frame `N` again for each iteration. Replay exits once the
+final iteration finishes.
+
+`--loop-count <N>` sets how many times the loop frame is replayed, counting the
+first play of that frame as the first iteration. When it is not given, the
+frame repeats until replay is interrupted.
+
+```bash
+gfxrecon-replay --loop-frame 100 --loop-count 500 capture.gfxr
+```
 
 ## Other Capture File Processing Tools
 

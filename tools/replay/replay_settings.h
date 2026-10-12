@@ -100,7 +100,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s\t[-h | --help] [--version]", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("\t\t\t[--cpu-mask <binary-mask>] [--gpu <index>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused] [--sync] [--screenshot-all]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--loop-frame <N>] [--loop-count <N>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sync] [--screenshot-all]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshots <N1(-N2),...>] [--screenshot-format <format>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
@@ -157,9 +159,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
     GFXRECON_WRITE_CONSOLE("  --loop-frame <N>\tEnable frame repeat (experimental).");
-    GFXRECON_WRITE_CONSOLE("          \t\tN specifies the frame number to repeat; default is 0.");
-    GFXRECON_WRITE_CONSOLE("  --loop-count <N>\tSpecify the number of times to repeat the frame when");
-    GFXRECON_WRITE_CONSOLE("          \t\tloop frame is enabled. Default is 0: replay forever.");
+    GFXRECON_WRITE_CONSOLE("          \t\tN specifies the frame number to repeat, where 1 is");
+    GFXRECON_WRITE_CONSOLE("          \t\tthe first frame.");
+    GFXRECON_WRITE_CONSOLE("  --loop-count <N>\tSpecify the total number of times to play the loop");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe. Default is to repeat the frame until replay");
+    GFXRECON_WRITE_CONSOLE("          \t\tis interrupted.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-all");
     GFXRECON_WRITE_CONSOLE("          \t\tGenerate screenshots for all frames.  When this");
     GFXRECON_WRITE_CONSOLE("          \t\toption is specified, --screenshots is ignored.");
