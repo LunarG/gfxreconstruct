@@ -29,6 +29,7 @@
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_semaphore_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
@@ -243,12 +244,14 @@ class VulkanAddressReplacer
      * @param build_range_infos     provided array of VkAccelerationStructureBuildRangeInfoKHR*
      * @param address_tracker       reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
      *                              and potentially update tracked information
+     * @param clone_command_buffers command buffers that also record this build, e.g. dump-resources clones
      */
     void ProcessCmdBuildAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
                                                   uint32_t                                     info_count,
                                                   VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
-                                                  decode::VulkanDeviceAddressTracker&          address_tracker);
+                                                  decode::VulkanDeviceAddressTracker&          address_tracker,
+                                                  std::span<const VkCommandBuffer> clone_command_buffers = {});
 
     /**
      * @brief   ProcessCmdCopyAccelerationStructuresKHR will check
@@ -397,22 +400,24 @@ class VulkanAddressReplacer
   private:
     struct buffer_context_t
     {
-        decode::VulkanResourceAllocator*              resource_allocator = nullptr;
-        uint32_t                                      num_bytes          = 0;
-        VkDeviceMemory                                device_memory      = VK_NULL_HANDLE;
-        VkBuffer                                      buffer             = VK_NULL_HANDLE;
-        decode::VulkanResourceAllocator::ResourceData allocator_data{};
-        decode::VulkanResourceAllocator::MemoryData   memory_data{};
-        VkDeviceAddress                               device_address = 0;
-        void*                                         mapped_data    = nullptr;
-        std::string                                   name;
+        TemporaryBuffer                             temp_buffer;
+        VkDeviceMemory                              device_memory = VK_NULL_HANDLE;
+        decode::VulkanResourceAllocator::MemoryData memory_data{};
 
-        buffer_context_t()                        = default;
-        buffer_context_t(const buffer_context_t&) = delete;
+        uint32_t        num_bytes      = 0;
+        VkDeviceAddress device_address = 0;
+
+        // Points into the mapped allocation, shifted by the same amount device_address was aligned by
+        void*       mapped_data = nullptr;
+        std::string name;
+
+        buffer_context_t()                                   = default;
+        buffer_context_t(const buffer_context_t&)            = delete;
+        buffer_context_t& operator=(const buffer_context_t&) = delete;
         buffer_context_t(buffer_context_t&& other) noexcept;
+        buffer_context_t& operator=(buffer_context_t&& other) noexcept;
         ~buffer_context_t();
-        buffer_context_t& operator=(buffer_context_t other);
-        void              swap(buffer_context_t& other) noexcept;
+        void swap(buffer_context_t& other) noexcept;
     };
 
     struct pipeline_context_t
@@ -476,10 +481,12 @@ class VulkanAddressReplacer
 
     void update_global_hashmap(VkCommandBuffer command_buffer);
 
+    //! records the replacement into command_buffer_info's command buffer and into each of clone_command_buffers
     void run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
                              const std::span<VkDeviceAddress>  addresses,
                              const VulkanDeviceAddressTracker& address_tracker,
-                             VkPipelineStageFlags              sync_stage);
+                             VkPipelineStageFlags              sync_stage,
+                             std::span<const VkCommandBuffer>  clone_command_buffers = {});
 
     [[nodiscard]] bool create_buffer(buffer_context_t&  buffer_context,
                                      size_t             num_bytes,

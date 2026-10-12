@@ -531,17 +531,12 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
             dst->create_parameters->Clear();
         }
 
-        // Copy the source descriptor's creation parameters to destination.
+        // Copy the source descriptor's creation parameters to destination, including its DestDescriptor. The state
+        // writer replaces it with the destination's heap id and index.
         if ((src->create_parameters != nullptr) && (src->create_parameters->GetDataSize() != 0))
         {
-            // Compute copy size.
-            size_t heap_and_index_size = 0;
-            if (!src->is_copy)
-            {
-                heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
-            }
             size_t src_size  = src->create_parameters->GetDataSize();
-            size_t copy_size = src_size - heap_and_index_size;
+            size_t copy_size = src_size;
 
             // If the source descriptor is modified asynchronously in another thread, its create_parameters may be
             // invalid. This behavior is not supported by DX12--descriptor creations and copies are free-threaded. Log a
@@ -559,8 +554,7 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
 
                 // Additonal check to detect potential errors in the copy due to asynchronous changes to the source
                 // descriptor.
-                if ((src->create_parameters->GetDataSize() - heap_and_index_size) !=
-                    dst->create_parameters->GetDataSize())
+                if (src->create_parameters->GetDataSize() != dst->create_parameters->GetDataSize())
                 {
                     GFXRECON_LOG_WARNING(
                         "The state of the source descriptor (0x%zx) may have changed during CopyDescriptors. The state "

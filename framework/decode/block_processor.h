@@ -135,6 +135,7 @@ class BlockProcessor
     bool ProcessFrameDelimiter(format::ApiCallId call_id);
     bool ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame);
     bool ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArgs& execute_blocks_info);
+    void ProcessStateBeginMarkerFrameState(const StateBeginMarkerArgs& state_begin);
     void ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end);
     void ProcessAnnotation(const AnnotationArgs& annotation);
     void HandleBlockReadError(BlockIOError error_code, const char* error_message);
@@ -150,6 +151,14 @@ class BlockProcessor
     bool HasPendingBlocksToSkip() const noexcept { return !pending_blocks_to_skip_.empty(); }
 
   private:
+    /// This is true until the first block that belongs to frame 0 is encountered.
+    /// Meta-data, annotation, and state marker blocks are considered pre-frame.
+    bool pre_frame_boundary_pending_{ true };
+
+    /// This is true once the block processor encounters a state begin marker block,
+    /// and remains true until the a state end marker block is encountered.
+    bool in_state_setup_{ false };
+
     // Frame/block/error tracking -- written exclusively by the active loading path.
     uint64_t     frame_number_{ file_processor::kFirstFrame };
     BlockIOError error_state_{ kErrorInvalidFileDescriptor };
@@ -220,9 +229,15 @@ class BlockProcessor
 
     bool               AtEof() const;
     ActiveFileContext& GetCurrentFile();
+    const ActiveFileContext& GetCurrentFile() const;
 
     static bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type);
     bool        IsFrameDelimiter(format::ApiCallId call_id) const;
+
+    /// Peeks the next block header on the active file.
+    /// Returns true if the next block belongs to a frame (i.e., not pre-frame).
+    /// Leading meta and annotation blocks and state markers are pre-frame.
+    bool NextBlockIsFrame() const;
 };
 
 // Explicit instantiation declarations -- definitions live in block_processor.cpp.

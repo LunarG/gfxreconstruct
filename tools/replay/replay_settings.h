@@ -32,7 +32,8 @@
 
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--remove-unsupported,--validate,"
-    "--debug-device-lost,--create-dummy-allocations,--screenshot-all,--qamr|--quit-after-measurement-range,"
+    "--debug-device-lost,--create-dummy-allocations,--screenshot-all,--screenshot-results,"
+    "--qamr|--quit-after-measurement-range,"
     "--fmr|--flush-measurement-range,--flush-inside-measurement-range,--pbi-all,--preload-measurement-range,"
     "--log-timestamps,--async-processing,--dump-resources-before-draw,--dump-resources-modifiable-state-only";
 
@@ -104,7 +105,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>] [--screenshot-interval <N>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--wsi <platform>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-results] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
@@ -202,6 +203,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
     GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
     GFXRECON_WRITE_CONSOLE("          \t\t--screenshot-scale is also specified then this option is ignored.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-results");
+    GFXRECON_WRITE_CONSOLE("          \t\tWrite a JSON file next to the screenshots, named after the");
+    GFXRECON_WRITE_CONSOLE("          \t\tscreenshot prefix, that records for each requested frame which");
+    GFXRECON_WRITE_CONSOLE("          \t\tfiles were written and why any image was skipped. Vulkan only.");
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnable the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");

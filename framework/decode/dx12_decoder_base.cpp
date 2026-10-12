@@ -570,6 +570,14 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
         case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
             // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
+        case D3D12_FEATURE_BARRIER_LAYOUT:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_BARRIER_LAYOUT>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS22:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS22>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
         default:
             GFXRECON_LOG_ERROR("Failed to decode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
                                "unrecognized D3D12_FEATURE type %d",

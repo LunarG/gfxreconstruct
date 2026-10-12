@@ -71,6 +71,8 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12Object_SetPrivateDataInterface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Object_SetName(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12DeviceChild_GetDevice(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12RootSignature1_GetSerializedSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12RootSignature1_GetSerializedData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -305,6 +307,17 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12Device12_GetResourceAllocationInfo3(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device13_OpenExistingHeapFromAddress1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_RegisterTrimNotificationCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_UnregisterTrimNotificationCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateShaderResourceView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateUnorderedAccessView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateConstantBufferView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateSampler2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateRenderTargetView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateDepthStencilView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_CreateQueryHeap1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Device15_ResolveQueryData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12StateObjectDatabase_SetApplicationDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12StateObjectDatabase_GetApplicationDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12StateObjectDatabase_StorePipelineStateDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -319,6 +332,8 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12Tools1_ReserveGPUVARangesAtCreate(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Tools1_ClearReservedGPUVARangesList(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Tools2_SetApplicationSpecificDriverState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12RuntimeValidationControl_DisableFailuresFromStricterValidationInAppLocalRuntime(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12RuntimeValidationControl_FailuresFromStricterValidationInAppLocalRuntimeDisabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12PageableTools_GetAllocation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12DeviceTools_SetNextAllocationAddress(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -339,6 +354,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12ApplicationIdentity_SetApplicationIdentity(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12GraphicsCommandList6_DispatchMesh(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -355,6 +371,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12GBVDiagnostics_GetGBVResourceInfo(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12GBVDiagnostics_GBVReserved0(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12GBVDiagnostics_GBVReserved1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DeviceStatistics_GetStateObjectStatistics(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0

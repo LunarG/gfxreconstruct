@@ -107,6 +107,7 @@ class VulkanCppStructGeneratorOptions(VulkanBaseGeneratorOptions):
                 'generated/generated_vulkan_cpp_consumer_extension.h',
                 'generated/generated_vulkan_enum_to_string.h',
             ))
+            self.begin_end_file_data.system_headers.append('algorithm')
             self.begin_end_file_data.common_api_headers = []
 
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
@@ -579,6 +580,14 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
                         local_header.append(arrayName + arrayProcess)
                         local_body.append(makeOutStructSet(arrayVarName, locals(), isFirstArg, isLastArg, indent))
+                elif arg.array_capacity and not handleObjectType:
+                    # Counted static array of basic or enum values. Must precede the enum branch: a fixed-extent member
+                    # needs an inline brace list, not the separately named array that branch emits. Handle arrays are
+                    # excluded; they need handle-to-variable mapping. The count comes from the capture, so clamp it.
+                    count_var = f'{arg.name}_count'
+                    struct_param = f'reinterpret_cast<const {arg.base_type}*>(&{struct_prefix}{arg.name}[0])'
+                    local_body.append(makeGen(f'const uint32_t {count_var} = std::min<uint32_t>({lengths[0]}, {arg.array_capacity});', locals(), indent))
+                    local_body.append(makeOutStructSet(f'VulkanCppConsumerBase::BuildValue({struct_param}, {count_var})', locals(), isFirstArg, isLastArg, indent))
                 elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
                     arrayVarName = makeSnakeCaseName(arg.name + "Array")
                     valuesVarName = makeSnakeCaseName(arg.name + "Values")

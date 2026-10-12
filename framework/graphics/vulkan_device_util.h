@@ -40,6 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 static const std::unordered_set<std::string> kVulkanDepthStencilResolveExtensions = {
     VK_KHR_MAINTENANCE_10_EXTENSION_NAME,
+    VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME,
     VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
 };
@@ -78,6 +79,11 @@ struct VulkanDeviceVersionExtensionInfo
         }
 
         return nullptr;
+    }
+
+    bool IsExtensionAvailable(const char* extension) const
+    {
+        return feature_util::IsSupportedExtension(enabled_extensions, extension);
     }
 };
 

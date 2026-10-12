@@ -109,6 +109,39 @@ bool BlockProcessor::IsFileValid() const
     return false;
 }
 
+bool BlockProcessor::NextBlockIsFrame() const
+{
+    if (file_stack_.empty())
+    {
+        return false;
+    }
+
+    // Within the state setup, next block might be any type, but that does not mean they belong to a frame.
+    if (in_state_setup_)
+    {
+        return false;
+    }
+
+    // Outside of state setup, a meta data, annotation, or state marker block type,
+    // means that the next block is not part of a frame.
+    format::BlockHeader header{};
+    const size_t        peeked = GetCurrentFile().active_file->PeekBytes(&header, sizeof(header));
+    if (peeked < sizeof(header))
+    {
+        return false;
+    }
+
+    switch (format::RemoveCompressedBlockBit(header.type))
+    {
+        case format::kMetaDataBlock:
+        case format::kAnnotation:
+        case format::kStateMarkerBlock:
+            return false;
+        default:
+            return true;
+    }
+}
+
 file_processor::ProcessBlocksResult BlockProcessor::MakeResult(file_processor::ProcessBlockState state) const
 {
     return file_processor::ProcessBlocksResult(
@@ -123,6 +156,13 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
     if (!policy.ContinueBlockProcessing(block_index_))
     {
         return file_processor::ProcessBlockState::kEndProcessing;
+    }
+
+    // The pre-frame phase ends before the first block that belongs to frame 0.
+    if (pre_frame_boundary_pending_ && NextBlockIsFrame())
+    {
+        pre_frame_boundary_pending_ = false;
+        return file_processor::ProcessBlockState::kPreFrameBoundary;
     }
 
     BlockParser& block_parser = *block_parser_.get();
@@ -385,9 +425,15 @@ bool BlockProcessor::ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArg
     return success;
 }
 
+void BlockProcessor::ProcessStateBeginMarkerFrameState(const StateBeginMarkerArgs& state_begin)
+{
+    in_state_setup_ = true;
+}
+
 void BlockProcessor::ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end)
 {
-    first_frame_ = state_end.frame_number;
+    in_state_setup_ = false;
+    first_frame_    = state_end.frame_number;
 }
 
 void BlockProcessor::ProcessAnnotation(const AnnotationArgs& annotation)
@@ -549,7 +595,13 @@ bool BlockProcessor::AtEof() const
 
 BlockProcessor::ActiveFileContext& BlockProcessor::GetCurrentFile()
 {
-    GFXRECON_ASSERT(file_stack_.size());
+    GFXRECON_ASSERT(file_stack_.size() > 0);
+    return file_stack_.back();
+}
+
+const BlockProcessor::ActiveFileContext& BlockProcessor::GetCurrentFile() const
+{
+    GFXRECON_ASSERT(file_stack_.size() > 0);
     return file_stack_.back();
 }
 

@@ -238,12 +238,17 @@ std::string Log::ConvertFormatVaListToString(const std::string& format_string, v
     try
     {
         // Determine how much space is needed in the new string
-        const int32_t sz = std::vsnprintf(nullptr, 0, format_string.c_str(), var_args) + 1;
+        const int32_t length = std::vsnprintf(nullptr, 0, format_string.c_str(), var_args);
+        if (length <= 0)
+        {
+            va_end(var_args_copy);
+            return "";
+        }
 
-        // Create a result string and clear it with spaces and then copy the formatted
-        // string results into it.
-        std::string result_string(sz, ' ');
-        std::vsnprintf(&result_string.front(), sz, format_string.c_str(), var_args_copy);
+        // Sizing the string for vsnprintf's terminator would leave that NUL inside it; the terminator
+        // instead goes in the slot std::string already reserves at data()[size()].
+        std::string result_string(length, ' ');
+        std::vsnprintf(result_string.data(), static_cast<size_t>(length) + 1, format_string.c_str(), var_args_copy);
         va_end(var_args_copy);
         return result_string;
     }

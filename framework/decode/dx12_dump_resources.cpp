@@ -33,6 +33,8 @@
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_resource_data_util.h"
 
+#include <algorithm>
+
 extern "C"
 {
     extern const UINT D3D12SDKVersion;
@@ -115,7 +117,7 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
 {
     const UINT64 initial_fence_value = 1;
     device->CreateFence(initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
-    track_dump_resources_.fence_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    track_dump_resources_.fence_event        = CreateEventA(nullptr, TRUE, FALSE, nullptr);
     track_dump_resources_.fence_signal_value = initial_fence_value;
 
     D3D12_COMMAND_QUEUE_DESC copy_queue_desc = {};
@@ -612,6 +614,272 @@ std::vector<uint32_t> GetDescSubIndices(uint32_t first_mip_slice,
     return result;
 }
 
+D3D12DescriptorHeapInfo* Dx12DumpResources::GetDescriptorHeapInfo(format::HandleId heap_id)
+{
+    if (heap_id == format::kNullHandleId)
+    {
+        return nullptr;
+    }
+    return GetExtraInfo<D3D12DescriptorHeapInfo>(get_object_info_func_(heap_id));
+}
+
+void Dx12DumpResources::TrackConstantBufferViewDesc(
+    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
+{
+    auto heap_info = GetDescriptorHeapInfo(DestDescriptor.heap_id);
+    GFXRECON_ASSERT(pDesc != nullptr);
+    auto desc = pDesc->GetMetaStructPointer();
+
+    // pDesc is optional in CreateConstantBufferView, so the meta struct pointer can be null.
+    if ((heap_info != nullptr) && (desc != nullptr))
+    {
+        DHCbvSrvUavInfo info;
+        info.type              = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+        info.cbv.captured_desc = *(desc->decoded_value);
+
+        heap_info->cbv_srv_uav_infos[DestDescriptor.index] = std::move(info);
+    }
+}
+
+void Dx12DumpResources::TrackConstantBufferViewCreation(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto heap_info = GetDescriptorHeapInfo(DestDescriptor.heap_id);
+    if (heap_info != nullptr)
+    {
+        heap_info->cbv_srv_uav_infos[DestDescriptor.index].cbv.replay_handle = (*DestDescriptor.decoded_value);
+    }
+}
+
+void Dx12DumpResources::TrackShaderResourceViewCreation(
+    format::HandleId                                               pResource,
+    StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
+{
+    auto heap_info = GetDescriptorHeapInfo(DestDescriptor.heap_id);
+    if (heap_info == nullptr)
+    {
+        return;
+    }
+
+    DHCbvSrvUavInfo info;
+    info.type              = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    auto& srv_info         = info.srv;
+    srv_info.resource_id   = pResource;
+    srv_info.replay_handle = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        srv_info.is_desc_null = true;
+        srv_info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        srv_info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        srv_info.is_desc_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto res_obj = get_object_info_func_(pResource);
+            GetDescriptorSubresourceIndices(srv_info, res_obj);
+        }
+    }
+    heap_info->cbv_srv_uav_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12DumpResources::TrackUnorderedAccessViewCreation(
+    format::HandleId                                                pResource,
+    format::HandleId                                                pCounterResource,
+    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
+{
+    auto heap_info = GetDescriptorHeapInfo(DestDescriptor.heap_id);
+    if (heap_info == nullptr)
+    {
+        return;
+    }
+
+    DHCbvSrvUavInfo info;
+    info.type                    = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    auto& uav_info               = info.uav;
+    uav_info.resource_id         = pResource;
+    uav_info.counter_resource_id = pCounterResource;
+    uav_info.replay_handle       = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        uav_info.is_desc_null = true;
+        uav_info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        uav_info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        uav_info.is_desc_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto res_obj = get_object_info_func_(pResource);
+            GetDescriptorSubresourceIndices(uav_info, res_obj);
+        }
+    }
+    heap_info->cbv_srv_uav_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12DumpResources::TrackRenderTargetViewCreation(
+    format::HandleId                                             pResource,
+    StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
+{
+    auto heap_info = GetDescriptorHeapInfo(DestDescriptor.heap_id);
+    if (heap_info == nullptr)
+    {
+        return;
+    }
+
+    DHRenderTargetViewInfo info;
+    info.resource_id   = pResource;
+    info.replay_handle = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_desc_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_desc_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto res_obj = get_object_info_func_(pResource);
+            GetDescriptorSubresourceIndices(info, res_obj);
+        }
+    }
+    heap_info->rtv_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12DumpResources::TrackDepthStencilViewCreation(
+    format::HandleId                                             pResource,
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
+{
+    auto heap_info = GetDescriptorHeapInfo(DestDescriptor.heap_id);
+    if (heap_info == nullptr)
+    {
+        return;
+    }
+
+    DHDepthStencilViewInfo info;
+    info.resource_id   = pResource;
+    info.replay_handle = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_desc_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_desc_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto res_obj = get_object_info_func_(pResource);
+            GetDescriptorSubresourceIndices(info, res_obj);
+        }
+    }
+    heap_info->dsv_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12DumpResources::TrackCopyDescriptorsHelper(format::HandleId dest_heap_id,
+                                                   uint32_t         dest_index,
+                                                   format::HandleId src_heap_id,
+                                                   uint32_t         src_index,
+                                                   uint32_t         count)
+{
+    auto dest_heap_info = GetDescriptorHeapInfo(dest_heap_id);
+    auto src_heap_info  = GetDescriptorHeapInfo(src_heap_id);
+    if ((dest_heap_info == nullptr) || (src_heap_info == nullptr))
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        auto dest_idx = dest_index + i;
+        auto src_idx  = src_index + i;
+
+        if (src_heap_info->cbv_srv_uav_infos.count(src_idx) > 0)
+        {
+            dest_heap_info->cbv_srv_uav_infos[dest_idx] = src_heap_info->cbv_srv_uav_infos[src_idx];
+        }
+        if (src_heap_info->rtv_infos.count(src_idx) > 0)
+        {
+            dest_heap_info->rtv_infos[dest_idx] = src_heap_info->rtv_infos[src_idx];
+        }
+        if (src_heap_info->dsv_infos.count(src_idx) > 0)
+        {
+            dest_heap_info->dsv_infos[dest_idx] = src_heap_info->dsv_infos[src_idx];
+        }
+    }
+}
+
+void Dx12DumpResources::TrackCopyDescriptors(
+    UINT                                                       NumDestDescriptorRanges,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDestDescriptorRangeStarts,
+    PointerDecoder<UINT>*                                      pDestDescriptorRangeSizes,
+    UINT                                                       NumSrcDescriptorRanges,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pSrcDescriptorRangeStarts,
+    PointerDecoder<UINT>*                                      pSrcDescriptorRangeSizes)
+{
+    UINT dest_range_i = 0;
+    UINT src_range_i  = 0;
+    UINT dest_i       = 0;
+    UINT src_i        = 0;
+
+    auto dest_range_sizes = pDestDescriptorRangeSizes->GetPointer();
+    auto src_range_sizes  = pSrcDescriptorRangeSizes->GetPointer();
+
+    auto dest_range_starts = pDestDescriptorRangeStarts->GetMetaStructPointer();
+    auto src_range_starts  = pSrcDescriptorRangeStarts->GetMetaStructPointer();
+
+    while (dest_range_i < NumDestDescriptorRanges && src_range_i < NumSrcDescriptorRanges)
+    {
+        auto dest_range_size = (dest_range_sizes != nullptr) ? dest_range_sizes[dest_range_i] : 1;
+        auto src_range_size  = (src_range_sizes != nullptr) ? src_range_sizes[src_range_i] : 1;
+
+        auto copy_size = std::min(dest_range_size - dest_i, src_range_size - src_i);
+
+        const auto& dest_start = dest_range_starts[dest_range_i];
+        const auto& src_start  = src_range_starts[src_range_i];
+        TrackCopyDescriptorsHelper(
+            dest_start.heap_id, dest_start.index + dest_i, src_start.heap_id, src_start.index + src_i, copy_size);
+
+        dest_i += copy_size;
+        src_i += copy_size;
+
+        if (dest_i == dest_range_size)
+        {
+            dest_i = 0;
+            ++dest_range_i;
+        }
+        if (src_i == src_range_size)
+        {
+            src_i = 0;
+            ++src_range_i;
+        }
+    }
+}
+
+void Dx12DumpResources::TrackCopyDescriptorsSimple(UINT                                NumDescriptors,
+                                                   Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
+                                                   Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart)
+{
+    TrackCopyDescriptorsHelper(DestDescriptorRangeStart.heap_id,
+                               DestDescriptorRangeStart.index,
+                               SrcDescriptorRangeStart.heap_id,
+                               SrcDescriptorRangeStart.index,
+                               NumDescriptors);
+}
+
 void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo& info, const DxObjectInfo* resource)
 {
     if (resource == nullptr || resource->object == nullptr)
@@ -841,6 +1109,9 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             }
             break;
         }
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+            info.subresource_indices.emplace_back(0);
+            break;
         case D3D12_SRV_DIMENSION_UNKNOWN:
         default:
             GFXRECON_LOG_ERROR("Unknown D3D12_SRV_DIMENSION_UNKNOWN.");
@@ -915,6 +1186,9 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHUnorderedAccessViewInf
             info.subresource_indices = GetDescSubIndices(info.desc.Texture3D.MipSlice, 1, mip_count, 0, 1, 1, 0);
             break;
         }
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+            info.subresource_indices.emplace_back(0);
+            break;
         case D3D12_UAV_DIMENSION_UNKNOWN:
         default:
             GFXRECON_LOG_ERROR("Unknown D3D12_UAV_DIMENSION_UNKNOWN.");
@@ -1188,6 +1462,10 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                         size   = desc.Buffer.NumElements * size;
                         break;
                     }
+                    case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+                        offset = desc.BufferByteOffset.Offset;
+                        size   = desc.BufferByteOffset.Size;
+                        break;
                     default:
                         break;
                 }
@@ -1228,6 +1506,10 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                         size   = desc.Buffer.NumElements * size;
                         break;
                     }
+                    case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+                        offset = desc.BufferByteOffset.Offset;
+                        size   = desc.BufferByteOffset.Size;
+                        break;
                     default:
                         break;
                 }
@@ -1250,10 +1532,13 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
 
                 json_path_sub.emplace_back("counter_resource", format::kNoneIndex);
 
+                const uint64_t counter_offset = (desc.ViewDimension == D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET)
+                                                    ? desc.BufferByteOffset.CounterOffsetInBytes
+                                                    : desc.Buffer.CounterOffsetInBytes;
                 CopyDrawCallResourceBySubresource(queue_object_info,
                                                   front_command_list_ids,
                                                   info_entry->second.uav.counter_resource_id,
-                                                  desc.Buffer.CounterOffsetInBytes,
+                                                  counter_offset,
                                                   0,
                                                   sub_indices_emptry,
                                                   json_path_sub,
@@ -2040,8 +2325,8 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
             {
                 // Separate timelines prevent source-ready signals from satisfying waits for copy completion.
                 const UINT64 copy_value = ++track_dump_resources_.copy_queue_fence_value;
-                hr = draw_call_queue->Signal(track_dump_resources_.copy_ready_fence, copy_value);
-                hr = copy_queue->Wait(track_dump_resources_.copy_ready_fence, copy_value);
+                hr                      = draw_call_queue->Signal(track_dump_resources_.copy_ready_fence, copy_value);
+                hr                      = copy_queue->Wait(track_dump_resources_.copy_ready_fence, copy_value);
             }
 
             ID3D12CommandList* cmd_lists[] = { copy_resource_data->cmd_list };
@@ -2057,8 +2342,8 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
     if (use_dedicated_copy_queue)
     {
         const UINT64 copy_value = track_dump_resources_.copy_queue_fence_value;
-        hr = copy_queue->Signal(track_dump_resources_.copy_complete_fence, copy_value);
-        hr = draw_call_queue->Wait(track_dump_resources_.copy_complete_fence, copy_value);
+        hr                      = copy_queue->Signal(track_dump_resources_.copy_complete_fence, copy_value);
+        hr                      = draw_call_queue->Wait(track_dump_resources_.copy_complete_fence, copy_value);
     }
 
     // Signal the fence to indicate that data has been copied to the staging resource.

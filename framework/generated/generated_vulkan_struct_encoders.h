@@ -719,6 +719,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance10
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingEndInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentFlagsInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageModeInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance11FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFormatProperties4KHR& value);
@@ -1197,7 +1198,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLegacyVertexA
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingsCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepModeInfoNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepInfoNV& value);
@@ -1366,6 +1366,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageTilingCo
 void EncodeStruct(ParameterEncoder* encoder, const VkImageTilingControlCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInfoPropertiesINTEL& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressAlignmentAllocateInfoVALVE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);

@@ -87,6 +87,7 @@ struct ReplayOptions
     uint32_t                            screenshot_width{ 0 };
     uint32_t                            screenshot_height{ 0 };
     std::optional<std::array<float, 2>> screenshot_scale;
+    bool                                screenshot_results{ false };
     int32_t                             num_pipeline_creation_jobs{ 0 };
     std::string                         asset_file_path;
     bool                                enable_dump_resources{ false };

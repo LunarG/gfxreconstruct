@@ -43,8 +43,10 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -167,13 +169,13 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 struct QueueWrapper : public HandleWrapper<VkQueue>
 {
     graphics::VulkanDeviceTable* layer_table_ref{ nullptr };
+    std::mutex                   queue_mutex;
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     graphics::VulkanDeviceTable layer_table;
     PhysicalDeviceWrapper*      physical_device{ nullptr };
-    std::vector<QueueWrapper*>  child_queues;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
@@ -181,7 +183,20 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
     graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
 
-    std::vector<uint32_t> queue_family_indices;
+    struct ChildQueue
+    {
+        uint32_t      family_index;
+        uint32_t      queue_index;
+        QueueWrapper* wrapper;
+    };
+
+    // One entry for queue retrieved with vkGetDeviceQueue and vkGetDeviceQueue2
+    std::unordered_map<VkQueue, ChildQueue> child_queues;
+    mutable std::mutex                      queues_map_mutex;
+
+    // Serializes capture-internal submissions to queues the application has not retrieved and that therefore
+    // have no QueueWrapper (and no queue_mutex) of their own.
+    mutable std::mutex untracked_queues_mutex;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
@@ -313,6 +328,15 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
 
+    // The members of VkBufferViewCreateInfo used to describe the view if its creation call is omitted at state write.
+    struct CreateInfo
+    {
+        VkBufferViewCreateFlags flags{ 0 };
+        VkFormat                format{ VK_FORMAT_UNDEFINED };
+        VkDeviceSize            offset{ 0 };
+        VkDeviceSize            range{ 0 };
+    } create_info;
+
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
@@ -321,6 +345,16 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
     format::HandleId device_id{ format::kNullHandleId };
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
+
+    // The members of VkImageViewCreateInfo used to describe the view if its creation call is omitted at state write.
+    struct CreateInfo
+    {
+        VkImageViewCreateFlags  flags{ 0 };
+        VkImageViewType         view_type{ VK_IMAGE_VIEW_TYPE_2D };
+        VkFormat                format{ VK_FORMAT_UNDEFINED };
+        VkComponentMapping      components{};
+        VkImageSubresourceRange subresource_range{};
+    } create_info;
 
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 
@@ -339,6 +373,17 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 
     // Track handles of image attachments for processing render pass layout transitions.
     std::vector<ImageWrapper*> attachments;
+
+    // The members of VkFramebufferCreateInfo used to describe the framebuffer if its creation call is omitted at state
+    // write.
+    struct CreateInfo
+    {
+        VkFramebufferCreateFlags flags{ 0 };
+        uint32_t                 attachment_count{ 0 };
+        uint32_t                 width{ 0 };
+        uint32_t                 height{ 0 };
+        uint32_t                 layers{ 0 };
+    } create_info;
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>

@@ -227,6 +227,13 @@ class ProcessVisitor
         success            = block_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
     }
 
+    void operator()(const StateBeginMarkerArgs* state_setup)
+    {
+        is_frame_delimiter = false;
+        success            = true;
+        block_processor_.ProcessStateBeginMarkerFrameState(*state_setup);
+    }
+
     void operator()(const StateEndMarkerArgs* state_end)
     {
         is_frame_delimiter = false;
