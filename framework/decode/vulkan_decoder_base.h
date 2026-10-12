@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -231,9 +232,17 @@ class VulkanDecoderBase : public ApiDecoder
                                                     const uint8_t*     parameter_buffer,
                                                     size_t             buffer_size);
 
+    size_t Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                     const uint8_t*     parameter_buffer,
+                                                     size_t             buffer_size);
+
     size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                         const uint8_t*     parameter_buffer,
                                                         size_t             buffer_size);
+
+    size_t Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info,
+                                                      const uint8_t*     parameter_buffer,
+                                                      size_t             buffer_size);
 
     size_t Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info,
                                                          const uint8_t*     parameter_buffer,

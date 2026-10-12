@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022-2023 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -228,6 +229,22 @@ void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate& args)
+{
+    auto& function                      = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate");
+    function[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);
+
+    auto& jargs = function[format::kNameArgs];
+    HandleToJson(jargs["commandBuffer"], args.commandBuffer);
+    HandleToJson(jargs["descriptorUpdateTemplate"], args.descriptorUpdateTemplate);
+    HandleToJson(jargs["layout"], args.layout);
+    jargs["set"] = args.set;
+    FieldToJson(jargs["pData"], &args.pData);
+
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
@@ -240,6 +257,19 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR
     HandleToJson(jargs["layout"], args.layout);
     jargs["set"] = args.set;
     FieldToJson(jargs["pData"], &args.pData);
+
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
+{
+    auto& function                      = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2");
+    function[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);
+
+    auto& jargs = function[format::kNameArgs];
+    HandleToJson(jargs["commandBuffer"], args.commandBuffer);
+    FieldToJson(jargs["pPushDescriptorSetWithTemplateInfo"], &args.pPushDescriptorSetWithTemplateInfo);
 
     WriteBlockEnd();
 }

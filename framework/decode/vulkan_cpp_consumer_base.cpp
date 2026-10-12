@@ -2,6 +2,7 @@
 // Copyright (c) 2020 Samsung
 // Copyright (c) 2023 Google
 // Copyright (c) 2023 LunarG, Inc
+// Copyright (c) 2026 Arm Limited
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -3478,6 +3479,28 @@ void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiC
     Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
 }
 
+void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                       args::CmdPushDescriptorSetWithTemplate& args)
+{
+    FILE*       file = GetFrameFile();
+    std::string var_name;
+
+    fprintf(file, "\t{\n");
+
+    GenerateDescriptorUpdateTemplateData(&args.pData, args.descriptorUpdateTemplate, file, var_name);
+
+    pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplate");
+    fprintf(file,
+            "\t\tloaded_vkCmdPushDescriptorSetWithTemplate(%s, %s, %s, %u, &%s);\n",
+            this->GetHandle(args.commandBuffer).c_str(),
+            this->GetHandle(args.descriptorUpdateTemplate).c_str(),
+            this->GetHandle(args.layout).c_str(),
+            args.set,
+            var_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate);
+}
+
 void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
@@ -3490,7 +3513,7 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 
     pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplateKHR");
     fprintf(file,
-            "\t\tloaded_vkCmdPushDescriptorSetWithTemplateKHR(%s, %s, %s, %u, %s);\n",
+            "\t\tloaded_vkCmdPushDescriptorSetWithTemplateKHR(%s, %s, %s, %u, &%s);\n",
             this->GetHandle(args.commandBuffer).c_str(),
             this->GetHandle(args.descriptorUpdateTemplate).c_str(),
             this->GetHandle(args.layout).c_str(),
@@ -3507,6 +3530,42 @@ void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const A
     Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
 }
 
+void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info,
+                                                                        args::CmdPushDescriptorSetWithTemplate2& args)
+{
+    FILE*       file = GetFrameFile();
+    std::string var_name;
+
+    Decoded_VkPushDescriptorSetWithTemplateInfo* decoded_info =
+        args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
+
+    fprintf(file, "\t{\n");
+
+    pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplate2");
+
+    GenerateDescriptorUpdateTemplateData(&decoded_info->pData, decoded_info->descriptorUpdateTemplate, file, var_name);
+
+    fprintf(file,
+            "\t\tVkPushDescriptorSetWithTemplateInfo info;\n\
+                        \t\tinfo.sType = VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO;\n\
+                        \t\tinfo.pNext = nullptr;\n\
+                        \t\tinfo.descriptorUpdateTemplate = %s;\n\
+                        \t\tinfo.layout = %s;\n\
+                        \t\tinfo.set = %u;\n\
+                        \t\tinfo.pData = &%s;\n",
+            this->GetHandle(decoded_info->descriptorUpdateTemplate).c_str(),
+            this->GetHandle(decoded_info->layout).c_str(),
+            decoded_info->decoded_value->set,
+            var_name.c_str());
+
+    fprintf(file,
+            "\t\tloaded_vkCmdPushDescriptorSetWithTemplate2(%s, &info);\n",
+            this->GetHandle(args.commandBuffer).c_str());
+    fprintf(file, "\t}\n");
+
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2);
+}
+
 void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
 {
@@ -3520,19 +3579,16 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 
     pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplate2KHR");
 
-    DescriptorUpdateTemplateDecoder pData;
-    const uint8_t*                  ptr = static_cast<const uint8_t*>(decoded_info->pNext->GetPointer());
-    pData.Decode(ptr, pData.GetLength());
-    GenerateDescriptorUpdateTemplateData(&pData, decoded_info->descriptorUpdateTemplate, file, var_name);
+    GenerateDescriptorUpdateTemplateData(&decoded_info->pData, decoded_info->descriptorUpdateTemplate, file, var_name);
 
     fprintf(file,
             "\t\tVkPushDescriptorSetWithTemplateInfoKHR info;\n\
                         \t\tinfo.sType = VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR;\n\
                         \t\tinfo.pNext = nullptr;\n\
                         \t\tinfo.descriptorUpdateTemplate = %s;\n\
-                        \t\tinfo.layout = %s\n\
-                        \t\tinfo.set = %u\n\
-                        \t\tinfo.pData = %s\n",
+                        \t\tinfo.layout = %s;\n\
+                        \t\tinfo.set = %u;\n\
+                        \t\tinfo.pData = &%s;\n",
             this->GetHandle(decoded_info->descriptorUpdateTemplate).c_str(),
             this->GetHandle(decoded_info->layout).c_str(),
             decoded_info->decoded_value->set,

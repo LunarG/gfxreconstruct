@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,12 +60,20 @@ class VulkanConsumerBase : public CommonConsumerBase
                                                            args::UpdateDescriptorSetWithTemplate& args)
     {}
 
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
+                                                            args::CmdPushDescriptorSetWithTemplate& args)
+    {}
+
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
                                                                args::CmdPushDescriptorSetWithTemplateKHR& args)
     {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
                                                               args::UpdateDescriptorSetWithTemplateKHR& args)
+    {}
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
+                                                             args::CmdPushDescriptorSetWithTemplate2& args)
     {}
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,

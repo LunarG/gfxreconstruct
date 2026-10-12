@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -189,11 +190,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
                                                    args::UpdateDescriptorSetWithTemplate& args) override;
 
+    void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
+                                                    args::CmdPushDescriptorSetWithTemplate& args) override;
+
     void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
                                                        args::CmdPushDescriptorSetWithTemplateKHR& args) override;
 
     void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
                                                       args::UpdateDescriptorSetWithTemplateKHR& args) override;
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
+                                                     args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
                                                         args::CmdPushDescriptorSetWithTemplate2KHR& args) override;

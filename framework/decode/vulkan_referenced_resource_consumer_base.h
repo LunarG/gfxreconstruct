@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -103,8 +104,14 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
                                                    args::UpdateDescriptorSetWithTemplate& args) override;
 
+    void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
+                                                    args::CmdPushDescriptorSetWithTemplate& args) override;
+
     void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
                                                        args::CmdPushDescriptorSetWithTemplateKHR& args) override;
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
+                                                     args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
                                                         args::CmdPushDescriptorSetWithTemplate2KHR& args) override;

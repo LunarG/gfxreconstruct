@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2026 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -63,6 +64,15 @@ struct UpdateDescriptorSetWithTemplateKHR
     DescriptorUpdateTemplateDecoder pData;
 };
 
+struct CmdPushDescriptorSetWithTemplate
+{
+    format::HandleId                commandBuffer;
+    format::HandleId                descriptorUpdateTemplate;
+    format::HandleId                layout;
+    uint32_t                        set;
+    DescriptorUpdateTemplateDecoder pData;
+};
+
 struct CmdPushDescriptorSetWithTemplateKHR
 {
     format::HandleId                commandBuffer;
@@ -70,6 +80,12 @@ struct CmdPushDescriptorSetWithTemplateKHR
     format::HandleId                layout;
     uint32_t                        set;
     DescriptorUpdateTemplateDecoder pData;
+};
+
+struct CmdPushDescriptorSetWithTemplate2
+{
+    format::HandleId                                                  commandBuffer;
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;
 };
 
 struct CmdPushDescriptorSetWithTemplate2KHR

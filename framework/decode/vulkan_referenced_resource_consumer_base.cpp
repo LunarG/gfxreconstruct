@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -459,10 +460,26 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemp
     UpdateDescriptorSetWithTemplate(args.descriptorSet, args.descriptorUpdateTemplate, &args.pData);
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate& args)
+{
+    PushDescriptorSetWithTemplate(args.commandBuffer, args.descriptorUpdateTemplate, &args.pData);
+}
+
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
     PushDescriptorSetWithTemplate(args.commandBuffer, args.descriptorUpdateTemplate, &args.pData);
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
+{
+    Decoded_VkPushDescriptorSetWithTemplateInfo* info = args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
+    format::HandleId                             descriptorUpdateTemplate = info->descriptorUpdateTemplate;
+    DescriptorUpdateTemplateDecoder              pData                    = info->pData;
+
+    PushDescriptorSetWithTemplate(args.commandBuffer, descriptorUpdateTemplate, &pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(

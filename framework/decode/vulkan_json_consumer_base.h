@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022-2023 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -76,8 +77,14 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                                    args::UpdateDescriptorSetWithTemplate& args) override;
 
   protected:
+    void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
+                                                    args::CmdPushDescriptorSetWithTemplate& args) override;
+
     void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
                                                        args::CmdPushDescriptorSetWithTemplateKHR& args) override;
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
+                                                     args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
                                                         args::CmdPushDescriptorSetWithTemplate2KHR& args) override;

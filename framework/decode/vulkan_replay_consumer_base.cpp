@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -13586,6 +13587,40 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const A
         in_device, in_descriptorSet, in_descriptorUpdateTemplate, args.pData.GetPointer());
 }
 
+void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                          args::CmdPushDescriptorSetWithTemplate& args)
+{
+    VkCommandBuffer in_commandBuffer =
+        MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = VK_NULL_HANDLE;
+    VkPipelineLayout           in_layout =
+        MapHandle<VulkanPipelineLayoutInfo>(args.layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
+    auto update_template_info = object_info_table_->GetVkDescriptorUpdateTemplateInfo(args.descriptorUpdateTemplate);
+
+    MapDescriptorUpdateTemplateHandles(update_template_info, &args.pData);
+
+    if (update_template_info != nullptr)
+    {
+        in_descriptorUpdateTemplate = update_template_info->handle;
+    }
+
+    GetDeviceTable(in_commandBuffer)
+        ->CmdPushDescriptorSetWithTemplate(
+            in_commandBuffer, in_descriptorUpdateTemplate, in_layout, args.set, args.pData.GetPointer());
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate(
+            call_info,
+            GetInjectedDeviceCalls(in_commandBuffer),
+            in_commandBuffer,
+            in_descriptorUpdateTemplate,
+            in_layout,
+            args.set,
+            args.pData.GetPointer());
+    }
+}
+
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
@@ -13616,6 +13651,37 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
                                                                         in_layout,
                                                                         args.set,
                                                                         args.pData.GetPointer());
+    }
+}
+
+void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
+{
+    Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
+        args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
+    VkPushDescriptorSetWithTemplateInfo* value = in_info->decoded_value;
+    VulkanDescriptorUpdateTemplateInfo*  update_template_info =
+        object_info_table_->GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
+
+    VkCommandBuffer in_commandBuffer =
+        MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    value->layout =
+        MapHandle<VulkanPipelineLayoutInfo>(in_info->layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
+
+    MapDescriptorUpdateTemplateHandles(update_template_info, &in_info->pData);
+    value->pData = in_info->pData.GetPointer();
+
+    if (update_template_info != nullptr)
+    {
+        value->descriptorUpdateTemplate = update_template_info->handle;
+    }
+
+    GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2(in_commandBuffer, value);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate2(
+            call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, value);
     }
 }
 
