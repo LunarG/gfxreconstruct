@@ -451,6 +451,26 @@ static void count_calls_in_json(const std::filesystem::path&     json_path,
     }
 }
 
+void count_calls_in_capture(const char*                      test_name,
+                            const std::vector<std::string>&  function_names,
+                            std::map<std::string, uint32_t>& counts)
+{
+    Paths paths{ test_name, nullptr, false };
+
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path))
+        << "no capture to count: " << paths.capture_path << " - call capture_app() first";
+
+    // convert the capture
+    auto result = run_command(paths.base_path, paths.convert_path, { paths.capture_path.string() });
+    ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << paths.capture_path << " in path "
+                         << paths.base_path;
+
+    std::filesystem::path capture_json_path{ paths.capture_path };
+    capture_json_path.replace_extension(".json");
+
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_json(capture_json_path, function_names, counts));
+}
+
 void capture_app(const char* test_name)
 {
     EnvironmentVariables env_vars;

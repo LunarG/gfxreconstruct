@@ -2055,8 +2055,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                   VkImage*                 image,
                                   VulkanImageInfo*         image_info);
 
-    void ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info);
-
     void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
     void
@@ -2205,6 +2203,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      * before and after each compute dispatch to ensure compute and transfer operations do not overlap.
      */
     void MaybeInjectComputeTransferBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
+
+    void ReleaseDeviceResources(const VulkanDeviceInfo* device_info);
 
   private:
     struct HardwareBufferInfo

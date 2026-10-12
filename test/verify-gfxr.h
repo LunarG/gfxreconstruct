@@ -50,6 +50,18 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
 void capture_app(const char* test_name);
 
 /**
+ * Convert the gfxr that capture_app() produced for test_name and save the counts of specified Vulkan commands. These
+ * are the calls the app itself made, without the ones a replay adds on top of them.
+ *
+ * @param test_name      - the name of the test app whose capture to count
+ * @param function_names - the Vulkan commands to count, e.g. { "vkQueueSubmit" }
+ * @param[out] counts    - how often each of function_names was recorded, keyed by command name
+ */
+void count_calls_in_capture(const char*                      test_name,
+                            const std::vector<std::string>&  function_names,
+                            std::map<std::string, uint32_t>& counts);
+
+/**
  * Replay the gfxr that capture_app() produced for test_name, headless (--swapchain offscreen) against the mock ICD
  * with extra_replay_args forwarded to gfxrecon-replay. It then saves the counts of specified Vulkan commands.
  *
