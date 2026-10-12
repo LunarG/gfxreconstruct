@@ -131,6 +131,19 @@ Direct3D 12.  To omit Direct3D 12 components, specify
 python scripts/build.py --skip-d3d12-support
 ```
 
+A `profile` configuration (CMake `RelWithDebInfo`, built under `pbuild/`) is
+available alongside `release` and `debug`:
+
+```bash
+python scripts/build.py -c profile
+```
+
+To build only specific targets, pass `-t`; the install step is then skipped:
+
+```bash
+python scripts/build.py -t gfxrecon-replay -t gfxrecon-convert
+```
+
 Run the script with the `-h` option for additional usage information.
 
 ## Building for Windows
