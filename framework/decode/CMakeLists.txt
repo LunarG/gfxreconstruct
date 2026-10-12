@@ -448,7 +448,6 @@ target_link_libraries(gfxrecon_decode
                         vulkan_memory_allocator
                         $<$<AND:$<BOOL:${OPENXR_SUPPORT_ENABLED}>,$<NOT:$<BOOL:${ANDROID}>>>:OpenXR>
                         platform_specific
-                        spirv-reflect-static
                         nlohmann_json::nlohmann_json
                         $<$<AND:$<BOOL:${OPENXR_SUPPORT_ENABLED}>,$<NOT:$<BOOL:${ANDROID}>>>:OpenXR::openxr_loader>
                         $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)

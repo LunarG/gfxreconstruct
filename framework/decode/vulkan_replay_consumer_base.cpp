@@ -62,8 +62,6 @@
 #include "util/logging.h"
 #include "util/callbacks.h"
 
-#include "spirv_reflect.h"
-
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
