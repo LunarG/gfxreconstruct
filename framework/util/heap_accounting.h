@@ -24,7 +24,6 @@
 #define GFXRECON_UTIL_HEAP_ACCOUNTING_H
 
 #include "util/defines.h"
-#include "util/logging.h"
 
 #include <atomic>
 #include <cstddef>
@@ -36,22 +35,19 @@ GFXRECON_BEGIN_NAMESPACE(heap_accounting)
 
 extern std::atomic<int64_t>  current_bytes_g;
 extern std::atomic<int64_t>  peak_bytes_g;
+extern std::atomic<int64_t>  current_mmap_bytes_g;
+extern std::atomic<int64_t>  peak_mmap_bytes_g;
 extern std::atomic<uint64_t> total_allocated_bytes_g;
 extern std::atomic<uint64_t> alloc_count_g;
 extern std::atomic<uint64_t> free_count_g;
 
-// Heap use of the code linked into the capture layer library: gfxrecon itself, the
-// compression libraries and the C++ runtime when it is linked statically. Memory obtained
-// with mmap (page guard shadow memory) and blocks that libc allocates internally on the
-// layer's behalf (stdio buffers) are not included. Sizes are what the allocator reserved
-// for each block (malloc_usable_size), not the requested sizes.
-//
-// The counters only change when the layer is built with GFXRECON_ENABLE_HEAP_ACCOUNTING,
-// which routes the malloc family through layer/heap_impostor.cpp; otherwise they stay zero.
+// The counters only change when the layer is built with GFXRECON_ENABLE_HEAP_ACCOUNTING.
 struct HeapStats
 {
     int64_t  current_bytes{ 0 };         // Bytes currently allocated.
     int64_t  peak_bytes{ 0 };            // High-water mark of current_bytes.
+    int64_t  current_mmap_bytes{ 0 };    // Bytes currently allocated through mmap (page_guard).
+    int64_t  peak_mmap_bytes{ 0 };       // High-water mark of current_mmap_bytes.
     uint64_t total_allocated_bytes{ 0 }; // Cumulative bytes handed out.
     uint64_t alloc_count{ 0 };           // Cumulative number of allocations.
     uint64_t free_count{ 0 };            // Cumulative number of frees.
@@ -59,18 +55,23 @@ struct HeapStats
 
 HeapStats GetHeapStats();
 
-// Called by the allocator impostor for every block it allocates
+inline void UpdatePeak(int64_t current, std::atomic<int64_t>& peak)
+{
+    int64_t p = peak.load(std::memory_order_relaxed);
+    while ((current > p) && !peak.compare_exchange_weak(p, current, std::memory_order_relaxed))
+    {}
+}
+
+// Called by the allocator impostor for every block it hands out.
 inline void RecordAlloc(size_t usable_size)
 {
     const auto size = static_cast<int64_t>(usable_size);
 
     alloc_count_g.fetch_add(1, std::memory_order_relaxed);
     total_allocated_bytes_g.fetch_add(usable_size, std::memory_order_relaxed);
+    int64_t current = current_bytes_g.fetch_add(size, std::memory_order_relaxed) + size;
 
-    const int64_t current = current_bytes_g.fetch_add(size, std::memory_order_relaxed) + size;
-    int64_t       peak    = peak_bytes_g.load(std::memory_order_relaxed);
-    while ((current > peak) && !peak_bytes_g.compare_exchange_weak(peak, current, std::memory_order_relaxed))
-    {}
+    UpdatePeak(current, peak_bytes_g);
 }
 
 // Called by the allocator impostor for every block it frees
@@ -78,6 +79,22 @@ inline void RecordFree(size_t usable_size)
 {
     free_count_g.fetch_add(1, std::memory_order_relaxed);
     current_bytes_g.fetch_sub(static_cast<int64_t>(usable_size), std::memory_order_relaxed);
+}
+
+inline void RecordRawAlloc(size_t size)
+{
+    alloc_count_g.fetch_add(1, std::memory_order_relaxed);
+    total_allocated_bytes_g.fetch_add(static_cast<uint64_t>(size), std::memory_order_relaxed);
+
+    const int64_t current =
+        current_mmap_bytes_g.fetch_add(static_cast<int64_t>(size), std::memory_order_relaxed) + size;
+    UpdatePeak(current, peak_mmap_bytes_g);
+}
+
+inline void RecordRawFree(size_t size)
+{
+    free_count_g.fetch_add(1, std::memory_order_relaxed);
+    current_mmap_bytes_g.fetch_sub(static_cast<int64_t>(size), std::memory_order_relaxed);
 }
 
 GFXRECON_END_NAMESPACE(heap_accounting)

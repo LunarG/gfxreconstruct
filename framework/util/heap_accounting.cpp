@@ -28,6 +28,8 @@ GFXRECON_BEGIN_NAMESPACE(heap_accounting)
 
 std::atomic<int64_t>  current_bytes_g{ 0 };
 std::atomic<int64_t>  peak_bytes_g{ 0 };
+std::atomic<int64_t>  current_mmap_bytes_g{ 0 };
+std::atomic<int64_t>  peak_mmap_bytes_g{ 0 };
 std::atomic<uint64_t> total_allocated_bytes_g{ 0 };
 std::atomic<uint64_t> alloc_count_g{ 0 };
 std::atomic<uint64_t> free_count_g{ 0 };
@@ -37,6 +39,8 @@ HeapStats GetHeapStats()
     HeapStats stats;
     stats.current_bytes         = current_bytes_g.load(std::memory_order_relaxed);
     stats.peak_bytes            = peak_bytes_g.load(std::memory_order_relaxed);
+    stats.current_mmap_bytes    = current_mmap_bytes_g.load(std::memory_order_relaxed);
+    stats.peak_mmap_bytes       = peak_mmap_bytes_g.load(std::memory_order_relaxed);
     stats.total_allocated_bytes = total_allocated_bytes_g.load(std::memory_order_relaxed);
     stats.alloc_count           = alloc_count_g.load(std::memory_order_relaxed);
     stats.free_count            = free_count_g.load(std::memory_order_relaxed);
