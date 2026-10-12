@@ -41,7 +41,7 @@
 #include <vector>
 #include <limits>
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 struct android_app;
 #endif
 
@@ -98,7 +98,7 @@ class Application final
     void InitializeDx12WsiContext();
 #endif
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     struct android_app* GetAndroidApplication()
     {
         return android_app_;
@@ -154,7 +154,7 @@ class Application final
 
     std::unique_ptr<plugin::ReplayEventSink> replay_event_sink_ = std::make_unique<plugin::NullReplayEventSink>();
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     struct android_app* android_app_{nullptr};
 #endif
     // clang-format on

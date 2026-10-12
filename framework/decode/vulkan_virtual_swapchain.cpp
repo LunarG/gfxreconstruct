@@ -1693,54 +1693,79 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         submit_wait_semaphores.push_back(semaphore);
     }
 
-    // blit image into swapchain-image
-    if (!swapchain_options_.virtual_swapchain_skip_blit)
+    // Record command buffer for copy
+    result = injected->ResetCommandBuffer(frame_data.command_buffer, 0);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    VkCommandBufferBeginInfo command_buffer_begin_info;
+    command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    command_buffer_begin_info.pNext            = nullptr;
+    command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    command_buffer_begin_info.pInheritanceInfo = nullptr;
+
+    result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info, __func__);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    // initial layout-transition
+    if (image_data.image_layout == VK_IMAGE_LAYOUT_UNDEFINED)
     {
-        // Record command buffer for copy
-        result = injected->ResetCommandBuffer(frame_data.command_buffer, 0);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
+        image_data.image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        VkCommandBufferBeginInfo command_buffer_begin_info;
-        command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        command_buffer_begin_info.pNext            = nullptr;
-        command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        command_buffer_begin_info.pInheritanceInfo = nullptr;
+        VkImageMemoryBarrier memory_barrier{};
+        memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        memory_barrier.pNext                           = nullptr;
+        memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
+        memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
+        memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+        memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        memory_barrier.image                           = image_data.image;
+        memory_barrier.subresourceRange.aspectMask     = aspect_color;
+        memory_barrier.subresourceRange.baseMipLevel   = 0;
+        memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+        memory_barrier.subresourceRange.baseArrayLayer = 0;
+        memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
-        result = injected.BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info, __func__);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-
-        constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
-
-        // initial layout-transition
-        if (image_data.image_layout == VK_IMAGE_LAYOUT_UNDEFINED)
+        if (clear_unused_tiles)
         {
-            image_data.image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            memory_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        }
 
-            VkImageMemoryBarrier memory_barrier{};
-            memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            memory_barrier.pNext                           = nullptr;
-            memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
-            memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
-            memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-            memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-            memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            memory_barrier.image                           = image_data.image;
-            memory_barrier.subresourceRange.aspectMask     = aspect_color;
-            memory_barrier.subresourceRange.baseMipLevel   = 0;
-            memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-            memory_barrier.subresourceRange.baseArrayLayer = 0;
-            memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+        // NOTE: VK_PIPELINE_STAGE_NONE is only legal as a srcStageMask when synchronization2 is enabled
+        injected->CmdPipelineBarrier(frame_data.command_buffer,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &memory_barrier);
 
-            if (clear_unused_tiles)
-            {
-                memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                memory_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            }
+        if (clear_unused_tiles)
+        {
+            // tiles not covered by a layer are never touched by a blit, so clearing them once is enough
+            constexpr VkClearColorValue clear_color = {};
 
-            // NOTE: VK_PIPELINE_STAGE_NONE is only legal as a srcStageMask when synchronization2 is enabled
+            injected->CmdClearColorImage(frame_data.command_buffer,
+                                         image_data.image,
+                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                         &clear_color,
+                                         1,
+                                         &memory_barrier.subresourceRange);
+
+            memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            memory_barrier.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
             injected->CmdPipelineBarrier(frame_data.command_buffer,
-                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                          0,
                                          0,
@@ -1749,37 +1774,12 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                                          nullptr,
                                          1,
                                          &memory_barrier);
-
-            if (clear_unused_tiles)
-            {
-                // tiles not covered by a layer are never touched by a blit, so clearing them once is enough
-                constexpr VkClearColorValue clear_color = {};
-
-                injected->CmdClearColorImage(frame_data.command_buffer,
-                                             image_data.image,
-                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                             &clear_color,
-                                             1,
-                                             &memory_barrier.subresourceRange);
-
-                memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-                memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                memory_barrier.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-                injected->CmdPipelineBarrier(frame_data.command_buffer,
-                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                             VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                             0,
-                                             0,
-                                             nullptr,
-                                             0,
-                                             nullptr,
-                                             1,
-                                             &memory_barrier);
-            }
         }
+    }
 
+    // blit image into swapchain-image
+    if (!swapchain_options_.virtual_swapchain_skip_blit)
+    {
         const VkImageLayout current_layout =
             image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
         auto src_layout =
@@ -1816,28 +1816,27 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
             ofb_data.copy_util->BlitImage(frame_data.command_buffer, blit_params);
         }
-
-        result = injected->EndCommandBuffer(frame_data.command_buffer);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-
-        // Submit copy command buffer
-        std::vector<VkPipelineStageFlags> submit_wait_stages(submit_wait_semaphores.size(),
-                                                             VK_PIPELINE_STAGE_TRANSFER_BIT);
-
-        VkSubmitInfo submit_info;
-        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submit_info.pNext = nullptr;
-        GFXRECON_NARROWING_ASSIGN(submit_info.waitSemaphoreCount, submit_wait_semaphores.size());
-        submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
-        submit_info.pWaitDstStageMask    = submit_wait_stages.data();
-        submit_info.commandBufferCount   = 1;
-        submit_info.pCommandBuffers      = &frame_data.command_buffer;
-        submit_info.signalSemaphoreCount = 1;
-        submit_info.pSignalSemaphores    = &image_data.semaphore;
-
-        result = injected->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
     }
+
+    result = injected->EndCommandBuffer(frame_data.command_buffer);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    // Submit copy command buffer
+    std::vector<VkPipelineStageFlags> submit_wait_stages(submit_wait_semaphores.size(), VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+    VkSubmitInfo submit_info;
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.pNext = nullptr;
+    GFXRECON_NARROWING_ASSIGN(submit_info.waitSemaphoreCount, submit_wait_semaphores.size());
+    submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
+    submit_info.pWaitDstStageMask    = submit_wait_stages.data();
+    submit_info.commandBufferCount   = 1;
+    submit_info.pCommandBuffers      = &frame_data.command_buffer;
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores    = &image_data.semaphore;
+
+    result = injected->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
 
     // Present image
     VkPresentInfoKHR present_info;
@@ -1848,16 +1847,8 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     present_info.pImageIndices  = &swapchain_image_index;
     present_info.pResults       = nullptr;
 
-    if (swapchain_options_.virtual_swapchain_skip_blit)
-    {
-        GFXRECON_NARROWING_ASSIGN(present_info.waitSemaphoreCount, submit_wait_semaphores.size());
-        present_info.pWaitSemaphores = submit_wait_semaphores.data();
-    }
-    else
-    {
-        present_info.waitSemaphoreCount = 1;
-        present_info.pWaitSemaphores    = &image_data.semaphore;
-    }
+    present_info.waitSemaphoreCount = 1;
+    present_info.pWaitSemaphores    = &image_data.semaphore;
 
     result = injected->QueuePresentKHR(ofb_data.queue, &present_info);
     GFXRECON_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);

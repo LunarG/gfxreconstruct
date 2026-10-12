@@ -279,11 +279,11 @@ class VulkanResourcesUtil
 
     void BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params);
 
-    static bool CanTransferResolve(const VulkanInstanceTable&                       instance_table,
-                                   VkPhysicalDevice                                 physical_device,
-                                   VkFormat                                         format,
-                                   VkImageTiling                                    tiling,
-                                   const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
+    static bool CanTransferResolve(const VulkanInstanceTable&                        instance_table,
+                                   VkPhysicalDevice                                  physical_device,
+                                   VkFormat                                          format,
+                                   const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+                                   const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info);
 
     static bool IsFormatSupported(const VulkanInstanceTable& instance_table,
                                   VkPhysicalDevice           physical_device,
@@ -320,11 +320,12 @@ class VulkanResourcesUtil
     };
 
     static MultisampleResolveMethod
-    SelectResolveMethod(const VulkanInstanceTable&                       instance_table,
-                        VkPhysicalDevice                                 physical_device,
-                        VkFormat                                         format,
-                        VkImageTiling                                    tiling,
-                        const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
+    SelectResolveMethod(const VulkanInstanceTable&                        instance_table,
+                        VkPhysicalDevice                                  physical_device,
+                        VkFormat                                          format,
+                        VkImageTiling                                     tiling,
+                        const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+                        const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info);
 
   private:
     struct StagingMemoryContext
@@ -393,16 +394,16 @@ class VulkanResourcesUtil
                     uint64_t        src_offset,
                     uint64_t        dst_offset);
 
-    VkResult ResolveImage(VkCommandBuffer   command_buffer,
-                          VkImage           image,
-                          VkFormat          format,
-                          VkImageType       type,
-                          VkImageTiling     tiling,
-                          const VkExtent3D& extent,
-                          uint32_t          array_layers,
-                          VkImageLayout     current_layout,
-                          VkImage*          resolve_image,
-                          VkDeviceMemory*   resolve_memory);
+    VkResult TransferResolve(VkCommandBuffer   command_buffer,
+                             VkImage           image,
+                             VkFormat          format,
+                             VkImageType       type,
+                             VkImageTiling     tiling,
+                             const VkExtent3D& extent,
+                             uint32_t          array_layers,
+                             VkImageLayout     current_layout,
+                             VkImage*          resolve_image,
+                             VkDeviceMemory*   resolve_memory);
 
     // The created image views are written to resolved_image_view and ms_image_view. They are referenced by
     // command_buffer and must outlive its execution; the caller owns and must destroy them after submission.

@@ -45,6 +45,7 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <cstring>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -61,7 +62,8 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
         size_t stype_offset = 0;
 
         // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.
-        attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));
+        // Copied rather than dereferenced: nothing aligns a value in the parameter buffer.
+        std::memcpy(&attrib, parameter_buffer, sizeof(attrib));
 
         if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
         {
@@ -76,13 +78,14 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
 
         if ((stype_offset != 0) && ((buffer_size - stype_offset) >= sizeof(VkStructureType)))
         {
-            const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(parameter_buffer + stype_offset);
+            VkStructureType sType;
+            std::memcpy(&sType, parameter_buffer + stype_offset, sizeof(sType));
 
-            switch (*sType)
+            switch (sType)
             {
             default:
                 // TODO: This may need to be a fatal error
-                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));
+                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(sType).c_str()));
                 break;
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>>();

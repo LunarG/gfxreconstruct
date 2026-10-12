@@ -2031,14 +2031,16 @@ bool VulkanResourcesUtil::CanRenderPassResolve(
     return true;
 }
 
-VulkanResourcesUtil::MultisampleResolveMethod
-VulkanResourcesUtil::SelectResolveMethod(const VulkanInstanceTable&                       instance_table,
-                                         VkPhysicalDevice                                 physical_device,
-                                         VkFormat                                         format,
-                                         VkImageTiling                                    tiling,
-                                         const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+VulkanResourcesUtil::MultisampleResolveMethod VulkanResourcesUtil::SelectResolveMethod(
+    const VulkanInstanceTable&                        instance_table,
+    VkPhysicalDevice                                  physical_device,
+    VkFormat                                          format,
+    VkImageTiling                                     tiling,
+    const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info)
 {
-    if (CanTransferResolve(instance_table, physical_device, format, tiling, physical_device_features_info))
+    if (CanTransferResolve(
+            instance_table, physical_device, format, physical_device_features_info, device_version_extension_info))
     {
         return MultisampleResolveMethod::kTransfer;
     }
@@ -2052,22 +2054,28 @@ VulkanResourcesUtil::SelectResolveMethod(const VulkanInstanceTable&             
 }
 
 bool VulkanResourcesUtil::CanTransferResolve(
-    const VulkanInstanceTable&                       instance_table,
-    VkPhysicalDevice                                 physical_device,
-    VkFormat                                         format,
-    VkImageTiling                                    tiling,
-    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+    const VulkanInstanceTable&                        instance_table,
+    VkPhysicalDevice                                  physical_device,
+    VkFormat                                          format,
+    const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info)
 {
-    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_OPTIMAL || tiling == VK_IMAGE_TILING_LINEAR);
+    // Maintenace10 and depth/stencil formats require vkCmdResolveImage2 and VkResolveImageModeInfoKHR.
+    const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
+    const bool is_depth_stencil        = vkuFormatIsDepthOrStencil(format);
+    const bool copy_commands_2_available =
+        device_version_extension_info.api_version >= VK_API_VERSION_1_3 ||
+        device_version_extension_info.IsExtensionAvailable(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
+    if (is_depth_stencil && (!maintenance10_supported || !copy_commands_2_available))
+    {
+        return false;
+    }
 
     VkFormatProperties format_properties{};
     instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_properties);
-    const VkFormatFeatureFlags& supported_feature_flags = tiling == VK_IMAGE_TILING_LINEAR
-                                                              ? format_properties.linearTilingFeatures
-                                                              : format_properties.optimalTilingFeatures;
 
-    // Maintenace10 and depth/stencil formats require vkCmdResolveImage2 and VkResolveImageModeInfoKHR.
-    const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
+    // VulkanResourcesUtil creates an image with TILING_OPTIMAL
+    const VkFormatFeatureFlags& supported_feature_flags = format_properties.optimalTilingFeatures;
     if ((supported_feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT ||
         (maintenance10_supported && (supported_feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
                                         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT))
@@ -2369,16 +2377,16 @@ VkResult VulkanResourcesUtil::RenderPassResolve(VkCommandBuffer       command_bu
     return VK_SUCCESS;
 }
 
-VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
-                                           VkImage           image,
-                                           VkFormat          format,
-                                           VkImageType       type,
-                                           VkImageTiling     tiling,
-                                           const VkExtent3D& extent,
-                                           uint32_t          array_layers,
-                                           VkImageLayout     current_layout,
-                                           VkImage*          resolved_image,
-                                           VkDeviceMemory*   resolved_image_memory)
+VkResult VulkanResourcesUtil::TransferResolve(VkCommandBuffer   command_buffer,
+                                              VkImage           image,
+                                              VkFormat          format,
+                                              VkImageType       type,
+                                              VkImageTiling     tiling,
+                                              const VkExtent3D& extent,
+                                              uint32_t          array_layers,
+                                              VkImageLayout     current_layout,
+                                              VkImage*          resolved_image,
+                                              VkDeviceMemory*   resolved_image_memory)
 {
     GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
@@ -2541,6 +2549,9 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
             }
             else
             {
+                // Spec forbids resolving depth/stencil images with vkCmdResolveImage
+                GFXRECON_ASSERT(!is_depth_or_stencil);
+
                 VkImageResolve region;
                 region.srcSubresource.aspectMask     = aspect_mask;
                 region.srcSubresource.mipLevel       = 0;
@@ -2559,13 +2570,6 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                 region.extent.width                  = extent.width;
                 region.extent.height                 = extent.height;
                 region.extent.depth                  = extent.depth;
-
-                if (is_depth_or_stencil)
-                {
-                    GFXRECON_LOG_ERROR(
-                        "The image is depth or stencil. It requires CmdCmdResolveImage2, but this device does not "
-                        "support it. It run CmdCmdResolveImage instead, but it might fail in some drivers.");
-                }
 
                 injected->CmdResolveImage(command_buffer,
                                           image,
@@ -2816,20 +2820,24 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
             if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
-                switch (SelectResolveMethod(
-                    instance_table_, physical_device_, img.format, img.tiling, physical_device_features_info_))
+                switch (SelectResolveMethod(instance_table_,
+                                            physical_device_,
+                                            img.format,
+                                            img.tiling,
+                                            physical_device_features_info_,
+                                            device_version_extension_info_))
                 {
                     case MultisampleResolveMethod::kTransfer:
-                        result = ResolveImage(command_buffer,
-                                              img.image,
-                                              img.format,
-                                              img.type,
-                                              img.tiling,
-                                              img.extent,
-                                              img.layer_count,
-                                              img.layout,
-                                              &tmp_data[i].resolve_image,
-                                              &tmp_data[i].resolve_memory);
+                        result = TransferResolve(command_buffer,
+                                                 img.image,
+                                                 img.format,
+                                                 img.type,
+                                                 img.tiling,
+                                                 img.extent,
+                                                 img.layer_count,
+                                                 img.layout,
+                                                 &tmp_data[i].resolve_image,
+                                                 &tmp_data[i].resolve_memory);
                         break;
 
                     case MultisampleResolveMethod::kRenderPass:
@@ -3316,7 +3324,7 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
             }
         } // current batch, consume staging-buffer
 
-        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%d)", __func__, start_idx, end_idx, buffer_resources.size());
+        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%zu)", __func__, start_idx, end_idx, buffer_resources.size());
     }
 }
 

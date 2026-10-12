@@ -115,6 +115,10 @@ class Dx12ReplayConsumerBodyGenerator(
             '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
+        write(
+            '#include "graphics/dx12_util.h"',
+            file=self.outFile
+        )
         self.newline()
         write(
             '#ifdef GFXRECON_AGS_SUPPORT',

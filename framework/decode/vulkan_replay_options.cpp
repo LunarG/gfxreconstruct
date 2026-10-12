@@ -39,7 +39,8 @@ void VulkanReplayOptions::MaybeWaitBeforeFirstSubmit() const
             if (time_elapsed_ms < wait_before_first_submit_ms)
             {
                 auto time_to_wait = wait_before_first_submit_ms - time_elapsed_ms;
-                GFXRECON_LOG_INFO("Waiting %u ms before first queue submit.", time_to_wait);
+                GFXRECON_LOG_INFO("Waiting %lld ms before first queue submit.",
+                                  static_cast<long long>(time_to_wait.count()));
                 std::this_thread::sleep_for(time_to_wait);
             }
         }

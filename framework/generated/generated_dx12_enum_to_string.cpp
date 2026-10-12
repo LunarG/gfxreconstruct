@@ -421,6 +421,7 @@ template <> std::string ToString<D3D12_PIPELINE_STATE_FLAGS>(const D3D12_PIPELIN
         case D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG: ret = "D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG"; break;
         case D3D12_PIPELINE_STATE_FLAG_DYNAMIC_DEPTH_BIAS: ret = "D3D12_PIPELINE_STATE_FLAG_DYNAMIC_DEPTH_BIAS"; break;
         case D3D12_PIPELINE_STATE_FLAG_DYNAMIC_INDEX_BUFFER_STRIP_CUT: ret = "D3D12_PIPELINE_STATE_FLAG_DYNAMIC_INDEX_BUFFER_STRIP_CUT"; break;
+        case D3D12_PIPELINE_STATE_FLAG_DISABLE_CACHED_BLOB: ret = "D3D12_PIPELINE_STATE_FLAG_DISABLE_CACHED_BLOB"; break;
     }
     return ret;
 }
@@ -531,6 +532,8 @@ template <> std::string ToString<D3D12_FEATURE>(const D3D12_FEATURE& value, ToSt
         case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE: ret = "D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE"; break;
         case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED: ret = "D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED"; break;
         case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT: ret = "D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT"; break;
+        case D3D12_FEATURE_BARRIER_LAYOUT: ret = "D3D12_FEATURE_BARRIER_LAYOUT"; break;
+        case D3D12_FEATURE_D3D12_OPTIONS22: ret = "D3D12_FEATURE_D3D12_OPTIONS22"; break;
     }
     return ret;
 }
@@ -744,6 +747,7 @@ template <> std::string ToString<D3D_SHADER_MODEL>(const D3D_SHADER_MODEL& value
         case D3D_SHADER_MODEL_6_7: ret = "D3D_SHADER_MODEL_6_7"; break;
         case D3D_SHADER_MODEL_6_8: ret = "D3D_SHADER_MODEL_6_8"; break;
         case D3D_SHADER_MODEL_6_9: ret = "D3D_SHADER_MODEL_6_9"; break;
+        case D3D_SHADER_MODEL_6_10: ret = "D3D_SHADER_MODEL_6_10"; break;
     }
     return ret;
 }
@@ -1234,6 +1238,7 @@ template <> std::string ToString<D3D12_SRV_DIMENSION>(const D3D12_SRV_DIMENSION&
         case D3D12_SRV_DIMENSION_TEXTURECUBE: ret = "D3D12_SRV_DIMENSION_TEXTURECUBE"; break;
         case D3D12_SRV_DIMENSION_TEXTURECUBEARRAY: ret = "D3D12_SRV_DIMENSION_TEXTURECUBEARRAY"; break;
         case D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE: ret = "D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE"; break;
+        case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET: ret = "D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET"; break;
     }
     return ret;
 }
@@ -1365,6 +1370,7 @@ template <> std::string ToString<D3D12_UAV_DIMENSION>(const D3D12_UAV_DIMENSION&
         case D3D12_UAV_DIMENSION_TEXTURE2DMS: ret = "D3D12_UAV_DIMENSION_TEXTURE2DMS"; break;
         case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY: ret = "D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY"; break;
         case D3D12_UAV_DIMENSION_TEXTURE3D: ret = "D3D12_UAV_DIMENSION_TEXTURE3D"; break;
+        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET: ret = "D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET"; break;
     }
     return ret;
 }
@@ -1947,7 +1953,7 @@ template <> std::string ToString<D3D12_STATE_SUBOBJECT_TYPE>(const D3D12_STATE_S
         case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2: ret = "D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2"; break;
         case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_SERIALIZED_ROOT_SIGNATURE: ret = "D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_SERIALIZED_ROOT_SIGNATURE"; break;
         case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_SERIALIZED_ROOT_SIGNATURE: ret = "D3D12_STATE_SUBOBJECT_TYPE_LOCAL_SERIALIZED_ROOT_SIGNATURE"; break;
-        case D3D12_STATE_SUBOBJECT_TYPE_COMPILER_EXISITING_COLLECTION: ret = "D3D12_STATE_SUBOBJECT_TYPE_COMPILER_EXISITING_COLLECTION"; break;
+        case D3D12_STATE_SUBOBJECT_TYPE_COMPILER_EXISTING_COLLECTION: ret = "D3D12_STATE_SUBOBJECT_TYPE_COMPILER_EXISTING_COLLECTION"; break;
         case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION_BY_KEY: ret = "D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION_BY_KEY"; break;
         case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID: ret = "D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID"; break;
     }
@@ -2825,6 +2831,38 @@ template <> std::string ToString<D3D12_SHADER_CACHE_CONTROL_FLAGS>(const D3D12_S
 std::string ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SHADER_CACHE_CONTROL_FLAGS>(flags);
+}
+
+template <> std::string ToString<D3D12_TRIM_NOTIFICATION_FLAGS>(const D3D12_TRIM_NOTIFICATION_FLAGS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    std::string ret = "Unhandled D3D12_TRIM_NOTIFICATION_FLAGS (" + std::to_string(value) + ")";
+    switch (value) {
+        case D3D12_TRIM_NOTIFICATION_FLAG_NONE: ret = "D3D12_TRIM_NOTIFICATION_FLAG_NONE"; break;
+        case D3D12_TRIM_NOTIFICATION_FLAG_PERIODIC_TRIM: ret = "D3D12_TRIM_NOTIFICATION_FLAG_PERIODIC_TRIM"; break;
+        case D3D12_TRIM_NOTIFICATION_FLAG_RESTART_PERIODIC_TRIM: ret = "D3D12_TRIM_NOTIFICATION_FLAG_RESTART_PERIODIC_TRIM"; break;
+        case D3D12_TRIM_NOTIFICATION_FLAG_TRIM_TO_BUDGET: ret = "D3D12_TRIM_NOTIFICATION_FLAG_TRIM_TO_BUDGET"; break;
+    }
+    return ret;
+}
+
+std::string ToString_D3D12_TRIM_NOTIFICATION_FLAGS(const uint32_t flags)
+{
+    return BitmaskToString<D3D12_TRIM_NOTIFICATION_FLAGS>(flags);
+}
+
+template <> std::string ToString<D3D12_QUERY_HEAP_FLAGS>(const D3D12_QUERY_HEAP_FLAGS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    std::string ret = "Unhandled D3D12_QUERY_HEAP_FLAGS (" + std::to_string(value) + ")";
+    switch (value) {
+        case D3D12_QUERY_HEAP_FLAG_NONE: ret = "D3D12_QUERY_HEAP_FLAG_NONE"; break;
+        case D3D12_QUERY_HEAP_FLAG_CPU_RESOLVE: ret = "D3D12_QUERY_HEAP_FLAG_CPU_RESOLVE"; break;
+    }
+    return ret;
+}
+
+std::string ToString_D3D12_QUERY_HEAP_FLAGS(const uint32_t flags)
+{
+    return BitmaskToString<D3D12_QUERY_HEAP_FLAGS>(flags);
 }
 
 template <> std::string ToString<D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS>(const D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
@@ -4620,6 +4658,12 @@ template <> std::string ToString<D3D12_MESSAGE_ID>(const D3D12_MESSAGE_ID& value
         case D3D12_MESSAGE_ID_NON_COMMON_RESOURCE_IN_COPY_QUEUE: ret = "D3D12_MESSAGE_ID_NON_COMMON_RESOURCE_IN_COPY_QUEUE"; break;
         case D3D12_MESSAGE_ID_CREATEPIPELINESTATE_MULTIPLE_ROOT_SIGNATURES_DEFINED: ret = "D3D12_MESSAGE_ID_CREATEPIPELINESTATE_MULTIPLE_ROOT_SIGNATURES_DEFINED"; break;
         case D3D12_MESSAGE_ID_TEXTURE_BARRIER_INVALID_FLAGS: ret = "D3D12_MESSAGE_ID_TEXTURE_BARRIER_INVALID_FLAGS"; break;
+        case D3D12_MESSAGE_ID_STOREPIPELINE_CACHED_BLOB_DISABLED: ret = "D3D12_MESSAGE_ID_STOREPIPELINE_CACHED_BLOB_DISABLED"; break;
+        case D3D12_MESSAGE_ID_CREATEQUERYHEAP_INVALID_FLAGS: ret = "D3D12_MESSAGE_ID_CREATEQUERYHEAP_INVALID_FLAGS"; break;
+        case D3D12_MESSAGE_ID_RESOLVEQUERYDATA_INVALID_QUERYHEAP: ret = "D3D12_MESSAGE_ID_RESOLVEQUERYDATA_INVALID_QUERYHEAP"; break;
+        case D3D12_MESSAGE_ID_GPU_BASED_VALIDATION_NON_UNIFORM_RESOURCE_INDEX: ret = "D3D12_MESSAGE_ID_GPU_BASED_VALIDATION_NON_UNIFORM_RESOURCE_INDEX"; break;
+        case D3D12_MESSAGE_ID_DEGENERATE_SPLIT_BARRIER: ret = "D3D12_MESSAGE_ID_DEGENERATE_SPLIT_BARRIER"; break;
+        case D3D12_MESSAGE_ID_CREATERESOURCE_ALIGNMENT_OVERRIDDEN: ret = "D3D12_MESSAGE_ID_CREATERESOURCE_ALIGNMENT_OVERRIDDEN"; break;
         case D3D12_MESSAGE_ID_D3D12_MESSAGES_END: ret = "D3D12_MESSAGE_ID_D3D12_MESSAGES_END"; break;
     }
     return ret;
@@ -5012,9 +5056,12 @@ template <> std::string ToString<GUID>(const GUID& value, ToStringFlags toString
     if (value == CLSID_D3D12DeviceFactory) return "CLSID_D3D12DeviceFactory";
     if (value == CLSID_D3D12DSRDeviceFactory) return "CLSID_D3D12DSRDeviceFactory";
     if (value == CLSID_D3D12StateObjectFactory) return "CLSID_D3D12StateObjectFactory";
+    if (value == CLSID_D3D12RuntimeValidationControl) return "CLSID_D3D12RuntimeValidationControl";
+    if (value == CLSID_D3D12ApplicationIdentity) return "CLSID_D3D12ApplicationIdentity";
     if (value == IID_ID3D12Object) return "IID_ID3D12Object";
     if (value == IID_ID3D12DeviceChild) return "IID_ID3D12DeviceChild";
     if (value == IID_ID3D12RootSignature) return "IID_ID3D12RootSignature";
+    if (value == IID_ID3D12RootSignature1) return "IID_ID3D12RootSignature1";
     if (value == IID_ID3D12RootSignatureDeserializer) return "IID_ID3D12RootSignatureDeserializer";
     if (value == IID_ID3D12VersionedRootSignatureDeserializer) return "IID_ID3D12VersionedRootSignatureDeserializer";
     if (value == IID_ID3D12Pageable) return "IID_ID3D12Pageable";
@@ -5075,11 +5122,13 @@ template <> std::string ToString<GUID>(const GUID& value, ToStringFlags toString
     if (value == IID_ID3D12Device12) return "IID_ID3D12Device12";
     if (value == IID_ID3D12Device13) return "IID_ID3D12Device13";
     if (value == IID_ID3D12Device14) return "IID_ID3D12Device14";
+    if (value == IID_ID3D12Device15) return "IID_ID3D12Device15";
     if (value == IID_ID3D12StateObjectDatabase) return "IID_ID3D12StateObjectDatabase";
     if (value == IID_ID3D12VirtualizationGuestDevice) return "IID_ID3D12VirtualizationGuestDevice";
     if (value == IID_ID3D12Tools) return "IID_ID3D12Tools";
     if (value == IID_ID3D12Tools1) return "IID_ID3D12Tools1";
     if (value == IID_ID3D12Tools2) return "IID_ID3D12Tools2";
+    if (value == IID_ID3D12RuntimeValidationControl) return "IID_ID3D12RuntimeValidationControl";
     if (value == IID_ID3D12PageableTools) return "IID_ID3D12PageableTools";
     if (value == IID_ID3D12DeviceTools) return "IID_ID3D12DeviceTools";
     if (value == IID_ID3D12DeviceTools1) return "IID_ID3D12DeviceTools1";
@@ -5089,6 +5138,7 @@ template <> std::string ToString<GUID>(const GUID& value, ToStringFlags toString
     if (value == IID_ID3D12DeviceConfiguration) return "IID_ID3D12DeviceConfiguration";
     if (value == IID_ID3D12DeviceConfiguration1) return "IID_ID3D12DeviceConfiguration1";
     if (value == IID_ID3D12StateObjectDatabaseFactory) return "IID_ID3D12StateObjectDatabaseFactory";
+    if (value == IID_ID3D12ApplicationIdentity) return "IID_ID3D12ApplicationIdentity";
     if (value == IID_ID3D12GraphicsCommandList5) return "IID_ID3D12GraphicsCommandList5";
     if (value == IID_ID3D12GraphicsCommandList6) return "IID_ID3D12GraphicsCommandList6";
     if (value == IID_ID3D12GraphicsCommandList7) return "IID_ID3D12GraphicsCommandList7";
@@ -5097,6 +5147,7 @@ template <> std::string ToString<GUID>(const GUID& value, ToStringFlags toString
     if (value == IID_ID3D12GraphicsCommandList10) return "IID_ID3D12GraphicsCommandList10";
     if (value == IID_ID3D12DSRDeviceFactory) return "IID_ID3D12DSRDeviceFactory";
     if (value == IID_ID3D12GBVDiagnostics) return "IID_ID3D12GBVDiagnostics";
+    if (value == IID_ID3D12DeviceStatistics) return "IID_ID3D12DeviceStatistics";
     if (value == IID_ID3D10Blob) return "IID_ID3D10Blob";
     if (value == WKPDID_D3DDebugObjectName) return "WKPDID_D3DDebugObjectName";
     if (value == WKPDID_D3DDebugObjectNameW) return "WKPDID_D3DDebugObjectNameW";

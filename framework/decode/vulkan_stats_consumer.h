@@ -161,9 +161,6 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint64_t GetTotalMinAllocationSize() const { return total_min_allocation_size_; }
     uint64_t GetTotalMaxAllocationSize() const { return total_max_allocation_size_; }
 
-    using PhysicalDeviceProperties = std::unordered_map<gfxrecon::format::HandleId, VkPhysicalDeviceProperties>;
-    const PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return physical_device_properties_; }
-
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
     {

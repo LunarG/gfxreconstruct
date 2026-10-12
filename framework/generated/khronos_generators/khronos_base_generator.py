@@ -496,7 +496,8 @@ class KhronosBaseGenerator(OutputGenerator):
         self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES = {}
         self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES = {}
         self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES = {}
-        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_BIND_MEMORY = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY = {}
         self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED = {}
         self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = {}
         self.DUMP_RESOURCES_OVERRIDES = {}
@@ -728,8 +729,10 @@ class KhronosBaseGenerator(OutputGenerator):
                 'resourceAllocateMultipleHandles']
             self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES = frame_loop_overrides[
                 'resourceFreeSingleHandle']
-            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_BIND_MEMORY = frame_loop_overrides[
-                'resourceBindMemory']
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_BIND_MEMORY = frame_loop_overrides[
+                'resourceSingleBindMemory']
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY = frame_loop_overrides[
+                'resourceMultipleBindMemory']
             self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED = frame_loop_overrides[
                 'resourceAllocateNotFullyImplemented']
             self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = frame_loop_overrides[

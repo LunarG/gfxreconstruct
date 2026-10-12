@@ -74,6 +74,7 @@ const char kScreenshotDirArgument[]              = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]       = "--screenshot-prefix";
 const char kScreenshotSizeArgument[]             = "--screenshot-size";
 const char kScreenshotScaleArgument[]            = "--screenshot-scale";
+const char kScreenshotResultsOption[]            = "--screenshot-results";
 const char kForceWindowedShortArgument[]         = "--fw";
 const char kForceWindowedLongArgument[]          = "--force-windowed";
 const char kForceWindowWithOriginShortArgument[] = "--fwo";
@@ -905,7 +906,8 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
 
     GetScreenshotSize(arg_parser, options.screenshot_width, options.screenshot_height);
-    options.screenshot_scale = GetScreenshotScale(arg_parser);
+    options.screenshot_scale   = GetScreenshotScale(arg_parser);
+    options.screenshot_results = arg_parser.IsOptionSet(kScreenshotResultsOption);
 }
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

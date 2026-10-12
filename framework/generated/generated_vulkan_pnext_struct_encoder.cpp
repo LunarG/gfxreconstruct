@@ -74,7 +74,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
                 std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);
                 VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());
                 GFXRECON_LOG_WARNING("%s", message.get());
-                EncodePNextStruct(encoder, base->pNext);
+                EncodePNextStructIfValid(encoder, base->pNext);
             }
             break;
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
