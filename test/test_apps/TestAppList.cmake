@@ -59,6 +59,7 @@ set(GFXRECON_TEST_APP_ENTRIES
     "pipeline-binaries:KNOWN_GOOD"
     "screenshot-frame-boundaries:CUSTOM"
     "serialize-compute-and-transfer:REPLAY_ONLY"
+    "serialize-queue-submissions:REPLAY_ONLY"
     "shader-objects:KNOWN_GOOD"
     "sparse-resources:KNOWN_GOOD"
     "triangle:KNOWN_GOOD"
