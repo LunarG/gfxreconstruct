@@ -494,6 +494,13 @@ on various platforms.
   - Install version 14 of clang-format.exe.
     - clang-format.exe 14 is included when installing LLVM 14
     - The LLVM 14 release download is available on the [LLVM 14.0.6 release page on GitHub](https://github.com/llvm/llvm-project/releases/tag/llvmorg-14.0.6)
+  - The build's code-style check accepts this install as is: it looks for
+    `clang-format-14` and then for a `clang-format` that reports version 14, so
+    the LLVM installer's `clang-format.exe` needs no renaming. For the workflow
+    above use `git clang-format` rather than `git clang-format-14`: the latter
+    needs a Git helper named `git-clang-format-14`, which this install does not
+    provide. `git clang-format` uses the `clang-format` on the PATH; point it at
+    a specific one with `--binary PATH` or `git config clangFormat.binary PATH`.
   - Point Visual Studio to use the custom clang-format.exe:
     - Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
       At the bottom is a checkbox for **Use custom path to clang-format.exe**.
