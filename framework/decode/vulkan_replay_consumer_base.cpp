@@ -13610,14 +13610,13 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const 
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate(
-            call_info,
-            GetInjectedDeviceCalls(in_commandBuffer),
-            in_commandBuffer,
-            in_descriptorUpdateTemplate,
-            in_layout,
-            args.set,
-            args.pData.GetPointer());
+        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate(call_info,
+                                                                     GetInjectedDeviceCalls(in_commandBuffer),
+                                                                     in_commandBuffer,
+                                                                     in_descriptorUpdateTemplate,
+                                                                     in_layout,
+                                                                     args.set,
+                                                                     args.pData.GetPointer());
     }
 }
 
