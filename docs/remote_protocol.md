@@ -60,8 +60,8 @@ replay     → controller:  {"type":"ready"}
 - `options` is a set of replay settings, from which replay rebuilds its
   `ArgumentParser`. It completely replaces the traditional command-line
   arguments. See [Settings Keys](#settings-keys).
-- A 5-second receive timeout applies during the handshake, and is cleared once
-  the handshake succeeds.
+- Replay waits up to 5 seconds for `settings` to arrive, and fails to start if
+  the controller stays silent that long.
 
 ## Message Schema
 
