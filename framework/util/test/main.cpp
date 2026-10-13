@@ -35,6 +35,7 @@
 #include "util/file_path.h"
 #include "util/logging.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_schema_types.h"
 
 using namespace gfxrecon::util::strings;
 using namespace gfxrecon::util::datetime;
@@ -60,34 +61,35 @@ TEST_CASE("Quote", "[to_string]")
 TEST_CASE("Enum64ToString", "[to_string]")
 {
     using namespace gfxrecon::util;
+    namespace api_types = gfxrecon::schema::vulkan::api_types;
     gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
-    REQUIRE(VkAccessFlagBits2ToString(VK_ACCESS_2_NONE) == "VK_ACCESS_2_NONE");
-    REQUIRE(VkAccessFlagBits2ToString(VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV) ==
+    REQUIRE(ToString<api_types::VkAccessFlagBits2>(VK_ACCESS_2_NONE) == "VK_ACCESS_2_NONE");
+    REQUIRE(ToString<api_types::VkAccessFlagBits2>(VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV) ==
             "VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV");
 
-    REQUIRE(VkAccessFlags2ToString(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT) ==
+    REQUIRE(ToString<api_types::VkAccessFlags2>(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT) ==
             "VK_ACCESS_2_SHADER_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT");
     REQUIRE(
-        VkAccessFlags2ToString(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT |
-                               VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT) ==
+        ToString<api_types::VkAccessFlags2>(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT |
+                                            VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT) ==
         "VK_ACCESS_2_SHADER_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT|VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT");
-    REQUIRE(VkAccessFlags2ToString(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT |
-                                   VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR |
-                                   VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT |
-                                   VK_ACCESS_2_MICROMAP_READ_BIT_EXT) ==
+    REQUIRE(ToString<api_types::VkAccessFlags2>(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT |
+                                                VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR |
+                                                VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT |
+                                                VK_ACCESS_2_MICROMAP_READ_BIT_EXT) ==
             "VK_ACCESS_2_SHADER_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT|VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR|"
             "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_"
             "EXT|VK_ACCESS_2_MICROMAP_READ_BIT_EXT");
 
-    REQUIRE(VkFormatFeatureFlagBits2ToString(VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT) ==
+    REQUIRE(ToString<api_types::VkFormatFeatureFlagBits2>(VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT) ==
             "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT");
     // Note KHR suffix is stripped as the two consts have the same value:
-    REQUIRE(VkFormatFeatureFlagBits2ToString(VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT_KHR) ==
+    REQUIRE(ToString<api_types::VkFormatFeatureFlagBits2>(VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT_KHR) ==
             "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT");
-    REQUIRE(VkFormatFeatureFlagBits2ToString(VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV) ==
+    REQUIRE(ToString<api_types::VkFormatFeatureFlagBits2>(VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV) ==
             "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV");
-    REQUIRE(VkFormatFeatureFlags2ToString(
+    REQUIRE(ToString<api_types::VkFormatFeatureFlags2>(
                 VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT | VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT |
                 VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT |
                 VK_FORMAT_FEATURE_2_DISJOINT_BIT | VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR |
@@ -102,17 +104,34 @@ TEST_CASE("Enum64ToString", "[to_string]")
             "VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT|"
             "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM");
 
-    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_NONE) == "VK_PIPELINE_STAGE_2_NONE");
-    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT_KHR) ==
+    REQUIRE(ToString<api_types::VkPipelineStageFlagBits2>(VK_PIPELINE_STAGE_2_NONE) == "VK_PIPELINE_STAGE_2_NONE");
+    REQUIRE(ToString<api_types::VkPipelineStageFlagBits2>(VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT_KHR) ==
             "VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT");
-    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT) ==
+    REQUIRE(ToString<api_types::VkPipelineStageFlagBits2>(VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT) ==
             "VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT");
-    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT) ==
+    REQUIRE(ToString<api_types::VkPipelineStageFlagBits2>(VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT) ==
             "VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT");
-    REQUIRE(VkPipelineStageFlags2ToString(
+    REQUIRE(ToString<api_types::VkPipelineStageFlags2>(
                 VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT_KHR | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT |
                 VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT) == "VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT|VK_PIPELINE_STAGE_2_"
                                                          "VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT");
+    gfxrecon::util::Log::Release();
+}
+
+TEST_CASE("Enum32MaskToString", "[to_string]")
+{
+    using namespace gfxrecon::util;
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
+
+    const VkFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+
+    // The flag-bits enum names the table: the set bits by name, in bit order.
+    REQUIRE(ToString<VkImageUsageFlagBits>(usage) == "VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_SAMPLED_BIT");
+    REQUIRE(ToString<VkImageUsageFlagBits>(VkFlags{ 0 }) == "Unhandled VkImageUsageFlagBits");
+
+    // The Flags typedef is VkFlags, so it reaches the primary template: the integer, which tocpp casts.
+    REQUIRE(ToString<VkImageUsageFlags>(usage) == std::to_string(usage));
+
     gfxrecon::util::Log::Release();
 }
 

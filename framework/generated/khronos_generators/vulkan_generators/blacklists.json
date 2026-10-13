@@ -58,5 +58,18 @@
     "VkLayerSettingEXT",
     "VkDescriptorGetInfoEXT",
     "VkDataGraphPipelineConstantARM"
+  ],
+  "structures-deep-copy": [
+    "VkBaseInStructure",
+    "VkBaseOutStructure",
+    "VkXlibSurfaceCreateInfoKHR",
+    "VkXcbSurfaceCreateInfoKHR",
+    "VkWaylandSurfaceCreateInfoKHR",
+    "VkAndroidSurfaceCreateInfoKHR",
+    "VkImportAndroidHardwareBufferInfoANDROID",
+    "VkMetalSurfaceCreateInfoEXT",
+    "VkDirectFBSurfaceCreateInfoEXT",
+    "VkScreenSurfaceCreateInfoQNX",
+    "VkPushDescriptorSetWithTemplateInfoKHR"
   ]
 }
