@@ -33,6 +33,7 @@ endif()
 
 add_subdirectory(common)
 add_subdirectory(debug-utils)
+add_subdirectory(frame-loop-command-buffer)
 add_subdirectory(isolate-render-passes)
 add_subdirectory(serialize-compute-and-transfer)
 add_subdirectory(serialize-queue-submissions)
