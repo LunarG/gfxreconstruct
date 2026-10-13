@@ -25,7 +25,8 @@
 
 #include "util/defines.h"
 #include "format/platform_types.h"
-#include "generated/generated_vulkan_stype_util.h"
+#include "binding/structure_type.h"
+#include "generated/generated_vulkan_binding_descriptor_for.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -70,7 +71,7 @@ static const T* vulkan_struct_get_pnext(const Parent_T* parent)
 
         while (current_struct != nullptr)
         {
-            if (current_struct->sType == gfxrecon::util::GetSType<T>())
+            if (current_struct->sType == gfxrecon::binding::StructureTypeOf<T>())
             {
                 return reinterpret_cast<const T*>(current_struct);
             }
@@ -101,7 +102,7 @@ static T* vulkan_struct_get_pnext(Parent_T* parent)
 
         while (current_struct != nullptr)
         {
-            if (current_struct->sType == gfxrecon::util::GetSType<T>())
+            if (current_struct->sType == gfxrecon::binding::StructureTypeOf<T>())
             {
                 return reinterpret_cast<T*>(current_struct);
             }
@@ -133,7 +134,7 @@ static T* vulkan_struct_remove_pnext(Parent_T* parent)
 
         while (current_struct != nullptr)
         {
-            if (current_struct->sType == gfxrecon::util::GetSType<T>())
+            if (current_struct->sType == gfxrecon::binding::StructureTypeOf<T>())
             {
                 prev_struct->pNext = current_struct->pNext;
                 return reinterpret_cast<T*>(current_struct);

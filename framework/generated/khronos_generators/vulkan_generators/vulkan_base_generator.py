@@ -227,6 +227,12 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     Base class for Vulkan API parameter encoding and decoding generators.
     """
 
+    def is_enumerated(self, enum):
+        """True for an enum type the registry declares, not an alias: it gets an enumerant table, empty or not. A 64-bit
+        flag-bits type is one too; it gets a table, and no binding, because in C it is a typedef of VkFlags64.
+        """
+        return enum in self.enumEnumerants and enum not in self.enumAliases
+
     def __init__(
         self,
         err_file=sys.stderr,

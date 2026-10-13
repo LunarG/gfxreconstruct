@@ -31,6 +31,8 @@
 #define  GFXRECON_GENERATED_VULKAN_ENUM_TO_STRING_H
 
 #include "format/platform_types.h"
+#include "schema/schema.h"
+#include "util/defines.h"
 #include "util/to_string.h"
 
 #include "vulkan/vulkan.h"
@@ -42,8 +44,31 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
 
+#ifdef WIN32
+#ifdef CreateEvent
+#undef CreateEvent
+#endif
+#ifdef CreateSemaphore
+#undef CreateSemaphore
+#endif
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+// Explicit specializations of util/to_string.h's primaries, one per enum and one more per 32-bit mask enum,
+// defined in generated_vulkan_enum_to_string.cpp over the enumerant tables.
 GFXRECON_BEGIN_NAMESPACE(util)
+
+// Keyed on the API type descriptor, for the types spelled as a bare integer in C: the 64-bit flag-bits types,
+// instantiated in generated_vulkan_enum_to_string.cpp.
+
+// Requires a descriptor with an enumerant table: one enumerant to its name.
+template <schema::HasEnumerants Descriptor>
+std::string ToString(typename Descriptor::element_type value, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+
+// Requires a mask typedef's descriptor: the set bits of a mask, by name.
+template <schema::HasBitvalues Descriptor>
+std::string ToString(VkFlags64 flags, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+
 template <> std::string ToString<StdVideoAV1ChromaSamplePosition>(const StdVideoAV1ChromaSamplePosition& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<StdVideoAV1ColorPrimaries>(const StdVideoAV1ColorPrimaries& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<StdVideoAV1FrameRestorationType>(const StdVideoAV1FrameRestorationType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -85,10 +110,6 @@ template <> std::string ToString<VkAccelerationStructureSerializedBlockTypeKHR>(
 template <> std::string ToString<VkAccelerationStructureTypeKHR>(const VkAccelerationStructureTypeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccessFlagBits>(const VkAccessFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccessFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkAccessFlagBits2ToString(const VkAccessFlagBits2 value);
-std::string VkAccessFlags2ToString(VkFlags64 vkFlags);
-std::string VkAccessFlagBits3KHRToString(const VkAccessFlagBits3KHR value);
-std::string VkAccessFlags3KHRToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(const VkAcquireProfilingLockFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAddressCommandFlagBitsKHR>(const VkAddressCommandFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -110,8 +131,6 @@ template <> std::string ToString<VkBufferCreateFlagBits>(const VkBufferCreateFla
 template <> std::string ToString<VkBufferCreateFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkBufferUsageFlagBits>(const VkBufferUsageFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkBufferUsageFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkBufferUsageFlagBits2ToString(const VkBufferUsageFlagBits2 value);
-std::string VkBufferUsageFlags2ToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(const VkBuildAccelerationStructureFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkBuildAccelerationStructureModeKHR>(const VkBuildAccelerationStructureModeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -160,15 +179,11 @@ template <> std::string ToString<VkDataGraphOpticalFlowGridSizeFlagBitsARM>(VkFl
 template <> std::string ToString<VkDataGraphOpticalFlowImageUsageFlagBitsARM>(const VkDataGraphOpticalFlowImageUsageFlagBitsARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDataGraphOpticalFlowImageUsageFlagBitsARM>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDataGraphOpticalFlowPerformanceLevelARM>(const VkDataGraphOpticalFlowPerformanceLevelARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkDataGraphPipelineDispatchFlagBitsARMToString(const VkDataGraphPipelineDispatchFlagBitsARM value);
-std::string VkDataGraphPipelineDispatchFlagsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkDataGraphPipelineNodeConnectionTypeARM>(const VkDataGraphPipelineNodeConnectionTypeARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDataGraphPipelineNodeTypeARM>(const VkDataGraphPipelineNodeTypeARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDataGraphPipelinePropertyARM>(const VkDataGraphPipelinePropertyARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDataGraphPipelineSessionBindPointARM>(const VkDataGraphPipelineSessionBindPointARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDataGraphPipelineSessionBindPointTypeARM>(const VkDataGraphPipelineSessionBindPointTypeARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkDataGraphPipelineSessionCreateFlagBitsARMToString(const VkDataGraphPipelineSessionCreateFlagBitsARM value);
-std::string VkDataGraphPipelineSessionCreateFlagsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkDebugReportFlagBitsEXT>(const VkDebugReportFlagBitsEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDebugReportFlagBitsEXT>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDebugReportObjectTypeEXT>(const VkDebugReportObjectTypeEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -240,10 +255,6 @@ template <> std::string ToString<VkFilter>(const VkFilter& value, ToStringFlags 
 template <> std::string ToString<VkFormat>(const VkFormat& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkFormatFeatureFlagBits>(const VkFormatFeatureFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkFormatFeatureFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkFormatFeatureFlagBits2ToString(const VkFormatFeatureFlagBits2 value);
-std::string VkFormatFeatureFlags2ToString(VkFlags64 vkFlags);
-std::string VkFormatFeatureFlagBits4KHRToString(const VkFormatFeatureFlagBits4KHR value);
-std::string VkFormatFeatureFlags4KHRToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkFragmentShadingRateCombinerOpKHR>(const VkFragmentShadingRateCombinerOpKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkFragmentShadingRateNV>(const VkFragmentShadingRateNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkFragmentShadingRateTypeNV>(const VkFragmentShadingRateTypeNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -275,16 +286,12 @@ template <> std::string ToString<VkImageCompressionFlagBitsEXT>(const VkImageCom
 template <> std::string ToString<VkImageCompressionFlagBitsEXT>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageCreateFlagBits>(const VkImageCreateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageCreateFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkImageCreateFlagBits2KHRToString(const VkImageCreateFlagBits2KHR value);
-std::string VkImageCreateFlags2KHRToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkImageLayout>(const VkImageLayout& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageTiling>(const VkImageTiling& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageTilingControlEXT>(const VkImageTilingControlEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageType>(const VkImageType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageUsageFlagBits>(const VkImageUsageFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageUsageFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkImageUsageFlagBits2KHRToString(const VkImageUsageFlagBits2KHR value);
-std::string VkImageUsageFlags2KHRToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkImageViewCreateFlagBits>(const VkImageViewCreateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageViewCreateFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageViewType>(const VkImageViewType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -310,8 +317,6 @@ template <> std::string ToString<VkLineRasterizationMode>(const VkLineRasterizat
 template <> std::string ToString<VkLogicOp>(const VkLogicOp& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMemoryAllocateFlagBits>(const VkMemoryAllocateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMemoryAllocateFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkMemoryDecompressionMethodFlagBitsEXTToString(const VkMemoryDecompressionMethodFlagBitsEXT value);
-std::string VkMemoryDecompressionMethodFlagsEXTToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkMemoryHeapFlagBits>(const VkMemoryHeapFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMemoryHeapFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMemoryMapFlagBits>(const VkMemoryMapFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -359,8 +364,6 @@ template <> std::string ToString<VkPerformanceValueTypeINTEL>(const VkPerformanc
 template <> std::string ToString<VkPhysicalDeviceDataGraphOperationTypeARM>(const VkPhysicalDeviceDataGraphOperationTypeARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceDataGraphProcessingEngineTypeARM>(const VkPhysicalDeviceDataGraphProcessingEngineTypeARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceLayeredApiKHR>(const VkPhysicalDeviceLayeredApiKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(const VkPhysicalDeviceSchedulingControlsFlagBitsARM value);
-std::string VkPhysicalDeviceSchedulingControlsFlagsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkPhysicalDeviceType>(const VkPhysicalDeviceType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineBindPoint>(const VkPipelineBindPoint& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineCacheCreateFlagBits>(const VkPipelineCacheCreateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -372,8 +375,6 @@ template <> std::string ToString<VkPipelineCompilerControlFlagBitsAMD>(const VkP
 template <> std::string ToString<VkPipelineCompilerControlFlagBitsAMD>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineCreateFlagBits>(const VkPipelineCreateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineCreateFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkPipelineCreateFlagBits2ToString(const VkPipelineCreateFlagBits2 value);
-std::string VkPipelineCreateFlags2ToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(const VkPipelineCreationFeedbackFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineDepthStencilStateCreateFlagBits>(const VkPipelineDepthStencilStateCreateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -387,8 +388,6 @@ template <> std::string ToString<VkPipelineShaderStageCreateFlagBits>(const VkPi
 template <> std::string ToString<VkPipelineShaderStageCreateFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineStageFlagBits>(const VkPipelineStageFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineStageFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 value);
-std::string VkPipelineStageFlags2ToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkPointClippingBehavior>(const VkPointClippingBehavior& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPolygonMode>(const VkPolygonMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPresentGravityFlagBitsKHR>(const VkPresentGravityFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -484,13 +483,7 @@ template <> std::string ToString<VkSurfaceTransformFlagBitsKHR>(VkFlags vkFlags,
 template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(const VkSwapchainCreateFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSystemAllocationScope>(const VkSystemAllocationScope& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkTensorCreateFlagBitsARMToString(const VkTensorCreateFlagBitsARM value);
-std::string VkTensorCreateFlagsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkTensorTilingARM>(const VkTensorTilingARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string VkTensorUsageFlagBitsARMToString(const VkTensorUsageFlagBitsARM value);
-std::string VkTensorUsageFlagsARMToString(VkFlags64 vkFlags);
-std::string VkTensorViewCreateFlagBitsARMToString(const VkTensorViewCreateFlagBitsARM value);
-std::string VkTensorViewCreateFlagsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkTessellationDomainOrigin>(const VkTessellationDomainOrigin& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkThrottleHintTypeSEC>(const VkThrottleHintTypeSEC& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkTileShadingRenderPassFlagBitsQCOM>(const VkTileShadingRenderPassFlagBitsQCOM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -566,6 +559,7 @@ template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(VkFlags vkFlag
 template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(const VkVideoSessionParametersCreateFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkViewportCoordinateSwizzleNV>(const VkViewportCoordinateSwizzleNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

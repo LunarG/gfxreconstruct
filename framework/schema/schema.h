@@ -43,6 +43,40 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 template <typename ApiElement>
 struct Schema;
 
+// A structure the API discriminates by a type value in its first member carries that value on its descriptor.
+template <typename Descriptor>
+concept HasStructureType = requires
+{
+    Descriptor::structure_type;
+}
+&&std::is_enum_v<std::remove_cv_t<decltype(Descriptor::structure_type)>>;
+
+// The concept as a value predicate, for the list algorithms.
+inline constexpr auto kHasStructureType = []<typename Descriptor>() { return HasStructureType<Descriptor>; };
+
+// An enumerated type's descriptor names its enumerant table.
+template <typename Descriptor>
+concept HasEnumerants = requires
+{
+    typename Descriptor::enumerants;
+};
+
+// A bits enum: its values compose into a mask of the type bitmask names. The registry declares the group a bitmask
+// and states the width.
+template <typename Descriptor>
+concept HasBitmask = HasEnumerants<Descriptor> && requires
+{
+    typename Descriptor::bitmask;
+};
+
+// A mask typedef's descriptor names the descriptor of the bits enum whose values compose it.
+template <typename Descriptor>
+concept HasBitvalues = requires
+{
+    typename Descriptor::bitvalues;
+    requires HasBitmask<typename Descriptor::bitvalues>;
+};
+
 template <typename ApiElement>
 concept HasSchema = requires
 {
@@ -51,31 +85,32 @@ concept HasSchema = requires
 };
 
 // The return predicate treats an absent is_return member as false.
-template <typename Field>
-    struct IsReturnField : std::bool_constant < requires
-{
-    requires Field::is_return;
-} > {};
+inline constexpr auto kIsReturnField = []<typename Field>() {
+    return requires
+    {
+        requires Field::is_return;
+    };
+};
 
 template <HasSchema ApiElement>
-using ReturnMatches = util::TypeListKeep<typename Schema<ApiElement>::Fields, IsReturnField>;
+using ReturnFields = decltype(util::TypeListKeep(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 // A command schema is invalid when the partition finds zero or more than one return Field. The same validation
 // distinguishes a command schema from a structure schema.
 template <typename ApiElement>
 concept HasCommandSchema = HasSchema<ApiElement> && requires
 {
-    typename util::TypeListSole<ReturnMatches<ApiElement>>;
+    typename util::TypeListSole<ReturnFields<ApiElement>>;
 };
 
 template <HasCommandSchema ApiElement>
-using Return = util::TypeListSole<ReturnMatches<ApiElement>>;
+using Return = util::TypeListSole<ReturnFields<ApiElement>>;
 
 template <HasCommandSchema ApiElement>
 using ReturnType = ElementType<typename Return<ApiElement>::api_type>;
 
 template <HasCommandSchema ApiElement>
-using ParameterFields = util::TypeListDrop<typename Schema<ApiElement>::Fields, IsReturnField>;
+using ParameterFields = decltype(util::TypeListDrop(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 template <typename Action, typename Field, typename Storage>
 concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
@@ -88,7 +123,7 @@ concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
 template <HasSchema ApiElement, typename Action, typename Storage>
 void WalkFields(Action& action, Storage& storage)
 {
-    util::ForEachType<typename Schema<ApiElement>::Fields>([&]<typename Field>() {
+    util::TypeListForEach<typename Schema<ApiElement>::Fields>([&]<typename Field>() {
         if constexpr (FieldActionFor<Action, Field, Storage>)
         {
             action.Apply(Field{}, storage);
