@@ -248,6 +248,10 @@ class ApiDecoder
     virtual void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
                                                                                 size_t         buffer_size){};
 
+    // The payload carries create-infos written by the generated struct encoders, so it is handed over
+    // undecoded and walked by the decoder that claims it.
+    virtual void DispatchResourceAliasingGroupsCommand(const uint8_t* parameter_buffer, size_t buffer_size){};
+
     virtual void DispatchViewRelativeLocation(format::ThreadId                    thread_id,
                                               const format::ViewRelativeLocation& location){};
 

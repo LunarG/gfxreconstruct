@@ -300,6 +300,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     virtual bool SupportsOpaqueDeviceAddresses() override { return false; }
     virtual bool SupportBindVideoSessionMemory() override { return true; }
 
+    virtual void SetResourceAliasingGroups(const std::vector<AliasingGroup>& groups) override;
+
     virtual VkResult CreateDataGraphPipelineSession(const VkDataGraphPipelineSessionCreateInfoARM* create_info,
                                                     const VkAllocationCallbacks*                   allocation_callbacks,
                                                     format::HandleId                               capture_id,
@@ -472,6 +474,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::vector<VmaMemoryInfo*>       bound_memory_infos; // VideoSession and sparse could be multiple bindings.
         std::vector<VkMemoryRequirements> capture_mem_reqs{};
 
+        // Capture handle id of the resource, matching the ids a resource aliasing groups block uses.
+        format::HandleId capture_id{ format::kNullHandleId };
+
         VkObjectType  object_type{ VK_OBJECT_TYPE_UNKNOWN };
         VkFlags       usage{ 0 };
         VkImageTiling tiling{};
@@ -525,6 +530,38 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         uint64_t             debug_utils_tag_name;
         bool                 is_free{ false };
     };
+
+    // One aliasing group from a resource aliasing groups meta-data block, plus the shared allocation
+    // it is placed in. The allocation is created at the first bind of any of its members.
+    struct AliasingGroupInfo
+    {
+        format::HandleId                                          memory_id{ format::kNullHandleId };
+        uint32_t                                                  group_id{ 0 };
+        std::unordered_map<format::HandleId, AliasingGroupMember> members;
+
+        VkDeviceSize base_offset{ 0 }; // min captured bind offset over the members
+        VkDeviceSize union_size{ 0 };  // extent the shared allocation needs, in replay bytes
+        VkDeviceSize alignment{ 0 };   // max replay alignment over the members
+        uint32_t     memory_type_bits{ 0 };
+
+        VmaMemoryInfo* allocation{ nullptr };
+        bool           abandoned{ false }; // setup failed: every member takes the per-resource path
+    };
+
+    // The group a resource belongs to, or null. Keyed by the resource's capture handle id.
+    AliasingGroupInfo* FindAliasingGroup(const ResourceAllocInfo& resource_alloc_info,
+                                         const MemoryAllocInfo&   memory_alloc_info);
+
+    // The shared allocation a grouped resource binds into, creating it on the group's first bind, or
+    // null when the group or this member cannot be honoured and the per-resource path must run.
+    VmaMemoryInfo* FindAliasingGroupMemoryInfo(const ResourceAllocInfo&    resource_alloc_info,
+                                               MemoryAllocInfo&            memory_alloc_info,
+                                               VkDeviceSize                memory_offset,
+                                               VkDeviceSize                footprint,
+                                               const VkMemoryRequirements& replay_req,
+                                               bool                        requires_dedicated_allocation,
+                                               bool                        prefers_dedicated_allocation,
+                                               VmaMemoryUsage              usage);
 
     struct StagingResources
     {
@@ -748,6 +785,11 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // use VkDeviceMemory-handles as key to cover all allocations sharing the same block.
     std::mutex                                                      block_mutexes_guard_;
     std::unordered_map<VkDeviceMemory, std::unique_ptr<std::mutex>> block_mutexes_;
+
+    // Aliasing groups from the capture's resource aliasing groups meta-data blocks, by capture memory
+    // id then group id, plus the group each grouped resource belongs to, by capture handle id.
+    std::unordered_map<format::HandleId, std::unordered_map<uint32_t, AliasingGroupInfo>> aliasing_groups_;
+    std::unordered_map<format::HandleId, AliasingGroupInfo*>                              resource_aliasing_groups_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
