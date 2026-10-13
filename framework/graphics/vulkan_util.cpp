@@ -232,5 +232,35 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
+bool ArePipelineRenderingFormatsIgnored(const VkGraphicsPipelineCreateInfo& create_info)
+{
+    // The rendering formats are ignored when a render pass is used.
+    if (create_info.renderPass != VK_NULL_HANDLE)
+    {
+        return true;
+    }
+
+    // Only fragment output needs the rendering formats.
+    // The others, vertex input, pre-rasterization, and fragment shader, ignore the rendering formats.
+    if (const auto* library_info = vulkan_struct_get_pnext<VkGraphicsPipelineLibraryCreateInfoEXT>(&create_info))
+    {
+        return (library_info->flags & VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT) == 0;
+    }
+
+    VkPipelineCreateFlags2 create_flags = create_info.flags;
+    if (const auto* create_flags2_info = vulkan_struct_get_pnext<VkPipelineCreateFlags2CreateInfo>(&create_info))
+    {
+        create_flags = create_flags2_info->flags;
+    }
+
+    // If it doesn't have VkGraphicsPipelineLibraryCreateInfoEXT,
+    // and it has VK_PIPELINE_CREATE_LIBRARY_BIT_KHR
+    // or it has VkPipelineLibraryCreateInfoKHR with libraryCount > 0,
+    // then the rendering formats are ignored.
+    const auto* linked_libraries = vulkan_struct_get_pnext<VkPipelineLibraryCreateInfoKHR>(&create_info);
+    return ((create_flags & VK_PIPELINE_CREATE_LIBRARY_BIT_KHR) != 0) ||
+           ((linked_libraries != nullptr) && (linked_libraries->libraryCount > 0));
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
