@@ -44,7 +44,7 @@ const char kArguments[] =
     "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,"
     "--pcj|--pipeline-creation-jobs,--quit-after-frame,"
     "--wait-before-first-submit,--frame-warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,"
-    "--loop-count";
+    "--loop-count,--remote-connect";
 
 // The three names below belong to the D3D12 Feature, but they stay in the shared lists above:
 //     --dump-resources-before-draw            The D3D12 Feature reads it.
@@ -91,6 +91,9 @@ static void PrintFeatureSynopsisLines(const std::string& synopsis)
         GFXRECON_WRITE_CONSOLE("\t\t\t%s", line.c_str());
     }
 }
+
+// The settings-map key carrying the capture file, which is positional and so has no spelling to normalize.
+const char kRemoteCaptureFileKey[] = "capture_file";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -314,6 +317,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --wait-before-frame <milliseconds>");
     GFXRECON_WRITE_CONSOLE("          \t\tWait for the specified amount of milliseconds before starting to replay");
     GFXRECON_WRITE_CONSOLE("          \t\teach frame. Default is 0 (no wait).");
+    GFXRECON_WRITE_CONSOLE("  --remote-connect <address>");
+    GFXRECON_WRITE_CONSOLE("          \t\tConnect out to a controller process for replay settings");
+    GFXRECON_WRITE_CONSOLE("          \t\tand bidirectional I/O. Address forms: tcp:host:port,");
+    GFXRECON_WRITE_CONSOLE("          \t\tunix:@name (abstract), or unix:/path. The unix: forms");
+    GFXRECON_WRITE_CONSOLE("          \t\tare not available on Windows.");
 
     // The entries that belong to one Feature come last, in one section for each Feature.
     PrintFeatureUsage(gfxrecon::replay::GetLoadedFeatures());

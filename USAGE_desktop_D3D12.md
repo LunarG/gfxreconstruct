@@ -31,8 +31,9 @@ to one of these other documents:
     3. [Capture Files](#capture-files)
 2. [Replaying API Calls](#replaying-api-calls)
     1. [Command Line Arguments](#command-line-arguments)
-    2. [Keyboard Controls](#keyboard-controls)
-    3. [Capturing Replay (Recapture)](#capturing-replay-recapture)
+    2. [Remote Replay Control](#remote-replay-control)
+    3. [Keyboard Controls](#keyboard-controls)
+    4. [Capturing Replay (Recapture)](#capturing-replay-recapture)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -341,7 +342,25 @@ Optional arguments:
                         Directory to write dump resources output files. Default is the current working directory.
   --dump-resources-modifiable-state-only
                         Only dump resources that are in a modifiable state set by D3D12 ResourceBarrier
+  --remote-connect <address>
+                        Connect out to a controller process, which supplies the replay settings and
+                        receives replay's reports over the same socket. Address form is tcp:host:port.
+                        See Remote Replay Control below.
 ```
+
+### Remote Replay Control
+
+`gfxrecon-replay` can take its entire configuration from a controller process
+over a socket rather than from the command line, and reports back over the same
+connection.
+
+The transport, settings format and reference controller are shared with Vulkan
+replay and are documented in
+[Remote Replay Control](./USAGE_desktop_Vulkan.md#remote-replay-control); the
+wire protocol is specified in [docs/remote_protocol.md](./docs/remote_protocol.md).
+
+For D3D12, only the `tcp:` address form is available, since the `unix:` forms
+are POSIX only.
 
 
 
