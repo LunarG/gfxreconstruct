@@ -91,6 +91,35 @@ target_link_libraries(gfxrecon-replay Threads::Threads)
 
 common_build_directives(gfxrecon-replay)
 
+if (${RUN_TESTS})
+    add_executable(gfxrecon_replay_test "")
+    target_sources(gfxrecon_replay_test PRIVATE
+            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_parse_dump_resources.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.h
+            ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp)
+    target_include_directories(gfxrecon_replay_test
+                               PRIVATE
+                                  ${CMAKE_CURRENT_LIST_DIR}
+                                  ${CMAKE_CURRENT_LIST_DIR}/..)
+    target_link_libraries(gfxrecon_replay_test
+                          PRIVATE
+                              gfxrecon_decode
+                              platform_specific)
+    if (MSVC)
+        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            target_link_options(gfxrecon_replay_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+        else()
+            target_link_options(gfxrecon_replay_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+        endif()
+    endif()
+    common_build_directives(gfxrecon_replay_test)
+    common_test_directives(gfxrecon_replay_test)
+endif()
+
 include(${PROJECT_SOURCE_DIR}/cmake/AgilitySDK.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/InstallDXC.cmake)
 
