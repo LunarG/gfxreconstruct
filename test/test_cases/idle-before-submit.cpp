@@ -23,10 +23,10 @@ TEST(IdleBeforeSubmit, ReplayInjectsADeviceWaitIdleBeforeEverySubmit)
 
     // Replay the app with and without the option "--idle-before-submit" to compare.
     std::map<std::string, uint32_t> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_recapture(test_name, {}, "_replay_baseline", counted, baseline));
     std::map<std::string, uint32_t> with_option;
     ASSERT_NO_FATAL_FAILURE(
-        replay_and_count_recapture(test_name, { "--idle-before-submit" }, "_replay_option", counted, with_option));
+        count_calls_in_recapture(test_name, { "--idle-before-submit" }, "_replay_option", counted, with_option));
 
     // Submits should not change
     EXPECT_EQ(with_option["vkQueueSubmit"], baseline["vkQueueSubmit"]);
