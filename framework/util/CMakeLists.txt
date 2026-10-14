@@ -165,11 +165,11 @@ if (ANDROID)
                                $<$<BOOL:${BUILD_ANDROID_APP}>:${GFXRECON_SOURCE_DIR}/external/precompiled/android/include>
                                ${GFXRECON_SOURCE_DIR}/external/stb)
     target_link_libraries(gfxrecon_util
-                          platform_specific vulkan_registry spirv_registry spirv-reflect-static
+                          platform_specific vulkan_registry spirv_registry
                           nlohmann_json::nlohmann_json
                           android log)
 else()
-    target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
+    target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
     target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
     target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:ws2_32.lib>)
 endif()

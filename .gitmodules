@@ -6,10 +6,6 @@
 	path = external/SPIRV-Headers
 	url = https://github.com/KhronosGroup/SPIRV-Headers.git
 	shallow = true
-[submodule "external/SPIRV-Reflect"]
-	path = external/SPIRV-Reflect
-	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
-	shallow = true
 [submodule "external/OpenXR-SDK"]
 	path = external/OpenXR-SDK
 	url = https://github.com/KhronosGroup/OpenXR-SDK.git
