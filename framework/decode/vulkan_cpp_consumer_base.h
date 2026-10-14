@@ -242,6 +242,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                    "KHR");
     }
 
+    void Generate_vkCmdPushDescriptorSetWithTemplate(args::CmdPushDescriptorSetWithTemplate& args,
+                                                     const char*                             extension = "");
+    void Generate_vkCmdPushDescriptorSetWithTemplate2(args::CmdPushDescriptorSetWithTemplate2& args,
+                                                      const char*                              extension = "");
+
     void Generate_vkCreateGraphicsPipelines(args::CreateGraphicsPipelines& args);
     void Generate_vkCreateComputePipelines(args::CreateComputePipelines& args);
     void Generate_vkCreateRayTracingPipelinesKHR(args::CreateRayTracingPipelinesKHR& args);
