@@ -1,5 +1,6 @@
 build*/
 dbuild*/
+pbuild*/
 Debug/
 Release/
 __pycache__/

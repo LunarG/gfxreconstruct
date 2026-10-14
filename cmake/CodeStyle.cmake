@@ -26,14 +26,38 @@
 option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE_BASE "Git branch/commit for C++ code style comparison" "HEAD")
+# The clang-format major version the style file is written for and CI checks with.
+# scripts/build.py reads this line, so this is the one place to bump it.
+set(CLANG_FORMAT_VERSION "14" CACHE STRING "clang-format major version required by the code style check")
 
 set(check_code_style_script_ "${CMAKE_CURRENT_LIST_DIR}/../scripts/check_code_style.py")
 
 if(${APPLY_CPP_CODE_STYLE} OR ${CHECK_CPP_CODE_STYLE})
-    find_program(CLANG_FORMAT clang-format-14 DOC "Clang format executable")
-
-    if(CLANG_FORMAT-NOTFOUND STREQUAL ${CLANG_FORMAT})
-        message(FATAL_ERROR "Failed to find clang-format-14 in system path! Install clang-format-14 or set both APPLY_CPP_CODE_STYLE and CHECK_CPP_CODE_STYLE to OFF")
+    # Only major version CLANG_FORMAT_VERSION is accepted, under either the versioned or
+    # the plain name (LLVM's Windows installer ships only clang-format.exe). The search
+    # is repeated on every configure so a tool installed later, or a changed
+    # CLANG_FORMAT_VERSION, is seen; a CLANG_FORMAT the user set (one that is not our
+    # own last result) is kept as is.
+    if(NOT CLANG_FORMAT OR CLANG_FORMAT STREQUAL "${CLANG_FORMAT_SEARCH_RESULT}")
+        unset(CLANG_FORMAT CACHE)
+        find_program(CLANG_FORMAT NAMES clang-format-${CLANG_FORMAT_VERSION} clang-format
+                     DOC "Clang format executable (version ${CLANG_FORMAT_VERSION})")
+        set(CLANG_FORMAT_SEARCH_RESULT "${CLANG_FORMAT}" CACHE INTERNAL "clang-format found by CodeStyle.cmake")
+    endif()
+    set(CLANG_FORMAT_PROBLEM "")
+    if(CLANG_FORMAT)
+        execute_process(COMMAND ${CLANG_FORMAT} --version OUTPUT_VARIABLE CLANG_FORMAT_VERSION_OUTPUT ERROR_QUIET)
+        string(REGEX MATCH "clang-format version ([0-9]+)" CLANG_FORMAT_VERSION_MATCH "${CLANG_FORMAT_VERSION_OUTPUT}")
+        if(NOT CMAKE_MATCH_1 STREQUAL "${CLANG_FORMAT_VERSION}")
+            set(CLANG_FORMAT_PROBLEM "${CLANG_FORMAT} is clang-format ${CMAKE_MATCH_1}, not ${CLANG_FORMAT_VERSION}")
+        endif()
+    else()
+        set(CLANG_FORMAT_PROBLEM "clang-format-${CLANG_FORMAT_VERSION} not found in PATH")
+    endif()
+    if(CLANG_FORMAT_PROBLEM)
+        message(FATAL_ERROR "${CLANG_FORMAT_PROBLEM}. The C++ code style check needs clang-format ${CLANG_FORMAT_VERSION}: "
+            "install clang-format-${CLANG_FORMAT_VERSION} (or a clang-format that reports that version), "
+            "or set CHECK_CPP_CODE_STYLE and APPLY_CPP_CODE_STYLE to OFF.")
     endif()
     # Python
     if(CMAKE_HOST_WIN32)
@@ -77,6 +101,7 @@ function(target_code_style_build_directives TARGET)
             add_custom_target("${TARGET}CodeStyleCheck"
                     COMMAND "${PYTHON}" ${check_code_style_script_}
                     --sourcefile ${TARGET_SRC_FILES} --base ${CHECK_CPP_CODE_STYLE_BASE}
+                    --binary "${CLANG_FORMAT}"
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                     COMMENT "Check code style for ${TARGET}")
             add_dependencies(${TARGET} "${TARGET}CodeStyleCheck")
