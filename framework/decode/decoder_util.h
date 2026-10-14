@@ -56,15 +56,25 @@ static VkQueue GetDeviceQueue(const graphics::VulkanDeviceTable* device_table,
 {
     VkQueue queue = VK_NULL_HANDLE;
 
-    const auto queue_family_flags =
-        device_info->enabled_queue_family_flags.queue_family_creation_flags.find(queue_family_index);
-    assert(queue_family_flags != device_info->enabled_queue_family_flags.queue_family_creation_flags.end());
+    const auto& queue_counts = device_info->enabled_queue_family_flags.queue_family_queue_counts;
+    const auto  family_entry = queue_counts.find(queue_family_index);
+    GFXRECON_ASSERT(family_entry != queue_counts.end());
+
+    if (family_entry == queue_counts.end() || family_entry->second.empty())
+    {
+        GFXRECON_LOG_ERROR("No queues were created for queue-family %u, returning a null queue.", queue_family_index);
+        return queue;
+    }
+
+    // callers want an ordinary queue, so prefer the unprotected combination. the map is ordered,
+    // so flags 0 sorts first when it exists.
+    const VkDeviceQueueCreateFlags create_flags = family_entry->second.begin()->first;
 
     // If the queue has flags, it has to use GetDeviceQueue2 to get it.
-    if (queue_family_flags->second != 0)
+    if (create_flags != 0)
     {
         const VkDeviceQueueInfo2 queue_info = {
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2, nullptr, queue_family_flags->second, queue_family_index, queue_index
+            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2, nullptr, create_flags, queue_family_index, queue_index
         };
         device_table->GetDeviceQueue2(device_info->handle, &queue_info, &queue);
     }

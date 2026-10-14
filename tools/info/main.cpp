@@ -110,7 +110,7 @@ void WriteOutput(const char* format_string, ...)
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE(result_string.c_str());
+            GFXRECON_WRITE_CONSOLE("%s", result_string.c_str());
         }
     }
     catch (...)
@@ -483,10 +483,8 @@ bool GatherAndPrintExeInfo(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
-        if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
+        file_processor.InitializeFrameProcessing();
+        file_processor.ProcessCaptureStart();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             PrintExeInfoText(info_consumer);
@@ -507,10 +505,8 @@ bool GatherAndPrintFileFormatInfo(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
-        if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
+        file_processor.InitializeFrameProcessing();
+        file_processor.ProcessCaptureStart();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             WriteOutput("File format info:");
@@ -530,10 +526,8 @@ bool GatherAndPrintEnvVars(const std::string& input_filename)
         gfxrecon::decode::InfoDecoder  info_decoder;
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
-        if (file_processor.ProcessNextFrame() && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
+        file_processor.InitializeFrameProcessing();
+        file_processor.ProcessCaptureStart();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             PrintEnvironmentVariableInfoText(info_consumer);
@@ -570,6 +564,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             feature->RegisterDecodeComponents(file_processor, info_consumer);
         }
 
+        file_processor.InitializeFrameProcessing();
         file_processor.ProcessAllFrames();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
@@ -716,7 +711,7 @@ static std::string GetEnumGpuIndicesText()
                 if (index == adapter.second.adapter_idx)
                 {
                     std::string replay_adapter_str =
-                        gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
+                        gfxrecon::util::Char16ArrayToString(adapter.second.internal_desc.Description);
 
                     return_val +=
                         gfxrecon::util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +

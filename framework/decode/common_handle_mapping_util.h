@@ -83,15 +83,6 @@ static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::H
                 if (info != nullptr)
                 {
                     handles[i] = info->handle;
-
-                    if constexpr (has_handle_future_v<T>)
-                    {
-                        if (info->handle == VK_NULL_HANDLE && info->future.valid())
-                        {
-                            const auto& [result, async_handles] = info->future.get();
-                            handles[i]                          = async_handles[info->future_handle_index];
-                        }
-                    }
                 }
                 else
                 {

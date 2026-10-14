@@ -27,16 +27,77 @@
 #include "decode/preload_file_processor.h"
 #include "graphics/frame_loop_info.h"
 #include "util/feature_module_registry.h"
+#include "util/logging.h"
+#include "util/remote_channel.h"
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 #include <android_native_app_glue.h>
 #endif
 
 #include <limits>
+#include <map>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(replay)
+
+// The list that the last LoadFeatures() call filled. GetLoadedFeatures() gives it to the usage
+// function of the tool, which cannot receive the list as a parameter.
+static const std::vector<std::unique_ptr<ReplayFeatureBase>>* g_loaded_features = nullptr;
+
+RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
+                                     util::ArgumentParser& arg_parser,
+                                     const std::string&    options,
+                                     const std::string&    arguments)
+{
+    if (!arg_parser.IsArgumentSet("--remote-connect"))
+    {
+        return RemoteSetupResult::kNotRequested;
+    }
+
+    // Connect() and Handshake() log the specific reason for any failure, so no additional message is needed here.
+    const std::string address = arg_parser.GetArgumentValue("--remote-connect");
+    if (!channel.Connect(address))
+    {
+        return RemoteSetupResult::kFailed;
+    }
+
+    std::map<std::string, std::string> settings;
+    if (!channel.Handshake(settings))
+    {
+        return RemoteSetupResult::kFailed;
+    }
+
+    // Replace the local arguments with the settings provided by the controller.
+    arg_parser = util::ArgumentParser(settings, options, arguments, kRemoteCaptureFileKey);
+
+    // Fail here rather than letting the caller's generic check print usage text, which would blame the user for a
+    // mistake the controller made. The parser has already logged what is wrong with each setting.
+    if (arg_parser.IsInvalid())
+    {
+        for (const std::string& setting : arg_parser.GetInvalidArgumentOrOptions())
+        {
+            GFXRECON_LOG_ERROR("Remote channel: controller sent invalid setting \'%s\'", setting.c_str());
+        }
+
+        // Flushed here because a caller may exit() without unwinding, dropping the messages above unsent. Repeating
+        // this in the caller's own shutdown is harmless.
+        ShutdownRemoteChannel(channel, false);
+        return RemoteSetupResult::kFailed;
+    }
+
+    // Make the channel reachable process-wide, for components that cannot be handed a pointer to it.
+    util::RemoteChannel::SetActiveChannel(&channel);
+
+    return RemoteSetupResult::kConnected;
+}
+
+void ShutdownRemoteChannel(util::RemoteChannel& channel, bool success)
+{
+    // Unregister before notifying the controller that replay is complete, so nothing reaches it after "done".
+    util::RemoteChannel::SetActiveChannel(nullptr);
+    channel.SendDone(success);
+}
 
 void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features)
 {
@@ -45,6 +106,15 @@ void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features)
     {
         features.push_back(creator());
     }
+
+    g_loaded_features = &features;
+}
+
+const std::vector<std::unique_ptr<ReplayFeatureBase>>& GetLoadedFeatures()
+{
+    static const std::vector<std::unique_ptr<ReplayFeatureBase>> empty;
+
+    return (g_loaded_features != nullptr) ? *g_loaded_features : empty;
 }
 
 void RunPreProcessConsumer(const std::string& filename, std::vector<std::unique_ptr<ReplayFeatureBase>>& features)
@@ -70,7 +140,6 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
                std::vector<std::unique_ptr<ReplayFeatureBase>>&                                 features,
                util::ArgumentParser&                                                            arg_parser,
                const std::string&                                                               filename,
-               const std::string&                                                               active_layers_value,
                std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application)
 {
     uint32_t loop_frame        = 0;
@@ -191,9 +260,13 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
     }
 
     application->SetPauseFrame(GetPauseFrame(arg_parser));
-    CheckActiveLayers(active_layers_value);
 
-#if defined(__ANDROID__)
+    for (auto& feature : features)
+    {
+        feature->CheckEnvironment();
+    }
+
+#if defined(BUILD_ANDROID_APP)
     // Start paused; replay begins once APP_CMD_GAINED_FOCUS fires.
     application->SetPaused(true);
 #endif

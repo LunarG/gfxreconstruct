@@ -25,9 +25,11 @@
 #define GFXRECON_UTIL_COMPRESSOR_H
 
 #include "util/defines.h"
+#include "util/span.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -50,6 +52,30 @@ class Compressor
                               const uint8_t* compressed_data,
                               size_t         expected_uncompressed_size,
                               uint8_t*       uncompressed_data) const = 0;
+
+    // Span-based overload: validates pre-conditions and delegates to the pointer overload.
+    size_t Decompress(const util::Span<const uint8_t>& compressed_span,
+                      size_t                           expected_uncompressed_size,
+                      uint8_t*                         uncompressed_data) const
+    {
+        GFXRECON_ASSERT(!compressed_span.empty());
+        GFXRECON_ASSERT(uncompressed_data != nullptr);
+        return Decompress(
+            compressed_span.size(), compressed_span.data(), expected_uncompressed_size, uncompressed_data);
+    }
+
+    // Virtual polymorphic copy constructor for creating independent instances.
+    virtual std::unique_ptr<Compressor> Clone() const = 0;
+
+    // Static helper for null-safe copying: returns nullptr if input is nullptr.
+    static std::unique_ptr<Compressor> Copy(const Compressor* compressor)
+    {
+        if (compressor == nullptr)
+        {
+            return nullptr;
+        }
+        return compressor->Clone();
+    }
 };
 
 GFXRECON_END_NAMESPACE(util)

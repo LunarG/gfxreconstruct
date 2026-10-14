@@ -37,4 +37,4 @@ distributions through the distribution's standard package manager.
 
 ## License Information
 License information for the third-party dependencies contained within this
-folder are listed in [LICENSE_ThirdParty.txt](../LICENSE_ThirdParty.txt)
+folder are listed in [LICENSE_ThirdParty.txt](../LICENSES/LICENSE_ThirdParty.txt)

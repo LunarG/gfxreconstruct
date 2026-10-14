@@ -53,6 +53,9 @@ class FrameLoopInfo
     /// has already been played at least once and we are currently replaying it again.
     bool IsRepetition() const { return is_repetition_; }
 
+    /// Returns true if this is the first iteration of the loop range.
+    bool IsFirstIteration() const { return is_looping_ && !is_repetition_; }
+
     /// Returns true if this is the final iteration of the loop range
     bool IsFinalIteration() const { return loop_iterations_ == 1; }
 

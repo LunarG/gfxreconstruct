@@ -33,13 +33,13 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
   public:
     virtual ~VulkanCapturedSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
-                                        PFN_vkCreateSwapchainKHR              func,
-                                        const VulkanDeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR*       create_info,
-                                        const VkAllocationCallbacks*          allocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const graphics::VulkanDeviceTable*    device_table) override;
+    virtual VkResult CreateSwapchainKHR(VkResult                                   original_result,
+                                        PFN_vkCreateSwapchainKHR                   func,
+                                        const VulkanDeviceInfo*                    device_info,
+                                        const VkSwapchainCreateInfoKHR*            create_info,
+                                        const VkAllocationCallbacks*               allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*      swapchain,
+                                        const graphics::VulkanInjectedDeviceCalls& injected_calls) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -109,12 +109,12 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    virtual void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+    virtual bool PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                    const VulkanSemaphoreInfo*                 semaphore_info,
                                    const VulkanImageInfo*                     image_info,
                                    VulkanInstanceInfo*                        instance_info,
                                    const graphics::VulkanInstanceTable*       instance_table,
-                                   const graphics::VulkanDeviceTable*         device_table,
+                                   const graphics::VulkanInjectedDeviceCalls& injected_calls,
                                    application::Application*                  application,
                                    const std::optional<std::array<float, 2>>& scale) override;
 

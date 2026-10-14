@@ -131,6 +131,9 @@ class KhronosStructEncodersBodyGenerator():
                         api_data.extended_struct_func_prefix, prefix + value.name
                     )
             else:
+                preamble = self.make_counted_static_array_preamble(name, value, prefix)
+                if preamble:
+                    body += '    {}\n'.format(preamble)
                 method_call = self.make_encoder_method_call(
                     name, value, values, prefix
                 )

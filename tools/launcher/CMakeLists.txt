@@ -44,5 +44,5 @@ if(BUILD_LAUNCHER_AND_INTERCEPTOR)
     common_build_directives(gfxrecon-launcher)
 
     install(TARGETS gfxrecon-launcher RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-    install(FILES ${CMAKE_BINARY_DIR}/layer/gfxrecon_interceptor/$<CONFIG>/gfxrecon_interceptor.dll DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(FILES $<TARGET_FILE:gfxrecon_interceptor> DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

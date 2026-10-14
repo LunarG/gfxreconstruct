@@ -62,8 +62,7 @@ thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 bool                                           CommonCaptureManager::initialize_log_ = true;
 std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
-uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
-thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
+uint64_t                                       CommonCaptureManager::default_unique_id_offset_ = 0;
 thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
 int64_t                                        CommonCaptureManager::avoid_api_call_lock_ = 0;
 
@@ -94,7 +93,9 @@ extern "C"
 format::HandleId CommonCaptureManager::GetUniqueId()
 {
     uint64_t result = 0;
-    if (force_default_unique_id_ || unique_id_stack_.empty())
+    // Calls injected by replay during recapture have no counterpart in the original capture, so
+    // they must not consume IDs pushed for the original calls; they get fresh default IDs instead.
+    if (util::InjectedCommandsActive() || unique_id_stack_.empty())
     {
         result = GetDefaultUniqueId();
     }
@@ -1512,13 +1513,7 @@ void CommonCaptureManager::ForcedWriteAnnotation(const format::AnnotationType ty
     const auto label_length = util::platform::StringLength(label);
     const auto data_length  = util::platform::StringLength(data);
 
-    format::AnnotationHeader annotation;
-    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-    annotation.block_header.type = format::BlockType::kAnnotation;
-    annotation.annotation_type   = type;
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, label_length);
-    annotation.label_length = static_cast<uint32_t>(label_length);
-    annotation.data_length  = data_length;
+    const format::AnnotationHeader annotation = format::MakeAnnotationHeader(type, label_length, data_length);
 
     CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
 }

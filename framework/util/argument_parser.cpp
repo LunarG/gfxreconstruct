@@ -24,13 +24,54 @@
 #include "util/argument_parser.h"
 
 #include "util/logging.h"
+#include "util/options.h"
+#include "util/platform.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cinttypes>
 #include <cstring>
 #include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+// Converts a command-line spelling to its settings-map key, so "--loop-count" becomes "loop_count".
+static std::string NormalizeKey(const std::string& key)
+{
+    const size_t start      = key.find_first_not_of('-');
+    std::string  normalized = (start == std::string::npos) ? std::string() : key.substr(start);
+    std::replace(normalized.begin(), normalized.end(), '-', '_');
+    return normalized;
+}
+
+// ParseBoolString() cannot report whether it recognized its input -- it returns the caller's default and only warns --
+// so rejecting a garbage flag value needs a separate check. Mirrors what it accepts: "true"/"false" in any case, or an
+// integer string.
+static bool IsRecognizedBoolString(const std::string& value)
+{
+    if ((platform::StringCompareNoCase("true", value.c_str()) == 0) ||
+        (platform::StringCompareNoCase("false", value.c_str()) == 0))
+    {
+        return true;
+    }
+
+    size_t index = ((value.size() > 1) && ((value[0] == '-') || (value[0] == '+'))) ? 1 : 0;
+    if (index == value.size())
+    {
+        return false;
+    }
+
+    for (; index < value.size(); ++index)
+    {
+        if (std::isdigit(static_cast<unsigned char>(value[index])) == 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
@@ -119,13 +160,84 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
     }
 }
 
-void ArgumentParser::Init(std::vector<std::string> command_line_args,
-                          const std::string&       options,
-                          const std::string&       arguments)
+ArgumentParser::ArgumentParser(const std::map<std::string, std::string>& settings,
+                               const std::string&                        options,
+                               const std::string&                        arguments,
+                               const std::string&                        positional_key) :
+    is_invalid_(false)
 {
-    std::vector<std::string> valid_options;
-    std::string              sub_string;
-    std::string              sub_string2;
+    BuildIndices(options, arguments);
+
+    for (const auto& setting : settings)
+    {
+        const std::string& key   = setting.first;
+        const std::string& value = setting.second;
+
+        if (!positional_key.empty() && (key == positional_key))
+        {
+            positional_arguments_present_.push_back(value);
+            continue;
+        }
+
+        // Scanned rather than indexed by normalized spelling: adding those to options_indices_ / arguments_indices_
+        // would make "--log_level info" start working on the command line too.
+        bool matched = false;
+
+        for (const auto& cur_option : options_indices_)
+        {
+            if (NormalizeKey(cur_option.first) != key)
+            {
+                continue;
+            }
+
+            // Rejected rather than defaulted: taking a default here would turn a caller's mistake into a value nobody
+            // asked for.
+            if (IsRecognizedBoolString(value))
+            {
+                options_present_[cur_option.second] = ParseBoolString(value, false);
+            }
+            else
+            {
+                invalid_values_present_.push_back(key);
+                is_invalid_ = true;
+                GFXRECON_LOG_ERROR(
+                    "Setting \'%s\' expects \"true\" or \"false\", but received \'%s\'", key.c_str(), value.c_str());
+            }
+
+            matched = true;
+            break;
+        }
+
+        if (!matched)
+        {
+            for (const auto& cur_argument : arguments_indices_)
+            {
+                if (NormalizeKey(cur_argument.first) != key)
+                {
+                    continue;
+                }
+
+                arguments_present_[cur_argument.second] = true;
+                argument_values_[cur_argument.second]   = value;
+                matched                                 = true;
+                break;
+            }
+        }
+
+        if (!matched)
+        {
+            // As received, never NormalizeKey()'d: a caller that inferred the key wrongly needs to see what it sent.
+            invalid_values_present_.push_back(key);
+            is_invalid_ = true;
+            GFXRECON_LOG_ERROR("Invalid setting \'%s\'", key.c_str());
+        }
+    }
+}
+
+void ArgumentParser::BuildIndices(const std::string& options, const std::string& arguments)
+{
+    std::string sub_string;
+    std::string sub_string2;
 
     uint32_t option_index = 0;
     if (!options.empty())
@@ -187,6 +299,13 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     }
     arguments_present_.resize(argument_index);
     argument_values_.resize(argument_index);
+}
+
+void ArgumentParser::Init(std::vector<std::string> command_line_args,
+                          const std::string&       options,
+                          const std::string&       arguments)
+{
+    BuildIndices(options, arguments);
 
     for (size_t cur_arg = 0; cur_arg < command_line_args.size(); ++cur_arg)
     {
@@ -304,6 +423,16 @@ const std::string& ArgumentParser::GetArgumentValue(const std::string& argument)
     }
 
     return empty_string;
+}
+
+void ArgumentParser::SetArgumentValue(const std::string& argument, const std::string& value)
+{
+    auto ret_iterator = arguments_indices_.find(argument);
+
+    if ((ret_iterator != arguments_indices_.end()) && arguments_present_[ret_iterator->second])
+    {
+        argument_values_[ret_iterator->second] = value;
+    }
 }
 
 GFXRECON_END_NAMESPACE(util)

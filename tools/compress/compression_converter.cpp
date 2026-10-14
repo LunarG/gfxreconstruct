@@ -75,13 +75,16 @@ bool CompressionConverter::WriteFileHeader(const format::FileHeader&            
 
 bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
-    // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
+    bool success = parsed_block.Decompress(GetCompressor(), working_uncompressed_store_);
 
     if (success)
     {
         const auto& args = parsed_block.Get<decode::FunctionCallArgs>(); // Asserts if !Holds.
         success          = WriteFunctionCall(args.call_id, args.call_info.thread_id, args.data_size, args.data);
+    }
+    else
+    {
+        HandleBlockReadError(decode::kErrorReadingCompressedBlockData, "Failed to decompress block data");
     }
 
     return success;
@@ -89,13 +92,16 @@ bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block
 
 bool CompressionConverter::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
-    // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
+    bool success = parsed_block.Decompress(GetCompressor(), working_uncompressed_store_);
 
     if (success)
     {
         const auto& args = parsed_block.Get<decode::MethodCallArgs>(); // Asserts if !Holds.
         success = WriteMethodCall(args.call_id, args.object_id, args.call_info.thread_id, args.data_size, args.data);
+    }
+    else
+    {
+        HandleBlockReadError(decode::kErrorReadingCompressedBlockData, "Failed to decompress block data");
     }
 
     return success;
@@ -105,13 +111,12 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
 {
     // We can infer format::IsBlockCompressed from NeedsDecompression as long
     // as the DecompressionPolicy is "never".
-    auto& block_parser = GetBlockParser();
-    GFXRECON_ASSERT(block_parser.GetDecompressionPolicy() == decode::BlockParser::DecompressionPolicy::kNever);
+    GFXRECON_ASSERT(GetBlockParser().GetDecompressionPolicy() == decode::BlockParser::DecompressionPolicy::kNever);
     const bool compressed_block = parsed_block.NeedsDecompression();
 
     // Unconditional decompress the metadata block wastes no time as all compressible meta_data_id have non-trivial
     // overrides, and decompress fast returns on uncompressed blocks.
-    bool success = parsed_block.Decompress(block_parser, working_uncompressed_store_);
+    bool success = parsed_block.Decompress(GetCompressor(), working_uncompressed_store_);
     if (success)
     {
         auto visit_meta = [this](auto&& store) {
@@ -148,6 +153,10 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
         {
             success = result == kSuccess;
         }
+    }
+    else
+    {
+        HandleBlockReadError(decode::kErrorReadingCompressedBlockData, "Failed to decompress block data");
     }
     return success;
 }
@@ -463,6 +472,41 @@ decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const d
                                   "Failed to write init image meta-data block header");
             return kError;
         }
+    }
+
+    return kSuccess;
+}
+
+decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const decode::InitTensorArgs& args)
+{
+    GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitTensorCommand);
+
+    format::InitTensorCommandHeader init_cmd;
+
+    init_cmd.thread_id = args.thread_id;
+    init_cmd.device_id = args.device_id;
+    init_cmd.tensor_id = args.tensor_id;
+    init_cmd.data_size = args.data_size;
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.data_size);
+    size_t         data_size    = static_cast<size_t>(init_cmd.data_size);
+    const uint8_t* data_address = args.data;
+
+    PrepMetadataBlock(init_cmd.meta_header, args.meta_data_id, data_address, data_size);
+
+    // Calculate size of packet with compressed or uncompressed data size.
+    init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + data_size;
+
+    if (!WriteBytes(&init_cmd, sizeof(init_cmd)))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockHeader, "Failed to write init tensor meta-data block header");
+        return kError;
+    }
+
+    if (!WriteBytes(data_address, data_size))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write init tensor meta-data block");
+        return kError;
     }
 
     return kSuccess;

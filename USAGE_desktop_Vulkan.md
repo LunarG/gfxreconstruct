@@ -34,6 +34,7 @@ to one of these other documents:
     2. [Key Controls](#key-controls)
     3. [Virtual Swapchain](#virtual-swapchain)
     4. [Dumping resources](#dumping-resources)
+    5. [Remote Replay Control](#remote-replay-control)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -614,7 +615,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
-                        [--screenshot-interval <N>]
+                        [--screenshot-interval <N>] [--screenshot-results]
                         [--capture]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
@@ -643,6 +644,8 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
                         [--isolate-render-passes]
                         [--serialize-compute-and-transfer]
+                        [--annotate-injected-commands]
+                        [--remote-connect <address>]
 
 
 Required arguments:
@@ -651,15 +654,15 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
-  --log-level <level>   Specify highest level message to log. Options are:
-                        debug, info, warning, error, and fatal. Default is info.
+  --log-level <level>   Specify lowest level message to log. Options are:
+                        fatal, error, warning, info, and debug. Default is info.
   --log-timestamps      Output a timestamp in front of each log message.
   --log-file <file>     Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled).
   --log-debugview       Log messages with OutputDebugStringA. Windows only.
   --debug-messenger-level <level>
-                        Specify highest debug messenger severity level. Options
-                        are: debug, info, warning, and error. Default is
+                        Specify lowest debug messenger severity level. Options
+                        are: error, warning, info, and debug. Default is
                         warning.
   --cpu-mask <binary-mask>
                         Set of CPU cores used by the replayer.
@@ -723,6 +726,10 @@ Optional arguments:
                         unspecified screenshots will use the swapchain images
                         dimensions. If --screenshot-scale is also specified then
                         this option is ignored.
+  --screenshot-results  Write a JSON file next to the screenshots, named after
+                        the screenshot prefix, that records for each requested
+                        frame which files were written and why any image was
+                        skipped.
   --capture             Capture the replaying GFXR file. Capture uses the same log
                         options as replay. All other capture option behavior and
                         usage is the same as when capturing with the GFXR layer. The
@@ -802,8 +809,9 @@ Optional arguments:
                         (depth/stencil images are ignored). The matched image is
                         presented in a dedicated swapchain on every present and
                         used for screenshot operations. Multi-layer images are
-                        presented in a separate window per array layer. If multiple
-                        images match, the most recently named one is used.
+                        presented tiled into a single window, one tile per array
+                        layer. If multiple images match, the most recently named
+                        one is used.
   --vssb
                         Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices
@@ -921,6 +929,16 @@ Optional arguments:
   --serialize-compute-and-transfer
               Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before and after
               each dispatch.
+  --annotate-injected-commands
+              Wrap commands injected by replay (not present in the capture,
+              e.g. virtual-swapchain copies and ray-tracing SBT fixups) in
+              VK_EXT_debug_utils labels named "GFXR Replay: <category>"
+  --remote-connect <address>
+              Connect out to a controller process, which supplies the replay
+              settings and receives replay's reports over the same socket.
+              Address forms: tcp:host:port, unix:@name (abstract), or
+              unix:/path. The unix: forms are not available on Windows.
+              See [Remote Replay Control](#remote-replay-control).
 ```
 
 ### Frame Warm-Up
@@ -1038,6 +1056,43 @@ The `--sgfr` option specify at which frames these conditions apply. If `--sgfr` 
 
 GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
 
+### Remote Replay Control
+
+`gfxrecon-replay` can take its entire configuration from a controller process
+over a socket, instead of from the command line, and reports back to the
+controller over the same socket.
+
+`--remote-connect <address>` dials out to a controller that is already
+listening. If the connection is not established replay exits with an error
+rather than falling back to the command line. Addresses take the form `tcp:host:port`,
+`unix:@name` (an abstract socket, Linux and Android only), or `unix:/path`
+(POSIX only). Windows supports the `tcp:` form only.
+
+[scripts/replay_controller.py](./scripts/replay_controller.py) is a reference
+controller:
+
+```bash
+# Terminal 1 - the controller.
+python3 scripts/replay_controller.py --port 9001 \
+    -- --loop-count=3 capture_file=capture.gfxr
+
+# Terminal 2 - replay needs no settings and no capture file on its command line.
+gfxrecon-replay --remote-connect tcp:127.0.0.1:9001
+```
+
+Settings travel as `key=value` pairs rather than as a command line, so each
+option is joined to its value with `=` and the capture file is named by the
+`capture_file` key instead of being positional. Leading dashes are optional.
+Replay rejects any key it does not recognize and names it in the error.
+
+The channel is neither authenticated nor encrypted. It is intended for a trusted
+lab network or a local socket forwarded over adb; do not expose the listening
+port on an untrusted network.
+
+The wire protocol is specified in [docs/remote_protocol.md](./docs/remote_protocol.md).
+For Android, see the remote replay section of
+[USAGE_android.md](./USAGE_android.md).
+
 ## Other Capture File Processing Tools
 
 ### Capture File Info
@@ -1119,11 +1174,11 @@ For trimmed capture files, a snapshot of the Vulkan API state is written at
 the start of the file. This state snapshot includes the data for all buffers
 and images that were live at the time that capture started. Some of the buffer
 and image objects captured in the state snapshot may go unreferenced by the
-captured frames and their data can be removed from the capture file. The
-`gfxrecon-optimize` tool will process a trimmed file to identify buffer and
-image objects that were initialized in the state snapshot, but were not used
-by any of the captured frames, and generate a new capture file that omits the
-data for these unused buffer and image objects.
+submitted command buffers and their data can be removed from the capture
+file. The `gfxrecon-optimize` tool will process a trimmed file to identify
+buffer and image objects that were initialized in the state snapshot, but
+were not used by any submitted command buffer, and generate a new capture
+file that omits the data for these unused buffer and image objects.
 
 ```text
 gfxrecon-optimize - Remove unused resource initialization data from trimmed

@@ -135,6 +135,13 @@ void ReferencedResourceTable::AddResourceToUser(format::HandleId user_id, format
                 {
                     user_info->resource_infos.emplace(child_resource_id, child_resource_info);
                 }
+
+                // A user that has already been submitted keeps all of its recorded blocks in the optimized file,
+                // even if the current recording is never submitted, so the resource must be treated as referenced.
+                if (user_info->used)
+                {
+                    MarkResourceUsed(resource_info.get());
+                }
             }
         }
     }
@@ -192,6 +199,13 @@ void ReferencedResourceTable::AddUserToUser(format::HandleId user_id, format::Ha
                         user_info->container_infos.insert(source_container_info);
                     }
                 }
+
+                // An already-submitted user keeps all of its recorded blocks, including this execute-commands
+                // block, so the child user's recording must be treated as submitted as well.
+                if (user_info->used)
+                {
+                    ProcessUserSubmission(child_user_id);
+                }
             }
         }
     }
@@ -246,7 +260,12 @@ void ReferencedResourceTable::RemoveUser(format::HandleId user_id)
             GFXRECON_ASSERT(user_info != nullptr);
 
             user_pool_handles_[user_info->pool_id].erase(user_id);
-            users_.erase(user_entry);
+
+            // NOTE: the user entry is intentionally kept in the table.  Handle ids are never reused within a capture,
+            // and the blocks recorded into a destroyed user remain in the capture file, so the user must still be
+            // classified by GetReferencedHandleIds: either as unreferenced (never submitted), so that its recorded
+            // blocks are removed together with the creation calls of resources only it references, or as referenced
+            // (submitted), so that the resources it references stay alive.
         }
     }
 }
@@ -326,13 +345,9 @@ void ReferencedResourceTable::ClearUsers(format::HandleId pool_id)
 {
     if (pool_id != format::kNullHandleId)
     {
-        auto& user_ids = user_pool_handles_[pool_id];
-        for (auto user_id : user_ids)
-        {
-            users_.erase(user_id);
-        }
-
-        user_ids.clear();
+        // NOTE: the user entries are intentionally kept in the table so they can still be classified by
+        // GetReferencedHandleIds; see RemoveUser.
+        user_pool_handles_[pool_id].clear();
     }
 }
 
@@ -366,7 +381,14 @@ void ReferencedResourceTable::CopyContainerEntry(format::HandleId source_contain
 
 void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 {
-    if (user_id != format::kNullHandleId)
+    std::unordered_set<format::HandleId> processed_users;
+    ProcessUserSubmission(user_id, processed_users);
+}
+
+void ReferencedResourceTable::ProcessUserSubmission(format::HandleId                      user_id,
+                                                    std::unordered_set<format::HandleId>& processed_users)
+{
+    if ((user_id != format::kNullHandleId) && processed_users.insert(user_id).second)
     {
         if (auto user_entry = users_.find(user_id); user_entry != users_.end())
         {
@@ -381,16 +403,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 // attempt to lock a std::weak_ptr
                 if (auto resource_info_ptr = resource_info.second.lock())
                 {
-                    resource_info_ptr->used = true;
-
-                    for (auto& [child_id, child_info] : resource_info_ptr->child_infos)
-                    {
-                        // attempt to lock a std::weak_ptr
-                        if (auto child_info_ptr = child_info.lock())
-                        {
-                            child_info_ptr->used = true;
-                        }
-                    }
+                    MarkResourceUsed(resource_info_ptr.get());
                 }
             }
 
@@ -404,29 +417,34 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                         // attempt to lock a std::weak_ptr
                         if (auto resource_info_ptr = resource_info.second.lock())
                         {
-                            resource_info_ptr->used = true;
-
-                            for (auto& child_info_weak : resource_info_ptr->child_infos | std::views::values)
-                            {
-                                // attempt to lock a std::weak_ptr
-                                if (auto child_info_ptr = child_info_weak.lock())
-                                {
-                                    child_info_ptr->used = true;
-                                }
-                            }
+                            MarkResourceUsed(resource_info_ptr.get());
                         }
                     }
                 }
             }
 
-            for (auto& child_user_info : user_info->child_infos | std::views::values)
+            // Child users (secondary command buffers) are submitted along with this user, so process them
+            // recursively; this also marks resources that were recorded into a child but never copied here.
+            for (const auto& child_user_id : user_info->child_infos | std::views::keys)
             {
-                // attempt to lock a std::weak_ptr
-                if (auto child_user_ptr = child_user_info.lock())
-                {
-                    child_user_ptr->used = true;
-                }
+                ProcessUserSubmission(child_user_id, processed_users);
             }
+        }
+    }
+}
+
+void ReferencedResourceTable::MarkResourceUsed(ResourceInfo* resource_info)
+{
+    GFXRECON_ASSERT(resource_info != nullptr);
+
+    resource_info->used = true;
+
+    for (auto& child_info_weak : resource_info->child_infos | std::views::values)
+    {
+        // attempt to lock a std::weak_ptr
+        if (auto child_info_ptr = child_info_weak.lock())
+        {
+            child_info_ptr->used = true;
         }
     }
 }

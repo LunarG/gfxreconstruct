@@ -76,17 +76,15 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
 
     // DXGI objects
-    StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
-    StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIFactoryMedia_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIDecodeSwapChain_Wrapper>(state_table);
+    // Factories obtained through GetParent depend on their source adapters, which require the root factories.
+    WriteDxgiFactoryState(state_table, false);
+    WriteDxgiFactoryMediaState(state_table, false);
     StandardCreateWrite<IDXGIAdapter_Wrapper>(state_table);
     StandardCreateWrite<IDXGIDevice_Wrapper>(state_table);
     StandardCreateWrite<IDXGIDisplayControl_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIKeyedMutex_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIOutput_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
-    StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
+    WriteDxgiOutputState(state_table, false);
+    WriteDxgiFactoryState(state_table, true);
+    WriteDxgiFactoryMediaState(state_table, true);
 
 #ifdef GFXRECON_AGS_SUPPORT
     // AGS calls
@@ -117,6 +115,9 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<IDXGISwapChainMedia_Wrapper>(state_table);
     StandardCreateWrite<ID3D12SwapChainAssistant_Wrapper>(state_table);
 
+    WriteDxgiOutputState(state_table, true);
+    StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
+
     // Fences
     WriteFenceState(state_table);
 
@@ -138,6 +139,14 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     std::unordered_map<format::HandleId, uint64_t>                          max_resource_sizes;
     WriteResourceCreationState(state_table, resource_snapshots, max_resource_sizes);
     WriteDescriptorState(state_table);
+
+    // DXGI resource interfaces may reference D3D12 resources or swap chain buffers, which must already exist.
+    StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIKeyedMutex_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
+
+    // Decode swap chains require their command queue, resource and output to exist first.
+    StandardCreateWrite<IDXGIDecodeSwapChain_Wrapper>(state_table);
 
     // The resource snapshots must be written after the descriptors in order to support resource value mapping for
     // optimized DXR replay.
@@ -492,6 +501,24 @@ bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
     return false;
 }
 
+// The ID3D12Device15::TryCreate* calls encode their HRESULT after DestDescriptor.
+static bool IsTryCreateDescriptorCall(format::ApiCallId call_id)
+{
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSampler2:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView:
+        case format::ApiCallId::ApiCall_ID3D12Device15_TryCreateSamplerFeedbackUnorderedAccessView:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
 {
     std::set<util::MemoryOutputStream*> processed;
@@ -554,17 +581,34 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             {
                 if (descriptor_info.is_copy)
                 {
-                    // Append heap id and descriptor index if the create parameters were copied from another descriptor
-                    // in CopyDescriptors.
-                    auto dest_heap_id = descriptor_info.heap_id;
-                    auto dest_index   = descriptor_info.index;
-                    parameter_stream_.Write(descriptor_info.create_parameters->GetData(),
-                                            descriptor_info.create_parameters->GetDataSize());
-                    parameter_stream_.Write(&dest_heap_id, sizeof(dest_heap_id));
-                    parameter_stream_.Write(&dest_index, sizeof(dest_index));
-                    WriteMethodCall(
-                        descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
-                    parameter_stream_.Clear();
+                    // Create parameters copied from another descriptor in CopyDescriptors end with the source's
+                    // DestDescriptor (heap id and index), followed by the HRESULT of the TryCreate* calls. Write them
+                    // with this descriptor's heap id and index in place of the source's.
+                    auto           dest_heap_id  = descriptor_info.heap_id;
+                    auto           dest_index    = descriptor_info.index;
+                    const uint8_t* data          = descriptor_info.create_parameters->GetData();
+                    size_t         size          = descriptor_info.create_parameters->GetDataSize();
+                    bool           has_result    = IsTryCreateDescriptorCall(descriptor_info.create_call_id);
+                    size_t         result_size   = has_result ? sizeof(HRESULT) : 0;
+                    size_t         trailing_size = sizeof(dest_heap_id) + sizeof(dest_index) + result_size;
+
+                    if (size > trailing_size)
+                    {
+                        parameter_stream_.Write(data, size - trailing_size);
+                        parameter_stream_.Write(&dest_heap_id, sizeof(dest_heap_id));
+                        parameter_stream_.Write(&dest_index, sizeof(dest_index));
+                        parameter_stream_.Write(data + size - result_size, result_size);
+                        WriteMethodCall(
+                            descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
+                        parameter_stream_.Clear();
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("The copied state of descriptor %u in descriptor heap (id = %" PRIu64
+                                             ") has an unexpected size. Skipping it.",
+                                             i,
+                                             heap_wrapper->GetCaptureId());
+                    }
                 }
                 else
                 {
@@ -1266,61 +1310,52 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     bool write_commands = CheckCommandListObjects(list_info.get(), state_table);
 
     // Write each of the commands that was recorded for the command buffer.
-    size_t         offset    = 0;
-    size_t         data_size = list_info->command_data.GetDataSize();
-    const uint8_t* data      = list_info->command_data.GetData();
+    bool is_first_command = true;
+    list_info->command_data.ForEach(
+        [&](format::ApiCallId call_id, const uint8_t* parameter_data, size_t parameter_size) {
+            bool write_current_command = write_commands;
 
-    while (offset < data_size)
-    {
-        const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
-        const format::ApiCallId* call_id = reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
-        const uint8_t*           parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
-
-        bool write_current_command = write_commands;
-
-        if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
-        {
-            GFXRECON_ASSERT(list_info->was_reset);
-
-            // command_data is cleared after each reset, so only the first command can be a reset.
-            GFXRECON_ASSERT(offset == 0);
-
-            // Always write the reset command.
-            write_current_command = true;
-        }
-        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
-        {
-            GFXRECON_ASSERT(list_info->is_closed);
-
-            // Always write the close command.
-            write_current_command = true;
-        }
-#ifdef GFXRECON_AGS_SUPPORT
-        else if (format::GetApiCallFamily(*call_id) == format::ApiFamilyId::ApiFamily_AGS)
-        {
-            if (write_current_command)
+            if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
             {
-                // Ags function call, targeting command list.
-                parameter_stream_.Write(parameter_data, (*parameter_size));
-                WriteFunctionCall((*call_id), &parameter_stream_);
-                parameter_stream_.Clear();
+                GFXRECON_ASSERT(list_info->was_reset);
 
-                // The output below, in this case, should be skipped.
-                write_current_command = false;
+                // command_data is cleared after each reset, so only the first command can be a reset.
+                GFXRECON_ASSERT(is_first_command);
+
+                // Always write the reset command.
+                write_current_command = true;
             }
-        }
+            else if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
+            {
+                GFXRECON_ASSERT(list_info->is_closed);
+
+                // Always write the close command.
+                write_current_command = true;
+            }
+#ifdef GFXRECON_AGS_SUPPORT
+            else if (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_AGS)
+            {
+                if (write_current_command)
+                {
+                    // Ags function call, targeting command list.
+                    parameter_stream_.Write(parameter_data, parameter_size);
+                    WriteFunctionCall(call_id, &parameter_stream_);
+                    parameter_stream_.Clear();
+
+                    // The output below, in this case, should be skipped.
+                    write_current_command = false;
+                }
+            }
 #endif // GFXRECON_AGS_SUPPORT
 
-        if (write_current_command)
-        {
-            parameter_stream_.Write(parameter_data, (*parameter_size));
-            WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
-            parameter_stream_.Clear();
-        }
-        offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
-    }
-
-    GFXRECON_ASSERT(offset == data_size);
+            if (write_current_command)
+            {
+                parameter_stream_.Write(parameter_data, parameter_size);
+                WriteMethodCall(call_id, list_wrapper->GetCaptureId(), &parameter_stream_);
+                parameter_stream_.Clear();
+            }
+            is_first_command = false;
+        });
 }
 
 void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper,
@@ -1490,6 +1525,96 @@ bool Dx12StateWriter::CheckResourceObject(const ID3D12ResourceInfo* resource_inf
     }
 }
 
+void Dx12StateWriter::WriteDxgiFactoryState(const Dx12StateTable& state_table, bool get_parent_derived)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const IDXGIFactory_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+
+        const bool from_get_parent = (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGIObject_GetParent);
+        if (from_get_parent != get_parent_derived)
+        {
+            return;
+        }
+
+        // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+        // all reference the same parameter buffer.
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
+}
+
+void Dx12StateWriter::WriteDxgiOutputState(const Dx12StateTable& state_table, bool from_swapchain)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const IDXGIOutput_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+
+        // Swap chain outputs must follow their source swap chains. The call ID also identifies outputs whose source
+        // swap chain was released before the trim range.
+        const bool from_swapchain_object =
+            (wrapper_info->create_object_id != format::kNullHandleId) &&
+            (state_table.GetIDXGISwapChain_Wrapper(wrapper_info->create_object_id) != nullptr);
+        const bool from_swapchain_call =
+            (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput) ||
+            (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState) ||
+            (wrapper_info->create_call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput);
+        if ((from_swapchain_object || from_swapchain_call) != from_swapchain)
+        {
+            return;
+        }
+
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
+}
+
+bool Dx12StateWriter::IsGetParentFactoryChild(const Dx12StateTable& state_table, const DxWrapperInfo& child_info) const
+{
+    auto factory_wrapper = state_table.GetIDXGIFactory_Wrapper(child_info.create_object_id);
+    auto factory_info =
+        (factory_wrapper != nullptr) ? factory_wrapper->GetObjectInfo().get() : child_info.create_object_info.get();
+    // Without factory metadata, no derived-factory dependency is known, so preserve the original early ordering.
+    return (factory_info != nullptr) &&
+           (factory_info->create_call_id == format::ApiCallId::ApiCall_IDXGIObject_GetParent);
+}
+
+void Dx12StateWriter::WriteDxgiFactoryMediaState(const Dx12StateTable& state_table, bool get_parent_derived)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const IDXGIFactoryMedia_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        if (IsGetParentFactoryChild(state_table, *wrapper_info) != get_parent_derived)
+        {
+            return;
+        }
+
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
+}
+
 void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
 {
     state_table.VisitWrappers([&](IDXGISwapChain_Wrapper* swapchain_wrapper) {
@@ -1502,6 +1627,14 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
 
         // Write swapchain creation call.
         StandardCreateWrite(swapchain_wrapper);
+
+        // Write call to resize the swapchain buffers.
+        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
+        {
+            WriteMethodCall(swapchain_info->resize_info.call_id,
+                            swapchain_wrapper->GetCaptureId(),
+                            swapchain_info->resize_info.call_parameters.get());
+        }
 
         // Write swapchain set color space for HDR
         if (swapchain_info->set_color_space)
@@ -1519,7 +1652,9 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         {
             encoder_.EncodeEnumValue(swapchain_info->hdr_metadata_type);
             encoder_.EncodeUInt32Value(swapchain_info->hdr_metadata_size);
-            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata, swapchain_info->hdr_metadata_size);
+            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata.empty() ? nullptr
+                                                                          : swapchain_info->hdr_metadata.data(),
+                                     swapchain_info->hdr_metadata_size);
             encoder_.EncodeInt32Value(S_OK);
             WriteMethodCall(format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData,
                             swapchain_wrapper->GetCaptureId(),
@@ -1527,13 +1662,6 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
             parameter_stream_.Clear();
         }
 
-        // Write call to resize the swapchain buffers.
-        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
-        {
-            WriteMethodCall(swapchain_info->resize_info.call_id,
-                            swapchain_wrapper->GetCaptureId(),
-                            swapchain_info->resize_info.call_parameters.get());
-        }
 
         // Write image state command.
         UINT                                  swapchain_buffer_index = 0;

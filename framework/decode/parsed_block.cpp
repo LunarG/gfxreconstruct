@@ -21,8 +21,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/block_parser.h"
 #include "decode/parsed_block.h"
+#include "util/compressor.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -70,38 +71,39 @@ ParsedBlock::BlockSpan ParsedBlock::GetBlockSpan() const noexcept
     return { block_data_, size };
 }
 
-bool ParsedBlock::Decompress(const BlockParser& parser, util::HeapBuffer& working_store)
+bool ParsedBlock::Decompress(const util::Compressor* compressor, util::HeapBuffer& working_store)
 {
-    // Shouldn't call this unless we know it's needed
-    // Also, not safe if it isn't needed...
     if (!NeedsDecompression())
     {
         return IsReady();
     }
 
-    auto decompress = [this, &parser, &working_store](auto&& args_store) {
+    auto decompress = [this, compressor, &working_store](auto&& args_store) {
         if constexpr (DispatchAlternativeTraits<decltype(args_store)>::kHasData)
         {
             auto& args              = *args_store;
             auto  compressed_span   = GetCompressedSpan(args);
             auto  uncompressed_size = GetDispatchArgsDataSize(args);
             working_store.ReserveDiscarding(uncompressed_size);
-            auto uncompressed_store = parser.DecompressSpan(compressed_span, uncompressed_size, working_store.get());
-            if (uncompressed_store != nullptr)
+            GFXRECON_ASSERT(compressor != nullptr);
+            size_t result = compressor->Decompress(compressed_span, uncompressed_size, working_store.get());
+            if (result == uncompressed_size)
             {
-                // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
-                args.data = uncompressed_store;
+                // Patch the data buffer pointer to point into the working store
+                args.data = working_store.get();
                 state_    = BlockState::kReady;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to decompress block data");
+                state_ = BlockState::kInvalid;
             }
         }
         else
         {
-            parser.HandleBlockReadError(
-                kErrorReadingCompressedBlockData,
-                "Block type cannot hold compressed data, but is marked as needing decompression");
-            GFXRECON_ASSERT(false && "Cannot decompress a block with no DispatchArgs");
-            // We tried to decompress an unknown or invalid block that was in kDeferredDecompress state, which shouldn't
-            // be possible.
+            // kDeferredDecompress with no data field should never be possible
+            GFXRECON_LOG_ERROR("Attempted to decompress block with no data field");
+            GFXRECON_ASSERT(false && "Cannot decompress a block with no data");
             state_ = BlockState::kInvalid;
         }
     };

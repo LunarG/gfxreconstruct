@@ -27,28 +27,22 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugin)
 
+uint32_t GetEventAbiVersion(GfxrReplayEventType type)
+{
+    int idx = type - 1;
+    return kEventTraits[idx].since_version;
+}
+
 static size_t GetSizeOfStruct(GfxrReplayEventType type)
 {
-    switch (type)
-    {
-        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
-            return sizeof(GfxrReplayQueueSubmitBeginEvent);
-        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END:
-            return sizeof(GfxrReplayQueueSubmitEndEvent);
-        case GFXR_REPLAY_EVENT_FRAME_BEGIN:
-            return sizeof(GfxrReplayFrameBeginEvent);
-        case GFXR_REPLAY_EVENT_FRAME_END:
-            return sizeof(GfxrReplayFrameEndEvent);
-        default:
-            GFXRECON_ASSERT(false && "Unknown event type");
-            return 0;
-    }
+    int idx = type - 1;
+    return kEventTraits[idx].size;
 }
 
 GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType type)
 {
     GfxrReplayEventHeader header = {};
-    header.abi_version           = GFXR_REPLAY_PLUGIN_ABI_VERSION;
+    header.abi_version           = GetEventAbiVersion(type);
     header.struct_size           = GetSizeOfStruct(type);
     header.type                  = type;
     header.timestamp_ns          = static_cast<uint64_t>(util::datetime::GetTimestamp());
@@ -56,9 +50,29 @@ GfxrReplayEventHeader ReplayEventSink::CreateEventHeader(GfxrReplayEventType typ
     return header;
 }
 
+void ReplayEventSink::StateSetupBegin()
+{
+    GfxrReplayStateSetupBeginEvent event = {};
+    event.header                         = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN);
+
+    EmitStateSetupBegin(event);
+}
+
+void ReplayEventSink::StateSetupEnd()
+{
+    GfxrReplayStateSetupEndEvent event = {};
+    event.header                       = CreateEventHeader(GFXR_REPLAY_EVENT_STATE_SETUP_END);
+
+    EmitStateSetupEnd(event);
+}
+
 uint64_t ReplayEventSink::QueueSubmitBegin(format::HandleId queue_id)
 {
-    GFXRECON_ASSERT(frame_active_);
+    // Submits outside a frame belong to state setup. Plugins do not see them.
+    if (!frame_active_)
+    {
+        return GFXR_REPLAY_INVALID_SUBMIT_INDEX;
+    }
 
     GfxrReplayQueueSubmitBeginEvent event = {};
     event.header                          = CreateEventHeader(GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN);
@@ -82,6 +96,11 @@ void ReplayEventSink::QueueSubmitEnd(uint64_t                              submi
                                      int32_t                               result,
                                      GfxrReplayQueueSubmitCompletionSource completion_source)
 {
+    if (submit_index == GFXR_REPLAY_INVALID_SUBMIT_INDEX)
+    {
+        return;
+    }
+
     GFXRECON_ASSERT(frame_active_);
 
     GfxrReplayQueueSubmitEndEvent event = {};
@@ -129,13 +148,15 @@ void ReplayEventSink::FrameEnd()
 
 PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle library,
                                              GfxrReplayPluginV1*           plugin,
+                                             uint32_t                      abi_version,
                                              CloseLibraryFunc              close_library) :
     library_(library),
-    plugin_(plugin), close_library_(close_library), disabled_(false)
+    plugin_(plugin), negotiated_abi_version_(abi_version), close_library_(close_library), disabled_(false)
 {
     GFXRECON_ASSERT(library != nullptr);
     GFXRECON_ASSERT(plugin != nullptr);
     GFXRECON_ASSERT(plugin->on_event != nullptr);
+    GFXRECON_ASSERT(negotiated_abi_version_ != 0);
     GFXRECON_ASSERT(close_library != nullptr);
 }
 
@@ -149,6 +170,16 @@ PluginReplayEventSink::~PluginReplayEventSink()
     {
         close_library_(library_);
     }
+}
+
+void PluginReplayEventSink::EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitStateSetupEnd(const GfxrReplayStateSetupEndEvent& event)
+{
+    Forward(event.header);
 }
 
 void PluginReplayEventSink::EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event)
@@ -173,7 +204,7 @@ void PluginReplayEventSink::EmitFrameEnd(const GfxrReplayFrameEndEvent& event)
 
 void PluginReplayEventSink::Forward(const GfxrReplayEventHeader& event)
 {
-    if (disabled_)
+    if (disabled_ || event.abi_version > negotiated_abi_version_)
     {
         return;
     }

@@ -6,22 +6,25 @@
      Table of Contents
      ───────────────────────────── -->
 - [Purpose](#purpose)
-- [Use Cases](#use-cases)
-  - [Reproduction](#reproduction)
-  - [Tooling](#tooling)
-  - [Silicon](#silicon)
+  - [Reproduction](#use-case-reproduction)
+  - [Componentization](#use-case-componentization)
+  - [Tooling](#use-case-tooling)
+  - [Silicon](#use-case-silicon)
+- [Governing Constraints](#governing-constraints)
+  - [Best Effort](#besteffort)
+  - [Compatibility](#compatibility)
 - [Architectural Principles](#architectural-principles)
-  - [Best Effort](#best-effort)
   - [Reconstruct](#reconstruct)
   - [Preserve](#preserve)
   - [Replay](#replay)
-  - [Workload](#workload)
+  - [GPU Workload](#gpu-workload)
   - [Reproduce](#reproduce)
   - [Performance](#performance)
   - [Dependency](#dependency)
 - [Backward Compatibility (major revision)](#backward-compatibility-within-a-major-revision)
   - [Format](#format)
   - [Interface](#interface)
+  - [Plugin ABI](#plugin-abi)
   - [Compatibility](#compatibility)
   - [Invocation](#invocation)
   - [Convert-JSON](#convert-json)
@@ -30,31 +33,50 @@
 
 # Purpose
 
-The purpose of GFXReconstruct is recording application graphics API calls to a file (hereafter called a “capture file”), replaying the API calls from a capture file, and processing capture files.  The design, implementation, and use of the tools should be simple. The capture file content should preserve the application’s calls thoroughly and accurately.  Replay should by default attempt to honor the application’s intent.
+The purpose of GFXReconstruct is recording application graphics API calls to a file (hereafter called a “capture file”), replaying the API calls from a capture file, and processing capture files.  Some components of GFXReconstruct form a capture-analysis-replay foundation embedded in other tools. Capture file content should preserve the application’s calls thoroughly and accurately.  Replay should by default attempt to honor the application’s intent.  
 
 We recognize broad categories of use for GFXReconstruct that we describe below.  The definition of these “use cases” guides the definition of the principles.
-
-# Use Cases
 
 ## USE-CASE-REPRODUCTION
 
 GFXReconstruct is intended primarily for reproduction of an application’s API calls for analysis, bug reporting, and testing.  This use case prioritizes the integrity and fidelity of the captured data and reproduction of the data when replayed.  While file storage and performance is valued, representing the application’s original API calls and intent when possible is paramount.  This use case prioritizes using GFXR through one or more of its command-line tools or scripts and does not prioritize use of the internal classes or objects within the code itself.
 
+## USE-CASE-COMPONENTIZATION
+
+Some of GFXReconstruct's linkable components are also valuable as a foundation for other applications that capture, process, and replay API calls.  This case raises the priority of the use of GFXReconstruct through its class structure and exposes some implementation details.
+
 ## USE-CASE-TOOLING
 
-GFXReconstruct is also valuable as a foundation for other tools that capture, process, and replay API calls.  For this use case, tools using GFXReconstruct may opt in to relax the constraints on integrity and fidelity described in USE-CASE-REPRODUCTION and may select to modify the API call sequence to support capture and replay performance and responsiveness.  This case raises the priority of the use of GFXReconstruct through its class structure and exposes some implementation details.
+GFXReconstruct's tools may be invoked from other tools that capture, process, and replay API calls.  For this use case, the input file formats and output formats and details of invoking the tools must be reliable and remain compatible.  Applications using GFXReconstruct may opt in to relax the constraints on integrity and fidelity described in USE-CASE-REPRODUCTION and may select to modify the API call sequence to support capture and replay performance and responsiveness.  
 
 ## USE-CASE-SILICON
 
 A refinement of USE-CASE-REPRODUCTION is helpful for the purpose of development of new products.  Replaying captured content on pre-production and hardware under development can help to evaluate functional completeness of hardwares and drivers prior to production. That development may require operation in environments with limited resources like low RAM, low or no local storage, and potentially transformations on the API call stream to support testing new features or the elimination of legacy features.
 
-# Architectural Principles 
+# Governing Constraints
 
 ## BESTEFFORT
 
 **Developers should apply their best effort to adhere to the spirit of the principles**
 
 If an exception is made to a principle, there should be a well-considered, documented reason.  These principles are listed in rough order of decreasing importance so that a reasoned decision can be made if new development would necessarily conflict with one or the other of two principles.
+
+## COMPATIBILITY
+
+**Stored capture files, interfaces, invocations, and output schemas remain usable across releases within a major revision.**
+
+Development must honor the commitments enumerated in [Backward Compatibility (major revision)](#backward-compatibility-within-a-major-revision).  Changes that would break these commitments require versioning (new block IDs, versioned classes/methods) or deprecation with continued read support, not removal.  
+
+* Implications:
+  * A capture taken with any release (Currently any `HEAD` cloned from `main`) in a major revision is a durable artifact; upgrading tools must not orphan it.
+  * Downstream tools built on the Consumer interfaces (USE-CASE-TOOLING) can upgrade GFXR without source changes to frozen surfaces.
+* Benefits:
+  * Users' capture libraries, scripts, and derived tooling survive upgrades; bug reports and regression suites built on old captures remain valid.
+* Exceptions:
+  * Compatibility guarantees reset at a major revision boundary.
+  * Deprecated blocks/commands may stop being written; they must continue to be read.
+
+# Architectural Principles 
 
 ## RECONSTRUCT 
 
@@ -138,7 +160,7 @@ The replayed commands and methods should be as close to the sequence that was ca
 * Current Exceptions:  
   * Virtual Swapchain  
   * Replay is currently single-threaded; memory and object creation and access sequences may differ from the captured workload
-
+ 
 ## PERFORMANCE 
 
 **All components but especially capture should be designed and implemented with an eye to reducing the impact on system performance.**
@@ -202,7 +224,21 @@ Existing function signatures should not be removed or altered for functions in �
 
 Changes to functionality will be managed (in decreasing order of preference) by (A) versioning the class (e.g. “VulkanConsumer2”), or (B) versioning the method/function (e.g. “Dx12ConsumerBase::Process\_DriverInfo2”).
 
-## COMPATIBILITY
+## PLUGIN-ABI
+
+**Replay will continue to load plugin binaries that customers built with an older public header.**
+
+The public plugin ABI in `framework/plugin/public/gfxr/replay_event_plugin.h` is a binary contract, not a source contract.  A customer builds a replay event plugin one time and gives replay a shared library.  When the customer updates GFXReconstruct and does not rebuild the plugin, that library must keep its behavior.
+
+This commitment is stronger than [INTERFACE](#interface).  INTERFACE limits compatibility to source code.  PLUGIN-ABI applies to the binary layout of the public structs, to the numbers of the enumerants, and to the names of the factory symbols.
+
+A change that only adds data increases `GFXR_REPLAY_PLUGIN_ABI_VERSION` by one.  Replay and the plugin negotiate one version at load time.  Replay then emits only the events that this version contains.  A plugin that a customer built with an older header receives the same event stream as before.
+
+A change that breaks the contract adds a new versioned plugin struct and a new versioned factory symbol, for example `gfxrCreateReplayPluginV2`.  The older declarations stay in the header, and the loader keeps a path for them.  This is the same preference order as INTERFACE: add a versioned struct first, then a versioned function.
+
+[Replay Event Plugins](./PLUGIN_replay_event.md#abi-versioning-and-compatibility) gives the full rules and the procedure to add an event type.
+
+## DEFAULTS
 
 **Default behavior should persist if possible**
 

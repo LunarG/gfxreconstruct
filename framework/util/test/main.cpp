@@ -32,6 +32,7 @@
 #include "util/to_string.h"
 #include "util/strings.h"
 #include "util/date_time.h"
+#include "util/file_path.h"
 #include "util/logging.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 
@@ -417,14 +418,19 @@ TEST_CASE("ExpandPathVariables", "[strings]")
     // Empty AppName
     REQUIRE(ExpandPathVariables(info, "${AppName}/file.gfxr") == "/file.gfxr");
 #ifdef __ANDROID__
-    REQUIRE(ExpandPathVariables(info, "${AppName}/${InternalDataPath}") == "//data/data/");
+    REQUIRE(ExpandPathVariables(info, "${AppName}/${InternalDataPath}") ==
+            "//data/user/" + std::to_string(filepath::GetAndroidUserId()) + "/");
 #endif
 
 #define APP_NAME "com.example.app"
     const char* app_name = APP_NAME;
     strncpy(info.AppName, app_name, std::strlen(app_name));
 
+#ifdef __ANDROID__
+    const std::string expected_internal = "/data/user/" + std::to_string(filepath::GetAndroidUserId()) + "/" APP_NAME;
+#else
     const std::string expected_internal = "/data/data/" APP_NAME;
+#endif
 
     // No variables
     REQUIRE(ExpandPathVariables(info, "/foo/bar.txt") == "/foo/bar.txt");

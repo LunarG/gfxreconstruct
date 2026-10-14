@@ -172,6 +172,14 @@ enum class MetaDataType : uint16_t
     kSetOpaqueCaptureDescriptorDataCommand              = 37,
     kInitDx12AccelerationStructureCommand2              = 38,
     kInitTensorCommand                                  = 39,
+    kReserved40                                         = 40, // LunarG internal use
+    kReserved41                                         = 41, // LunarG internal use
+    kReserved42                                         = 42, // LunarG internal use
+    kReserved43                                         = 43, // LunarG internal use
+    kReserved44                                         = 44, // LunarG internal use
+    kReserved45                                         = 45, // LunarG internal use
+    kReserved46                                         = 46, // LunarG internal use
+    kReserved47                                         = 47, // LunarG internal use
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -665,7 +673,7 @@ struct InitDx12AccelerationStructureGeometryDesc
 
 struct DxgiAdapterDesc
 {
-    wchar_t  Description[kAdapterDescriptionSize];
+    char16_t Description[kAdapterDescriptionSize];
     uint32_t VendorId;
     uint32_t DeviceId;
     uint32_t SubSysId;

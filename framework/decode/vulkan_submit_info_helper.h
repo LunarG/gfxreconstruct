@@ -24,6 +24,7 @@
 #define GFXRECON_VULKAN_SUBMIT_INFO_HELPER_H
 
 #include "graphics/vulkan_semaphore_util.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "decode/vulkan_object_info.h"
 #include "util/defines.h"
 
@@ -43,8 +44,8 @@ class VulkanInjectedSemaphore
   private:
     graphics::VulkanSemaphore semaphore_{ VK_NULL_HANDLE };
 
-    const VulkanDeviceInfo*            device_info_;
-    const graphics::VulkanDeviceTable* device_table_;
+    const VulkanDeviceInfo*             device_info_;
+    graphics::VulkanInjectedDeviceCalls device_table_;
 
   public:
     bool                      HasReachedTargetValue() const;
@@ -53,7 +54,7 @@ class VulkanInjectedSemaphore
     uint64_t                  GetTargetValue() const { return semaphore_.timeline_value; }
     void                      IncreaseTargetValue() { semaphore_.timeline_value++; }
 
-    VulkanInjectedSemaphore(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* table);
+    VulkanInjectedSemaphore(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedDeviceCalls& table);
     ~VulkanInjectedSemaphore();
 
     VulkanInjectedSemaphore(const VulkanInjectedSemaphore&)            = delete;
@@ -74,7 +75,7 @@ struct VulkanInjectedSemaphoreInfo
     VulkanInjectedSemaphore semaphore;
     VkSemaphoreSubmitInfo   info = { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
 
-    VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* table);
+    VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo* device_info, const graphics::VulkanInjectedDeviceCalls& table);
 };
 
 /**

@@ -60,20 +60,9 @@ class OptimizeFeature : public util::FeatureBase
                           const std::string&          output_filename,
                           const util::ArgumentParser& args) = 0;
 
-    // Command-line options and arguments
-    // -------------------------------------
-    // Returns feature-specific option flags for the ArgumentParser (comma-separated, | for aliases).
-    virtual std::string GetOptions() const { return ""; }
-
-    // Returns feature-specific argument keys for the ArgumentParser (comma-separated).
-    virtual std::string GetArguments() const { return ""; }
-
-    // Returns a synopsis fragment for the usage line, e.g. "[--my-flag] [--my-arg <val>]".
-    virtual std::string GetSynopsisFragment() const { return ""; }
-
-    // Prints feature-specific optional-argument help lines to the console.
-    // Called from main's PrintUsage(), which tool_settings.h invokes for --help.
-    virtual void PrintUsage() const {}
+    // Command-line options and arguments come from util::FeatureBase::GetOptionDescs(). The
+    // functions in tools/tool_feature_options.h collect them, validate the values, and print
+    // the synopsis fragments and the usage sections.
 };
 
 GFXRECON_END_NAMESPACE(optimize)

@@ -145,16 +145,6 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConsta
 };
 
 template <>
-struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSampler>
-{
-    template <typename... Args>
-    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
-    {
-        replay->PostCall_ID3D12Device_CreateSampler(args...);
-    }
-};
-
-template <>
 struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>
 {
     template <typename... Args>
@@ -191,6 +181,66 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthS
     static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
     {
         replay->PostCall_ID3D12Device_CreateDepthStencilView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PreCall_ID3D12Device_CreateConstantBufferView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateConstantBufferView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device15_TryCreateConstantBufferView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateShaderResourceView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device15_TryCreateShaderResourceView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device15_TryCreateUnorderedAccessView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateRenderTargetView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device15_TryCreateRenderTargetView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device15_TryCreateDepthStencilView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device15_TryCreateDepthStencilView(args...);
     }
 };
 

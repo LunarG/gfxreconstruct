@@ -24,7 +24,7 @@
 #include <array>
 #include <iterator>
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
 #include <android_native_app_glue.h>
 #endif
 
@@ -606,7 +606,7 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
     xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&pfn_initialize_loader);
     if (pfn_initialize_loader)
     {
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
         XrLoaderInitInfoAndroidKHR loader_init = {
             XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR,
             nullptr,
@@ -618,6 +618,31 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
 #endif
     }
     CheckResult("xrInitializeLoaderKHR", returnValue, replay_result, call_info);
+}
+
+// See the Vulkan equivalent: messengers the captured application created are re-created during replay with
+// the severities/types it asked for, so give them a stub callback instead of our logging one.
+static XRAPI_ATTR XrBool32 XRAPI_CALL openxr_NoopDebugUtilsCallback(XrDebugUtilsMessageSeverityFlagsEXT,
+                                                                    XrDebugUtilsMessageTypeFlagsEXT,
+                                                                    const XrDebugUtilsMessengerCallbackDataEXT*,
+                                                                    void*)
+{
+    return XR_FALSE;
+}
+
+static void DisableCapturedDebugUtilsCallbacks(const void* next)
+{
+    auto* next_struct = reinterpret_cast<XrBaseInStructure*>(const_cast<void*>(next));
+    while (next_struct != nullptr)
+    {
+        if (next_struct->type == XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT)
+        {
+            auto* messenger_info         = reinterpret_cast<XrDebugUtilsMessengerCreateInfoEXT*>(next_struct);
+            messenger_info->userCallback = openxr_NoopDebugUtilsCallback;
+            messenger_info->userData     = nullptr;
+        }
+        next_struct = const_cast<XrBaseInStructure*>(next_struct->next);
+    }
 }
 
 void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
@@ -640,6 +665,8 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
 
     XrInstanceCreateInfo* create_info = info->GetPointer();
     assert(create_info);
+
+    DisableCapturedDebugUtilsCallbacks(create_info->next);
 
     std::vector<const char*> modified_extensions;
     XrInstanceCreateInfo     modified_create_info;
@@ -673,7 +700,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                              "extension availability.");
     }
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     XrInstanceCreateInfoAndroidKHR init_android = {
         XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR,
         create_info->next,
@@ -698,7 +725,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
         next_struct = next_struct->next;
     }
     modified_create_info.next = &init_android;
-#endif // IGL_PLATFORM_ANDROID
+#endif // BUILD_ANDROID_APP
 
     modified_create_info.enabledExtensionCount = static_cast<uint32_t>(modified_extensions.size());
     modified_create_info.enabledExtensionNames = modified_extensions.data();
@@ -842,10 +869,12 @@ void OpenXrReplayConsumerBase::Process_xrCreateVulkanDeviceKHR(
                                 &CommonObjectInfoTable::AddVkDeviceInfo);
 }
 
-static XRAPI_ATTR XrBool32 XRAPI_CALL openXrDebugUtilsCallback(XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
-                                                               XrDebugUtilsMessageTypeFlagsEXT     messageTypes,
-                                                               const XrDebugUtilsMessengerCallbackDataEXT* callbackData,
-                                                               void*                                       userData)
+// Kept around for debugging: swap it back in for openxr_NoopDebugUtilsCallback to see the app's messages.
+[[maybe_unused]] static XRAPI_ATTR XrBool32 XRAPI_CALL
+openxr_DebugUtilsCallback(XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity,
+                          XrDebugUtilsMessageTypeFlagsEXT             messageTypes,
+                          const XrDebugUtilsMessengerCallbackDataEXT* callbackData,
+                          void*                                       userData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(userData);
 
@@ -894,7 +923,9 @@ void OpenXrReplayConsumerBase::Process_xrCreateDebugUtilsMessengerEXT(
         // don't crash when whatever implements the debug utils messenger attempts
         // to make a callback.
         modified_create_info              = (*createInfo->GetPointer());
-        modified_create_info.userCallback = openXrDebugUtilsCallback;
+        modified_create_info.userCallback = openxr_NoopDebugUtilsCallback;
+        modified_create_info.userData     = nullptr;
+        DisableCapturedDebugUtilsCallbacks(modified_create_info.next);
     }
     else
     {
@@ -1443,7 +1474,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
     XrResult result = swapchain_data.ImportReplaySwapchain(images);
     if (XR_SUCCEEDED(result))
     {
-        result = swapchain_data.InitVirtualSwapchain(imageCountOutput, images);
+        result = swapchain_data.InitVirtualSwapchain(swapchain, imageCountOutput, images);
     }
 
     if (!XR_SUCCEEDED(result))

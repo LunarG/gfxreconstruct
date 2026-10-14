@@ -146,6 +146,37 @@ static T* vulkan_struct_remove_pnext(Parent_T* parent)
 }
 
 /**
+ * @brief   vulkan_struct_remove_pnext_by_stype can be used to remove elements in-place from a
+ *          provided structure's pNext-chain by their VkStructureType.
+ *
+ * @tparam  Parent_T    implicit type of provided structure
+ * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
+ * @param   sType       VkStructureType of the structure to remove.
+ * @return  pointer to the removed structure (as VkBaseOutStructure*) or nullptr.
+ */
+template <VulkanStruct Parent_T>
+static VkBaseOutStructure* vulkan_struct_remove_pnext_by_stype(Parent_T* parent, VkStructureType sType)
+{
+    if (parent != nullptr)
+    {
+        auto prev_struct    = reinterpret_cast<VkBaseOutStructure*>(parent);
+        auto current_struct = reinterpret_cast<VkBaseOutStructure*>(parent)->pNext;
+
+        while (current_struct != nullptr)
+        {
+            if (current_struct->sType == sType)
+            {
+                prev_struct->pNext = current_struct->pNext;
+                return current_struct;
+            }
+            prev_struct    = current_struct;
+            current_struct = current_struct->pNext;
+        }
+    }
+    return nullptr;
+}
+
+/**
  * @brief   vulkan_struct_add_pnext can be used to add elements into a pNext-chain.
  *
  * Searches through the parent's pNext-chain to avoid duplicates. Inserts 'pnext_struct' at front of pNext-chain.

@@ -9574,6 +9574,20 @@ void VulkanExportJsonConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceCooperativeMatrixProperties2EXT");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["physicalDevice"], args.physicalDevice);
+        FieldToJson(jargs["pCooperativeMatrixInfo"], &args.pCooperativeMatrixInfo);
+        FieldToJson(jargs["pPropertyCount"], &args.pPropertyCount);
+        FieldToJson(jargs["pProperties"], &args.pProperties);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetPrimitiveRestartIndexEXT&       args)

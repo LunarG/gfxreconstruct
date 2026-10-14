@@ -31,6 +31,7 @@ add_library(gfxrecon_format STATIC "")
 target_sources(gfxrecon_format
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/api_call_id.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_call_log.h
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_subobject_types.h>
                     ${CMAKE_CURRENT_LIST_DIR}/format.h
                     ${CMAKE_CURRENT_LIST_DIR}/format_json.h
@@ -58,6 +59,7 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_format_test "")
     target_sources(gfxrecon_format_test PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/test/api_call_log_test.cpp
         ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_format_test PRIVATE gfxrecon_format)
     if (MSVC)

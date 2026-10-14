@@ -27,6 +27,8 @@ option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE_BASE "Git branch/commit for C++ code style comparison" "HEAD")
 
+set(check_code_style_script_ "${CMAKE_CURRENT_LIST_DIR}/../scripts/check_code_style.py")
+
 if(${APPLY_CPP_CODE_STYLE} OR ${CHECK_CPP_CODE_STYLE})
     find_program(CLANG_FORMAT clang-format-14 DOC "Clang format executable")
 
@@ -73,7 +75,7 @@ function(target_code_style_build_directives TARGET)
         if(${CHECK_CPP_CODE_STYLE})
             # Call the script to check formatting
             add_custom_target("${TARGET}CodeStyleCheck"
-                    COMMAND "${PYTHON}" ${PROJECT_SOURCE_DIR}/scripts/check_code_style.py
+                    COMMAND "${PYTHON}" ${check_code_style_script_}
                     --sourcefile ${TARGET_SRC_FILES} --base ${CHECK_CPP_CODE_STYLE_BASE}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                     COMMENT "Check code style for ${TARGET}")

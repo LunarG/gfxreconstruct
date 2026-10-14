@@ -112,11 +112,8 @@ FileFormatInfo GatherFileFormatInfo(gfxrecon::decode::FileProcessor& file_proces
     gfxrecon::decode::InfoDecoder info_decoder;
     info_decoder.AddConsumer(&info_consumer);
     file_processor.AddDecoder(&info_decoder);
-    bool success = file_processor.ProcessNextFrame();
-    if (success && !file_processor.UsesFrameMarkers())
-    {
-        file_processor.ProcessNextFrame();
-    }
+    file_processor.InitializeFrameProcessing();
+    file_processor.ProcessCaptureStart();
     return FileFormatInfo(file_processor);
 }
 

@@ -16336,6 +16336,41 @@ void VulkanCppConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV);
 }
+void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcooperative_matrix_info;
+    std::string pcooperative_matrix_info_struct = GenerateStruct_VkPhysicalDeviceCooperativeMatrixInfo2EXT(stream_pcooperative_matrix_info,
+                                                                                                           args.pCooperativeMatrixInfo.GetPointer(),
+                                                                                                           args.pCooperativeMatrixInfo.GetMetaStructPointer(),
+                                                                                                           *this);
+    fprintf(file, "%s", stream_pcooperative_matrix_info.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!args.pPropertyCount.IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*args.pPropertyCount.GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!args.pProperties.IsNull()) {
+        const uint32_t* in_pproperty_count = args.pPropertyCount.GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkCooperativeMatrixProperties2EXT %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
+    pfn_loader_.AddMethodName("vkGetPhysicalDeviceCooperativeMatrixProperties2EXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(%s, &%s, %s, %s), %s);\n",
+            this->GetHandle(args.physicalDevice).c_str(),
+            pcooperative_matrix_info_struct.c_str(),
+            pproperty_count_name.c_str(),
+            pproperties_name.c_str(),
+            util::ToString<VkResult>(args.result).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT);
+}
 void VulkanCppConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetPrimitiveRestartIndexEXT&       args)

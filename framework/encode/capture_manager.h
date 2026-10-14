@@ -94,9 +94,6 @@ class CommonCaptureManager
 
     static CommonCaptureManager* Get() { return singleton_; }
 
-    // Set to true to force capture manager to generate new, default IDs instead of using the unique ID stack.
-    static void SetForceDefaultUniqueId(bool force) { force_default_unique_id_ = force; }
-
     static void SetInitializeLog(bool initialize_log) { initialize_log_ = initialize_log; }
 
     using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
@@ -474,6 +471,13 @@ class CommonCaptureManager
     {
         return compressor_.get();
     }
+    // The algorithm GetCompressor() was created for.  A command that compresses
+    // its own payload records this, so the block says how to expand itself
+    // rather than depending on the file option being reachable at decode time.
+    format::CompressionType GetCompressionType() const
+    {
+        return file_options_.compression_type;
+    }
     std::mutex& GetMappedMemoryLock()
     {
         return mapped_memory_lock_;
@@ -586,7 +590,6 @@ class CommonCaptureManager
     static bool                                           initialize_log_;
     static std::atomic<format::HandleId>                  default_unique_id_counter_;
     static uint64_t                                       default_unique_id_offset_;
-    static thread_local bool                              force_default_unique_id_;
     static thread_local std::vector<format::HandleId>     unique_id_stack_;
 
     uint32_t instance_count_ = 0;

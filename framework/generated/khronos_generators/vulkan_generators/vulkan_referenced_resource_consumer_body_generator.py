@@ -65,7 +65,8 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
     # All resource and resource associated handle types to be processed.
     RESOURCE_HANDLE_TYPES = [
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
-        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline'
+        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline',
+        'VkTensorARM', 'VkTensorViewARM'
     ]
 
     # Handle types that contain resource and child resource handle types.
@@ -247,8 +248,8 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
                         for ext_struct in ext_structs_with_handles:
                             body += indent + '{\n'
                             indent += ' ' * self.INDENT_SIZE
-                            body += indent + 'const auto* ext_struct_info = GetPNextMetaStruct<Decoded_{}>({}->pNext);\n'.format(
-                                 ext_struct, value_name
+                            body += indent + 'const auto* ext_struct_info = GetPNextMetaStruct<Decoded_{}>({}{}pNext);\n'.format(
+                                 ext_struct, value_name, access_operator
                              )
 
                             body += indent + 'if (ext_struct_info != nullptr)\n'

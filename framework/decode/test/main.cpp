@@ -26,6 +26,9 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#include "decode/referenced_resource_table.h"
+#include "decode/screenshot_controller.h"
+#include "decode/vulkan_screenshot_handler.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
@@ -35,8 +38,17 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 
 #include "decode/block_parser.h"
+#include "decode/decode_allocator.h"
+#include "decode/vulkan_pnext_node.h"
 
 #include <vector>
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
+// Defined in the generated pNext decoder, which has no header.
+size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 const VkBuffer                   kBufferHandles[] = { gfxrecon::format::FromHandleId<VkBuffer>(0xabcd),
                                                       gfxrecon::format::FromHandleId<VkBuffer>(0xbcda),
@@ -312,4 +324,405 @@ TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslat
     {
         REQUIRE(r_device_group->pSignalSemaphoreDeviceIndices[i] == signal_device_indices[i]);
     }
+}
+
+TEST_CASE("ReferencedResourceTable classifies destroyed command buffers", "[optimize]")
+{
+    using gfxrecon::decode::ReferencedResourceTable;
+    using gfxrecon::format::HandleId;
+
+    constexpr HandleId kPool     = 1;
+    constexpr HandleId kCmd      = 2;
+    constexpr HandleId kPipeline = 3;
+
+    ReferencedResourceTable table;
+    table.AddResource(kPipeline);
+    table.AddUser(kPool, kCmd);
+    table.AddResourceToUser(kCmd, kPipeline);
+
+    std::unordered_set<HandleId> unreferenced;
+
+    SECTION("recorded, never submitted, then freed: user and resource are both unreferenced")
+    {
+        // The recorded blocks of a destroyed command buffer stay in the capture file, so the user must still be
+        // classified as unreferenced for those blocks to be removed together with the pipeline creation call.
+        table.RemoveUser(kCmd); // vkFreeCommandBuffers
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kCmd) == 1);
+        REQUIRE(unreferenced.count(kPipeline) == 1);
+    }
+
+    SECTION("recorded, never submitted, then pool destroyed: user and resource are both unreferenced")
+    {
+        table.ClearUsers(kPool); // vkDestroyCommandPool
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kCmd) == 1);
+        REQUIRE(unreferenced.count(kPipeline) == 1);
+    }
+
+    SECTION("submitted and then freed: user and resource are both referenced")
+    {
+        table.ProcessUserSubmission(kCmd);
+        table.RemoveUser(kCmd);
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kCmd) == 0);
+        REQUIRE(unreferenced.count(kPipeline) == 0);
+    }
+}
+
+TEST_CASE("ReferencedResourceTable marks resources recorded into a previously submitted user", "[optimize]")
+{
+    using gfxrecon::decode::ReferencedResourceTable;
+    using gfxrecon::format::HandleId;
+
+    constexpr HandleId kPool      = 1;
+    constexpr HandleId kCmd       = 2;
+    constexpr HandleId kPipeline1 = 3;
+    constexpr HandleId kPipeline2 = 4;
+
+    ReferencedResourceTable table;
+    table.AddUser(kPool, kCmd);
+    table.AddResource(kPipeline1);
+    table.AddResourceToUser(kCmd, kPipeline1);
+    table.ProcessUserSubmission(kCmd);
+
+    // Re-record the command buffer with a new pipeline, without a following submission (e.g. the capture ended
+    // between recording and submission).  All blocks of the submitted command buffer stay in the capture file,
+    // including the new recording, so the new pipeline must be classified as referenced.
+    table.ResetUser(kCmd); // vkBeginCommandBuffer
+    table.AddResource(kPipeline2);
+    table.AddResourceToUser(kCmd, kPipeline2);
+
+    std::unordered_set<HandleId> unreferenced;
+    table.GetReferencedHandleIds(nullptr, &unreferenced);
+    REQUIRE(unreferenced.count(kPipeline1) == 0);
+    REQUIRE(unreferenced.count(kPipeline2) == 0);
+}
+
+TEST_CASE("ReferencedResourceTable processes executed secondary command buffers", "[optimize]")
+{
+    using gfxrecon::decode::ReferencedResourceTable;
+    using gfxrecon::format::HandleId;
+
+    constexpr HandleId kPool      = 1;
+    constexpr HandleId kPrimary   = 2;
+    constexpr HandleId kSecondary = 3;
+    constexpr HandleId kNested    = 4;
+    constexpr HandleId kPipeline  = 5;
+
+    ReferencedResourceTable table;
+    table.AddUser(kPool, kPrimary);
+    table.AddUser(kPool, kSecondary);
+
+    std::unordered_set<HandleId> unreferenced;
+
+    SECTION("nested secondaries of a submitted primary are marked recursively")
+    {
+        table.AddUser(kPool, kNested);
+        table.AddResource(kPipeline);
+        table.AddResourceToUser(kNested, kPipeline);
+        table.AddUserToUser(kSecondary, kNested);  // vkCmdExecuteCommands in the secondary
+        table.AddUserToUser(kPrimary, kSecondary); // vkCmdExecuteCommands in the primary
+        table.ProcessUserSubmission(kPrimary);
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kSecondary) == 0);
+        REQUIRE(unreferenced.count(kNested) == 0);
+        REQUIRE(unreferenced.count(kPipeline) == 0);
+    }
+
+    SECTION("execute-commands recorded into an already submitted primary marks the secondary")
+    {
+        table.ProcessUserSubmission(kPrimary);
+
+        // Trailing recording without a following submission: the primary's blocks all stay in the capture file,
+        // so the executed secondary and its resources must be classified as referenced.
+        table.AddResource(kPipeline);
+        table.AddResourceToUser(kSecondary, kPipeline);
+        table.AddUserToUser(kPrimary, kSecondary);
+
+        table.GetReferencedHandleIds(nullptr, &unreferenced);
+        REQUIRE(unreferenced.count(kSecondary) == 0);
+        REQUIRE(unreferenced.count(kPipeline) == 0);
+    }
+}
+
+// ScreenshotController holds every part of a screenshot that is not an API
+// call.  None of this had a test: the frame selection lived in
+// ScreenshotHandlerBase and the rest lived in the Vulkan consumer.
+TEST_CASE("ScreenshotController selects the frames it was asked for", "[screenshot]")
+{
+    using gfxrecon::decode::ReplayOptions;
+    using gfxrecon::decode::ScreenshotController;
+    using gfxrecon::decode::ScreenshotRange;
+
+    SECTION("no range asked for")
+    {
+        ReplayOptions        options;
+        ScreenshotController controller(options);
+
+        REQUIRE_FALSE(controller.Enabled());
+        REQUIRE_FALSE(controller.IsScreenshotFrame());
+    }
+
+    SECTION("one closed range")
+    {
+        ReplayOptions options;
+        options.screenshot_ranges = { ScreenshotRange{ 3, 5 } };
+
+        ScreenshotController controller(options);
+        REQUIRE(controller.Enabled());
+
+        // Frames 1 and 2 are outside it, 3 to 5 are inside, 6 is past it.
+        const bool expected[] = { false, false, true, true, true, false };
+        for (uint32_t frame = 1; frame <= 6; ++frame)
+        {
+            REQUIRE(controller.GetCurrentFrame() == frame);
+            REQUIRE(controller.IsScreenshotFrame() == expected[frame - 1]);
+            controller.EndFrame();
+        }
+    }
+
+    SECTION("an interval counts from the start of the range")
+    {
+        ReplayOptions options;
+        options.screenshot_ranges   = { ScreenshotRange{ 2, 8 } };
+        options.screenshot_interval = 3;
+
+        ScreenshotController controller(options);
+
+        // 2, 5 and 8: every third frame counting from the first of the range,
+        // not from frame 1.
+        const bool expected[] = { false, true, false, false, true, false, false, true };
+        for (uint32_t frame = 1; frame <= 8; ++frame)
+        {
+            REQUIRE(controller.IsScreenshotFrame() == expected[frame - 1]);
+            controller.EndFrame();
+        }
+    }
+
+    SECTION("two ranges are taken in turn")
+    {
+        ReplayOptions options;
+        options.screenshot_ranges = { ScreenshotRange{ 1, 2 }, ScreenshotRange{ 4, 4 } };
+
+        ScreenshotController controller(options);
+
+        const bool expected[] = { true, true, false, true, false };
+        for (uint32_t frame = 1; frame <= 5; ++frame)
+        {
+            REQUIRE(controller.IsScreenshotFrame() == expected[frame - 1]);
+            controller.EndFrame();
+        }
+    }
+
+    SECTION("an interval of zero does not divide by zero")
+    {
+        ReplayOptions options;
+        options.screenshot_ranges   = { ScreenshotRange{ 1, 2 } };
+        options.screenshot_interval = 0;
+
+        ScreenshotController controller(options);
+        REQUIRE(controller.IsScreenshotFrame());
+    }
+}
+
+TEST_CASE("ScreenshotController names one file per presented image", "[screenshot]")
+{
+    using gfxrecon::decode::ReplayOptions;
+    using gfxrecon::decode::ScreenshotController;
+    using gfxrecon::decode::ScreenshotRange;
+
+    ReplayOptions options;
+    options.screenshot_ranges      = { ScreenshotRange{ 1, 4 } };
+    options.screenshot_file_prefix = "shot";
+
+    ScreenshotController controller(options);
+
+    // One image in the frame: the name says nothing about a swapchain, which is
+    // the name these files have always had.
+    REQUIRE(controller.FilenameFor() == "shot_frame_1");
+
+    // More than one: each gets its own name.
+    REQUIRE(controller.FilenameFor(0, 2) == "shot_swapchain_0_frame_1");
+    REQUIRE(controller.FilenameFor(1, 2) == "shot_swapchain_1_frame_1");
+
+    controller.EndFrame();
+    REQUIRE(controller.FilenameFor() == "shot_frame_2");
+}
+
+// The one rule that was written down twice, with opposite emphasis:
+// tools/replay/replay_settings.h says --screenshot-size is ignored when a scale
+// is given, and android/scripts/gfxrecon.py says the scale overrides the size.
+// Same rule; this is the executable statement of it.
+TEST_CASE("ScreenshotController resolves a scale, and a scale beats a size", "[screenshot]")
+{
+    using gfxrecon::decode::ReplayOptions;
+    using gfxrecon::decode::ScreenshotController;
+
+    SECTION("neither given: the image is read at its own size")
+    {
+        ReplayOptions options;
+        REQUIRE_FALSE(ScreenshotController(options).ResolveScale(800, 600).has_value());
+    }
+
+    SECTION("a scale is used as given, both axes")
+    {
+        ReplayOptions options;
+        options.screenshot_scale = std::array<float, 2>{ 0.5f, -1.0f };
+
+        const auto scale = ScreenshotController(options).ResolveScale(800, 600);
+        REQUIRE(scale.has_value());
+        REQUIRE(scale.value()[0] == 0.5f);
+
+        // A negative factor is how an axis is flipped, thus the sign has to
+        // survive.
+        REQUIRE(scale.value()[1] == -1.0f);
+    }
+
+    SECTION("a size becomes the scale that reaches it")
+    {
+        ReplayOptions options;
+        options.screenshot_width  = 400;
+        options.screenshot_height = 300;
+
+        const auto scale = ScreenshotController(options).ResolveScale(800, 600);
+        REQUIRE(scale.has_value());
+        REQUIRE(scale.value()[0] == 0.5f);
+        REQUIRE(scale.value()[1] == 0.5f);
+    }
+
+    SECTION("a size need not keep the aspect ratio")
+    {
+        ReplayOptions options;
+        options.screenshot_width  = 800;
+        options.screenshot_height = 300;
+
+        const auto scale = ScreenshotController(options).ResolveScale(800, 600);
+        REQUIRE(scale.has_value());
+        REQUIRE(scale.value()[0] == 1.0f);
+        REQUIRE(scale.value()[1] == 0.5f);
+    }
+
+    SECTION("both given: the scale wins and the size is ignored")
+    {
+        ReplayOptions options;
+        options.screenshot_scale  = std::array<float, 2>{ 0.25f, 0.25f };
+        options.screenshot_width  = 400;
+        options.screenshot_height = 300;
+
+        const auto scale = ScreenshotController(options).ResolveScale(800, 600);
+        REQUIRE(scale.has_value());
+        REQUIRE(scale.value()[0] == 0.25f);
+        REQUIRE(scale.value()[1] == 0.25f);
+    }
+
+    SECTION("half a size is no size at all")
+    {
+        ReplayOptions options;
+        options.screenshot_width = 400; // and no height
+
+        REQUIRE_FALSE(ScreenshotController(options).ResolveScale(800, 600).has_value());
+    }
+}
+
+TEST_CASE("ScreenshotController writes the file, rotating when asked", "[screenshot]")
+{
+    using gfxrecon::decode::CpuImage;
+    using gfxrecon::decode::ReplayOptions;
+    using gfxrecon::decode::Rotation;
+    using gfxrecon::decode::ScreenshotController;
+    namespace imagewriter = gfxrecon::util::imagewriter;
+
+    const uint32_t        width  = 4;
+    const uint32_t        height = 2;
+    std::vector<uint32_t> pixels(width * height);
+    for (size_t i = 0; i < pixels.size(); ++i)
+    {
+        pixels[i] = static_cast<uint32_t>(0xff000000u | (i * 0x010203u));
+    }
+
+    CpuImage image;
+    image.width  = width;
+    image.height = height;
+    image.pitch  = width * 4;
+    image.format = imagewriter::kFormat_BGRA;
+    image.pixels = pixels.data();
+
+    ReplayOptions options;
+    options.screenshot_format = gfxrecon::util::ScreenshotFormat::kBmp;
+
+    SECTION("no rotation")
+    {
+        ScreenshotController controller(options);
+        REQUIRE(controller.Finish("screenshot_controller_plain", image, Rotation{}));
+    }
+
+    SECTION("a quarter turn swaps the sides")
+    {
+        ScreenshotController controller(options);
+
+        Rotation rotation;
+        rotation.rotation = imagewriter::ImageRotation::DEG_90;
+
+        REQUIRE(controller.Finish("screenshot_controller_turned", image, rotation));
+    }
+
+    SECTION("an image that was never read back is refused")
+    {
+        ScreenshotController controller(options);
+
+        CpuImage empty;
+        REQUIRE_FALSE(controller.Finish("screenshot_controller_empty", empty, Rotation{}));
+    }
+}
+
+TEST_CASE("DecodePNextStruct decodes a pNext value at an unaligned offset", "[pnext]")
+{
+    using gfxrecon::format::PointerAttributes;
+
+    // Nothing aligns a value in a parameter buffer; a pNext value that follows an odd-length string starts at an odd
+    // offset. A decoder that dereferences the buffer in place makes misaligned loads, which -fsanitize=alignment
+    // reports.
+    const uint32_t attrib = PointerAttributes::kIsSingle | PointerAttributes::kIsStruct |
+                            PointerAttributes::kHasAddress | PointerAttributes::kHasData;
+    const gfxrecon::format::AddressEncodeType address     = 0x1000;
+    const gfxrecon::format::EnumEncodeType    s_type      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES;
+    const uint32_t                            no_pnext    = PointerAttributes::kIsNull;
+    const uint32_t                            features[4] = { VK_TRUE, VK_FALSE, VK_TRUE, VK_FALSE };
+
+    std::vector<uint8_t> buffer(1, 0);
+    auto                 append = [&buffer](const auto& value) {
+        const auto* bytes = reinterpret_cast<const uint8_t*>(&value);
+        buffer.insert(buffer.end(), bytes, bytes + sizeof(value));
+    };
+    append(attrib);
+    append(address);
+    append(s_type);
+    append(no_pnext);
+    append(features);
+
+    const uint8_t* encoded      = buffer.data() + 1;
+    const size_t   encoded_size = buffer.size() - 1;
+
+    gfxrecon::decode::DecodeAllocator::Begin();
+
+    gfxrecon::decode::PNextNode* pnext      = nullptr;
+    const size_t                 bytes_read = gfxrecon::decode::DecodePNextStruct(encoded, encoded_size, &pnext);
+
+    REQUIRE(bytes_read == encoded_size);
+    REQUIRE(pnext != nullptr);
+
+    const auto* decoded = static_cast<const VkPhysicalDevice16BitStorageFeatures*>(pnext->GetPointer());
+    CHECK(decoded->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES);
+    CHECK(decoded->pNext == nullptr);
+    CHECK(decoded->storageBuffer16BitAccess == VK_TRUE);
+    CHECK(decoded->uniformAndStorageBuffer16BitAccess == VK_FALSE);
+    CHECK(decoded->storagePushConstant16 == VK_TRUE);
+    CHECK(decoded->storageInputOutput16 == VK_FALSE);
+
+    gfxrecon::decode::DecodeAllocator::End();
 }

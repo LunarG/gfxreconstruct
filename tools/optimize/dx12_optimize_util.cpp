@@ -22,7 +22,6 @@
 */
 
 #include "dx12_optimize_util.h"
-#include "block_skipping_file_processor.h"
 #include "dx12_resource_value_tracking_consumer.h"
 #include "util/logging.h"
 
@@ -147,6 +146,7 @@ bool GetUnreferencedObjectOptimizationInfo(const std::string&               inpu
         if (options.remove_redundant_resources)
             decoder.AddConsumer(&resource_consumer);
         file_processor.AddDecoder(&decoder);
+        file_processor.InitializeFrameProcessing();
         file_processor.ProcessAllFrames();
         if (FileProcessorSucceeded(file_processor))
         {
@@ -193,7 +193,7 @@ bool GetDxrOptimizationInfo(const std::string&               input_filename,
     bool dxr_scan_result = false;
 
     std::shared_ptr<application::Application> application;
-    decode::BlockSkippingFileProcessor        dxr_pass_file_processor;
+    decode::FileProcessor                     dxr_pass_file_processor;
     if (dxr_pass_file_processor.Initialize(input_filename))
     {
         decode::Dx12Decoder                                        dxr_pass_decoder;
@@ -224,7 +224,7 @@ bool GetDxrOptimizationInfo(const std::string&               input_filename,
         dxr_pass_decoder.AddConsumer(resource_value_tracking_consumer.get());
 
         dxr_pass_file_processor.AddDecoder(&dxr_pass_decoder);
-        dxr_pass_file_processor.SetBlocksToSkip(info.unreferenced_blocks);
+        dxr_pass_file_processor.SetBlocksToSkip(std::unordered_set<uint64_t>(info.unreferenced_blocks));
 
 #ifdef GFXRECON_AGS_SUPPORT
         gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;

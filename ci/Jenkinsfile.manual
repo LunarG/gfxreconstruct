@@ -91,11 +91,19 @@ pipeline {
                     def tests = [:]
 
                     node {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: params.PROJECT_BRANCH]],
-                            userRemoteConfigs: [[url: params.PROJECT_REPO]]
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: params.PROJECT_BRANCH]],
+                                    userRemoteConfigs: [[url: params.PROJECT_REPO]]
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         def runJob = load 'ci/runJob.groovy'
 
                         def selectedNodes = params.NODES?.split(',')?.collect { it.trim() }?.findAll { it }

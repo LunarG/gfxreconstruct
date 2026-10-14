@@ -297,6 +297,12 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FramebufferWrapper, VkFra
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
+    wrapper->create_info.flags            = create_info->flags;
+    wrapper->create_info.attachment_count = create_info->attachmentCount;
+    wrapper->create_info.width            = create_info->width;
+    wrapper->create_info.height           = create_info->height;
+    wrapper->create_info.layers           = create_info->layers;
+
     auto render_pass_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(create_info->renderPass);
     assert(render_pass_wrapper != nullptr);
     wrapper->render_pass_id                = render_pass_wrapper->handle_id;
@@ -641,8 +647,7 @@ InitializeState<VkDevice, vulkan_wrappers::DataGraphPipelineSessionARMWrapper, V
     GFXRECON_ASSERT(wrapper != nullptr);
     GFXRECON_ASSERT(create_parameters != nullptr);
 
-    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
-
+    wrapper->device            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
@@ -699,8 +704,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->created_size = create_info->size;
-
     if ((create_info->flags & VK_BUFFER_CREATE_SPARSE_BINDING_BIT) != 0)
     {
         wrapper->is_sparse_buffer = true;
@@ -725,6 +728,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::TensorARMWrapper, VkTenso
     GFXRECON_ASSERT(create_info != nullptr);
     GFXRECON_ASSERT(create_parameters != nullptr);
 
+    wrapper->device            = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
@@ -778,8 +782,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
 
-    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
-
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
@@ -819,7 +821,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     else
     {
         const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
-        VkMemoryRequirements     image_mem_reqs;
+        VkMemoryRequirements               image_mem_reqs;
         assert(wrapper->handle != VK_NULL_HANDLE);
         device_table->GetImageMemoryRequirements(parent_handle, wrapper->handle, &image_mem_reqs);
         wrapper->size = image_mem_reqs.size;
@@ -905,6 +907,11 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
+    wrapper->create_info.flags  = create_info->flags;
+    wrapper->create_info.format = create_info->format;
+    wrapper->create_info.offset = create_info->offset;
+    wrapper->create_info.range  = create_info->range;
+
     auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
     wrapper->buffer    = buffer;
     wrapper->buffer_id = buffer->handle_id;
@@ -928,6 +935,12 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageViewWrapper, VkImage
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->create_info.flags             = create_info->flags;
+    wrapper->create_info.view_type         = create_info->viewType;
+    wrapper->create_info.format            = create_info->format;
+    wrapper->create_info.components        = create_info->components;
+    wrapper->create_info.subresource_range = create_info->subresourceRange;
 
     auto image        = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(create_info->image);
     wrapper->image_id = image->handle_id;

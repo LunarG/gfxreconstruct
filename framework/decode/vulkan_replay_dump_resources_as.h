@@ -28,6 +28,7 @@
 #include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
 
 #include <variant>
@@ -41,10 +42,10 @@ struct AccelerationStructureDumpResourcesContext
 {
     AccelerationStructureDumpResourcesContext() = delete;
 
-    AccelerationStructureDumpResourcesContext(const VulkanAccelerationStructureKHRInfo* ai,
-                                              const graphics::VulkanDeviceTable&        dt,
-                                              const CommonObjectInfoTable&              oit,
-                                              const VulkanPerDeviceAddressTrackers&     at) :
+    AccelerationStructureDumpResourcesContext(const VulkanAccelerationStructureKHRInfo*  ai,
+                                              const graphics::VulkanInjectedDeviceCalls& dt,
+                                              const CommonObjectInfoTable&               oit,
+                                              const VulkanPerDeviceAddressTrackers&      at) :
         as_info(ai),
         device_table(dt), object_info_table(oit), address_trackers(at)
     {}
@@ -123,7 +124,7 @@ struct AccelerationStructureDumpResourcesContext
 
     void ReleaseSerializedResources();
 
-    const graphics::VulkanDeviceTable&        device_table;
+    const graphics::VulkanInjectedDeviceCalls device_table;
     const CommonObjectInfoTable&              object_info_table;
     const VulkanAccelerationStructureKHRInfo* as_info;
     const VulkanPerDeviceAddressTrackers&     address_trackers;
@@ -133,7 +134,7 @@ using DumpResourcesAccelerationStructuresContext =
     std::unordered_map<const VulkanAccelerationStructureKHRInfo*,
                        std::shared_ptr<AccelerationStructureDumpResourcesContext>>;
 
-void FreeAccelerationStructureContextResources(const graphics::VulkanDeviceTable&         device_table,
+void FreeAccelerationStructureContextResources(const graphics::VulkanInjectedDeviceCalls& device_table,
                                                VkDevice                                   device,
                                                AccelerationStructureDumpResourcesContext& as_context);
 

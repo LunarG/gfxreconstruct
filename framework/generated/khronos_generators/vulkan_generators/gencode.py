@@ -99,6 +99,10 @@ from vulkan_struct_deep_copy_stype_body_generator import VulkanStructDeepCopySTy
 from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
 from vulkan_enum_to_string_header_generator import VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions
 
+from vulkan_handle_wrapper_util_body_generator import VulkanHandleWrapperUtilBodyGenerator, VulkanHandleWrapperUtilBodyGeneratorOptions
+from vulkan_handle_mapping_util_body_generator import VulkanHandleMappingUtilBodyGenerator, VulkanHandleMappingUtilBodyGeneratorOptions
+from vulkan_state_tracker_debug_util_body_generator import VulkanStateTrackerDebugUtilBodyGenerator, VulkanStateTrackerDebugUtilBodyGeneratorOptions
+
 from vulkan_object_info_table_base2_header_generator import VulkanObjectInfoTableBase2HeaderGenerator, VulkanObjectInfoTableBase2HeaderGeneratorOptions
 from vulkan_state_table_header_generator import VulkanStateTableHeaderGenerator, VulkanStateTableHeaderGeneratorOptions
 
@@ -839,6 +843,48 @@ def make_gen_opts(args):
         VulkanEnumToStringBodyGenerator,
         VulkanEnumToStringBodyGeneratorOptions(
             filename='generated_vulkan_enum_to_string.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_handle_wrapper_util.cpp'] = [
+        VulkanHandleWrapperUtilBodyGenerator,
+        VulkanHandleWrapperUtilBodyGeneratorOptions(
+            filename='generated_vulkan_handle_wrapper_util.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_handle_mapping_util.cpp'] = [
+        VulkanHandleMappingUtilBodyGenerator,
+        VulkanHandleMappingUtilBodyGeneratorOptions(
+            filename='generated_vulkan_handle_mapping_util.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_state_tracker_debug_util.cpp'] = [
+        VulkanStateTrackerDebugUtilBodyGenerator,
+        VulkanStateTrackerDebugUtilBodyGeneratorOptions(
+            filename='generated_vulkan_state_tracker_debug_util.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

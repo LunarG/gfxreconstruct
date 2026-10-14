@@ -85,9 +85,13 @@ class StructPointerDecoder : public PointerDecoderBase
 
     std::span<typename T::struct_type> GetSpan() { return std::span(GetPointer(), GetLength()); }
 
+    std::span<T> GetMetaStructSpan() { return std::span(GetMetaStructPointer(), GetLength()); }
+
     const typename T::struct_type* GetPointer() const { return struct_memory_; }
 
     const std::span<typename T::struct_type> GetSpan() const { return std::span(GetPointer(), GetLength()); }
+
+    std::span<const T> GetMetaStructSpan() const { return std::span(GetMetaStructPointer(), GetLength()); }
 
     size_t GetOutputLength() const { return output_len_; }
 
@@ -152,6 +156,8 @@ class StructPointerDecoder : public PointerDecoderBase
             {
                 assert(struct_memory_ != nullptr);
                 assert(len <= capacity_);
+
+                CheckExpectedLength("Struct pointer", capacity_);
 
                 if ((struct_memory_ == nullptr) || (len > capacity_))
                 {

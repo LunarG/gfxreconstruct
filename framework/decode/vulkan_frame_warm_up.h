@@ -24,12 +24,14 @@
 #ifndef GFXRECON_VULKAN_FRAME_WARMUP_H
 #define GFXRECON_VULKAN_FRAME_WARMUP_H
 
+#include <optional>
 #include <vector>
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
+#include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_semaphore_util.h"
 #include "util/defines.h"
 
@@ -42,12 +44,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanFrameWarmUp
 {
   public:
-    VulkanFrameWarmUp(const VulkanDeviceInfo*              device_info,
-                      const graphics::VulkanDeviceTable*   device_table,
-                      const graphics::VulkanInstanceTable* instance_table,
-                      CommonObjectInfoTable&               object_table,
-                      const std::string&                   spirv_path,
-                      uint32_t                             warm_up_load);
+    VulkanFrameWarmUp(const VulkanDeviceInfo*                    device_info,
+                      const graphics::VulkanInjectedDeviceCalls& injected_calls,
+                      const graphics::VulkanInstanceTable*       instance_table,
+                      CommonObjectInfoTable&                     object_table,
+                      const std::string&                         spirv_path,
+                      uint32_t                                   warm_up_load);
     ~VulkanFrameWarmUp();
 
     VulkanFrameWarmUp(VulkanFrameWarmUp&&) noexcept;
@@ -58,23 +60,24 @@ class VulkanFrameWarmUp
     graphics::VulkanSemaphore WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
   private:
-    const graphics::VulkanDeviceTable* device_table_{ nullptr };
+    // Every device call this class makes is replay-injected. Empty only in the moved-from state.
+    std::optional<graphics::VulkanInjectedDeviceCalls> injected_calls_;
 
     std::string spirv_path_;
     uint32_t    warm_up_load_{ 0 };
 
-    VkDevice              device_{ VK_NULL_HANDLE };
-    VkQueue               queue_{ VK_NULL_HANDLE };
-    VkCommandPool         command_pool_{ VK_NULL_HANDLE };
-    VkCommandBuffer       command_buffer_{ VK_NULL_HANDLE };
-    VkShaderModule        shader_module_{ VK_NULL_HANDLE };
-    VkDescriptorPool      descriptor_pool_{ VK_NULL_HANDLE };
-    VkDescriptorSetLayout descriptor_set_layout_{ VK_NULL_HANDLE };
-    VkDescriptorSet       descriptor_set_{ VK_NULL_HANDLE };
-    VkPipelineLayout      pipeline_layout_{ VK_NULL_HANDLE };
-    VkPipeline            pipeline_{ VK_NULL_HANDLE };
-    VkBuffer              buffer_{ VK_NULL_HANDLE };
-    VkDeviceMemory        buffer_memory_{ VK_NULL_HANDLE };
+    VkDevice                  device_{ VK_NULL_HANDLE };
+    VkQueue                   queue_{ VK_NULL_HANDLE };
+    VkCommandPool             command_pool_{ VK_NULL_HANDLE };
+    VkCommandBuffer           command_buffer_{ VK_NULL_HANDLE };
+    VkShaderModule            shader_module_{ VK_NULL_HANDLE };
+    VkDescriptorPool          descriptor_pool_{ VK_NULL_HANDLE };
+    VkDescriptorSetLayout     descriptor_set_layout_{ VK_NULL_HANDLE };
+    VkDescriptorSet           descriptor_set_{ VK_NULL_HANDLE };
+    VkPipelineLayout          pipeline_layout_{ VK_NULL_HANDLE };
+    VkPipeline                pipeline_{ VK_NULL_HANDLE };
+    VkBuffer                  buffer_{ VK_NULL_HANDLE };
+    VkDeviceMemory            buffer_memory_{ VK_NULL_HANDLE };
     graphics::VulkanSemaphore semaphore_{ VK_NULL_HANDLE };
 };
 

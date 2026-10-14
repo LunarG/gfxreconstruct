@@ -26,7 +26,7 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-if (ANDROID)
+if (BUILD_ANDROID_APP)
     add_library(native_app_glue STATIC
                 ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
     target_include_directories(native_app_glue PUBLIC
@@ -37,10 +37,10 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.h>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.cpp>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
-                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.h>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.cpp>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
+                    $<$<BOOL:${BUILD_ANDROID_APP}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/alignment_utils.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_version_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_version_info.cpp
@@ -99,6 +99,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager_uffd.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/platform.h
+                    ${CMAKE_CURRENT_LIST_DIR}/remote_channel.h
+                    ${CMAKE_CURRENT_LIST_DIR}/remote_channel.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/span.h
@@ -122,8 +124,6 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.h>
                     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.cpp>
                     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/strings.h
@@ -161,24 +161,17 @@ target_include_directories(gfxrecon_util
 
 if (ANDROID)
     target_include_directories(gfxrecon_util PUBLIC
-                               ${ANDROID_NDK}/sources/android/native_app_glue
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               $<$<BOOL:${BUILD_ANDROID_APP}>:${ANDROID_NDK}/sources/android/native_app_glue>
+                               $<$<BOOL:${BUILD_ANDROID_APP}>:${GFXRECON_SOURCE_DIR}/external/precompiled/android/include>
                                ${GFXRECON_SOURCE_DIR}/external/stb)
-    target_compile_definitions(gfxrecon_util PUBLIC
-                               GFXRECON_ENABLE_LZ4_COMPRESSION
-                               GFXRECON_ENABLE_ZSTD_COMPRESSION
-                               GFXRECON_ENABLE_ZLIB_COMPRESSION
-                               GFXRECON_ENABLE_PNG_SCREENSHOT)
     target_link_libraries(gfxrecon_util
                           platform_specific vulkan_registry spirv_registry spirv-reflect-static
                           nlohmann_json::nlohmann_json
-                          android log
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
-                          z)
+                          android log)
 else()
     target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
     target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
+    target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:ws2_32.lib>)
 endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID)
@@ -241,8 +234,8 @@ if (TARGET ZLIB::ZLIB)
     target_compile_definitions(gfxrecon_util
                                PUBLIC
                                    GFXRECON_ENABLE_ZLIB_COMPRESSION
-                                   GFXRECON_ENABLE_PNG_SCREENSHOT
-                                   $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
+                                   GFXRECON_ENABLE_PNG_SCREENSHOT)
+
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 
     target_include_directories(gfxrecon_util
@@ -283,11 +276,12 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_image_writer.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_remote_channel.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
-            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/getwritewatch_tests.cpp>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dxgi_pointers.h>)

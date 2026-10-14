@@ -21,7 +21,6 @@
 */
 
 #include "dx12_utils.h"
-#include "util/gpu_va_map.h"
 #include "dx12_pointers.h"
 #include "dxgi_pointers.h"
 

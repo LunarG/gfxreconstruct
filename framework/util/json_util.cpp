@@ -156,6 +156,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data)
     jdata = util::strings::convert_wstring_to_utf8(data);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const std::u16string_view data)
+{
+    jdata = util::strings::convert_u16string_to_utf8(data);
+}
+
 #if defined(D3D12_SUPPORT)
 
 // const char * might be better to avoid two copies of each string in the process at runtime (one in the static data
@@ -252,8 +257,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const format::InitDx12Accelerati
     /// @todo handle enums and so on.
     jdata["geometry_type"]  = static_cast<D3D12_RAYTRACING_GEOMETRY_TYPE>(data.geometry_type);
     jdata["geometry_flags"] = static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS_t>(data.geometry_flags);
-    jdata["aabbs_count"], data.aabbs_count;
-    jdata["aabbs_stride"], data.aabbs_stride;
+    jdata["aabbs_count"]    = data.aabbs_count;
+    jdata["aabbs_stride"]   = data.aabbs_stride;
     Bool32ToJson(jdata["triangles_has_transform"], data.triangles_has_transform);
     jdata["triangles_index_format"]  = static_cast<DXGI_FORMAT>(data.triangles_index_format);
     jdata["triangles_vertex_format"] = static_cast<DXGI_FORMAT>(data.triangles_vertex_format);
@@ -265,7 +270,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const format::InitDx12Accelerati
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data)
 {
-    FieldToJson(jdata["Description"], std::wstring_view(data.Description));
+    FieldToJson(jdata["Description"], std::u16string_view(data.Description));
     jdata["VendorId"]              = data.VendorId;
     jdata["DeviceId"]              = data.DeviceId;
     jdata["SubSysId"]              = data.SubSysId;

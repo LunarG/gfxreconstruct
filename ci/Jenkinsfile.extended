@@ -73,7 +73,15 @@ pipeline {
                     node(scriptLabel) {
                         cleanWs(deleteDirs: true)
                         // Checkout gives this fresh workspace the CI scripts.
-                        checkout scm
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout scm
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         // This script fetches origin/main and the dev-tested
                         // marker ref, then writes small files Jenkins can read.
                         sh './ci/selectExtendedCandidate.sh ci-metadata'
@@ -126,26 +134,34 @@ pipeline {
                     node {
                         // Checkout once on any agent so runJob.groovy can be
                         // loaded and used to construct the parallel closures.
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: requestedBranches,
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: requestedBranches,
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [
-                            'Android Rel64': runJob.gfxrTestAndroid('Android R64 Ext', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Linux Nvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Linux Mesa 9070 Rel64': runJob.gfxrTestLinux('Linux Mesa 9070 Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesa9070Label, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Linux Nvidia 5080 Rel64': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Windows AMD Rel64': runJob.gfxrTestWindows('Win AMD Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Windows Nvidia Rel64': runJob.gfxrTestWindows('Win Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Windows11 AMD 9070 Rel64': runJob.gfxrTestWindows('Win11 AMD 9070 Rel64 Ext', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit64, "extended-suite.json", requestedBranches),
-                            'Windows11 Nvidia 50XX Rel64': runJob.gfxrTestWindows('Win11 Nvidia 50XX Rel64 Ext', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Android Rel': runJob.gfxrTestAndroid('Android Rel Ext', runJob.ReleaseMode, runJob.AndroidLabel, "extended-suite.json", requestedBranches),
+                            'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, "extended-suite.json", requestedBranches),
+                            'Linux Nvidia Rel': runJob.gfxrTestLinux('Linux Nvidia Rel Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, "extended-suite.json", requestedBranches),
+                            'Linux Mesa 9070 Rel': runJob.gfxrTestLinux('Linux Mesa 9070 Rel Ext', runJob.ReleaseMode, runJob.LinuxMesa9070Label, "extended-suite.json", requestedBranches),
+                            'Linux Nvidia 5080 Rel': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel Ext', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, "extended-suite.json", requestedBranches),
+                            'Windows AMD Rel': runJob.gfxrTestWindows('Win AMD Rel Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, "extended-suite.json", requestedBranches),
+                            'Windows Nvidia Rel': runJob.gfxrTestWindows('Win Nvidia Rel Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, "extended-suite.json", requestedBranches),
+                            'Windows11 AMD 9070 Rel': runJob.gfxrTestWindows('Win11 AMD 9070 Rel Ext', runJob.ReleaseMode, runJob.Win11AMD9070Label, "extended-suite.json", requestedBranches),
+                            'Windows11 Nvidia 50XX Rel': runJob.gfxrTestWindows('Win11 Nvidia 50XX Rel Ext', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, "extended-suite.json", requestedBranches),
                         ]
                     }
                     // The closures allocate their own platform-specific agents.
@@ -171,14 +187,22 @@ pipeline {
                         // so this workspace has the CI scripts from that tested
                         // revision.  promoteMain.sh will re-fetch main and
                         // fast-forward it to testedCommit.
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: testedCommit]],
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: testedCommit]],
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
 
                         // promoteMain.sh uses the exact tested SHA.  It does not
                         // merge the moving dev branch and it never force-pushes.

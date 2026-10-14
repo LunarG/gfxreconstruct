@@ -420,52 +420,24 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
 
             const uint32_t texel_size =
                 graphics::GetFormatElementSizeWithAspect(dumped_image.dumped_format, sub_res.aspect);
-            const uint32_t stride     = texel_size * sub_res.scaled_extent.width;
+            const uint32_t stride = texel_size * sub_res.scaled_extent.width;
 
-            if (output_image_format == kFormatBMP)
-            {
-                if (options_.dump_resources_dump_separate_alpha && has_alpha)
-                {
-                    util::imagewriter::WriteBmpImageSeparateAlpha(filename,
-                                                                  sub_res.scaled_extent.width,
-                                                                  sub_res.scaled_extent.height,
-                                                                  static_cast<const void*>(image_dumped_data[i].data()),
-                                                                  stride,
-                                                                  image_writer_format);
-                }
-                else
-                {
-                    util::imagewriter::WriteBmpImage(filename,
-                                                     sub_res.scaled_extent.width,
-                                                     sub_res.scaled_extent.height,
-                                                     static_cast<const void*>(image_dumped_data[i].data()),
-                                                     stride,
-                                                     image_writer_format,
-                                                     has_alpha);
-                }
-            }
-            else if (output_image_format == KFormatPNG)
-            {
-                if (options_.dump_resources_dump_separate_alpha && has_alpha)
-                {
-                    util::imagewriter::WritePngImageSeparateAlpha(filename,
-                                                                  sub_res.scaled_extent.width,
-                                                                  sub_res.scaled_extent.height,
-                                                                  static_cast<const void*>(image_dumped_data[i].data()),
-                                                                  stride,
-                                                                  image_writer_format);
-                }
-                else
-                {
-                    util::imagewriter::WritePngImage(filename,
-                                                     sub_res.scaled_extent.width,
-                                                     sub_res.scaled_extent.height,
-                                                     static_cast<const void*>(image_dumped_data[i].data()),
-                                                     stride,
-                                                     image_writer_format,
-                                                     has_alpha);
-                }
-            }
+            // Only BMP and PNG reach here; KFormatRaw takes the branch below.
+            // separate_alpha picks the two-file encoders and write_alpha keeps
+            // the channel in a single file, which is what the four calls this
+            // replaced did between them.
+            const bool separate_alpha = options_.dump_resources_dump_separate_alpha && has_alpha;
+
+            util::imagewriter::WriteImage(filename,
+                                          output_image_format == kFormatBMP ? util::ScreenshotFormat::kBmp
+                                                                            : util::ScreenshotFormat::kPng,
+                                          sub_res.scaled_extent.width,
+                                          sub_res.scaled_extent.height,
+                                          static_cast<const void*>(image_dumped_data[i].data()),
+                                          stride,
+                                          image_writer_format,
+                                          has_alpha,
+                                          separate_alpha);
         }
         else
         {

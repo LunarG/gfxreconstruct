@@ -70,6 +70,22 @@ class DecodeAllocator
     bool                     end_can_clear_;
 };
 
+// RAII guard that brackets a DecodeAllocator Begin/End scope.
+// The <false> specialisation is a no-op, selected when the dispatch trait does not require allocation.
+template <bool HasAllocGuard = false>
+struct DecoderAllocGuard
+{};
+
+template <>
+struct DecoderAllocGuard<true>
+{
+    DecoderAllocGuard& operator=(const DecoderAllocGuard&) = delete;
+    DecoderAllocGuard(DecoderAllocGuard&&)                 = delete;
+    DecoderAllocGuard& operator=(DecoderAllocGuard&&)      = delete;
+    DecoderAllocGuard() { DecodeAllocator::Begin(); }
+    ~DecoderAllocGuard() noexcept { DecodeAllocator::End(); }
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

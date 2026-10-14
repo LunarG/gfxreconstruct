@@ -38,6 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
+static constexpr uint32_t kDefaultBatchingHeapSize    = 256;
 
 struct DxReplayOptions : public ReplayOptions
 {
@@ -47,8 +48,11 @@ struct DxReplayOptions : public ReplayOptions
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
+#ifdef GFXRECON_AGS_SUPPORT
     bool                 ags_inject_markers{ false };
+#endif
     int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
+    uint32_t             batching_heap_size{ kDefaultBatchingHeapSize };
 };
 
 GFXRECON_END_NAMESPACE(decode)

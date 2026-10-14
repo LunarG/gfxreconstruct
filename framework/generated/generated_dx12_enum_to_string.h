@@ -273,6 +273,10 @@ template <> std::string ToString<D3D12_SHADER_CACHE_KIND_FLAGS>(const D3D12_SHAD
 std::string ToString_D3D12_SHADER_CACHE_KIND_FLAGS(uint32_t flags);
 template <> std::string ToString<D3D12_SHADER_CACHE_CONTROL_FLAGS>(const D3D12_SHADER_CACHE_CONTROL_FLAGS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 std::string ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(uint32_t flags);
+template <> std::string ToString<D3D12_TRIM_NOTIFICATION_FLAGS>(const D3D12_TRIM_NOTIFICATION_FLAGS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string ToString_D3D12_TRIM_NOTIFICATION_FLAGS(uint32_t flags);
+template <> std::string ToString<D3D12_QUERY_HEAP_FLAGS>(const D3D12_QUERY_HEAP_FLAGS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string ToString_D3D12_QUERY_HEAP_FLAGS(uint32_t flags);
 template <> std::string ToString<D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS>(const D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 std::string ToString_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(uint32_t flags);
 template <> std::string ToString<D3D12_DEVICE_FACTORY_FLAGS>(const D3D12_DEVICE_FACTORY_FLAGS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

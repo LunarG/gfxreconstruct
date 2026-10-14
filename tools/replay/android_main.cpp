@@ -23,6 +23,7 @@
 
 #include "replay_settings.h"
 #include "replay_main_common.h"
+#include "tool_feature_options.h"
 
 #include "application/android_context.h"
 #include "application/android_window.h"
@@ -32,6 +33,7 @@
 #include "util/android/intent.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/remote_channel.h"
 #include "parse_dump_resources_cli.h"
 
 #include <android/log.h>
@@ -45,7 +47,6 @@
 
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-const char kLayerProperty[]      = "debug.vulkan.layers";
 
 const int32_t kSwipeDistance = 200;
 
@@ -80,16 +81,37 @@ void android_main(struct android_app* app)
 
     gfxrecon::replay::LoadFeatures(g_features);
 
-    std::string                    args = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
+    // Each Feature adds its own command-line entries to the shared name lists, so an entry exists only
+    // when the build contains the Feature that reads it. The lists outlive the parser because remote
+    // settings are parsed against the same names.
+    const std::string args      = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
+    std::string       options   = kOptions;
+    std::string       arguments = kArguments;
+    AppendFeatureOptions(g_features, options, arguments);
+
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), options, arguments);
+
+    bool run     = true;
+    bool success = false;
+
+    // If --remote-connect is specified, the controller supplies the replay settings. Because the user explicitly
+    // requested remote control, treat any failure to establish it as fatal rather than silently falling back to the
+    // intent arguments.
+    gfxrecon::util::RemoteChannel remote_channel;
+    if (gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments) ==
+        gfxrecon::replay::RemoteSetupResult::kFailed)
+    {
+        run = false;
+    }
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
 
-    bool run = true;
-
-    if (CheckOptionPrintUsage(kApplicationName, arg_parser) ||
-        CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(kApplicationName, arg_parser))
+    if (CheckOptionPrintUsage(kApplicationName, arg_parser))
+    {
+        run = false;
+    }
+    else if (CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(kApplicationName, arg_parser))
     {
         run = false;
     }
@@ -105,6 +127,11 @@ void android_main(struct android_app* app)
         GetLogSettings(arg_parser, log_settings);
         gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
+        // An entry that received a value outside its accepted set gets a warning. The Feature that
+        // owns the entry then uses its default value. The log settings apply before this call, so
+        // --log-level controls the warning.
+        CheckFeatureOptionValues(g_features, arg_parser);
+
         std::string filename = kDefaultCaptureFile;
         if (arg_parser.GetPositionalArgumentsCount() == 1)
         {
@@ -118,8 +145,7 @@ void android_main(struct android_app* app)
                     kApplicationName, fp, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
             };
 
-            gfxrecon::replay::RunReplay(
-                g_file_processor, g_features, arg_parser, filename, kLayerProperty, make_application);
+            success = gfxrecon::replay::RunReplay(g_file_processor, g_features, arg_parser, filename, make_application);
         }
         catch (std::runtime_error& error)
         {
@@ -138,11 +164,14 @@ void android_main(struct android_app* app)
         app->userData = nullptr;
     }
 
+    // Notify the controller that replay is complete. A no-op when no remote controller is connected.
+    gfxrecon::replay::ShutdownRemoteChannel(remote_channel, success);
+
     GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
 
-    gfxrecon::util::Log::Release();
-
     gfxrecon::util::DestroyActivity(app);
+
+    gfxrecon::util::Log::Release();
 
     raise(SIGTERM);
 }

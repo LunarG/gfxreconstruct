@@ -28,6 +28,10 @@
 
 #include <string>
 
+#ifdef __ANDROID__
+#include <sys/types.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(filepath)
@@ -127,6 +131,12 @@ std::string FindModulePath(const std::string& target_module, bool case_sensitive
  * @return A new string with all recognized variable patterns replaced by their corresponding values.
  */
 std::string ExpandPathVariables(const FileInfo& info, const std::string& path);
+
+#ifdef __ANDROID__
+constexpr uid_t kPerUserRange = 100000;
+
+uid_t GetAndroidUserId();
+#endif
 
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
