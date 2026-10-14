@@ -56,6 +56,10 @@
 #include <windows.h>
 #include <direct.h>
 #else // WIN32
+#if defined(GFXRECON_ENABLE_HEAP_ACCOUNTING)
+#include "util/heap_accounting.h"
+#endif
+
 #include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
@@ -673,6 +677,15 @@ inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false
             return nullptr;
         }
 
+#if defined(GFXRECON_ENABLE_HEAP_ACCOUNTING)
+        // Currently only uffd memory tracking mechanism provide a non null address. The original allocation and
+        // deallocation is done by page_guard_manager.cpp
+        if (address == nullptr)
+        {
+            heap_accounting::RecordRawAlloc(aligned_size);
+        }
+#endif
+
         return memory;
     }
 
@@ -683,7 +696,14 @@ inline void FreeRawMemory(void* memory, size_t aligned_size)
 {
     assert(memory != nullptr);
 
-    munmap(memory, aligned_size);
+    [[maybe_unused]] const int ret = munmap(memory, aligned_size);
+
+#if defined(GFXRECON_ENABLE_HEAP_ACCOUNTING)
+    if (!ret)
+    {
+        heap_accounting::RecordRawFree(aligned_size);
+    }
+#endif
 }
 
 inline int GetSystemLastErrorCode()
