@@ -28,6 +28,7 @@
 
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <iomanip>
 #include <sstream>
@@ -93,6 +94,67 @@ std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
 
 /// @brief Convert an annotation to its string representation.
 std::string AnnotationTypeToString(const format::AnnotationType& type);
+
+/// @brief Convert the non utf8 to utf8 string.
+
+inline bool is_valid_utf8(const std::string& str)
+{
+    size_t i = 0, len = str.size();
+    while (i < len)
+    {
+        unsigned char c = static_cast<unsigned char>(str[i]);
+        size_t        n = 0;
+        if (c <= 0x7F)
+            n = 1;
+        else if ((c & 0xE0) == 0xC0)
+            n = 2;
+        else if ((c & 0xF0) == 0xE0)
+            n = 3;
+        else if ((c & 0xF8) == 0xF0)
+            n = 4;
+        else
+            return false;
+        if (i + n > len)
+            return false;
+        for (size_t j = 1; j < n; ++j)
+            if ((static_cast<unsigned char>(str[i + j]) & 0xC0) != 0x80)
+                return false;
+        i += n;
+    }
+    return true;
+}
+
+inline std::string latin1_to_utf8(const std::string& input)
+{
+    std::string out;
+    for (unsigned char c : input)
+    {
+        if (c < 0x80)
+        {
+            out += c;
+        }
+        else
+        {
+            out += 0xC0 | (c >> 6);
+            out += 0x80 | (c & 0x3F);
+        }
+    }
+    return out;
+}
+
+inline std::string NormalizeUtf8(const std::string& input)
+{
+    if (is_valid_utf8(input))
+    {
+        return input;
+    }
+    else
+    {
+        // Convert from Latin-1 to UTF-8
+        GFXRECON_LOG_WARNING("Invalid UTF-8 detected, attempting conversion.(Latin1 to UTF-8)");
+        return latin1_to_utf8(input);
+    }
+}
 
 /// @deprecated Use the nlohmann JSON library instead.
 /// @brief  A template ToString to take care of simple POD cases like the many
