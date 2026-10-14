@@ -246,7 +246,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(
 }
 
 void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate& args)
 {
     auto& function                      = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplateKHR");
     function[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);
@@ -275,7 +275,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(
 }
 
 void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
 {
     auto& function                      = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2KHR");
     function[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);

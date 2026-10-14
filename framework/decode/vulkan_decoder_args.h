@@ -73,22 +73,7 @@ struct CmdPushDescriptorSetWithTemplate
     DescriptorUpdateTemplateDecoder pData;
 };
 
-struct CmdPushDescriptorSetWithTemplateKHR
-{
-    format::HandleId                commandBuffer;
-    format::HandleId                descriptorUpdateTemplate;
-    format::HandleId                layout;
-    uint32_t                        set;
-    DescriptorUpdateTemplateDecoder pData;
-};
-
 struct CmdPushDescriptorSetWithTemplate2
-{
-    format::HandleId                                                  commandBuffer;
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;
-};
-
-struct CmdPushDescriptorSetWithTemplate2KHR
 {
     format::HandleId                                                  commandBuffer;
     StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;

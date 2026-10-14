@@ -3501,8 +3501,8 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const Api
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate);
 }
 
-void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
+void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                                          args::CmdPushDescriptorSetWithTemplate& args)
 {
     FILE*       file = GetFrameFile();
     std::string var_name;
@@ -3567,7 +3567,7 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(const Ap
 }
 
 void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
 {
     FILE*       file = GetFrameFile();
     std::string var_name;

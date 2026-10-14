@@ -467,7 +467,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTem
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate& args)
 {
     PushDescriptorSetWithTemplate(args.commandBuffer, args.descriptorUpdateTemplate, &args.pData);
 }
@@ -476,20 +476,16 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTem
     const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
 {
     Decoded_VkPushDescriptorSetWithTemplateInfo* info = args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
-    format::HandleId                             descriptorUpdateTemplate = info->descriptorUpdateTemplate;
-    DescriptorUpdateTemplateDecoder              pData                    = info->pData;
 
-    PushDescriptorSetWithTemplate(args.commandBuffer, descriptorUpdateTemplate, &pData);
+    PushDescriptorSetWithTemplate(args.commandBuffer, info->descriptorUpdateTemplate, &info->pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
 {
     Decoded_VkPushDescriptorSetWithTemplateInfo* info = args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer();
-    format::HandleId                             descriptorUpdateTemplate = info->descriptorUpdateTemplate;
-    DescriptorUpdateTemplateDecoder              pData                    = info->pData;
 
-    PushDescriptorSetWithTemplate(args.commandBuffer, descriptorUpdateTemplate, &pData);
+    PushDescriptorSetWithTemplate(args.commandBuffer, info->descriptorUpdateTemplate, &info->pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(

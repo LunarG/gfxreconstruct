@@ -408,7 +408,7 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const Api
 {
     size_t bytes_read = 0;
 
-    args::CmdPushDescriptorSetWithTemplateKHR args;
+    args::CmdPushDescriptorSetWithTemplate args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
@@ -457,7 +457,7 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const Ap
 {
     size_t bytes_read = 0;
 
-    args::CmdPushDescriptorSetWithTemplate2KHR args;
+    args::CmdPushDescriptorSetWithTemplate2 args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);

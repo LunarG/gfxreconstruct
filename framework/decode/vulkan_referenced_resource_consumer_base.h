@@ -107,14 +107,14 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
                                                     args::CmdPushDescriptorSetWithTemplate& args) override;
 
-    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
-                                                       args::CmdPushDescriptorSetWithTemplateKHR& args) override;
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                      call_info,
+                                                       args::CmdPushDescriptorSetWithTemplate& args) override;
 
     void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
                                                      args::CmdPushDescriptorSetWithTemplate2& args) override;
 
-    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
-                                                        args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                       call_info,
+                                                        args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
                                                       args::UpdateDescriptorSetWithTemplateKHR& args) override;

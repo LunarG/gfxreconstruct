@@ -193,8 +193,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
                                                     args::CmdPushDescriptorSetWithTemplate& args) override;
 
-    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
-                                                       args::CmdPushDescriptorSetWithTemplateKHR& args) override;
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                      call_info,
+                                                       args::CmdPushDescriptorSetWithTemplate& args) override;
 
     void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
                                                       args::UpdateDescriptorSetWithTemplateKHR& args) override;
@@ -202,8 +202,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
                                                      args::CmdPushDescriptorSetWithTemplate2& args) override;
 
-    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
-                                                        args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                       call_info,
+                                                        args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
                                                 args::CreateRayTracingPipelinesKHR& args) override;
@@ -2026,6 +2026,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const VkDeviceCreateInfo&       device_create_info,
                                      const std::vector<std::string>& enabled_device_extensions,
                                      VulkanResourceAllocator*        allocator);
+
+    void ReplayCmdPushDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                format::HandleId                 command_buffer,
+                                                format::HandleId                 descriptor_update_template,
+                                                format::HandleId                 layout,
+                                                uint32_t                         set,
+                                                DescriptorUpdateTemplateDecoder* data,
+                                                bool                             khr);
+
+    void ReplayCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                           call_info,
+                                                 format::HandleId                             command_buffer,
+                                                 Decoded_VkPushDescriptorSetWithTemplateInfo* info,
+                                                 bool                                         khr);
 
     void MapDescriptorUpdateTemplateHandles(const VulkanDescriptorUpdateTemplateInfo* update_template_info,
                                             DescriptorUpdateTemplateDecoder*          decoder);

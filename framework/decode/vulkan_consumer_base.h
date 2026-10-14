@@ -64,8 +64,8 @@ class VulkanConsumerBase : public CommonConsumerBase
                                                             args::CmdPushDescriptorSetWithTemplate& args)
     {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
-                                                               args::CmdPushDescriptorSetWithTemplateKHR& args)
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                      call_info,
+                                                               args::CmdPushDescriptorSetWithTemplate& args)
     {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
@@ -76,8 +76,8 @@ class VulkanConsumerBase : public CommonConsumerBase
                                                              args::CmdPushDescriptorSetWithTemplate2& args)
     {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
-                                                                args::CmdPushDescriptorSetWithTemplate2KHR& args)
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                       call_info,
+                                                                args::CmdPushDescriptorSetWithTemplate2& args)
     {}
 
     virtual void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,

@@ -80,14 +80,14 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
                                                     args::CmdPushDescriptorSetWithTemplate& args) override;
 
-    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
-                                                       args::CmdPushDescriptorSetWithTemplateKHR& args) override;
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                      call_info,
+                                                       args::CmdPushDescriptorSetWithTemplate& args) override;
 
     void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
                                                      args::CmdPushDescriptorSetWithTemplate2& args) override;
 
-    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
-                                                        args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                       call_info,
+                                                        args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 
