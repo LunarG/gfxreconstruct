@@ -15,10 +15,10 @@ TEST(SerializeQueueSubmissions, ReplayCreatesOneTimelineSemaphorePerMultiEntrySu
     ASSERT_NO_FATAL_FAILURE(capture_app(test_name));
 
     std::map<std::string, uint32_t> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_recapture(test_name, {}, "_replay_baseline", counted, baseline));
 
     std::map<std::string, uint32_t> with_option;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_recapture(
         test_name, { "--serialize-queue-submissions" }, "_replay_option", counted, with_option));
 
     ASSERT_EQ(baseline["vkQueueSubmit"], 1u);

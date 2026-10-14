@@ -20,9 +20,9 @@ TEST(SerializeComputeAndTransfer, ReplayInjectsBarriersAroundDispatches)
     // Replay the app with and without the option "--serialize-compute-and-transfer" to compare the counts of barrier
     // commands.
     std::map<std::string, uint32_t> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_recapture(test_name, {}, "_replay_baseline", counted, baseline));
     std::map<std::string, uint32_t> with_option;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_recapture(
         test_name, { "--serialize-compute-and-transfer" }, "_replay_option", counted, with_option));
 
     ASSERT_GT(with_option["vkCmdDispatch"], 0u);

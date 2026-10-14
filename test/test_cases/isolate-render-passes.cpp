@@ -29,10 +29,10 @@ TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
 
     // Replay the app with and without the option "--isolate-render-passes" to compare.
     std::map<std::string, uint32_t> baseline;
-    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_recapture(test_name, {}, "_replay_baseline", counted, baseline));
     std::map<std::string, uint32_t> with_option;
     ASSERT_NO_FATAL_FAILURE(
-        replay_and_count_recapture(test_name, { "--isolate-render-passes" }, "_replay_option", counted, with_option));
+        count_calls_in_recapture(test_name, { "--isolate-render-passes" }, "_replay_option", counted, with_option));
 
     const uint32_t render_passes = with_option["vkCmdBeginRenderPass"];
 
