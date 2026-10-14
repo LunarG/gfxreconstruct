@@ -23,6 +23,7 @@
 #include "tool_command_line.h"
 
 #include "decode/file_processor.h"
+#include "decode/vulkan_cpp_memory_scan_consumer.h"
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_cpp_consumer.h"
@@ -68,6 +69,8 @@ CommandLineArgument g_target_argument = { true,
                                           "The type of platform for the intended target Vulkan source.\n"
                                           "\t\t\t\t\t\t\t  Available Platforms:\n"
                                           "\t\t\t\t\t\t\t     android    Generate for Android.\n"
+                                          "\t\t\t\t\t\t\t     wayland    Generate for Wayland.\n"
+                                          "\t\t\t\t\t\t\t     win32      Generate for Win32.\n"
                                           "\t\t\t\t\t\t\t     xcb        Generate for XCB." };
 CommandLineArgument g_output_argument = {
     true, true, "-o", "--output", "<dir>\t\t\t\t", "", "Directory path where the output will be generated into."
@@ -291,6 +294,38 @@ static std::string GetOutputFilename(const std::string& capture_file)
     return gfxrecon::util::filepath::Join(output_dirname, output_filename);
 }
 
+// Read the capture file once and note which resource each memory allocation
+// carries.  The generated source needs the size that a resource requires at the
+// point where it writes the allocation, and the bind call comes after the
+// allocate call in the file.
+static bool ScanMemoryBinds(const std::string&                   input_filename,
+                            gfxrecon::decode::VulkanCppConsumer& cpp_consumer,
+                            const uint32_t                       frame_limit)
+{
+    gfxrecon::decode::FileProcessor               file_processor;
+    gfxrecon::decode::VulkanDecoder               decoder;
+    gfxrecon::decode::VulkanCppMemoryScanConsumer scan_consumer;
+
+    if (!file_processor.Initialize(input_filename))
+    {
+        GFXRECON_LOG_ERROR("Initialization of file processor has failed for the memory scan");
+        return false;
+    }
+
+    file_processor.AddDecoder(&decoder);
+    decoder.AddConsumer(&scan_consumer);
+    file_processor.InitializeFrameProcessing();
+
+    // Read only as far as the generated source goes.  A bind after that point
+    // belongs to an allocation that the source never writes.
+    printf("Scanning capture file for memory binds\n");
+    while (file_processor.ProcessNextFrame() && file_processor.GetCurrentFrameNumber() <= frame_limit)
+    {}
+
+    cpp_consumer.SetMemoryResourceMap(scan_consumer.GetMemoryResourceMap());
+    return (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone);
+}
+
 bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
                     const std::string&                        input_filename,
                     const std::string&                        output_filename,
@@ -396,9 +431,10 @@ int main(int argc, const char** argv)
     std::string max_dimensions_argument = arg_parser.GetArgumentValue(g_max_window_dimensions_argument.short_option);
 
     // Remove the consecutive path separators from the end of the path.
+    // The path can be empty here, because the argument check occurs later.
     if (target_platform == gfxrecon::decode::GfxToCppPlatform::PLATFORM_ANDROID)
     {
-        while (android_template_root.back() == kPathSep)
+        while (!android_template_root.empty() && android_template_root.back() == kPathSep)
         {
             android_template_root.pop_back();
         }
@@ -467,6 +503,19 @@ int main(int argc, const char** argv)
     gfxrecon::decode::VulkanCppConsumer cpp_consumer;
     bool                                result;
 
+    // --max-window-dimensions
+    if (dimensions.size() == 2)
+    {
+        cpp_consumer.SetMaxWindowSize(dimensions[0], dimensions[1]);
+    }
+    else if (!dimensions.empty())
+    {
+        GFXRECON_LOG_ERROR("The --max-window-dimensions option needs a width and a height,"
+                           " for example \"-d 1920,1080\"");
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
+
     // --captured-swapchain
     if (arg_parser.IsOptionSet(g_captured_swapchain_argument.short_option))
     {
@@ -480,6 +529,7 @@ int main(int argc, const char** argv)
     }
 
     int64_t process_start_time = gfxrecon::util::datetime::GetTimestamp();
+    ScanMemoryBinds(input_filename, cpp_consumer, frame_limit);
     result = ProcessCapture(cpp_consumer, input_filename, output_filename, target_platform, frame_limit);
     int64_t  process_end_time           = gfxrecon::util::datetime::GetTimestamp();
     uint32_t cpp_consumer_apicall_count = cpp_consumer.GetCurrentApiCallNumber();

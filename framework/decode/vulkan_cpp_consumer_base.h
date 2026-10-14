@@ -19,6 +19,7 @@
 #define GFXRECON_DECODE_VULKAN_CPP_CONSUMER_BASE_H
 
 #include "vulkan_cpp_utilities.h"
+#include "decode/vulkan_cpp_code_writer.h"
 #include "decode/vulkan_cpp_loader_generator.h"
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/platform_types.h"
@@ -38,6 +39,11 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// The window size that the generated source uses when the capture file has no
+// resize command and the user gives no --max-window-dimensions option.
+constexpr uint32_t kDefaultWindowWidth  = 1920;
+constexpr uint32_t kDefaultWindowHeight = 1080;
 
 struct DescriptorUpdateTemplateEntries
 {
@@ -79,8 +85,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     GfxToCppPlatform GetPlatform() { return platform_; }
 
-    uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, window_width_); };
-    uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, window_height_); };
+    uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, max_window_width_); };
+    uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, max_window_height_); };
     uint32_t GetCurrentFrameNumber() { return frame_number_; }
     uint32_t GetCurrentFrameSplitNumber() { return frame_split_number_; }
     uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
@@ -105,18 +111,23 @@ class VulkanCppConsumerBase : public VulkanConsumer
     bool GetResourceMemoryRequirements(format::HandleId memoryHandleId, std::string& requirements)
     {
         auto found_resource = memory_resource_map_.find(memoryHandleId);
-        if (found_resource != memory_resource_map_.end())
+        if (found_resource == memory_resource_map_.end() || found_resource->second.empty())
         {
-            std::queue<std::pair<format::HandleId, VkDeviceSize>>& resource_handles =
-                memory_resource_map_[memoryHandleId];
-
-            format::HandleId resource_handle = resource_handles.front().first;
-            resource_handles.pop();
-
-            requirements = resource_memory_req_map_[resource_handle];
-            return true;
+            return false;
         }
-        return false;
+
+        format::HandleId resource_handle = found_resource->second.front().first;
+        found_resource->second.pop();
+
+        auto found_requirements = resource_memory_req_map_.find(resource_handle);
+        if (found_requirements == resource_memory_req_map_.end() || found_requirements->second.empty())
+        {
+            // The capture never asked this resource what it needs.
+            return false;
+        }
+
+        requirements = found_requirements->second;
+        return true;
     }
 
     std::string AddStruct(const std::stringstream& content, const std::string& varnamePrefix);
@@ -131,7 +142,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
                            uint32_t                count);
     void SetMemoryResourceMap(
         const std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memoryImageMap);
-    void SetWindowSize(uint32_t appWindowWidth, uint32_t appWindowHeight);
+    // Set the upper limit for the window size, from the --max-window-dimensions option.
+    void SetMaxWindowSize(uint32_t maxWindowWidth, uint32_t maxWindowHeight);
     void SetMaxCommandLimit(uint32_t max) { max_command_limit_ = max; }
 
     void DisableVirtualSwapchain() { enable_virtual_swapchain_ = false; }
@@ -140,6 +152,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
     uint32_t GetNextId(VkObjectType object_type);
 
     std::string GetAndroidHwBufferName(uint64_t buffer);
+
+    // True when the target platform has AHardwareBuffer.  Only Android does.  The
+    // types and the entry points do not exist anywhere else, so the generated
+    // source must leave that work out or it will not compile.
+    bool SupportsAndroidHardwareBuffers();
 
     void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
 
@@ -409,6 +426,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
   protected:
     FILE* GetFrameFile();
+
+    // Writes into the current frame file and owns the indent level.  The frame
+    // body sits inside a function, so the indent starts at one.
+    CodeWriter& GetFrameWriter() { return frame_writer_; }
+
     FILE* GetGlobalFile() const { return global_file_; };
 
     std::string GenFrameName(uint32_t frameNumber, uint32_t frameSplitNumber, uint32_t fillLength);
@@ -448,10 +470,22 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
     std::unordered_map<uint64_t, VulkanCppAndroidMemoryInfo>              android_memory_id_map_;
     std::unordered_map<format::HandleId, std::queue<std::string>>         next_image_map_;
-    std::unordered_map<void*, std::string>                                ptr_map_;
+    // Count variable names for the two-call query idiom.  The first call asks for
+    // the count, the second call asks for the data.  These are separate Process_
+    // calls with separate argument objects, so the key must be the handle that the
+    // query is about.  A pointer into the argument object is not stable across the
+    // two calls.  One map for each query, because two queries can share a handle.
+    std::unordered_map<format::HandleId, std::string>                     swapchain_image_count_map_;
+    std::unordered_map<format::HandleId, std::string>                     surface_format_count_map_;
+    std::unordered_map<format::HandleId, std::string>                     surface_present_mode_count_map_;
+    std::unordered_map<format::HandleId, std::string>                     queue_family_count_map_;
     std::unordered_map<uint64_t, std::string>                             struct_map_; // hash -> name
-    uint32_t                                                              window_width_;
-    uint32_t                                                              window_height_;
+    // The current window size, which a resize command in the capture file can change.
+    uint32_t window_width_{ kDefaultWindowWidth };
+    uint32_t window_height_{ kDefaultWindowHeight };
+    // The upper limit for the window size. UINT32_MAX applies no limit.
+    uint32_t                                                              max_window_width_{ UINT32_MAX };
+    uint32_t                                                              max_window_height_{ UINT32_MAX };
     uint32_t                                                              max_command_limit_{ 1000 };
     std::vector<GfxToCppVariable>                                         variable_data_;
     std::vector<format::HandleId>                                         imported_semaphores_;
@@ -460,6 +494,9 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<format::HandleId, std::string>                                 resource_memory_req_map_;
 
     bool needs_debug_util_callback_ = false;
+
+    // Warn once, not for each call that the capture made.
+    bool warned_about_android_hardware_buffers_ = false;
 
   private:
     bool CreateSubOutputDirectories(const std::vector<std::string>& subDirs);
@@ -470,11 +507,28 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void PrintOutGlobalVar();
     bool WriteSwapchainFiles();
 
+    // Write the device extension list and the device slots that the capture used.
+    void PrintOutDeviceSelectionData(FILE* file);
+
+    // The slot that this physical device had in vkEnumeratePhysicalDevices during
+    // capture.  Returns 0 when the slot is not known.
+    uint32_t GetCapturedPhysicalDeviceIndex(format::HandleId physicalDevice) const;
+
+    // Note the slot and the extensions that one vkCreateDevice call needed.
+    void RecordDeviceSelectionData(format::HandleId physicalDevice, const VkDeviceCreateInfo* createInfo);
+
     struct FrameTempMemory
     {
         std::string name;
         size_t      size;
     };
+
+    // The physical devices in the order that vkEnumeratePhysicalDevices gave during
+    // capture, the slots that vkCreateDevice used, and every device extension that
+    // the capture enabled.  The generated source uses these to choose a device.
+    std::vector<format::HandleId> enumerated_physical_devices_;
+    std::vector<uint32_t>         used_physical_device_indices_;
+    std::vector<std::string>      required_device_extensions_;
 
     bool                                               enable_virtual_swapchain_{ true };
     uint32_t                                           frame_number_;
@@ -483,6 +537,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     uint32_t                                           api_call_number_;
     std::vector<FrameTempMemory>                       frame_split_temp_memory_;
     FILE*                                              frame_file_;
+    CodeWriter                                         frame_writer_;
     FILE*                                              global_file_;
     FILE*                                              main_file_;
     std::string                                        filename_;
@@ -495,6 +550,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
     DataFilePacker                                     spv_saver_;
     std::vector<std::vector<format::DeviceMemoryType>> original_memory_types_;
     std::vector<std::vector<format::DeviceMemoryHeap>> original_memory_heaps_;
+
+    // The memory types that the capture file recorded, by physical device.  The
+    // generated source needs the row for the device that it uses, and the order in
+    // which the meta commands arrive is not that order.
+    std::unordered_map<format::HandleId, std::vector<format::DeviceMemoryType>> captured_memory_types_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

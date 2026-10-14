@@ -16,8 +16,11 @@ void android_main(struct android_app* app) {
 
   // Main loop
   do {
-    if (ALooper_pollAll(1, nullptr,
-                        &events, (void**)&source) >= 0) {
+    // ALooper_pollOnce, not ALooper_pollAll.  The NDK marks pollAll as obsolete
+    // because it can swallow a wake.  This loop already comes back around, so
+    // taking one event at a time loses nothing.
+    if (ALooper_pollOnce(1, nullptr,
+                         &events, (void**)&source) >= 0) {
       if (source != NULL) {
         source->process(app, source);
       }
