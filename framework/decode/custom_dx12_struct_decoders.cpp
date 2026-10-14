@@ -1514,12 +1514,27 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAM
     bytes_read +=
         ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComparisonFunc));
 
-    wrapper->FloatBorderColor.SetExternalMemory(value->FloatBorderColor, 4);
-    bytes_read += wrapper->FloatBorderColor.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+    // Flags follows the color array in existing captures. Read ahead without changing the wire layout.
+    const size_t             border_color_offset = bytes_read;
+    uint32_t                 border_color[4]     = {};
+    PointerDecoder<uint32_t> border_color_decoder;
+    border_color_decoder.SetExternalMemory(border_color, 4);
+    bytes_read += border_color_decoder.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
 
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinLOD));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxLOD));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    if (value->Flags & D3D12_SAMPLER_FLAG_UINT_BORDER_COLOR)
+    {
+        wrapper->UintBorderColor.SetExternalMemory(value->UintBorderColor, 4);
+        wrapper->UintBorderColor.DecodeUInt32((buffer + border_color_offset), (buffer_size - border_color_offset));
+    }
+    else
+    {
+        wrapper->FloatBorderColor.SetExternalMemory(value->FloatBorderColor, 4);
+        wrapper->FloatBorderColor.DecodeFloat((buffer + border_color_offset), (buffer_size - border_color_offset));
+    }
 
     return bytes_read;
 }
