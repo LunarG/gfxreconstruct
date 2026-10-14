@@ -24,6 +24,7 @@
 
 #include <acquired_image_app.h>
 #include <host_image_copy_app.h>
+#include <frame_loop_cb_app.h>
 #include <pipeline_binaries_app.h>
 #ifndef __ANDROID__
 #include <set_environment_app.h>
@@ -69,6 +70,7 @@ const char kArguments[] = "--wsi";
 static const char* kAppNames[] = {
     "acquired-image",
     "debug-utils",
+    "frame-loop-command-buffer",
     "host-image-copy",
     "isolate-render-passes",
     "serialize-compute-and-transfer",
@@ -155,6 +157,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "debug-utils")
     {
         app = std::make_unique<gfxrecon::test_app::debug_utils::App>();
+    }
+    else if (app_name == "frame-loop-command-buffer")
+    {
+        app = std::make_unique<gfxrecon::test_app::frame_loop_command_buffer::App>();
     }
     else if (app_name == "triangle")
     {

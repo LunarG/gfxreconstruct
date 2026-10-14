@@ -40,6 +40,7 @@ target_include_directories(${TARGET_NAME}
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-acquired-image
     gfxrecon-testapp-ahb
+    gfxrecon-testapp-frame-loop-command-buffer
     gfxrecon-testapp-debug-utils
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-isolate-render-passes
