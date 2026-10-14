@@ -43,6 +43,7 @@
 #include <chrono>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <ranges>
 #include <unordered_map>
 
@@ -88,6 +89,26 @@ static bool IsImageReadable(VkMemoryPropertyFlags                       property
         ((memory_wrapper->mapped_data == nullptr) ||
          ((memory_wrapper->mapped_offset == 0) && ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
                                                    (memory_wrapper->mapped_size == VK_WHOLE_SIZE)))));
+}
+
+// The layout to restore an image's contents in. A pending ownership release that also transitions the image expects to
+// find it in the release's old layout, while the tracked layout is already the release's new layout.
+static VkImageLayout GetRestoreLayout(VkImage image, VkImageLayout tracked_layout)
+{
+    const auto* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+    if (wrapper != nullptr)
+    {
+        for (const auto& release : wrapper->pending_ownership_releases)
+        {
+            if ((release.old_layout != release.new_layout) && (release.old_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                (release.old_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
+            {
+                return release.old_layout;
+            }
+        }
+    }
+
+    return tracked_layout;
 }
 
 VulkanStateWriter::VulkanStateWriter(
@@ -180,6 +201,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
+
+    // After the resource data uploads, which the releases hand over to another queue family.
+    WriteQueueFamilyOwnershipState(state_table);
 
     WriteBufferViewState(state_table);
 
@@ -2759,7 +2783,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                               device_wrapper->handle_id,
                                               img.handle_id,
                                               img.aspect,
-                                              img.layout,
+                                              GetRestoreLayout(img.image, img.layout),
                                               img.level_count,
                                               *img.level_sizes,
                                               num_bytes,
@@ -2888,7 +2912,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         upload_cmd.device_id = device_wrapper->handle_id;
         upload_cmd.image_id  = img.handle_id;
         upload_cmd.aspect    = img.aspect;
-        upload_cmd.layout    = img.layout;
+        upload_cmd.layout    = GetRestoreLayout(img.image, img.layout);
 
         if (data != nullptr)
         {
@@ -3675,6 +3699,113 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             parameter_stream_.Clear();
         }
     });
+}
+
+void VulkanStateWriter::WriteQueueFamilyOwnershipState(const VulkanStateTable& state_table)
+{
+    // A release submitted before the snapshot may be completed by an acquire in the trimmed range, and an acquire
+    // without its release is invalid. Each pending release is re-recorded on a queue of its source family, grouped by
+    // device and source family.
+    struct PendingReleases
+    {
+        std::vector<VkBufferMemoryBarrier> buffer_barriers;
+        std::vector<VkImageMemoryBarrier>  image_barriers;
+    };
+    std::map<std::pair<const vulkan_wrappers::DeviceWrapper*, uint32_t>, PendingReleases> device_releases;
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        const bool is_bound =
+            (state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id) != nullptr) || wrapper->is_sparse_buffer;
+        if ((wrapper->device == nullptr) || !is_bound)
+        {
+            return;
+        }
+
+        for (const auto& release : wrapper->pending_ownership_releases)
+        {
+            VkBufferMemoryBarrier barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER };
+            barrier.srcAccessMask         = VK_ACCESS_MEMORY_WRITE_BIT;
+            barrier.dstAccessMask         = 0;
+            barrier.srcQueueFamilyIndex   = release.src_queue_family_index;
+            barrier.dstQueueFamilyIndex   = release.dst_queue_family_index;
+            barrier.buffer                = wrapper->handle;
+            barrier.offset                = release.offset;
+            barrier.size                  = release.size;
+
+            device_releases[{ wrapper->device, release.src_queue_family_index }].buffer_barriers.push_back(barrier);
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Swapchain image state is written later, by WriteSwapchainImageState.
+        const bool is_bound =
+            (state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id) != nullptr) || wrapper->is_sparse_image;
+        if ((wrapper->device == nullptr) || wrapper->is_swapchain_image || !is_bound)
+        {
+            return;
+        }
+
+        for (const auto& release : wrapper->pending_ownership_releases)
+        {
+            VkImageMemoryBarrier barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+            barrier.srcAccessMask        = VK_ACCESS_MEMORY_WRITE_BIT;
+            barrier.dstAccessMask        = 0;
+            barrier.oldLayout            = release.old_layout;
+            barrier.newLayout            = release.new_layout;
+            barrier.srcQueueFamilyIndex  = release.src_queue_family_index;
+            barrier.dstQueueFamilyIndex  = release.dst_queue_family_index;
+            barrier.image                = wrapper->handle;
+            barrier.subresourceRange     = release.subresource_range;
+
+            device_releases[{ wrapper->device, release.src_queue_family_index }].image_barriers.push_back(barrier);
+        }
+    });
+
+    const VkPipelineStageFlags src_stage_mask   = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkPipelineStageFlags dst_stage_mask   = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    const VkDependencyFlags    dependency_flags = 0;
+
+    for (const auto& [key, releases] : device_releases)
+    {
+        const auto& [device_wrapper, queue_family_index] = key;
+
+        WriteCommandProcessingCreateCommands(device_wrapper->handle_id,
+                                             queue_family_index,
+                                             vulkan_wrappers::kTempQueueId,
+                                             vulkan_wrappers::kTempCommandPool,
+                                             vulkan_wrappers::kTempCommandBufferId);
+
+        WriteCommandBegin(vulkan_wrappers::kTempCommandBufferId);
+
+        const uint32_t buffer_barrier_count = static_cast<uint32_t>(releases.buffer_barriers.size());
+        const uint32_t image_barrier_count  = static_cast<uint32_t>(releases.image_barriers.size());
+
+        encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
+        encoder_.EncodeFlagsValue(src_stage_mask);
+        encoder_.EncodeFlagsValue(dst_stage_mask);
+        encoder_.EncodeFlagsValue(dependency_flags);
+        encoder_.EncodeUInt32Value(0);
+        EncodeStructArray(&encoder_, static_cast<const VkMemoryBarrier*>(nullptr), 0);
+        encoder_.EncodeUInt32Value(buffer_barrier_count);
+        EncodeStructArray(&encoder_, releases.buffer_barriers.data(), buffer_barrier_count);
+        encoder_.EncodeUInt32Value(image_barrier_count);
+        EncodeStructArray(&encoder_, releases.image_barriers.data(), image_barrier_count);
+
+        WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdPipelineBarrier, &parameter_stream_);
+        parameter_stream_.Clear();
+
+        WriteCommandEnd(vulkan_wrappers::kTempCommandBufferId);
+        WriteCommandExecution(vulkan_wrappers::kTempQueueId, vulkan_wrappers::kTempCommandBufferId);
+
+        WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool,
+                                 device_wrapper->handle_id,
+                                 vulkan_wrappers::kTempCommandPoolId,
+                                 nullptr);
+    }
 }
 
 void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_table)
