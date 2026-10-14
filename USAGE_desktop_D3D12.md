@@ -31,8 +31,9 @@ to one of these other documents:
     3. [Capture Files](#capture-files)
 2. [Replaying API Calls](#replaying-api-calls)
     1. [Command Line Arguments](#command-line-arguments)
-    2. [Keyboard Controls](#keyboard-controls)
-    3. [Capturing Replay (Recapture)](#capturing-replay-recapture)
+    2. [Remote Replay Control](#remote-replay-control)
+    3. [Keyboard Controls](#keyboard-controls)
+    4. [Capturing Replay (Recapture)](#capturing-replay-recapture)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -216,6 +217,7 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
+                        [--batching-heap-size <MB>]
                         [--dump-resources <submit-index,command-index,draw-call-index>]
                         [--dump-resources-before-draw]
                         [--dump-resources-dir <dir>]
@@ -329,6 +331,12 @@ Optional arguments:
                         only limits memory use for batching and does not guarantee overall max memory usage.
                         Acceptable values range from 0 to 100 (default: 80). 0 means no batching, 100 means
                         use all available system and GPU memory.
+  --batching-heap-size <MB>
+                        Limits the max size, in MB, of the upload heap that is allocated to stage resource
+                        data during trim state load. Staging resource data through a single heap avoids the
+                        cost of creating a buffer for each resource. The heap size is also limited by the
+                        available memory and by the value of --batching-memory-usage. Default is 256. 0
+                        disables the heap, and each resource is staged through its own buffer.
   --dump-resources <submit-index,command-index,draw-call-index>
                         Output binary resources for a specific draw call.  The draw call is specified as a
                         submit index, command index, and draw call index triplet.  The output includes vertex,
@@ -341,7 +349,25 @@ Optional arguments:
                         Directory to write dump resources output files. Default is the current working directory.
   --dump-resources-modifiable-state-only
                         Only dump resources that are in a modifiable state set by D3D12 ResourceBarrier
+  --remote-connect <address>
+                        Connect out to a controller process, which supplies the replay settings and
+                        receives replay's reports over the same socket. Address form is tcp:host:port.
+                        See Remote Replay Control below.
 ```
+
+### Remote Replay Control
+
+`gfxrecon-replay` can take its entire configuration from a controller process
+over a socket rather than from the command line, and reports back over the same
+connection.
+
+The transport, settings format and reference controller are shared with Vulkan
+replay and are documented in
+[Remote Replay Control](./USAGE_desktop_Vulkan.md#remote-replay-control); the
+wire protocol is specified in [docs/remote_protocol.md](./docs/remote_protocol.md).
+
+For D3D12, only the `tcp:` address form is available, since the `unix:` forms
+are POSIX only.
 
 
 

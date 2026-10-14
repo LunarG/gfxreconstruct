@@ -32,7 +32,8 @@
 
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--remove-unsupported,--validate,"
-    "--debug-device-lost,--create-dummy-allocations,--screenshot-all,--qamr|--quit-after-measurement-range,"
+    "--debug-device-lost,--create-dummy-allocations,--screenshot-all,--screenshot-results,"
+    "--qamr|--quit-after-measurement-range,"
     "--fmr|--flush-measurement-range,--flush-inside-measurement-range,--pbi-all,--preload-measurement-range,"
     "--log-timestamps,--async-processing,--dump-resources-before-draw,--dump-resources-modifiable-state-only";
 
@@ -43,7 +44,7 @@ const char kArguments[] =
     "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,--skip-index,"
     "--pcj|--pipeline-creation-jobs,--quit-after-frame,"
     "--wait-before-first-submit,--frame-warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,"
-    "--loop-count";
+    "--loop-count,--remote-connect";
 
 // The three names below belong to the D3D12 Feature, but they stay in the shared lists above:
 //     --dump-resources-before-draw            The D3D12 Feature reads it.
@@ -91,6 +92,9 @@ static void PrintFeatureSynopsisLines(const std::string& synopsis)
     }
 }
 
+// The settings-map key carrying the capture file, which is positional and so has no spelling to normalize.
+const char kRemoteCaptureFileKey[] = "capture_file";
+
 static void PrintUsage(const char* exe_name)
 {
     std::string app_name = std::filesystem::path(exe_name).stem().string();
@@ -104,7 +108,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>] [--screenshot-interval <N>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--wsi <platform>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-results] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
@@ -202,6 +206,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
     GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
     GFXRECON_WRITE_CONSOLE("          \t\t--screenshot-scale is also specified then this option is ignored.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-results");
+    GFXRECON_WRITE_CONSOLE("          \t\tWrite a JSON file next to the screenshots, named after the");
+    GFXRECON_WRITE_CONSOLE("          \t\tscreenshot prefix, that records for each requested frame which");
+    GFXRECON_WRITE_CONSOLE("          \t\tfiles were written and why any image was skipped. Vulkan only.");
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnable the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
@@ -313,6 +321,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --wait-before-frame <milliseconds>");
     GFXRECON_WRITE_CONSOLE("          \t\tWait for the specified amount of milliseconds before starting to replay");
     GFXRECON_WRITE_CONSOLE("          \t\teach frame. Default is 0 (no wait).");
+    GFXRECON_WRITE_CONSOLE("  --remote-connect <address>");
+    GFXRECON_WRITE_CONSOLE("          \t\tConnect out to a controller process for replay settings");
+    GFXRECON_WRITE_CONSOLE("          \t\tand bidirectional I/O. Address forms: tcp:host:port,");
+    GFXRECON_WRITE_CONSOLE("          \t\tunix:@name (abstract), or unix:/path. The unix: forms");
+    GFXRECON_WRITE_CONSOLE("          \t\tare not available on Windows.");
 
     // The entries that belong to one Feature come last, in one section for each Feature.
     PrintFeatureUsage(gfxrecon::replay::GetLoadedFeatures());

@@ -1092,9 +1092,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLimits& value
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties& value)
 {
     encoder->EncodeUInt32Value(value.memoryTypeCount);
-    EncodeStructArray(encoder, value.memoryTypes, value.memoryTypeCount);
+    const size_t memoryTypes_count = ParameterEncoder::ClampStaticArrayLength(value.memoryTypeCount, VK_MAX_MEMORY_TYPES, "VkPhysicalDeviceMemoryProperties::memoryTypes");
+    EncodeStructArray(encoder, value.memoryTypes, memoryTypes_count);
     encoder->EncodeUInt32Value(value.memoryHeapCount);
-    EncodeStructArray(encoder, value.memoryHeaps, value.memoryHeapCount);
+    const size_t memoryHeaps_count = ParameterEncoder::ClampStaticArrayLength(value.memoryHeapCount, VK_MAX_MEMORY_HEAPS, "VkPhysicalDeviceMemoryProperties::memoryHeaps");
+    EncodeStructArray(encoder, value.memoryHeaps, memoryHeaps_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSparseProperties& value)
@@ -2076,7 +2078,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperti
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::PhysicalDeviceWrapper>(value.physicalDevices, value.physicalDeviceCount);
+    const size_t physicalDevices_count = ParameterEncoder::ClampStaticArrayLength(value.physicalDeviceCount, VK_MAX_DEVICE_GROUP_SIZE, "VkPhysicalDeviceGroupProperties::physicalDevices");
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::PhysicalDeviceWrapper>(value.physicalDevices, physicalDevices_count);
     encoder->EncodeUInt32Value(value.subsetAllocation);
 }
 
@@ -3805,7 +3808,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyGlobalPriorityPr
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.priorityCount);
-    encoder->EncodeEnumArray(value.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE);
+    const size_t priorities_count = ParameterEncoder::ClampStaticArrayLength(value.priorityCount, VK_MAX_GLOBAL_PRIORITY_SIZE, "VkQueueFamilyGlobalPriorityProperties::priorities");
+    encoder->EncodeEnumArray(value.priorities, priorities_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint8Features& value)
@@ -5749,7 +5753,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeyKHR& value
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.keySize);
-    encoder->EncodeUInt8Array(value.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR);
+    const size_t key_count = ParameterEncoder::ClampStaticArrayLength(value.keySize, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, "VkPipelineBinaryKeyKHR::key");
+    encoder->EncodeUInt8Array(value.key, key_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryDataKHR& value)
@@ -6696,6 +6701,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageModeInfoKHR& va
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.resolveMode);
     encoder->EncodeEnumValue(value.stencilResolveMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.pipelineLibraryGroupHandles);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance11FeaturesKHR& value)
@@ -10535,7 +10547,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleIdentifierEXT& 
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.identifierSize);
-    encoder->EncodeUInt8Array(value.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT);
+    const size_t identifier_count = ParameterEncoder::ClampStaticArrayLength(value.identifierSize, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, "VkShaderModuleIdentifierEXT::identifier");
+    encoder->EncodeUInt8Array(value.identifier, identifier_count);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceOpticalFlowFeaturesNV& value)
@@ -10854,13 +10867,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBui
     encoder->EncodeUInt64Value(value.shaderCoreMask);
     encoder->EncodeUInt32Value(value.shaderCoreCount);
     encoder->EncodeUInt32Value(value.shaderWarpsPerCore);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.pipelineLibraryGroupHandles);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT& value)
@@ -12230,6 +12236,36 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataBa
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.privateDataBaseHandle);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInfoPropertiesINTEL& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.deviceIpVersionArch);
+    encoder->EncodeUInt32Value(value.deviceIpVersionRelease);
+    encoder->EncodeUInt32Value(value.deviceIpVersionRevision);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.bufferDeviceAddressAllocationAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxBufferDeviceAddressAllocationAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressAlignmentAllocateInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.alignment);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

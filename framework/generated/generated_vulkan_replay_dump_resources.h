@@ -764,13 +764,13 @@ void Process_vkCmdSetRenderingAttachmentLocations(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingAttachmentLocationInfo*    pLocationInfo);
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo);
 
 void Process_vkCmdSetRenderingInputAttachmentIndices(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo);
 
 void Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
@@ -896,13 +896,13 @@ void Process_vkCmdSetRenderingAttachmentLocationsKHR(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingAttachmentLocationInfo*    pLocationInfo);
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo);
 
 void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo);
 
 void Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
@@ -1209,7 +1209,7 @@ void Process_vkCmdEndRendering2KHR(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingEndInfoKHR*                pRenderingEndInfo);
+    StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo);
 
 void Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
@@ -2162,7 +2162,7 @@ void Process_vkCmdEndRendering2EXT(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingEndInfoKHR*                pRenderingEndInfo);
+    StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo);
 
 void Process_vkCmdBeginCustomResolveEXT(
     const ApiCallInfo&                          call_info,

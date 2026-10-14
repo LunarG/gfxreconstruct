@@ -1,0 +1,359 @@
+[
+{
+  "header": {
+    "schemaVersion": 1,
+    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "vulkanVersion": "1.4.363",
+    "api": "vulkan",
+    "captureFile": "screenshot-frame-boundary-command-buffer.gfxr",
+    "options": {
+      "ranges": [
+        {
+          "first": 1,
+          "last": 4294967295
+        }
+      ],
+      "interval": 1,
+      "format": "bmp",
+      "dir": "",
+      "prefix": "screenshot-frame-boundary-command-buffer-screenshots",
+      "scale": null,
+      "size": null,
+      "applyPrerotation": false,
+      "ignoreFrameBoundaryAndroid": false
+    }
+  }
+},
+{
+  "frame": 1,
+  "blockIndex": 48,
+  "boundary": {
+    "type": "commandBufferFrameBoundary",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "commandBufferId": 18
+  },
+  "status": "partial",
+  "outputs": [
+    {
+      "source": {
+        "kind": "framebufferAttachment",
+        "imageId": 7,
+        "layer": 0,
+        "framebufferId": 17,
+        "renderPassIndex": 0,
+        "attachmentIndex": 0,
+        "imageViewId": 9,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-command-buffer-screenshots_frame_1_renderpass_0_attachment_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "framebufferAttachment",
+        "imageId": 13,
+        "layer": 0,
+        "framebufferId": 17,
+        "renderPassIndex": 0,
+        "attachmentIndex": 1,
+        "imageViewId": 15,
+        "format": "VK_FORMAT_D32_SFLOAT",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": null,
+      "status": "skipped",
+      "reason": {
+        "code": "NOT_COLOR_ATTACHMENT",
+        "message": "Attachment 1 of framebuffer 17 is not a color attachment"
+      }
+    },
+    {
+      "source": {
+        "kind": "dynamicRenderingAttachment",
+        "imageId": 10,
+        "layer": 0,
+        "renderingIndex": 0,
+        "attachment": "color",
+        "attachmentIndex": 0,
+        "imageViewId": 12,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-command-buffer-screenshots_frame_1_rendering_0_attachment_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "dynamicRenderingAttachment",
+        "imageId": 13,
+        "layer": 0,
+        "renderingIndex": 0,
+        "attachment": "depth",
+        "imageViewId": 15,
+        "format": "VK_FORMAT_D32_SFLOAT",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": null,
+      "status": "skipped",
+      "reason": {
+        "code": "NOT_COLOR_ATTACHMENT",
+        "message": "Depth attachment of dynamic rendering 0 is not a color attachment"
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "frame": 2,
+  "blockIndex": 63,
+  "boundary": {
+    "type": "commandBufferFrameBoundary",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "commandBufferId": 19
+  },
+  "status": "partial",
+  "outputs": [
+    {
+      "source": {
+        "kind": "framebufferAttachment",
+        "imageId": 7,
+        "layer": 0,
+        "framebufferId": 17,
+        "renderPassIndex": 0,
+        "attachmentIndex": 0,
+        "imageViewId": 9,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-command-buffer-screenshots_frame_2_renderpass_0_attachment_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "framebufferAttachment",
+        "imageId": 13,
+        "layer": 0,
+        "framebufferId": 17,
+        "renderPassIndex": 0,
+        "attachmentIndex": 1,
+        "imageViewId": 15,
+        "format": "VK_FORMAT_D32_SFLOAT",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": null,
+      "status": "skipped",
+      "reason": {
+        "code": "NOT_COLOR_ATTACHMENT",
+        "message": "Attachment 1 of framebuffer 17 is not a color attachment"
+      }
+    },
+    {
+      "source": {
+        "kind": "dynamicRenderingAttachment",
+        "imageId": 10,
+        "layer": 0,
+        "renderingIndex": 0,
+        "attachment": "color",
+        "attachmentIndex": 0,
+        "imageViewId": 12,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-command-buffer-screenshots_frame_2_rendering_0_attachment_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "dynamicRenderingAttachment",
+        "imageId": 13,
+        "layer": 0,
+        "renderingIndex": 0,
+        "attachment": "depth",
+        "imageViewId": 15,
+        "format": "VK_FORMAT_D32_SFLOAT",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": null,
+      "status": "skipped",
+      "reason": {
+        "code": "NOT_COLOR_ATTACHMENT",
+        "message": "Depth attachment of dynamic rendering 0 is not a color attachment"
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "frame": 3,
+  "blockIndex": 78,
+  "boundary": {
+    "type": "commandBufferFrameBoundary",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "commandBufferId": 20
+  },
+  "status": "partial",
+  "outputs": [
+    {
+      "source": {
+        "kind": "framebufferAttachment",
+        "imageId": 7,
+        "layer": 0,
+        "framebufferId": 17,
+        "renderPassIndex": 0,
+        "attachmentIndex": 0,
+        "imageViewId": 9,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-command-buffer-screenshots_frame_3_renderpass_0_attachment_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "framebufferAttachment",
+        "imageId": 13,
+        "layer": 0,
+        "framebufferId": 17,
+        "renderPassIndex": 0,
+        "attachmentIndex": 1,
+        "imageViewId": 15,
+        "format": "VK_FORMAT_D32_SFLOAT",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": null,
+      "status": "skipped",
+      "reason": {
+        "code": "NOT_COLOR_ATTACHMENT",
+        "message": "Attachment 1 of framebuffer 17 is not a color attachment"
+      }
+    },
+    {
+      "source": {
+        "kind": "dynamicRenderingAttachment",
+        "imageId": 10,
+        "layer": 0,
+        "renderingIndex": 0,
+        "attachment": "color",
+        "attachmentIndex": 0,
+        "imageViewId": 12,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-command-buffer-screenshots_frame_3_rendering_0_attachment_0.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "source": {
+        "kind": "dynamicRenderingAttachment",
+        "imageId": 13,
+        "layer": 0,
+        "renderingIndex": 0,
+        "attachment": "depth",
+        "imageViewId": 15,
+        "format": "VK_FORMAT_D32_SFLOAT",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": null,
+      "status": "skipped",
+      "reason": {
+        "code": "NOT_COLOR_ATTACHMENT",
+        "message": "Depth attachment of dynamic rendering 0 is not a color attachment"
+      }
+    }
+  ],
+  "messages": []
+},
+{
+  "summary": {
+    "framesSeen": 3,
+    "framesRequested": 3,
+    "framesWritten": 0,
+    "framesPartial": 3,
+    "framesSkipped": 0,
+    "framesFailed": 0,
+    "filesWritten": 6
+  }
+}
+]

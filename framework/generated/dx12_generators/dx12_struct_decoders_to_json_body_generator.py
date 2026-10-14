@@ -186,6 +186,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                             self.is_struct(value_info.base_type)):
                         # complex types, pointers, and handles are taken from the meta struct
                         value = f'meta_struct.{value_info.name}'
+                    elif self.is_function_ptr(value_info.base_type):
+                        # function pointers are captured as uint64_t in the meta struct
+                        value = f'meta_struct.{value_info.name}'
                     elif self.is_bitflags(value_info):
                         # bitflags are taken from the raw decoded struct, but converted to a typesafe enum
                         value = f'{value_info.base_type}_t{{ decoded_value.{value_info.name} }}'
@@ -295,6 +298,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         FieldToJson(jdata["RaytracingAccelerationStructure"], meta_struct.RaytracingAccelerationStructure);
                         break;
                     }
+                    case D3D12_SRV_DIMENSION_BUFFER_BYTE_OFFSET:
+                    {
+                        FieldToJson(jdata["BufferByteOffset"], meta_struct.BufferByteOffset);
+                        break;
+                    }
                 }
                 '''
             case "D3D12_SAMPLER_DESC2":
@@ -355,6 +363,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         case D3D12_UAV_DIMENSION_TEXTURE3D:
                         {
                             FieldToJson(jdata["Texture3D"], meta_struct.Texture3D);
+                            break;
+                        }
+                        case D3D12_UAV_DIMENSION_BUFFER_BYTE_OFFSET:
+                        {
+                            FieldToJson(jdata["BufferByteOffset"], meta_struct.BufferByteOffset);
                             break;
                         }
                         default:

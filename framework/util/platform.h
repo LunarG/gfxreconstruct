@@ -27,6 +27,7 @@
 #include "util/alignment_utils.h"
 #include "util/defines.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -998,23 +999,54 @@ inline void AlignedFree(void* ptr)
 #endif
 }
 
+/// @brief The readable region of the address space that holds an address, advancing to the next region.
+///        Each platform's constructor says what a region is there and how far its answer can be trusted.
+class ReadableRegion
+{
+  public:
+    /// The region holding `ptr`, or an invalid region if `ptr` is not readable: each early return in the
+    /// platform constructors leaves `end_` null, which IsValid() reports.
+    explicit ReadableRegion(const void* ptr);
+
+    /// True when the region is readable.
+    bool IsValid() const { return end_ != nullptr; }
+
+    /// True when `addr` lies in this region.
+    bool Contains(const void* addr) const
+    {
+        // Pointers into different objects order only as integers.
+        const uintptr_t a = reinterpret_cast<uintptr_t>(addr);
+        return (reinterpret_cast<uintptr_t>(begin_) <= a) && (a < reinterpret_cast<uintptr_t>(end_));
+    }
+
+    /// Advance to the region that follows this one; requires a readable region.
+    ReadableRegion& operator++()
+    {
+        *this = ReadableRegion(end_);
+        return *this;
+    }
+
+  private:
+    const void* begin_ = nullptr;
+    const void* end_   = nullptr;
+};
+
 #if defined(_WIN32)
 
 /// @brief Heuristically determine whether a pointer likely refers to readable
 ///        memory in the current process on Windows.
 /// @param ptr Pointer to the memory location to check.
-/// @return `true` if the pointer is valid, `false` otherwise.
 /// @note This is a best-effort probe only; it cannot guarantee safety.
-///       Even if this returns true, dereferencing the pointer can still fault.
+///       Even if this yields a valid region, dereferencing the pointer can still fault.
 /// @note This implementation is adapted from the LLVM compiler-rt project:
 ///       `llvm-project/compiler-rt/lib/sanitizer_common/sanitizer_win.cpp`
 /// @copyright License notice for the original source: https://llvm.org/LICENSE.txt
 ///            Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-inline bool PointerIsValid(const void* ptr)
+inline ReadableRegion::ReadableRegion(const void* ptr)
 {
     if (ptr == nullptr)
     {
-        return false;
+        return;
     }
 
     uintptr_t page = GetPageStartAddress(ptr);
@@ -1022,21 +1054,22 @@ inline bool PointerIsValid(const void* ptr)
     MEMORY_BASIC_INFORMATION info;
     if (VirtualQuery(reinterpret_cast<LPCVOID>(page), &info, sizeof(info)) != sizeof(info))
     {
-        return false;
+        return;
     }
 
     if (info.Protect == 0 || info.Protect == PAGE_NOACCESS || info.Protect == PAGE_EXECUTE)
     {
-        // The page is not accessible.
-        return false;
+        // The region is not accessible.
+        return;
     }
 
     if (info.RegionSize == 0)
     {
-        return false;
+        return;
     }
 
-    return true;
+    begin_ = info.BaseAddress;
+    end_   = static_cast<const uint8_t*>(info.BaseAddress) + info.RegionSize;
 }
 
 #else  // (WIN32)
@@ -1044,22 +1077,54 @@ inline bool PointerIsValid(const void* ptr)
 /// @brief This implementation probes whether the page containing ptr is currently mapped in this process,
 ///        to guess whether the pointer might be valid.
 /// @param ptr Pointer to the memory location to check.
-/// @return `true` if the pointer is valid, `false` otherwise.
 /// @note This is not a safety/readability guarantee. A mapped page may still be unreadable (e.g., `PROT_NONE`),
-///       so dereferencing ptr can still fault even if this returns `true`.
-inline bool PointerIsValid(const void* ptr)
+///       so dereferencing ptr can still fault even if this yields a valid region.
+inline ReadableRegion::ReadableRegion(const void* ptr)
 {
     if (ptr == nullptr)
     {
-        return false;
+        return;
     }
 
     uintptr_t     page_start = GetPageStartAddress(ptr);
     static size_t page_size  = GetSystemPageSize();
     // Returns -1 with errno=ENOMEM if the indicated memory (or part of it) was not mapped.
-    return msync(reinterpret_cast<void*>(page_start), page_size, MS_ASYNC) == 0;
+    if (msync(reinterpret_cast<void*>(page_start), page_size, MS_ASYNC) != 0)
+    {
+        return;
+    }
+
+    begin_ = reinterpret_cast<const void*>(page_start);
+    end_   = reinterpret_cast<const void*>(page_start + page_size);
 }
 #endif // !WIN32
+
+/// @brief Heuristically determine whether `size` bytes at a pointer likely refer to readable memory in the current
+///        process.
+/// @param ptr Pointer to the first byte to check.
+/// @param size Number of bytes the caller will read; a size of 0 is treated as 1.
+/// @return `true` if every byte of the span lies in a readable region, `false` otherwise.
+/// @note This is a best-effort probe only; it cannot guarantee safety.
+///       Even if this returns true, dereferencing the pointer can still fault.
+inline bool PointerIsValid(const void* ptr, size_t size = 1)
+{
+    ReadableRegion region(ptr);
+    if (!region.IsValid())
+    {
+        return false;
+    }
+    // ReadableRegion::IsValid() guarantees that ptr is non-null and region.Contains(ptr) is true,.
+    assert((ptr != nullptr) && region.Contains(ptr));
+
+    // The region holds ptr and the walk has only to reach last.
+    // NOTE: pointer math deferred until IsValid() to avoid UB on nullptr.
+    const auto* last = static_cast<const uint8_t*>(ptr) + std::max<size_t>(size, 1) - 1;
+    while (region.IsValid() && !region.Contains(last))
+    {
+        ++region;
+    }
+    return region.IsValid();
+}
 
 GFXRECON_END_NAMESPACE(platform)
 GFXRECON_END_NAMESPACE(util)

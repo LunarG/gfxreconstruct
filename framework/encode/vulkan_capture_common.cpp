@@ -20,9 +20,16 @@
  ** DEALINGS IN THE SOFTWARE.
  */
 
+#include "encode/vulkan_handle_wrapper_util.h"
+#include "encode/vulkan_handle_wrappers.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan_capture_common.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "util/logging.h"
 #include "util/platform.h"
+#include "util/to_string.h"
+
+#include <mutex>
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -145,13 +152,13 @@ static bool ExternalFormatRequiresYcbcrConversion(VkFormat format)
     }
 }
 
-void CommonProcessHardwareBuffer(format::ThreadId                      thread_id,
-                                 const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                 format::HandleId                      memory_id,
-                                 AHardwareBuffer*                      hardware_buffer,
-                                 size_t                                allocation_size,
-                                 VulkanCaptureManager*                 vulkan_capture_manager,
-                                 VulkanStateWriter*                    vulkan_state_writer)
+void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
+                                 vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                 format::HandleId                memory_id,
+                                 AHardwareBuffer*                hardware_buffer,
+                                 size_t                          allocation_size,
+                                 VulkanCaptureManager*           vulkan_capture_manager,
+                                 VulkanStateWriter*              vulkan_state_writer)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     assert(hardware_buffer != nullptr);
@@ -261,37 +268,157 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         auto                                 device_table      = vulkan_wrappers::GetDeviceTable(device);
         auto                                 memory_properties = &physical_device_wrapper->memory_properties;
 
-        uint32_t device_queue_index = -1;
-        uint32_t queue_family_index = -1;
+        struct AHBReadbackResources
+        {
+            AHBReadbackResources(const graphics::VulkanDeviceTable* dt, VkDevice d) :
+                device_table(dt), device(d), ahb_image(VK_NULL_HANDLE), image_memory(VK_NULL_HANDLE),
+                ycbcr_conversion(VK_NULL_HANDLE), image_view(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE),
+                host_image(VK_NULL_HANDLE), host_image_memory(VK_NULL_HANDLE), host_image_view(VK_NULL_HANDLE),
+                command_pool(VK_NULL_HANDLE), command_buffer(VK_NULL_HANDLE), compute_shader_module(VK_NULL_HANDLE),
+                descriptor_set_layout(VK_NULL_HANDLE), descriptor_set(VK_NULL_HANDLE), pipeline_layout(VK_NULL_HANDLE),
+                compute_pipeline(VK_NULL_HANDLE), descriptor_pool(VK_NULL_HANDLE), fence(VK_NULL_HANDLE)
+            {
+                GFXRECON_ASSERT(device_table != nullptr);
+                GFXRECON_ASSERT(device != VK_NULL_HANDLE);
+            }
 
+            ~AHBReadbackResources()
+            {
+                if (device_table == nullptr || device == VK_NULL_HANDLE)
+                {
+                    return;
+                }
+
+                if (ahb_image != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyImage(device, ahb_image, nullptr);
+                }
+
+                if (image_memory != VK_NULL_HANDLE)
+                {
+                    device_table->FreeMemory(device, image_memory, nullptr);
+                }
+
+                if (image_view != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyImageView(device, image_view, nullptr);
+                }
+
+                if (sampler != VK_NULL_HANDLE)
+                {
+                    device_table->DestroySampler(device, sampler, nullptr);
+                }
+
+                if (ycbcr_conversion != VK_NULL_HANDLE)
+                {
+                    device_table->DestroySamplerYcbcrConversion(device, ycbcr_conversion, nullptr);
+                }
+
+                if (host_image != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyImage(device, host_image, nullptr);
+                }
+
+                if (host_image_memory != VK_NULL_HANDLE)
+                {
+                    device_table->FreeMemory(device, host_image_memory, nullptr);
+                }
+
+                if (host_image_view != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyImageView(device, host_image_view, nullptr);
+                }
+
+                if (command_pool != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyCommandPool(device, command_pool, nullptr);
+                }
+
+                if (compute_shader_module != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyShaderModule(device, compute_shader_module, nullptr);
+                }
+
+                if (descriptor_set_layout != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
+                }
+
+                if (pipeline_layout != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyPipelineLayout(device, pipeline_layout, nullptr);
+                }
+
+                if (compute_pipeline != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyPipeline(device, compute_pipeline, nullptr);
+                }
+
+                if (descriptor_pool != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyDescriptorPool(device, descriptor_pool, nullptr);
+                }
+
+                if (fence != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyFence(device, fence, nullptr);
+                }
+            }
+
+            const graphics::VulkanDeviceTable* device_table;
+
+            VkDevice                 device;
+            VkImage                  ahb_image;
+            VkDeviceMemory           image_memory;
+            VkSamplerYcbcrConversion ycbcr_conversion;
+            VkImageView              image_view;
+            VkSampler                sampler;
+            VkImage                  host_image;
+            VkDeviceMemory           host_image_memory;
+            VkImageView              host_image_view;
+            VkCommandPool            command_pool;
+            VkCommandBuffer          command_buffer;
+            VkShaderModule           compute_shader_module;
+            VkDescriptorSetLayout    descriptor_set_layout;
+            VkDescriptorSet          descriptor_set;
+            VkPipelineLayout         pipeline_layout;
+            VkPipeline               compute_pipeline;
+            VkDescriptorPool         descriptor_pool;
+            VkFence                  fence;
+        };
+
+        // Write CreateHardwareBufferCmd without the AHB payload
+        CommonWriteCreateHardwareBufferCmd(
+            thread_id, device_id, memory_id, hardware_buffer, plane_info, vulkan_capture_manager, vulkan_state_writer);
+
+        uint32_t queue_family_index = -1;
         uint32_t queue_family_count;
         instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, nullptr);
         std::vector<VkQueueFamilyProperties> queue_family_properties(queue_family_count);
         instance_table->GetPhysicalDeviceQueueFamilyProperties(
             physical_device, &queue_family_count, queue_family_properties.data());
 
-        for (size_t i = 0; i < device_wrapper->queue_family_indices.size(); ++i)
+        vulkan_wrappers::QueueWrapper* queue_wrapper = nullptr;
         {
-            uint32_t qfi = device_wrapper->queue_family_indices[i];
-            if ((queue_family_properties[qfi].queueFlags & VK_QUEUE_COMPUTE_BIT) != 0)
+            std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
+            for (const auto& queue : device_wrapper->child_queues | std::views::values)
             {
-                device_queue_index = i;
-                queue_family_index = qfi;
-                break;
+                GFXRECON_ASSERT(queue_family_properties.size() > queue.family_index);
+                if ((queue_family_properties[queue.family_index].queueFlags & VK_QUEUE_COMPUTE_BIT) ==
+                    VK_QUEUE_COMPUTE_BIT)
+                {
+                    queue_family_index = queue.family_index;
+                    queue_wrapper      = queue.wrapper;
+                    break;
+                }
             }
         }
 
-        if (device_queue_index == -1 || queue_family_index == -1)
+        if (queue_wrapper == nullptr)
+        {
+            GFXRECON_LOG_ERROR("%s failed to find a suitable queue", __func__);
             return;
-
-        auto             queue_wrapper = device_wrapper->child_queues[device_queue_index];
-        format::HandleId queue_id      = queue_wrapper->handle_id;
-
-        // Write CreateHardwareBufferCmd without the AHB payload
-        CommonWriteCreateHardwareBufferCmd(
-            thread_id, device_id, memory_id, hardware_buffer, plane_info, vulkan_capture_manager, vulkan_state_writer);
-
-        VkResult vk_result = VK_SUCCESS;
+        }
 
         // Query the AHB size
         VkAndroidHardwareBufferFormatPropertiesANDROID format_properties;
@@ -302,11 +429,18 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
         properties.pNext = &format_properties;
 
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->GetAndroidHardwareBufferPropertiesANDROID(device, hardware_buffer, &properties);
+        VkResult vk_result =
+            device_table->GetAndroidHardwareBufferPropertiesANDROID(device, hardware_buffer, &properties);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
-        const size_t ahb_size = properties.allocationSize;
-        GFXRECON_ASSERT(ahb_size > 0);
+        // properties.allocationSize may legitimately be zero for a GPU-only AHB (see
+        // VulkanCaptureManager::ProcessHardwareBuffer).  It is passed to vkAllocateMemory unchanged below, which is
+        // what an AHB import requires, so no assumption is made about its value here.
 
         VkExternalFormatANDROID external_format = {};
         external_format.sType                   = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
@@ -356,9 +490,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         image_create_info.pQueueFamilyIndices   = nullptr;
         image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        VkImage ahb_image;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateImage(device, &image_create_info, nullptr, &ahb_image);
+        AHBReadbackResources readback_resources(device_table, device);
+        vk_result = device_table->CreateImage(device, &image_create_info, nullptr, &readback_resources.ahb_image);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkImportAndroidHardwareBufferInfoANDROID import_ahb_info;
         import_ahb_info.sType  = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
@@ -368,7 +507,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         VkMemoryDedicatedAllocateInfo memory_dedicated_allocate_info;
         memory_dedicated_allocate_info.sType  = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
         memory_dedicated_allocate_info.pNext  = &import_ahb_info;
-        memory_dedicated_allocate_info.image  = ahb_image;
+        memory_dedicated_allocate_info.image  = readback_resources.ahb_image;
         memory_dedicated_allocate_info.buffer = VK_NULL_HANDLE;
 
         VkMemoryAllocateInfo memory_allocate_info;
@@ -389,12 +528,23 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         GFXRECON_ASSERT(memory_index < memory_properties->memoryTypeCount);
         memory_allocate_info.memoryTypeIndex = memory_index;
 
-        VkDeviceMemory image_memory;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->AllocateMemory(device, &memory_allocate_info, nullptr, &image_memory);
+        vk_result =
+            device_table->AllocateMemory(device, &memory_allocate_info, nullptr, &readback_resources.image_memory);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->BindImageMemory(device, ahb_image, image_memory, 0);
+        vk_result =
+            device_table->BindImageMemory(device, readback_resources.ahb_image, readback_resources.image_memory, 0);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkSamplerYcbcrConversionCreateInfo sampler_ycbcr_conversion_create_info;
         sampler_ycbcr_conversion_create_info.sType         = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO;
@@ -408,15 +558,19 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         sampler_ycbcr_conversion_create_info.chromaFilter  = VK_FILTER_LINEAR;
         sampler_ycbcr_conversion_create_info.forceExplicitReconstruction = VK_FALSE;
 
-        VkSamplerYcbcrConversion ycbcr_conversion;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateSamplerYcbcrConversion(
-                device, &sampler_ycbcr_conversion_create_info, nullptr, &ycbcr_conversion);
+        vk_result = device_table->CreateSamplerYcbcrConversion(
+            device, &sampler_ycbcr_conversion_create_info, nullptr, &readback_resources.ycbcr_conversion);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkSamplerYcbcrConversionInfo sampler_ycbcr_conversion_info = {};
         sampler_ycbcr_conversion_info.sType                        = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO;
         sampler_ycbcr_conversion_info.pNext                        = nullptr;
-        sampler_ycbcr_conversion_info.conversion                   = ycbcr_conversion;
+        sampler_ycbcr_conversion_info.conversion                   = readback_resources.ycbcr_conversion;
 
         auto ahb_image_aspect_mask = graphics::GetFormatAspects(format_properties.format);
 
@@ -425,7 +579,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         image_view_create_info.pNext =
             ExternalFormatRequiresYcbcrConversion(format_properties.format) ? &sampler_ycbcr_conversion_info : nullptr;
         image_view_create_info.flags                           = 0u;
-        image_view_create_info.image                           = ahb_image;
+        image_view_create_info.image                           = readback_resources.ahb_image;
         image_view_create_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
         image_view_create_info.format                          = format_properties.format;
         image_view_create_info.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -438,9 +592,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         image_view_create_info.subresourceRange.baseArrayLayer = 0u;
         image_view_create_info.subresourceRange.layerCount     = 1u;
 
-        VkImageView image_view;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateImageView(device, &image_view_create_info, nullptr, &image_view);
+        vk_result =
+            device_table->CreateImageView(device, &image_view_create_info, nullptr, &readback_resources.image_view);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkSamplerCreateInfo sampler_create_info;
         sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -462,9 +621,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         sampler_create_info.maxLod                  = 0.0f;
         sampler_create_info.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
         sampler_create_info.unnormalizedCoordinates = VK_FALSE;
-        VkSampler sampler;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateSampler(device, &sampler_create_info, nullptr, &sampler);
+
+        vk_result = device_table->CreateSampler(device, &sampler_create_info, nullptr, &readback_resources.sampler);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkImageUsageFlags host_image_usage  = VK_IMAGE_USAGE_STORAGE_BIT;
         VkFormat          host_image_format = format_properties.format;
@@ -492,12 +656,17 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         host_image_create_info.pQueueFamilyIndices   = nullptr;
         host_image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        VkImage host_image = VK_NULL_HANDLE;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateImage(device, &host_image_create_info, nullptr, &host_image);
+        vk_result = device_table->CreateImage(device, &host_image_create_info, nullptr, &readback_resources.host_image);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkMemoryRequirements host_readable_memory_requirements;
-        device_table->GetImageMemoryRequirements(device, host_image, &host_readable_memory_requirements);
+        device_table->GetImageMemoryRequirements(
+            device, readback_resources.host_image, &host_readable_memory_requirements);
 
         VkMemoryAllocateInfo host_readable_allocate_info;
         host_readable_allocate_info.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -519,18 +688,29 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         GFXRECON_ASSERT(memory_index < memory_properties->memoryTypeCount);
         host_readable_allocate_info.memoryTypeIndex = memory_index;
 
-        VkDeviceMemory host_image_memory = VK_NULL_HANDLE;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->AllocateMemory(device, &host_readable_allocate_info, nullptr, &host_image_memory);
+        vk_result = device_table->AllocateMemory(
+            device, &host_readable_allocate_info, nullptr, &readback_resources.host_image_memory);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->BindImageMemory(device, host_image, host_image_memory, 0);
+        vk_result = device_table->BindImageMemory(
+            device, readback_resources.host_image, readback_resources.host_image_memory, 0);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         auto host_image_aspect_mask = graphics::GetFormatAspects(host_image_format);
 
         VkImageViewCreateInfo host_image_view_create_info{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, nullptr };
         host_image_view_create_info.flags                           = 0u;
-        host_image_view_create_info.image                           = host_image;
+        host_image_view_create_info.image                           = readback_resources.host_image;
         host_image_view_create_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
         host_image_view_create_info.format                          = host_image_create_info.format;
         host_image_view_create_info.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -543,9 +723,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         host_image_view_create_info.subresourceRange.baseArrayLayer = 0u;
         host_image_view_create_info.subresourceRange.layerCount     = 1u;
 
-        VkImageView host_image_view;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateImageView(device, &host_image_view_create_info, nullptr, &host_image_view);
+        vk_result = device_table->CreateImageView(
+            device, &host_image_view_create_info, nullptr, &readback_resources.host_image_view);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkCommandPoolCreateInfo command_pool_create_info;
         command_pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -553,35 +738,43 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         command_pool_create_info.flags            = 0u;
         command_pool_create_info.queueFamilyIndex = queue_family_index;
 
-        VkCommandPool command_pool;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateCommandPool(device, &command_pool_create_info, nullptr, &command_pool);
+        vk_result = device_table->CreateCommandPool(
+            device, &command_pool_create_info, nullptr, &readback_resources.command_pool);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkCommandBufferAllocateInfo command_buffer_allocate_info;
         command_buffer_allocate_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         command_buffer_allocate_info.pNext              = nullptr;
         command_buffer_allocate_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        command_buffer_allocate_info.commandPool        = command_pool;
+        command_buffer_allocate_info.commandPool        = readback_resources.command_pool;
         command_buffer_allocate_info.commandBufferCount = 1u;
 
-        VkCommandBuffer command_buffer;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->AllocateCommandBuffers(device, &command_buffer_allocate_info, &command_buffer);
+        vk_result = device_table->AllocateCommandBuffers(
+            device, &command_buffer_allocate_info, &readback_resources.command_buffer);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkCommandBufferBeginInfo command_buffer_begin_info;
         command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         command_buffer_begin_info.pNext            = nullptr;
         command_buffer_begin_info.flags            = 0u;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->BeginCommandBuffer(command_buffer, &command_buffer_begin_info);
-
-        VkShaderModule        compute_shader_module = VK_NULL_HANDLE;
-        VkDescriptorSetLayout descriptor_set_layout = VK_NULL_HANDLE;
-        VkPipelineLayout      pipeline_layout       = VK_NULL_HANDLE;
-        VkPipeline            compute_pipeline      = VK_NULL_HANDLE;
-        VkDescriptorPool      descriptor_pool       = VK_NULL_HANDLE;
-        VkDescriptorSet       descriptor_set        = VK_NULL_HANDLE;
+        vk_result = device_table->BeginCommandBuffer(readback_resources.command_buffer, &command_buffer_begin_info);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         if (format_properties.format != VK_FORMAT_UNDEFINED)
         {
@@ -594,7 +787,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
             barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            barriers[0].image                           = ahb_image;
+            barriers[0].image                           = readback_resources.ahb_image;
             barriers[0].subresourceRange.aspectMask     = ahb_image_aspect_mask;
             barriers[0].subresourceRange.baseMipLevel   = 0u;
             barriers[0].subresourceRange.levelCount     = 1u;
@@ -608,14 +801,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
             barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
             barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            barriers[1].image                           = host_image;
+            barriers[1].image                           = readback_resources.host_image;
             barriers[1].subresourceRange.aspectMask     = host_image_aspect_mask;
             barriers[1].subresourceRange.baseMipLevel   = 0u;
             barriers[1].subresourceRange.levelCount     = 1u;
             barriers[1].subresourceRange.baseArrayLayer = 0u;
             barriers[1].subresourceRange.layerCount     = 1u;
 
-            device_table->CmdPipelineBarrier(command_buffer,
+            device_table->CmdPipelineBarrier(readback_resources.command_buffer,
                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                                              0,
@@ -633,10 +826,10 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             copy_region.srcSubresource.layerCount = 1;
             copy_region.srcSubresource.aspectMask = ahb_image_aspect_mask;
 
-            device_table->CmdCopyImage(command_buffer,
-                                       ahb_image,
+            device_table->CmdCopyImage(readback_resources.command_buffer,
+                                       readback_resources.ahb_image,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                       host_image,
+                                       readback_resources.host_image,
                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                        1,
                                        &copy_region);
@@ -738,16 +931,21 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             shader_module_create_info.flags    = 0u;
             shader_module_create_info.codeSize = shader.size() * sizeof(uint32_t);
             shader_module_create_info.pCode    = shader.data();
-            if (vk_result == VK_SUCCESS)
-                vk_result = device_table->CreateShaderModule(
-                    device, &shader_module_create_info, nullptr, &compute_shader_module);
+            vk_result                          = device_table->CreateShaderModule(
+                device, &shader_module_create_info, nullptr, &readback_resources.compute_shader_module);
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                                   util::ToString(vk_result).c_str());
+                return;
+            }
 
             VkPipelineShaderStageCreateInfo shader_stage_create_info;
             shader_stage_create_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             shader_stage_create_info.pNext               = nullptr;
             shader_stage_create_info.flags               = 0u;
             shader_stage_create_info.stage               = VK_SHADER_STAGE_COMPUTE_BIT;
-            shader_stage_create_info.module              = compute_shader_module;
+            shader_stage_create_info.module              = readback_resources.compute_shader_module;
             shader_stage_create_info.pName               = "main";
             shader_stage_create_info.pSpecializationInfo = nullptr;
 
@@ -756,7 +954,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             bindings[0].descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             bindings[0].descriptorCount    = 1u;
             bindings[0].stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT;
-            bindings[0].pImmutableSamplers = &sampler;
+            bindings[0].pImmutableSamplers = &readback_resources.sampler;
             bindings[1].binding            = 1u;
             bindings[1].descriptorType     = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
             bindings[1].descriptorCount    = 1u;
@@ -770,34 +968,54 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             descriptor_set_layout_create_info.bindingCount = 2u;
             descriptor_set_layout_create_info.pBindings    = bindings;
 
-            if (vk_result == VK_SUCCESS)
-                vk_result = device_table->CreateDescriptorSetLayout(
-                    device, &descriptor_set_layout_create_info, nullptr, &descriptor_set_layout);
+            vk_result = device_table->CreateDescriptorSetLayout(
+                device, &descriptor_set_layout_create_info, nullptr, &readback_resources.descriptor_set_layout);
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                                   util::ToString(vk_result).c_str());
+                return;
+            }
 
             VkPipelineLayoutCreateInfo pipeline_layout_create_info;
             pipeline_layout_create_info.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipeline_layout_create_info.pNext                  = nullptr;
             pipeline_layout_create_info.flags                  = 0u;
             pipeline_layout_create_info.setLayoutCount         = 1u;
-            pipeline_layout_create_info.pSetLayouts            = &descriptor_set_layout;
+            pipeline_layout_create_info.pSetLayouts            = &readback_resources.descriptor_set_layout;
             pipeline_layout_create_info.pushConstantRangeCount = 0u;
             pipeline_layout_create_info.pPushConstantRanges    = nullptr;
 
-            if (vk_result == VK_SUCCESS)
-                vk_result =
-                    device_table->CreatePipelineLayout(device, &pipeline_layout_create_info, nullptr, &pipeline_layout);
+            vk_result = device_table->CreatePipelineLayout(
+                device, &pipeline_layout_create_info, nullptr, &readback_resources.pipeline_layout);
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                                   util::ToString(vk_result).c_str());
+                return;
+            }
 
             VkComputePipelineCreateInfo compute_pipeline_create_info;
             compute_pipeline_create_info.sType              = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
             compute_pipeline_create_info.pNext              = nullptr;
             compute_pipeline_create_info.flags              = 0u;
             compute_pipeline_create_info.stage              = shader_stage_create_info;
-            compute_pipeline_create_info.layout             = pipeline_layout;
+            compute_pipeline_create_info.layout             = readback_resources.pipeline_layout;
             compute_pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
             compute_pipeline_create_info.basePipelineIndex  = -1;
 
-            device_table->CreateComputePipelines(
-                device, VK_NULL_HANDLE, 1u, &compute_pipeline_create_info, nullptr, &compute_pipeline);
+            vk_result = device_table->CreateComputePipelines(device,
+                                                             VK_NULL_HANDLE,
+                                                             1u,
+                                                             &compute_pipeline_create_info,
+                                                             nullptr,
+                                                             &readback_resources.compute_pipeline);
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                                   util::ToString(vk_result).c_str());
+                return;
+            }
 
             VkDescriptorPoolSize pool_sizes[2];
             pool_sizes[0].type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -813,40 +1031,50 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             descriptor_pool_create_info.poolSizeCount = 2u;
             descriptor_pool_create_info.pPoolSizes    = pool_sizes;
 
-            if (vk_result == VK_SUCCESS)
-                vk_result =
-                    device_table->CreateDescriptorPool(device, &descriptor_pool_create_info, nullptr, &descriptor_pool);
+            vk_result = device_table->CreateDescriptorPool(
+                device, &descriptor_pool_create_info, nullptr, &readback_resources.descriptor_pool);
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                                   util::ToString(vk_result).c_str());
+                return;
+            }
 
             VkDescriptorSetAllocateInfo descriptor_set_allocate_info;
             descriptor_set_allocate_info.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             descriptor_set_allocate_info.pNext              = nullptr;
-            descriptor_set_allocate_info.descriptorPool     = descriptor_pool;
+            descriptor_set_allocate_info.descriptorPool     = readback_resources.descriptor_pool;
             descriptor_set_allocate_info.descriptorSetCount = 1u;
-            descriptor_set_allocate_info.pSetLayouts        = &descriptor_set_layout;
+            descriptor_set_allocate_info.pSetLayouts        = &readback_resources.descriptor_set_layout;
 
-            if (vk_result == VK_SUCCESS)
-                vk_result =
-                    device_table->AllocateDescriptorSets(device, &descriptor_set_allocate_info, &descriptor_set);
+            vk_result = device_table->AllocateDescriptorSets(
+                device, &descriptor_set_allocate_info, &readback_resources.descriptor_set);
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                                   util::ToString(vk_result).c_str());
+                return;
+            }
 
             VkDescriptorImageInfo image_info = {};
-            image_info.sampler               = sampler;
-            image_info.imageView             = image_view;
+            image_info.sampler               = readback_resources.sampler;
+            image_info.imageView             = readback_resources.image_view;
             image_info.imageLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
             VkDescriptorImageInfo host_image_info = {};
-            host_image_info.imageView             = host_image_view;
+            host_image_info.imageView             = readback_resources.host_image_view;
             host_image_info.imageLayout           = VK_IMAGE_LAYOUT_GENERAL;
 
             VkWriteDescriptorSet descriptor_writes[2] = {};
             descriptor_writes[0].sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptor_writes[0].dstSet               = descriptor_set;
+            descriptor_writes[0].dstSet               = readback_resources.descriptor_set;
             descriptor_writes[0].dstBinding           = 0u;
             descriptor_writes[0].dstArrayElement      = 0u;
             descriptor_writes[0].descriptorCount      = 1u;
             descriptor_writes[0].descriptorType       = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             descriptor_writes[0].pImageInfo           = &image_info;
             descriptor_writes[1].sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptor_writes[1].dstSet               = descriptor_set;
+            descriptor_writes[1].dstSet               = readback_resources.descriptor_set;
             descriptor_writes[1].dstBinding           = 1u;
             descriptor_writes[1].dstArrayElement      = 0u;
             descriptor_writes[1].descriptorCount      = 1u;
@@ -865,7 +1093,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                 barriers[0].newLayout                       = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                barriers[0].image                           = ahb_image;
+                barriers[0].image                           = readback_resources.ahb_image;
                 barriers[0].subresourceRange.aspectMask     = ahb_image_aspect_mask;
                 barriers[0].subresourceRange.baseMipLevel   = 0u;
                 barriers[0].subresourceRange.levelCount     = 1u;
@@ -878,14 +1106,14 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                 barriers[1].newLayout                       = VK_IMAGE_LAYOUT_GENERAL;
                 barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                barriers[1].image                           = host_image;
+                barriers[1].image                           = readback_resources.host_image;
                 barriers[1].subresourceRange.aspectMask     = host_image_aspect_mask;
                 barriers[1].subresourceRange.baseMipLevel   = 0u;
                 barriers[1].subresourceRange.levelCount     = 1u;
                 barriers[1].subresourceRange.baseArrayLayer = 0u;
                 barriers[1].subresourceRange.layerCount     = 1u;
 
-                device_table->CmdPipelineBarrier(command_buffer,
+                device_table->CmdPipelineBarrier(readback_resources.command_buffer,
                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                  VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                                  0,
@@ -896,14 +1124,29 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                                                  2,
                                                  barriers);
 
-                device_table->CmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, compute_pipeline);
-                device_table->CmdBindDescriptorSets(
-                    command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout, 0, 1, &descriptor_set, 0, nullptr);
-                device_table->CmdDispatch(command_buffer, (desc.width + 15) / 16, (desc.height + 15) / 16, 1u);
+                device_table->CmdBindPipeline(readback_resources.command_buffer,
+                                              VK_PIPELINE_BIND_POINT_COMPUTE,
+                                              readback_resources.compute_pipeline);
+                device_table->CmdBindDescriptorSets(readback_resources.command_buffer,
+                                                    VK_PIPELINE_BIND_POINT_COMPUTE,
+                                                    readback_resources.pipeline_layout,
+                                                    0,
+                                                    1,
+                                                    &readback_resources.descriptor_set,
+                                                    0,
+                                                    nullptr);
+                device_table->CmdDispatch(
+                    readback_resources.command_buffer, (desc.width + 15) / 16, (desc.height + 15) / 16, 1u);
             }
         }
 
-        device_table->EndCommandBuffer(command_buffer);
+        vk_result = device_table->EndCommandBuffer(readback_resources.command_buffer);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         VkSubmitInfo submit_info;
         submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -912,7 +1155,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         submit_info.pWaitSemaphores      = nullptr;
         submit_info.pWaitDstStageMask    = nullptr;
         submit_info.commandBufferCount   = 1u;
-        submit_info.pCommandBuffers      = &command_buffer;
+        submit_info.pCommandBuffers      = &readback_resources.command_buffer;
         submit_info.signalSemaphoreCount = 0u;
         submit_info.pSignalSemaphores    = nullptr;
 
@@ -921,74 +1164,81 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         fence_create_info.pNext = nullptr;
         fence_create_info.flags = 0u;
 
-        VkFence fence;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->CreateFence(device, &fence_create_info, nullptr, &fence);
+        vk_result = device_table->CreateFence(device, &fence_create_info, nullptr, &readback_resources.fence);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
-        auto queue = device_wrapper->child_queues[device_queue_index]->handle;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->QueueSubmit(queue, 1, &submit_info, fence);
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->WaitForFences(device, 1u, &fence, VK_TRUE, UINT64_MAX);
+        {
+            // Host access to the queue must be externally synchronized with the application's own queue calls.
+            std::lock_guard<std::mutex> queue_lock(queue_wrapper->queue_mutex);
+            vk_result = device_table->QueueSubmit(queue_wrapper->handle, 1, &submit_info, readback_resources.fence);
+        }
+
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
+
+        vk_result = device_table->WaitForFences(device, 1u, &readback_resources.fence, VK_TRUE, UINT64_MAX);
+        if (vk_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
+        }
 
         void*  data;
         size_t data_size = host_readable_memory_requirements.size;
-        if (vk_result == VK_SUCCESS)
-            vk_result = device_table->MapMemory(device, host_image_memory, 0u, data_size, 0u, &data);
-
-        if (vk_result == VK_SUCCESS)
+        vk_result = device_table->MapMemory(device, readback_resources.host_image_memory, 0u, data_size, 0u, &data);
+        if (vk_result != VK_SUCCESS)
         {
-            // Calculate AHB's stride. desc.stride is in pixels
-            const VKU_FORMAT_INFO linear_format_info = vkuGetFormatInfo(host_image_format);
-            const uint32_t ahb_stride = (desc.stride ? desc.stride : desc.width) * linear_format_info.texel_block_size;
-
-            // Query the stride of the host image we created
-            VkSubresourceLayout      host_mem_layout;
-            const VkImageSubresource host_sub_resource = { host_image_aspect_mask, 0, 0 };
-            device_table->GetImageSubresourceLayout(device, host_image, &host_sub_resource, &host_mem_layout);
-
-            // If strides don't match copy dumped image into a tightly packed memory
-            if (static_cast<VkDeviceSize>(ahb_stride) != host_mem_layout.rowPitch)
-            {
-                const size_t         tightly_packed_image_size = ahb_stride * desc.height;
-                std::vector<uint8_t> tightly_packed_image(tightly_packed_image_size);
-
-                // Move image into the tightly packed memory
-                const uint8_t* in_ptr  = static_cast<uint8_t*>(data);
-                uint8_t*       out_ptr = tightly_packed_image.data();
-                for (uint32_t y = 0; y < desc.height; ++y)
-                {
-                    util::platform::MemoryCopy(out_ptr, ahb_stride, in_ptr, ahb_stride);
-                    in_ptr += host_mem_layout.rowPitch;
-                    out_ptr += ahb_stride;
-                }
-
-                CommonWriteFillMemoryCmd(memory_id,
-                                         tightly_packed_image.size(),
-                                         tightly_packed_image.data(),
-                                         vulkan_capture_manager,
-                                         vulkan_state_writer);
-            }
-            else
-            {
-                CommonWriteFillMemoryCmd(memory_id, data_size, data, vulkan_capture_manager, vulkan_state_writer);
-            }
+            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable (%s)",
+                               util::ToString(vk_result).c_str());
+            return;
         }
 
-        device_table->DestroyFence(device, fence, nullptr);
-        device_table->DestroyCommandPool(device, command_pool, nullptr);
-        device_table->DestroyDescriptorPool(device, descriptor_pool, nullptr);
-        device_table->DestroyPipeline(device, compute_pipeline, nullptr);
-        device_table->DestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
-        device_table->DestroyPipelineLayout(device, pipeline_layout, nullptr);
-        device_table->DestroyShaderModule(device, compute_shader_module, nullptr);
-        device_table->FreeMemory(device, host_image_memory, nullptr);
-        device_table->FreeMemory(device, image_memory, nullptr);
-        device_table->DestroyImage(device, ahb_image, nullptr);
-        device_table->DestroyImage(device, host_image, nullptr);
+        // Calculate AHB's stride. desc.stride is in pixels
+        const VKU_FORMAT_INFO linear_format_info = vkuGetFormatInfo(host_image_format);
+        const uint32_t ahb_stride = (desc.stride ? desc.stride : desc.width) * linear_format_info.texel_block_size;
 
-        if (vk_result != VK_SUCCESS)
-            GFXRECON_LOG_ERROR("Failed to copy data from AHardwareBuffer that is not cpu readable");
+        // Query the stride of the host image we created
+        VkSubresourceLayout      host_mem_layout;
+        const VkImageSubresource host_sub_resource = { host_image_aspect_mask, 0, 0 };
+        device_table->GetImageSubresourceLayout(
+            device, readback_resources.host_image, &host_sub_resource, &host_mem_layout);
+
+        // If strides don't match copy dumped image into a tightly packed memory
+        if (static_cast<VkDeviceSize>(ahb_stride) != host_mem_layout.rowPitch)
+        {
+            const size_t         tightly_packed_image_size = ahb_stride * desc.height;
+            std::vector<uint8_t> tightly_packed_image(tightly_packed_image_size);
+
+            // Move image into the tightly packed memory
+            const uint8_t* in_ptr  = static_cast<uint8_t*>(data);
+            uint8_t*       out_ptr = tightly_packed_image.data();
+            for (uint32_t y = 0; y < desc.height; ++y)
+            {
+                util::platform::MemoryCopy(out_ptr, ahb_stride, in_ptr, ahb_stride);
+                in_ptr += host_mem_layout.rowPitch;
+                out_ptr += ahb_stride;
+            }
+
+            CommonWriteFillMemoryCmd(memory_id,
+                                     tightly_packed_image.size(),
+                                     tightly_packed_image.data(),
+                                     vulkan_capture_manager,
+                                     vulkan_state_writer);
+        }
+        else
+        {
+            CommonWriteFillMemoryCmd(memory_id, data_size, data, vulkan_capture_manager, vulkan_state_writer);
+        }
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
@@ -998,6 +1248,22 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
     GFXRECON_UNREFERENCED_PARAMETER(vulkan_capture_manager);
     GFXRECON_UNREFERENCED_PARAMETER(vulkan_state_writer);
 #endif
+}
+
+graphics::VulkanResourcesUtil::QueueLockFn MakeQueueLockFn(const vulkan_wrappers::DeviceWrapper* device_wrapper)
+{
+    GFXRECON_ASSERT(device_wrapper != nullptr);
+
+    return [device_wrapper](VkQueue queue) -> std::unique_lock<std::mutex> {
+        auto* queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+        if (queue_wrapper != nullptr)
+        {
+            return std::unique_lock<std::mutex>(queue_wrapper->queue_mutex);
+        }
+
+        // The application never retrieved this queue, so only capture-internal readbacks can reach it.
+        return std::unique_lock<std::mutex>(device_wrapper->untracked_queues_mutex);
+    };
 }
 
 GFXRECON_END_NAMESPACE(encode)

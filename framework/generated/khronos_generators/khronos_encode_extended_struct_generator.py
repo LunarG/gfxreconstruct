@@ -145,7 +145,7 @@ class KhronosEncodeExtendedStructGenerator():
             file=self.outFile
         )
         write(
-            '                Encode{}Struct(encoder, base->{});'.format(
+            '                Encode{}StructIfValid(encoder, base->{});'.format(
                 current_api_data.extended_struct_func_prefix,
                 current_api_data.extended_struct_variable
             ),

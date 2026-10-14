@@ -29,6 +29,7 @@
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "util/logging.h"
+#include "util/remote_channel.h"
 #include "parse_dump_resources_cli.h"
 
 #include <exception>
@@ -83,15 +84,25 @@ int main(int argc, const char** argv)
     std::vector<std::unique_ptr<gfxrecon::replay::ReplayFeatureBase>> features;
     gfxrecon::replay::LoadFeatures(features);
 
-    // Each Feature adds its own command-line entries to the shared name lists, so an entry
-    // exists only when the build contains the Feature that reads it. The ArgumentParser keeps
-    // its own copy of the names, so the two lists go out of scope as soon as it is built.
-    gfxrecon::util::ArgumentParser arg_parser = [&features, argc, argv]() {
-        std::string options   = kOptions;
-        std::string arguments = kArguments;
-        AppendFeatureOptions(features, options, arguments);
-        return gfxrecon::util::ArgumentParser(argc, argv, options, arguments);
-    }();
+    // Each Feature adds its own command-line entries to the shared name lists, so an entry exists only
+    // when the build contains the Feature that reads it. The lists outlive the parser because remote
+    // settings are parsed against the same names.
+    std::string options   = kOptions;
+    std::string arguments = kArguments;
+    AppendFeatureOptions(features, options, arguments);
+
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
+
+    // If --remote-connect is specified, connect to the controller, which supplies the replay settings. Because the
+    // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
+    // falling back to the command-line arguments.
+    gfxrecon::util::RemoteChannel remote_channel;
+    if (gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments) ==
+        gfxrecon::replay::RemoteSetupResult::kFailed)
+    {
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
 
     if (CheckOptionPrintFeatureVersions<gfxrecon::replay::ReplayFeatureBase>(argv[0], arg_parser))
     {
@@ -154,6 +165,9 @@ int main(int argc, const char** argv)
         GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
         return_code = -1;
     }
+
+    // Notify the controller that replay is complete. A no-op when no remote controller is connected.
+    gfxrecon::replay::ShutdownRemoteChannel(remote_channel, return_code == 0);
 
     WaitForExit();
 

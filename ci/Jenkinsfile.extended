@@ -73,7 +73,15 @@ pipeline {
                     node(scriptLabel) {
                         cleanWs(deleteDirs: true)
                         // Checkout gives this fresh workspace the CI scripts.
-                        checkout scm
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout scm
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         // This script fetches origin/main and the dev-tested
                         // marker ref, then writes small files Jenkins can read.
                         sh './ci/selectExtendedCandidate.sh ci-metadata'
@@ -126,14 +134,22 @@ pipeline {
                     node {
                         // Checkout once on any agent so runJob.groovy can be
                         // loaded and used to construct the parallel closures.
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: requestedBranches,
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: requestedBranches,
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [
@@ -171,14 +187,22 @@ pipeline {
                         // so this workspace has the CI scripts from that tested
                         // revision.  promoteMain.sh will re-fetch main and
                         // fast-forward it to testedCommit.
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: testedCommit]],
-                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                            extensions: scm.extensions,
-                            submoduleCfg: scm.submoduleCfg,
-                            userRemoteConfigs: scm.userRemoteConfigs
-                        ])
+                        // Retry to ride out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: testedCommit]],
+                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                                    extensions: scm.extensions,
+                                    submoduleCfg: scm.submoduleCfg,
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
 
                         // promoteMain.sh uses the exact tested SHA.  It does not
                         // merge the moving dev branch and it never force-pushes.

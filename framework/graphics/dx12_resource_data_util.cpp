@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -249,7 +249,8 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
 
 Dx12ResourceDataUtil::Dx12ResourceDataUtil(ID3D12Device* device, uint64_t min_buffer_size) :
     device_(device), staging_buffers_{ nullptr, nullptr }, staging_buffer_sizes_{ 0, 0 },
-    min_buffer_size_(min_buffer_size), fence_value_(0)
+    min_buffer_size_(min_buffer_size), fence_value_(0), heap_staging_buffer_(nullptr), heap_staging_buffer_capacity_(0),
+    heap_staging_buffer_offset_(0)
 {
     HRESULT result = E_FAIL;
 
@@ -540,6 +541,13 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
             size_t layout_size   = static_cast<size_t>(layout_sizes[i]);
             util::platform::MemoryCopy(
                 subresource_data + layout_offset, layout_size, data.data() + subresource_offsets[i], subresource_size);
+
+            // The staging buffer may be sub-allocated from a reused heap, so zero the bytes that the captured
+            // data doesn't cover. This matches the behavior of a freshly created committed staging buffer.
+            if (layout_size > subresource_size)
+            {
+                std::memset(subresource_data + layout_offset + subresource_size, 0, layout_size - subresource_size);
+            }
         }
         staging_resource->Unmap(0, nullptr);
     }
@@ -892,6 +900,118 @@ Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*              
     }
 
     return result;
+}
+
+HRESULT Dx12ResourceDataUtil::CreateHeapStagingBuffer(uint64_t heap_size)
+{
+    ReleaseHeapStagingBuffer();
+
+    if (heap_size < D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+    {
+        return E_INVALIDARG;
+    }
+
+    heap_size = util::platform::AlignValue<D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT>(heap_size);
+
+    D3D12_HEAP_PROPERTIES props = {};
+    props.Type                  = D3D12_HEAP_TYPE_UPLOAD;
+    props.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    props.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+    props.CreationNodeMask      = 1;
+    props.VisibleNodeMask       = 1;
+
+    D3D12_HEAP_DESC heap_desc = {};
+    heap_desc.SizeInBytes     = heap_size;
+    heap_desc.Properties      = props;
+    heap_desc.Alignment       = 0; // => 64 KiB default
+    heap_desc.Flags           = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
+
+    HRESULT result = device_->CreateHeap(&heap_desc, IID_PPV_ARGS(&heap_staging_buffer_));
+    if (SUCCEEDED(result))
+    {
+        heap_staging_buffer_capacity_ = heap_size;
+    }
+    else
+    {
+        heap_staging_buffer_          = nullptr;
+        heap_staging_buffer_capacity_ = 0;
+    }
+    return result;
+}
+
+uint64_t Dx12ResourceDataUtil::GetHeapStagingBufferTotalSize() const
+{
+    return heap_staging_buffer_capacity_;
+}
+
+uint64_t Dx12ResourceDataUtil::GetHeapStagingBufferAvailableSize() const
+{
+    if (heap_staging_buffer_ == nullptr)
+    {
+        return 0;
+    }
+
+    const uint64_t aligned_offset =
+        util::platform::AlignValue<D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT>(heap_staging_buffer_offset_);
+    if (aligned_offset >= heap_staging_buffer_capacity_)
+    {
+        return 0;
+    }
+    return heap_staging_buffer_capacity_ - aligned_offset;
+}
+
+dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetHeapStagingBuffer(uint64_t required_buffer_size)
+{
+    if ((required_buffer_size == 0) || (heap_staging_buffer_ == nullptr))
+    {
+        return nullptr;
+    }
+
+    if (required_buffer_size > GetHeapStagingBufferAvailableSize())
+    {
+        return nullptr;
+    }
+
+    const uint64_t aligned_offset =
+        util::platform::AlignValue<D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT>(heap_staging_buffer_offset_);
+
+    D3D12_RESOURCE_DESC desc = {};
+    desc.Dimension           = D3D12_RESOURCE_DIMENSION_BUFFER;
+    desc.Alignment           = 0;
+    desc.Width               = required_buffer_size;
+    desc.Height              = 1;
+    desc.DepthOrArraySize    = 1;
+    desc.MipLevels           = 1;
+    desc.Format              = DXGI_FORMAT_UNKNOWN;
+    desc.SampleDesc.Count    = 1;
+    desc.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    desc.Flags               = D3D12_RESOURCE_FLAG_NONE;
+
+    dx12::ID3D12ResourceComPtr placed;
+    HRESULT                    result = device_->CreatePlacedResource(
+        heap_staging_buffer_, aligned_offset, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&placed));
+    if (FAILED(result))
+    {
+        // Treat as a fit failure; the caller falls back to a committed staging buffer.
+        return nullptr;
+    }
+
+    heap_staging_buffer_offset_ = aligned_offset + required_buffer_size;
+    return placed;
+}
+
+void Dx12ResourceDataUtil::ResetHeapStagingBuffer()
+{
+    heap_staging_buffer_offset_ = 0;
+}
+
+void Dx12ResourceDataUtil::ReleaseHeapStagingBuffer()
+{
+    // Fully free the reusable heap. Only safe when no placed buffer is live, i.e. after the batch has been
+    // applied and its staging references released.
+    heap_staging_buffer_          = nullptr;
+    heap_staging_buffer_capacity_ = 0;
+    heap_staging_buffer_offset_   = 0;
 }
 
 GFXRECON_END_NAMESPACE(graphics)

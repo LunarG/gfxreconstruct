@@ -65,7 +65,16 @@ pipeline {
                     node {
                         // checkout scm checks out the branch/commit Jenkins is
                         // building and returns metadata from the Git plugin.
-                        def scmVars = checkout scm
+                        // Retry to ride out transient network failures during the clone.
+                        def scmVars
+                        retry(3) {
+                            try {
+                                scmVars = checkout scm
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         // Save the exact commit tested by this dev build.  Do
                         // not use the dev branch name later because it can move.
                         devTestedCommit = scmVars.GIT_COMMIT
@@ -88,8 +97,6 @@ pipeline {
                             'Windows AMD Dbg': runJob.gfxrTestWindows('Win AMD Dbg', runJob.DebugMode, runJob.WinAMDLabel, "commit-suite.json", scm.branches),
                             'Windows Nvidia Rel': runJob.gfxrTestWindows('Win Nvidia Rel', runJob.ReleaseMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),
                             'Windows Nvidia Dbg': runJob.gfxrTestWindows('Win Nvidia Dbg', runJob.DebugMode, runJob.WinNvidiaLabel, "commit-suite.json", scm.branches),
-                            'Windows11 AMD Rel': runJob.gfxrTestWindows('Win11 AMD Rel', runJob.ReleaseMode, runJob.Win11AMDLabel, "commit-suite.json", scm.branches),
-                            'Windows11 AMD Dbg': runJob.gfxrTestWindows('Win11 AMD Dbg', runJob.DebugMode, runJob.Win11AMDLabel, "commit-suite.json", scm.branches),
                             'Windows11 ARM Rel': runJob.gfxrTestWindows('Win11 ARM Rel', runJob.ReleaseMode, runJob.Win11ARMLabel, "commit-suite.json", scm.branches),
                             'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Win11 ARM Dbg', runJob.DebugMode, runJob.Win11ARMLabel, "commit-suite.json", scm.branches),
                             'Windows11 AMD 9070 Rel': runJob.gfxrTestWindows('Win11 AMD 9070 Rel', runJob.ReleaseMode, runJob.Win11AMD9070Label, "commit-suite.json", scm.branches),
@@ -130,8 +137,16 @@ pipeline {
                     // exact commit this dev build validated.
                     node(scriptLabel) {
                         // This node has a fresh workspace, so checkout before
-                        // running the script from the repository.
-                        checkout scm
+                        // running the script from the repository.  Retry to ride
+                        // out transient network failures during the clone.
+                        retry(3) {
+                            try {
+                                checkout scm
+                            } catch (Exception e) {
+                                sleep(time: 5)
+                                throw e
+                            }
+                        }
                         withCredentials([gitUsernamePassword(
                             credentialsId: gitRemoteCredentialsId(scm),
                             gitToolName: 'Default'

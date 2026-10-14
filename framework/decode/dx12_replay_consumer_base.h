@@ -144,7 +144,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
     {
-        if (options_.windowed_width == 0 && options_.windowed_height == 0)
+        if (!options_.force_windowed)
         {
             options_.windowed_width  = width;
             options_.windowed_height = height;
@@ -209,11 +209,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
                                                    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
-    void PostCall_ID3D12Device_CreateSampler(const ApiCallInfo&                                call_info,
-                                             DxObjectInfo*                                     object_info,
-                                             StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC>* pDesc,
-                                             Decoded_D3D12_CPU_DESCRIPTOR_HANDLE               DestDescriptor);
-
     void
     PostCall_ID3D12Device_CreateShaderResourceView(const ApiCallInfo& call_info,
                                                    DxObjectInfo*      object_info,
@@ -242,6 +237,51 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                  format::HandleId   pResource,
                                                  StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
                                                  Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
+    void PostCall_ID3D12Device15_TryCreateConstantBufferView(
+        const ApiCallInfo&                                             call_info,
+        DxObjectInfo*                                                  object_info,
+        HRESULT                                                        capture_return_value,
+        HRESULT                                                        replay_return_value,
+        StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
+
+    void PostCall_ID3D12Device15_TryCreateShaderResourceView(
+        const ApiCallInfo&                                             call_info,
+        DxObjectInfo*                                                  object_info,
+        HRESULT                                                        capture_return_value,
+        HRESULT                                                        replay_return_value,
+        format::HandleId                                               pResource,
+        StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor);
+
+    void PostCall_ID3D12Device15_TryCreateUnorderedAccessView(
+        const ApiCallInfo&                                              call_info,
+        DxObjectInfo*                                                   object_info,
+        HRESULT                                                         capture_return_value,
+        HRESULT                                                         replay_return_value,
+        format::HandleId                                                pResource,
+        format::HandleId                                                pCounterResource,
+        StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor);
+
+    void PostCall_ID3D12Device15_TryCreateRenderTargetView(
+        const ApiCallInfo&                                           call_info,
+        DxObjectInfo*                                                object_info,
+        HRESULT                                                      capture_return_value,
+        HRESULT                                                      replay_return_value,
+        format::HandleId                                             pResource,
+        StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
+
+    void PostCall_ID3D12Device15_TryCreateDepthStencilView(
+        const ApiCallInfo&                                           call_info,
+        DxObjectInfo*                                                object_info,
+        HRESULT                                                      capture_return_value,
+        HRESULT                                                      replay_return_value,
+        format::HandleId                                             pResource,
+        StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor);
 
     void PostCall_ID3D12GraphicsCommandList_OMSetRenderTargets(
         const ApiCallInfo&                                         call_info,

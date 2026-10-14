@@ -38,9 +38,11 @@
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
+#include "util/logging.h"
 #include "util/output_stream.h"
 #include "util/platform.h"
 
+#include <cinttypes>
 #include <cstring>
 #include <cwchar>
 #include <memory>
@@ -55,6 +57,25 @@ class ParameterEncoder
     ParameterEncoder(util::OutputStream* stream) : output_stream_(stream) {}
 
     ~ParameterEncoder() {}
+
+    // Bound the element count of a fixed-extent array whose registry 'len' names a sibling count member, e.g.
+    // VkPhysicalDeviceMemoryProperties::memoryTypes[VK_MAX_MEMORY_TYPES] with len="memoryTypeCount". The count is
+    // produced by the driver or application; a value above the array's capacity would read past the end of the
+    // source array, so it is clamped to the capacity and reported.
+    static size_t ClampStaticArrayLength(size_t length, size_t capacity, const char* name)
+    {
+        if (length > capacity)
+        {
+            GFXRECON_LOG_WARNING("Element count (%" PRIuPTR ") for %s exceeds the array capacity (%" PRIuPTR
+                                 "); only the first %" PRIuPTR " elements will be encoded",
+                                 length,
+                                 name,
+                                 capacity,
+                                 capacity);
+            return capacity;
+        }
+        return length;
+    }
 
     // clang-format off
 

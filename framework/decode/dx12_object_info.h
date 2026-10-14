@@ -345,12 +345,6 @@ struct DHDepthStencilViewInfo
     std::vector<uint32_t>         subresource_indices; // Only use for dump resources
 };
 
-struct DHSamplerInfo
-{
-    D3D12_SAMPLER_DESC          desc{};
-    D3D12_CPU_DESCRIPTOR_HANDLE replay_handle{ kNullCpuAddress };
-};
-
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
 {
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12DescriptorHeapInfo;
@@ -365,11 +359,10 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 
-    // Descriptor info maps. Key is descriptor's uint32_t heap index.
+    // Descriptor info maps, keyed by heap index. Filled only in dump resources mode.
     std::map<uint32_t, DHCbvSrvUavInfo>        cbv_srv_uav_infos;
     std::map<uint32_t, DHRenderTargetViewInfo> rtv_infos;
     std::map<uint32_t, DHDepthStencilViewInfo> dsv_infos;
-    std::map<uint32_t, DHSamplerInfo>          sampler_infos;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo

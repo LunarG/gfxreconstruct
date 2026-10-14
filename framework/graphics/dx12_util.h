@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -67,6 +67,7 @@ typedef _com_ptr_t<_com_IIID<IDXGIFactory, &__uuidof(IDXGIFactory)>>       IDXGI
 typedef _com_ptr_t<_com_IIID<IDXGIFactory1, &__uuidof(IDXGIFactory1)>>     IDXGIFactory1ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Heap, &__uuidof(ID3D12Heap)>>                         ID3D12HeapComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>>                     ID3D12DeviceComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device5, &__uuidof(ID3D12Device5)>>                   ID3D12Device5ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>>                       ID3D12FenceComPtr;
@@ -373,6 +374,8 @@ uint64_t GetSubresourceSizeTex2D(
     DXGI_FORMAT format, uint32_t height, uint32_t mip_levels, uint32_t row_pitch, uint32_t subresource);
 
 uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource);
+
+size_t GetResolveQueryDataSize(D3D12_QUERY_TYPE type, UINT num_queries);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

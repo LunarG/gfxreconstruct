@@ -1469,7 +1469,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(const DumpedResou
                 const ImageDumpResult can_dump_image = CanDumpImage(instance_table_,
                                                                     device_info->parent,
                                                                     &cloned_image.new_image_info,
-                                                                    device_info->property_feature_info);
+                                                                    device_info->property_feature_info,
+                                                                    device_info->version_extension_info);
 
                 auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                     dumped_resource_base,
@@ -1741,8 +1742,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                         continue;
                     }
 
-                    const ImageDumpResult can_dump_image = CanDumpImage(
-                        instance_table_, device_info->parent, img_info, device_info->property_feature_info);
+                    const ImageDumpResult can_dump_image = CanDumpImage(instance_table_,
+                                                                        device_info->parent,
+                                                                        img_info,
+                                                                        device_info->property_feature_info,
+                                                                        device_info->version_extension_info);
 
                     auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                         dumped_resource_base,

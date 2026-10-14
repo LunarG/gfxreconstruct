@@ -100,7 +100,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
 
     void SetVulkanReplayConsumer(VulkanReplayConsumerBase* vulkan_replay_consumer);
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     void SetAndroidApp(struct android_app* app)
     {
         android_app_ = app;
@@ -481,7 +481,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     std::shared_ptr<application::Application>                   application_;
     graphics::FpsInfo*                                          fps_info_;
 
-#if defined(__ANDROID__)
+#if defined(BUILD_ANDROID_APP)
     struct android_app* android_app_;
 #endif
 

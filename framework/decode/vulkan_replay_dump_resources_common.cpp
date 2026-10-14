@@ -47,10 +47,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             instance_table,
-                             VkPhysicalDevice                                 phys_dev,
-                             const VulkanImageInfo*                           image_info,
-                             const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*              instance_table,
+                             VkPhysicalDevice                                  phys_dev,
+                             const VulkanImageInfo*                            image_info,
+                             const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+                             const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(phys_dev != VK_NULL_HANDLE);
@@ -73,8 +74,12 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             in
     // Check for multisampled images that cannot be resolved
     if (image_info->sample_count != VK_SAMPLE_COUNT_1_BIT)
     {
-        if (graphics::VulkanResourcesUtil::SelectResolveMethod(
-                *instance_table, phys_dev, image_info->format, image_info->tiling, physical_device_features_info) ==
+        if (graphics::VulkanResourcesUtil::SelectResolveMethod(*instance_table,
+                                                               phys_dev,
+                                                               image_info->format,
+                                                               image_info->tiling,
+                                                               physical_device_features_info,
+                                                               device_version_extension_info) ==
             graphics::VulkanResourcesUtil::MultisampleResolveMethod::kUnsupported)
         {
             GFXRECON_LOG_WARNING("Multisampled image with format %s cannot be resolved and will not be dumped.",

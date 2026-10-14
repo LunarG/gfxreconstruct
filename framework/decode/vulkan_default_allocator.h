@@ -377,6 +377,10 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                       MemoryData*                  allocator_data);
 
   private:
+    VkResult AllocateImportedMemory(const VkMemoryAllocateInfo*  allocate_info,
+                                    const VkAllocationCallbacks* allocation_callbacks,
+                                    VkDeviceMemory*              memory);
+
     void ReportBindIncompatibility(const VkMemoryRequirements* requirements,
                                    const MemoryData*           allocator_memory_datas,
                                    uint32_t                    resource_count);

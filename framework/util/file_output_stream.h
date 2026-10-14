@@ -58,15 +58,26 @@ class FileOutputStream : public OutputStream
 
     virtual bool Write(const void* data, size_t len) override;
 
-    virtual void Flush() override { platform::FileFlush(file_); }
+    virtual void Flush() override
+    {
+        // fflush(nullptr) would flush every stream in the process.
+        if (file_ != nullptr)
+        {
+            platform::FileFlush(file_);
+        }
+    }
 
     virtual int64_t GetOffset() const { return platform::FileTell(file_); }
 
   protected:
     FileOutputStream(const FileOutputStream&)            = delete;
     FileOutputStream& operator=(const FileOutputStream&) = delete;
-    FILE*             file_;
-    bool              own_file_;
+
+    void Close();
+
+    FILE*       file_;
+    bool        own_file_;
+    std::string filename_; // Empty when constructed from a FILE*.
 };
 
 class FileNoLockOutputStream : public FileOutputStream

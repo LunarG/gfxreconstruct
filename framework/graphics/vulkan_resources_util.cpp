@@ -23,6 +23,7 @@
 
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_injected_calls.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -933,14 +934,16 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
-                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
+                                         QueueLockFn                                            queue_lock_fn) :
     VulkanResourcesUtil(device,
                         physical_device,
                         graphics::VulkanInjectedDeviceCalls(&device_table),
                         instance_table,
                         physical_device_features_info,
                         device_version_extension_info,
-                        memory_properties)
+                        memory_properties,
+                        std::move(queue_lock_fn))
 {}
 
 VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
@@ -949,11 +952,12 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
-                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
+                                         QueueLockFn                                            queue_lock_fn) :
     device_(device),
     device_table_(injected_device_calls), physical_device_(physical_device), instance_table_(instance_table),
     memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info),
-    device_version_extension_info_(device_version_extension_info)
+    device_version_extension_info_(device_version_extension_info), queue_lock_fn_(std::move(queue_lock_fn))
 
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -1814,7 +1818,17 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
         return result;
     }
 
-    result = injected->QueueSubmit(queue, 1, &submit_info, fence);
+    {
+        // Host access to the queue must be externally synchronized; the owner of the queue may hand out a lock.
+        std::unique_lock<std::mutex> queue_lock;
+        if (queue_lock_fn_)
+        {
+            queue_lock = queue_lock_fn_(queue);
+        }
+
+        result = injected->QueueSubmit(queue, 1, &submit_info, fence);
+    }
+
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to submit command buffer for execution while taking a resource memory snapshot");
@@ -1837,13 +1851,101 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
     return result;
 }
 
+static std::vector<uint64_t> GetDrmFormatModifiers(const VkImageCreateInfo* create_info)
+{
+    if (const auto* explicit_info = vulkan_struct_get_pnext<VkImageDrmFormatModifierExplicitCreateInfoEXT>(create_info))
+    {
+        return { explicit_info->drmFormatModifier };
+    }
+
+    if (const auto* list_info = vulkan_struct_get_pnext<VkImageDrmFormatModifierListCreateInfoEXT>(create_info))
+    {
+        return { list_info->pDrmFormatModifiers, list_info->pDrmFormatModifiers + list_info->drmFormatModifierCount };
+    }
+
+    return {};
+}
+
+static std::vector<VkDrmFormatModifierPropertiesEXT> GetDrmFormatModifierProperties(
+    const VulkanInstanceTable& instance_table, VkPhysicalDevice physical_device, VkFormat format)
+{
+    PFN_vkGetPhysicalDeviceFormatProperties2 get_format_properties2 = instance_table.GetPhysicalDeviceFormatProperties2;
+    if (get_format_properties2 == noop::vkGetPhysicalDeviceFormatProperties2)
+    {
+        get_format_properties2 = instance_table.GetPhysicalDeviceFormatProperties2KHR;
+    }
+    if (get_format_properties2 == noop::vkGetPhysicalDeviceFormatProperties2KHR)
+    {
+        return {};
+    }
+
+    VkDrmFormatModifierPropertiesListEXT modifier_list = { VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT };
+    VkFormatProperties2                  format_props  = { VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2, &modifier_list };
+
+    // First call to get number of modifiers
+    get_format_properties2(physical_device, format, &format_props);
+
+    std::vector<VkDrmFormatModifierPropertiesEXT> modifier_props(modifier_list.drmFormatModifierCount);
+    if (!modifier_props.empty())
+    {
+        modifier_list.pDrmFormatModifierProperties = modifier_props.data();
+        get_format_properties2(physical_device, format, &format_props);
+    }
+
+    return modifier_props;
+}
+
+static bool IsDrmFormatModifiersSupported(const VulkanInstanceTable& instance_table,
+                                          VkPhysicalDevice           physical_device,
+                                          VkFormat                   format,
+                                          VkFormatFeatureFlags       feature_flags,
+                                          const VkImageCreateInfo*   create_info)
+{
+    const std::vector<uint64_t> modifiers = GetDrmFormatModifiers(create_info);
+    if (modifiers.empty())
+    {
+        return false;
+    }
+
+    const std::vector<VkDrmFormatModifierPropertiesEXT> modifier_props =
+        GetDrmFormatModifierProperties(instance_table, physical_device, format);
+
+    for (uint64_t modifier : modifiers)
+    {
+        bool supported = false;
+
+        for (const VkDrmFormatModifierPropertiesEXT& props : modifier_props)
+        {
+            if (props.drmFormatModifier == modifier)
+            {
+                supported = (props.drmFormatModifierTilingFeatures & feature_flags) == feature_flags;
+                break;
+            }
+        }
+
+        if (!supported)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool VulkanResourcesUtil::IsFormatSupported(const VulkanInstanceTable& instance_table,
                                             VkPhysicalDevice           physical_device,
                                             VkFormat                   format,
                                             VkImageTiling              tiling,
-                                            VkFormatFeatureFlags       feature_flags)
+                                            VkFormatFeatureFlags       feature_flags,
+                                            const VkImageCreateInfo*   create_info)
 {
-    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL);
+    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL ||
+                    tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
+
+    if (tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT)
+    {
+        return IsDrmFormatModifiersSupported(instance_table, physical_device, format, feature_flags, create_info);
+    }
 
     VkFormatProperties format_props;
     instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_props);
@@ -1929,14 +2031,16 @@ bool VulkanResourcesUtil::CanRenderPassResolve(
     return true;
 }
 
-VulkanResourcesUtil::MultisampleResolveMethod
-VulkanResourcesUtil::SelectResolveMethod(const VulkanInstanceTable&                       instance_table,
-                                         VkPhysicalDevice                                 physical_device,
-                                         VkFormat                                         format,
-                                         VkImageTiling                                    tiling,
-                                         const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+VulkanResourcesUtil::MultisampleResolveMethod VulkanResourcesUtil::SelectResolveMethod(
+    const VulkanInstanceTable&                        instance_table,
+    VkPhysicalDevice                                  physical_device,
+    VkFormat                                          format,
+    VkImageTiling                                     tiling,
+    const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info)
 {
-    if (CanTransferResolve(instance_table, physical_device, format, tiling, physical_device_features_info))
+    if (CanTransferResolve(
+            instance_table, physical_device, format, physical_device_features_info, device_version_extension_info))
     {
         return MultisampleResolveMethod::kTransfer;
     }
@@ -1950,22 +2054,28 @@ VulkanResourcesUtil::SelectResolveMethod(const VulkanInstanceTable&             
 }
 
 bool VulkanResourcesUtil::CanTransferResolve(
-    const VulkanInstanceTable&                       instance_table,
-    VkPhysicalDevice                                 physical_device,
-    VkFormat                                         format,
-    VkImageTiling                                    tiling,
-    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+    const VulkanInstanceTable&                        instance_table,
+    VkPhysicalDevice                                  physical_device,
+    VkFormat                                          format,
+    const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
+    const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info)
 {
-    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_OPTIMAL || tiling == VK_IMAGE_TILING_LINEAR);
+    // Maintenace10 and depth/stencil formats require vkCmdResolveImage2 and VkResolveImageModeInfoKHR.
+    const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
+    const bool is_depth_stencil        = vkuFormatIsDepthOrStencil(format);
+    const bool copy_commands_2_available =
+        device_version_extension_info.api_version >= VK_API_VERSION_1_3 ||
+        device_version_extension_info.IsExtensionAvailable(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
+    if (is_depth_stencil && (!maintenance10_supported || !copy_commands_2_available))
+    {
+        return false;
+    }
 
     VkFormatProperties format_properties{};
     instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_properties);
-    const VkFormatFeatureFlags& supported_feature_flags = tiling == VK_IMAGE_TILING_LINEAR
-                                                              ? format_properties.linearTilingFeatures
-                                                              : format_properties.optimalTilingFeatures;
 
-    // Maintenace10 and depth/stencil formats require vkCmdResolveImage2 and VkResolveImageModeInfoKHR.
-    const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
+    // VulkanResourcesUtil creates an image with TILING_OPTIMAL
+    const VkFormatFeatureFlags& supported_feature_flags = format_properties.optimalTilingFeatures;
     if ((supported_feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT ||
         (maintenance10_supported && (supported_feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
                                         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT))
@@ -2267,16 +2377,16 @@ VkResult VulkanResourcesUtil::RenderPassResolve(VkCommandBuffer       command_bu
     return VK_SUCCESS;
 }
 
-VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
-                                           VkImage           image,
-                                           VkFormat          format,
-                                           VkImageType       type,
-                                           VkImageTiling     tiling,
-                                           const VkExtent3D& extent,
-                                           uint32_t          array_layers,
-                                           VkImageLayout     current_layout,
-                                           VkImage*          resolved_image,
-                                           VkDeviceMemory*   resolved_image_memory)
+VkResult VulkanResourcesUtil::TransferResolve(VkCommandBuffer   command_buffer,
+                                              VkImage           image,
+                                              VkFormat          format,
+                                              VkImageType       type,
+                                              VkImageTiling     tiling,
+                                              const VkExtent3D& extent,
+                                              uint32_t          array_layers,
+                                              VkImageLayout     current_layout,
+                                              VkImage*          resolved_image,
+                                              VkDeviceMemory*   resolved_image_memory)
 {
     GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
@@ -2439,6 +2549,9 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
             }
             else
             {
+                // Spec forbids resolving depth/stencil images with vkCmdResolveImage
+                GFXRECON_ASSERT(!is_depth_or_stencil);
+
                 VkImageResolve region;
                 region.srcSubresource.aspectMask     = aspect_mask;
                 region.srcSubresource.mipLevel       = 0;
@@ -2457,13 +2570,6 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                 region.extent.width                  = extent.width;
                 region.extent.height                 = extent.height;
                 region.extent.depth                  = extent.depth;
-
-                if (is_depth_or_stencil)
-                {
-                    GFXRECON_LOG_ERROR(
-                        "The image is depth or stencil. It requires CmdCmdResolveImage2, but this device does not "
-                        "support it. It run CmdCmdResolveImage instead, but it might fail in some drivers.");
-                }
 
                 injected->CmdResolveImage(command_buffer,
                                           image,
@@ -2714,20 +2820,24 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
             if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
-                switch (SelectResolveMethod(
-                    instance_table_, physical_device_, img.format, img.tiling, physical_device_features_info_))
+                switch (SelectResolveMethod(instance_table_,
+                                            physical_device_,
+                                            img.format,
+                                            img.tiling,
+                                            physical_device_features_info_,
+                                            device_version_extension_info_))
                 {
                     case MultisampleResolveMethod::kTransfer:
-                        result = ResolveImage(command_buffer,
-                                              img.image,
-                                              img.format,
-                                              img.type,
-                                              img.tiling,
-                                              img.extent,
-                                              img.layer_count,
-                                              img.layout,
-                                              &tmp_data[i].resolve_image,
-                                              &tmp_data[i].resolve_memory);
+                        result = TransferResolve(command_buffer,
+                                                 img.image,
+                                                 img.format,
+                                                 img.type,
+                                                 img.tiling,
+                                                 img.extent,
+                                                 img.layer_count,
+                                                 img.layout,
+                                                 &tmp_data[i].resolve_image,
+                                                 &tmp_data[i].resolve_memory);
                         break;
 
                     case MultisampleResolveMethod::kRenderPass:
@@ -3214,7 +3324,7 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
             }
         } // current batch, consume staging-buffer
 
-        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%d)", __func__, start_idx, end_idx, buffer_resources.size());
+        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%zu)", __func__, start_idx, end_idx, buffer_resources.size());
     }
 }
 

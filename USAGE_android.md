@@ -35,11 +35,12 @@ Additional instructions for debugging the GFXReconstruct capture layer on Androi
     1. [Launch Script](#launch-script)
     2. [Install APK Command](#install-apk-command)
     3. [Replay Command](#replay-command)
-    4. [Touch Controls](#touch-controls)
-    5. [Key Controls](#key-controls)
-    6. [Limitations of Replay On Android](#limitations-of-replay-on-android)
-    7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
-    8. [Dumping resources](#dumping-resources)
+    4. [Remote Replay Control](#remote-replay-control)
+    5. [Touch Controls](#touch-controls)
+    6. [Key Controls](#key-controls)
+    7. [Limitations of Replay On Android](#limitations-of-replay-on-android)
+    8. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
+    9. [Dumping resources](#dumping-resources)
 3. [Android Detailed Examples](#android-detailed-examples)
 
 
@@ -777,6 +778,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-prefix PREFIX]
                           [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
+                          [--screenshot-results]
                           [--capture]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
@@ -809,15 +811,22 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--isolate-render-passes]
                           [--serialize-compute-and-transfer]
                           [--annotate-injected-commands]
+                          [--remote-connect ADDRESS]
                           [file]
 
 Launch the replay tool.
 
 positional arguments:
-  file                  File on device to play (forwarded to replay tool)
+  file                  File on device to play (forwarded to replay tool).
+                        Optional when --remote-connect is given, since the
+                        controller supplies it.
 
 options:
   -h, --help            show this help message and exit
+  --remote-connect ADDRESS
+                        Connect out to a remote controller at the specified
+                        socket address (e.g. unix:@gfxrecon) for settings and
+                        output streaming (forwarded to replay tool)
   -p LOCAL_FILE, --push-file LOCAL_FILE
                         Local file to push to the location on device specified
                         by <file>
@@ -882,6 +891,10 @@ options:
                         Scale screenshot dimensions. Overrides --screenshot-
                         size, if specified. Expects a number which can be
                         decimal
+  --screenshot-results  Write a JSON file next to the screenshots, named after
+                        the screenshot prefix, that records for each requested
+                        frame which files were written and why any image was
+                        skipped (forwarded to replay tool)
   --capture             Capture the replaying GFXR file. Capture uses the same log
                         options as replay. All other capture option behavior and
                         usage is the same as when capturing with the GFXR layer. The
@@ -1181,6 +1194,32 @@ adb push frame_warm_up.spv /sdcard/Download/frame_warm_up.spv
   /sdcard/Download/android_capture.gfxr
 ```
 
+
+### Remote Replay Control
+
+`gfxrecon-replay` can take its entire configuration from a controller process on
+the host over a socket, rather than from intent arguments, and reports back to
+the host over the same socket.
+
+On Android the socket is an abstract Unix domain socket bridged to the host by
+adb, so nothing listens on the network. With `--remote-connect <address>`
+replay dials out to the controller, and the host side needs `adb reverse`.
+
+The capture file and every other setting arrive over the socket, so neither has
+to be pushed to the device first and the `file` argument becomes optional.
+
+[scripts/replay_controller.py](./scripts/replay_controller.py) is a reference
+controller. Start it on the host, then:
+
+```bash
+adb reverse localabstract:gfxrecon tcp:9001
+./android/scripts/gfxrecon.py replay --remote-connect unix:@gfxrecon
+```
+
+For the options themselves, the settings format, and the security posture, see
+[Remote Replay Control](./USAGE_desktop_Vulkan.md#remote-replay-control) in the
+desktop Vulkan documentation. The wire protocol is specified in
+[docs/remote_protocol.md](./docs/remote_protocol.md).
 
 ### Touch Controls
 

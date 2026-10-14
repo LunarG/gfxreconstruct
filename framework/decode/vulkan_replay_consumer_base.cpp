@@ -70,6 +70,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <limits>
 #include <numeric>
@@ -103,16 +104,18 @@ const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThan
     "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
 };
 
-// LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
-const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeThanCapture = {
+// LUT of allowed differing Vulkan return-types caused by replay-timing (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedByReplayTiming = { { VK_TIMEOUT, VK_SUCCESS },
+                                                                                    { VK_NOT_READY, VK_SUCCESS },
+                                                                                    { VK_EVENT_RESET, VK_EVENT_SET } };
 
-    { VK_TIMEOUT, VK_SUCCESS },
-    { VK_NOT_READY, VK_SUCCESS },
+// LUT of allowed differing Vulkan return-types caused by the replay-environment (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedByReplayEnvironment = {
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
     { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+    { VK_INCOMPLETE, VK_SUCCESS },
     { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
-    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS },
-    { VK_EVENT_RESET, VK_EVENT_SET }
+    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -232,6 +235,11 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     if (!options.screenshot_ranges.empty())
     {
         screenshot_controller_ = std::make_unique<ScreenshotController>(options);
+
+        if (options.screenshot_results)
+        {
+            screenshot_json_ = std::make_unique<VulkanScreenshotJson>(options, *screenshot_controller_);
+        }
     }
 
     switch (options.swapchain_option)
@@ -334,6 +342,9 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     // free frame warm up resources
     device_frame_warmups_.clear();
+
+    // free injected timeline semaphores
+    device_submit_job_executors_.clear();
 
     // process queued async tasks
     background_queue_.join_all();
@@ -1656,12 +1667,19 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
+        // a poll or wait landing on the other side is caused by replay-timing alone, nothing to report
+        if (const auto it = kResultValuesAllowedByReplayTiming.find(original);
+            it != kResultValuesAllowedByReplayTiming.end() && replay == it->second)
+        {
+            return;
+        }
+
         // check allow-listed functions
         bool accept_return_code = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
         // check allow-listed capture/replay VkResult-values
-        if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
-            it != kResultValuesAllowedDifferentCodeThanCapture.end())
+        if (const auto it = kResultValuesAllowedByReplayEnvironment.find(original);
+            it != kResultValuesAllowedByReplayEnvironment.end())
         {
             accept_return_code = accept_return_code || replay == it->second;
         }
@@ -2435,22 +2453,23 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     }
 }
 
-void VulkanReplayConsumerBase::ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info)
+// Replay re-creates the debug messengers and callbacks that the application created with
+// vkCreateDebugUtilsMessengerEXT and vkCreateDebugReportCallbackEXT. Later calls use these handles, thus
+// replay must create them. The application callback is not in this process, thus these stubs replace it.
+// Do not use the gfxrecon logging callback here, because it shows all the messages that the application
+// asked for. The messenger that gfxrecon creates for itself continues to log.
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugReportCallback(
+    VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*, void*)
 {
-    assert(instance_info != nullptr);
+    return VK_FALSE;
+}
 
-    if (auto debug_report_info =
-            graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(instance_info->decoded_value))
-    {
-        debug_report_info->pfnCallback = DebugReportCallback;
-    }
-
-    if (auto debug_utils_info =
-            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(instance_info->decoded_value))
-    {
-        debug_utils_info->pfnUserCallback = DebugUtilsCallback;
-        debug_utils_info->pUserData       = this;
-    }
+static VKAPI_ATTR VkBool32 VKAPI_CALL NoopDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                             VkDebugUtilsMessageTypeFlagsEXT,
+                                                             const VkDebugUtilsMessengerCallbackDataEXT*,
+                                                             void*)
+{
+    return VK_FALSE;
 }
 
 void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
@@ -2587,21 +2606,116 @@ void VulkanReplayConsumerBase::SetSwapchainWindowSize(const Decoded_VkSwapchainC
     }
 }
 
-void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const
+void VulkanReplayConsumerBase::EndScreenshotFrame(std::optional<VkResult> replay_result)
+{
+    GFXRECON_ASSERT(screenshot_controller_ != nullptr);
+
+    // Only screenshot frames have entries in the json output.
+    if ((screenshot_json_ != nullptr) && screenshot_controller_->IsScreenshotFrame())
+    {
+        screenshot_json_->EndFrame(replay_result);
+    }
+
+    screenshot_controller_->EndFrame();
+}
+
+bool VulkanReplayConsumerBase::WriteScreenshotOutput(ScreenshotSource&                         source,
+                                                     const ScreenshotRequest&                  request,
+                                                     const std::string&                        base_filename,
+                                                     const VulkanScreenshotJson::OutputImage&  json_output_image,
+                                                     const VulkanScreenshotJson::OutputSource& json_source)
+{
+    GFXRECON_ASSERT(screenshot_controller_ != nullptr);
+
+    if ((request.width == 0) || (request.height == 0))
+    {
+        if (screenshot_json_ != nullptr)
+        {
+            screenshot_json_->SkipOutput(
+                json_source,
+                &json_output_image,
+                request.base_layer,
+                screenshot_reason::kZeroSizeImage,
+                "Cannot create a screenshot for a 0 size image (width=" + std::to_string(request.width) +
+                    ", height=" + std::to_string(request.height) + ")",
+                false);
+        }
+        return false;
+    }
+
+    // At least one entry, so a request of no layers still gets its failed output.
+    std::vector<bool> delivered(std::max<uint32_t>(request.layer_count, 1), false);
+    uint32_t          layers_written = 0;
+
+    // One read for every layer, thus one queue submit and one wait for the frame.
+    source.Readback(request, [&](uint32_t layer, const CpuImage& cpu_image) {
+        GFXRECON_ASSERT((layer >= request.base_layer) && ((layer - request.base_layer) < delivered.size()));
+        delivered[layer - request.base_layer] = true;
+
+        ScreenshotWriteResult result;
+        if (screenshot_controller_->Finish(
+                ScreenshotController::LayerFilename(base_filename, request.layer_count, layer),
+                cpu_image,
+                request.rotation,
+                &result))
+        {
+            ++layers_written;
+        }
+
+        if (screenshot_json_ != nullptr)
+        {
+            screenshot_json_->RecordOutput(json_source, layer, json_output_image, result);
+        }
+    });
+
+    // A layer that failed to read back never reaches the callback
+    if (screenshot_json_ != nullptr)
+    {
+        for (uint32_t i = 0; i < delivered.size(); ++i)
+        {
+            if (!delivered[i])
+            {
+                screenshot_json_->SkipOutput(json_source,
+                                             &json_output_image,
+                                             request.base_layer + i,
+                                             screenshot_reason::kReadbackFailed,
+                                             "Layer " + std::to_string(request.base_layer + i) +
+                                                 " could not be read back from the device",
+                                             true);
+            }
+        }
+    }
+
+    return layers_written > 0;
+}
+
+void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info,
+                                                const VulkanQueueInfo*          queue_info,
+                                                VkResult                        original_result)
 {
     if (meta_info != nullptr && meta_info->decoded_value != nullptr && !meta_info->pSwapchains.IsNull())
     {
         auto present_info  = meta_info->decoded_value;
         auto swapchain_ids = meta_info->pSwapchains.GetPointer();
 
+        if (screenshot_json_ != nullptr)
+        {
+            screenshot_json_->BeginFrameSwapchain(
+                "vkQueuePresentKHR", queue_info, original_result, block_index_, present_info->swapchainCount);
+        }
+
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
             auto swapchain_info = object_info_table_->GetVkSwapchainKHRInfo(swapchain_ids[i]);
+            auto surface_info   = (swapchain_info != nullptr)
+                                      ? object_info_table_->GetVkSurfaceKHRInfo(swapchain_info->surface_id)
+                                      : nullptr;
+
             if (swapchain_info != nullptr && swapchain_info->device_info != nullptr &&
                 swapchain_info->images.size() > 0)
             {
-                auto     device_info = swapchain_info->device_info;
                 uint32_t image_index = present_info->pImageIndices[i];
+                auto     device_info = swapchain_info->device_info;
 
                 auto instance_table = GetInstanceTable(device_info->parent);
                 assert(instance_table != nullptr);
@@ -2616,10 +2730,54 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
                 VkFormat      image_format = swapchain_info->format;
                 VkImageLayout image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-                VkImage       image        = swapchain_info->images[image_index];
+                VkImage       image        = VK_NULL_HANDLE;
                 uint32_t      image_width  = swapchain_info->width;
                 uint32_t      image_height = swapchain_info->height;
                 uint32_t      num_layers   = 1;
+
+                const VkSurfaceTransformFlagBitsKHR recorded_pre_transform =
+                    screenshot_controller_->ApplyPreRotation() ? swapchain_info->pre_transform
+                                                               : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+
+                VulkanScreenshotJson::OutputImage json_output_image{
+                    image_format, image_width, image_height, recorded_pre_transform
+                };
+
+                // Describes the image this swapchain presents for the screenshot JSON. Replaced below when a present
+                // override image takes its place.
+                VulkanScreenshotJson::OutputSource json_source;
+                if (screenshot_json_ != nullptr)
+                {
+                    json_source = screenshot_json_->SwapchainSource("swapchainImage",
+                                                                    format::kNullHandleId,
+                                                                    meta_info,
+                                                                    i,
+                                                                    swapchain_ids[i],
+                                                                    image_index,
+                                                                    swapchain_info,
+                                                                    surface_info);
+                }
+
+                if (image_index < swapchain_info->images.size())
+                {
+                    image = swapchain_info->images[image_index];
+                }
+                else
+                {
+                    if (screenshot_json_ != nullptr)
+                    {
+                        screenshot_json_->SkipOutput(
+                            json_source,
+                            &json_output_image,
+                            0,
+                            screenshot_reason::kImageIndexOutOfRange,
+                            "Present image index " + std::to_string(image_index) + " exceeds the " +
+                                std::to_string(swapchain_info->images.size()) + " replay images of swapchain " +
+                                std::to_string(swapchain_ids[i]),
+                            true);
+                    }
+                    continue;
+                }
 
                 // apply swapchain-image override, if any
                 const VulkanImageInfo* override_img_info = nullptr;
@@ -2635,6 +2793,29 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image_width  = override_img_info->extent.width;
                         image_height = override_img_info->extent.height;
                         num_layers   = override_img_info->layer_count;
+
+                        json_output_image.format = image_format;
+                        json_output_image.width  = image_width;
+                        json_output_image.height = image_height;
+
+                        if (screenshot_json_ != nullptr)
+                        {
+                            json_source = screenshot_json_->SwapchainSource("presentOverrideImage",
+                                                                            present_override_image_id_,
+                                                                            meta_info,
+                                                                            i,
+                                                                            swapchain_ids[i],
+                                                                            image_index,
+                                                                            swapchain_info,
+                                                                            surface_info);
+                        }
+                    }
+                    else if (screenshot_json_ != nullptr)
+                    {
+                        screenshot_json_->AddFrameMessage(
+                            screenshot_reason::kUnknownImage,
+                            "Present override image " + std::to_string(present_override_image_id_) +
+                                " is not known to replay. Falling back to swapchain images");
                     }
                 }
 
@@ -2682,26 +2863,66 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                               memory_properties,
                                               source_image);
 
-                // One read for every layer, thus one queue submit and one wait for the frame.
-                source.Readback(request, [&](uint32_t layer, const CpuImage& cpu_image) {
-                    screenshot_controller_->Finish(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
-                                                                  : filename_prefix,
-                                                   cpu_image,
-                                                   request.rotation);
-                });
+                WriteScreenshotOutput(source, request, filename_prefix, json_output_image, json_source);
+            }
+            else if (screenshot_json_ != nullptr)
+            {
+                // Nothing to read back. Record why in the JSON, when there is one.
+                const auto json_source = screenshot_json_->SwapchainSource("swapchainImage",
+                                                                           format::kNullHandleId,
+                                                                           meta_info,
+                                                                           i,
+                                                                           swapchain_ids[i],
+                                                                           0,
+                                                                           swapchain_info,
+                                                                           surface_info);
+
+                if (swapchain_info == nullptr)
+                {
+                    screenshot_json_->SkipOutput(json_source,
+                                                 nullptr,
+                                                 0,
+                                                 screenshot_reason::kUnknownSwapchain,
+                                                 "Swapchain " + std::to_string(swapchain_ids[i]) +
+                                                     " is not known to replay",
+                                                 true);
+                }
+                else
+                {
+                    screenshot_json_->SkipOutput(json_source,
+                                                 nullptr,
+                                                 0,
+                                                 screenshot_reason::kSwapchainNoImages,
+                                                 "Swapchain " + std::to_string(swapchain_ids[i]) +
+                                                     " has no replay images (surface filtered out by "
+                                                     "--surface-index, or an offscreen swapchain that never "
+                                                     "acquired an image)",
+                                                 false);
+                }
             }
         }
     }
 }
 
 bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
-    const VulkanCommandBufferInfo* command_buffer_info)
+    const VulkanCommandBufferInfo* command_buffer_info,
+    const char*                    call_name,
+    const VulkanQueueInfo*         queue_info,
+    VkResult                       original_result,
+    VkResult                       replay_result)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
+
     if (command_buffer_info->is_frame_boundary)
     {
         if (screenshot_controller_->IsScreenshotFrame())
         {
+            if (screenshot_json_ != nullptr)
+            {
+                screenshot_json_->BeginFrameCommandBuffer(
+                    call_name, queue_info, original_result, block_index_, command_buffer_info->capture_id);
+            }
+
             VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
 
             VkPhysicalDeviceMemoryProperties memory_properties;
@@ -2715,105 +2936,281 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                 instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
             }
 
-            for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
+            const auto& frame_buffer_ids   = command_buffer_info->render_pass_contexts.frame_buffer_ids;
+            const auto& rendering_contexts = command_buffer_info->dynamic_rendering_contexts;
+
+            if (frame_buffer_ids.empty() && rendering_contexts.empty() && (screenshot_json_ != nullptr))
             {
-                auto framebuffer_info =
-                    object_info_table_->GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+                screenshot_json_->SkipFrame(
+                    screenshot_reason::kNoFramebuffers,
+                    "The frame boundary command buffer rendered to no framebuffer or dynamic rendering attachment",
+                    false);
+            }
+
+            const std::string filename_base = screenshot_controller_->FilenameFor();
+
+            // Attachments of the framebuffers bound by vkCmdBeginRenderPass.
+            for (size_t i = 0; i < frame_buffer_ids.size(); ++i)
+            {
+                const format::HandleId framebuffer_id   = frame_buffer_ids[i];
+                auto                   framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
+                if (framebuffer_info == nullptr)
+                {
+                    if (screenshot_json_ != nullptr)
+                    {
+                        screenshot_json_->SkipOutput(
+                            screenshot_json_->ImageSource("framebufferAttachment", format::kNullHandleId),
+                            nullptr,
+                            0,
+                            screenshot_reason::kUnknownFramebuffer,
+                            "Framebuffer " + std::to_string(framebuffer_id) + " (render pass " + std::to_string(i) +
+                                ") is not known to replay",
+                            true);
+                    }
+                    continue;
+                }
 
                 for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
                 {
-                    auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
-                    auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-                    auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
+                    const format::HandleId image_view_id = framebuffer_info->attachment_image_view_ids[j];
 
-                    // Only screenshot images that are color attachments.
-                    if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+                    WriteFrameBoundaryAttachmentScreenshot(
+                        device_info,
+                        memory_properties,
+                        image_view_id,
+                        [&](format::HandleId image_id) {
+                            return screenshot_json_->FramebufferAttachmentSource(
+                                image_id, framebuffer_id, i, j, image_view_id);
+                        },
+                        "Attachment " + std::to_string(j) + " of framebuffer " + std::to_string(framebuffer_id),
+                        filename_base + "_renderpass_" + std::to_string(i) + "_attachment_" + std::to_string(j));
+                }
+            }
+
+            // Attachments of vkCmdBeginRendering, which has no framebuffer. Every attachment is checked for color
+            // attachment usage, as a framebuffer's are.
+            for (size_t i = 0; i < rendering_contexts.size(); ++i)
+            {
+                const auto&       context          = rendering_contexts[i];
+                const std::string rendering_name   = " of dynamic rendering " + std::to_string(i);
+                const std::string rendering_prefix = filename_base + "_rendering_" + std::to_string(i);
+
+                for (size_t j = 0; j < context.color_attachment_ids.size(); ++j)
+                {
+                    const format::HandleId image_view_id = context.color_attachment_ids[j];
+
+                    // A null image view is an unused color attachment slot.
+                    if (image_view_id == format::kNullHandleId)
                     {
                         continue;
                     }
 
-                    std::string filename_prefix = screenshot_controller_->FilenameFor();
+                    WriteFrameBoundaryAttachmentScreenshot(
+                        device_info,
+                        memory_properties,
+                        image_view_id,
+                        [&](format::HandleId image_id) {
+                            return screenshot_json_->DynamicRenderingAttachmentSource(
+                                image_id, i, "color", j, image_view_id);
+                        },
+                        "Color attachment " + std::to_string(j) + rendering_name,
+                        rendering_prefix + "_attachment_" + std::to_string(j));
+                }
 
-                    if (command_buffer_info->frame_buffer_ids.size() > 0)
+                struct
+                {
+                    const char*      kind;
+                    const char*      name;
+                    format::HandleId image_view_id;
+                } const depth_stencil_attachments[] = {
+                    { "depth", "Depth attachment", context.depth_attachment },
+                    { "stencil", "Stencil attachment", context.stencil_attachment }
+                };
+
+                for (const auto& attachment : depth_stencil_attachments)
+                {
+                    if (attachment.image_view_id == format::kNullHandleId)
                     {
-                        filename_prefix += "_renderpass_";
-                        filename_prefix += std::to_string(i);
+                        continue;
                     }
 
-                    if (framebuffer_info->attachment_image_view_ids.size() > 0)
-                    {
-                        filename_prefix += "_attachment_";
-                        filename_prefix += std::to_string(j);
-                    }
-
-                    ScreenshotRequest request;
-                    request.width  = image_info->extent.width;
-                    request.height = image_info->extent.height;
-                    request.scale =
-                        screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
-
-                    const VkImageLayout image_layout =
-                        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
-
-                    VulkanScreenshotSource::Image source_image;
-                    source_image.handle             = image_info->handle;
-                    source_image.format             = image_info->format;
-                    source_image.type               = image_info->type;
-                    source_image.tiling             = image_info->tiling;
-                    source_image.sample_count       = image_info->sample_count;
-                    source_image.layer_layouts      = { image_layout };
-                    source_image.queue_family_index = image_info->queue_family_index;
-
-                    VulkanScreenshotSource source(device_info,
-                                                  GetInjectedDeviceCalls(device_info->handle),
-                                                  GetInstanceTable(device_info->parent),
-                                                  memory_properties,
-                                                  source_image);
-
-                    source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
-                        screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
-                    });
+                    WriteFrameBoundaryAttachmentScreenshot(
+                        device_info,
+                        memory_properties,
+                        attachment.image_view_id,
+                        [&](format::HandleId image_id) {
+                            return screenshot_json_->DynamicRenderingAttachmentSource(
+                                image_id, i, attachment.kind, std::nullopt, attachment.image_view_id);
+                        },
+                        attachment.name + rendering_name,
+                        rendering_prefix + "_" + attachment.kind);
                 }
             }
         }
-        screenshot_controller_->EndFrame();
+
+        EndScreenshotFrame(replay_result);
         return true;
     }
     return false;
 }
 
+void VulkanReplayConsumerBase::WriteFrameBoundaryAttachmentScreenshot(
+    const VulkanDeviceInfo*                                                             device_info,
+    const VkPhysicalDeviceMemoryProperties&                                             memory_properties,
+    format::HandleId                                                                    image_view_id,
+    const std::function<VulkanScreenshotJson::OutputSource(format::HandleId image_id)>& make_json_source,
+    const std::string&                                                                  attachment_name,
+    const std::string&                                                                  filename_prefix)
+{
+    GFXRECON_ASSERT((device_info != nullptr) && (screenshot_controller_ != nullptr));
+
+    const auto             image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+    const format::HandleId image_id = (image_view_info != nullptr) ? image_view_info->image_id : format::kNullHandleId;
+    const auto image_info = (image_view_info != nullptr) ? object_info_table_->GetVkImageInfo(image_id) : nullptr;
+
+    VulkanScreenshotJson::OutputSource json_source;
+    if (screenshot_json_ != nullptr)
+    {
+        json_source = make_json_source(image_id);
+    }
+
+    if (image_info == nullptr)
+    {
+        if (screenshot_json_ != nullptr)
+        {
+            screenshot_json_->SkipOutput(json_source,
+                                         nullptr,
+                                         0,
+                                         screenshot_reason::kUnknownImage,
+                                         attachment_name +
+                                             ((image_view_info == nullptr)
+                                                  ? ": image view " + std::to_string(image_view_id)
+                                                  : ": image " + std::to_string(image_id)) +
+                                             " is not known to replay",
+                                         true);
+        }
+        return;
+    }
+
+    const VulkanScreenshotJson::OutputImage json_output_image{
+        image_info->format, image_info->extent.width, image_info->extent.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+    };
+
+    // Only screenshot images that are color attachments.
+    if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+    {
+        if (screenshot_json_ != nullptr)
+        {
+            screenshot_json_->SkipOutput(json_source,
+                                         &json_output_image,
+                                         0,
+                                         screenshot_reason::kNotColorAttachment,
+                                         attachment_name + " is not a color attachment",
+                                         false);
+        }
+        return;
+    }
+
+    ScreenshotRequest request;
+    request.width  = image_info->extent.width;
+    request.height = image_info->extent.height;
+    request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+
+    const VkImageLayout image_layout =
+        image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+
+    VulkanScreenshotSource::Image source_image;
+    source_image.handle             = image_info->handle;
+    source_image.format             = image_info->format;
+    source_image.type               = image_info->type;
+    source_image.tiling             = image_info->tiling;
+    source_image.sample_count       = image_info->sample_count;
+    source_image.layer_layouts      = { image_layout };
+    source_image.queue_family_index = image_info->queue_family_index;
+
+    VulkanScreenshotSource source(device_info,
+                                  GetInjectedDeviceCalls(device_info->handle),
+                                  GetInstanceTable(device_info->parent),
+                                  memory_properties,
+                                  source_image);
+
+    WriteScreenshotOutput(source, request, filename_prefix, json_output_image, json_source);
+}
+
 bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
-                                                               const PNextNode*        pnext)
+                                                               const PNextNode*        pnext,
+                                                               const char*             call_name,
+                                                               const VulkanQueueInfo*  queue_info,
+                                                               VkResult                original_result,
+                                                               VkResult                replay_result)
 {
     const auto* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pnext);
-    if (frame_boundary == nullptr ||
+    if (frame_boundary == nullptr || frame_boundary->decoded_value == nullptr ||
         ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) == 0))
     {
         return false;
     }
 
-    VkPhysicalDeviceMemoryProperties memory_properties;
-    {
-        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
-        auto                             instance_table = GetInstanceTable(device_info->parent);
-        GFXRECON_ASSERT(instance_table != nullptr);
-
-        instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
-    }
-
     if (screenshot_controller_->IsScreenshotFrame())
     {
-        for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
+        if (screenshot_json_ != nullptr)
+        {
+            screenshot_json_->BeginFrameFrameBoundaryEXT(
+                call_name, queue_info, original_result, block_index_, frame_boundary);
+        }
+        const size_t image_count = frame_boundary->pImages.GetLength();
+
+        VkPhysicalDeviceMemoryProperties memory_properties;
+        {
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+            auto                             instance_table = GetInstanceTable(device_info->parent);
+            GFXRECON_ASSERT(instance_table != nullptr);
+
+            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+        }
+
+        if ((image_count == 0) && (screenshot_json_ != nullptr))
+        {
+            // A frame boundary without images is valid, and common for offscreen rendering. There is nothing replay
+            // could screenshot, so say so instead of silently skipping the frame.
+            screenshot_json_->SkipFrame(screenshot_reason::kFrameBoundaryNoImages,
+                                        std::string("VkFrameBoundaryEXT on ") + call_name +
+                                            " lists no images; nothing to screenshot",
+                                        false);
+        }
+
+        for (size_t i = 0; i < image_count; ++i)
         {
             std::string filename_prefix = screenshot_controller_->FilenameFor();
 
-            if (frame_boundary->pImages.GetLength() > 1)
+            if (image_count > 1)
             {
                 filename_prefix += "_image_" + std::to_string(i);
             }
 
-            const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
-            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
+            const format::HandleId image_id   = frame_boundary->pImages.GetPointer()[i];
+            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(image_id);
+
+            VulkanScreenshotJson::OutputSource json_source;
+            if (screenshot_json_ != nullptr)
+            {
+                json_source = screenshot_json_->ImageSource("frameBoundaryImage", image_id, i);
+            }
+
+            if (image_info == nullptr)
+            {
+                if (screenshot_json_ != nullptr)
+                {
+                    screenshot_json_->SkipOutput(json_source,
+                                                 nullptr,
+                                                 0,
+                                                 screenshot_reason::kUnknownImage,
+                                                 "VkFrameBoundaryEXT image " + std::to_string(image_id) +
+                                                     " is not known to replay",
+                                                 true);
+                }
+                continue;
+            }
 
             ScreenshotRequest request;
             request.width  = image_info->extent.width;
@@ -2838,17 +3235,17 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                                           memory_properties,
                                           source_image);
 
-            source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
-                screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
-            });
+            const VulkanScreenshotJson::OutputImage json_output_image{
+                image_info->format, request.width, request.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+            };
+            WriteScreenshotOutput(source, request, filename_prefix, json_output_image, json_source);
         }
     }
 
-    screenshot_controller_->EndFrame();
+    EndScreenshotFrame(replay_result);
 
     return true;
 }
-
 void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo, CreateInstanceInfoState& create_state)
 {
@@ -2864,9 +3261,15 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     VkInstanceCreateInfo&     modified_create_info = create_state.modified_create_info;
     modified_create_info                           = *replay_create_info;
 
-    // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update the
-    // callback pointers.
-    ProcessCreateInstanceDebugCallbackInfo(pCreateInfo->GetMetaStructPointer());
+    // Remove the VkDebugReportCallbackCreateInfoEXT and VkDebugUtilsMessengerCreateInfoEXT structures of the
+    // application from the pNext chain. The application callbacks are not in this process. These callbacks are
+    // active only during vkCreateInstance and vkDestroyInstance, and no handle refers to them.
+    // Remove them from modified_create_info, not from the decoded structure. If the first structure in the chain is
+    // removed, only the pNext of modified_create_info gets the change.
+    while (graphics::vulkan_struct_remove_pnext<VkDebugReportCallbackCreateInfoEXT>(&modified_create_info) != nullptr)
+    {}
+    while (graphics::vulkan_struct_remove_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info) != nullptr)
+    {}
 
     // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are needed in
     // the replay application.
@@ -3017,8 +3420,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
         // We want to create a debug messenger unconditionally so that
         // debug messages from layers are displayed during replay.
-        // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
-        // in the pNext chain, those messengers will also be created.
         auto ext_debug_utils_it =
             std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
                 return util::platform::StringCompare(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, extension) == 0;
@@ -3028,17 +3429,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             if (ext_debug_utils_it == modified_extensions.end())
             {
                 modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-            }
-
-            // Set pfnUserCallback for all debug messengers down the pNext chain
-            VkDebugUtilsMessengerCreateInfoEXT* pnext_callback_info =
-                graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
-            while (pnext_callback_info != nullptr)
-            {
-                pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
-                pnext_callback_info->pUserData       = this;
-                pnext_callback_info =
-                    graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
             }
 
             create_state.messenger_create_info       = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
@@ -3263,6 +3653,39 @@ void VulkanReplayConsumerBase::OverrideDestroyInstance(
     {
         util::MarkInjectedCommandsHelper mark_injected_commands_helper;
         DestroyInternalInstanceResources(instance_info);
+    }
+
+    // Remove orphaned devices from object table
+    std::vector<format::HandleId> devices_for_removal;
+    object_info_table_->VisitVkDeviceInfo([&](const VulkanDeviceInfo* device_info) {
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        const auto* phys_dev_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+        if (phys_dev_info != nullptr)
+        {
+            const auto* parent_instance_info = object_info_table_->GetVkInstanceInfo(phys_dev_info->parent_id);
+            if (parent_instance_info == instance_info)
+            {
+                if (device_info->duplicate_source_id == format::kNullHandleId)
+                {
+                    auto device_table = GetInjectedDeviceCalls(device_info->handle);
+                    auto injected     = device_table.Open();
+                    injected->DeviceWaitIdle(device_info->handle);
+                    ReleaseDeviceResources(device_info);
+                }
+
+                // VisitVkDeviceInfo is traversing the device info map. Defer RemoveHandle
+                devices_for_removal.push_back(device_info->capture_id);
+            }
+        }
+    });
+
+    for (const auto& device_id : devices_for_removal)
+    {
+        GFXRECON_LOG_WARNING("Instance %" PRIu64 " has been destroyed leaving device %" PRIu64 " orphaned.",
+                             instance_info->capture_id,
+                             device_id);
+        RemoveHandle(device_id, &CommonObjectInfoTable::RemoveVkDeviceInfo);
     }
 
     VkInstance instance = instance_info->handle;
@@ -3861,16 +4284,11 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     return result;
 }
 
-void VulkanReplayConsumerBase::OverrideDestroyDevice(
-    PFN_vkDestroyDevice                                        func,
-    const VulkanDeviceInfo*                                    device_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReplayConsumerBase::ReleaseDeviceResources(const VulkanDeviceInfo* device_info)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
+    if (device_info != nullptr)
     {
-        device                  = device_info->handle;
+        const auto device       = device_info->handle;
         const auto device_table = GetInjectedDeviceCalls(device);
 
         // free replacer internal vulkan-resources for the device
@@ -3885,7 +4303,23 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         // free frame warm up resources before the device is destroyed
         device_frame_warmups_.erase(device_info);
 
+        // free the timeline semaphores injected to serialize submits, while the device that owns them still exists
+        device_submit_job_executors_.erase(device_info);
+
         device_info->allocator->Destroy();
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyDevice(
+    PFN_vkDestroyDevice                                        func,
+    const VulkanDeviceInfo*                                    device_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
+    {
+        ReleaseDeviceResources(device_info);
+
+        VkDevice device = device_info->handle;
         func(device, GetAllocationCallbacks(pAllocator));
     }
 }
@@ -5077,7 +5511,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data[i].pNext))
+                                                    submit_info_data[i].pNext,
+                                                    "vkQueueSubmit",
+                                                    queue_info,
+                                                    original_result,
+                                                    result))
                 {
                     break;
                 }
@@ -5088,7 +5526,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 {
                     auto command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]);
 
-                    if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
+                    // Check whether any of the submitted command lists buffers are frame boundaries.
+                    if (CheckCommandBufferInfoForFrameBoundary(
+                            command_buffer_info, "vkQueueSubmit", queue_info, original_result, result))
                     {
                         break;
                     }
@@ -5370,7 +5810,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
             if (submit_info_data != nullptr)
             {
                 if (CheckPNextChainForFrameBoundary(object_info_table_->GetVkDeviceInfo(queue_info->parent_id),
-                                                    submit_info_data[i].pNext))
+                                                    submit_info_data[i].pNext,
+                                                    "vkQueueSubmit2",
+                                                    queue_info,
+                                                    original_result,
+                                                    result))
                 {
                     break;
                 }
@@ -5381,7 +5825,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 {
                     auto command_buffer_info =
                         GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer);
-                    if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
+                    if (CheckCommandBufferInfoForFrameBoundary(
+                            command_buffer_info, "vkQueueSubmit2", queue_info, original_result, result))
                     {
                         break;
                     }
@@ -6274,80 +6719,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         }
 #endif
 
-        // Since the file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process
-        // we create a new FD at replay by allocating an exportable allocation and importing that FD
-        // instead.
-        VkDeviceMemory external_fd_backing_memory = VK_NULL_HANDLE;
-        int            replacement_import_fd      = -1;
-        auto* import_fd_info = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
-
+        // The file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process. The allocator replaces
+        // it with a valid one when it can preserve the external memory.
         if (!CanPreserveExternalMemory(device_info))
         {
             graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
-            import_fd_info = nullptr;
-        }
-
-        if (import_fd_info != nullptr)
-        {
-            auto device_table = GetInjectedDeviceCalls(device_info->handle);
-            auto injected     = device_table.Open();
-
-            VkExportMemoryAllocateInfo backing_export_info = { VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO };
-            backing_export_info.handleTypes                = import_fd_info->handleType;
-
-            VkMemoryAllocateInfo backing_allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-            backing_allocate_info.pNext                = &backing_export_info;
-            backing_allocate_info.allocationSize       = modified_allocate_info->allocationSize;
-            backing_allocate_info.memoryTypeIndex      = modified_allocate_info->memoryTypeIndex;
-
-            // Since external memory is commonly dedicated
-            VkMemoryDedicatedAllocateInfo backing_dedicated_info = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO };
-            if (const auto* dedicated_info =
-                    graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info))
-            {
-                backing_dedicated_info.image  = dedicated_info->image;
-                backing_dedicated_info.buffer = dedicated_info->buffer;
-                backing_dedicated_info.pNext  = &backing_export_info;
-                backing_allocate_info.pNext   = &backing_dedicated_info;
-            }
-
-            VkResult backing_result = injected->AllocateMemory(
-                device_info->handle, &backing_allocate_info, nullptr, &external_fd_backing_memory);
-
-            if (backing_result == VK_SUCCESS)
-            {
-                VkMemoryGetFdInfoKHR get_fd_info = { VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR };
-                get_fd_info.memory               = external_fd_backing_memory;
-                get_fd_info.handleType           = import_fd_info->handleType;
-
-                backing_result = injected->GetMemoryFdKHR(device_info->handle, &get_fd_info, &replacement_import_fd);
-                if (backing_result != VK_SUCCESS)
-                {
-                    replacement_import_fd = -1;
-                }
-            }
-
-            if (backing_result == VK_SUCCESS)
-            {
-                import_fd_info->fd = replacement_import_fd;
-            }
-            else
-            {
-                // Strip the external memory struct if we could not create a new FD
-                GFXRECON_LOG_WARNING(
-                    "Could not synthesize a replacement import FD for vkAllocateMemory (%s); stripping "
-                    "VkImportMemoryFdInfoKHR and allocating non-external memory instead.",
-                    util::ToString<VkResult>(backing_result).c_str());
-
-                graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
-                import_fd_info = nullptr;
-
-                if (external_fd_backing_memory != VK_NULL_HANDLE)
-                {
-                    injected->FreeMemory(device_info->handle, external_fd_backing_memory, nullptr);
-                    external_fd_backing_memory = VK_NULL_HANDLE;
-                }
-            }
         }
 
         VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
@@ -6458,20 +6834,6 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         {
             external_memory_.emplace(*replay_memory,
                                      std::make_pair(external_memory_guard.release(), host_pointer_size));
-        }
-
-        // Imported memory holds its own reference to the payload and the FD ownership has transferred to the driver.
-        // On failure the import did not consume the FD, so close it to avoid a leak.
-        if (external_fd_backing_memory != VK_NULL_HANDLE)
-        {
-            auto device_table = GetInjectedDeviceCalls(device_info->handle);
-            auto injected     = device_table.Open();
-            injected->FreeMemory(device_info->handle, external_fd_backing_memory, nullptr);
-
-            if (result != VK_SUCCESS && replacement_import_fd >= 0)
-            {
-                util::platform::FileClose(replacement_import_fd);
-            }
         }
     }
     else
@@ -8393,7 +8755,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
     if (!pCreateInfo->IsNull())
     {
         modified_create_info             = (*pCreateInfo->GetPointer());
-        modified_create_info.pfnCallback = DebugReportCallback;
+        modified_create_info.pfnCallback = NoopDebugReportCallback;
+        modified_create_info.pUserData   = nullptr;
     }
     else
     {
@@ -8423,8 +8786,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
     if (!pCreateInfo->IsNull())
     {
         modified_create_info                 = (*pCreateInfo->GetPointer());
-        modified_create_info.pfnUserCallback = DebugUtilsCallback;
-        modified_create_info.pUserData       = this;
+        modified_create_info.pfnUserCallback = NoopDebugUtilsCallback;
+        modified_create_info.pUserData       = nullptr;
     }
     else
     {
@@ -9050,6 +9413,25 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     {
         swapchain_->DestroySwapchainKHR(func, device_info, swapchain_info, GetAllocationCallbacks(pAllocator));
     }
+
+    // These images are owned by the swapchain and are destroyed along with it, but Process_vkDestroySwapchainKHR only
+    // removes the swapchain entry. Drop the image entries here so that the table does not accumulate infos holding
+    // destroyed VkImage handles.
+    if (swapchain_info != nullptr)
+    {
+        std::vector<format::HandleId> image_ids;
+        object_info_table_->VisitVkImageInfo([&image_ids, swapchain_info](const VulkanImageInfo* image_info) {
+            if (image_info->swapchain_id == swapchain_info->capture_id)
+            {
+                image_ids.push_back(image_info->capture_id);
+            }
+        });
+
+        for (format::HandleId image_id : image_ids)
+        {
+            object_info_table_->RemoveVkImageInfo(image_id);
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
@@ -9457,6 +9839,36 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     return result;
 }
 
+static constexpr uint32_t kReplayPresentTimingQueueSize = 16;
+
+static VkResult DrainPastPresentationTimingEXT(PFN_vkGetPastPresentationTimingEXT     func,
+                                               VkDevice                               device,
+                                               const VkPastPresentationTimingInfoEXT& query)
+{
+    // Sufficiently large VkPastPresentationTimingEXT array size to drain everything.
+    constexpr size_t kPresentStageSize = std::numeric_limits<VkPresentStageFlagsEXT>::digits;
+
+    std::array<VkPastPresentationTimingEXT, kReplayPresentTimingQueueSize>                          timings{};
+    std::array<std::array<VkPresentStageTimeEXT, kPresentStageSize>, kReplayPresentTimingQueueSize> present_stages{};
+
+    VkPastPresentationTimingInfoEXT modified_query = query;
+    modified_query.flags                           = VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT;
+
+    for (size_t i = 0; i < kReplayPresentTimingQueueSize; ++i)
+    {
+        timings[i].sType             = VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT;
+        timings[i].pPresentStages    = present_stages[i].data();
+        timings[i].presentStageCount = static_cast<uint32_t>(kPresentStageSize);
+    }
+
+    VkPastPresentationTimingPropertiesEXT properties{};
+    properties.sType                   = VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT;
+    properties.presentationTimingCount = kReplayPresentTimingQueueSize;
+    properties.pPresentationTimings    = timings.data();
+
+    return func(device, &modified_query, &properties);
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR                                 func,
                                                   VkResult                                              original_result,
@@ -9476,6 +9888,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     VkDeviceGroupPresentInfoKHR modified_device_group_present_info{ VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR };
     VkPresentRegionsKHR         modified_present_region_info{ VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR };
     VkPresentTimesInfoGOOGLE    modified_present_times_info{ VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE };
+    VkPresentTimingsInfoEXT     modified_present_timings_info{ VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT };
+    std::vector<VkPresentTimingInfoEXT> modified_present_timing_infos;
 
     valid_swapchains_.clear();
     modified_image_indices_.clear();
@@ -9515,7 +9929,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         auto meta_info = pPresentInfo->GetMetaStructPointer();
         assert((meta_info != nullptr) && !meta_info->pSwapchains.IsNull());
 
-        WriteScreenshots(meta_info);
+        WriteScreenshots(meta_info, queue_info, original_result);
     }
 
     // If rendering is restricted to a specific surface, need to check for dummy swapchains at present.
@@ -9763,12 +10177,63 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         modified_present_info.pImageIndices = modified_image_indices_.data();
     }
 
+    // Filter presentation timing infos when their corresponding swapchains are filtered.
+    if (const auto* present_timings_info =
+            graphics::vulkan_struct_get_pnext<VkPresentTimingsInfoEXT>(&modified_present_info))
+    {
+        if (present_timings_info->pTimingInfos != nullptr)
+        {
+            for (uint32_t i = 0; i < present_timings_info->swapchainCount; ++i)
+            {
+                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
+                {
+                    modified_present_timing_infos.push_back(present_timings_info->pTimingInfos[i]);
+                }
+            }
+
+            modified_present_timings_info.swapchainCount = static_cast<uint32_t>(modified_present_timing_infos.size());
+            modified_present_timings_info.pTimingInfos   = modified_present_timing_infos.data();
+
+            graphics::vulkan_struct_add_pnext(&modified_present_info, &modified_present_timings_info);
+        }
+    }
+
     if (options_.wait_before_present)
     {
         VkDevice device = MapHandle<VulkanDeviceInfo>(queue_info->parent_id, &CommonObjectInfoTable::GetVkDeviceInfo);
         auto     device_table = GetInjectedDeviceCalls(device);
         auto     injected     = device_table.Open();
         injected->DeviceWaitIdle(device);
+    }
+
+    if ((options_.swapchain_option != util::SwapchainOption::kOffscreen) && (modified_present_info.swapchainCount > 0))
+    {
+        if (graphics::vulkan_struct_get_pnext<VkPresentTimingsInfoEXT>(&modified_present_info) != nullptr)
+        {
+            const auto timing_count =
+                std::min<size_t>(modified_present_timing_infos.size(), modified_present_info.swapchainCount);
+            const auto device_table = GetInjectedDeviceCalls(queue_info->parent);
+            auto       injected     = device_table.Open();
+            if (injected->GetPastPresentationTimingEXT != nullptr)
+            {
+                for (size_t i = 0; i < timing_count; ++i)
+                {
+                    if (modified_present_timing_infos[i].presentStageQueries != 0)
+                    {
+                        VkPastPresentationTimingInfoEXT query{ VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT };
+                        query.swapchain = modified_present_info.pSwapchains[i];
+
+                        const VkResult drain_result = DrainPastPresentationTimingEXT(
+                            injected->GetPastPresentationTimingEXT, queue_info->parent, query);
+                        if (drain_result < 0)
+                        {
+                            GFXRECON_LOG_WARNING("Failed to drain VK_EXT_present_timing reports before present: %d",
+                                                 static_cast<int>(drain_result));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
@@ -9871,7 +10336,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
     if (screenshot_controller_ != nullptr)
     {
-        screenshot_controller_->EndFrame();
+        EndScreenshotFrame(result);
     }
 
     return result;
@@ -10469,8 +10934,19 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
         auto& address_tracker  = GetDeviceAddressTracker(device_info);
         auto& address_replacer = GetDeviceAddressReplacer(device_info);
 
-        address_replacer.ProcessCmdBuildAccelerationStructuresKHR(
-            command_buffer_info, infoCount, build_geometry_infos, build_range_infos, address_tracker);
+        // Dumping records the build into clones as well, and they need the same address patching before it
+        std::vector<VkCommandBuffer> clone_command_buffers;
+        if (options_.dumping_resources)
+        {
+            clone_command_buffers = resource_dumper_->GetWorkCommandBuffers(command_buffer);
+        }
+
+        address_replacer.ProcessCmdBuildAccelerationStructuresKHR(command_buffer_info,
+                                                                  infoCount,
+                                                                  build_geometry_infos,
+                                                                  build_range_infos,
+                                                                  address_tracker,
+                                                                  clone_command_buffers);
     }
 
     func(command_buffer, infoCount, build_geometry_infos, build_range_infos);
@@ -11095,10 +11571,8 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr)
     command_buffer_info->is_frame_boundary = false;
-    command_buffer_info->frame_buffer_ids.clear();
-    command_buffer_info->active_render_pass_id = format::kNullHandleId;
-    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.Reset();
+    command_buffer_info->dynamic_rendering_contexts.clear();
     command_buffer_info->image_layout_barriers.clear();
     command_buffer_info->bound_pipelines.clear();
     command_buffer_info->push_constant_data.clear();
@@ -11493,17 +11967,17 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
-    command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
-    command_buffer_info->active_framebuffer_id = framebuffer_id;
-    command_buffer_info->active_render_pass_id = render_pass_id;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = framebuffer_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_id = render_pass_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        command_buffer_info->active_render_pass_attachment_image_view_ids =
+        command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids =
             GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
@@ -11529,17 +12003,17 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
-    command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
-    command_buffer_info->active_framebuffer_id = framebuffer_id;
-    command_buffer_info->active_render_pass_id = render_pass_id;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = framebuffer_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_id = render_pass_id;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        command_buffer_info->active_render_pass_attachment_image_view_ids =
+        command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids =
             GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
@@ -11551,13 +12025,15 @@ void VulkanReplayConsumerBase::UpdateTrackedRenderPassFinalLayouts(VulkanCommand
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
 
-    const auto& attachment_image_view_ids = command_buffer_info->active_render_pass_attachment_image_view_ids;
+    const auto& attachment_image_view_ids =
+        command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids;
     if (attachment_image_view_ids.empty())
     {
         return;
     }
 
-    auto render_pass_info = object_info_table_->GetVkRenderPassInfo(command_buffer_info->active_render_pass_id);
+    auto render_pass_info =
+        object_info_table_->GetVkRenderPassInfo(command_buffer_info->render_pass_contexts.active_render_pass_id);
     if (render_pass_info == nullptr)
     {
         return;
@@ -11739,9 +12215,9 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass  
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     func(command_buffer_info->handle);
     UpdateTrackedRenderPassFinalLayouts(command_buffer_info);
-    command_buffer_info->active_render_pass_id = format::kNullHandleId;
-    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
 
     if (options_.isolate_render_passes)
@@ -11759,9 +12235,9 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     func(command_buffer_info->handle, pSubpassEndInfo->GetPointer());
     UpdateTrackedRenderPassFinalLayouts(command_buffer_info);
-    command_buffer_info->active_render_pass_id = format::kNullHandleId;
-    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
-    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->render_pass_contexts.active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
 
     if (options_.isolate_render_passes)
@@ -11782,6 +12258,47 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     {
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
         GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
+    }
+
+    const VkRenderingInfo*         rendering_info      = rendering_info_decoder->GetPointer();
+    const Decoded_VkRenderingInfo* rendering_info_meta = rendering_info_decoder->GetMetaStructPointer();
+    if ((rendering_info != nullptr) && (rendering_info_meta != nullptr))
+    {
+        VulkanCommandBufferInfo::DynamicRenderingContext context;
+
+        if ((rendering_info->pColorAttachments != nullptr) && (rendering_info_meta->pColorAttachments != nullptr))
+        {
+            const Decoded_VkRenderingAttachmentInfo* color_meta =
+                rendering_info_meta->pColorAttachments->GetMetaStructPointer();
+            const size_t color_count = std::min(static_cast<size_t>(rendering_info->colorAttachmentCount),
+                                                rendering_info_meta->pColorAttachments->GetLength());
+            for (size_t i = 0; (color_meta != nullptr) && (i < color_count); ++i)
+            {
+                context.color_attachment_ids.push_back(color_meta[i].imageView);
+            }
+        }
+
+        if ((rendering_info->pDepthAttachment != nullptr) && (rendering_info_meta->pDepthAttachment != nullptr))
+        {
+            const Decoded_VkRenderingAttachmentInfo* depth_meta =
+                rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
+            if (depth_meta != nullptr)
+            {
+                context.depth_attachment = depth_meta->imageView;
+            }
+        }
+
+        if ((rendering_info->pStencilAttachment != nullptr) && (rendering_info_meta->pStencilAttachment != nullptr))
+        {
+            const Decoded_VkRenderingAttachmentInfo* stencil_meta =
+                rendering_info_meta->pStencilAttachment->GetMetaStructPointer();
+            if (stencil_meta != nullptr)
+            {
+                context.stencil_attachment = stencil_meta->imageView;
+            }
+        }
+
+        command_buffer_info->dynamic_rendering_contexts.push_back(std::move(context));
     }
 
     MaybeInjectExecutionBarrier(command_buffer_info);
@@ -12109,45 +12626,67 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
     if (screenshot_controller_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
-        if (screenshot_controller_->IsScreenshotFrame() && image_info != nullptr)
+        if (screenshot_controller_->IsScreenshotFrame())
         {
-            const std::string filename_prefix = screenshot_controller_->FilenameFor();
+            if (screenshot_json_ != nullptr)
+            {
+                screenshot_json_->BeginFrameFrameBoundaryANDROID(
+                    "vkFrameBoundaryANDROID", nullptr, std::nullopt, block_index_, semaphore_info);
+            }
 
-            auto instance_table = GetInstanceTable(device_info->parent);
-            GFXRECON_ASSERT(instance_table != nullptr);
+            if (image_info != nullptr)
+            {
+                const std::string filename_prefix = screenshot_controller_->FilenameFor();
 
-            VkPhysicalDeviceMemoryProperties memory_properties;
-            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+                auto instance_table = GetInstanceTable(device_info->parent);
+                GFXRECON_ASSERT(instance_table != nullptr);
 
-            ScreenshotRequest request;
-            request.width  = image_info->extent.width;
-            request.height = image_info->extent.height;
-            request.scale  = screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
+                VkPhysicalDeviceMemoryProperties memory_properties;
+                instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
 
-            const VkImageLayout image_layout =
-                image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
+                ScreenshotRequest request;
+                request.width  = image_info->extent.width;
+                request.height = image_info->extent.height;
+                request.scale =
+                    screenshot_controller_->ResolveScale(image_info->extent.width, image_info->extent.height);
 
-            VulkanScreenshotSource::Image source_image;
-            source_image.handle             = image_info->handle;
-            source_image.format             = image_info->format;
-            source_image.type               = image_info->type;
-            source_image.tiling             = image_info->tiling;
-            source_image.sample_count       = image_info->sample_count;
-            source_image.layer_layouts      = { image_layout };
-            source_image.queue_family_index = image_info->queue_family_index;
+                const VkImageLayout image_layout =
+                    image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
 
-            VulkanScreenshotSource source(device_info,
-                                          GetInjectedDeviceCalls(device_info->handle),
-                                          GetInstanceTable(device_info->parent),
-                                          memory_properties,
-                                          source_image);
+                VulkanScreenshotSource::Image source_image;
+                source_image.handle             = image_info->handle;
+                source_image.format             = image_info->format;
+                source_image.type               = image_info->type;
+                source_image.tiling             = image_info->tiling;
+                source_image.sample_count       = image_info->sample_count;
+                source_image.layer_layouts      = { image_layout };
+                source_image.queue_family_index = image_info->queue_family_index;
 
-            source.Readback(request, [&](uint32_t, const CpuImage& cpu_image) {
-                screenshot_controller_->Finish(filename_prefix, cpu_image, request.rotation);
-            });
+                VulkanScreenshotSource source(device_info,
+                                              GetInjectedDeviceCalls(device_info->handle),
+                                              GetInstanceTable(device_info->parent),
+                                              memory_properties,
+                                              source_image);
+
+                VulkanScreenshotJson::OutputSource image_source;
+                if (screenshot_json_ != nullptr)
+                {
+                    image_source = screenshot_json_->ImageSource("frameBoundaryImage", image_info->capture_id);
+                }
+                const VulkanScreenshotJson::OutputImage json_output_image{
+                    image_info->format, request.width, request.height, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+                };
+                WriteScreenshotOutput(source, request, filename_prefix, json_output_image, image_source);
+            }
+            else if (screenshot_json_ != nullptr)
+            {
+                screenshot_json_->SkipFrame(screenshot_reason::kFrameBoundaryAndroidNoImage,
+                                            "vkFrameBoundaryANDROID was called without an image",
+                                            false);
+            }
         }
 
-        screenshot_controller_->EndFrame();
+        EndScreenshotFrame(std::nullopt);
     }
 
     bool presented_ad_hoc = false;
@@ -12924,8 +13463,7 @@ bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* dev
 
 bool VulkanReplayConsumerBase::CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const
 {
-    // -m rebind manages memory via VMA and does not preserve external memory
-    if (device_info == nullptr || UseAddressReplacement(device_info))
+    if (device_info == nullptr)
     {
         return false;
     }
@@ -13661,6 +14199,43 @@ VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingGOOGLE(
     return VK_SUCCESS;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingEXT(
+    PFN_vkGetPastPresentationTimingEXT                                   func,
+    VkResult                                                             original_result,
+    const VulkanDeviceInfo*                                              device_info,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT>*       pPastPresentationTimingInfo,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT>* pPastPresentationTimingProperties)
+{
+    if ((pPastPresentationTimingInfo == nullptr) || pPastPresentationTimingInfo->IsNull() ||
+        (pPastPresentationTimingInfo->GetPointer() == nullptr))
+    {
+        return original_result;
+    }
+
+    const VkPastPresentationTimingInfoEXT* in_past_presentation_timing_info = pPastPresentationTimingInfo->GetPointer();
+
+    GFXRECON_UNREFERENCED_PARAMETER(pPastPresentationTimingProperties);
+    return DrainPastPresentationTimingEXT(func, device_info->handle, *in_past_presentation_timing_info);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetSwapchainPresentTimingQueueSizeEXT(
+    PFN_vkSetSwapchainPresentTimingQueueSizeEXT func,
+    VkResult                                    original_result,
+    const VulkanDeviceInfo*                     device_info,
+    const VulkanSwapchainKHRInfo*               swapchain_info,
+    uint32_t                                    size)
+{
+    GFXRECON_ASSERT((device_info != nullptr) && (swapchain_info != nullptr));
+
+    const VulkanSurfaceKHRInfo* surface_info = GetObjectInfoTable().GetVkSurfaceKHRInfo(swapchain_info->surface_id);
+    if ((surface_info == nullptr) || surface_info->surface_creation_skipped)
+    {
+        return original_result;
+    }
+
+    return func(device_info->handle, swapchain_info->handle, std::max(size, kReplayPresentTimingQueueSize));
+}
+
 VkResult VulkanReplayConsumerBase::OverrideGetRefreshCycleDurationGOOGLE(
     PFN_vkGetRefreshCycleDurationGOOGLE                         func,
     VkResult                                                    original_result,
@@ -13689,6 +14264,11 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
     VkDescriptorGetInfoEXT* in_pDescriptorInfo = pDescriptorInfo->GetPointer();
     void*                   out_pDescriptor    = pDescriptor->GetOutputPointer();
 
+    // An application might pass a dataSize larger than the descriptor size, leaving trailing bytes unwritten by the
+    // driver; seed with captured bytes so they match in the check below.
+    util::platform::MemoryCopy(
+        out_pDescriptor, pDescriptor->GetOutputLength(), pDescriptor->GetPointer(), pDescriptor->GetLength());
+
     func(device, in_pDescriptorInfo, dataSize, out_pDescriptor);
 
     if (UseAddressReplacement(device_info))
@@ -13702,7 +14282,6 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
     else
     {
         // relying on 'descriptorBufferCaptureReplay' we assume this data to match
-        GFXRECON_ASSERT(pDescriptor->GetLength() == pDescriptor->GetOutputLength());
         GFXRECON_ASSERT(memcmp(pDescriptor->GetPointer(), pDescriptor->GetOutputPointer(), pDescriptor->GetLength()) ==
                         0);
     }

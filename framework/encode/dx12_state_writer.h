@@ -189,6 +189,14 @@ class Dx12StateWriter
 
     void WriteSwapChainState(const Dx12StateTable& state_table);
 
+    void WriteDxgiFactoryState(const Dx12StateTable& state_table, bool get_parent_derived);
+
+    void WriteDxgiOutputState(const Dx12StateTable& state_table, bool from_swapchain);
+
+    bool IsGetParentFactoryChild(const Dx12StateTable& state_table, const DxWrapperInfo& child_info) const;
+
+    void WriteDxgiFactoryMediaState(const Dx12StateTable& state_table, bool get_parent_derived);
+
     void WriteEnableDebugLayer();
 
     void WriteEnableDRED();

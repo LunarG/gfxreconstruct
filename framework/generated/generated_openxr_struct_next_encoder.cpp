@@ -66,7 +66,7 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
                 std::snprintf(message.get(), (message_size + 1), "A next value with unrecognized XrStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);
                 OpenXrCaptureManager::Get()->WriteDisplayMessageCmd(message.get());
                 GFXRECON_LOG_WARNING("%s", message.get());
-                EncodeNextStruct(encoder, base->next);
+                EncodeNextStructIfValid(encoder, base->next);
             }
             break;
         case XR_TYPE_ACTION_CREATE_INFO:
