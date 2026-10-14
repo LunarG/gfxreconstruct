@@ -312,31 +312,31 @@ void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, FileInfo&
 #if defined(_WIN32)
     if (member == kExeInfoCompanyName)
     {
-        strncpy_s(info.CompanyName, sizeof(info.CompanyName), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.CompanyName, sizeof(info.CompanyName), value.c_str(), value.length());
     }
     else if (member == kExeInfoFileDescription)
     {
-        strncpy_s(info.FileDescription, sizeof(info.FileDescription), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.FileDescription, sizeof(info.FileDescription), value.c_str(), value.length());
     }
     else if (member == kExeInfoFileVersion)
     {
-        strncpy_s(info.FileVersion, sizeof(info.FileVersion), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.FileVersion, sizeof(info.FileVersion), value.c_str(), value.length());
     }
     else if (member == kExeInfoInternalName)
     {
-        strncpy_s(info.InternalName, sizeof(info.InternalName), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.InternalName, sizeof(info.InternalName), value.c_str(), value.length());
     }
     else if (member == kExeInfoOriginalFilename)
     {
-        strncpy_s(info.OriginalFilename, sizeof(info.OriginalFilename), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.OriginalFilename, sizeof(info.OriginalFilename), value.c_str(), value.length());
     }
     else if (member == kExeInfoProductName)
     {
-        strncpy_s(info.ProductName, sizeof(info.ProductName), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.ProductName, sizeof(info.ProductName), value.c_str(), value.length());
     }
     else if (member == kExeInfoProductVersion)
     {
-        strncpy_s(info.ProductVersion, sizeof(info.ProductVersion), value.c_str(), value.length());
+        gfxrecon::util::platform::StringCopy(info.ProductVersion, sizeof(info.ProductVersion), value.c_str(), value.length());
     }
 #endif
 }
@@ -445,7 +445,7 @@ void GetApplicationInfo(FileInfo& file_info)
     {
         filepath = module_name;
         GetFileInfo(file_info, filepath);
-        strncpy_s(file_info.AppName,
+        gfxrecon::util::platform::StringCopy(file_info.AppName,
                   sizeof(file_info.AppName),
                   filepath.substr(filepath.find_last_of("/\\") + 1).c_str(),
                   filepath.substr(filepath.find_last_of("/\\") + 1).length());

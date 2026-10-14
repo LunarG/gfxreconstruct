@@ -104,7 +104,7 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
     if (active_driver_path.empty() == false)
     {
         filepath::FileInfo file_info = {};
-        strncpy_s(file_info.AppName,
+        gfxrecon::util::platform::StringCopy(file_info.AppName,
                   sizeof(file_info.AppName),
                   active_driver_path.substr(active_driver_path.find_last_of("/\\") + 1).c_str(),
                   active_driver_path.substr(active_driver_path.find_last_of("/\\") + 1).length());
