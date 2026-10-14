@@ -454,15 +454,15 @@ std::string GenerateStruct_VkSubmitInfo2(std::ostream&                        ou
                 << "VkSubmitFlags(" << structInfo->flags << ")"
                 << "," << std::endl;
     // waitSemaphoreInfoCount
-    struct_body << "\t\t\t" << structInfo->waitSemaphoreInfoCount << "," << std::endl;
+    struct_body << "\t\t\t" << wait_semaphore_infos_count << "," << std::endl;
     // pWaitSemaphoreInfos
     struct_body << "\t\t\t" << wait_semaphore_infos_array_name << "," << std::endl;
     // commandBufferInfoCount
-    struct_body << "\t\t\t" << wait_semaphore_infos_count << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->commandBufferInfoCount << "," << std::endl;
     // pCommandBufferInfos
     struct_body << "\t\t\t" << command_buffer_infos_array << "," << std::endl;
     // signalSemaphoreInfoCount
-    struct_body << "\t\t\t" << structInfo->signalSemaphoreInfoCount << "," << std::endl;
+    struct_body << "\t\t\t" << signal_semaphore_infos_count << "," << std::endl;
     // pSignalSemaphoreInfos
     struct_body << "\t\t\t" << signal_semaphore_infos_array_name << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "submitInfo2");
