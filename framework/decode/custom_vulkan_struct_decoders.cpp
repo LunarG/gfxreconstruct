@@ -604,28 +604,28 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerSe
     {
         case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
         case VK_LAYER_SETTING_TYPE_UINT32_EXT:
-            bytes_read += wrapper->pValues.DecodeUInt32(buffer + bytes_read, buffer_size - bytes_read);
-            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
+            bytes_read += wrapper->uint32_values.DecodeUInt32(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->uint32_values.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_INT32_EXT:
-            bytes_read += wrapper->pValues.DecodeInt32(buffer + bytes_read, buffer_size - bytes_read);
-            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
+            bytes_read += wrapper->int32_values.DecodeInt32(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->int32_values.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_INT64_EXT:
-            bytes_read += wrapper->pValues.DecodeInt64(buffer + bytes_read, buffer_size - bytes_read);
-            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
+            bytes_read += wrapper->int64_values.DecodeInt64(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->int64_values.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_UINT64_EXT:
-            bytes_read += wrapper->pValues.DecodeUInt64(buffer + bytes_read, buffer_size - bytes_read);
-            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
+            bytes_read += wrapper->uint64_values.DecodeUInt64(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->uint64_values.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
-            bytes_read += wrapper->pValues.DecodeFloat(buffer + bytes_read, buffer_size - bytes_read);
-            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
+            bytes_read += wrapper->float_values.DecodeFloat(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->float_values.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
-            bytes_read += wrapper->pValues.DecodeDouble(buffer + bytes_read, buffer_size - bytes_read);
-            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
+            bytes_read += wrapper->double_values.DecodeDouble(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->double_values.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_STRING_EXT:
         {
