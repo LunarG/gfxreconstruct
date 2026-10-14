@@ -19,7 +19,163 @@
 ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
-*/
+ */
+
+def cleanWorkSpace() {
+    retry(3) {
+        try {
+            cleanWs(deleteDirs: true)
+        } catch (Exception e) {
+            sleep(time: 5)
+            throw e
+        }
+    }
+    if (isUnix())
+        sh 'rm -rf vulkantest-results'
+    else
+        bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+}
+
+def checkoutScm(def branches) {
+    def scmVars
+    // Use a curated subset of SCM fields: enough to preserve checkout behavior
+    // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+    // Retry to ride out transient network failures during the clone.
+    retry(3) {
+        try {
+            scmVars = checkout([
+                $class: 'GitSCM',
+                branches: branches,
+                doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                extensions: scm.extensions,
+                submoduleCfg: scm.submoduleCfg,
+                userRemoteConfigs: scm.userRemoteConfigs
+            ])
+        } catch (Exception e) {
+            sleep(time: 5)
+            throw e
+        }
+    }
+    return scmVars
+}
+
+def checkoutManual(String projectRepo, String projectBranch) {
+    // Retry to ride out transient network failures during the clone.
+    retry(3) {
+        try {
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: projectBranch]],
+                userRemoteConfigs: [[url: projectRepo]]
+            ])
+        } catch (Exception e) {
+            sleep(time: 5)
+            throw e
+        }
+    }
+}
+
+def runGfxrScripts(
+    List<String> scripts,
+    String buildMode,
+    String resultsDir,
+    String testSuite = '',
+    String projectRepo = '',
+    String projectCommit = ''
+) {
+    withEnv([
+        "PROJECT_REPO=${projectRepo}",
+        "PROJECT_COMMIT=${projectCommit}",
+        "TEST_REPO=git@github.com:LunarG/VulkanTests",
+        "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+        "TEST_SUITE=${testSuite}",
+        "BITS=64",
+        "BUILD_MODE=${buildMode}",
+        "RESULTS_DIR=${resultsDir}"
+    ]) {
+        scripts.each { script ->
+            if (isUnix()) {
+                sh(script: script)
+            } else {
+                bat(script: script)
+            }
+        }
+    }
+}
+
+def gfxrBuildWindows(
+    String label,
+    def branches,
+    List buildModes
+) {
+    return {
+        node(label) {
+            try {
+                stage('Building GFXR for Windows') {
+
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
+                    cleanWorkSpace()
+
+                    dir('gfxreconstruct') {
+                        def scmVars = checkoutScm(branches)
+
+                        withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
+                            bat(script: 'ci/cloneTests.bat')
+                        }
+
+                        buildModes.each { buildMode ->
+                            // Contain each build mode's own failure here so Debug failing
+                            // doesn't stop Release from being attempted, and doesn't escape
+                            // to the outer try/catch (which would abort 'parallel builds'
+                            // before the Jenkinsfile ever builds the 'tests' map).
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                runGfxrScripts(
+                                    [
+                                        'git submodule update --init --recursive --depth 1',
+                                        'git describe --tags --always',
+                                        'ci/buildGfxr.bat'
+                                    ],
+                                    buildMode,
+                                    "../vulkantest-results/Windows-Build-Log-${buildMode}"
+                                )
+                                def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                                dir('..') {
+                                    stash name: "gfxr-windows-${buildMode}",
+                                        allowEmpty: false,
+                                        includes: [
+                                            "gfxreconstruct/${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.dll",
+                                            "gfxreconstruct/${buildDir}/layer/${buildMode}/VkLayer_gfxreconstruct.json",
+                                            "gfxreconstruct/${buildDir}/layer/d3d12/${buildMode}/d3d12.dll",
+                                            "gfxreconstruct/${buildDir}/layer/d3d12_capture/${buildMode}/d3d12_capture.dll",
+                                            "gfxreconstruct/${buildDir}/layer/dxgi/${buildMode}/dxgi.dll",
+                                            "gfxreconstruct/${buildDir}/tools/compress/${buildMode}/gfxrecon-compress.exe",
+                                            "gfxreconstruct/${buildDir}/tools/convert/${buildMode}/gfxrecon-convert.exe",
+                                            "gfxreconstruct/${buildDir}/tools/extract/${buildMode}/gfxrecon-extract.exe",
+                                            "gfxreconstruct/${buildDir}/tools/info/${buildMode}/gfxrecon-info.exe",
+                                            "gfxreconstruct/${buildDir}/tools/tocpp/${buildMode}/gfxrecon-tocpp.exe",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/${buildMode}/gfxrecon-optimize.exe",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/${buildMode}/dxcompiler.dll",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/${buildMode}/D3D12/**",
+                                            "gfxreconstruct/${buildDir}/tools/replay/${buildMode}/gfxrecon-replay.exe",
+                                            "gfxreconstruct/${buildDir}/tools/replay/${buildMode}/dxcompiler.dll",
+                                            "gfxreconstruct/${buildDir}/tools/replay/${buildMode}/D3D12/**",
+                                            "vulkantest-results/**",
+                                        ].join(',')
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch(Exception e) {
+                echo "An exception occurred: ${e.message}"
+                throw e
+            } finally {
+                cleanWorkSpace()
+            }
+        }
+    }
+}
 
 def gfxrTestWindows(
     String name,
@@ -36,65 +192,45 @@ def gfxrTestWindows(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+                    cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        // Retry to ride out transient network failures during the clone.
-                        def scmVars
-                        retry(3) {
-                            try {
-                                scmVars = checkout([
-                                    $class: 'GitSCM',
-                                    branches: branches,
-                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                                    extensions: scm.extensions,
-                                    submoduleCfg: scm.submoduleCfg,
-                                    userRemoteConfigs: scm.userRemoteConfigs
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        def scmVars = checkoutScm(branches)
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
+                        // unstash moved inside catchError: a failed Windows build mode never
+                        // stashes its artifacts (see gfxrBuildWindows), so this can legitimately
+                        // throw here. Let it share the same containment as the rest of the run
+                        // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            withEnv([
-                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${projectCommit}",
-                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                                "TEST_SUITE=${testSuite}",
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/${name}"
-                            ]) {
-                                bat(script: 'git submodule update --init --recursive --depth 1')
-                                bat(script: 'git describe --tags --always')
-                                bat(script: 'ci/cloneTests.bat')
-                                bat(script: 'ci/buildGfxr.bat')
-                                bat(script: 'ci/cloneSuites.bat')
-                                bat(script: 'ci/runTest.bat')
+                            dir('..') {
+                                unstash "gfxr-windows-${buildMode}"
                             }
+
+                            runGfxrScripts(
+                                [
+                                    'ci/cloneTests.bat',
+                                    'ci/cloneSuites.bat',
+                                    'ci/runTest.bat'
+                                ],
+                                buildMode,
+                                "../vulkantest-results/${name}",
+                                testSuite
+                            )
                         }
                     }
-                    archiveArtifacts(
-                        artifacts: 'python-venv.txt,vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: false,
-                        onlyIfSuccessful: false,
-                    )
+                    // Nested the same way as the unstash above: when the upstream build
+                    // failed, this node never produced python-venv.txt or vulkantest-results,
+                    // so archiveArtifacts has nothing to match and would otherwise throw.
+                    // The stage is already marked FAILURE from the catchError above either way.
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        archiveArtifacts(
+                            artifacts: 'python-venv.txt,vulkantest-results/**',
+                            excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                            allowEmptyArchive: false,
+                            onlyIfSuccessful: false,
+                        )
+                    }
                     junit(
                         testResults: 'vulkantest-results/**/*.xml',
                         allowEmptyResults: true,
@@ -102,14 +238,86 @@ def gfxrTestWindows(
                         skipPublishingChecks: true
                     )
                 } finally {
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
+                    cleanWorkSpace()
+                }
+            }
+        }
+    }
+}
+
+def gfxrBuildMac(){}
+
+def gfxrBuildLinux(
+    String label,
+    def branches,
+    List buildModes
+) {
+    return {
+        node(label) {
+            try {
+                stage('Building GFXR for Linux') {
+
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
+                    cleanWorkSpace()
+
+                    dir('gfxreconstruct') {
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+
+                        withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
+                            sh(script: 'ci/cloneTests.sh')
+                        }
+
+                        buildModes.each { buildMode ->
+                            // Contain each build mode's own failure here so Debug failing
+                            // doesn't stop Release from being attempted, and doesn't escape
+                            // to the outer try/catch (which would abort 'parallel builds'
+                            // before the Jenkinsfile ever builds the 'tests' map).
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                runGfxrScripts(
+                                    [
+                                        'git submodule update --init --recursive --depth 1',
+                                        'git describe --tags --always',
+                                        'sh ci/buildGfxr.sh'
+                                    ],
+                                    buildMode,
+                                    "../vulkantest-results/Linux-Build-Log-${buildMode}"
+                                )
+                                def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                                dir('..') {
+                                    stash name: "gfxr-linux-${buildMode}",
+                                        allowEmpty: false,
+                                        includes: [
+                                            "gfxreconstruct/${buildDir}/layer/libVkLayer_gfxreconstruct.so",
+                                            "gfxreconstruct/${buildDir}/layer/VkLayer_gfxreconstruct.json",
+                                            "gfxreconstruct/${buildDir}/tools/compress/gfxrecon-compress",
+                                            "gfxreconstruct/${buildDir}/tools/convert/gfxrecon-convert",
+                                            "gfxreconstruct/${buildDir}/tools/extract/gfxrecon-extract",
+                                            "gfxreconstruct/${buildDir}/tools/info/gfxrecon-info",
+                                            "gfxreconstruct/${buildDir}/tools/tocpp/gfxrecon-tocpp",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/gfxrecon-optimize",
+                                            "gfxreconstruct/${buildDir}/tools/replay/gfxrecon-replay",
+                                            "vulkantest-results/**",
+                                        ].join(',')
+                                }
+                            }
                         }
                     }
                 }
+            } catch(Exception e) {
+                echo "An exception occurred: ${e.message}"
+                throw e
+            } finally {
+                cleanWorkSpace()
             }
         }
     }
@@ -128,65 +336,47 @@ def gfxrTestLinux(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    sh 'rm -rf vulkantest-results'
+                    cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        // Retry to ride out transient network failures during the clone.
-                        def scmVars
-                        retry(3) {
-                            try {
-                                scmVars = checkout([
-                                    $class: 'GitSCM',
-                                    branches: branches,
-                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                                    extensions: scm.extensions,
-                                    submoduleCfg: scm.submoduleCfg,
-                                    userRemoteConfigs: scm.userRemoteConfigs
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        def scmVars = checkoutScm(branches)
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
+                        // unstash moved inside catchError: a failed Linux build mode never
+                        // stashes its artifacts (see gfxrBuildLinux), so this can legitimately
+                        // throw here. Let it share the same containment as the rest of the run
+                        // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            withEnv([
-                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${projectCommit}",
-                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                                "TEST_SUITE=${testSuite}",
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/${name}"
-                            ]) {
-                                sh(script: 'git submodule update --init --recursive --depth 1')
-                                sh(script: 'git describe --tags --always')
-                                sh(script: 'ci/cloneTests.sh')
-                                sh(script: 'sh ci/buildGfxr.sh')
-                                sh(script: 'ci/cloneSuites.sh')
-                                sh(script: 'ci/runTest.sh')
+                            dir('..') {
+                                unstash "gfxr-linux-${buildMode}"
                             }
+
+                            runGfxrScripts(
+                                [
+                                    'ci/cloneTests.sh',
+                                    'ci/cloneSuites.sh',
+                                    'ci/runTest.sh'
+                                ],
+                                buildMode,
+                                "../vulkantest-results/${name}",
+                                testSuite,
+                                scm.userRemoteConfigs.first().url,
+                                projectCommit
+                            )
                         }
                     }
-                    archiveArtifacts(
-                        artifacts: 'python-venv.txt,vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: false,
-                        onlyIfSuccessful: false,
-                    )
+                    // Nested the same way as the unstash above: when the upstream build
+                    // failed, this node never produced python-venv.txt or vulkantest-results,
+                    // so archiveArtifacts has nothing to match and would otherwise throw.
+                    // The stage is already marked FAILURE from the catchError above either way.
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        archiveArtifacts(
+                            artifacts: 'python-venv.txt,vulkantest-results/**',
+                            excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                            allowEmptyArchive: false,
+                            onlyIfSuccessful: false,
+                        )
+                    }
                     junit(
                         testResults: 'vulkantest-results/**/*.xml',
                         allowEmptyResults: true,
@@ -194,14 +384,84 @@ def gfxrTestLinux(
                         skipPublishingChecks: true
                     )
                 } finally {
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
+                    cleanWorkSpace()
+                }
+            }
+        }
+    }
+}
+
+def gfxrBuildAndroid(
+    String label,
+    def branches,
+    List buildModes
+) {
+    return {
+        node(label) {
+            try {
+                stage('Building GFXR for Android') {
+
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
+                    cleanWorkSpace()
+
+                    dir('gfxreconstruct') {
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+
+                        withEnv(["TEST_REPO=git@github.com:LunarG/VulkanTests"]) {
+                            sh(script: 'ci/cloneTests.sh')
+                        }
+
+                        buildModes.each { buildMode ->
+                            // Contain each build mode's own failure here so Debug failing
+                            // doesn't stop Release from being attempted, and doesn't escape
+                            // to the outer try/catch (which would abort 'parallel builds'
+                            // before the Jenkinsfile ever builds the 'tests' map).
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                runGfxrScripts(
+                                    [
+                                        'git submodule update --init --recursive --depth 1',
+                                        'git describe --tags --always',
+                                        'sh ci/buildGfxrAndroid.sh'
+                                    ],
+                                    buildMode,
+                                    "../vulkantest-results/Android-Build-Log-${buildMode}"
+                                )
+                                def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
+                                dir('..') {
+                                    stash name: "gfxr-android-${buildMode}",
+                                        allowEmpty: false,
+                                        includes: [
+                                            "gfxreconstruct/${buildDir}/layer/libVkLayer_gfxreconstruct.so",
+                                            "gfxreconstruct/${buildDir}/layer/VkLayer_gfxreconstruct.json",
+                                            "gfxreconstruct/${buildDir}/tools/compress/gfxrecon-compress",
+                                            "gfxreconstruct/${buildDir}/tools/convert/gfxrecon-convert",
+                                            "gfxreconstruct/${buildDir}/tools/extract/gfxrecon-extract",
+                                            "gfxreconstruct/${buildDir}/tools/info/gfxrecon-info",
+                                            "gfxreconstruct/${buildDir}/tools/tocpp/gfxrecon-tocpp",
+                                            "gfxreconstruct/${buildDir}/tools/optimize/gfxrecon-optimize",
+                                            "gfxreconstruct/${buildDir}/tools/replay/gfxrecon-replay",
+                                            "vulkantest-results/**",
+                                        ].join(',')
+                                }
+                            }
                         }
                     }
                 }
+            } catch(Exception e) {
+                echo "An exception occurred: ${e.message}"
+                throw e
+            } finally {
+                cleanWorkSpace()
             }
         }
     }
@@ -220,65 +480,47 @@ def gfxrTestAndroid(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    sh 'rm -rf vulkantest-results'
+                    cleanWorkSpace()
 
                     dir('gfxreconstruct') {
-                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
-                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
-                        // Retry to ride out transient network failures during the clone.
-                        def scmVars
-                        retry(3) {
-                            try {
-                                scmVars = checkout([
-                                    $class: 'GitSCM',
-                                    branches: branches,
-                                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                                    extensions: scm.extensions,
-                                    submoduleCfg: scm.submoduleCfg,
-                                    userRemoteConfigs: scm.userRemoteConfigs
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        def scmVars = checkoutScm(branches)
                         def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
+                        // unstash moved inside catchError: a failed Android build mode never
+                        // stashes its artifacts (see gfxrBuildAndroid), so this can legitimately
+                        // throw here. Let it share the same containment as the rest of the run
+                        // instead of escaping as an uncaught exception.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            withEnv([
-                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${projectCommit}",
-                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                                "TEST_SUITE=${testSuite}",
-                                "BITS=64",
-                                "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=../vulkantest-results/${name}"
-                            ]) {
-                                sh(script: 'git submodule update --init --recursive --depth 1')
-                                sh(script: 'git describe --tags --always')
-                                sh(script: 'ci/cloneTests.sh')
-                                sh(script: 'sh ci/buildGfxrAndroid.sh')
-                                sh(script: 'ci/cloneSuites.sh')
-                                sh(script: 'ci/runTestAndroid.sh')
+                            dir('..') {
+                                unstash "gfxr-android-${buildMode}"
                             }
+
+                            runGfxrScripts(
+                                [
+                                    'ci/cloneTests.sh',
+                                    'ci/cloneSuites.sh',
+                                    'ci/runTestAndroid.sh'
+                                ],
+                                buildMode,
+                                "../vulkantest-results/${name}",
+                                testSuite,
+                                scm.userRemoteConfigs.first().url,
+                                projectCommit
+                            )
                         }
                     }
-                    archiveArtifacts(
-                        artifacts: 'python-venv.txt,vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: false,
-                        onlyIfSuccessful: false,
-                    )
+                    // Nested the same way as the unstash above: when the upstream build
+                    // failed, this node never produced python-venv.txt or vulkantest-results,
+                    // so archiveArtifacts has nothing to match and would otherwise throw.
+                    // The stage is already marked FAILURE from the catchError above either way.
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        archiveArtifacts(
+                            artifacts: 'python-venv.txt,vulkantest-results/**',
+                            excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                            allowEmptyArchive: false,
+                            onlyIfSuccessful: false,
+                        )
+                    }
                     junit(
                         testResults: 'vulkantest-results/**/*.xml',
                         allowEmptyResults: true,
@@ -286,13 +528,7 @@ def gfxrTestAndroid(
                         skipPublishingChecks: true
                     )
                 } finally {
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                        }
-                    }
+                    cleanWorkSpace()
                 }
             }
         }
@@ -345,19 +581,7 @@ def gfxrTestWindowsManual(
                     bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        // Retry to ride out transient network failures during the clone.
-                        retry(3) {
-                            try {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: projectBranch]],
-                                    userRemoteConfigs: [[url: projectRepo]]
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        checkoutManual(projectRepo, projectBranch)
 
                         def commitHash = bat(script: '@git rev-parse HEAD', returnStdout: true).trim()
 
@@ -440,19 +664,7 @@ def gfxrTestLinuxManual(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        // Retry to ride out transient network failures during the clone.
-                        retry(3) {
-                            try {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: projectBranch]],
-                                    userRemoteConfigs: [[url: projectRepo]]
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        checkoutManual(projectRepo, projectBranch)
 
                         def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
@@ -535,19 +747,7 @@ def gfxrTestAndroidManual(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        // Retry to ride out transient network failures during the clone.
-                        retry(3) {
-                            try {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: projectBranch]],
-                                    userRemoteConfigs: [[url: projectRepo]]
-                                ])
-                            } catch (Exception e) {
-                                sleep(time: 5)
-                                throw e
-                            }
-                        }
+                        checkoutManual(projectRepo, projectBranch)
 
                         def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
@@ -604,6 +804,11 @@ return [
     ReleaseMode : 'Release',
     DebugMode : 'Debug',
 
+    LinuxBuildMachineLabel : 'Linux-Build-Machine',
+    WindowsBuildMachineLabel : 'Windows-Build-Machine',
+    MacBuildMachineLabel : 'Mac-Build-Machine',
+    AndroidBuildMachineLabel : 'Android-build-Machine',
+
     AndroidLabel : 'Linux-Android-GFXR',
     LinuxMesaLabel : 'Linux-Mesa-6800-stable',
     LinuxNvidiaLabel : 'Linux-NVIDIA-950',
@@ -617,6 +822,11 @@ return [
     Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',
     WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
     WinNvidiaExtendedLabel: 'Windows-NVIDIA-2080-stable-exclusive',
+
+    gfxrBuildWindows: this.&gfxrBuildWindows,
+    gfxrBuildLinux: this.&gfxrBuildLinux,
+    gfxrBuildMac: this.&gfxrBuildMac,
+    gfxrBuildAndroid: this.&gfxrBuildAndroid,
 
     gfxrTestWindows: this.&gfxrTestWindows,
     gfxrTestLinux: this.&gfxrTestLinux,
