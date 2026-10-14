@@ -1086,9 +1086,9 @@ option is joined to its value with `=` and the capture file is named by the
 `capture_file` key instead of being positional. Leading dashes are optional.
 Replay rejects any key it does not recognize and names it in the error.
 
-Output produced during replay — screenshots, and dump-resources buffers and
-images — streams to the controller and is written under its `--output-dir`
-instead of to local disk. Some output is not yet streamed and is still written
+Output produced during replay — screenshots and their `--screenshot-results`
+JSON, and dump-resources buffers and images — streams to the controller and is
+written under its `--output-dir` instead of to local disk. Some output is not yet streamed and is still written
 by replay itself: `--measurement-file`, `--save-pipeline-cache`, `--log-file`,
 the `--capture` recapture file, and the dump-resources JSON for D3D12 and OpenXR.
 

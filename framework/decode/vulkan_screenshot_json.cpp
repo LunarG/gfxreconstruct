@@ -29,10 +29,13 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include PROJECT_VERSION_HEADER_FILE
 #include "util/logging.h"
-#include "util/platform.h"
+#include "util/file_output_stream.h"
+#include "util/remote_channel.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+constexpr size_t kJsonFileBufferSize = 64 * 1024;
 
 VulkanScreenshotJson::VulkanScreenshotJson(const ReplayOptions& options, const ScreenshotController& controller) :
     controller_(controller)
@@ -105,23 +108,34 @@ VulkanScreenshotJson::~VulkanScreenshotJson()
 
 bool VulkanScreenshotJson::Open(const std::string& filename)
 {
-    GFXRECON_ASSERT(file_ == nullptr);
+    GFXRECON_ASSERT(stream_ == nullptr);
 
-    int ret = util::platform::FileOpen(&file_, filename.c_str(), "w");
-    if (ret || file_ == nullptr)
+    filename_ = filename;
+
+    if (util::RemoteChannel::IsActive())
     {
-        file_ = nullptr;
-#if defined(_WIN32)
-        GFXRECON_LOG_ERROR("Could not open screenshot result json file %s", filename.c_str());
-#else
-        GFXRECON_LOG_ERROR("Could not open screenshot result json file %s (%s)", filename.c_str(), strerror(ret));
-#endif
-        return false;
+        auto owned     = std::make_unique<util::MemoryOutputStream>();
+        memory_stream_ = owned.get();
+        stream_        = std::move(owned);
+    }
+    else
+    {
+        memory_stream_ = nullptr;
+
+        stream_ =
+            std::make_unique<util::FileOutputStream>(filename, kJsonFileBufferSize, false, util::FileWriteMode::kText);
+        if (!stream_->IsValid())
+        {
+            // No reason string here; FileOutputStream has already logged one.
+            GFXRECON_LOG_ERROR("Could not open screenshot result json file %s", filename.c_str());
+            stream_.reset();
+            return false;
+        }
     }
 
     first_block_ = true;
 
-    util::platform::FileWrite("[\n", 2, file_);
+    util::Write(*stream_, "[\n");
 
     nlohmann::ordered_json header_block;
     header_block["header"] = header_;
@@ -132,7 +146,7 @@ bool VulkanScreenshotJson::Open(const std::string& filename)
 
 void VulkanScreenshotJson::Close(uint32_t frames_seen)
 {
-    if (file_ == nullptr)
+    if (stream_ == nullptr)
     {
         return;
     }
@@ -150,9 +164,15 @@ void VulkanScreenshotJson::Close(uint32_t frames_seen)
     summary["filesWritten"]        = files_written_;
     WriteBlock(summary_block);
 
-    util::platform::FileWrite("\n]", 2, file_);
-    util::platform::FileClose(file_);
-    file_ = nullptr;
+    util::Write(*stream_, "\n]");
+
+    if (memory_stream_ != nullptr)
+    {
+        util::RemoteChannel::SendActiveFile(filename_, memory_stream_->GetData(), memory_stream_->GetDataSize());
+    }
+
+    stream_.reset();
+    memory_stream_ = nullptr;
 }
 
 void VulkanScreenshotJson::BeginFrame(const char*             boundary_type,
@@ -161,7 +181,7 @@ void VulkanScreenshotJson::BeginFrame(const char*             boundary_type,
                                       std::optional<VkResult> capture_result,
                                       uint64_t                block_index)
 {
-    if ((file_ == nullptr) || !controller_.IsScreenshotFrame())
+    if ((stream_ == nullptr) || !controller_.IsScreenshotFrame())
     {
         return;
     }
@@ -792,17 +812,17 @@ void VulkanScreenshotJson::InsertReason(nlohmann::ordered_json& entry,
 
 void VulkanScreenshotJson::WriteBlock(const nlohmann::ordered_json& block)
 {
-    GFXRECON_ASSERT(file_ != nullptr);
+    GFXRECON_ASSERT(stream_ != nullptr);
 
     if (!first_block_)
     {
-        util::platform::FileWrite(",\n", 2, file_);
+        util::Write(*stream_, ",\n");
     }
     first_block_ = false;
 
     const std::string text = block.dump(util::kJsonIndentWidth, ' ', false, nlohmann::json::error_handler_t::replace);
-    util::platform::FileWrite(text.c_str(), text.size(), file_);
-    util::platform::FileFlush(file_);
+    stream_->Write(text.c_str(), text.size());
+    stream_->Flush();
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -30,12 +30,14 @@
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/json_util.h"
+#include "util/memory_output_stream.h"
+#include "util/output_stream.h"
 
 #include "vulkan/vulkan.h"
 
 #include <array>
 #include <cstdint>
-#include <cstdio>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -234,7 +236,9 @@ class VulkanScreenshotJson
 
   private:
     const ScreenshotController& controller_;
-    FILE*                       file_{ nullptr };
+    std::unique_ptr<util::OutputStream> stream_;
+    util::MemoryOutputStream*           memory_stream_{ nullptr }; // Aliases stream_ when streaming to a controller.
+    std::string                         filename_;
     bool                        first_block_{ true };
     bool                        frame_open_{ false };
     bool                        frame_reason_is_error_{ false };

@@ -125,6 +125,8 @@ output over the socket instead of writing to disk, using process-wide statics
 - Screenshots — `image_writer.cpp` (`WriteBmpImage` writes through a
   `MemoryOutputStream` in place of the usual `FileOutputStream`; `WritePngImage`
   collects bytes via `stbi_write_png_to_func`).
+- Screenshot results JSON (`--screenshot-results`): `vulkan_screenshot_json.cpp`,
+  the same `MemoryOutputStream` substitution, sent on `Close()`.
 - Dump-resources buffers — `buffer_writer.cpp` (`WriteBuffer`).
 - Dump-resources JSON — `vulkan_replay_dump_resources_json.cpp` (same
   `MemoryOutputStream` substitution, sent on `Close()`).
