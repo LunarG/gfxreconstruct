@@ -23,6 +23,7 @@
 #ifndef GFXRECON_REPLAY_EVENT_PLUGIN_H
 #define GFXRECON_REPLAY_EVENT_PLUGIN_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #if defined(_WIN32)
@@ -33,7 +34,7 @@
 #define GFXR_REPLAY_PLUGIN_EXPORT
 #endif
 
-#define GFXR_REPLAY_PLUGIN_ABI_VERSION 2u
+#define GFXR_REPLAY_PLUGIN_ABI_VERSION 3u
 #define GFXR_REPLAY_PLUGIN_ABI_MIN_VERSION 1u
 #define GFXR_REPLAY_INVALID_SUBMIT_INDEX UINT64_MAX
 #define GFXR_REPLAY_PLUGIN_FACTORY_NAME "gfxrCreateReplayPluginV1"
@@ -49,6 +50,10 @@ typedef enum GfxrReplayEventType
     // Provided by ABI v2
     GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN = 5,
     GFXR_REPLAY_EVENT_STATE_SETUP_END   = 6,
+
+    // Provided by ABI v3
+    GFXR_REPLAY_EVENT_WAIT_BEGIN = 7,
+    GFXR_REPLAY_EVENT_WAIT_END   = 8,
 } GfxrReplayEventType;
 
 static_assert(sizeof(GfxrReplayEventType) == sizeof(uint32_t));
@@ -126,6 +131,22 @@ typedef struct GfxrReplayFrameEndEvent
     uint64_t              first_submit_index;
     uint64_t              last_submit_index;
 } GfxrReplayFrameEndEvent;
+
+typedef struct GfxrReplayWaitBeginEvent
+{
+    GfxrReplayEventHeader header;
+    uint32_t              requested_duration_ms;
+    uint32_t              reserved;
+} GfxrReplayWaitBeginEvent;
+
+static_assert(sizeof(GfxrReplayWaitBeginEvent) == 40);
+
+typedef struct GfxrReplayWaitEndEvent
+{
+    GfxrReplayEventHeader header;
+} GfxrReplayWaitEndEvent;
+
+static_assert(sizeof(GfxrReplayWaitEndEvent) == 32);
 
 typedef struct GfxrReplayPluginV1
 {
