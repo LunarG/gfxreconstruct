@@ -27,15 +27,19 @@
 
 #include "decode/replay_options.h"
 
+#include "decode/dx12_resource_allocator.h"
 #include "util/defines.h"
 #include "util/options.h"
 #include "util/logging.h"
 
+#include <functional>
 #include <vector>
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+typedef std::function<Dx12ResourceAllocator*()> CreateDx12ResourceAllocator;
 
 static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
 static constexpr uint32_t kDefaultBatchingHeapSize    = 256;
@@ -53,6 +57,8 @@ struct DxReplayOptions : public ReplayOptions
 #endif
     int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
     uint32_t             batching_heap_size{ kDefaultBatchingHeapSize };
+
+    CreateDx12ResourceAllocator create_resource_allocator;
 };
 
 GFXRECON_END_NAMESPACE(decode)
