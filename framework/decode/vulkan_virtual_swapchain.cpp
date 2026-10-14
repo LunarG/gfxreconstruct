@@ -1587,6 +1587,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
         switch (swapchain_options_.present_mode_option)
         {
+            case util::PresentModeOption::kAuto:
             case util::PresentModeOption::kCapture:
                 // There is no corresponding present-mode for "capture", so we fall back to FIFO.
                 swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;

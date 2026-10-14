@@ -52,7 +52,7 @@ struct VulkanSwapchainOptions
     bool                    virtual_swapchain_skip_blit{ false };
     int32_t                 surface_index{ -1 };
     bool                    offscreen_swapchain_frame_boundary{ false };
-    util::PresentModeOption present_mode_option{ util::PresentModeOption::kCapture };
+    util::PresentModeOption present_mode_option{ util::PresentModeOption::kAuto };
 };
 
 class VulkanSwapchain
