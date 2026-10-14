@@ -43,6 +43,7 @@
 #include "decode/vulkan_rebind_allocator.h"
 #include "decode/vulkan_remap_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
+#include "decode/vulkan_trim_state_binding_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/platform.h"
 #include "util/strings.h"
@@ -775,6 +776,8 @@ void ReplayVulkanFeature::CreateConsumer(decode::FileProcessor*                 
         {
             replay_consumer_ = std::make_unique<gfxrecon::decode::VulkanReplayConsumer>(application_, replay_options_);
         }
+
+        replay_consumer_->SetTrimStateMemoryBindings(decode::ScanTrimStateMemoryBindings(capture_filename_));
 
         FinalizeConsumer();
     }

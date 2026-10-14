@@ -41,6 +41,7 @@
 #include "decode/block_parser.h"
 #include "decode/decode_allocator.h"
 #include "decode/vulkan_pnext_node.h"
+#include "decode/vulkan_trim_state_binding_consumer.h"
 
 #include <limits>
 #include <vector>
@@ -886,5 +887,92 @@ TEST_CASE("An aliasing group that cannot be allocated is rejected", "[rebind]")
             128);
 
         REQUIRE_FALSE(layout.valid);
+    }
+}
+
+TEST_CASE("VulkanTrimStateBindingConsumer finds memory bound to one resource in the state setup", "[trim]")
+{
+    using gfxrecon::decode::args::BindBufferMemory;
+    using gfxrecon::decode::args::BindImageMemory;
+
+    const gfxrecon::format::HandleId kDevice = 1;
+
+    gfxrecon::decode::VulkanTrimStateBindingConsumer consumer;
+    gfxrecon::decode::ApiCallInfo                    call_info{};
+
+    // Before the state setup.
+    BindImageMemory early{ VK_SUCCESS, kDevice, 10, 100, 0 };
+    consumer.Process_vkBindImageMemory(call_info, early);
+
+    consumer.ProcessStateBeginMarker(0);
+    consumer.ProcessApiCall();
+    CHECK_FALSE(consumer.IsComplete(0));
+
+    BindImageMemory  image{ VK_SUCCESS, kDevice, 20, 200, 256 };
+    BindBufferMemory buffer{ VK_SUCCESS, kDevice, 21, 201, 0 };
+    BindBufferMemory shared_a{ VK_SUCCESS, kDevice, 22, 202, 0 };
+    BindBufferMemory shared_b{ VK_SUCCESS, kDevice, 23, 202, 4096 };
+    BindImageMemory  swapchain{ VK_SUCCESS, kDevice, 24, gfxrecon::format::kNullHandleId, 0 };
+    consumer.Process_vkBindImageMemory(call_info, image);
+    consumer.Process_vkBindBufferMemory(call_info, buffer);
+    consumer.Process_vkBindBufferMemory(call_info, shared_a);
+    consumer.Process_vkBindBufferMemory(call_info, shared_b);
+    consumer.Process_vkBindImageMemory(call_info, swapchain);
+
+    consumer.ProcessStateEndMarker(0);
+    CHECK(consumer.IsComplete(0));
+
+    // After the state setup.
+    BindBufferMemory late{ VK_SUCCESS, kDevice, 25, 203, 0 };
+    consumer.Process_vkBindBufferMemory(call_info, late);
+
+    const gfxrecon::decode::TrimStateMemoryBindings sole = consumer.GetSoleBindings();
+    REQUIRE(sole.size() == 2);
+
+    const auto image_binding = sole.find(200);
+    REQUIRE(image_binding != sole.end());
+    CHECK(image_binding->second.resource == 20);
+    CHECK(image_binding->second.is_image);
+    CHECK(image_binding->second.offset == 256);
+
+    const auto buffer_binding = sole.find(201);
+    REQUIRE(buffer_binding != sole.end());
+    CHECK(buffer_binding->second.resource == 21);
+    CHECK_FALSE(buffer_binding->second.is_image);
+}
+
+TEST_CASE("VulkanTrimStateBindingConsumer stops at the first call of an untrimmed capture", "[trim]")
+{
+    gfxrecon::decode::VulkanTrimStateBindingConsumer consumer;
+    CHECK_FALSE(consumer.IsComplete(0));
+    consumer.ProcessApiCall();
+    CHECK(consumer.IsComplete(0));
+    CHECK(consumer.GetSoleBindings().empty());
+}
+
+TEST_CASE("GrownTrimStateAllocationSize fits the one resource bound to an allocation", "[trim]")
+{
+    using gfxrecon::decode::GrownTrimStateAllocationSize;
+
+    SECTION("an allocation the resource fits in keeps its size")
+    {
+        CHECK(GrownTrimStateAllocationSize(4096, 0, { 4096, 256, 1 }) == 4096);
+        CHECK(GrownTrimStateAllocationSize(8192, 1024, { 2048, 256, 1 }) == 8192);
+    }
+
+    SECTION("a resource that needs more grows the allocation past its offset")
+    {
+        CHECK(GrownTrimStateAllocationSize(4096, 0, { 6144, 256, 1 }) == 6144);
+        CHECK(GrownTrimStateAllocationSize(4096, 1024, { 4096, 256, 1 }) == 5120);
+    }
+
+    SECTION("an offset the replay alignment does not allow cannot be fixed by growing")
+    {
+        CHECK_FALSE(GrownTrimStateAllocationSize(8192, 256, { 4096, 1024, 1 }).has_value());
+    }
+
+    SECTION("no alignment allows any offset")
+    {
+        CHECK(GrownTrimStateAllocationSize(4096, 100, { 4096, 0, 1 }) == 4196);
     }
 }
