@@ -34,6 +34,7 @@
 #include "util/defines.h"
 #include "util/file_input_stream.h"
 #include "util/logging.h"
+#include "util/uint_range_set.h"
 
 #include <deque>
 #include <functional>
@@ -150,6 +151,8 @@ class BlockProcessor
     }
     bool HasPendingBlocksToSkip() const noexcept { return !pending_blocks_to_skip_.empty(); }
 
+    void SetSkipBlockIndices(std::vector<util::UintRange> ranges) { skip_block_ranges_.SetRanges(std::move(ranges)); }
+
   private:
     /// This is true until the first block that belongs to frame 0 is encountered.
     /// Meta-data, annotation, and state marker blocks are considered pre-frame.
@@ -176,6 +179,7 @@ class BlockProcessor
     // Block-index-based skip list; optional on_complete fires once all targeted blocks are skipped.
     std::unique_ptr<file_processor::BlockSkip> block_skip_;
     std::unordered_set<uint64_t>               pending_blocks_to_skip_;
+    util::UintRangeSet                         skip_block_ranges_;
 
     // Parameters supplied to InitializeFrameProcessing (quit_before_frame, preload_range, etc.).
     // block_limit is NOT here -- it lives on FileProcessor and is passed into policies as a scalar.
