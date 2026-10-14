@@ -39,6 +39,12 @@ void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vk
 void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
                                              vkmock::TestConfig*           test_config)
 {
+    phys_device_selector.set_minimum_version(1, 1);
+
+    VkPhysicalDeviceVulkan11Features feats = {};
+    feats.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+    feats.shaderDrawParameters = true;
+    phys_device_selector.set_required_features_11(feats);
     phys_device_selector.prefer_gpu_device_type(test::PreferredDeviceType::discrete);
 }
 
@@ -136,7 +142,7 @@ void App::create_graphics_pipeline()
     rasterizer.rasterizerDiscardEnable                = VK_FALSE;
     rasterizer.polygonMode                            = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth                              = 1.0f;
-    rasterizer.cullMode                               = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode                               = VK_CULL_MODE_NONE;
     rasterizer.frontFace                              = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable                        = VK_FALSE;
 
@@ -310,6 +316,30 @@ bool App::frame(const int frame_num)
         result                              = init.disp.beginCommandBuffer(command_buffer, &begin_info);
         VERIFY_VK_RESULT("failed to begin command buffer", result);
 
+        // Make swapchain image have color attachment layout
+        {
+            VkImageMemoryBarrier image_barrier        = {};
+            image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            image_barrier.image                       = init.swapchain_images[image_index];
+            image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
+            image_barrier.newLayout                   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            image_barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+            image_barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+            image_barrier.srcAccessMask               = VK_ACCESS_NONE;
+            image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            init.disp.cmdPipelineBarrier(command_buffer,
+                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &image_barrier);
+        }
+
         VkRenderPassBeginInfo render_pass_info = {};
         render_pass_info.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         render_pass_info.renderPass            = render_pass_;
@@ -343,6 +373,8 @@ bool App::frame(const int frame_num)
         init.disp.cmdDraw(command_buffer, 3, 1, 0, 0);
 
         init.disp.cmdEndRenderPass(command_buffer);
+        result = init.disp.endCommandBuffer(command_buffer);
+        VERIFY_VK_RESULT("failed to end command buffer", result);
 
         // Submit first recording
         {
@@ -366,6 +398,8 @@ bool App::frame(const int frame_num)
         // wait on intra cb fence
         result = init.disp.waitForFences(1, &intra_cb_fence_, VK_TRUE, ~0);
         VERIFY_VK_RESULT("failed to wait on intra cb fence", result);
+        result = init.disp.resetFences(1, &intra_cb_fence_);
+        VERIFY_VK_RESULT("failed to reset fence", result);
 
         // Start second recording
         result = init.disp.resetCommandBuffer(command_buffer, 0);
@@ -376,11 +410,35 @@ bool App::frame(const int frame_num)
         init.disp.cmdSetScissor(command_buffer, 0, 1, &scissor);
         init.disp.cmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
         init.disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_);
-        pc_value = 0.5;
+        pc_value = 1.0;
         init.disp.cmdPushConstants(command_buffer, pipeline_layout_, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &pc_value);
 
         init.disp.cmdDraw(command_buffer, 3, 1, 0, 0);
         init.disp.cmdEndRenderPass(command_buffer);
+
+        // Make swapchain image have present layout
+        {
+            VkImageMemoryBarrier image_barrier        = {};
+            image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            image_barrier.image                       = init.swapchain_images[image_index];
+            image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            image_barrier.newLayout                   = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            image_barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+            image_barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+            image_barrier.srcAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            init.disp.cmdPipelineBarrier(command_buffer,
+                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &image_barrier);
+        }
 
         result = init.disp.endCommandBuffer(command_buffer);
         VERIFY_VK_RESULT("failed to end command buffer", result);
@@ -396,9 +454,10 @@ bool App::frame(const int frame_num)
     
         info.signalSemaphoreCount = 1;
         info.pSignalSemaphores    = signal_semaphores;
-    
-        init.disp.resetFences(1, &sync_.in_flight_fences[current_in_flight_frame_]);
-    
+
+        result = init.disp.resetFences(1, &sync_.in_flight_fences[current_in_flight_frame_]);
+        VERIFY_VK_RESULT("failed to reset fence", result);
+
         result = init.disp.queueSubmit(graphics_queue_, 1, &info, sync_.in_flight_fences[current_in_flight_frame_]);
         VERIFY_VK_RESULT("failed to submit queue", result);
     }
