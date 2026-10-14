@@ -88,6 +88,17 @@ static std::unordered_map<VkDevice, std::unordered_map<VkImage, VkDeviceSize>> i
 static std::unordered_map<VkDevice, std::unordered_set<VkCommandPool>>         command_pool_map;
 static std::unordered_map<VkCommandPool, std::vector<VkCommandBuffer>>         command_pool_buffer_map;
 
+// The unit of every memory requirement that the mock reports. The capture layer aligns the size
+// and the alignment that the app receives to the OS page size, which is 4 KiB on Linux x86 and
+// 16 KiB on Apple Silicon. With a unit that is a multiple of both, the app receives the same
+// values on every platform, and a known-good capture made on one platform holds on the others.
+// 64 KiB is also the usual sparse block size, so a sparse app sees a realistic granularity.
+static constexpr VkDeviceSize kMockMemoryGranularity = 65536;
+static VkDeviceSize           RoundToMockGranularity(VkDeviceSize size)
+{
+    return ((size + kMockMemoryGranularity - 1) / kMockMemoryGranularity) * kMockMemoryGranularity;
+}
+
 static constexpr uint32_t                                                     icd_swapchain_image_count = 1;
 static std::unordered_map<VkSwapchainKHR, VkImage[icd_swapchain_image_count]> swapchain_image_map;
 

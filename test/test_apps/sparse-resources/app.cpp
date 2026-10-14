@@ -620,11 +620,11 @@ bool App::frame(const int frame_num)
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
-    if (sync_.image_in_flight[current_in_flight_frame_] != VK_NULL_HANDLE)
+    if (sync_.image_in_flight[image_index] != VK_NULL_HANDLE)
     {
-        init.disp.waitForFences(1, &sync_.image_in_flight[current_in_flight_frame_], VK_TRUE, UINT64_MAX);
+        init.disp.waitForFences(1, &sync_.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
     }
-    sync_.image_in_flight[current_in_flight_frame_] = sync_.in_flight_fences[current_in_flight_frame_];
+    sync_.image_in_flight[image_index] = sync_.in_flight_fences[current_in_flight_frame_];
 
     init.disp.resetCommandPool(command_pools_[current_in_flight_frame_], 0);
     VkCommandBuffer command_buffer = command_buffers_[current_in_flight_frame_];
@@ -701,6 +701,10 @@ bool App::frame(const int frame_num)
             // Upload image data after bind
             if (upload_data)
             {
+                // Touch the whole block, so the recorded dirty range does not depend on the page
+                // size. See STAGING_WRITE_BLOCK.
+                memset(staging_buffer_ptr_, 0, STAGING_WRITE_BLOCK);
+
                 // Write uniform data to staging buffer for sparse bound uniform buffer
                 {
                     float* rot_ptr = (float*)staging_buffer_ptr_;

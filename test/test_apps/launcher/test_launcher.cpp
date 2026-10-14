@@ -20,34 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include <multisample_depth_app.h>
-
-#include <acquired_image_app.h>
-#include <host_image_copy_app.h>
-#include <pipeline_binaries_app.h>
-#ifndef __ANDROID__
-#include <set_environment_app.h>
-#endif
-#include <shader_objects_app.h>
-#include <sparse_resources_app.h>
-#include <debug_utils_app.h>
-#include <isolate_render_passes_app.h>
-#include <serialize_compute_and_transfer_app.h>
-#include <serialize_queue_submissions_app.h>
-#include <triangle_app.h>
-#include <triangle_extra_device_app.h>
-#include <deep_pnext_chain_app.h>
-#include <screenshot_frame_boundaries_app.h>
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
-#include <ahb_app.h>
-#endif
-
-#ifdef __linux__
-#include <external_memory_fd_export_app.h>
-#include <external_memory_fd_import_app.h>
-#include <wait_for_present_app.h>
-#include <trigger_trimming_app.h>
-#endif
+// The app headers and the app list. CMake generates both from test/test_apps/TestAppList.cmake.
+#include "test_app_includes.h"
+#include "test_app_list.h"
 
 #include <algorithm>
 
@@ -66,37 +41,19 @@
 const char kOptions[]   = "-h|--help";
 const char kArguments[] = "--wsi";
 
+// The names that the launcher accepts, one per app in this build. screenshot-frame-boundaries is a
+// CUSTOM entry in the list: it runs under one name per frame boundary mechanism, so its names are
+// written here by hand.
+#define GFXRECON_TEST_APP_NAME(ident, name) name,
+// clang-format off
 static const char* kAppNames[] = {
-    "acquired-image",
-    "debug-utils",
-    "host-image-copy",
-    "isolate-render-passes",
-    "serialize-compute-and-transfer",
-    "serialize-queue-submissions",
-    "multisample-depth",
-    "pipeline-binaries",
-#ifndef __ANDROID__
-    "set-environment",
-#endif
-    "shader-objects",
-    "sparse-resources",
-    "triangle",
-    "triangle-extra-device",
-    "deep-pnext-chain",
+    GFXRECON_TEST_APP_LIST(GFXRECON_TEST_APP_NAME)
     "screenshot-frame-boundary-command-buffer",
     "screenshot-frame-boundary-ext",
     "screenshot-frame-boundary-android",
-#ifdef __linux__
-    "external-memory-fd-export",
-    "external-memory-fd-import",
-    "wait-for-present",
-    "trigger-trimming",
-#endif
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
-    "ahb"
-#endif
-    // Add more test apps here as needed.
 };
+// clang-format on
+#undef GFXRECON_TEST_APP_NAME
 
 void PrintUsage(const char* exe_name)
 {
@@ -130,121 +87,36 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
 #endif
               const std::string& app_name)
 {
-    // Make sure the app name is within the options
-    bool found = false;
-    for (auto* name : kAppNames)
-    {
-        if (app_name == name)
-        {
-            found = true;
-            break;
-        }
-    }
-    if (!found)
-    {
-        return nullptr;
-    }
-
-    // Now instantiate the app
+    // One test per app in this build, from the generated list. A name that matches none leaves
+    // app empty, and the caller reports it.
     std::unique_ptr<gfxrecon::test::TestAppBase> app;
+#define GFXRECON_TEST_APP_CREATE(ident, name)                     \
+    if (app_name == name)                                         \
+    {                                                             \
+        app = std::make_unique<gfxrecon::test_app::ident::App>(); \
+    }
+    GFXRECON_TEST_APP_LIST(GFXRECON_TEST_APP_CREATE)
+#undef GFXRECON_TEST_APP_CREATE
 
-    if (app_name == "acquired-image")
+    // screenshot-frame-boundaries takes the boundary mechanism as a constructor argument, so its
+    // three names are matched by hand.
+    using ScreenshotApp = gfxrecon::test_app::screenshot_frame_boundaries::App;
+    if (app_name == "screenshot-frame-boundary-command-buffer")
     {
-        app = std::make_unique<gfxrecon::test_app::acquired_image::App>();
-    }
-    else if (app_name == "debug-utils")
-    {
-        app = std::make_unique<gfxrecon::test_app::debug_utils::App>();
-    }
-    else if (app_name == "triangle")
-    {
-        app = std::make_unique<gfxrecon::test_app::triangle::App>();
-    }
-    else if (app_name == "triangle-extra-device")
-    {
-        app = std::make_unique<gfxrecon::test_app::triangle_extra_device::App>();
-    }
-    else if (app_name == "host-image-copy")
-    {
-        app = std::make_unique<gfxrecon::test_app::host_image_copy::App>();
-    }
-    else if (app_name == "isolate-render-passes")
-    {
-        app = std::make_unique<gfxrecon::test_app::isolate_render_passes::App>();
-    }
-    else if (app_name == "serialize-compute-and-transfer")
-    {
-        app = std::make_unique<gfxrecon::test_app::serialize_compute_and_transfer::App>();
-    }
-    else if (app_name == "serialize-queue-submissions")
-    {
-        app = std::make_unique<gfxrecon::test_app::serialize_queue_submissions::App>();
-    }
-    else if (app_name == "multisample-depth")
-    {
-        app = std::make_unique<gfxrecon::test_app::multisample_depth::App>();
-    }
-    else if (app_name == "pipeline-binaries")
-    {
-        app = std::make_unique<gfxrecon::test_app::pipeline_binaries::App>();
-    }
-#ifndef __ANDROID__
-    else if (app_name == "set-environment")
-    {
-        app = std::make_unique<gfxrecon::test_app::set_environment::App>();
-    }
-#endif // __ANDROID__
-    else if (app_name == "shader-objects")
-    {
-        app = std::make_unique<gfxrecon::test_app::shader_objects::App>();
-    }
-    else if (app_name == "sparse-resources")
-    {
-        app = std::make_unique<gfxrecon::test_app::sparse_resources::App>();
-    }
-    else if (app_name == "deep-pnext-chain")
-    {
-        app = std::make_unique<gfxrecon::test_app::deep_pnext_chain::App>();
-    }
-    else if (app_name == "screenshot-frame-boundary-command-buffer")
-    {
-        using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
-        app       = std::make_unique<App>(App::Boundary::kCommandBufferLabel);
+        app = std::make_unique<ScreenshotApp>(ScreenshotApp::Boundary::kCommandBufferLabel);
     }
     else if (app_name == "screenshot-frame-boundary-ext")
     {
-        using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
-        app       = std::make_unique<App>(App::Boundary::kFrameBoundaryEXT);
+        app = std::make_unique<ScreenshotApp>(ScreenshotApp::Boundary::kFrameBoundaryEXT);
     }
     else if (app_name == "screenshot-frame-boundary-android")
     {
-        using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
-        app       = std::make_unique<App>(App::Boundary::kFrameBoundaryANDROID);
+        app = std::make_unique<ScreenshotApp>(ScreenshotApp::Boundary::kFrameBoundaryANDROID);
     }
-#ifdef __linux__
-    else if (app_name == "external-memory-fd-export")
+    if (app == nullptr)
     {
-        app = std::make_unique<gfxrecon::test_app::external_memory_fd_export::App>();
+        return nullptr;
     }
-    else if (app_name == "external-memory-fd-import")
-    {
-        app = std::make_unique<gfxrecon::test_app::external_memory_fd_import::App>();
-    }
-    else if (app_name == "wait-for-present")
-    {
-        app = std::make_unique<gfxrecon::test_app::wait_for_present::App>();
-    }
-    else if (app_name == "trigger-trimming")
-    {
-        app = std::make_unique<gfxrecon::test_app::trigger_trimming::App>();
-    }
-#endif // __linux__
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
-    else if (app_name == "ahb")
-    {
-        app = std::make_unique<gfxrecon::test_app::ahb::App>();
-    }
-#endif
 
 #if defined(__ANDROID__)
     app->set_android_app(android_app);

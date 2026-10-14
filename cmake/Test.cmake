@@ -27,6 +27,10 @@ cmake_minimum_required(VERSION 3.16)
 
 option(RUN_TESTS "Run unit tests" OFF)
 
+# Enable ctest from the top of the build tree. The unit tests register below, and the test app
+# cases register in test/CMakeLists.txt, so one ctest run can cover both.
+enable_testing()
+
 if (${RUN_TESTS})
     # Python
     if(CMAKE_HOST_WIN32)
@@ -68,6 +72,11 @@ if (${RUN_TESTS})
                         $<$<NOT:$<STREQUAL:"","${ARGN}">>:"--test-args ${ARGN}">
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
             add_dependencies(${TARGET}RunTests ${TARGET})
+
+            # ctest knows the test too, with the "unit" label, so "ctest -L unit" runs every
+            # Catch2 test from the build tree. The build-time run above stays as it is.
+            add_test(NAME ${TARGET} COMMAND ${TARGET} ${ARGN})
+            set_tests_properties(${TARGET} PROPERTIES LABELS "unit" TIMEOUT 120)
         endif()
     endfunction()
 

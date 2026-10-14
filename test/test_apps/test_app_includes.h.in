@@ -1,0 +1,6 @@
+// CMake generates this file from test/test_apps/TestAppList.cmake. Do not edit it. It includes
+// the header of every app in this build, for the launcher.
+
+#pragma once
+
+@GFXRECON_TEST_APP_INCLUDES@
