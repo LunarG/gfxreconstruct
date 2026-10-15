@@ -2,6 +2,7 @@
 // Copyright (c) 2020 Samsung
 // Copyright (c) 2023 Google
 // Copyright (c) 2023 LunarG, Inc
+// Copyright (c) 2026 Arm Limited
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -241,6 +242,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                    "KHR");
     }
 
+    void Generate_vkCmdPushDescriptorSetWithTemplate(args::CmdPushDescriptorSetWithTemplate& args,
+                                                     const char*                             extension = "");
+    void Generate_vkCmdPushDescriptorSetWithTemplate2(args::CmdPushDescriptorSetWithTemplate2& args,
+                                                      const char*                              extension = "");
+
     void Generate_vkCreateGraphicsPipelines(args::CreateGraphicsPipelines& args);
     void Generate_vkCreateComputePipelines(args::CreateComputePipelines& args);
     void Generate_vkCreateRayTracingPipelinesKHR(args::CreateRayTracingPipelinesKHR& args);
@@ -303,16 +309,20 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
                                                    args::UpdateDescriptorSetWithTemplate& args) override;
 
-    virtual void
-    Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
-                                                  args::CmdPushDescriptorSetWithTemplateKHR& args) override;
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
+                                                            args::CmdPushDescriptorSetWithTemplate& args) override;
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                      call_info,
+                                                               args::CmdPushDescriptorSetWithTemplate& args) override;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
                                                               args::UpdateDescriptorSetWithTemplateKHR& args) override;
 
-    virtual void
-    Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
-                                                   args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
+                                                             args::CmdPushDescriptorSetWithTemplate2& args) override;
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                       call_info,
+                                                                args::CmdPushDescriptorSetWithTemplate2& args) override;
 
     // String utilities
     static std::string ToEscape(const char* value);
