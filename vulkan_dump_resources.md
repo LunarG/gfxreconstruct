@@ -124,6 +124,8 @@ call that opens it, so nothing is correlated by array position and no placeholde
 
 ```
 Request
+  "SchemaVersion":  "<major>.<minor>"       required: the version of this format the file is written
+                                            in, currently "1.0"; see "Schema version" below
   "DumpingOptions": { ... }                 optional: options that apply to every command, see
                                             "Input json options" below
   "QueueSubmits":   [ QueueSubmit ... ]     required unless only StateSetup is given
@@ -182,6 +184,11 @@ Rules:
   it was written. Without `Position` the first appearance of a command buffer in the submission (or in the
   `vkCmdExecuteCommands` call) is dumped.
 
+* 1SchemaVersion1:
+The format described here is version `1.0`. Every file states the version it is written in through its top-level
+`SchemaVersion` key, a string of the form `"<major>.<minor>"`; a file without the key is rejected. The version a file was read as is written to
+the `inputJsonSchemaVersion` entry of the [output json header](#json-file-output).
+
 Assuming the following imaginary excerpt from a capture file:
 
 ```Json
@@ -206,6 +213,7 @@ the depth and color attachments of all `vkCmdDraw` commands are dumped with:
 
 ```Json
 {
+    "SchemaVersion": "1.0",
     "QueueSubmits": [
         {
             "Index": 315,
@@ -237,6 +245,7 @@ The draw call of the secondary command buffer `230` is dumped with:
 
 ```Json
 {
+    "SchemaVersion": "1.0",
     "QueueSubmits": [
         {
             "Index": 3952,
@@ -262,6 +271,7 @@ with several secondaries, submitted twice, with commands of every type:
 
 ```Json
 {
+    "SchemaVersion": "1.0",
     "QueueSubmits": [
         {
             "Index": [ 2000, 2002 ],
@@ -291,7 +301,7 @@ with several secondaries, submitted twice, with commands of every type:
 The meta commands `266` and `267` of the state-setup block of a trimmed capture are dumped with:
 
 ```Json
-{ "StateSetup": { "Transfer": [ 266, 267 ] } }
+{ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 266, 267 ] } }
 ```
 
 ### Legacy input json format
@@ -453,6 +463,7 @@ formats. In the tree format:
 
 ```Json
 {
+    "SchemaVersion": "1.0",
     "QueueSubmits": [
         {
             "Index": 2548,
@@ -580,6 +591,7 @@ Transfer command indices need to specified in a similar manner as with the other
 
 ```Json
 {
+    "SchemaVersion": "1.0",
     "QueueSubmits": [
         { "Index": 270, "CommandBuffers": [ { "Index": 250, "Transfer": [ 266, 267 ] } ] }
     ]
@@ -598,7 +610,7 @@ The supported transfer meta commands can be found in the state setup of a trimme
 the `StateSetup` entry:
 
 ```Json
-{ "StateSetup": { "Transfer": [ 266, 267 ] } }
+{ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 266, 267 ] } }
 ```
 
 In the legacy format `0` is used as a special block index for both `BeginCommandBuffer` and `QueueSubmit` instead:
@@ -675,6 +687,7 @@ A json example specifying the above options:
 
 ```Json
 {
+  "SchemaVersion": "1.0",
   "DumpingOptions": {
       "Scale": 0.2,
       "ColorAttachmentIndex": -1,
@@ -708,7 +721,7 @@ name of "vulkanCapture.gfxr" will result in a json output file name of "vulkanCa
 The output json consists of 4 main entries:
 1. Header
 
-  The header contains the path to the capture file, GFXR and vulkan version and the dump resources parameters used when replaying.
+  The header contains the path to the capture file, GFXR and vulkan version, the [schema version](#input-json-file) of the input json and the dump resources parameters used when replaying.
 
 2. Draw call commands
 
@@ -729,18 +742,26 @@ Here is an example of a json output file:
 [
 {
   "header": {
-    "source-path": "vulkanCapture.gfxr",
-    "gfxrecon-version": "1.0.3"
-    "vulkan-version": "1.3.275"
-    "dumpResourcesOptions": {
-      "scale": 1.0,
-      "dumpResourcesOutputDir": "",
-      "dumpResourcesColorAttachmentIndex": -1,
-      "dumpResourcesBefore": false,
-      "dumpResourcesDumpDepth": true,
-      "dumpResourcesDumpVertexIndexBuffer": true,
-      "dumpResourcesDumpImmutableResources": true,
-      "dumpResourcesDumpAllImageSubresources": false
+    "vulkanVersion": "1.4.335",
+    "gfxreconVersion": "1.0.5",
+    "captureFile": "vulkanCapture.gfxr",
+    "inputJsonSchemaVersion": "1.0",
+    "DumpResourcesOptions": {
+      "Scale": 1.0,
+      "ImageFormat": "bmp",
+      "OutputDir": "",
+      "ColorAttachmentIndex": -1,
+      "DumpBeforeCommand": false,
+      "DumpDepth": true,
+      "DumpVertexIndexBuffer": true,
+      "DumpAllDescriptors": true,
+      "DumpAllImageSubresources": false,
+      "DumpRawImages": false,
+      "DumpSeparateAlpha": false,
+      "DumpUnusedVertexBindings": false,
+      "JsonOutputPerCommand": false,
+      "DumpBuildAccelerationStructuresInputBuffers": false,
+      "BinaryFileCompressionType": "None"
     }
   }
 },

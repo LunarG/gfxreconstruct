@@ -146,8 +146,17 @@ using DescriptorImageSubresourcesVector = std::vector<DescriptorImageSubresource
 using CommandImageSubresource           = std::map<CommandLocation, DescriptorImageSubresourcesVector>;
 using BeginCmdBufQueueSubmitPair        = std::pair<decode::Index, decode::Index>;
 
+static constexpr uint8_t kDumpResourcesRequestSchemaVersionMajor = 1;
+static constexpr uint8_t kDumpResourcesRequestSchemaVersionMinor = 0;
+
+inline std::string DumpResourcesSchemaVersionString(uint8_t major, uint8_t minor)
+{
+    return std::to_string(major) + "." + std::to_string(minor);
+}
+
 // Keys of the tree-shaped dump resources request. The option keys (kVDROption*) live in
 // vulkan_replay_dump_resources_options.h.
+static constexpr const char* kDumpResourcesRequestSchemaVersion   = "SchemaVersion";
 static constexpr const char* kDumpResourcesRequestDumpingOptions  = "DumpingOptions";
 static constexpr const char* kDumpResourcesRequestQueueSubmits    = "QueueSubmits";
 static constexpr const char* kDumpResourcesRequestStateSetup      = "StateSetup";
@@ -304,6 +313,10 @@ struct DumpResourcesRequest
 
     // Top-level Resources: snapshots after blocks that are not recorded in a command buffer.
     std::vector<DumpResourcesResourceRequest> resources;
+
+    // The "SchemaVersion" the file was written in. A request built in code is in the implemented version.
+    uint8_t input_json_schema_major{ kDumpResourcesRequestSchemaVersionMajor };
+    uint8_t input_json_schema_minor{ kDumpResourcesRequestSchemaVersionMinor };
 
     bool operator==(const DumpResourcesRequest& other) const = default;
 };

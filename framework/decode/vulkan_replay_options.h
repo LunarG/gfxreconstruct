@@ -122,6 +122,11 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_unused_vertex_bindings{ false };
     bool  dump_resources_dump_build_AS_input_buffers{ false };
 
+    // Schema version of the --dump-resources input json: the "SchemaVersion" of a tree-shaped file (1.0 when the key
+    // is absent), 0.0 for the legacy flat schema. Reported in the header of the output json.
+    uint8_t input_json_schema_major{ 0 };
+    uint8_t input_json_schema_minor{ 0 };
+
     format::CompressionType dump_resources_binary_file_compression_type{ format::CompressionType::kNone };
 
     bool preload_measurement_range{ false };
