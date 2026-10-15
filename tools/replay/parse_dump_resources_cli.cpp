@@ -316,6 +316,8 @@ static void ClearDumpResourcesRequest(decode::VulkanReplayOptions& vulkan_replay
     vulkan_replay_options.TransferSubresources.clear();
     vulkan_replay_options.ExecuteCommands_Indices.clear();
     vulkan_replay_options.dump_resources_request.reset();
+    vulkan_replay_options.input_json_schema_major = 0;
+    vulkan_replay_options.input_json_schema_minor = 0;
 }
 
 // Dumping options. Shared by both schemas: the legacy "DumpResourcesOptions" object is parsed leniently (unknown
@@ -1025,10 +1027,12 @@ static void RejectTopLevelOnlyOptions(const decode::DumpResourcesDumpingOptions&
         Fail(path,
              std::string(decode::kVDROptionJsonOutputPerCommand) + " can only be set in the top-level DumpingOptions");
     }
+
     if (options.dump_before_command)
     {
         Fail(path, std::string(decode::kVDROptionBefore) + " can only be set in the top-level DumpingOptions");
     }
+
     if (options.binary_file_compression_type)
     {
         Fail(path,
@@ -1546,13 +1550,104 @@ static void ParseQueueSubmits(const json& qss, decode::DumpResourcesRequest& req
     }
 }
 
+// One component of a "<major>.<minor>" schema version: decimal digits that fit in a uint8_t.
+static std::optional<uint8_t> ParseVersionComponent(const std::string& text)
+{
+    const auto is_digit = [](char c) { return std::isdigit(static_cast<unsigned char>(c)) != 0; };
+    if (text.empty() || text.size() > 3 || !std::all_of(text.begin(), text.end(), is_digit))
+    {
+        return std::nullopt;
+    }
+
+    const int value = std::stoi(text);
+    if (value > std::numeric_limits<uint8_t>::max())
+    {
+        return std::nullopt;
+    }
+    return static_cast<uint8_t>(value);
+}
+
+// Parses the mandatory top-level "SchemaVersion": "<major>.<minor>" of a tree-shaped request and checks that this
+// parser can read it: a different major number is an error, a newer minor number a warning. Only the legacy flat
+// schema has no version.
+static void ParseSchemaVersion(const json& root, decode::DumpResourcesRequest& request)
+{
+    const std::string path      = decode::kDumpResourcesRequestSchemaVersion;
+    const std::string supported = decode::DumpResourcesSchemaVersionString(
+        decode::kDumpResourcesRequestSchemaVersionMajor, decode::kDumpResourcesRequestSchemaVersionMinor);
+
+    if (!root.contains(decode::kDumpResourcesRequestSchemaVersion))
+    {
+        Fail("",
+             "\"" + path +
+                 "\" is required; a request in the tree schema states the version of the schema it is "
+                 "written in, currently \"" +
+                 supported + "\"");
+    }
+
+    const json& value = root[decode::kDumpResourcesRequestSchemaVersion];
+
+    if (!value.is_string())
+    {
+        Fail(path, "must be a string of the form \"<major>.<minor>\", for example \"" + supported + "\"");
+    }
+
+    const std::string            text = value.get<std::string>();
+    const std::string::size_type dot  = text.find('.');
+    const std::optional<uint8_t> major =
+        dot == std::string::npos ? std::nullopt : ParseVersionComponent(text.substr(0, dot));
+    const std::optional<uint8_t> minor =
+        dot == std::string::npos ? std::nullopt : ParseVersionComponent(text.substr(dot + 1));
+
+    if (!major || !minor)
+    {
+        Fail(path,
+             "\"" + text + "\" is not a schema version of the form \"<major>.<minor>\", for example \"" + supported +
+                 "\"");
+    }
+
+    if (*major == 0)
+    {
+        Fail(path,
+             "version 0 denotes the legacy flat schema, which has no SchemaVersion key; the tree schema starts at "
+             "version 1.0");
+    }
+
+    if (*major != decode::kDumpResourcesRequestSchemaVersionMajor)
+    {
+        Fail(path,
+             "schema version " + text + " is not supported by this version of gfxrecon-replay, which implements " +
+                 supported + "; versions with a different major number are incompatible");
+    }
+
+    if (*minor > decode::kDumpResourcesRequestSchemaVersionMinor)
+    {
+        GFXRECON_LOG_WARNING("VDR input json is written in schema version %s, newer than the %s this version of "
+                             "gfxrecon-replay implements; keys introduced after %s are rejected as unknown",
+                             text.c_str(),
+                             supported.c_str(),
+                             supported.c_str());
+    }
+
+    request.input_json_schema_major = *major;
+    request.input_json_schema_minor = *minor;
+}
+
 // Parses the new schema
 static decode::DumpResourcesRequest ParseTreeRequest(const json& root)
 {
     RequireObject(root, "");
+
+    decode::DumpResourcesRequest request;
+
+    // Checked before the keys so that a file written for an incompatible schema is reported as such rather than
+    // failing on a key this parser does not know.
+    ParseSchemaVersion(root, request);
+
     CheckAllowedKeys(root,
                      "",
-                     { decode::kDumpResourcesRequestDumpingOptions,
+                     { decode::kDumpResourcesRequestSchemaVersion,
+                       decode::kDumpResourcesRequestDumpingOptions,
                        decode::kDumpResourcesRequestQueueSubmits,
                        decode::kDumpResourcesRequestStateSetup,
                        decode::kDumpResourcesRequestResources });
@@ -1563,8 +1658,6 @@ static decode::DumpResourcesRequest ParseTreeRequest(const json& root)
     {
         Fail("", "at least one of QueueSubmits, StateSetup or Resources is required");
     }
-
-    decode::DumpResourcesRequest request;
 
     // Parse global DumpingOptions
     if (root.contains(decode::kDumpResourcesRequestDumpingOptions))
@@ -1837,7 +1930,15 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             if (jargs.is_object() && jargs.contains(decode::DUMP_ARG_BEGIN_COMMAND_BUFFER))
             {
                 GFXRECON_LOG_WARNING("\"%s\" input json is using the old schema which is deprecated.",
-                               vulkan_replay_options.dump_resources_block_indices.c_str());
+                                     vulkan_replay_options.dump_resources_block_indices.c_str());
+
+                // The legacy parser ignores keys it does not know, but a version claim contradicts the format.
+                if (jargs.contains(decode::kDumpResourcesRequestSchemaVersion))
+                {
+                    Fail(decode::kDumpResourcesRequestSchemaVersion,
+                         "the legacy flat schema (selected by the top-level \"BeginCommandBuffer\" key) has no "
+                         "schema version; remove the key or rewrite the request in the tree schema");
+                }
 
                 if (!ParseLegacyRequest(jargs, vulkan_replay_options))
                 {
@@ -1851,7 +1952,9 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 decode::DumpResourcesRequest request = ParseTreeRequest(jargs);
                 LowerTreeRequest(request, vulkan_replay_options);
                 ApplyDumpingOptions(request.dumping_options, vulkan_replay_options);
-                vulkan_replay_options.dump_resources_request = std::move(request);
+                vulkan_replay_options.input_json_schema_major = request.input_json_schema_major;
+                vulkan_replay_options.input_json_schema_minor = request.input_json_schema_minor;
+                vulkan_replay_options.dump_resources_request  = std::move(request);
             }
         }
         catch (const RequestError& e)

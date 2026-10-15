@@ -167,6 +167,7 @@ const decode::ImageSubresourceRanges kAllSubresources{ VK_IMAGE_ASPECT_NONE,    
 
 // Example 4.2 of the schema proposal without the two Resources entries.
 const char* kTreeExample42 = R"({
+  "SchemaVersion": "1.0",
   "QueueSubmits": [ {
     "Index": 2002,
     "CommandBuffers": [ {
@@ -216,6 +217,10 @@ TEST_CASE("legacy: minimal draw request", "[vdr-parse][legacy]")
     REQUIRE(r.options.Dispatch_Indices.empty());
     REQUIRE(r.options.ExecuteCommands_Indices.empty());
     REQUIRE_FALSE(r.options.dump_resources_request.has_value());
+
+    // The legacy schema has no version key and is reported as 0.0.
+    REQUIRE(r.options.input_json_schema_major == 0);
+    REQUIRE(r.options.input_json_schema_minor == 0);
 }
 
 TEST_CASE("legacy: secondary executed from a primary keeps file order", "[vdr-parse][legacy]")
@@ -347,7 +352,7 @@ TEST_CASE("legacy: arguments that are not a json file are ignored", "[vdr-parse]
 
 TEST_CASE("tree: minimal request lowers like the legacy one", "[vdr-parse][tree]")
 {
-    const auto tree = Parse(R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [
+    const auto tree = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [
                                    { "Index": 301, "RenderPasses": [ [ 302, 313 ] ], "Draw": [ 307, 308 ] } ] } ] })");
     REQUIRE(tree.ok);
     REQUIRE(tree.options.dumping_resources);
@@ -423,7 +428,7 @@ TEST_CASE("tree: a QueueSubmit index list repeats the subtree per submission", "
 
 TEST_CASE("tree: secondary under a primary that only carries the render pass (example 4.4)", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ {
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ {
         "Index": 1000, "RenderPasses": [ [ 1001, 1003 ] ],
         "ExecuteCommands": [ { "Index": 1002, "CommandBuffers": [ { "Index": 100, "Draw": [ 105 ] } ] } ] } ] } ] })");
     REQUIRE(r.ok);
@@ -438,7 +443,7 @@ TEST_CASE("tree: secondary under a primary that only carries the render pass (ex
 
 TEST_CASE("tree: descriptor culling (example 4.6)", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "QueueSubmits": [ { "Index": 2548, "CommandBuffers": [ {
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2548, "CommandBuffers": [ {
         "Index": 2525, "RenderPasses": [ [ 2526, 2538 ] ],
         "Draw": [ { "Index": 2533, "Descriptors": [ { "Set": 0, "Binding": 1, "ArrayIndex": 0 } ] }, 2537 ] } ] } ] })");
     REQUIRE(r.ok);
@@ -452,7 +457,7 @@ TEST_CASE("tree: descriptor culling (example 4.6)", "[vdr-parse][tree]")
 
 TEST_CASE("tree: state setup meta commands (example 4.7)", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "StateSetup": { "Transfer": [ 267, 266 ] } })");
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 267, 266 ] } })");
     REQUIRE(r.ok);
     REQUIRE(r.options.BeginCommandBufferQueueSubmit_Indices == Pairs{ { 0, 0 } });
     REQUIRE(r.options.Transfer_Indices == Rows{ { 266, 267 } });
@@ -470,7 +475,7 @@ TEST_CASE("tree: state setup meta commands (example 4.7)", "[vdr-parse][tree]")
 
 TEST_CASE("tree: state setup next to queue submits", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "StateSetup": { "Transfer": [ 266 ] },
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 266 ] },
                               "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Transfer": [ 303 ] } ] } ] })");
     REQUIRE(r.ok);
     REQUIRE(r.options.BeginCommandBufferQueueSubmit_Indices == Pairs{ { 301, 315 }, { 0, 0 } });
@@ -480,6 +485,7 @@ TEST_CASE("tree: state setup next to queue submits", "[vdr-parse][tree]")
 TEST_CASE("tree: top-level DumpingOptions apply to the request (example 4.8)", "[vdr-parse][tree]")
 {
     const auto r = Parse(R"({
+        "SchemaVersion": "1.0",
         "DumpingOptions": { "ImageFormat": "png", "DumpDepth": true, "Scale": 0.25, "OutputDir": "out",
                             "BinaryFileCompressionType": "lz4", "ColorAttachmentIndex": -1, "JsonOutputPerCommand": true },
         "QueueSubmits": [ { "Index": 315, "CommandBuffers": [
@@ -498,7 +504,7 @@ TEST_CASE("tree: top-level DumpingOptions apply to the request (example 4.8)", "
 
 TEST_CASE("tree: lists are sorted by the parser", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [
         { "Index": 301, "RenderPasses": [ [ 320, 330 ], [ 302, 313 ] ], "Draw": [ 309, 307, 308 ], "Dispatch": [ 325, 322 ] } ] } ] })");
     REQUIRE(r.ok);
     REQUIRE(r.options.Draw_Indices == Rows{ { 307, 308, 309 } });
@@ -508,7 +514,7 @@ TEST_CASE("tree: lists are sorted by the parser", "[vdr-parse][tree]")
 
 TEST_CASE("tree: a secondary executed from several places with the same request shares one row", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "QueueSubmits": [ { "Index": 425, "CommandBuffers": [ {
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 425, "CommandBuffers": [ {
         "Index": 311, "RenderPasses": [ [ 327, 330 ] ],
         "ExecuteCommands": [ { "Index": 328, "CommandBuffers": [ { "Index": 241, "Draw": [ 246 ] } ] },
                              { "Index": 329, "CommandBuffers": [ { "Index": 241, "Draw": [ 246 ] } ] } ] } ] } ] })");
@@ -517,7 +523,7 @@ TEST_CASE("tree: a secondary executed from several places with the same request 
     REQUIRE(r.options.Draw_Indices == Rows{ {}, { 246 } });
     REQUIRE(r.options.ExecuteCommands_Indices[0] == decode::ExecuteCommands{ { 328, { 241 } }, { 329, { 241 } } });
 
-    const auto different = Parse(R"({ "QueueSubmits": [ { "Index": 425, "CommandBuffers": [ {
+    const auto different = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 425, "CommandBuffers": [ {
         "Index": 311, "RenderPasses": [ [ 327, 330 ] ],
         "ExecuteCommands": [ { "Index": 328, "CommandBuffers": [ { "Index": 241, "Draw": [ 246 ] } ] },
                              { "Index": 329, "CommandBuffers": [ { "Index": 241, "Draw": [ 247 ] } ] } ] } ] } ] })");
@@ -526,7 +532,7 @@ TEST_CASE("tree: a secondary executed from several places with the same request 
 
 TEST_CASE("tree: a secondary executed from two primaries shares one row", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "QueueSubmits": [ { "Index": 500, "CommandBuffers": [
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 500, "CommandBuffers": [
         { "Index": 300, "ExecuteCommands": [ { "Index": 310, "CommandBuffers": [ { "Index": 100, "Dispatch": [ 103 ] } ] } ] },
         { "Index": 400, "ExecuteCommands": [ { "Index": 410, "CommandBuffers": [ { "Index": 100, "Dispatch": [ 103 ] } ] } ] } ] } ] })");
     REQUIRE(r.ok);
@@ -538,7 +544,7 @@ TEST_CASE("tree: a secondary executed from two primaries shares one row", "[vdr-
 
 TEST_CASE("tree: nested secondaries get their own ExecuteCommands row", "[vdr-parse][tree]")
 {
-    const auto r = Parse(R"({ "QueueSubmits": [ { "Index": 500, "CommandBuffers": [
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 500, "CommandBuffers": [
         { "Index": 300, "ExecuteCommands": [ { "Index": 310, "CommandBuffers": [
             { "Index": 200, "ExecuteCommands": [ { "Index": 210, "CommandBuffers": [
                 { "Index": 100, "Dispatch": [ 103 ] } ] } ] } ] } ] } ] } ] })");
@@ -550,23 +556,79 @@ TEST_CASE("tree: nested secondaries get their own ExecuteCommands row", "[vdr-pa
     REQUIRE(r.options.Dispatch_Indices == Rows{ {}, {}, { 103 } });
 }
 
+TEST_CASE("tree: SchemaVersion is required, recorded and tolerates a newer minor", "[vdr-parse][tree]")
+{
+    const char* request =
+        R"("QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ])";
+
+    SECTION("a tree request without the key is rejected")
+    {
+        const auto r = Parse("{ " + std::string(request) + " }");
+        REQUIRE_FALSE(r.ok);
+        REQUIRE_FALSE(r.options.dumping_resources);
+        REQUIRE_FALSE(r.options.dump_resources_request.has_value());
+        REQUIRE(r.options.input_json_schema_major == 0);
+        REQUIRE(r.options.input_json_schema_minor == 0);
+    }
+
+    SECTION("the implemented version")
+    {
+        const std::string version = decode::DumpResourcesSchemaVersionString(
+            decode::kDumpResourcesRequestSchemaVersionMajor, decode::kDumpResourcesRequestSchemaVersionMinor);
+        const auto r = Parse("{ \"SchemaVersion\": \"" + version + "\", " + request + " }");
+        REQUIRE(r.ok);
+        REQUIRE(r.options.input_json_schema_major == decode::kDumpResourcesRequestSchemaVersionMajor);
+        REQUIRE(r.options.input_json_schema_minor == decode::kDumpResourcesRequestSchemaVersionMinor);
+        REQUIRE(r.options.dump_resources_request->input_json_schema_major ==
+                decode::kDumpResourcesRequestSchemaVersionMajor);
+        REQUIRE(r.options.dump_resources_request->input_json_schema_minor ==
+                decode::kDumpResourcesRequestSchemaVersionMinor);
+    }
+
+    SECTION("the key may appear anywhere at the top level")
+    {
+        const auto r = Parse("{ " + std::string(request) + ", \"SchemaVersion\": \"1.0\" }");
+        REQUIRE(r.ok);
+        REQUIRE(r.options.input_json_schema_major == 1);
+        REQUIRE(r.options.input_json_schema_minor == 0);
+    }
+
+    SECTION("a newer minor version of the same major is read with a warning")
+    {
+        const std::string version = decode::DumpResourcesSchemaVersionString(
+            decode::kDumpResourcesRequestSchemaVersionMajor, decode::kDumpResourcesRequestSchemaVersionMinor + 1);
+        const auto r = Parse("{ \"SchemaVersion\": \"" + version + "\", " + request + " }");
+        REQUIRE(r.ok);
+        REQUIRE(r.options.input_json_schema_major == decode::kDumpResourcesRequestSchemaVersionMajor);
+        REQUIRE(r.options.input_json_schema_minor == decode::kDumpResourcesRequestSchemaVersionMinor + 1);
+        REQUIRE(r.options.dump_resources_request->input_json_schema_minor ==
+                decode::kDumpResourcesRequestSchemaVersionMinor + 1);
+    }
+
+    SECTION("the key is case sensitive like the rest of the tree")
+    {
+        const auto r = Parse("{ \"schemaVersion\": \"1.0\", " + std::string(request) + " }");
+        REQUIRE_FALSE(r.ok);
+    }
+}
+
 TEST_CASE("tree: features the replayer does not support yet are rejected", "[vdr-parse][tree]")
 {
     const char* unsupported[] = {
         // Position under a QueueSubmit (example 4.3)
-        R"({ "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "Position": [ [ 0, 0 ], [ 0, 1 ] ],
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "Position": [ [ 0, 0 ], [ 0, 1 ] ],
              "Dispatch": [ 1003 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "Position": [ 0, 0 ],
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "Position": [ 0, 0 ],
              "Dispatch": [ 1003 ] } ] } ] })",
         // Position under an ExecuteCommands (example 4.4)
-        R"({ "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "RenderPasses": [ [ 1001, 1003 ] ],
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "RenderPasses": [ [ 1001, 1003 ] ],
              "ExecuteCommands": [ { "Index": 1002, "CommandBuffers": [ { "Index": 100, "Position": [ 0, 1 ], "Draw": [ 105 ] } ] } ] } ] } ] })",
         // Resources at the top level and inside a command buffer
-        R"({ "Resources": [ 2001 ] })",
-        R"({ "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "Transfer": [ 1008 ],
+        R"({ "SchemaVersion": "1.0", "Resources": [ 2001 ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2000, "CommandBuffers": [ { "Index": 1000, "Transfer": [ 1008 ],
              "Resources": [ { "Index": 1008, "IDs": [ 75, { "Id": 76, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT" } } ] } ] } ] } ] })",
         // per-command DumpingOptions (example 4.8)
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ] ],
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ] ],
              "Draw": [ 307, { "Index": 308, "DumpingOptions": { "Scale": 0.5, "DumpVertexIndexBuffer": true } } ] } ] } ] })",
     };
 
@@ -580,7 +642,8 @@ TEST_CASE("tree: features the replayer does not support yet are rejected", "[vdr
     }
 
     // An empty per-command DumpingOptions object changes nothing and is accepted.
-    const auto empty_options = Parse(R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301,
+    const auto empty_options =
+        Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301,
         "RenderPasses": [ [ 302, 313 ] ], "Draw": [ { "Index": 308, "DumpingOptions": { } } ] } ] } ] })");
     REQUIRE(empty_options.ok);
 }
@@ -589,77 +652,99 @@ TEST_CASE("tree: malformed requests are rejected", "[vdr-parse][tree]")
 {
     const char* malformed[] = {
         // unknown and legacy keys at the top level
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "QueueSubmit": [ 315 ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "DumpResourcesOptions": { } })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "Foo": 1 })",
-        R"({ })",
-        R"({ "DumpingOptions": { "Scale": 1.0 } })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "QueueSubmit": [ 315 ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "DumpResourcesOptions": { } })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "Foo": 1 })",
+        R"({ "SchemaVersion": "1.0" })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": 1.0 } })",
         R"([ 1, 2, 3 ])",
-        R"({ "QueueSubmits": [ ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ ] })",
         // unknown keys inside nodes
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ], "Extra": 1 } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPass": [ [ 302, 313 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ { "Index": 307, "Descriptor": [ ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ], "Extra": 1 } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPass": [ [ 302, 313 ] ], "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ { "Index": 307, "Descriptor": [ ] } ] } ] } ] })",
         // missing or malformed indices
-        R"({ "QueueSubmits": [ { "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": -1, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315.0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": "315", "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": [ ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": [ 315, 315 ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, "304" ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": 303 } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": -1, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315.0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": "315", "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": [ ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": [ 315, 315 ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, "304" ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": 303 } ] } ] })",
         // duplicates
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] }, { "Index": 301, "Dispatch": [ 304 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] },
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] }, { "Index": 301, "Dispatch": [ 304 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] },
                                { "Index": 315, "CommandBuffers": [ { "Index": 302, "Dispatch": [ 304 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ], "Draw": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ], "Draw": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
              { "Index": 310, "CommandBuffers": [ { "Index": 100, "Dispatch": [ 103 ] } ] },
              { "Index": 310, "CommandBuffers": [ { "Index": 200, "Dispatch": [ 203 ] } ] } ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
              { "Index": 310, "CommandBuffers": [ { "Index": 100, "Dispatch": [ 103 ] }, { "Index": 100, "Dispatch": [ 103 ] } ] } ] } ] } ] })",
         // render pass ranges
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 313, 302 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ], [ 302, 320 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ 302, 313 ], "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302 ] ], "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ ] ], "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 313, 302 ] ], "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ], [ 302, 320 ] ], "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ 302, 313 ], "Draw": [ 307 ] } ] } ] })",
         // Position shapes
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0 ], "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": 0, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0, 1, 2 ], "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ [ 0, 0 ], [ 0, 0 ] ], "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0 ], "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": 0, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0, 1, 2 ], "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ [ 0, 0 ], [ 0, 0 ] ], "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
              { "Index": 310, "CommandBuffers": [ { "Index": 100, "Position": [ [ 0, 1 ] ], "Dispatch": [ 103 ] } ] } ] } ] } ] })",
         // ExecuteCommands shapes
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310, "CommandBuffers": [ ] } ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310 } ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ [ 310, 100 ] ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310, "CommandBuffers": [ ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310 } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ [ 310, 100 ] ] } ] } ] })",
         // descriptors
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [ { "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [ { "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0 }, { "Set": 0, "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "LevelCount": "ALL" } } ] } ] } ] } ] })",
         // DumpingOptions
-        R"({ "DumpingOptions": { "Sclae": 1.0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "DumpingOptions": { "Scale": "1.0" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "DumpingOptions": { "Scale": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "DumpingOptions": { "DumpDepth": 1 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "DumpingOptions": { "ImageFormat": "jpg" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "DumpingOptions": { "BinaryFileCompressionType": "gzip" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "DumpingOptions": { "ColorAttachmentIndex": -2 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "DumpingOptions": { "JsonOutputPerCommand": true } } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Sclae": 1.0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": "1.0" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "DumpDepth": 1 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "ImageFormat": "jpg" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "BinaryFileCompressionType": "gzip" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "ColorAttachmentIndex": -2 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "DumpingOptions": { "JsonOutputPerCommand": true } } ] } ] } ] })",
         // StateSetup
-        R"({ "StateSetup": { "Draw": [ 266 ] } })",
-        R"({ "StateSetup": { } })",
-        R"({ "StateSetup": [ 266 ] })",
+        R"({ "SchemaVersion": "1.0", "StateSetup": { "Draw": [ 266 ] } })",
+        R"({ "SchemaVersion": "1.0", "StateSetup": { } })",
+        R"({ "SchemaVersion": "1.0", "StateSetup": [ 266 ] })",
+        // SchemaVersion: missing, wrong type or shape, the legacy major 0, and a different major than the implemented
+        // one
+        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": 1.0, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": 1, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": [ 1, 0 ], "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": { "Major": 1, "Minor": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": ".0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "v1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0 ", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "-1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.256", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "0.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "0.1", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "2.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        R"({ "SchemaVersion": "255.255", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+        // a legacy file may not carry a SchemaVersion
+        R"({ "SchemaVersion": "1.0", "BeginCommandBuffer": [ 301 ], "Dispatch": [ [ 303 ] ], "QueueSubmit": [ 315 ] })",
         // syntax error
-        R"({ "QueueSubmits": [ { "Index": 315, )",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, )",
     };
 
     for (const char* text : malformed)
@@ -679,7 +764,8 @@ TEST_CASE("equivalence: dispatch indirect from a secondary", "[vdr-parse][equiva
 {
     const auto legacy = Parse(R"({ "BeginCommandBuffer": [ 1232, 1230 ], "Dispatch": [ [ 1238, 1243 ], [ ] ],
                                    "ExecuteCommands": [ [ [ ] ], [ [ 1247, 1232 ] ] ], "QueueSubmit": [ 1309, 1309 ] })");
-    const auto tree   = Parse(R"({ "QueueSubmits": [ { "Index": 1309, "CommandBuffers": [ { "Index": 1230,
+    const auto tree =
+        Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 1309, "CommandBuffers": [ { "Index": 1230,
                                    "ExecuteCommands": [ { "Index": 1247, "CommandBuffers": [ { "Index": 1232, "Dispatch": [ 1238, 1243 ] } ] } ] } ] } ] })");
     REQUIRE(legacy.ok);
     REQUIRE(tree.ok);
@@ -690,7 +776,8 @@ TEST_CASE("equivalence: transfer from a secondary", "[vdr-parse][equivalence]")
 {
     const auto legacy = Parse(R"({ "BeginCommandBuffer": [ 114, 120 ], "ExecuteCommands": [ [ [ ] ], [ [ 121, 114 ] ] ],
                                    "Transfer": [ [ 116 ], [ ] ], "QueueSubmit": [ 124, 124 ] })");
-    const auto tree   = Parse(R"({ "QueueSubmits": [ { "Index": 124, "CommandBuffers": [ { "Index": 120,
+    const auto tree =
+        Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 124, "CommandBuffers": [ { "Index": 120,
                                    "ExecuteCommands": [ { "Index": 121, "CommandBuffers": [ { "Index": 114, "Transfer": [ 116 ] } ] } ] } ] } ] })");
     REQUIRE(legacy.ok);
     REQUIRE(tree.ok);
@@ -704,7 +791,7 @@ TEST_CASE("equivalence: dynamic rendering in secondaries over two submissions", 
                                    "RenderPass": [ [ [ 955, 964 ] ], [ [ ] ], [ [ 1259, 1268 ] ], [ [ ] ] ],
                                    "ExecuteCommands": [ [ [ ] ], [ [ 966, 954 ] ], [ [ ] ], [ [ 1270, 1258 ] ] ],
                                    "QueueSubmit": [ 970, 970, 1274, 1274 ] })");
-    const auto tree = Parse(R"({ "QueueSubmits": [
+    const auto tree = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [
         { "Index": 970, "CommandBuffers": [ { "Index": 940, "ExecuteCommands": [ { "Index": 966, "CommandBuffers": [
             { "Index": 954, "RenderPasses": [ [ 955, 964 ] ], "Draw": [ 963 ] } ] } ] } ] },
         { "Index": 1274, "CommandBuffers": [ { "Index": 1244, "ExecuteCommands": [ { "Index": 1270, "CommandBuffers": [
@@ -728,7 +815,8 @@ TEST_CASE("equivalence: secondaries executed from several places with empty desc
                   [ { "Index": 246, "Descriptors": [ ] } ], [ { "Index": 253, "Descriptors": [ ] } ] ],
         "RenderPass": [ [ [ ] ], [ [ 317, 319 ], [ 322, 324 ], [ 327, 330 ], [ 333, 335 ], [ 338, 340, 342 ] ],
                         [ [ ] ], [ [ ] ], [ [ ] ], [ [ ] ], [ [ ] ], [ [ ] ], [ [ ] ] ] })");
-    const auto tree   = Parse(R"({ "QueueSubmits": [ { "Index": 425, "CommandBuffers": [ { "Index": 311,
+    const auto tree =
+        Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 425, "CommandBuffers": [ { "Index": 311,
         "RenderPasses": [ [ 317, 319 ], [ 322, 324 ], [ 327, 330 ], [ 333, 335 ], [ 338, 340, 342 ] ],
         "ExecuteCommands": [
             { "Index": 318, "CommandBuffers": [ { "Index": 206, "Draw": [ { "Index": 211, "Descriptors": [ ] } ] } ] },
@@ -755,9 +843,10 @@ TEST_CASE("equivalence: descriptor subresource range", "[vdr-parse][equivalence]
         "Draw": [ [ { "Index": 2533, "Descriptors": )") +
                               descriptors + R"( }, { "Index": 2537 } ] ],
         "RenderPass": [ [ [ 2526, 2538 ] ] ] })");
-    const auto  tree = Parse(std::string(R"({ "QueueSubmits": [ { "Index": 2548, "CommandBuffers": [ { "Index": 2525,
+    const auto  tree        = Parse(
+        std::string(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2548, "CommandBuffers": [ { "Index": 2525,
         "RenderPasses": [ [ 2526, 2538 ] ], "Draw": [ { "Index": 2533, "Descriptors": )") +
-                            descriptors + R"( }, 2537 ] } ] } ] })");
+        descriptors + R"( }, 2537 ] } ] } ] })");
     REQUIRE(legacy.ok);
     REQUIRE(tree.ok);
     RequireSameRequest(legacy.options, tree.options);
