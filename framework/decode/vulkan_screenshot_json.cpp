@@ -25,11 +25,11 @@
 #include "decode/window.h"
 
 #include "decode/vulkan_pnext_node.h"
-#include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include PROJECT_VERSION_HEADER_FILE
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/vulkan_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

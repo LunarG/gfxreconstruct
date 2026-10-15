@@ -106,12 +106,28 @@ class VulkanReplayConsumerBodyGenerator(
         )
 
 
+    def write_typed_struct_allocation(self):
+        """The output structure for a parameter declared VkBaseOutStructure*: the chain initializer allocates by
+        sType and walks the chain, so the captured structure is handed to it as the chain of a stand-in head."""
+        self.newline()
+        write('VkBaseOutStructure* AllocateOutputTypedStruct(const TypedStructDecoder& decoder)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    VkBaseOutStructure head{};', file=self.outFile)
+        write('    InitializeOutputStructPNextImpl(reinterpret_cast<const VkBaseInStructure*>(decoder.GetPointer()), &head);', file=self.outFile)
+        write('    return head.pNext;', file=self.outFile)
+        write('}', file=self.outFile)
+
     def endFile(self):
         """Method override."""
         api_data = self.get_api_data()
 
+        # Defined after the bodies, beside the extension-chain initializer it calls.
+        write('VkBaseOutStructure* AllocateOutputTypedStruct(const TypedStructDecoder& decoder);', file=self.outFile)
+        self.newline()
+
         KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self, api_data)
         KhronosReplayConsumerBodyGenerator.generate_extended_struct_handling(self, api_data)
+        self.write_typed_struct_allocation()
         KhronosReplayConsumerBodyGenerator.generate_extended_struct_initialize_template(self, api_data)
 
         self.newline()

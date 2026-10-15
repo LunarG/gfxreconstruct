@@ -64,7 +64,7 @@
 
 #include "spirv_reflect.h"
 
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -2533,7 +2533,8 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(
         if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
         {
             assert(*meta_header->sType ==
-                   gfxrecon::util::GetSType<typename Decoded_VkImportAndroidHardwareBufferInfoANDROID::struct_type>());
+                   gfxrecon::binding::StructureTypeOf<
+                       typename Decoded_VkImportAndroidHardwareBufferInfoANDROID::struct_type>());
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
             const Decoded_VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info =

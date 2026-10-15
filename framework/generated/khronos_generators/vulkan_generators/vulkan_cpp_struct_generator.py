@@ -105,7 +105,7 @@ class VulkanCppStructGeneratorOptions(VulkanBaseGeneratorOptions):
                 'generated/generated_vulkan_cpp_structs.h',
                 'generated/generated_vulkan_cpp_consumer.h',
                 'generated/generated_vulkan_cpp_consumer_extension.h',
-                'generated/generated_vulkan_enum_to_string.h',
+                'util/vulkan_enum_to_string.h',
             ))
             self.begin_end_file_data.system_headers.append('algorithm')
             self.begin_end_file_data.common_api_headers = []

@@ -667,5 +667,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelin
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const TypedStructDecoder* data)
+{
+    // The one caller is generated and passes the address of an args member.
+    GFXRECON_ASSERT(data != nullptr);
+
+    FieldToJson(jdata, data->GetPNextNode());
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
