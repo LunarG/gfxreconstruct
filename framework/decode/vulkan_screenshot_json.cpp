@@ -29,13 +29,10 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include PROJECT_VERSION_HEADER_FILE
 #include "util/logging.h"
-#include "util/file_output_stream.h"
-#include "util/remote_channel.h"
+#include "util/output_file.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-constexpr size_t kJsonFileBufferSize = 64 * 1024;
 
 VulkanScreenshotJson::VulkanScreenshotJson(const ReplayOptions& options, const ScreenshotController& controller) :
     controller_(controller)
@@ -110,27 +107,13 @@ bool VulkanScreenshotJson::Open(const std::string& filename)
 {
     GFXRECON_ASSERT(stream_ == nullptr);
 
-    filename_ = filename;
-
-    if (util::RemoteChannel::IsActive())
+    stream_ = util::OpenOutputFile(filename, util::FileWriteMode::kText);
+    if (!stream_->IsValid())
     {
-        auto owned     = std::make_unique<util::MemoryOutputStream>();
-        memory_stream_ = owned.get();
-        stream_        = std::move(owned);
-    }
-    else
-    {
-        memory_stream_ = nullptr;
-
-        stream_ =
-            std::make_unique<util::FileOutputStream>(filename, kJsonFileBufferSize, false, util::FileWriteMode::kText);
-        if (!stream_->IsValid())
-        {
-            // No reason string here; FileOutputStream has already logged one.
-            GFXRECON_LOG_ERROR("Could not open screenshot result json file %s", filename.c_str());
-            stream_.reset();
-            return false;
-        }
+        // No reason string here; the stream has already logged one.
+        GFXRECON_LOG_ERROR("Could not open screenshot result json file %s", filename.c_str());
+        stream_.reset();
+        return false;
     }
 
     first_block_ = true;
@@ -165,14 +148,7 @@ void VulkanScreenshotJson::Close(uint32_t frames_seen)
     WriteBlock(summary_block);
 
     util::Write(*stream_, "\n]");
-
-    if (memory_stream_ != nullptr)
-    {
-        util::RemoteChannel::SendActiveFile(filename_, memory_stream_->GetData(), memory_stream_->GetDataSize());
-    }
-
     stream_.reset();
-    memory_stream_ = nullptr;
 }
 
 void VulkanScreenshotJson::BeginFrame(const char*             boundary_type,

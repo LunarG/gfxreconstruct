@@ -120,19 +120,18 @@ already a `<string, string>` map. The key sets are disjoint; the shape is not.
 
 When a channel is active (`RemoteChannel::IsActive()`), file writers stream their
 output over the socket instead of writing to disk, using process-wide statics
-(`SetActiveChannel` / `SendActiveFile`):
+(`SetActiveChannel` / `SendActiveFile`). Writers open their output with
+`util::OpenOutputFile()`, which returns a `FileOutputStream` normally and, with a
+channel active, a memory stream that sends the whole file as one "file" message
+when it is destroyed:
 
-- Screenshots — `image_writer.cpp` (`WriteBmpImage` writes through a
-  `MemoryOutputStream` in place of the usual `FileOutputStream`; `WritePngImage`
-  collects bytes via `stbi_write_png_to_func`).
-- Screenshot results JSON (`--screenshot-results`): `vulkan_screenshot_json.cpp`,
-  the same `MemoryOutputStream` substitution, sent on `Close()`.
-- Dump-resources buffers — `buffer_writer.cpp` (`WriteBuffer`).
-- Dump-resources JSON — `vulkan_replay_dump_resources_json.cpp` (same
-  `MemoryOutputStream` substitution, sent on `Close()`).
+- Screenshots and dump-resources images: `image_writer.cpp`.
+- Screenshot results JSON (`--screenshot-results`): `vulkan_screenshot_json.cpp`.
+- Dump-resources buffers: `buffer_writer.cpp`.
+- Dump-resources JSON: `vulkan_replay_dump_resources_json.cpp`.
 
-If a send fails, `IsActive()` / `IsConnected()` become false and writers fall
-back to disk.
+If a send fails, `IsActive()` / `IsConnected()` become false and files opened
+afterward go to disk.
 
 ## Threading Model
 

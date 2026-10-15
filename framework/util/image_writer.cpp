@@ -24,11 +24,9 @@
 #include "image_writer.h"
 
 #include "platform.h"
-#include "util/file_output_stream.h"
 #include "util/file_path.h"
 #include "util/logging.h"
-#include "util/memory_output_stream.h"
-#include "util/remote_channel.h"
+#include "util/output_file.h"
 
 #include <assert.h>
 #include <cstddef>
@@ -93,9 +91,6 @@ static std::vector<uint8_t> temporary_buffer;
 // The alpha channel gets a buffer of its own, because the conversion below
 // writes into temporary_buffer and would destroy an alpha image held there.
 static std::vector<uint8_t> alpha_buffer;
-
-// Without a buffer, the row-at-a-time writes below would each reach the file system.
-constexpr size_t kBmpFileBufferSize = 64 * 1024;
 
 #define CheckWriteRetVal(_val_)                                                                      \
     {                                                                                                \
@@ -502,6 +497,8 @@ bool WriteBmpImage(const std::string& filename,
                    DataFormats        format,
                    bool               write_alpha)
 {
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
     if (data_pitch == 0)
     {
         data_pitch = static_cast<uint32_t>(width * DataFormatsSizes(format));
@@ -512,28 +509,11 @@ bool WriteBmpImage(const std::string& filename,
         }
     }
 
-    // With a channel active the image is streamed to the controller instead of written to disk.
-    std::unique_ptr<util::OutputStream> stream;
-    util::MemoryOutputStream*           memory_stream = nullptr;
+    const size_t file_size =
+        sizeof(BmpFileHeader) + sizeof(BmpInfoHeader) + (static_cast<size_t>(height) * GetBmpPitch(width, write_alpha));
 
-    if (util::RemoteChannel::IsActive())
-    {
-        // Sized up front; growing from the default would copy a multi-megabyte image a dozen times over.
-        const size_t expected_size = sizeof(BmpFileHeader) + sizeof(BmpInfoHeader) +
-                                     (static_cast<size_t>(height) * GetBmpPitch(width, write_alpha));
-
-        auto owned    = std::make_unique<util::MemoryOutputStream>(expected_size);
-        memory_stream = owned.get();
-        stream        = std::move(owned);
-    }
-    else
-    {
-        GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
-
-        // FileOutputStream logs the reason when the open fails.
-        stream = std::make_unique<util::FileOutputStream>(filename, kBmpFileBufferSize);
-    }
-
+    std::unique_ptr<util::OutputStream> stream =
+        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, file_size);
     if (!stream->IsValid())
     {
         return false;
@@ -580,11 +560,6 @@ bool WriteBmpImage(const std::string& filename,
         GFXRECON_LOG_ERROR("%s() Failed writing BMP header", __func__);
     }
 
-    if (success && (memory_stream != nullptr))
-    {
-        util::RemoteChannel::SendActiveFile(filename, memory_stream->GetData(), memory_stream->GetDataSize());
-    }
-
     return success;
 }
 
@@ -614,39 +589,24 @@ bool WriteBmpImageSeparateAlpha(const std::string& filename,
 static bool WritePngData(
     const std::string& filename, uint32_t width, uint32_t height, int components, const uint8_t* bytes, int row_pitch)
 {
-    bool success = false;
-
-    if (util::RemoteChannel::IsActive())
+    // Encoded before the open, as stbi_write_png does, so a failed encode leaves no file behind.
+    int      png_size = 0;
+    uint8_t* png      = stbi_write_png_to_mem(
+        bytes, row_pitch, static_cast<int>(width), static_cast<int>(height), components, &png_size);
+    if (png == nullptr)
     {
-        std::vector<uint8_t> png_data;
-        auto                 write_cb = [](void* ctx, void* buf, int sz) {
-            auto* vec = static_cast<std::vector<uint8_t>*>(ctx);
-            vec->insert(vec->end(), static_cast<uint8_t*>(buf), static_cast<uint8_t*>(buf) + sz);
-        };
-        if (1 ==
-            stbi_write_png_to_func(
-                write_cb, &png_data, static_cast<int>(width), static_cast<int>(height), components, bytes, row_pitch))
-        {
-            util::RemoteChannel::SendActiveFile(filename, png_data.data(), png_data.size());
-            success = true;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("%s() Failed writing PNG to memory", __func__);
-        }
+        GFXRECON_LOG_ERROR("%s() Failed encoding PNG", __func__);
+        return false;
     }
-    else
+
+    std::unique_ptr<util::OutputStream> stream =
+        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, static_cast<size_t>(png_size));
+    const bool success = stream->IsValid() && stream->Write(png, static_cast<size_t>(png_size));
+    STBIW_FREE(png);
+
+    if (!success)
     {
-        GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
-        if (1 == stbi_write_png(
-                     filename.c_str(), static_cast<int>(width), static_cast<int>(height), components, bytes, row_pitch))
-        {
-            success = true;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("%s() Failed writing file", __func__);
-        }
+        GFXRECON_LOG_ERROR("%s() Failed writing file", __func__);
     }
 
     return success;
@@ -664,6 +624,8 @@ bool WritePngImage(const std::string& filename,
     bool success = false;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
     if (data_pitch == 0)
     {
         data_pitch = static_cast<uint32_t>(width * DataFormatsSizes(format));
