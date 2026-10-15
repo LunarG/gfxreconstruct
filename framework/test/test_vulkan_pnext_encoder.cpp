@@ -27,13 +27,13 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
-#include "generated/generated_vulkan_binding_descriptor_for.h"
-#include "generated/generated_vulkan_schema_catalog.h"
+#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_catalog.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "schema/structure_type_index.h"
-#include "util/enumerants.h"
+#include "binding/enumerants.h"
 #include "util/type_list.h"
 
 #include "vulkan/vulkan.h"
@@ -51,7 +51,7 @@ using namespace gfxrecon;
 // proven elsewhere, this proves the dispatch reaches it.
 TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encoder", "[schema][encode][pnext]")
 {
-    using ExtensibleStructures = schema::vulkan::catalog::extensible_structures;
+    using ExtensibleStructures = binding::vulkan::catalog::extensible_structures;
     using Index                = schema::StructureTypeIndex<ExtensibleStructures>;
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
@@ -62,7 +62,7 @@ TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encode
     size_t visited = 0;
     util::TypeListForEach<ExtensibleStructures>([&]<typename Descriptor>() {
         using Struct = typename Descriptor::element_type;
-        INFO(util::NameOf(Descriptor::structure_type));
+        INFO(binding::NameOf(Descriptor::structure_type));
 
         Struct value{};
         value.sType = Descriptor::structure_type;

@@ -31,15 +31,14 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
 
-#include "decode/api_element_traits.h"
+#include "binding/vulkan_decoded_type.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/decode_allocator.h"
 #include "decode/vulkan_pnext_node.h"
 #include "decode/vulkan_pnext_typed_node.h"
-#include "generated/generated_vulkan_decode_api_element_traits.h"
-#include "generated/generated_vulkan_schema_catalog.h"
+#include "binding/vulkan_catalog.h"
 #include "generated/generated_vulkan_struct_decoders.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "schema/structure_type_index.h"
 #include "util/logging.h"
 
@@ -70,8 +69,8 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
             // The sType isn't part of the attributes, so we exclude it from the fail condition byte count.
             ValueDecoder::DecodeEnumValue((buffer + peek_bytes), (buffer_size - peek_bytes), &structure_type);
 
-            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<decode::HasDecodedType Descriptor>() {
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded<Descriptor>>>();
+            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<binding::HasDecodedType Descriptor>() {
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<binding::DecodedTypeOf<Descriptor>>>();
                 // The Decode() starts from the beginning of the buffer, so we can ignore the peeked bytes.
                 bytes_read = (*pNext)->Decode(buffer, buffer_size);
             };
@@ -80,7 +79,7 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
                 GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s",
                                    (util::ToString(structure_type).c_str()));
             };
-            using List = schema::vulkan::catalog::extensible_structures;
+            using List = binding::vulkan::catalog::extensible_structures;
             schema::StructureTypeVisit<List>(structure_type, on_find, on_miss);
         }
     }

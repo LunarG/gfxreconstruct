@@ -23,8 +23,8 @@
 */
 
 #include "binding/structure_type.h"
-#include "generated/generated_vulkan_binding_descriptor_for.h"
-#include "generated/generated_vulkan_schema_catalog.h"
+#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_catalog.h"
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "schema/structure_type_index.h"
 #include "util/logging.h"
@@ -44,7 +44,7 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_stype: unknown struct-type: %d", s_type);
         return size_t(0);
     };
-    using List = schema::vulkan::catalog::deep_copyable_structures;
+    using List = binding::vulkan::catalog::deep_copyable_structures;
     return schema::StructureTypeVisit<List>(s_type, on_find, on_miss);
 }
 

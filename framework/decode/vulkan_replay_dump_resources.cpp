@@ -32,7 +32,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_submit_info_util.h"
 #include "vulkan_replay_dump_resources.h"

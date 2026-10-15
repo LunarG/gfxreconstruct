@@ -23,8 +23,8 @@
 // The lookup over an enumerant table. The tables are generated schema content, one per enumerated type, each holding
 // only entries; an entry names the type's API type descriptor, which gives the value type and the type's name. The
 // index is built from entries here, at compile time.
-#ifndef GFXRECON_UTIL_ENUMERANTS_H
-#define GFXRECON_UTIL_ENUMERANTS_H
+#ifndef GFXRECON_BINDING_ENUMERANTS_H
+#define GFXRECON_BINDING_ENUMERANTS_H
 
 #include "binding/descriptor_for.h"
 #include "schema/schema.h"
@@ -37,7 +37,7 @@
 #include <type_traits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(binding)
 
 // One enumerant of the type Descriptor describes: its value and the name the API spells it with.
 template <typename Descriptor>
@@ -61,7 +61,7 @@ struct EnumerantLookup
 
     static constexpr size_t kSize = Table::entries.size();
 
-    using Index = KeyIndex<value_type, kSize>;
+    using Index = util::KeyIndex<value_type, kSize>;
 
     static constexpr Index index{ Table::entries,
                                   [](const Enumerant<EnumerantDescriptorOf<Table>>& entry) { return entry.value; } };
@@ -78,11 +78,10 @@ constexpr std::string_view NameIn(typename EnumerantDescriptorOf<Table>::element
 
 // The table of an enum bound to an enumerated descriptor.
 template <typename Enum>
-concept HasEnumerantTable =
-    binding::HasDescriptor<Enum> && schema::HasEnumerants<typename binding::DescriptorFor<Enum>::type>;
+concept HasEnumerantTable = HasDescriptor<Enum> && schema::HasEnumerants<typename DescriptorFor<Enum>::type>;
 
 template <HasEnumerantTable Enum>
-using EnumerantTableOf = typename binding::DescriptorFor<Enum>::type::enumerants;
+using EnumerantTableOf = typename DescriptorFor<Enum>::type::enumerants;
 
 template <HasEnumerantTable Enum>
 constexpr std::string_view NameOf(Enum value)
@@ -90,7 +89,7 @@ constexpr std::string_view NameOf(Enum value)
     return NameIn<EnumerantTableOf<Enum>>(value);
 }
 
-GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(binding)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_ENUMERANTS_H
+#endif // GFXRECON_BINDING_ENUMERANTS_H

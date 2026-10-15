@@ -23,7 +23,7 @@
 
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/struct_pointer_encoder.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "util/logging.h"

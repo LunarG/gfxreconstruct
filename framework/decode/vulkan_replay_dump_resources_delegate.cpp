@@ -24,7 +24,7 @@
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "util/buffer_writer.h"
 #include "util/hash.h"
 #include "util/image_writer.h"

@@ -22,10 +22,10 @@
 
 // A handle's API type descriptor to its capture wrapper. The design places this fact on the descriptor as
 // capture_wrapper_type; naming an encode-side wrapper from the public types header would pull the wrapper headers
-// into every includer, so it is an encode-private trait keyed on the descriptor instead. The rows are generated,
-// one per handle descriptor, in generated/generated_vulkan_encode_capture_wrappers.h; this header carries the
-// primary template, the concept and the row macro. Making the wrappers themselves the specializations stays
-// deferred (findings, OPT-2).
+// into every includer, so it is an encode-private trait keyed on the descriptor instead. The rows are a visitor
+// invoked across the inventory below, one per handle descriptor, named by the base generator's rule: the handle name
+// without its Vk prefix, plus Wrapper. Making the wrappers themselves the specializations stays deferred (findings,
+// OPT-2).
 
 #ifndef GFXRECON_ENCODE_VULKAN_ENCODE_CAPTURE_WRAPPERS_H
 #define GFXRECON_ENCODE_VULKAN_ENCODE_CAPTURE_WRAPPERS_H
@@ -63,6 +63,10 @@ concept HasCaptureWrapper = requires
         static_assert(std::is_same_v<type::HandleType, schema::ElementType<schema::vulkan::api_types::Handle>>, \
                       "The wrapper's handle type must be the descriptor's element type");                       \
     }
+
+// A struct visitor: it yields a specialization, a type, so this lives in a header.
+#define GFXRECON_INVENTORY_VISIT_HANDLE(Name, Stem) GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(Name, Stem##Wrapper);
+#include "generated/generated_vulkan_inventory.h"
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

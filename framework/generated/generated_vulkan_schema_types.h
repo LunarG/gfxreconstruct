@@ -424,6 +424,7 @@ GFXRECON_END_NAMESPACE(enumerants)
 
 GFXRECON_BEGIN_NAMESPACE(api_types)
 struct Char { using element_type = char; using kind = format::kind::Char; static constexpr std::string_view name = "char"; };
+struct Double { using element_type = double; using kind = format::kind::Double; static constexpr std::string_view name = "double"; };
 struct ExternalObject { using element_type = void*; using kind = format::kind::Address; static constexpr std::string_view name = "void*"; };
 struct Float { using element_type = float; using kind = format::kind::Float; static constexpr std::string_view name = "float"; };
 struct GenericHandle { using element_type = uint64_t; using kind = format::kind::Handle; static constexpr std::string_view name = "uint64_t"; };
@@ -1392,6 +1393,7 @@ struct VkPerformanceCounterDescriptionFlagsARM { using element_type = ::VkPerfor
 struct VkPerformanceCounterDescriptionFlagsKHR { using element_type = ::VkPerformanceCounterDescriptionFlagsKHR; using kind = format::kind::Flags; static constexpr std::string_view name = "VkPerformanceCounterDescriptionFlagsKHR"; using bitvalues = ::gfxrecon::schema::vulkan::api_types::VkPerformanceCounterDescriptionFlagBitsKHR; };
 struct VkPerformanceCounterDescriptionKHR { using element_type = ::VkPerformanceCounterDescriptionKHR; using kind = format::kind::Struct; static constexpr std::string_view name = "VkPerformanceCounterDescriptionKHR"; static constexpr ::VkStructureType structure_type = VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_KHR; };
 struct VkPerformanceCounterKHR { using element_type = ::VkPerformanceCounterKHR; using kind = format::kind::Struct; static constexpr std::string_view name = "VkPerformanceCounterKHR"; static constexpr ::VkStructureType structure_type = VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_KHR; };
+struct VkPerformanceCounterResultKHR { using element_type = ::VkPerformanceCounterResultKHR; using kind = format::kind::Struct; static constexpr std::string_view name = "VkPerformanceCounterResultKHR"; };
 struct VkPerformanceCounterScopeKHR { using element_type = ::VkPerformanceCounterScopeKHR; using kind = format::kind::Enum; static constexpr std::string_view name = "VkPerformanceCounterScopeKHR"; using enumerants = ::gfxrecon::schema::vulkan::enumerants::VkPerformanceCounterScopeKHR; };
 struct VkPerformanceCounterStorageKHR { using element_type = ::VkPerformanceCounterStorageKHR; using kind = format::kind::Enum; static constexpr std::string_view name = "VkPerformanceCounterStorageKHR"; using enumerants = ::gfxrecon::schema::vulkan::enumerants::VkPerformanceCounterStorageKHR; };
 struct VkPerformanceCounterUnitKHR { using element_type = ::VkPerformanceCounterUnitKHR; using kind = format::kind::Enum; static constexpr std::string_view name = "VkPerformanceCounterUnitKHR"; using enumerants = ::gfxrecon::schema::vulkan::enumerants::VkPerformanceCounterUnitKHR; };
@@ -2457,7 +2459,8 @@ struct WChar { using element_type = wchar_t; using kind = format::kind::WChar; s
 GFXRECON_END_NAMESPACE(api_types)
 GFXRECON_END_NAMESPACE(vulkan)
 
-// Command tags. A command tag is a schema key and a traits key. It carries no members of its own.
+// Command descriptors. A command descriptor is a schema key and a binding key. It carries no members of its own
+// until command piloting, or an operation over commands, needs one.
 GFXRECON_BEGIN_NAMESPACE(vulkan)
 GFXRECON_BEGIN_NAMESPACE(commands)
 struct CreateInstance {};
