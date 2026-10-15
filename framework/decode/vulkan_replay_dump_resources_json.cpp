@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_options.h"
+#include "decode/vulkan_replay_dump_resources_request.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -45,6 +46,8 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
                                std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
     header_["gfxreconVersion"] = GetProjectVersionString();
     header_["captureFile"]     = options.capture_filename;
+    header_["inputJsonSchemaVersion"] =
+        DumpResourcesSchemaVersionString(options.input_json_schema_major, options.input_json_schema_minor);
 
     auto& dr_options            = header_[kVDROptions];
     dr_options[kVDROptionScale] = options.dump_resources_scale;
