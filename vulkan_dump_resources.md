@@ -6,12 +6,13 @@
     1. [General](#general)
     2. [Block index and object ID](#block-index-and-object-id)
     3. [Rules for providing command indices](#rules-for-providing-command-indices)
-    4. [Secondary command buffers](#secondary-command-buffers)
-    5. [Simple examples](#simple-examples)
-    6. [Index vector dimensionality](#index-vector-dimensionality)
-    7. [A more complex example](#a-more-complex-example)
-    8. [Culling dumped descriptors](#culling-dumped-descriptors)
-    9. [Transfer commands](#transfer-commands)
+    4. [Input json file](#input-json-file)
+    5. [Legacy input json format](#legacy-input-json-format)
+        1. [Simple examples](#simple-examples)
+        2. [Index vector dimensionality](#index-vector-dimensionality)
+        3. [A more complex example](#a-more-complex-example)
+    6. [Culling dumped descriptors](#culling-dumped-descriptors)
+    7. [Transfer commands](#transfer-commands)
 2. [Vulkan dump resources options](#vulkan-dump-resources-options)
     1. [gfxrecon-replay command line parameters](#gfxrecon-replay-command-line-parameters)
     2. [Input json options](#input-json-options)
@@ -114,7 +115,204 @@ The index of the `vkQueueSubmit` (or `vkQueueSubmit2`) in which the command buff
 Dumping resources from commands that are recorded in secondary command buffers requires different handling. The secondary's `BeginCommandBuffer` index must be
 specified like with the primary command buffers. The index of the `vkCmdExecuteCommands` from which the specific commands should be dumped needs to be specified in the `ExecuteCommands` json array along with `BeginCommandBuffer` of the secondary that is desired to be dumped.
 
-### Simple examples
+### Input json file
+
+The request is written as the tree it describes: a queue submission contains command buffers; a command buffer
+contains its render pass ranges, its typed command lists and the `vkCmdExecuteCommands` calls through which it runs
+secondaries; a secondary is another command buffer node under that call. Every node carries the block index of the
+call that opens it, so nothing is correlated by array position and no placeholders are needed.
+
+```
+Request
+  "SchemaVersion":  "<major>.<minor>"       required: the version of this format the file is written
+                                            in, currently "1.0"; see "Schema version" below
+  "DumpingOptions": { ... }                 optional: options that apply to every command, see
+                                            "Input json options" below
+  "QueueSubmits":   [ QueueSubmit ... ]     required unless only StateSetup is given
+  "StateSetup":     { "Transfer": [ Command ... ] }
+                                            optional: meta commands of a trimmed capture's
+                                            state-setup block
+  "Resources":      [ Resource ... ]        optional, not implemented yet (see below)
+
+QueueSubmit
+  "Index":          vkQueueSubmit / vkQueueSubmit2 block index, or a list of them to dump the same
+                    command buffers from several submissions                        required
+  "CommandBuffers": [ CommandBuffer ... ]                                           required
+
+CommandBuffer     (a primary, or a secondary when under ExecuteCommands)
+  "Index":           vkBeginCommandBuffer block index                               required
+  "Position":        which appearance of the command buffer is meant; not implemented yet
+  "RenderPasses":    [ [ begin, nextSubpass..., end ] ... ]                         required when Draw lists
+                                                                                    draws inside a render pass
+                                                                                    begun in this command buffer;
+                                                                                    [ beginRendering, endRendering ]
+                                                                                    for dynamic rendering
+  "Draw":            [ Command ... ]                                                optional
+  "Dispatch":        [ Command ... ]                                                optional
+  "TraceRays":       [ Command ... ]                                                optional
+  "Transfer":        [ Command ... ]                                                optional
+  "ExecuteCommands": [ ExecuteCommands ... ]                                        optional
+  "Resources":       [ Resource ... ]                                               optional, not implemented yet
+
+ExecuteCommands
+  "Index":          vkCmdExecuteCommands block index                                required
+  "CommandBuffers": [ CommandBuffer ... ]   the secondaries to dump                 required
+
+Command
+  <block index>
+  | { "Index": <block index>,
+      "Descriptors": [ { "Set", "Binding", "ArrayIndex", "SubresourceRange" } ],   see "Culling dumped descriptors"
+      "DumpingOptions": { ... } }                                                   not implemented yet
+```
+
+Rules:
+
+* Block indices are unsigned integers. Lists are sorted by the parser, so the order they are written in does not
+  matter, but the same block index may not be listed twice in a list, and a block index may not appear in two of
+  the `Draw`, `Dispatch`, `TraceRays` and `Transfer` lists of a command buffer.
+* The same command buffer may not be listed twice under one `QueueSubmit` or one `ExecuteCommands`, and the same
+  `vkQueueSubmit` index may not appear in two `QueueSubmits` entries. A secondary that is executed from several
+  `vkCmdExecuteCommands` calls (or from several primaries) in the same submission is listed under each of them with
+  the same request.
+* A secondary recorded with `VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT` runs inside a render pass begun in
+  the primary, so that range is listed in the primary's `RenderPasses`. A secondary that begins its own dynamic
+  rendering instance lists that `[ beginRendering, endRendering ]` range in its own node.
+* Unknown keys are errors. A file with the top-level `BeginCommandBuffer` key is parsed as the
+  [legacy format](#legacy-input-json-format) instead; the two formats cannot be mixed.
+* `Position`, `Resources` and per-command `DumpingOptions` are part of the format but are not implemented by the
+  replayer yet. They are validated and then rejected with an error, so a request is never dumped differently than
+  it was written. Without `Position` the first appearance of a command buffer in the submission (or in the
+  `vkCmdExecuteCommands` call) is dumped.
+
+* 1SchemaVersion1:
+The format described here is version `1.0`. Every file states the version it is written in through its top-level
+`SchemaVersion` key, a string of the form `"<major>.<minor>"`; a file without the key is rejected. The version a file was read as is written to
+the `inputJsonSchemaVersion` entry of the [output json header](#json-file-output).
+
+Assuming the following imaginary excerpt from a capture file:
+
+```Json
+{"index":301,"function":{"name":"vkBeginCommandBuffer", ... } },
+{"index":302,"function":{"name":"vkCmdBeginRenderPass", ... } },
+{"index":303,"function":{"name":"vkCmdBindPipeline", ... } },
+{"index":304,"function":{"name":"vkCmdBindDescriptorSets", ... } },
+{"index":305,"function":{"name":"vkCmdSetViewport", ... } },
+{"index":306,"function":{"name":"vkCmdSetScissor", ... } },
+{"index":307,"function":{"name":"vkCmdDraw", ... } },
+{"index":308,"function":{"name":"vkCmdDraw", ... } },
+{"index":309,"function":{"name":"vkCmdDraw", ... } },
+{"index":310,"function":{"name":"vkCmdDraw", ... } },
+{"index":311,"function":{"name":"vkCmdDraw", ... } },
+{"index":312,"function":{"name":"vkCmdDraw", ... } },
+{"index":313,"function":{"name":"vkCmdEndRenderPass", ... } },
+{"index":314,"function":{"name":"vkEndCommandBuffer", ... } },
+{"index":315,"function":{"name":"vkQueueSubmit", ... } },
+```
+
+the depth and color attachments of all `vkCmdDraw` commands are dumped with:
+
+```Json
+{
+    "SchemaVersion": "1.0",
+    "QueueSubmits": [
+        {
+            "Index": 315,
+            "CommandBuffers": [
+                {
+                    "Index": 301,
+                    "RenderPasses": [ [ 302, 313 ] ],
+                    "Draw": [ 307, 308, 309, 310, 311, 312 ]
+                }
+            ]
+        }
+    ]
+}
+```
+
+An example involving secondary command buffers:
+
+```json
+{"index":754,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":230 ... }}},
+{"index":761,"function":{"name":"vkCmdDrawIndexed","args":{"commandBuffer":230, ...}}}
+{"index":736,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":226, ...}}},
+{"index":3948,"function":{"name":"vkCmdBeginRenderPass","args":{"commandBuffer":226, ...}}},
+{"index":3949,"function":{"name":"vkCmdExecuteCommands","args":{"commandBuffer":226,"commandBufferCount":357,"pCommandBuffers":[227,230,232,233,...]}}}
+{"index":3950,"function":{"name":"vkCmdEndRenderPass","args":{"commandBuffer":226}}}
+{"index":3952,"function":{"name":"vkQueueSubmit","args":{"queue":6,"submitCount":1,"pSubmits":[{"commandBufferCount":1,"pCommandBuffers":[226]}...]...}}}
+```
+
+The draw call of the secondary command buffer `230` is dumped with:
+
+```Json
+{
+    "SchemaVersion": "1.0",
+    "QueueSubmits": [
+        {
+            "Index": 3952,
+            "CommandBuffers": [
+                {
+                    "Index": 736,
+                    "RenderPasses": [ [ 3948, 3950 ] ],
+                    "ExecuteCommands": [
+                        {
+                            "Index": 3949,
+                            "CommandBuffers": [ { "Index": 754, "Draw": [ 761 ] } ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
+
+The primary node carries the render pass range and the execute call; it has no commands of its own. A primary
+with several secondaries, submitted twice, with commands of every type:
+
+```Json
+{
+    "SchemaVersion": "1.0",
+    "QueueSubmits": [
+        {
+            "Index": [ 2000, 2002 ],
+            "CommandBuffers": [
+                {
+                    "Index": 1000,
+                    "RenderPasses": [ [ 1009, 1015, 1022, 1024, 1036 ] ],
+                    "Draw":      [ 1014, 1020, 1021, 1029, 1035 ],
+                    "Dispatch":  [ 1003 ],
+                    "TraceRays": [ 1007 ],
+                    "Transfer":  [ 1004, 1008 ],
+                    "ExecuteCommands": [
+                        { "Index": 1023, "CommandBuffers": [ { "Index": 100, "Draw": [ 105 ] } ] },
+                        { "Index": 1030, "CommandBuffers": [ { "Index": 200, "Draw": [ 205, 206 ] },
+                                                             { "Index": 300, "Draw": [ 305, 306 ] } ] },
+                        { "Index": 1037, "CommandBuffers": [ { "Index": 400, "Dispatch": [ 403 ] } ] },
+                        { "Index": 1038, "CommandBuffers": [ { "Index": 500, "RenderPasses": [ [ 501, 507 ] ],
+                                                                             "Draw": [ 506 ] } ] }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
+
+The meta commands `266` and `267` of the state-setup block of a trimmed capture are dumped with:
+
+```Json
+{ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 266, 267 ] } }
+```
+
+### Legacy input json format
+
+The format described in this section preceded the tree format above. It is still accepted and is recognized by
+its top-level `BeginCommandBuffer` key. In this format the request is a set of parallel arrays correlated by
+position: entry `i` of `BeginCommandBuffer` pairs with entry `i` of `QueueSubmit`, `Draw`, `RenderPass`,
+`Dispatch`, `TraceRays`, `Transfer` and `ExecuteCommands`. The dumping options object is named
+`DumpResourcesOptions` instead of `DumpingOptions`.
+
+#### Simple examples
 
 Assuming the following imaginary excerpt from a capture file that contains the following commands:
 
@@ -171,7 +369,7 @@ In order to dump the draw call from the secondary command buffer `230` the follo
 }
 ```
 
-### Index vector dimensionality
+#### Index vector dimensionality
 
 Indices are provided in GFXReconstruct as vectors of indices. Each index vector, depending on the type of the command it describes can vary and is important, otherwise errors will be generated while parsing the input or the expected commands will not be dumped. Each vector's dimensionality is the following:
 
@@ -201,7 +399,7 @@ In the example above the `vkCmdTraceRay`s `[ 220, 230, 240 ]` belong to `vkBegin
 
 Inside a command buffer, Vulkan allows multiple render passes with multiple sub-passes. In order to support that for multiple command buffers a 3D array is required.
 
-### A more complex example
+#### A more complex example
 
 A hypothetical json output of the `gfxrecon-convert` tool could look something like the following:
 
@@ -260,7 +458,37 @@ In this example two command buffers are submitted for dumping, one with object I
 
 ### Culling dumped descriptors
 There is an option to ask for specific descriptors and image subresources to be dumped instead of dumping all bound descriptors. This can be done by providing for each command index the 1) descriptor set index, 2) binding index and, 3) array index of the descriptors to be dumped for the specific command.
-This is an example:
+The command is then written as an object instead of a plain block index. The object form is the same in both input
+formats. In the tree format:
+
+```Json
+{
+    "SchemaVersion": "1.0",
+    "QueueSubmits": [
+        {
+            "Index": 2548,
+            "CommandBuffers": [
+                {
+                    "Index": 2525,
+                    "RenderPasses": [ [ 2526, 2538 ] ],
+                    "Draw": [
+                        {
+                            "Index": 2533,
+                            "Descriptors": [
+                                { "Set": 0, "Binding": 1, "ArrayIndex": 0 },
+                                { "Set": 0, "Binding": 0, "ArrayIndex": 0 }
+                            ]
+                        },
+                        2537
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
+
+The same request in the legacy format:
 ```Json
 {
     "BeginCommandBuffer": [
@@ -362,12 +590,30 @@ The meta commands can only exist in the state setup block. The state setup block
 Transfer command indices need to specified in a similar manner as with the other commands. The `Transfer` json entry is used for this. An example:
 
 ```Json
+{
+    "SchemaVersion": "1.0",
+    "QueueSubmits": [
+        { "Index": 270, "CommandBuffers": [ { "Index": 250, "Transfer": [ 266, 267 ] } ] }
+    ]
+}
+```
+
+or, in the legacy format:
+
+```Json
 "BeginCommandBuffer": [ 250 ],
 "Transfer": [[266, 267]],
 "QueueSubmit": [ 270 ]
 ```
 
-The supported transfer meta commands can be found in the state setup of a trimmed capture. To do so `0` should be used a special block index for both `BeginCommandBuffer` and `QueueSubmit`. For example:
+The supported transfer meta commands can be found in the state setup of a trimmed capture. They are requested with
+the `StateSetup` entry:
+
+```Json
+{ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 266, 267 ] } }
+```
+
+In the legacy format `0` is used as a special block index for both `BeginCommandBuffer` and `QueueSubmit` instead:
 
 ```Json
 "BeginCommandBuffer": [ 0 ],
@@ -391,7 +637,7 @@ Directory to write dump resources output files. Default is the current working d
 
 ### Input json options
 
-The rest of the dump resources options are available through the input json file. They are expected to be inside a json object named `DumpResourcesOptions`.
+The rest of the dump resources options are available through the input json file. They are expected to be inside a json object named `DumpingOptions` (`DumpResourcesOptions` in the legacy format). Option names are matched regardless of case. In the tree format an unknown option or a value of the wrong type is an error; in the legacy format it is a warning.
 The possible options are the following:
 
 * `Scale` <`float`>: Scale images generated by dump resources by the given scale factor. The scale factor must be a floating point number greater than 0. Values greater than 10 are capped at 10. Default value is `1.0`.
@@ -441,7 +687,8 @@ A json example specifying the above options:
 
 ```Json
 {
-  "DumpResourcesOptions": {
+  "SchemaVersion": "1.0",
+  "DumpingOptions": {
       "Scale": 0.2,
       "ColorAttachmentIndex": -1,
       "OutputDir": "",
@@ -458,9 +705,9 @@ A json example specifying the above options:
       "DumpBuildAccelerationStructuresInputBuffers": true
   },
 
-  "BeginCommandBuffer": [ 448 ],
-  "TraceRays": [[ 451 ]],
-  "QueueSubmit": [ 466 ]
+  "QueueSubmits": [
+    { "Index": 466, "CommandBuffers": [ { "Index": 448, "TraceRays": [ 451 ] } ] }
+  ]
 }
 ```
 
@@ -474,7 +721,7 @@ name of "vulkanCapture.gfxr" will result in a json output file name of "vulkanCa
 The output json consists of 4 main entries:
 1. Header
 
-  The header contains the path to the capture file, GFXR and vulkan version and the dump resources parameters used when replaying.
+  The header contains the path to the capture file, GFXR and vulkan version, the [schema version](#input-json-file) of the input json and the dump resources parameters used when replaying.
 
 2. Draw call commands
 
@@ -495,18 +742,26 @@ Here is an example of a json output file:
 [
 {
   "header": {
-    "source-path": "vulkanCapture.gfxr",
-    "gfxrecon-version": "1.0.3"
-    "vulkan-version": "1.3.275"
-    "dumpResourcesOptions": {
-      "scale": 1.0,
-      "dumpResourcesOutputDir": "",
-      "dumpResourcesColorAttachmentIndex": -1,
-      "dumpResourcesBefore": false,
-      "dumpResourcesDumpDepth": true,
-      "dumpResourcesDumpVertexIndexBuffer": true,
-      "dumpResourcesDumpImmutableResources": true,
-      "dumpResourcesDumpAllImageSubresources": false
+    "vulkanVersion": "1.4.335",
+    "gfxreconVersion": "1.0.5",
+    "captureFile": "vulkanCapture.gfxr",
+    "inputJsonSchemaVersion": "1.0",
+    "DumpResourcesOptions": {
+      "Scale": 1.0,
+      "ImageFormat": "bmp",
+      "OutputDir": "",
+      "ColorAttachmentIndex": -1,
+      "DumpBeforeCommand": false,
+      "DumpDepth": true,
+      "DumpVertexIndexBuffer": true,
+      "DumpAllDescriptors": true,
+      "DumpAllImageSubresources": false,
+      "DumpRawImages": false,
+      "DumpSeparateAlpha": false,
+      "DumpUnusedVertexBindings": false,
+      "JsonOutputPerCommand": false,
+      "DumpBuildAccelerationStructuresInputBuffers": false,
+      "BinaryFileCompressionType": "None"
     }
   }
 },
