@@ -27,8 +27,8 @@
 #include "binding/structure_type.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
-#include "generated/generated_vulkan_binding_descriptor_for.h"
-#include "generated/generated_vulkan_schema_catalog.h"
+#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_catalog.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "schema/schema.h"
@@ -99,7 +99,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         GFXRECON_LOG_WARNING("%s", message.get());
         EncodePNextStructIfValid(encoder_arg, base_arg->pNext);
     };
-    using List = schema::vulkan::catalog::extensible_structures;
+    using List = binding::vulkan::catalog::extensible_structures;
     schema::StructureTypeVisit<List>(base->sType, EncodeNode{}, on_miss, encoder, base);
 }
 

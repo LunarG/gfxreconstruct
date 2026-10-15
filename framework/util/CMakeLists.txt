@@ -134,19 +134,18 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/thread_safe_queue.h
                     ${CMAKE_CURRENT_LIST_DIR}/type_list.h
+                    ${CMAKE_CURRENT_LIST_DIR}/inventory_utils.h
                     ${CMAKE_CURRENT_LIST_DIR}/key_index.h
-                    ${CMAKE_CURRENT_LIST_DIR}/enumerants.h
                     ${CMAKE_CURRENT_LIST_DIR}/type_traits_extras.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_to_string_impl.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_enumerants.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_binding_descriptor_for.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>

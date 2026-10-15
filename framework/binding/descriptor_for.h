@@ -22,8 +22,11 @@
 
 // A binding joins a schema entity to a C++ type that exists without the schema. This one maps an API's native
 // structure to its API type descriptor, the inverse of the descriptor's element_type, which C++ cannot invert by
-// lookup. The primary template is API-agnostic; each API's rows are generated, keyed on its native types, which
-// never collide across APIs.
+// lookup. The rows are keyed on native types, which never collide across APIs.
+//
+// This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
+// binding/<api>_descriptor_for.h, which is the header API code includes; with this one alone, HasDescriptor answers
+// no for every type.
 
 #ifndef GFXRECON_BINDING_DESCRIPTOR_FOR_H
 #define GFXRECON_BINDING_DESCRIPTOR_FOR_H
@@ -47,14 +50,6 @@ concept HasDescriptor = requires
 template <typename NativeStruct>
 concept HasSchemaStructureType =
     HasDescriptor<NativeStruct> && schema::HasStructureType<typename DescriptorFor<NativeStruct>::type>;
-
-// One row: Native is the API's structure, Descriptor its API type descriptor.
-#define GFXRECON_BINDING_DESCRIPTOR_FOR(Native, Descriptor) \
-    template <>                                             \
-    struct DescriptorFor<Native>                            \
-    {                                                       \
-        using type = Descriptor;                            \
-    }
 
 GFXRECON_END_NAMESPACE(binding)
 GFXRECON_END_NAMESPACE(gfxrecon)

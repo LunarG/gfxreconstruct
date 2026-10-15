@@ -56,8 +56,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// Schemas. A structure keys on its API type descriptor and a command on its command tag, which is the
-// same key ApiElementTraits uses, so one spelling reaches both.
+// Schemas. A structure keys on its API type descriptor and a command on its command descriptor, which is the
+// same key the decoded-type binding uses, so one spelling reaches both.
 
 template <>
 struct Schema<vulkan::api_types::StdVideoH264SpsVuiFlags>
@@ -935,6 +935,18 @@ struct Schema<vulkan::api_types::VkRect2D>
 };
 
 template <>
+struct Schema<vulkan::api_types::VkBaseInStructure>
+{
+    using Fields = util::TypeList<vulkan::fields::VkBaseInStructure::sType, vulkan::fields::VkBaseInStructure::pNext>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkBaseOutStructure>
+{
+    using Fields = util::TypeList<vulkan::fields::VkBaseOutStructure::sType, vulkan::fields::VkBaseOutStructure::pNext>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkAllocationCallbacks>
 {
     using Fields = util::TypeList<vulkan::fields::VkAllocationCallbacks::pUserData,
@@ -1750,6 +1762,14 @@ struct Schema<vulkan::api_types::VkDescriptorBufferInfo>
 };
 
 template <>
+struct Schema<vulkan::api_types::VkDescriptorImageInfo>
+{
+    using Fields = util::TypeList<vulkan::fields::VkDescriptorImageInfo::sampler,
+                                  vulkan::fields::VkDescriptorImageInfo::imageView,
+                                  vulkan::fields::VkDescriptorImageInfo::imageLayout>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkDescriptorPoolSize>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorPoolSize::type,
@@ -1795,6 +1815,21 @@ struct Schema<vulkan::api_types::VkDescriptorSetLayoutCreateInfo>
                                   vulkan::fields::VkDescriptorSetLayoutCreateInfo::flags,
                                   vulkan::fields::VkDescriptorSetLayoutCreateInfo::bindingCount,
                                   vulkan::fields::VkDescriptorSetLayoutCreateInfo::pBindings>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkWriteDescriptorSet>
+{
+    using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSet::sType,
+                                  vulkan::fields::VkWriteDescriptorSet::pNext,
+                                  vulkan::fields::VkWriteDescriptorSet::dstSet,
+                                  vulkan::fields::VkWriteDescriptorSet::dstBinding,
+                                  vulkan::fields::VkWriteDescriptorSet::dstArrayElement,
+                                  vulkan::fields::VkWriteDescriptorSet::descriptorCount,
+                                  vulkan::fields::VkWriteDescriptorSet::descriptorType,
+                                  vulkan::fields::VkWriteDescriptorSet::pImageInfo,
+                                  vulkan::fields::VkWriteDescriptorSet::pBufferInfo,
+                                  vulkan::fields::VkWriteDescriptorSet::pTexelBufferView>;
 };
 
 template <>
@@ -4234,6 +4269,56 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceHostImageCopyProperties>
 };
 
 template <>
+struct Schema<vulkan::api_types::VkMemoryToImageCopy>
+{
+    using Fields = util::TypeList<vulkan::fields::VkMemoryToImageCopy::sType,
+                                  vulkan::fields::VkMemoryToImageCopy::pNext,
+                                  vulkan::fields::VkMemoryToImageCopy::pHostPointer,
+                                  vulkan::fields::VkMemoryToImageCopy::memoryRowLength,
+                                  vulkan::fields::VkMemoryToImageCopy::memoryImageHeight,
+                                  vulkan::fields::VkMemoryToImageCopy::imageSubresource,
+                                  vulkan::fields::VkMemoryToImageCopy::imageOffset,
+                                  vulkan::fields::VkMemoryToImageCopy::imageExtent>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkImageToMemoryCopy>
+{
+    using Fields = util::TypeList<vulkan::fields::VkImageToMemoryCopy::sType,
+                                  vulkan::fields::VkImageToMemoryCopy::pNext,
+                                  vulkan::fields::VkImageToMemoryCopy::pHostPointer,
+                                  vulkan::fields::VkImageToMemoryCopy::memoryRowLength,
+                                  vulkan::fields::VkImageToMemoryCopy::memoryImageHeight,
+                                  vulkan::fields::VkImageToMemoryCopy::imageSubresource,
+                                  vulkan::fields::VkImageToMemoryCopy::imageOffset,
+                                  vulkan::fields::VkImageToMemoryCopy::imageExtent>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkCopyMemoryToImageInfo>
+{
+    using Fields = util::TypeList<vulkan::fields::VkCopyMemoryToImageInfo::sType,
+                                  vulkan::fields::VkCopyMemoryToImageInfo::pNext,
+                                  vulkan::fields::VkCopyMemoryToImageInfo::flags,
+                                  vulkan::fields::VkCopyMemoryToImageInfo::dstImage,
+                                  vulkan::fields::VkCopyMemoryToImageInfo::dstImageLayout,
+                                  vulkan::fields::VkCopyMemoryToImageInfo::regionCount,
+                                  vulkan::fields::VkCopyMemoryToImageInfo::pRegions>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkCopyImageToMemoryInfo>
+{
+    using Fields = util::TypeList<vulkan::fields::VkCopyImageToMemoryInfo::sType,
+                                  vulkan::fields::VkCopyImageToMemoryInfo::pNext,
+                                  vulkan::fields::VkCopyImageToMemoryInfo::flags,
+                                  vulkan::fields::VkCopyImageToMemoryInfo::srcImage,
+                                  vulkan::fields::VkCopyImageToMemoryInfo::srcImageLayout,
+                                  vulkan::fields::VkCopyImageToMemoryInfo::regionCount,
+                                  vulkan::fields::VkCopyImageToMemoryInfo::pRegions>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkCopyImageToImageInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyImageToImageInfo::sType,
@@ -4352,6 +4437,17 @@ struct Schema<vulkan::api_types::VkPushDescriptorSetInfo>
                                   vulkan::fields::VkPushDescriptorSetInfo::set,
                                   vulkan::fields::VkPushDescriptorSetInfo::descriptorWriteCount,
                                   vulkan::fields::VkPushDescriptorSetInfo::pDescriptorWrites>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkPushDescriptorSetWithTemplateInfo>
+{
+    using Fields = util::TypeList<vulkan::fields::VkPushDescriptorSetWithTemplateInfo::sType,
+                                  vulkan::fields::VkPushDescriptorSetWithTemplateInfo::pNext,
+                                  vulkan::fields::VkPushDescriptorSetWithTemplateInfo::descriptorUpdateTemplate,
+                                  vulkan::fields::VkPushDescriptorSetWithTemplateInfo::layout,
+                                  vulkan::fields::VkPushDescriptorSetWithTemplateInfo::set,
+                                  vulkan::fields::VkPushDescriptorSetWithTemplateInfo::pData>;
 };
 
 template <>
@@ -8971,6 +9067,13 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerFunctions2Features
 };
 
 template <>
+struct Schema<vulkan::api_types::VkPerformanceValueINTEL>
+{
+    using Fields = util::TypeList<vulkan::fields::VkPerformanceValueINTEL::type,
+                                  vulkan::fields::VkPerformanceValueINTEL::data>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkInitializePerformanceApiInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkInitializePerformanceApiInfoINTEL::sType,
@@ -9927,6 +10030,15 @@ struct Schema<vulkan::api_types::VkDescriptorBufferBindingPushDescriptorBufferHa
 };
 
 template <>
+struct Schema<vulkan::api_types::VkDescriptorGetInfoEXT>
+{
+    using Fields = util::TypeList<vulkan::fields::VkDescriptorGetInfoEXT::sType,
+                                  vulkan::fields::VkDescriptorGetInfoEXT::pNext,
+                                  vulkan::fields::VkDescriptorGetInfoEXT::type,
+                                  vulkan::fields::VkDescriptorGetInfoEXT::data>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkBufferCaptureDescriptorDataInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferCaptureDescriptorDataInfoEXT::sType,
@@ -10096,6 +10208,14 @@ struct Schema<vulkan::api_types::VkAccelerationStructureSRTMotionInstanceNV>
                                   vulkan::fields::VkAccelerationStructureSRTMotionInstanceNV::instanceShaderBindingTableRecordOffset,
                                   vulkan::fields::VkAccelerationStructureSRTMotionInstanceNV::flags,
                                   vulkan::fields::VkAccelerationStructureSRTMotionInstanceNV::accelerationStructureReference>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkAccelerationStructureMotionInstanceNV>
+{
+    using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureMotionInstanceNV::type,
+                                  vulkan::fields::VkAccelerationStructureMotionInstanceNV::flags,
+                                  vulkan::fields::VkAccelerationStructureMotionInstanceNV::data>;
 };
 
 template <>
@@ -11906,6 +12026,16 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesPropertie
 };
 
 template <>
+struct Schema<vulkan::api_types::VkLayerSettingEXT>
+{
+    using Fields = util::TypeList<vulkan::fields::VkLayerSettingEXT::pLayerName,
+                                  vulkan::fields::VkLayerSettingEXT::pSettingName,
+                                  vulkan::fields::VkLayerSettingEXT::type,
+                                  vulkan::fields::VkLayerSettingEXT::valueCount,
+                                  vulkan::fields::VkLayerSettingEXT::pValues>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkLayerSettingsCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkLayerSettingsCreateInfoEXT::sType,
@@ -12041,6 +12171,15 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphFeaturesARM>
                                   vulkan::fields::VkPhysicalDeviceDataGraphFeaturesARM::dataGraphSpecializationConstants,
                                   vulkan::fields::VkPhysicalDeviceDataGraphFeaturesARM::dataGraphDescriptorBuffer,
                                   vulkan::fields::VkPhysicalDeviceDataGraphFeaturesARM::dataGraphShaderModule>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkDataGraphPipelineConstantARM>
+{
+    using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineConstantARM::sType,
+                                  vulkan::fields::VkDataGraphPipelineConstantARM::pNext,
+                                  vulkan::fields::VkDataGraphPipelineConstantARM::id,
+                                  vulkan::fields::VkDataGraphPipelineConstantARM::pConstantData>;
 };
 
 template <>
@@ -12700,6 +12839,15 @@ struct Schema<vulkan::api_types::VkIndirectExecutionSetShaderInfoEXT>
 };
 
 template <>
+struct Schema<vulkan::api_types::VkIndirectExecutionSetCreateInfoEXT>
+{
+    using Fields = util::TypeList<vulkan::fields::VkIndirectExecutionSetCreateInfoEXT::sType,
+                                  vulkan::fields::VkIndirectExecutionSetCreateInfoEXT::pNext,
+                                  vulkan::fields::VkIndirectExecutionSetCreateInfoEXT::type,
+                                  vulkan::fields::VkIndirectExecutionSetCreateInfoEXT::info>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkGeneratedCommandsInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsInfoEXT::sType,
@@ -12748,6 +12896,16 @@ struct Schema<vulkan::api_types::VkIndirectCommandsExecutionSetTokenEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsExecutionSetTokenEXT::type,
                                   vulkan::fields::VkIndirectCommandsExecutionSetTokenEXT::shaderStages>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkIndirectCommandsLayoutTokenEXT>
+{
+    using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsLayoutTokenEXT::sType,
+                                  vulkan::fields::VkIndirectCommandsLayoutTokenEXT::pNext,
+                                  vulkan::fields::VkIndirectCommandsLayoutTokenEXT::type,
+                                  vulkan::fields::VkIndirectCommandsLayoutTokenEXT::data,
+                                  vulkan::fields::VkIndirectCommandsLayoutTokenEXT::offset>;
 };
 
 template <>
@@ -13545,6 +13703,16 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryInstancesDataKHR
 };
 
 template <>
+struct Schema<vulkan::api_types::VkAccelerationStructureGeometryKHR>
+{
+    using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryKHR::sType,
+                                  vulkan::fields::VkAccelerationStructureGeometryKHR::pNext,
+                                  vulkan::fields::VkAccelerationStructureGeometryKHR::geometryType,
+                                  vulkan::fields::VkAccelerationStructureGeometryKHR::geometry,
+                                  vulkan::fields::VkAccelerationStructureGeometryKHR::flags>;
+};
+
+template <>
 struct Schema<vulkan::api_types::VkAccelerationStructureBuildGeometryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::sType,
@@ -13800,6 +13968,115 @@ struct Schema<vulkan::api_types::VkDrawMeshTasksIndirectCommandEXT>
     using Fields = util::TypeList<vulkan::fields::VkDrawMeshTasksIndirectCommandEXT::groupCountX,
                                   vulkan::fields::VkDrawMeshTasksIndirectCommandEXT::groupCountY,
                                   vulkan::fields::VkDrawMeshTasksIndirectCommandEXT::groupCountZ>;
+};
+
+// A union's Schema lists Alternatives, not Fields: a value holds one of them, and which one is the
+// selector's to say, so no field walk applies.
+
+template <>
+struct Schema<vulkan::api_types::VkClearColorValue>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkClearColorValue::float32,
+                                        vulkan::fields::VkClearColorValue::int32,
+                                        vulkan::fields::VkClearColorValue::uint32>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkClearValue>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkClearValue::color,
+                                        vulkan::fields::VkClearValue::depthStencil>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkPerformanceCounterResultKHR>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkPerformanceCounterResultKHR::int32,
+                                        vulkan::fields::VkPerformanceCounterResultKHR::int64,
+                                        vulkan::fields::VkPerformanceCounterResultKHR::uint32,
+                                        vulkan::fields::VkPerformanceCounterResultKHR::uint64,
+                                        vulkan::fields::VkPerformanceCounterResultKHR::float32,
+                                        vulkan::fields::VkPerformanceCounterResultKHR::float64>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkPipelineExecutableStatisticValueKHR>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkPipelineExecutableStatisticValueKHR::b32,
+                                        vulkan::fields::VkPipelineExecutableStatisticValueKHR::i64,
+                                        vulkan::fields::VkPipelineExecutableStatisticValueKHR::u64,
+                                        vulkan::fields::VkPipelineExecutableStatisticValueKHR::f64>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkPerformanceValueDataINTEL>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkPerformanceValueDataINTEL::value32,
+                                        vulkan::fields::VkPerformanceValueDataINTEL::value64,
+                                        vulkan::fields::VkPerformanceValueDataINTEL::valueFloat,
+                                        vulkan::fields::VkPerformanceValueDataINTEL::valueBool,
+                                        vulkan::fields::VkPerformanceValueDataINTEL::valueString>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkDescriptorDataEXT>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkDescriptorDataEXT::pSampler,
+                                        vulkan::fields::VkDescriptorDataEXT::pCombinedImageSampler,
+                                        vulkan::fields::VkDescriptorDataEXT::pInputAttachmentImage,
+                                        vulkan::fields::VkDescriptorDataEXT::pSampledImage,
+                                        vulkan::fields::VkDescriptorDataEXT::pStorageImage,
+                                        vulkan::fields::VkDescriptorDataEXT::pUniformTexelBuffer,
+                                        vulkan::fields::VkDescriptorDataEXT::pStorageTexelBuffer,
+                                        vulkan::fields::VkDescriptorDataEXT::pUniformBuffer,
+                                        vulkan::fields::VkDescriptorDataEXT::pStorageBuffer,
+                                        vulkan::fields::VkDescriptorDataEXT::accelerationStructure>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkDeviceOrHostAddressConstKHR>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkDeviceOrHostAddressConstKHR::deviceAddress,
+                                        vulkan::fields::VkDeviceOrHostAddressConstKHR::hostAddress>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkAccelerationStructureMotionInstanceDataNV>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkAccelerationStructureMotionInstanceDataNV::staticInstance,
+                                        vulkan::fields::VkAccelerationStructureMotionInstanceDataNV::matrixMotionInstance,
+                                        vulkan::fields::VkAccelerationStructureMotionInstanceDataNV::srtMotionInstance>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkDeviceOrHostAddressKHR>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkDeviceOrHostAddressKHR::deviceAddress,
+                                        vulkan::fields::VkDeviceOrHostAddressKHR::hostAddress>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkIndirectExecutionSetInfoEXT>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkIndirectExecutionSetInfoEXT::pPipelineInfo,
+                                        vulkan::fields::VkIndirectExecutionSetInfoEXT::pShaderInfo>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkIndirectCommandsTokenDataEXT>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkIndirectCommandsTokenDataEXT::pPushConstant,
+                                        vulkan::fields::VkIndirectCommandsTokenDataEXT::pVertexBuffer,
+                                        vulkan::fields::VkIndirectCommandsTokenDataEXT::pIndexBuffer,
+                                        vulkan::fields::VkIndirectCommandsTokenDataEXT::pExecutionSet>;
+};
+
+template <>
+struct Schema<vulkan::api_types::VkAccelerationStructureGeometryDataKHR>
+{
+    using Alternatives = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryDataKHR::triangles,
+                                        vulkan::fields::VkAccelerationStructureGeometryDataKHR::aabbs,
+                                        vulkan::fields::VkAccelerationStructureGeometryDataKHR::instances>;
 };
 
 template <>

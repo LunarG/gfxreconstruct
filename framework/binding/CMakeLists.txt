@@ -41,5 +41,12 @@ target_link_libraries(gfxrecon_binding
 
 add_custom_target(gfxrecon_binding_headers
                   SOURCES
+                      ${CMAKE_CURRENT_LIST_DIR}/call_id_of.h
+                      ${CMAKE_CURRENT_LIST_DIR}/decoded_type_of.h
                       ${CMAKE_CURRENT_LIST_DIR}/descriptor_for.h
-                      ${CMAKE_CURRENT_LIST_DIR}/structure_type.h)
+                      ${CMAKE_CURRENT_LIST_DIR}/enumerants.h
+                      ${CMAKE_CURRENT_LIST_DIR}/structure_type.h
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_call_id.h
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_catalog.h
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoded_type.h
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_descriptor_for.h)

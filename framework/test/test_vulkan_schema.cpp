@@ -29,7 +29,8 @@
 #include <catch2/catch.hpp>
 
 #include "generated/generated_vulkan_schema.h"
-#include "generated/generated_vulkan_decode_api_element_traits.h"
+#include "binding/vulkan_call_id.h"
+#include "binding/vulkan_decoded_type.h"
 
 // The generated schema reaches no wire representation type, so the encoding join is included separately, the way an
 // Encode or Decode adapter would include it.
@@ -38,7 +39,7 @@
 #include "decode/vulkan_decode_struct_impl.h"
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
-#include "generated/generated_vulkan_encode_capture_wrappers.h"
+#include "encode/vulkan_encode_capture_wrappers.h"
 #include "encode/vulkan_encode_action.h"
 #include "encode/vulkan_encode_struct.h"
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -48,9 +49,9 @@
 #include "generated/generated_vulkan_schema_decoded_command_members.h"
 #include "generated/generated_vulkan_schema_decoded_struct_members.h"
 #include "generated/generated_vulkan_schema_native_struct_members.h"
-#include "generated/generated_vulkan_binding_descriptor_for.h"
+#include "binding/vulkan_descriptor_for.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "test/schema_fill.h"
 
@@ -66,7 +67,7 @@ using namespace gfxrecon;
 
 using Command = schema::vulkan::commands::CmdPipelineBarrier;
 
-// A structure keys its schema on its API type descriptor, the same key ApiElementTraits uses.
+// A structure keys its schema on its API type descriptor, the same key the decoded-type binding uses.
 using Barrier = schema::vulkan::api_types::VkBufferMemoryBarrier;
 
 namespace cmd_field     = schema::vulkan::fields::CmdPipelineBarrier;
@@ -165,10 +166,10 @@ static_assert(schema::HasMember<VkAccelerationStructureInstanceKHR,
 static_assert(schema::NonAddressable<VkAccelerationStructureInstanceKHR,
                                      schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 
-// Decoded representation resolves through the traits key, which is the same key the schema uses.
-static_assert(std::is_same_v<decode::Decoded<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
-static_assert(std::is_same_v<decode::Decoded<Command>, decode::args::CmdPipelineBarrier>);
-static_assert(decode::ApiElementTraits<Command>::call_id == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
+// The decoded type and the call id resolve through the bindings, keyed as the schema is.
+static_assert(std::is_same_v<binding::DecodedTypeOf<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
+static_assert(std::is_same_v<binding::DecodedTypeOf<Command>, decode::args::CmdPipelineBarrier>);
+static_assert(binding::CallIdOf<Command> == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
 
 // One walk visits the whole field list, and one Action supplies the Apply overloads that its shapes select.
 struct CountingAction
@@ -3054,9 +3055,9 @@ TEST_CASE("The schema filler populates every described field", "[schema][fill]")
 TEST_CASE("Enumerants names every enumerant and both name functions read it", "[schema][enumerants]")
 {
     auto check_every_entry = []<typename Enum>() {
-        for (const auto& entry : util::EnumerantTableOf<Enum>::entries)
+        for (const auto& entry : binding::EnumerantTableOf<Enum>::entries)
         {
-            CHECK(util::NameOf(entry.value) == entry.name);
+            CHECK(binding::NameOf(entry.value) == entry.name);
             CHECK(util::ToString(entry.value) == std::string(entry.name));
 
             nlohmann::ordered_json json;
@@ -3069,7 +3070,7 @@ TEST_CASE("Enumerants names every enumerant and both name functions read it", "[
 
     // VK_STRUCTURE_TYPE_MAX_ENUM is the header's sentinel, not a registry enumerant.
     const auto not_an_enumerant = static_cast<VkStructureType>(0x7FFFFFFF);
-    CHECK(util::NameOf(not_an_enumerant).empty());
+    CHECK(binding::NameOf(not_an_enumerant).empty());
     CHECK(util::ToString(not_an_enumerant) == "Unhandled VkStructureType");
 
     nlohmann::ordered_json json;

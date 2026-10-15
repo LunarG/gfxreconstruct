@@ -209,8 +209,8 @@ class DecodeStructAction
     // descends through the operation family's existing entry point. This is legacy descent, not a nested walk:
     // whether the nested DecodeStruct is itself a field walk is that structure's business, not this one's.
     //
-    // The decoded type comes from the storage rather than from ApiElementTraits, because the wrapper's own member
-    // already declares it, so nothing here names a trait; the call resolves at instantiation.
+    // The decoded type comes from the storage rather than from the decoded-type binding, because the wrapper's own
+    // member already declares it, so nothing here names a trait; the call resolves at instantiation.
     template <typename Field, typename Storage>
     requires schema::StructKindField<Field> && schema::ValueShapeField<Field> && schema::Addressable<Storage, Field> &&
         schema::Addressable<typename Storage::struct_type, Field>

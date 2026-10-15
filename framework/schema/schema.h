@@ -38,8 +38,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// One traits-class template maps an API element to its canonical field list. A command keys on its command tag; a
-// structure keys on its API type descriptor.
+// One traits-class template maps an API element to its canonical field list. A command keys on its command descriptor
+// and a structure on its API type descriptor.
 template <typename ApiElement>
 struct Schema;
 
@@ -50,9 +50,6 @@ concept HasStructureType = requires
     Descriptor::structure_type;
 }
 &&std::is_enum_v<std::remove_cv_t<decltype(Descriptor::structure_type)>>;
-
-// The concept as a value predicate, for the list algorithms.
-inline constexpr auto kHasStructureType = []<typename Descriptor>() { return HasStructureType<Descriptor>; };
 
 // An enumerated type's descriptor names its enumerant table.
 template <typename Descriptor>
@@ -82,6 +79,16 @@ concept HasSchema = requires
 {
     typename Schema<ApiElement>::Fields;
     requires util::TypeListType<typename Schema<ApiElement>::Fields>;
+};
+
+// A union's Schema lists Alternatives, each a Field, of which a value holds one. Which one is the selector's to say:
+// the containing structure's Field names it as selector_field, and an alternative the registry marks carries the
+// selector values that choose it as selections. No field walk applies, so a union does not satisfy HasSchema.
+template <typename ApiElement>
+concept HasUnionSchema = requires
+{
+    typename Schema<ApiElement>::Alternatives;
+    requires util::TypeListType<typename Schema<ApiElement>::Alternatives>;
 };
 
 // The return predicate treats an absent is_return member as false.

@@ -22,20 +22,20 @@
 
 // DecodeStruct for every structure the schema drives -- the definition.
 //
-// PRIVATE. One translation unit includes this: generated_vulkan_struct_decoders.cpp, which holds the explicit
-// instantiations and the one procedural body that remains. Everything else sees the declaration in
+// PRIVATE. One translation unit includes this: decode/vulkan_struct_decoders.cpp, which holds the explicit
+// instantiations. Everything else sees the declaration in
 // decode/vulkan_decode_struct.h and links against those instantiations, reaching no schema, so the next operation
 // family costs one translation unit rather than one per caller.
 //
-// It is a header only because that .cpp is generated. This is the one piece of the arrangement that must stay
-// hand-written -- it names no structure and no field, which is the property the whole thing exists to have -- and
-// hand-written logic inside a generated file means a Python string, which is what write_base_out_struct_decoder
-// looks like. Were the .cpp hand-written, this would be a function in it and this header would not exist.
+// It is a header because the body is API-agnostic: it names no structure and no field, only the descriptor, the
+// Schema and the Action. Each API's instantiation unit includes it and stamps its own rows, so the body is written
+// once and vulkan_struct_decoders.cpp is the first such unit, not the only one. Folding it into that file would
+// make the second API copy it.
 //
 // Everything generated that the body touches is a dependent name -- the descriptors, the Schema specializations,
 // each wrapper's api_element and both member-trait partitions are needed to instantiate, not to parse. So
 // this header could be light. It is not, because two headers it includes deliberately carry their generated
-// content: api_element_traits.h pulls the specializations so its concepts cannot silently answer no, and
+// content: binding/vulkan_decoded_type.h is the rows, so HasDecodedType cannot silently answer no, and
 // vulkan_decode_action.h pulls the member partitions so its overloads cannot re-resolve on a partial set. Both
 // guards exist for other includers, not for this one.
 //
@@ -47,7 +47,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_STRUCT_IMPL_H
 #define GFXRECON_DECODE_VULKAN_DECODE_STRUCT_IMPL_H
 
-#include "decode/api_element_traits.h"
+#include "binding/vulkan_decoded_type.h"
 #include "decode/vulkan_decode_action.h"
 #include "decode/vulkan_decode_struct.h"
 #include "generated/generated_vulkan_schema.h"
@@ -66,7 +66,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
-    static_assert(HasApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
+    static_assert(binding::HasApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
     static_assert(schema::HasSchema<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 

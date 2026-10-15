@@ -26,10 +26,10 @@
 #ifndef GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_IMPL_H
 #define GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_IMPL_H
 
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "schema/schema.h"
 #include "util/defines.h"
-#include "util/enumerants.h"
+#include "binding/enumerants.h"
 #include "util/to_string.h"
 
 #include "vulkan/vulkan.h"
@@ -43,17 +43,17 @@ GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(detail)
 
 template <typename Table>
-std::string EnumerantToString(typename EnumerantDescriptorOf<Table>::element_type value)
+std::string EnumerantToString(typename binding::EnumerantDescriptorOf<Table>::element_type value)
 {
-    const std::string_view name = NameIn<Table>(value);
-    return name.empty() ? "Unhandled " + std::string(EnumerantDescriptorOf<Table>::name) : std::string(name);
+    const std::string_view name = binding::NameIn<Table>(value);
+    return name.empty() ? "Unhandled " + std::string(binding::EnumerantDescriptorOf<Table>::name) : std::string(name);
 }
 
 // Each set bit by name, in bit order, joined with '|'; zero by the table's name for zero.
 template <typename Table, typename Flags>
 std::string EnumerantMaskToString(Flags flags)
 {
-    using Bit = typename EnumerantDescriptorOf<Table>::element_type;
+    using Bit = typename binding::EnumerantDescriptorOf<Table>::element_type;
     return BitmaskToString<Bit>(flags, [](Bit bit) { return EnumerantToString<Table>(bit); });
 }
 

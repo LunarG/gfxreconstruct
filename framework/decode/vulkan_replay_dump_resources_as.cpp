@@ -23,7 +23,7 @@
 #include "decode/vulkan_replay_dump_resources_copy_array_of_pointers.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "graphics/vulkan_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

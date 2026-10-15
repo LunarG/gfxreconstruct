@@ -2556,9 +2556,10 @@ class KhronosBaseGenerator(OutputGenerator):
     def struct_has_handles(self, typename):
         return self.is_struct(typename) and (typename in self.structs_with_handles)
 
-    # Structs that might have handles include any struct KNOWN to have handles,
-    # any struct that has GENERIC handles, and any struct that could be extended since
-    # we do not know if any of the extendable structs have handles
+    # Structs that might have handles: any struct known to have handles, any struct with generic handles, and any
+    # struct that can be extended, since we do not know whether an extension carries a handle. Two gaps, arguably:
+    # a pNext chain inside a member structure is not counted, and a blacklisted structure is dropped from the
+    # extendable set. The schema generator's may_reach_handles counts both.
     def struct_might_have_handles(self, typename):
         return (self.is_struct(typename)
                 and ((typename in self.structs_with_handles)

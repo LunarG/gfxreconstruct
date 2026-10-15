@@ -31,9 +31,11 @@
 #define GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_H
 
 // Nothing in this file uses the custom header. A structure with a hand-written EncodeStruct is taken out of the
-// template by overload resolution, which prefers the non-template overload only where it is declared; including the
-// custom header here declares those overloads wherever the template is, so a caller of this header alone cannot get
-// the template for such a structure. There is no list of such structures.
+// template by overload resolution, which prefers the non-template overload only where it is declared: a call from
+// inside a template finds non-dependent candidates at the point of definition and dependent ones through
+// argument-dependent lookup, which adds nothing for a global C structure (C++20 standard, [temp.dep.candidate],
+// [basic.lookup.argdep]). Including the custom header here declares those overloads wherever the template is, so a
+// caller of this header alone cannot get the template for such a structure. There is no list of such structures.
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "util/defines.h"
 
