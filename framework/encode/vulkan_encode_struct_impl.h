@@ -20,19 +20,23 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Generic EncodeStruct definition. PRIVATE: generated_vulkan_struct_encoders.cpp is the one translation unit that
+// Generic EncodeStruct definition. PRIVATE: encode/vulkan_struct_encoders.cpp is the one translation unit that
 // includes it and instantiates the walk. Callers see the declaration in encode/vulkan_encode_struct.h, beside the
-// prototypes of the structures that keep a generated body, and a call by structure type resolves as it always did.
+// prototypes of the structures that keep a hand-written body, and a call by structure type resolves as it always did.
+//
+// It is a header because the body is API-agnostic: it names no structure and no field, only the descriptor, the
+// Schema and the Action. Each API's instantiation unit includes it and stamps its own rows, so the body is written
+// once and vulkan_struct_encoders.cpp is the first such unit, not the only one. Folding it into that file would
+// make the second API copy it.
 
 #ifndef GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_IMPL_H
 #define GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_IMPL_H
 
 #include "encode/vulkan_encode_action.h"
 #include "encode/vulkan_encode_struct.h"
-#include "generated/generated_vulkan_encode_capture_wrappers.h"
+#include "encode/vulkan_encode_capture_wrappers.h"
 #include "generated/generated_vulkan_schema.h"
-#include "generated/generated_vulkan_binding_descriptor_for.h"
-#include "binding/descriptor_for.h"
+#include "binding/vulkan_descriptor_for.h"
 #include "schema/schema.h"
 #include "util/defines.h"
 

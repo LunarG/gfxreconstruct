@@ -53,26 +53,21 @@ from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator, Vulkan
 from vulkan_decoder_args_header_generator import VulkanDecoderArgsHeaderGenerator, VulkanDecoderArgsHeaderGeneratorOptions
 
 # Struct Decoders
-from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
 from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
 
 # Field Schema
 from vulkan_schema_generator import (
     VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions,
-    VulkanSchemaCatalogGenerator, VulkanSchemaCatalogGeneratorOptions,
     VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions,
     VulkanSchemaGenerator, VulkanSchemaGeneratorOptions,
-    VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions,
+    VulkanInventoryGenerator, VulkanInventoryGeneratorOptions,
     VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions,
     VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions,
     VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
     VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
     VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions,
-    VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions,
-    VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions,
-    VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions,
-    VulkanSchemaBindingDescriptorForGenerator, VulkanSchemaBindingDescriptorForGeneratorOptions
+    VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
 )
 
 # Consumers
@@ -104,7 +99,6 @@ from vulkan_layer_func_table_generator import VulkanLayerFuncTableGenerator, Vul
 from vulkan_recapture_func_table_generator import VulkanRecaptureFuncTableGenerator, VulkanRecaptureFuncTableGeneratorOptions
 
 # Struct Encoders
-from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator, VulkanStructEncodersBodyGeneratorOptions
 from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator, VulkanStructEncodersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
@@ -303,22 +297,6 @@ def make_gen_opts(args):
         )
     ]
 
-    #
-    # Struct decoder generators
-    gen_opts['generated_vulkan_struct_decoders.cpp'] = [
-        VulkanStructDecodersBodyGenerator,
-        VulkanStructDecodersBodyGeneratorOptions(
-            filename='generated_vulkan_struct_decoders.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
     gen_opts['generated_vulkan_struct_decoders_forward.h'] = [
         VulkanStructDecodersForwardGenerator,
         VulkanStructDecodersForwardGeneratorOptions(
@@ -352,30 +330,22 @@ def make_gen_opts(args):
     for schema_filename, schema_generator, schema_options, schema_protect in (
         ('generated_vulkan_schema_types.h',
          VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions, True),
-        ('generated_vulkan_schema_catalog.h',
-         VulkanSchemaCatalogGenerator, VulkanSchemaCatalogGeneratorOptions, True),
         ('generated_vulkan_schema_fields.h',
          VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions, True),
         ('generated_vulkan_schema.h',
          VulkanSchemaGenerator, VulkanSchemaGeneratorOptions, True),
-        ('generated_vulkan_decode_api_element_traits.h',
-         VulkanSchemaApiElementTraitsGenerator, VulkanSchemaApiElementTraitsGeneratorOptions, True),
+        ('generated_vulkan_inventory.h',
+         VulkanInventoryGenerator, VulkanInventoryGeneratorOptions, False),
         ('generated_vulkan_schema_native_struct_members.h',
          VulkanSchemaNativeStructMembersGenerator, VulkanSchemaNativeStructMembersGeneratorOptions, True),
         ('generated_vulkan_schema_decoded_struct_members.h',
          VulkanSchemaDecodedStructMembersGenerator, VulkanSchemaDecodedStructMembersGeneratorOptions, True),
         ('generated_vulkan_schema_decoded_command_members.h',
          VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions, True),
-        ('generated_vulkan_encode_capture_wrappers.h',
-         VulkanEncodeCaptureWrappersGenerator, VulkanEncodeCaptureWrappersGeneratorOptions, True),
-        ('generated_vulkan_binding_descriptor_for.h',
-         VulkanSchemaBindingDescriptorForGenerator, VulkanSchemaBindingDescriptorForGeneratorOptions, True),
         ('generated_vulkan_schema_checks.cpp',
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
         ('generated_vulkan_schema_enumerants.h',
          VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions, True),
-        ('generated_vulkan_enum_to_string.h',
-         VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions, True),
         ('generated_vulkan_enum_to_string.cpp',
          VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions, False),
     ):
@@ -803,20 +773,6 @@ def make_gen_opts(args):
 
     #
     # Struct encoder generators
-    gen_opts['generated_vulkan_struct_encoders.cpp'] = [
-        VulkanStructEncodersBodyGenerator,
-        VulkanStructEncodersBodyGeneratorOptions(
-            filename='generated_vulkan_struct_encoders.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
     gen_opts['generated_vulkan_struct_encoders.h'] = [
         VulkanStructEncodersHeaderGenerator,
         VulkanStructEncodersHeaderGeneratorOptions(
