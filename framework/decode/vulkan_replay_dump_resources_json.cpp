@@ -29,6 +29,7 @@
 #include PROJECT_VERSION_HEADER_FILE
 #include "util/file_path.h"
 #include "util/logging.h"
+#include "util/output_file.h"
 #include "util/platform.h"
 #include "vulkan_replay_dump_resources_json.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -37,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options) :
-    file_(nullptr), current_entry(nullptr), first_block_(true), draw_calls_entry_index(0), dispatch_entry_index(0),
+    current_entry(nullptr), first_block_(true), draw_calls_entry_index(0), dispatch_entry_index(0),
     trace_rays_entry_index(0), transfer_entry_index(0)
 {
     header_["vulkanVersion"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
@@ -69,18 +70,16 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
 
 bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
 {
-    int ret = gfxrecon::util::platform::FileOpen(&file_, filename.c_str(), "w");
-    if (ret || file_ == nullptr)
+    stream_ = util::OpenOutputFile(filename, util::FileWriteMode::kText);
+    if (!stream_->IsValid())
     {
-#if defined(_WIN32)
+        // No reason string here; the stream has already logged one.
         GFXRECON_LOG_FATAL("Could not open dump resources output json file %s", filename.c_str());
-#else
-        GFXRECON_LOG_FATAL("Could not open dump resources output json file %s (%s)", filename.c_str(), strerror(ret));
-#endif
+        stream_.reset();
         return false;
     }
 
-    util::platform::FileWrite("[\n", 2, file_);
+    util::Write(*stream_, "[\n");
 
     BlockStart();
     json_data_["header"] = header_;
@@ -115,11 +114,10 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
 
 void VulkanReplayDumpResourcesJson::Close()
 {
-    if (file_ != nullptr)
+    if (stream_ != nullptr)
     {
-        util::platform::FileWrite("]", 1, file_);
-        gfxrecon::util::platform::FileClose(file_);
-        file_ = nullptr;
+        util::Write(*stream_, "]");
+        stream_.reset();
     }
     first_block_ = true;
 }
@@ -138,17 +136,17 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::BlockStart()
 
 void VulkanReplayDumpResourcesJson::BlockEnd()
 {
-    assert(file_ != nullptr);
+    GFXRECON_ASSERT(stream_ != nullptr);
 
     if (!first_block_)
     {
-        util::platform::FileWrite(",\n", 2, file_);
+        util::Write(*stream_, ",\n");
     }
 
     first_block_ = false;
 
     const std::string block = json_data_.dump(util::kJsonIndentWidth);
-    util::platform::FileWrite(block.c_str(), block.size(), file_);
+    stream_->Write(block.c_str(), block.size());
 }
 
 nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(const std::string& entry_name)

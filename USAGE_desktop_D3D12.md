@@ -359,8 +359,13 @@ replay and are documented in
 [Remote Replay Control](./USAGE_desktop_Vulkan.md#remote-replay-control); the
 wire protocol is specified in [docs/remote_protocol.md](./docs/remote_protocol.md).
 
-For D3D12, only the `tcp:` address form is available, since the `unix:` forms
-are POSIX only.
+Two things differ for D3D12:
+
+* Only the `tcp:` address form is available, since the `unix:` forms are POSIX
+  only.
+* Screenshots and dumped buffers and images stream to the controller, but the
+  **D3D12 dump-resources JSON is still written to local disk** — that hook is
+  currently wired only for Vulkan.
 
 
 

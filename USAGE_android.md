@@ -1209,7 +1209,8 @@ adb reverse localabstract:gfxrecon tcp:9001
 ./android/scripts/gfxrecon.py replay --remote-connect unix:@gfxrecon
 ```
 
-For the options themselves, the settings format, and the security posture, see
+For the options themselves, the settings format, which outputs stream and which
+do not, and the security posture, see
 [Remote Replay Control](./USAGE_desktop_Vulkan.md#remote-replay-control) in the
 desktop Vulkan documentation. The wire protocol is specified in
 [docs/remote_protocol.md](./docs/remote_protocol.md).

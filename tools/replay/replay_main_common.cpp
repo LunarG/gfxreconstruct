@@ -37,6 +37,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(replay)
@@ -94,6 +95,8 @@ RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
 
 void ShutdownRemoteChannel(util::RemoteChannel& channel, bool success)
 {
+    channel.LogSendQueueStats();
+
     // Unregister before notifying the controller that replay is complete, so nothing reaches it after "done".
     util::RemoteChannel::SetActiveChannel(nullptr);
     channel.SendDone(success);

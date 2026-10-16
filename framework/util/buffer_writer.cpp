@@ -23,7 +23,9 @@
 #include "buffer_writer.h"
 #include "platform.h"
 #include "logging.h"
+#include "output_file.h"
 #include <cstdint>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -34,45 +36,28 @@ size_t WriteBuffer(const std::string& filename, const void* data, size_t size, c
     assert(data);
     assert(size);
 
-    FILE*   file   = nullptr;
-    int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");
-
     GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
-    if ((result) || (file == nullptr))
-    {
-        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
-        return false;
-    }
-
-    bool   success;
-    size_t bytes_written;
+    std::vector<uint8_t> compressed_data;
     if (compressor != nullptr)
     {
-        std::vector<uint8_t> compressed_data;
-        const size_t         compressed_size =
+        const size_t compressed_size =
             compressor->Compress(size, static_cast<const uint8_t*>(data), &compressed_data, 0);
 
         if (compressed_size)
         {
-            success       = util::platform::FileWrite(compressed_data.data(), compressed_size, file);
-            bytes_written = compressed_size;
-        }
-        else
-        {
-            success       = util::platform::FileWrite(data, size, file);
-            bytes_written = size;
+            data = compressed_data.data();
+            size = compressed_size;
         }
     }
-    else
+
+    std::unique_ptr<util::OutputStream> stream = util::OpenOutputFile(filename, util::FileWriteMode::kBinary, size);
+    if (!stream->IsValid())
     {
-        success       = util::platform::FileWrite(data, size, file);
-        bytes_written = size;
+        return 0;
     }
 
-    util::platform::FileClose(file);
-
-    return success ? bytes_written : 0;
+    return stream->Write(data, size) ? size : 0;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

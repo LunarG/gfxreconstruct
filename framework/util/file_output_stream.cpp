@@ -30,11 +30,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_size, bool append) :
+FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_size, bool append, FileWriteMode mode) :
     file_(nullptr), own_file_(true), filename_(filename)
 {
-    const char* mode   = append ? "ab" : "wb";
-    int32_t     result = platform::FileOpen(&file_, filename.c_str(), mode);
+    const char* mode_string = (mode == FileWriteMode::kText) ? (append ? "a" : "w") : (append ? "ab" : "wb");
+    int32_t     result      = platform::FileOpen(&file_, filename.c_str(), mode_string);
 
     if (file_ != nullptr)
     {
@@ -46,7 +46,8 @@ FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_si
     }
     else
     {
-        GFXRECON_LOG_ERROR("fopen(%s, %s) failed (errno = %d: %s)", filename.c_str(), mode, result, strerror(result));
+        GFXRECON_LOG_ERROR(
+            "fopen(%s, %s) failed (errno = %d: %s)", filename.c_str(), mode_string, result, strerror(result));
     }
 }
 
