@@ -74,9 +74,9 @@ namespace cmd_field     = schema::vulkan::fields::CmdPipelineBarrier;
 namespace barrier_field = schema::vulkan::fields::VkBufferMemoryBarrier;
 
 // A command schema has exactly one return Field, and a structure schema has none.
-static_assert(schema::HasSchema<Command>);
+static_assert(schema::HasSchemaFields<Command>);
 static_assert(schema::HasCommandSchema<Command>);
-static_assert(schema::HasSchema<Barrier>);
+static_assert(schema::HasSchemaFields<Barrier>);
 static_assert(!schema::HasCommandSchema<Barrier>);
 
 // A void command still carries one Return Field, shaped VoidReturn, and its ReturnType is void.

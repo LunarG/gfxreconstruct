@@ -75,7 +75,7 @@ concept HasBitvalues = requires
 };
 
 template <typename ApiElement>
-concept HasSchema = requires
+concept HasSchemaFields = requires
 {
     typename Schema<ApiElement>::Fields;
     requires util::TypeListType<typename Schema<ApiElement>::Fields>;
@@ -83,9 +83,9 @@ concept HasSchema = requires
 
 // A union's Schema lists Alternatives, each a Field, of which a value holds one. Which one is the selector's to say:
 // the containing structure's Field names it as selector_field, and an alternative the registry marks carries the
-// selector values that choose it as selections. No field walk applies, so a union does not satisfy HasSchema.
+// selector values that choose it as selections. No field walk applies, so a union does not satisfy HasSchemaFields.
 template <typename ApiElement>
-concept HasUnionSchema = requires
+concept HasSchemaAlternatives = requires
 {
     typename Schema<ApiElement>::Alternatives;
     requires util::TypeListType<typename Schema<ApiElement>::Alternatives>;
@@ -99,13 +99,13 @@ inline constexpr auto kIsReturnField = []<typename Field>() {
     };
 };
 
-template <HasSchema ApiElement>
+template <HasSchemaFields ApiElement>
 using ReturnFields = decltype(util::TypeListKeep(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 // A command schema is invalid when the partition finds zero or more than one return Field. The same validation
 // distinguishes a command schema from a structure schema.
 template <typename ApiElement>
-concept HasCommandSchema = HasSchema<ApiElement> && requires
+concept HasCommandSchema = HasSchemaFields<ApiElement> && requires
 {
     typename util::TypeListSole<ReturnFields<ApiElement>>;
 };
@@ -127,7 +127,7 @@ concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
 
 // One field walk serves every operation family. The Action supplies one Apply overload set, and overload resolution
 // selects the implementation from the field's logical kind and shape.
-template <HasSchema ApiElement, typename Action, typename Storage>
+template <HasSchemaFields ApiElement, typename Action, typename Storage>
 void WalkFields(Action& action, Storage& storage)
 {
     util::TypeListForEach<typename Schema<ApiElement>::Fields>([&]<typename Field>() {

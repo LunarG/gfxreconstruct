@@ -1649,7 +1649,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for struct in self.schema_structs:
             element = 'schema::{}'.format(self.get_descriptor_path(struct))
-            write('static_assert(schema::HasSchema<{}>);'.format(element), file=self.outFile)
+            write('static_assert(schema::HasSchemaFields<{}>);'.format(element), file=self.outFile)
             write('static_assert(!schema::HasCommandSchema<{}>);'.format(element), file=self.outFile)
 
         self.newline()
@@ -1657,8 +1657,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for union in self.schema_unions:
             element = 'schema::{}'.format(self.get_descriptor_path(union))
-            write('static_assert(schema::HasUnionSchema<{}>);'.format(element), file=self.outFile)
-            write('static_assert(!schema::HasSchema<{}>);'.format(element), file=self.outFile)
+            write('static_assert(schema::HasSchemaAlternatives<{}>);'.format(element), file=self.outFile)
+            write('static_assert(!schema::HasSchemaFields<{}>);'.format(element), file=self.outFile)
 
         self.newline()
         write(
@@ -1884,11 +1884,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// the registry gives, so an external structure has a descriptor and no Schema of either kind, and every other', file=self.outFile)
         write('// structure and union row has one. Every other property is read back into C++ by a visit and cannot disagree.', file=self.outFile)
         write('#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchema<schema::vulkan::api_types::Name> && !schema::HasUnionSchema<schema::vulkan::api_types::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_types::Name> && !schema::HasSchemaAlternatives<schema::vulkan::api_types::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
         write('#define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasSchema<schema::vulkan::api_types::Name> || schema::HasUnionSchema<schema::vulkan::api_types::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasSchemaFields<schema::vulkan::api_types::Name> || schema::HasSchemaAlternatives<schema::vulkan::api_types::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
 

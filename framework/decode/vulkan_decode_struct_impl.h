@@ -67,7 +67,7 @@ template <typename Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
     static_assert(binding::HasApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
-    static_assert(schema::HasSchema<typename Wrapper::api_element>,
+    static_assert(schema::HasSchemaFields<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 
     GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

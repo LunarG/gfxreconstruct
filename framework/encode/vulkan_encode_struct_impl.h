@@ -50,7 +50,7 @@ void EncodeStruct(ParameterEncoder* encoder, const Struct& value)
 {
     static_assert(binding::HasDescriptor<Struct>, "A schema-driven structure must name its API type descriptor");
     using ApiElement = typename binding::DescriptorFor<Struct>::type;
-    static_assert(schema::HasSchema<ApiElement>, "A schema-driven structure's API element must have a schema");
+    static_assert(schema::HasSchemaFields<ApiElement>, "A schema-driven structure's API element must have a schema");
 
     EncodeStructAction action(encoder);
     schema::WalkFields<ApiElement>(action, value);
