@@ -91,7 +91,7 @@ class FillAction
 
         if constexpr (schema::StructKindField<Field>)
         {
-            if constexpr (schema::HasSchema<typename Field::api_type> && schema::Addressable<Storage, Field>)
+            if constexpr (schema::HasSchemaFields<typename Field::api_type> && schema::Addressable<Storage, Field>)
             {
                 Fill<typename Field::api_type>(context_, schema::GetRef(storage, field));
             }
@@ -209,7 +209,7 @@ class FillAction
     {
         if constexpr (schema::StructKindField<Field>)
         {
-            if constexpr (schema::HasSchema<typename Field::api_type>)
+            if constexpr (schema::HasSchemaFields<typename Field::api_type>)
             {
                 Fill<typename Field::api_type>(context_, element);
             }
