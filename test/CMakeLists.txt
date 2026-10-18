@@ -47,6 +47,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/debug-utils.cpp
         test_cases/idle-before-submit.cpp
         test_cases/isolate-render-passes.cpp
+        test_cases/free-split-command-buffers.cpp
         test_cases/serialize-compute-and-transfer.cpp
         test_cases/serialize-render-passes.cpp
         test_cases/serialize-queue-submissions.cpp

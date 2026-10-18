@@ -32,6 +32,7 @@
 #include <sparse_resources_app.h>
 #include <debug_utils_app.h>
 #include <isolate_render_passes_app.h>
+#include <free_split_command_buffers_app.h>
 #include <serialize_compute_and_transfer_app.h>
 #include <serialize_queue_submissions_app.h>
 #include <triangle_app.h>
@@ -71,6 +72,7 @@ static const char* kAppNames[] = {
     "debug-utils",
     "host-image-copy",
     "isolate-render-passes",
+    "free-split-command-buffers",
     "serialize-compute-and-transfer",
     "serialize-queue-submissions",
     "multisample-depth",
@@ -171,6 +173,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "isolate-render-passes")
     {
         app = std::make_unique<gfxrecon::test_app::isolate_render_passes::App>();
+    }
+    else if (app_name == "free-split-command-buffers")
+    {
+        app = std::make_unique<gfxrecon::test_app::free_split_command_buffers::App>();
     }
     else if (app_name == "serialize-compute-and-transfer")
     {
