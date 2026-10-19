@@ -545,16 +545,7 @@ def gfxrTestWindowsManual(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+                    cleanWorkSpace()
 
                     checkoutManual(projectRepo, projectBranch)
 
@@ -594,13 +585,7 @@ def gfxrTestWindowsManual(
                         skipPublishingChecks: true
                     )
                 } finally {
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                        }
-                    }
+                    cleanWorkSpace()
                 }
             }
         }
@@ -626,16 +611,7 @@ def gfxrTestLinuxManual(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    sh 'rm -rf vulkantest-results'
+                    cleanWorkSpace()
 
                     checkoutManual(projectRepo, projectBranch)
 
@@ -675,13 +651,7 @@ def gfxrTestLinuxManual(
                         skipPublishingChecks: true
                     )
                 } finally {
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                        }
-                    }
+                    cleanWorkSpace()
                 }
             }
         }
@@ -707,16 +677,7 @@ def gfxrTestAndroidManual(
                 try {
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
 
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                            throw e
-                        }
-                    }
-
-                    sh 'rm -rf vulkantest-results'
+                    cleanWorkSpace()
 
                     checkoutManual(projectRepo, projectBranch)
 
@@ -756,13 +717,7 @@ def gfxrTestAndroidManual(
                         skipPublishingChecks: true
                     )
                 } finally {
-                    retry(3) {
-                        try {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        } catch (Exception e) {
-                            sleep(time: 5)
-                        }
-                    }
+                    cleanWorkSpace()
                 }
             }
         }
