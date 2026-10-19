@@ -75,34 +75,6 @@ def checkoutManual(String projectRepo, String projectBranch) {
     }
 }
 
-def runGfxrScripts(
-    List<String> scripts,
-    String buildMode,
-    String resultsDir,
-    String testSuite = '',
-    String projectRepo = '',
-    String projectCommit = ''
-) {
-    withEnv([
-        "PROJECT_REPO=${projectRepo}",
-        "PROJECT_COMMIT=${projectCommit}",
-        "TEST_REPO=git@github.com:LunarG/VulkanTests",
-        "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-        "TEST_SUITE=${testSuite}",
-        "BITS=64",
-        "BUILD_MODE=${buildMode}",
-        "RESULTS_DIR=${resultsDir}"
-    ]) {
-        scripts.each { script ->
-            if (isUnix()) {
-                sh(script: script)
-            } else {
-                bat(script: script)
-            }
-        }
-    }
-}
-
 def gfxrBuildWindows(
     String label,
     def branches,
@@ -129,15 +101,15 @@ def gfxrBuildWindows(
                         // to the outer try/catch (which would abort 'parallel builds'
                         // before the Jenkinsfile ever builds the 'tests' map).
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            runGfxrScripts(
-                                [
-                                    'git submodule update --init --recursive --depth 1',
-                                    'git describe --tags --always',
-                                    'ci/buildGfxr.bat'
-                                ],
-                                buildMode,
-                                "vulkantest-results/Windows-Build-Log-${buildMode}"
-                            )
+                            withEnv([
+                                "BITS=64",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=vulkantest-results/Windows-Build-Log-${buildMode}"
+                            ]) {
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/buildGfxr.bat')
+                            }
                             def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
                             stash name: "gfxr-windows-${buildMode}",
                                 allowEmpty: false,
@@ -200,16 +172,20 @@ def gfxrTestWindows(
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         unstash "gfxr-windows-${buildMode}"
 
-                        runGfxrScripts(
-                            [
-                                'ci/cloneTests.bat',
-                                'ci/cloneSuites.bat',
-                                'ci/runTest.bat'
-                            ],
-                            buildMode,
-                            "vulkantest-results/${name}",
-                            testSuite
-                        )
+                        withEnv([
+                            "PROJECT_REPO=",
+                            "PROJECT_COMMIT=",
+                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=64",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=vulkantest-results/${name}"
+                        ]) {
+                            bat(script: 'ci/cloneTests.bat')
+                            bat(script: 'ci/cloneSuites.bat')
+                            bat(script: 'ci/runTest.bat')
+                        }
                     }
                     // Nested the same way as the unstash above: when the upstream build
                     // failed, this node never produced python-venv.txt or vulkantest-results,
@@ -274,15 +250,15 @@ def gfxrBuildLinux(
                         // to the outer try/catch (which would abort 'parallel builds'
                         // before the Jenkinsfile ever builds the 'tests' map).
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            runGfxrScripts(
-                                [
-                                    'git submodule update --init --recursive --depth 1',
-                                    'git describe --tags --always',
-                                    'sh ci/buildGfxr.sh'
-                                ],
-                                buildMode,
-                                "vulkantest-results/Linux-Build-Log-${buildMode}"
-                            )
+                            withEnv([
+                                "BITS=64",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=vulkantest-results/Linux-Build-Log-${buildMode}"
+                            ]) {
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'sh ci/buildGfxr.sh')
+                            }
                             def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
                             stash name: "gfxr-linux-${buildMode}",
                                 allowEmpty: false,
@@ -336,18 +312,20 @@ def gfxrTestLinux(
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         unstash "gfxr-linux-${buildMode}"
 
-                        runGfxrScripts(
-                            [
-                                'ci/cloneTests.sh',
-                                'ci/cloneSuites.sh',
-                                'ci/runTest.sh'
-                            ],
-                            buildMode,
-                            "vulkantest-results/${name}",
-                            testSuite,
-                            scm.userRemoteConfigs.first().url,
-                            projectCommit
-                        )
+                        withEnv([
+                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                            "PROJECT_COMMIT=${projectCommit}",
+                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=64",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=vulkantest-results/${name}"
+                        ]) {
+                            sh(script: 'ci/cloneTests.sh')
+                            sh(script: 'ci/cloneSuites.sh')
+                            sh(script: 'ci/runTest.sh')
+                        }
                     }
                     // Nested the same way as the unstash above: when the upstream build
                     // failed, this node never produced python-venv.txt or vulkantest-results,
@@ -410,15 +388,15 @@ def gfxrBuildAndroid(
                         // to the outer try/catch (which would abort 'parallel builds'
                         // before the Jenkinsfile ever builds the 'tests' map).
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            runGfxrScripts(
-                                [
-                                    'git submodule update --init --recursive --depth 1',
-                                    'git describe --tags --always',
-                                    'sh ci/buildGfxrAndroid.sh'
-                                ],
-                                buildMode,
-                                "vulkantest-results/Android-Build-Log-${buildMode}"
-                            )
+                            withEnv([
+                                "BITS=64",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=vulkantest-results/Android-Build-Log-${buildMode}"
+                            ]) {
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'sh ci/buildGfxrAndroid.sh')
+                            }
                             def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
                             stash name: "gfxr-android-${buildMode}",
                                 allowEmpty: false,
@@ -472,18 +450,20 @@ def gfxrTestAndroid(
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         unstash "gfxr-android-${buildMode}"
 
-                        runGfxrScripts(
-                            [
-                                'ci/cloneTests.sh',
-                                'ci/cloneSuites.sh',
-                                'ci/runTestAndroid.sh'
-                            ],
-                            buildMode,
-                            "vulkantest-results/${name}",
-                            testSuite,
-                            scm.userRemoteConfigs.first().url,
-                            projectCommit
-                        )
+                        withEnv([
+                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                            "PROJECT_COMMIT=${projectCommit}",
+                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=64",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=vulkantest-results/${name}"
+                        ]) {
+                            sh(script: 'ci/cloneTests.sh')
+                            sh(script: 'ci/cloneSuites.sh')
+                            sh(script: 'ci/runTestAndroid.sh')
+                        }
                     }
                     // Nested the same way as the unstash above: when the upstream build
                     // failed, this node never produced python-venv.txt or vulkantest-results,
