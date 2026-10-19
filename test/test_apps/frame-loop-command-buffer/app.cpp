@@ -310,6 +310,10 @@ bool App::frame(const int frame_num)
 
     VkCommandBuffer command_buffer = command_buffers_[current_in_flight_frame_];
     {
+        // Do a reset before anything else
+        result = init.disp.resetCommandBuffer(command_buffer, 0);
+        VERIFY_VK_RESULT("failed to reset command buffer", result);
+
         // First recording
         VkCommandBufferBeginInfo begin_info = {};
         begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
