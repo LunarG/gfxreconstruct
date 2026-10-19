@@ -165,13 +165,9 @@ def gfxrTestWindows(
                     def scmVars = checkoutScm(branches)
                     def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
-                    // unstash moved inside catchError: a failed Windows build mode never
-                    // stashes its artifacts (see gfxrBuildWindows), so this can legitimately
-                    // throw here. Let it share the same containment as the rest of the run
-                    // instead of escaping as an uncaught exception.
+                    // A build mode with no stash (see gfxrBuildWindows: the build failed or no
+                    // build machine was online) is built on this node instead.
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        unstash "gfxr-windows-${buildMode}"
-
                         withEnv([
                             "PROJECT_REPO=",
                             "PROJECT_COMMIT=",
@@ -183,6 +179,16 @@ def gfxrTestWindows(
                             "RESULTS_DIR=vulkantest-results/${name}"
                         ]) {
                             bat(script: 'ci/cloneTests.bat')
+
+                            try {
+                                unstash "gfxr-windows-${buildMode}"
+                            } catch (hudson.AbortException e) {
+                                echo "No stash for ${buildMode} (${e.message}); building on this node"
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/buildGfxr.bat')
+                            }
+
                             bat(script: 'ci/cloneSuites.bat')
                             bat(script: 'ci/runTest.bat')
                         }
@@ -305,13 +311,9 @@ def gfxrTestLinux(
                     def scmVars = checkoutScm(branches)
                     def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
-                    // unstash moved inside catchError: a failed Linux build mode never
-                    // stashes its artifacts (see gfxrBuildLinux), so this can legitimately
-                    // throw here. Let it share the same containment as the rest of the run
-                    // instead of escaping as an uncaught exception.
+                    // A build mode with no stash (see gfxrBuildLinux: the build failed or no
+                    // build machine was online) is built on this node instead.
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        unstash "gfxr-linux-${buildMode}"
-
                         withEnv([
                             "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
                             "PROJECT_COMMIT=${projectCommit}",
@@ -323,6 +325,16 @@ def gfxrTestLinux(
                             "RESULTS_DIR=vulkantest-results/${name}"
                         ]) {
                             sh(script: 'ci/cloneTests.sh')
+
+                            try {
+                                unstash "gfxr-linux-${buildMode}"
+                            } catch (hudson.AbortException e) {
+                                echo "No stash for ${buildMode} (${e.message}); building on this node"
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'sh ci/buildGfxr.sh')
+                            }
+
                             sh(script: 'ci/cloneSuites.sh')
                             sh(script: 'ci/runTest.sh')
                         }
@@ -443,13 +455,9 @@ def gfxrTestAndroid(
                     def scmVars = checkoutScm(branches)
                     def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
-                    // unstash moved inside catchError: a failed Android build mode never
-                    // stashes its artifacts (see gfxrBuildAndroid), so this can legitimately
-                    // throw here. Let it share the same containment as the rest of the run
-                    // instead of escaping as an uncaught exception.
+                    // A build mode with no stash (see gfxrBuildAndroid: the build failed or no
+                    // build machine was online) is built on this node instead.
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        unstash "gfxr-android-${buildMode}"
-
                         withEnv([
                             "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
                             "PROJECT_COMMIT=${projectCommit}",
@@ -461,6 +469,16 @@ def gfxrTestAndroid(
                             "RESULTS_DIR=vulkantest-results/${name}"
                         ]) {
                             sh(script: 'ci/cloneTests.sh')
+
+                            try {
+                                unstash "gfxr-android-${buildMode}"
+                            } catch (hudson.AbortException e) {
+                                echo "No stash for ${buildMode} (${e.message}); building on this node"
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'sh ci/buildGfxrAndroid.sh')
+                            }
+
                             sh(script: 'ci/cloneSuites.sh')
                             sh(script: 'ci/runTestAndroid.sh')
                         }

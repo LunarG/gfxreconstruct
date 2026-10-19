@@ -87,6 +87,12 @@ pipeline {
                     def suite = "commit-suite.json"
                     def modes = [runJob.ReleaseMode, runJob.DebugMode]
 
+                    // If no build machine is online for a platform, queueing the build would
+                    // wait forever.  Skip it; each test node then builds its own copy when
+                    // it finds no stash (see runJob.groovy).
+                    def linuxBuildOnNode = nodesByLabel(label: runJob.LinuxBuildMachineLabel).isEmpty()
+                    def windowsBuildOnNode = nodesByLabel(label: runJob.WindowsBuildMachineLabel).isEmpty()
+
                     def linuxTests = [
                         'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel', runJob.ReleaseMode, runJob.LinuxMesaLabel, suite, scm.branches),
                         'Linux Mesa Dbg': runJob.gfxrTestLinux('Linux Mesa Dbg', runJob.DebugMode, runJob.LinuxMesaLabel, suite, scm.branches),
@@ -119,8 +125,8 @@ pipeline {
                     // ]
 
                     def platforms = [
-                        'Linux': [build: runJob.gfxrBuildLinux(runJob.LinuxBuildMachineLabel, scm.branches, modes), tests: linuxTests],
-                        'Windows': [build: runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, modes), tests: windowsTests],
+                        'Linux': [build: runJob.gfxrBuildLinux(runJob.LinuxBuildMachineLabel, scm.branches, modes), tests: linuxTests, buildOnNode: linuxBuildOnNode],
+                        'Windows': [build: runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, modes), tests: windowsTests, buildOnNode: windowsBuildOnNode],
                         // 'Android': [build: runJob.gfxrBuildAndroid(runJob.AndroidBuildMachineLabel, scm.branches, modes), tests: androidTests],
                         // 'Mac': [build: runJob.gfxrBuildMac(), tests: macTests],
                     ]
@@ -129,7 +135,11 @@ pipeline {
                     platforms.each { name, p ->
                         pipelines[name] = {
                             stage("${name} Build") {
-                                p.build()
+                                if (p.buildOnNode) {
+                                    echo "No online ${name} build machine; test nodes will build their own copy"
+                                } else {
+                                    p.build()
+                                }
                             }
                             stage("${name} Tests") {
                                 if (p.tests) {
