@@ -58,7 +58,7 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(VulkanBaseGeneratorOptions
             'decode/vulkan_pnext_node.h',
             'format/platform_types.h',
             'decode/custom_vulkan_struct_handle_mappers.h',
-            'generated/generated_vulkan_struct_decoders_forward.h',
+            'decode/vulkan_decode_struct.h',
             'util/defines.h',
         ))
         self.begin_end_file_data.namespaces.extend((

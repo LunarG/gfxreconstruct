@@ -27,7 +27,7 @@
 #include "format/format.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_util.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/vulkan_replay_dump_resources_transfer.h"
 #include "util/logging.h"

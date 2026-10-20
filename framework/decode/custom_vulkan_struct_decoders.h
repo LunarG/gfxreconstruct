@@ -33,7 +33,7 @@
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_pnext_node.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 
 #include "vulkan/vulkan.h"
 

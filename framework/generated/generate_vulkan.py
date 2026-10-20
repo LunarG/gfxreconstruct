@@ -40,11 +40,9 @@ VK_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Header
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
     'generated_vulkan_struct_encoders.h',
-    'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_handle_wrappers.h',
     'generated_vulkan_struct_handle_wrappers.cpp',
     'generated_vulkan_struct_deep_copy.cpp',
-    'generated_vulkan_struct_deep_copy_stype.cpp',
     'generated_vulkan_api_call_encoders.h',
     'generated_vulkan_api_call_encoders.cpp',
     'generated_vulkan_command_buffer_util.h',
@@ -53,10 +51,7 @@ generate_targets = [
     'generated_vulkan_dispatch_table.h',
     'generated_vulkan_layer_func_table.h',
     'generated_vulkan_recapture_func_table.h',
-    'generated_vulkan_pnext_struct_encoder.cpp',
-    'generated_vulkan_pnext_struct_decoder.cpp',
     'generated_vulkan_struct_decoders.h',
-    'generated_vulkan_struct_decoders.cpp',
     'generated_vulkan_struct_decoders_forward.h',
     'generated_vulkan_decoder.h',
     'generated_vulkan_decoder.cpp',
@@ -75,7 +70,6 @@ generate_targets = [
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp',
     'generated_vulkan_feature_util.cpp',
-    'generated_vulkan_enum_to_string.h',
     'generated_vulkan_enum_to_string.cpp',
     'generated_vulkan_object_info_table_base2.h',
     'generated_vulkan_state_table.h',
@@ -95,7 +89,15 @@ generate_targets = [
     'generated_vulkan_cpp_structs.cpp',
     'generated_vulkan_cpp_consumer_extension.h',
     'generated_vulkan_cpp_consumer_extension.cpp',
-    'generated_vulkan_stype_util.h',
+    'generated_vulkan_schema_types.h',
+    'generated_vulkan_schema_fields.h',
+    'generated_vulkan_schema.h',
+    'generated_vulkan_inventory.h',
+    'generated_vulkan_schema_native_struct_members.h',
+    'generated_vulkan_schema_decoded_struct_members.h',
+    'generated_vulkan_schema_decoded_command_members.h',
+    'generated_vulkan_schema_checks.cpp',
+    'generated_vulkan_schema_enumerants.h',
 ]
 
 

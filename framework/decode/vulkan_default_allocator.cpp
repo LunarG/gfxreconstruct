@@ -26,11 +26,11 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/vulkan_enum_to_string.h"
 
 #include <cassert>
 #include <vulkan/vulkan_core.h>

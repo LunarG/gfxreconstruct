@@ -23,7 +23,7 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "decode/decoder_util.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

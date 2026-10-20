@@ -33,7 +33,7 @@
 #include "util/logging.h"
 #include "util/to_string.h"
 #include "custom_vulkan_array_size_2d.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 
 #include "nlohmann/json.hpp"
 
