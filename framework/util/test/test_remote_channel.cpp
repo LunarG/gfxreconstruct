@@ -23,10 +23,13 @@
 // Loopback tests for RemoteChannel. The test plays the controller with a plain socket and hand-written framing, so the
 // wire format is checked against the specification in docs/remote_protocol.md rather than against itself.
 
+#include <catch2/catch.hpp>
+
 #include "util/remote_channel.h"
 
+#include "util/output_file.h"
+
 #include "nlohmann/json.hpp"
-#include <catch2/catch.hpp>
 
 #if defined(_WIN32)
 #include <winsock2.h>
@@ -42,6 +45,7 @@
 #include <cstring>
 #include <future>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -264,6 +268,17 @@ json SettingsMessage()
     return json{ { "type", "settings" }, { "options", { { "capture_file", "capture.gfxr" } } } };
 }
 
+// Clears the process-wide channel even when a failed REQUIRE unwinds the test, so later tests never see a dead one.
+class ActiveChannelScope
+{
+  public:
+    explicit ActiveChannelScope(util::RemoteChannel& channel) { util::RemoteChannel::SetActiveChannel(&channel); }
+    ~ActiveChannelScope() { util::RemoteChannel::SetActiveChannel(nullptr); }
+
+    ActiveChannelScope(const ActiveChannelScope&)            = delete;
+    ActiveChannelScope& operator=(const ActiveChannelScope&) = delete;
+};
+
 } // namespace
 
 TEST_CASE("RemoteChannel hello announces the protocol version", "[remote_channel]")
@@ -330,6 +345,72 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
         CHECK_FALSE(runner.Result());
     }
+}
+
+TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    // Comfortably larger than a single socket read, so the length prefix has to carry the reassembly.
+    std::vector<uint8_t> payload(512 * 1024);
+    for (size_t i = 0; i < payload.size(); ++i)
+    {
+        payload[i] = static_cast<uint8_t>((i * 31) & 0xff);
+    }
+
+    channel.SendFile("screenshot.png", payload.data(), payload.size());
+
+    const json header = controller.RecvJson();
+    CHECK(header.at("type") == "file");
+    CHECK(header.at("name") == "screenshot.png");
+    CHECK(header.at("size") == payload.size());
+
+    std::vector<uint8_t> received;
+    REQUIRE(controller.RecvFrame(received));
+    CHECK(received == payload);
+}
+
+TEST_CASE("OpenOutputFile sends the whole file to the active channel when the stream is destroyed", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    {
+        ActiveChannelScope active(channel);
+
+        std::unique_ptr<util::OutputStream> stream = util::OpenOutputFile("results.json", util::FileWriteMode::kText);
+        REQUIRE(stream->IsValid());
+
+        util::Write(*stream, "[\n");
+        stream->Flush(); // The screenshot JSON flushes after every block; that must not send a partial file.
+        util::Write(*stream, "]");
+    }
+
+    const std::string expected = "[\n]";
+
+    const json header = controller.RecvJson();
+    CHECK(header.at("type") == "file");
+    CHECK(header.at("name") == "results.json");
+    CHECK(header.at("size") == expected.size());
+
+    std::vector<uint8_t> received;
+    REQUIRE(controller.RecvFrame(received));
+    CHECK(std::string(received.begin(), received.end()) == expected);
 }
 
 TEST_CASE("RemoteChannel reports completion", "[remote_channel]")
