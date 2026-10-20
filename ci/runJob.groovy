@@ -219,17 +219,18 @@ def gfxrTestWindows(
     }
 }
 
-def gfxrBuildMac(){}
-
+// Also used for macOS: the Linux scripts work unchanged there.  `platform`
+// only keeps stash names, stage names and result directories distinct.
 def gfxrBuildLinux(
     String label,
     def branches,
-    List buildModes
+    List buildModes,
+    String platform = 'Linux'
 ) {
     return {
         node(label) {
             try {
-                stage('Building GFXR for Linux') {
+                stage("Building GFXR for ${platform}") {
 
                     echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
@@ -259,17 +260,18 @@ def gfxrBuildLinux(
                             withEnv([
                                 "BITS=64",
                                 "BUILD_MODE=${buildMode}",
-                                "RESULTS_DIR=vulkantest-results/Linux-Build-Log-${buildMode}"
+                                "RESULTS_DIR=vulkantest-results/${platform}-Build-Log-${buildMode}"
                             ]) {
                                 sh(script: 'git submodule update --init --recursive --depth 1')
                                 sh(script: 'git describe --tags --always')
                                 sh(script: 'sh ci/buildGfxr.sh')
                             }
                             def buildDir = buildMode == 'Debug' ? 'dbuild' : 'build'
-                            stash name: "gfxr-linux-${buildMode}",
+                            stash name: "gfxr-${platform.toLowerCase()}-${buildMode}",
                                 allowEmpty: false,
                                 includes: [
                                 "${buildDir}/layer/libVkLayer_gfxreconstruct.so",
+                                "${buildDir}/layer/libVkLayer_gfxreconstruct.dylib", // Mac
                                 "${buildDir}/layer/VkLayer_gfxreconstruct.json",
                                 "${buildDir}/tools/compress/gfxrecon-compress",
                                 "${buildDir}/tools/convert/gfxrecon-convert",
@@ -293,12 +295,14 @@ def gfxrBuildLinux(
     }
 }
 
+// Also used for macOS; see gfxrBuildLinux.
 def gfxrTestLinux(
     String name,
     String buildMode,
     String label,
     String testSuite,
-    def branches
+    def branches,
+    String platform = 'Linux'
 ) {
     return {
         stage(name) {
@@ -327,7 +331,7 @@ def gfxrTestLinux(
                             sh(script: 'ci/cloneTests.sh')
 
                             try {
-                                unstash "gfxr-linux-${buildMode}"
+                                unstash "gfxr-${platform.toLowerCase()}-${buildMode}"
                             } catch (hudson.AbortException e) {
                                 echo "No stash for ${buildMode} (${e.message}); building on this node"
                                 sh(script: 'git submodule update --init --recursive --depth 1')
@@ -748,7 +752,6 @@ return [
 
     gfxrBuildWindows: this.&gfxrBuildWindows,
     gfxrBuildLinux: this.&gfxrBuildLinux,
-    gfxrBuildMac: this.&gfxrBuildMac,
     gfxrBuildAndroid: this.&gfxrBuildAndroid,
 
     gfxrTestWindows: this.&gfxrTestWindows,

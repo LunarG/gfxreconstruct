@@ -92,6 +92,7 @@ pipeline {
                     // it finds no stash (see runJob.groovy).
                     def linuxBuildOnNode = nodesByLabel(label: runJob.LinuxBuildMachineLabel).isEmpty()
                     def windowsBuildOnNode = nodesByLabel(label: runJob.WindowsBuildMachineLabel).isEmpty()
+                    def macBuildOnNode = nodesByLabel(label: runJob.MacBuildMachineLabel).isEmpty()
 
                     def linuxTests = [
                         'Linux Mesa Rel': runJob.gfxrTestLinux('Linux Mesa Rel', runJob.ReleaseMode, runJob.LinuxMesaLabel, suite, scm.branches),
@@ -120,15 +121,17 @@ pipeline {
                     // def androidTests = [
                     //     'Android Rel': runJob.gfxrTestAndroid('Android Rel', runJob.ReleaseMode, runJob.AndroidLabel, suite, scm.branches),
                     // ]
-                    // def macTests = [
-                    //     'Mac': runJob.gfxrTestMac('Mac', runJob.ReleaseMode, runJob.MacLabel, suite, scm.branches),
-                    // ]
+
+                    // macOS reuses the Linux build/test helpers and scripts.
+                    def macTests = [
+                        'Mac Rel': runJob.gfxrTestLinux('Mac Rel', runJob.ReleaseMode, runJob.MacLabel, suite, scm.branches, 'Mac'),
+                    ]
 
                     def platforms = [
                         'Linux': [build: runJob.gfxrBuildLinux(runJob.LinuxBuildMachineLabel, scm.branches, modes), tests: linuxTests, buildOnNode: linuxBuildOnNode],
                         'Windows': [build: runJob.gfxrBuildWindows(runJob.WindowsBuildMachineLabel, scm.branches, modes), tests: windowsTests, buildOnNode: windowsBuildOnNode],
                         // 'Android': [build: runJob.gfxrBuildAndroid(runJob.AndroidBuildMachineLabel, scm.branches, modes), tests: androidTests],
-                        // 'Mac': [build: runJob.gfxrBuildMac(), tests: macTests],
+                        'Mac': [build: runJob.gfxrBuildLinux(runJob.MacBuildMachineLabel, scm.branches, modes, 'Mac'), tests: macTests, buildOnNode: macBuildOnNode],
                     ]
 
                     def pipelines = [:]
