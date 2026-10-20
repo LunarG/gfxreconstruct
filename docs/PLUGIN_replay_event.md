@@ -109,7 +109,7 @@ The v1 event set and emission points are fixed as follows:
 | `FrameEnd` | Explicitly when replay reaches the frame boundary according to replay frame-boundary semantics | If replay never reaches the boundary for that frame | `timestamp_ns`, `frame_index`, `first_submit_index`, `last_submit_index` |
 | `StateSetupBegin` | Immediately when state setup begins | If not replaying a trimmed capture | No fields |
 | `StateSetupEnd` | Immediately when state setup ends | If not replaying a trimmed capture | No fields |
-| `WaitBegin` | Immediately before replay sleeps for `--wait-before-first-submit` or `--wait-before-frame` | If neither option is set, or the requested delay has already elapsed | `timestamp_ns`, `frame_index`, `requested_duration_ms` |
+| `WaitBegin` | Immediately before replay sleeps for a requested delay | If no waits were ever requested | `timestamp_ns`, `frame_index`, `requested_duration_ms` |
 | `WaitEnd` | Immediately after that sleep returns | If the matching `WaitBegin` was not emitted | `timestamp_ns`, `frame_index` |
 
 For v1, every attempted replay submit emits `QueueSubmitBegin` followed by exactly one `QueueSubmitEnd`. The completion event reports whether replay stopped at submit return or at queue-wait-idle completion point, and it carries the associated `VkResult`.
