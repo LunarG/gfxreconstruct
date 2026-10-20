@@ -1085,6 +1085,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
         }
     }
 
+    if (frame_loop_info_.IsFinalIteration())
+    {
+        RemovePoolDanglingCreateDescriptors(args.descriptorPool);
+    }
+
     VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, args);
 }
 
