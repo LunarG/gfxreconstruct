@@ -136,7 +136,6 @@ typedef struct GfxrReplayWaitBeginEvent
 {
     GfxrReplayEventHeader header;
     uint32_t              requested_duration_ms;
-    uint32_t              reserved;
 } GfxrReplayWaitBeginEvent;
 
 static_assert(sizeof(GfxrReplayWaitBeginEvent) == 40);
