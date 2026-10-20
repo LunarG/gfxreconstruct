@@ -33,8 +33,12 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
     GfxrReplayEventHeader         last_event_header     = {};
     GfxrReplayQueueSubmitEndEvent last_submit_end_event = {};
     GfxrReplayFrameEndEvent       last_frame_end_event  = {};
+    GfxrReplayWaitBeginEvent      last_wait_begin_event = {};
+    GfxrReplayWaitEndEvent        last_wait_end_event   = {};
     uint32_t                      submit_begin_count    = 0;
     uint32_t                      submit_end_count      = 0;
+    uint32_t                      wait_begin_count      = 0;
+    uint32_t                      wait_end_count        = 0;
 
   protected:
     void EmitStateSetupBegin(const GfxrReplayStateSetupBeginEvent& event) override
@@ -94,7 +98,9 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
         REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_WAIT_BEGIN);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayWaitBeginEvent));
-        last_event_header = event.header;
+        last_event_header     = event.header;
+        last_wait_begin_event = event;
+        ++wait_begin_count;
     }
 
     void EmitWaitEnd(const GfxrReplayWaitEndEvent& event) override
@@ -102,7 +108,9 @@ class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
         REQUIRE(event.header.abi_version == gfxrecon::plugin::GetEventAbiVersion(event.header.type));
         REQUIRE(event.header.type == GFXR_REPLAY_EVENT_WAIT_END);
         REQUIRE(event.header.struct_size == sizeof(GfxrReplayWaitEndEvent));
-        last_event_header = event.header;
+        last_event_header   = event.header;
+        last_wait_end_event = event;
+        ++wait_end_count;
     }
 };
 
@@ -444,4 +452,39 @@ TEST_CASE("ReplayEventSink - submits outside a frame are not emitted", "[plugin]
     REQUIRE(event_sink.submit_begin_count == 1);
     REQUIRE(event_sink.last_frame_end_event.first_submit_index == 0);
     REQUIRE(event_sink.last_frame_end_event.last_submit_index == 0);
+}
+
+TEST_CASE("ReplayEventSink - wait markers", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    TestReplayEventSink event_sink;
+
+    // Waits before any frames
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    event_sink.WaitBegin(200);
+    REQUIRE(event_sink.last_event_header.type == GFXR_REPLAY_EVENT_WAIT_BEGIN);
+    REQUIRE(event_sink.last_wait_begin_event.requested_duration_ms == 200);
+    event_sink.WaitEnd();
+    REQUIRE(event_sink.last_event_header.type == GFXR_REPLAY_EVENT_WAIT_END);
+    REQUIRE(event_sink.last_wait_end_event.header.timestamp_ns >= event_sink.last_wait_begin_event.header.timestamp_ns);
+    REQUIRE(event_sink.wait_begin_count == 1);
+    REQUIRE(event_sink.wait_end_count == 1);
+
+    // Waits at start of frames
+    event_sink.FrameBegin(3);
+    event_sink.WaitBegin(20);
+    REQUIRE(event_sink.last_wait_begin_event.header.frame_index == 3);
+    REQUIRE(event_sink.last_wait_begin_event.requested_duration_ms == 20);
+    event_sink.WaitEnd();
+    REQUIRE(event_sink.last_event_header.type == GFXR_REPLAY_EVENT_WAIT_END);
+    REQUIRE(event_sink.last_wait_end_event.header.frame_index == 3);
+    REQUIRE(event_sink.wait_begin_count == 2);
+    REQUIRE(event_sink.wait_end_count == 2);
+    REQUIRE(event_sink.IsFrameActive());
+
+    auto plugin = LoadPlugin({ SAMPLE_PLUGIN_PATH });
+    REQUIRE(plugin != nullptr);
+    plugin->WaitBegin(20);
+    plugin->WaitEnd();
 }
