@@ -103,6 +103,7 @@ struct Paths
     std::filesystem::path app_json_path;
     std::filesystem::path known_good_json_path;
 
+    std::filesystem::path produced_capture_path;
     std::filesystem::path capture_trimming_path{ base_path };
     std::filesystem::path known_good_trimming_path{ base_path };
     std::filesystem::path app_trimming_json_path;
@@ -196,6 +197,11 @@ struct Paths
         if (trimming_frames != nullptr || trigger_trimming)
         {
             trimming_paths(test_name, trimming_frames, trigger_trimming);
+            produced_capture_path = capture_trimming_path;
+        }
+        else
+        {
+            produced_capture_path = capture_path;
         }
     }
 };
@@ -365,35 +371,49 @@ void verify_gfxr(const char* test_name, const char* trimming_frames, bool trigge
     }
 }
 
-static void run_capture_app(EnvironmentVariables& env_vars, const Paths& paths, const char* test_name)
+static void
+run_capture_app(EnvironmentVariables& env_vars, const Paths& paths, const char* test_name, const char* trimming_frames)
 {
     bool working_directory_exists = std::filesystem::exists(paths.working_directory);
     ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
     // Remove stale captures so a failure to produce a capture file assume the stale capture was the one produced.
     std::error_code remove_error;
-    std::filesystem::remove(paths.capture_path, remove_error);
-    ASSERT_FALSE(remove_error) << "could not remove stale capture file: " << paths.capture_path << " - "
+    std::filesystem::remove(paths.produced_capture_path, remove_error);
+    ASSERT_FALSE(remove_error) << "could not remove stale capture file: " << paths.produced_capture_path << " - "
                                << remove_error.message();
 
     // Run the app with capture enabled to produce the gfxr to replay.
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    if (trimming_frames != nullptr)
+    {
+        env_vars.SetEnv("GFXRECON_CAPTURE_FRAMES", trimming_frames);
+    }
+
     auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+
+    if (trimming_frames != nullptr)
+    {
+        // Unset the range right away: a replay that ran with it still set would trim its own recapture too.
+        env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
+    }
+
     ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
 
-    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+    ASSERT_TRUE(std::filesystem::exists(paths.produced_capture_path))
+        << "capture file was not produced: " << paths.produced_capture_path;
 }
 
 static void run_replay(const Paths& paths, const std::vector<std::string>& extra_replay_args)
 {
     std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
     replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
-    replay_args.push_back(paths.capture_path.string());
+    replay_args.push_back(paths.produced_capture_path.string());
 
     auto result = run_command(paths.base_path, paths.replay_path, replay_args);
-    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
-                         << " in path " << paths.base_path;
+    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture "
+                         << paths.produced_capture_path << " in path " << paths.base_path;
 }
 
 void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
@@ -401,7 +421,7 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     EnvironmentVariables env_vars;
     Paths                paths{ test_name, nullptr, false };
 
-    ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name));
+    ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name, nullptr));
 
     // The gfxreconstruct capture layer is still enabled in the environment, so point GFXRECON_CAPTURE_FILE at a
     // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
@@ -413,14 +433,55 @@ void capture_and_replay(const char* test_name, std::vector<std::string> extra_re
     ASSERT_NO_FATAL_FAILURE(run_replay(paths, extra_replay_args));
 }
 
-static void count_calls_in_json(const std::filesystem::path&     json_path,
-                                const std::vector<std::string>&  function_names,
-                                std::map<std::string, uint32_t>& counts)
+static void read_blocks_from_json(const std::filesystem::path& json_path, std::vector<ConvertedBlock>& blocks)
 {
     std::ifstream json_file{ json_path };
     ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
 
     auto json = nlohmann::json::parse(json_file);
+
+    blocks.clear();
+    blocks.reserve(json.size());
+
+    for (const auto& block : json)
+    {
+        ConvertedBlock converted;
+
+        auto function = block.find(gfxrecon::format::kNameFunction);
+        if (function != block.end())
+        {
+            auto name = function->find(gfxrecon::format::kNameName);
+            if (name != function->end() && name->is_string())
+            {
+                converted.function = name->get<std::string>();
+            }
+        }
+
+        for (const char* marker : { gfxrecon::format::kNameState, gfxrecon::format::kNameFrame })
+        {
+            auto entry = block.find(marker);
+            if (entry != block.end())
+            {
+                auto marker_type = entry->find("marker_type");
+                if (marker_type != entry->end() && marker_type->is_string())
+                {
+                    converted.marker      = marker;
+                    converted.marker_type = marker_type->get<std::string>();
+                    break;
+                }
+            }
+        }
+
+        blocks.push_back(std::move(converted));
+    }
+}
+
+static void count_calls_in_json(const std::filesystem::path&     json_path,
+                                const std::vector<std::string>&  function_names,
+                                std::map<std::string, uint32_t>& counts)
+{
+    std::vector<ConvertedBlock> blocks;
+    ASSERT_NO_FATAL_FAILURE(read_blocks_from_json(json_path, blocks));
 
     counts.clear();
     for (const auto& function_name : function_names)
@@ -428,21 +489,9 @@ static void count_calls_in_json(const std::filesystem::path&     json_path,
         counts[function_name] = 0;
     }
 
-    for (const auto& block : json)
+    for (const auto& block : blocks)
     {
-        auto function = block.find(gfxrecon::format::kNameFunction);
-        if (function == block.end())
-        {
-            continue;
-        }
-
-        auto name = function->find(gfxrecon::format::kNameName);
-        if (name == function->end() || !name->is_string())
-        {
-            continue;
-        }
-
-        auto entry = counts.find(name->get<std::string>());
+        auto entry = counts.find(block.function);
         if (entry != counts.end())
         {
             ++entry->second;
@@ -450,47 +499,62 @@ static void count_calls_in_json(const std::filesystem::path&     json_path,
     }
 }
 
-void count_calls_in_capture(const char*                      test_name,
-                            const std::vector<std::string>&  function_names,
-                            std::map<std::string, uint32_t>& counts)
+static void convert_produced_capture(const Paths& paths, std::filesystem::path& capture_json_path)
 {
-    Paths paths{ test_name, nullptr, false };
+    ASSERT_TRUE(std::filesystem::exists(paths.produced_capture_path))
+        << "no capture to convert: " << paths.produced_capture_path << " - call capture_app() first";
 
-    ASSERT_TRUE(std::filesystem::exists(paths.capture_path))
-        << "no capture to count: " << paths.capture_path << " - call capture_app() first";
-
-    // convert the capture
-    auto result = run_command(paths.base_path, paths.convert_path, { paths.capture_path.string() });
-    ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << paths.capture_path << " in path "
+    auto result = run_command(paths.base_path, paths.convert_path, { paths.produced_capture_path.string() });
+    ASSERT_EQ(result, 0) << "command failed " << paths.convert_path << " " << paths.produced_capture_path << " in path "
                          << paths.base_path;
 
-    std::filesystem::path capture_json_path{ paths.capture_path };
+    capture_json_path = paths.produced_capture_path;
     capture_json_path.replace_extension(".json");
+}
+
+void count_calls_in_capture(const char*                      test_name,
+                            const std::vector<std::string>&  function_names,
+                            std::map<std::string, uint32_t>& counts,
+                            const char*                      trimming_frames)
+{
+    Paths paths{ test_name, trimming_frames, false };
+
+    std::filesystem::path capture_json_path;
+    ASSERT_NO_FATAL_FAILURE(convert_produced_capture(paths, capture_json_path));
 
     ASSERT_NO_FATAL_FAILURE(count_calls_in_json(capture_json_path, function_names, counts));
 }
 
-void capture_app(const char* test_name)
+void capture_app(const char* test_name, const char* trimming_frames)
 {
     EnvironmentVariables env_vars;
-    Paths                paths{ test_name, nullptr, false };
+    Paths                paths{ test_name, trimming_frames, false };
 
-    ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name));
+    ASSERT_NO_FATAL_FAILURE(run_capture_app(env_vars, paths, test_name, trimming_frames));
 }
 
-static void replay_and_convert_recapture(const char*                     test_name,
-                                         const std::vector<std::string>& extra_replay_args,
-                                         const std::string&              recapture_suffix,
-                                         std::filesystem::path&          recapture_json_path)
+void convert_capture(const char* test_name, std::vector<ConvertedBlock>& blocks, const char* trimming_frames)
+{
+    Paths paths{ test_name, trimming_frames, false };
+
+    std::filesystem::path capture_json_path;
+    ASSERT_NO_FATAL_FAILURE(convert_produced_capture(paths, capture_json_path));
+
+    ASSERT_NO_FATAL_FAILURE(read_blocks_from_json(capture_json_path, blocks));
+}
+
+static void recapture_replay_as_json(const Paths&                    paths,
+                                     const std::vector<std::string>& extra_replay_args,
+                                     const std::string&              recapture_suffix,
+                                     std::filesystem::path&          recapture_json_path)
 {
     EnvironmentVariables env_vars;
-    Paths                paths{ test_name, nullptr, false };
 
-    ASSERT_TRUE(std::filesystem::exists(paths.capture_path))
-        << "no capture to replay: " << paths.capture_path << " - call capture_app() first";
+    ASSERT_TRUE(std::filesystem::exists(paths.produced_capture_path))
+        << "no capture to replay: " << paths.produced_capture_path << " - call capture_app() first";
 
     std::filesystem::path recapture_path{ paths.base_path };
-    recapture_path.append(paths.capture_path.stem().string() + recapture_suffix + ".gfxr");
+    recapture_path.append(paths.produced_capture_path.stem().string() + recapture_suffix + ".gfxr");
 
     // Remove stale recaptures so the results cannot come from a stale file.
     std::error_code remove_error;
@@ -517,17 +581,33 @@ static void replay_and_convert_recapture(const char*                     test_na
     recapture_json_path.replace_extension(".json");
 }
 
-void replay_and_count_recapture(const char*                      test_name,
-                                std::vector<std::string>         extra_replay_args,
-                                const std::string&               recapture_suffix,
-                                const std::vector<std::string>&  function_names,
-                                std::map<std::string, uint32_t>& counts)
+void count_calls_in_recapture(const char*                      test_name,
+                              std::vector<std::string>         extra_replay_args,
+                              const std::string&               recapture_suffix,
+                              const std::vector<std::string>&  function_names,
+                              std::map<std::string, uint32_t>& counts,
+                              const char*                      trimming_frames)
 {
+    Paths                 paths{ test_name, trimming_frames, false };
     std::filesystem::path recapture_json_path;
-    ASSERT_NO_FATAL_FAILURE(
-        replay_and_convert_recapture(test_name, extra_replay_args, recapture_suffix, recapture_json_path));
+
+    ASSERT_NO_FATAL_FAILURE(recapture_replay_as_json(paths, extra_replay_args, recapture_suffix, recapture_json_path));
 
     ASSERT_NO_FATAL_FAILURE(count_calls_in_json(recapture_json_path, function_names, counts));
+}
+
+void convert_recapture(const char*                  test_name,
+                       std::vector<std::string>     extra_replay_args,
+                       const std::string&           recapture_suffix,
+                       std::vector<ConvertedBlock>& blocks,
+                       const char*                  trimming_frames)
+{
+    Paths                 paths{ test_name, trimming_frames, false };
+    std::filesystem::path recapture_json_path;
+
+    ASSERT_NO_FATAL_FAILURE(recapture_replay_as_json(paths, extra_replay_args, recapture_suffix, recapture_json_path));
+
+    ASSERT_NO_FATAL_FAILURE(read_blocks_from_json(recapture_json_path, blocks));
 }
 
 // Keeps every block of a screenshot results json but the header: its versions, capture path and options differ

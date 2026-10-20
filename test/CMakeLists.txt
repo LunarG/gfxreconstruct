@@ -52,6 +52,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/serialize-queue-submissions.cpp
         test_cases/triangle.cpp
         test_cases/multisample-depth.cpp
+        test_cases/pre-frame-boundary.cpp
         test_cases/shader-objects.cpp
         test_cases/pipeline-binaries.cpp
         test_cases/acquired-image.cpp
