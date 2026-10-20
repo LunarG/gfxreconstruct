@@ -22,7 +22,6 @@
 
 #include "decode/vulkan_replay_options.h"
 
-#include <cinttypes>
 #include <mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
