@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <filesystem>
+#include <set>
 #include <system_error>
 #include <nlohmann/json.hpp>
 #include <stdlib.h>
@@ -528,6 +529,116 @@ void replay_and_count_recapture(const char*                      test_name,
         replay_and_convert_recapture(test_name, extra_replay_args, recapture_suffix, recapture_json_path));
 
     ASSERT_NO_FATAL_FAILURE(count_calls_in_json(recapture_json_path, function_names, counts));
+}
+
+// Collects every command buffer handle id that args names, at any depth: a "commandBuffer" member (the first parameter
+// of a command, or VkCommandBufferSubmitInfo) or a "pCommandBuffers" array (vkQueueSubmit, vkCmdExecuteCommands,
+// vkFreeCommandBuffers, vkAllocateCommandBuffers).
+static void collect_command_buffer_ids(const nlohmann::json& args, std::vector<uint64_t>& ids)
+{
+    if (args.is_object())
+    {
+        for (const auto& [key, value] : args.items())
+        {
+            if (key == "commandBuffer" && value.is_number_unsigned())
+            {
+                ids.push_back(value.get<uint64_t>());
+            }
+            else if (key == "pCommandBuffers" && value.is_array())
+            {
+                for (const auto& element : value)
+                {
+                    if (element.is_number_unsigned())
+                    {
+                        ids.push_back(element.get<uint64_t>());
+                    }
+                }
+            }
+            else
+            {
+                collect_command_buffer_ids(value, ids);
+            }
+        }
+    }
+    else if (args.is_array())
+    {
+        for (const auto& element : args)
+        {
+            collect_command_buffer_ids(element, ids);
+        }
+    }
+}
+
+void count_uses_of_freed_command_buffers_in_recapture(const char*        test_name,
+                                                      const std::string& recapture_suffix,
+                                                      uint32_t&          uses)
+{
+    Paths paths{ test_name, nullptr, false };
+
+    std::filesystem::path recapture_json_path{ paths.base_path };
+    recapture_json_path.append(paths.capture_path.stem().string() + recapture_suffix + ".json");
+
+    std::ifstream json_file{ recapture_json_path };
+    ASSERT_TRUE(json_file.is_open()) << "converted recapture json file: " << recapture_json_path
+                                     << " would not open - call replay_and_count_recapture() first";
+
+    auto json = nlohmann::json::parse(json_file);
+
+    uses = 0;
+    std::set<uint64_t>    freed;
+    std::vector<uint64_t> ids;
+
+    for (const auto& block : json)
+    {
+        auto function = block.find(gfxrecon::format::kNameFunction);
+        if (function == block.end())
+        {
+            continue;
+        }
+
+        auto name = function->find(gfxrecon::format::kNameName);
+        if (name == function->end() || !name->is_string())
+        {
+            continue;
+        }
+
+        auto args = function->find(gfxrecon::format::kNameArgs);
+        if (args == function->end())
+        {
+            continue;
+        }
+
+        ids.clear();
+        collect_command_buffer_ids(*args, ids);
+
+        const auto function_name = name->get<std::string>();
+
+        // The command buffers an allocation names are its outputs, which are live again from here on.
+        if (function_name == "vkAllocateCommandBuffers")
+        {
+            for (uint64_t id : ids)
+            {
+                freed.erase(id);
+            }
+            continue;
+        }
+
+        for (uint64_t id : ids)
+        {
+            if (freed.contains(id))
+            {
+                ++uses;
+                ADD_FAILURE() << function_name << " at block " << block.value(gfxrecon::format::kNameIndex, 0)
+                              << " uses command buffer " << id << " after it was freed";
+            }
+        }
+
+        // The command buffers a free names are gone from here on.
+        if (function_name == "vkFreeCommandBuffers")
+        {
+            freed.insert(ids.begin(), ids.end());
+        }
+    }
 }
 
 // Keeps every block of a screenshot results json but the header: its versions, capture path and options differ

@@ -80,6 +80,21 @@ void replay_and_count_recapture(const char*                      test_name,
                                 std::map<std::string, uint32_t>& counts);
 
 /**
+ * Count the calls that a recapture made by replay_and_count_recapture() issues on command buffers it had already
+ * freed. A call counts when any of its arguments, at any depth, names a command buffer that an earlier
+ * vkFreeCommandBuffers freed and no vkAllocateCommandBuffers in between returned again; that covers the commandBuffer
+ * parameter of a command, the pCommandBuffers of a submit or vkCmdExecuteCommands, and a second free. Every such call
+ * is also reported as a test failure that names the call, its block index and the handle.
+ *
+ * @param test_name        - the name of the test app whose recapture to check
+ * @param recapture_suffix - the suffix the recapture was made with, e.g. "_replay_option"
+ * @param[out] uses        - how many calls used a command buffer after it was freed
+ */
+void count_uses_of_freed_command_buffers_in_recapture(const char*        test_name,
+                                                      const std::string& recapture_suffix,
+                                                      uint32_t&          uses);
+
+/**
  * Run an application with capture enabled, replay the resulting gfxr with screenshots and --screenshot-results, and
  * compare the json that replay writes about those screenshots to known_good/screenshots/<test_name>.json.
  *
