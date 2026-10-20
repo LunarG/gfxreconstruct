@@ -417,15 +417,7 @@ def gfxrBuildAndroid(
                             stash name: "gfxr-android-${buildMode}",
                                 allowEmpty: false,
                                 includes: [
-                                "${buildDir}/layer/libVkLayer_gfxreconstruct.so",
-                                "${buildDir}/layer/VkLayer_gfxreconstruct.json",
-                                "${buildDir}/tools/compress/gfxrecon-compress",
-                                "${buildDir}/tools/convert/gfxrecon-convert",
-                                "${buildDir}/tools/extract/gfxrecon-extract",
-                                "${buildDir}/tools/info/gfxrecon-info",
-                                "${buildDir}/tools/tocpp/gfxrecon-tocpp",
-                                "${buildDir}/tools/optimize/gfxrecon-optimize",
-                                "${buildDir}/tools/replay/gfxrecon-replay",
+                                "${buildDir}/multi-win-replay/build/outputs/apk/${buildMode.toLowerCase()}/multi-win-replay-${buildMode.toLowerCase()}-unsigned.apk",
                                 "vulkantest-results/**",
                             ].join(',')
                         }
