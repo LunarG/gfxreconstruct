@@ -772,7 +772,8 @@ The `gfxrecon.py replay` command has the following usage:
 usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--log-timestamps] [--log-file DEVICE_FILE]
                           [--debug-messenger-level LEVEL] [--pause-frame N]
-                          [--paused] [--cpu-mask binary_mask]
+                          [--paused] [--loop-frame N] [--loop-count N]
+                          [--cpu-mask binary_mask]
                           [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX]
@@ -846,6 +847,12 @@ options:
                         replay tool)
   --paused              Pause after replaying the first frame (same as "--
                         pause-frame 1"; forwarded to replay tool)
+  --loop-frame N        Enable frame repeat (experimental). N specifies the
+                        frame number to repeat, where 1 is the first frame.
+                        (forwarded to replay tool)
+  --loop-count N        Specify the total number of times to play the loop
+                        frame. Default is to repeat the frame until replay is
+                        interrupted. (forwarded to replay tool)
   --cpu-mask binary_mask
                         Set of CPU cores used by the replayer. `binary-mask`
                         is a succession of "0" and "1" that specifies
