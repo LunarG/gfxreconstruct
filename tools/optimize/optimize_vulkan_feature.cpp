@@ -50,8 +50,9 @@ std::vector<util::FeatureOptionDesc> OptimizeVulkanFeature::GetOptionDescs() con
 {
     return { { .name          = "",
                .description   = { "Do not detect aliased resources and do not write the resource aliasing",
-                                  "groups meta-data block. Replay then places aliased resources one bind",
-                                  "at a time, as it does for a capture this tool has not seen." },
+                                  "groups meta-data block, and remove one the input already has. Replay",
+                                  "then places aliased resources one bind at a time, as it does for a",
+                                  "capture this tool has not seen." },
                .has_argument  = false,
                .trigger_names = kNoAliasingMetadata } };
 }
@@ -94,10 +95,8 @@ bool OptimizeVulkanFeature::ScanInput(const std::string&                    inpu
     VulkanFileOptimizer::Modifiers candidates;
 
 #if defined(GFXRECON_ENABLE_VULKAN)
-    if (!args.IsOptionSet(kNoAliasingMetadata))
-    {
-        candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>());
-    }
+    // Runs even with the opt-out, to strip a block an earlier run wrote.
+    candidates.push_back(std::make_unique<VulkanAliasingGroupModifier>(!args.IsOptionSet(kNoAliasingMetadata)));
 #endif
 
     decode::FileProcessor file_processor;

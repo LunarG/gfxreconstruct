@@ -1231,6 +1231,8 @@ member is then placed correctly whatever order the members bind in. A replay
 tool that does not recognize the block skips it.
 
 The pass runs by default. Pass `--no-aliasing-metadata` to leave the block out.
+A block already in the input is always removed, so re-optimizing a file never
+keeps more than one per device.
 
 ```text
 gfxrecon-optimize - Remove unused resource initialization data from trimmed
@@ -1251,9 +1253,10 @@ Optional arguments:
   --version             Print version information and exit.
   --no-aliasing-metadata
                         Do not detect aliased resources and do not write the
-                        resource aliasing groups meta-data block. Replay then
-                        places aliased resources one bind at a time, as it does
-                        for a capture this tool has not seen.
+                        resource aliasing groups meta-data block, and remove
+                        one the input already has. Replay then places aliased
+                        resources one bind at a time, as it does for a capture
+                        this tool has not seen.
 ```
 
 ### JSON Lines Conversion

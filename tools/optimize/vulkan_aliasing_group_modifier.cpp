@@ -431,6 +431,11 @@ void VulkanAliasingGroupModifier::Process_vkBindDataGraphPipelineSessionMemoryAR
 
 bool VulkanAliasingGroupModifier::CanOptimize()
 {
+    if (!write_groups_)
+    {
+        return input_has_groups_block_;
+    }
+
     // Grouping runs per device, because a group is only useful to a consumer that can query the
     // replay requirements of its members on the device they belong to.
     std::map<format::HandleId, std::vector<AliasingCandidate>> candidates_by_device;
@@ -489,7 +494,7 @@ bool VulkanAliasingGroupModifier::CanOptimize()
 
     if (groups_by_device_.empty())
     {
-        return false;
+        return input_has_groups_block_;
     }
 
     GFXRECON_LOG_INFO("Resource aliasing detection: %zu group(s) with %zu member(s) across %zu device(s).",
@@ -497,6 +502,21 @@ bool VulkanAliasingGroupModifier::CanOptimize()
                       total_members,
                       groups_by_device_.size());
     return true;
+}
+
+void VulkanAliasingGroupModifier::ProcessResourceAliasingGroupsCommand(
+    format::HandleId device_id, const std::vector<decode::ResourceAliasingGroup>& groups)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(groups);
+
+    if (!IsModificationPass())
+    {
+        input_has_groups_block_ = true;
+        return;
+    }
+
+    GFXRECON_LOG_INFO("Resource aliasing detection: dropping the existing block for device %" PRIu64 ".", device_id);
+    CurrentBlockEdit().DropBlock();
 }
 
 void VulkanAliasingGroupModifier::Process_vkCreateDevice(const decode::ApiCallInfo&  call_info,

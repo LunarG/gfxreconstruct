@@ -41,11 +41,24 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
  * modification pass writes one resource aliasing groups meta-data block per device, right after the
  * vkCreateDevice the groups belong to.  A replayer that understands the block can place the whole
  * group in one allocation instead of discovering the overlaps one bind at a time.
+ *
+ * Any such block already in the input is dropped, so re-optimizing a file never stacks a stale block
+ * in front of the new one.
  */
 class VulkanAliasingGroupModifier : public VulkanModifierBase
 {
   public:
+    /**
+     * @brief   Create the modifier.
+     *
+     * @param   write_groups  false to only strip existing blocks, without writing new ones.
+     */
+    explicit VulkanAliasingGroupModifier(bool write_groups = true) : write_groups_(write_groups) {}
+
     bool CanOptimize() override;
+
+    void ProcessResourceAliasingGroupsCommand(format::HandleId                                  device_id,
+                                              const std::vector<decode::ResourceAliasingGroup>& groups) override;
 
     void Process_vkCreateDevice(const decode::ApiCallInfo& call_info, decode::args::CreateDevice& args) override;
 
@@ -134,6 +147,8 @@ class VulkanAliasingGroupModifier : public VulkanModifierBase
     void RecordBind(format::HandleId resource_id, format::HandleId memory_id, uint64_t offset, uint64_t block_index);
     void ExcludeMemory(format::HandleId memory_id);
 
+    bool                                        write_groups_{ true };
+    bool                                        input_has_groups_block_{ false };
     std::map<format::HandleId, TrackedResource> resources_;
     std::set<format::HandleId>                  excluded_memories_;
 
