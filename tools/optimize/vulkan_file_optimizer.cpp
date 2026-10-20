@@ -128,13 +128,29 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
             (decoder_.*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
         };
 
-        // Modifiers run one at a time, each seeing the buffer as the previous one left it.
+        // Modifiers run in order, each decoding the parameters the previous one left.
+        // A drop ends the loop. Added calls are never dispatched; the scan pass saw the original.
         for (auto& modifier : modifiers_)
         {
+            if (block_edit.IsBlockDropped())
+            {
+                break;
+            }
+
             modifier->SetCurrentBlockIndex(GetCurrentBlockIndex());
             modifier->SetCurrentBlockEdit(&block_edit);
             decoder_.AddConsumer(modifier.get());
-            std::apply(dispatch_call, args.GetTuple());
+            if constexpr (std::is_same_v<Args, decode::FunctionCallArgs>)
+            {
+                decode::FunctionCallArgs current = args;
+                current.data                     = buffer.GetData();
+                current.data_size                = buffer.GetDataSize();
+                std::apply(dispatch_call, current.GetTuple());
+            }
+            else
+            {
+                std::apply(dispatch_call, args.GetTuple());
+            }
             decoder_.RemoveConsumer(modifier.get());
             modifier->SetCurrentBlockEdit(nullptr);
         }
