@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2026 Arm Limited
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -375,13 +376,11 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const ApiCall
     return bytes_read;
 }
 
-size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                                       const uint8_t*     parameter_buffer,
-                                                                       size_t             buffer_size)
+size_t VulkanDecoderBase::DecodeArgs_vkCmdPushDescriptorSetWithTemplate(const uint8_t* parameter_buffer,
+                                                                        size_t         buffer_size,
+                                                                        args::CmdPushDescriptorSetWithTemplate& args)
 {
     size_t bytes_read = 0;
-
-    args::CmdPushDescriptorSetWithTemplateKHR args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
@@ -393,9 +392,65 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const Api
         ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.set);
     bytes_read += args.pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                    const uint8_t*     parameter_buffer,
+                                                                    size_t             buffer_size)
+{
+    args::CmdPushDescriptorSetWithTemplate args;
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate(parameter_buffer, buffer_size, args);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_vkCmdPushDescriptorSetWithTemplate(call_info, args);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                                       const uint8_t*     parameter_buffer,
+                                                                       size_t             buffer_size)
+{
+    args::CmdPushDescriptorSetWithTemplate args;
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate(parameter_buffer, buffer_size, args);
+
     for (auto consumer : consumers_)
     {
         consumer->Process_vkCmdPushDescriptorSetWithTemplateKHR(call_info, args);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(const uint8_t* parameter_buffer,
+                                                                         size_t         buffer_size,
+                                                                         args::CmdPushDescriptorSetWithTemplate2& args)
+{
+    size_t bytes_read = 0;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+    bytes_read +=
+        args.pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info,
+                                                                     const uint8_t*     parameter_buffer,
+                                                                     size_t             buffer_size)
+{
+    args::CmdPushDescriptorSetWithTemplate2 args;
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(parameter_buffer, buffer_size, args);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_vkCmdPushDescriptorSetWithTemplate2(call_info, args);
     }
 
     return bytes_read;
@@ -405,16 +460,8 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const Ap
                                                                         const uint8_t*     parameter_buffer,
                                                                         size_t             buffer_size)
 {
-    size_t bytes_read = 0;
-
-    args::CmdPushDescriptorSetWithTemplate2KHR args;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
-    bytes_read +=
-        args.pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    args::CmdPushDescriptorSetWithTemplate2 args;
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(parameter_buffer, buffer_size, args);
 
     for (auto consumer : consumers_)
     {
@@ -528,6 +575,9 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
         case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate:
             Decode_vkUpdateDescriptorSetWithTemplate(call_info, parameter_buffer, buffer_size);
             break;
+        case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate:
+            Decode_vkCmdPushDescriptorSetWithTemplate(call_info, parameter_buffer, buffer_size);
+            break;
         case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR:
             Decode_vkCmdPushDescriptorSetWithTemplateKHR(call_info, parameter_buffer, buffer_size);
             break;
@@ -536,6 +586,9 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR:
             Decode_vkCreateRayTracingPipelinesKHR(call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2:
+            Decode_vkCmdPushDescriptorSetWithTemplate2(call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR:
             Decode_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, parameter_buffer, buffer_size);
