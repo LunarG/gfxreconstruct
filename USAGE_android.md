@@ -1217,6 +1217,7 @@ activity with the matching option:
 
 ```bash
 python3 scripts/replay_controller.py --launch-adb --listen 127.0.0.1:9001 \
+    --output-dir remote_output \
     -- --screenshot-all capture_file=/sdcard/Download/android_capture.gfxr
 ```
 

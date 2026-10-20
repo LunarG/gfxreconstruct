@@ -605,6 +605,10 @@ bool RemoteChannel::Listen(const std::string& address)
         return false;
     }
 
+    {
+        const std::lock_guard<std::mutex> lock(queue_mutex_);
+        sender_active_ = true;
+    }
     sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
     return true;
 }
