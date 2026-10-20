@@ -5664,7 +5664,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 TrackSemaphoreForwardProgress(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
 
                 // Remove non-forward progress of signal semaphores.
-                GetNonForwardProgress(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
+                GetNonForwardProgress(submit_info_data[i].pSignalSemaphoreInfos, &removed_semaphores);
 
                 if (!removed_semaphores.empty())
                 {
