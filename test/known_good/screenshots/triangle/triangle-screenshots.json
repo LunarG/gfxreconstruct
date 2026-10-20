@@ -1,0 +1,35 @@
+{
+  "header": {
+    "schemaVersion": 2,
+    "layout": "perFrame",
+    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "vulkanVersion": "1.4.363",
+    "api": "vulkan",
+    "captureFile": "triangle.gfxr",
+    "options": {
+      "ranges": [
+        {
+          "first": 1,
+          "last": 2
+        }
+      ],
+      "interval": 1,
+      "format": "bmp",
+      "dir": "",
+      "prefix": "triangle-screenshots",
+      "scale": null,
+      "size": null,
+      "applyPrerotation": false,
+      "ignoreFrameBoundaryAndroid": false
+    }
+  },
+  "summary": {
+    "framesSeen": 11,
+    "framesRequested": 2,
+    "framesWritten": 2,
+    "framesPartial": 0,
+    "framesSkipped": 0,
+    "framesFailed": 0,
+    "filesWritten": 2
+  }
+}

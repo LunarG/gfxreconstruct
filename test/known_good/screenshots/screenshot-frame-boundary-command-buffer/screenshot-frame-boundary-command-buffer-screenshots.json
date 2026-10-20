@@ -1,0 +1,35 @@
+{
+  "header": {
+    "schemaVersion": 2,
+    "layout": "perFrame",
+    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "vulkanVersion": "1.4.363",
+    "api": "vulkan",
+    "captureFile": "screenshot-frame-boundary-command-buffer.gfxr",
+    "options": {
+      "ranges": [
+        {
+          "first": 1,
+          "last": 4294967295
+        }
+      ],
+      "interval": 1,
+      "format": "bmp",
+      "dir": "",
+      "prefix": "screenshot-frame-boundary-command-buffer-screenshots",
+      "scale": null,
+      "size": null,
+      "applyPrerotation": false,
+      "ignoreFrameBoundaryAndroid": false
+    }
+  },
+  "summary": {
+    "framesSeen": 3,
+    "framesRequested": 3,
+    "framesWritten": 0,
+    "framesPartial": 3,
+    "framesSkipped": 0,
+    "framesFailed": 0,
+    "filesWritten": 6
+  }
+}
