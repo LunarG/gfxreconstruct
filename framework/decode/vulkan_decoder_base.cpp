@@ -376,13 +376,11 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const ApiCall
     return bytes_read;
 }
 
-size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
-                                                                    const uint8_t*     parameter_buffer,
-                                                                    size_t             buffer_size)
+size_t VulkanDecoderBase::DecodeArgs_vkCmdPushDescriptorSetWithTemplate(const uint8_t* parameter_buffer,
+                                                                        size_t         buffer_size,
+                                                                        args::CmdPushDescriptorSetWithTemplate& args)
 {
     size_t bytes_read = 0;
-
-    args::CmdPushDescriptorSetWithTemplate args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
@@ -393,6 +391,16 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCal
     bytes_read +=
         ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.set);
     bytes_read += args.pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                    const uint8_t*     parameter_buffer,
+                                                                    size_t             buffer_size)
+{
+    args::CmdPushDescriptorSetWithTemplate args;
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate(parameter_buffer, buffer_size, args);
 
     for (auto consumer : consumers_)
     {
@@ -406,19 +414,8 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const Api
                                                                        const uint8_t*     parameter_buffer,
                                                                        size_t             buffer_size)
 {
-    size_t bytes_read = 0;
-
     args::CmdPushDescriptorSetWithTemplate args;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
-    bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorUpdateTemplate);
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.layout);
-    bytes_read +=
-        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.set);
-    bytes_read += args.pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate(parameter_buffer, buffer_size, args);
 
     for (auto consumer : consumers_)
     {
@@ -428,13 +425,11 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const Api
     return bytes_read;
 }
 
-size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info,
-                                                                     const uint8_t*     parameter_buffer,
-                                                                     size_t             buffer_size)
+size_t VulkanDecoderBase::DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(const uint8_t* parameter_buffer,
+                                                                         size_t         buffer_size,
+                                                                         args::CmdPushDescriptorSetWithTemplate2& args)
 {
     size_t bytes_read = 0;
-
-    args::CmdPushDescriptorSetWithTemplate2 args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
@@ -442,6 +437,16 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCa
         args.pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info,
+                                                                     const uint8_t*     parameter_buffer,
+                                                                     size_t             buffer_size)
+{
+    args::CmdPushDescriptorSetWithTemplate2 args;
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(parameter_buffer, buffer_size, args);
 
     for (auto consumer : consumers_)
     {
@@ -455,16 +460,8 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const Ap
                                                                         const uint8_t*     parameter_buffer,
                                                                         size_t             buffer_size)
 {
-    size_t bytes_read = 0;
-
     args::CmdPushDescriptorSetWithTemplate2 args;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
-    bytes_read +=
-        args.pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    const size_t bytes_read = DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(parameter_buffer, buffer_size, args);
 
     for (auto consumer : consumers_)
     {

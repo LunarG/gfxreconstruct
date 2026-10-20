@@ -2333,7 +2333,7 @@ void VulkanCppConsumerBase::Generate_vkUpdateDescriptorSetWithTemplate(args::Upd
 void VulkanCppConsumerBase::Generate_vkCmdPushDescriptorSetWithTemplate(args::CmdPushDescriptorSetWithTemplate& args,
                                                                         const char* extension)
 {
-    FILE* file = GetFrameFile();
+    FILE*       file = GetFrameFile();
     std::string var_name;
 
     fprintf(file, "\t{\n");
@@ -2357,7 +2357,7 @@ void VulkanCppConsumerBase::Generate_vkCmdPushDescriptorSetWithTemplate(args::Cm
 void VulkanCppConsumerBase::Generate_vkCmdPushDescriptorSetWithTemplate2(args::CmdPushDescriptorSetWithTemplate2& args,
                                                                          const char* extension)
 {
-    FILE* file = GetFrameFile();
+    FILE*       file = GetFrameFile();
     std::string var_name;
 
     Decoded_VkPushDescriptorSetWithTemplateInfo* decoded_info =

@@ -232,6 +232,10 @@ class VulkanDecoderBase : public ApiDecoder
                                                     const uint8_t*     parameter_buffer,
                                                     size_t             buffer_size);
 
+    static size_t DecodeArgs_vkCmdPushDescriptorSetWithTemplate(const uint8_t* parameter_buffer,
+                                                                size_t         buffer_size,
+                                                                args::CmdPushDescriptorSetWithTemplate& args);
+
     size_t Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info,
                                                      const uint8_t*     parameter_buffer,
                                                      size_t             buffer_size);
@@ -239,6 +243,10 @@ class VulkanDecoderBase : public ApiDecoder
     size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                         const uint8_t*     parameter_buffer,
                                                         size_t             buffer_size);
+
+    static size_t DecodeArgs_vkCmdPushDescriptorSetWithTemplate2(const uint8_t* parameter_buffer,
+                                                                 size_t         buffer_size,
+                                                                 args::CmdPushDescriptorSetWithTemplate2& args);
 
     size_t Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info,
                                                       const uint8_t*     parameter_buffer,
