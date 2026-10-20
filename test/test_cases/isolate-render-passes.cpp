@@ -90,7 +90,7 @@ TEST(IsolateRenderPasses, ReplayReissuesCommandBufferState)
     ASSERT_EQ(baseline["vkCmdSetScissor"], render_passes);
     ASSERT_EQ(baseline["vkCmdBindPipeline"], render_passes);
 
-    // The recording is cut twice per render pass, before vkCmdBeginRenderPass and before vkCmdEndRenderPass.
+    // The recording is cut twice per render pass, before vkCmdBeginRenderPass and after vkCmdEndRenderPass.
     const uint32_t cuts = 2 * render_passes;
 
     // Viewport and scissor are set before the render pass begins, so both are already recorded by the first cut and
