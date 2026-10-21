@@ -829,10 +829,10 @@ bool VulkanScreenshotJson::WritePerFrameFile(const std::string& filename, const 
     const std::string text =
         document.dump(util::kJsonIndentWidth, ' ', false, nlohmann::json::error_handler_t::replace) + "\n";
 
-    util::Write(*stream_, text);
+    const bool written = util::Write(*stream_, text);
     stream_.reset();
 
-    return true;
+    return written;
 }
 
 void VulkanScreenshotJson::WriteBlock(const nlohmann::ordered_json& block)
