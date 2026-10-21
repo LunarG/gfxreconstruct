@@ -165,8 +165,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tN specifies the frame number to repeat, where 1 is");
     GFXRECON_WRITE_CONSOLE("          \t\tthe first frame.");
     GFXRECON_WRITE_CONSOLE("  --loop-count <N>\tSpecify the total number of times to play the loop");
-    GFXRECON_WRITE_CONSOLE("          \t\tframe. Default is to repeat the frame until replay");
-    GFXRECON_WRITE_CONSOLE("          \t\tis interrupted.");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe. N must be greater than 1. Default is to");
+    GFXRECON_WRITE_CONSOLE("          \t\trepeat the frame until replay is interrupted.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-all");
     GFXRECON_WRITE_CONSOLE("          \t\tGenerate screenshots for all frames.  When this");
     GFXRECON_WRITE_CONSOLE("          \t\toption is specified, --screenshots is ignored.");

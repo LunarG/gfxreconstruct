@@ -599,9 +599,10 @@ static bool GetLoopCount(const gfxrecon::util::ArgumentParser& arg_parser, uint3
         }
 
         uint32_t parsed_loop_count = static_cast<uint32_t>(std::stoul(value));
-        if (parsed_loop_count == 0)
+        // A single iteration does not make sense for looping.
+        if (parsed_loop_count < 2)
         {
-            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which must be greater than zero", value.c_str());
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which must be greater than one", value.c_str());
             return false;
         }
 

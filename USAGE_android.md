@@ -851,8 +851,9 @@ options:
                         frame number to repeat, where 1 is the first frame.
                         (forwarded to replay tool)
   --loop-count N        Specify the total number of times to play the loop
-                        frame. Default is to repeat the frame until replay is
-                        interrupted. (forwarded to replay tool)
+                        frame. N must be greater than 1. Default is to repeat
+                        the frame until replay is interrupted. (forwarded to
+                        replay tool)
   --cpu-mask binary_mask
                         Set of CPU cores used by the replayer. `binary-mask`
                         is a succession of "0" and "1" that specifies

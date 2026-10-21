@@ -26,6 +26,7 @@
 #include <limits>
 
 #include "util/defines.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -37,7 +38,10 @@ class FrameLoopInfo
 
     explicit FrameLoopInfo(uint32_t loop_frame_idx = 0, uint32_t loop_iterations = INFINITE_ITERATIONS) :
         loop_frame_idx_{ loop_frame_idx }, loop_iterations_{ loop_iterations }
-    {}
+    {
+        // The first iteration of the loop range must not also be its final one.
+        GFXRECON_ASSERT(loop_iterations > 1);
+    }
 
     /// Expects a 1-based frame number.
     /// Returns true if the passed frame number matches the loop frame index.
