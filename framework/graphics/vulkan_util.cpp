@@ -232,34 +232,80 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
+static bool IsRasterizerDiscardStaticallyEnabled(const VkGraphicsPipelineCreateInfo& create_info)
+{
+    if (create_info.pDynamicState != nullptr)
+    {
+        for (uint32_t i = 0; i < create_info.pDynamicState->dynamicStateCount; ++i)
+        {
+            // If VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE is used, rasterizerDiscardEnable is ignored.
+            // The value is set later by vkCmdSetRasterizerDiscardEnable, so it isn't statically enabled.
+            if (create_info.pDynamicState->pDynamicStates[i] == VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE)
+            {
+                return false;
+            }
+        }
+    }
+
+    return (create_info.pRasterizationState != nullptr) &&
+           (create_info.pRasterizationState->rasterizerDiscardEnable == VK_TRUE);
+}
+
 bool ArePipelineRenderingFormatsIgnored(const VkGraphicsPipelineCreateInfo& create_info)
 {
+    if (vulkan_struct_get_pnext<VkPipelineRenderingCreateInfo>(&create_info) == nullptr)
+    {
+        return false;
+    }
+
     // The rendering formats are ignored when a render pass is used.
     if (create_info.renderPass != VK_NULL_HANDLE)
     {
         return true;
     }
 
+    bool has_pre_rasterization_state = false;
+
     // Only fragment output needs the rendering formats.
     // The others, vertex input, pre-rasterization, and fragment shader, ignore the rendering formats.
     if (const auto* library_info = vulkan_struct_get_pnext<VkGraphicsPipelineLibraryCreateInfoEXT>(&create_info))
     {
-        return (library_info->flags & VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT) == 0;
-    }
+        if ((library_info->flags & VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT) == 0)
+        {
+            return true;
+        }
 
-    VkPipelineCreateFlags2 create_flags = create_info.flags;
-    if (const auto* create_flags2_info = vulkan_struct_get_pnext<VkPipelineCreateFlags2CreateInfo>(&create_info))
+        has_pre_rasterization_state =
+            (library_info->flags & VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT) != 0;
+    }
+    else
     {
-        create_flags = create_flags2_info->flags;
+        VkPipelineCreateFlags2 create_flags = create_info.flags;
+        if (const auto* create_flags2_info = vulkan_struct_get_pnext<VkPipelineCreateFlags2CreateInfo>(&create_info))
+        {
+            create_flags = create_flags2_info->flags;
+        }
+
+        // If it doesn't have VkGraphicsPipelineLibraryCreateInfoEXT,
+        // and it has VK_PIPELINE_CREATE_LIBRARY_BIT_KHR
+        // or it has VkPipelineLibraryCreateInfoKHR with libraryCount > 0,
+        // then the rendering formats are ignored.
+        const auto* linked_libraries = vulkan_struct_get_pnext<VkPipelineLibraryCreateInfoKHR>(&create_info);
+        if (((create_flags & VK_PIPELINE_CREATE_LIBRARY_BIT_KHR) != 0) ||
+            ((linked_libraries != nullptr) && (linked_libraries->libraryCount > 0)))
+        {
+            return true;
+        }
+
+        // Otherwise, if it's also without VkGraphicsPipelineLibraryCreateInfoEXT, it's a complete graphics pipeline.
+        // A complete graphics pipeline always includes pre-rasterization state.
+        has_pre_rasterization_state = true;
     }
 
-    // If it doesn't have VkGraphicsPipelineLibraryCreateInfoEXT,
-    // and it has VK_PIPELINE_CREATE_LIBRARY_BIT_KHR
-    // or it has VkPipelineLibraryCreateInfoKHR with libraryCount > 0,
-    // then the rendering formats are ignored.
-    const auto* linked_libraries = vulkan_struct_get_pnext<VkPipelineLibraryCreateInfoKHR>(&create_info);
-    return ((create_flags & VK_PIPELINE_CREATE_LIBRARY_BIT_KHR) != 0) ||
-           ((linked_libraries != nullptr) && (linked_libraries->libraryCount > 0));
+    // pRasterizationState belongs to pre-rasterization state, so it's only read when that state is present.
+    // The fragment output state isn't required, and the rendering formats are ignored, only if pre-rasterization
+    // state is present and rasterizerDiscardEnable is VK_TRUE. Otherwise, the rendering formats are used.
+    return has_pre_rasterization_state && IsRasterizerDiscardStaticallyEnabled(create_info);
 }
 
 GFXRECON_END_NAMESPACE(graphics)
