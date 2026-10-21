@@ -27,6 +27,7 @@
 #include "decode/block_buffer.h"
 #include "decode/block_parser.h"
 #include "decode/file_processor_types.h"
+#include "decode/frame_boundary_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "util/clock_cache.h"
@@ -101,7 +102,7 @@ class BlockProcessor
     // Must be called before ownership transfers to AsyncProcessor (block_processor_ becomes null after).
     std::unique_ptr<util::Compressor> CreateReplayCompressor() const;
 
-    uint64_t                          GetProcessFrameNumber() const noexcept { return frame_number_; }
+    uint64_t                          GetProcessFrameNumber() const noexcept { return frame_tracker_.GetFrameNumber(); }
     BlockIOError                      GetProcessError() const noexcept { return error_state_; }
     file_processor::FrameNumber       GetQuitBeforeFrame() const noexcept { return params_.quit_before_frame; }
     const file_processor::FrameRange& GetPreloadRange() const noexcept { return params_.preload_range; }
@@ -160,18 +161,12 @@ class BlockProcessor
     bool in_state_setup_{ false };
 
     // Frame/block/error tracking -- written exclusively by the active loading path.
-    uint64_t     frame_number_{ file_processor::kFirstFrame };
-    BlockIOError error_state_{ kErrorInvalidFileDescriptor };
-    uint64_t     block_index_{ 0 };
+    FrameBoundaryTracker frame_tracker_;
+    BlockIOError         error_state_{ kErrorInvalidFileDescriptor };
+    uint64_t             block_index_{ 0 };
 
     // Cumulative read metrics forwarded to dispatch side via ProcessBlocksResult snapshots.
     uint64_t bytes_read_{ 0 };
-    bool     capture_uses_frame_markers_{ false };
-    bool     file_supports_frame_markers_{ false };
-    bool     pending_capture_uses_frame_markers_{ false };
-
-    // Frame offset for trimmed captures: set from the state-end marker's frame number.
-    uint64_t first_frame_{ file_processor::kFirstFrame + 1 };
 
     // Block-index-based skip list; optional on_complete fires once all targeted blocks are skipped.
     std::unique_ptr<file_processor::BlockSkip> block_skip_;
@@ -216,7 +211,6 @@ class BlockProcessor
     void DecrementRemainingCommands();
 
     file_processor::ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
-    void                              UpdateEndFrameState();
     void                              PrintBlockInfo() const;
 
     bool SeekActiveFile(const FileInputStreamPtr& file, int64_t offset, util::platform::FileSeekOrigin origin);
@@ -230,9 +224,6 @@ class BlockProcessor
     bool               AtEof() const;
     ActiveFileContext& GetCurrentFile();
     const ActiveFileContext& GetCurrentFile() const;
-
-    static bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type);
-    bool        IsFrameDelimiter(format::ApiCallId call_id) const;
 
     /// Peeks the next block header on the active file.
     /// Returns true if the next block belongs to a frame (i.e., not pre-frame).

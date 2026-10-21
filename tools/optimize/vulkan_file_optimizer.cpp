@@ -111,6 +111,34 @@ bool VulkanFileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
     return std::visit(dispatch_visitor, parsed_block.GetArgs());
 }
 
+bool VulkanFileOptimizer::ProcessFrameEndMarker(decode::ParsedBlock& parsed_block)
+{
+    return ProcessMarker<decode::FrameEndMarkerArgs>(parsed_block);
+}
+
+bool VulkanFileOptimizer::ProcessStateBeginMarker(decode::ParsedBlock& parsed_block)
+{
+    return ProcessMarker<decode::StateBeginMarkerArgs>(parsed_block);
+}
+
+bool VulkanFileOptimizer::ProcessStateEndMarker(decode::ParsedBlock& parsed_block)
+{
+    return ProcessMarker<decode::StateEndMarkerArgs>(parsed_block);
+}
+
+template <typename Args>
+bool VulkanFileOptimizer::ProcessMarker(decode::ParsedBlock& parsed_block)
+{
+    if (modifiers_.empty())
+    {
+        return FileTransformer::WriteBytes(parsed_block);
+    }
+
+    // Markers carry no call parameters, but a BlockEdit still needs one to reference.
+    encode::ParameterBuffer buffer;
+    return ModifierDispatch(parsed_block.Get<Args>(), parsed_block, buffer);
+}
+
 template <typename Args>
 bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
                                            decode::ParsedBlock&     parsed_block,
@@ -138,6 +166,7 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
             }
 
             modifier->SetCurrentBlockIndex(GetCurrentBlockIndex());
+            modifier->SetCurrentFrameNumber(GetCurrentFrameNumber());
             modifier->SetCurrentBlockEdit(&block_edit);
             decoder_.AddConsumer(modifier.get());
             if constexpr (std::is_same_v<Args, decode::FunctionCallArgs>)
@@ -153,6 +182,16 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
             }
             decoder_.RemoveConsumer(modifier.get());
             modifier->SetCurrentBlockEdit(nullptr);
+        }
+    }
+
+    // Markers set the frame boundaries and the trim state window, so a modifier may not drop one.
+    if constexpr (!decode::DispatchTraits<Args>::kHasCallId && !decode::DispatchTraits<Args>::kHasMetaDataId)
+    {
+        if (block_edit.IsBlockDropped())
+        {
+            HandleBlockWriteError(decode::kErrorWritingBlockData, "A modifier dropped a marker block");
+            return false;
         }
     }
 
@@ -172,7 +211,7 @@ bool VulkanFileOptimizer::ModifierDispatch(const Args&              args,
             written = WriteAnnotation(format::kAnnotationLabelRemovedFunctionCall,
                                       "Removed API call: " + std::to_string(static_cast<uint32_t>(args.call_id)));
         }
-        else
+        else if constexpr (decode::DispatchTraits<Args>::kHasMetaDataId)
         {
             written =
                 WriteAnnotation(format::kAnnotationLabelRemovedResource,

@@ -87,6 +87,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor_types.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor_visitors.h
+                    ${CMAKE_CURRENT_LIST_DIR}/frame_boundary_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/frame_boundary_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h

@@ -84,7 +84,40 @@ class VulkanFileOptimizer : public FileOptimizer
      */
     bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
 
+    /**
+     * @brief   Run the modifiers over a frame-end marker and write the result.
+     *
+     * @param   parsed_block  the block read from the input file.
+     * @return  false if writing failed, or a modifier dropped the marker.
+     */
+    bool ProcessFrameEndMarker(decode::ParsedBlock& parsed_block) override;
+
+    /**
+     * @brief   Run the modifiers over a state-begin marker and write the result.
+     *
+     * @param   parsed_block  the block read from the input file.
+     * @return  false if writing failed, or a modifier dropped the marker.
+     */
+    bool ProcessStateBeginMarker(decode::ParsedBlock& parsed_block) override;
+
+    /**
+     * @brief   Run the modifiers over a state-end marker and write the result.
+     *
+     * @param   parsed_block  the block read from the input file.
+     * @return  false if writing failed, or a modifier dropped the marker.
+     */
+    bool ProcessStateEndMarker(decode::ParsedBlock& parsed_block) override;
+
   private:
+    /**
+     * @brief   Run the modifiers over a marker block and write the result.
+     *
+     * @param   parsed_block  the block read from the input file.
+     * @return  false if writing failed, or a modifier dropped the marker.
+     */
+    template <typename Args>
+    bool ProcessMarker(decode::ParsedBlock& parsed_block);
+
     /**
      * @brief   Run every modifier over one decoded block, then write the result.
      *
