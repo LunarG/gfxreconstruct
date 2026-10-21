@@ -2043,32 +2043,38 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void MapDescriptorUpdateTemplateHandles(const VulkanDescriptorUpdateTemplateInfo* update_template_info,
                                             DescriptorUpdateTemplateDecoder*          decoder);
 
+    // Wait and signal semaphores to omit from one submission.
+    struct RemovedSemaphores
+    {
+        std::unordered_set<VkSemaphore> waits;
+        std::unordered_set<VkSemaphore> signals;
+    };
+
     void GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                               std::vector<const VulkanSemaphoreInfo*>* imported_semaphores);
+                               std::unordered_set<VkSemaphore>*         imported_semaphores);
 
     void GetImportedSemaphores(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-                               std::vector<const VulkanSemaphoreInfo*>*                   imported_semaphores);
+                               std::unordered_set<VkSemaphore>*                           imported_semaphores);
 
-    void SignalShadowSemaphore(VulkanSemaphoreInfo*                     semaphore_info,
-                               std::vector<const VulkanSemaphoreInfo*>* shadow_semaphores);
+    void SignalShadowSemaphore(VulkanSemaphoreInfo* semaphore_info, std::unordered_set<VkSemaphore>* shadow_semaphores);
 
     void GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                             std::vector<const VulkanSemaphoreInfo*>* shadow_semaphores);
+                             std::unordered_set<VkSemaphore>*         shadow_semaphores);
 
     void GetShadowSemaphores(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-                             std::vector<const VulkanSemaphoreInfo*>*                   shadow_semaphores);
+                             std::unordered_set<VkSemaphore>*                           shadow_semaphores);
 
     void TrackSemaphoreForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                                       std::vector<const VulkanSemaphoreInfo*>* removed_semaphores);
+                                       const std::unordered_set<VkSemaphore>&   removed_semaphores);
 
     void TrackSemaphoreForwardProgress(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-                                       std::vector<const VulkanSemaphoreInfo*>*                   removed_semaphores);
+                                       const std::unordered_set<VkSemaphore>&                     removed_semaphores);
 
     void GetNonForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                               std::vector<const VulkanSemaphoreInfo*>* non_forward_progress_semaphores);
+                               std::unordered_set<VkSemaphore>*         non_forward_progress_semaphores);
 
     void GetNonForwardProgress(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-                               std::vector<const VulkanSemaphoreInfo*>* non_forward_progress_semaphores);
+                               std::unordered_set<VkSemaphore>* non_forward_progress_semaphores);
 
     VkResult CreateSwapchainImage(const VulkanDeviceInfo*  device_info,
                                   const VkImageCreateInfo* image_create_info,
@@ -2383,7 +2389,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<uint32_t>                   modified_device_masks_;
     std::vector<VkPresentRegionKHR>         modified_regions_;
     std::vector<VkPresentTimeGOOGLE>        modified_times_;
-    std::vector<const VulkanSemaphoreInfo*> removed_semaphores_;
+    std::unordered_set<VkSemaphore>         removed_semaphores_;
     std::unordered_set<uint32_t>            removed_swapchain_indices_;
     std::vector<uint32_t>                   capture_image_indices_;
     std::vector<VulkanSwapchainKHRInfo*>    swapchain_infos_;
