@@ -1160,9 +1160,13 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
         }
     }
 
-    // For pools that contain dangling descriptor sets, this code will only be reached once,
-    // during the final iteration of the loop range.
-    RemovePoolDanglingCreateDescriptors(args.descriptorPool);
+    if (frame_loop_info_.IsFinalIteration())
+    {
+        for (format::HandleId handle : args.pDescriptorSets.GetSpan())
+        {
+            dangling_create_descriptor_sets_.erase(handle);
+        }
+    }
 
     VulkanReplayConsumer::Process_vkFreeDescriptorSets(call_info, args);
 }
