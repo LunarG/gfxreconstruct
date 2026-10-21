@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_REPLAY_FRAME_LOOP_CONSUMER_H
 
 #include "util/defines.h"
+#include "decode/frame_loop_lifetime_tracker.h"
 #include "decode/vulkan_replay_consumer_base.h"
 #include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -42,8 +43,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     VulkanReplayFrameLoopConsumer(std::shared_ptr<application::Application> application,
                                   const VulkanReplayOptions&                options,
                                   graphics::FrameLoopInfo&                  frame_loop_info) :
-        VulkanReplayFrameLoopConsumerBase(application, options),
-        frame_loop_info_(frame_loop_info)
+        VulkanReplayFrameLoopConsumerBase(application, options), frame_loop_info_(frame_loop_info),
+        lifetime_tracker_(frame_loop_info)
     {}
 
     ~VulkanReplayFrameLoopConsumer() override;
@@ -109,8 +110,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Private declarations
   private:
-    void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
-
     struct FenceTracking
     {
         std::unordered_map<format::HandleId, bool> initial_fence_states_;
@@ -134,8 +133,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         SemaphoreTracking(VkDevice                           device,
                           const graphics::VulkanDeviceTable& device_table,
                           CommonObjectInfoTable&             object_table) :
-            device_(device),
-            device_table_(device_table), object_table_(object_table)
+            device_(device), device_table_(device_table), object_table_(object_table)
         {}
 
         /// Semaphores waited on by any submit inside the loop range that are expected
@@ -188,8 +186,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                        CommonObjectInfoTable&                   object_table,
                        std::shared_ptr<VulkanResourceAllocator> allocator,
                        const VkPhysicalDeviceMemoryProperties*  memory_properties) :
-            device_id_(device_id),
-            device_table_(device_table), object_table_(object_table), allocator_(allocator),
+            device_id_(device_id), device_table_(device_table), object_table_(object_table), allocator_(allocator),
             memory_properties_(memory_properties)
         {}
 
@@ -314,8 +311,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                       CommonObjectInfoTable&                   object_table,
                       std::shared_ptr<VulkanResourceAllocator> allocator,
                       const VkPhysicalDeviceMemoryProperties*  memory_properties) :
-            device_id_(device_id),
-            device_table_(device_table), object_table_(object_table), allocator_(allocator),
+            device_id_(device_id), device_table_(device_table), object_table_(object_table), allocator_(allocator),
             memory_properties_(memory_properties)
         {}
 
@@ -387,13 +383,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
 
-    VulkanDecoder* decoder_ = nullptr;
+    /// Tracks the lifetime of descriptor sets, to decide which allocations and frees each iteration replays.
+    FrameLoopLifetimeTracker lifetime_tracker_;
 
-    /// A "dangling" resource is one that was either
-    /// - created during the loop range but destroyed after it
-    /// - or created before the loop range but destroyed during it
-    std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
-    std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
+    VulkanDecoder* decoder_ = nullptr;
 
     std::unordered_map<format::HandleId, SemaphoreTracking> per_device_semaphore_tracking_;
 
