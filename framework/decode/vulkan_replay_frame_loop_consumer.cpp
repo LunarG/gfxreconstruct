@@ -988,39 +988,34 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInf
 void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,
                                                                     args::DestroyDescriptorPool& args)
 {
-    // Skip for loop iterations 1-(n-1).
-    // Skip if looping and if not final iteration
-    // Execute if args.descriptorPool is in allocatedLoopResources
-
     // Call Process_vkDestroyDescriptorPool if:
     //    We are not looping
     //    We are looping and args.descriptorPool is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping())
-    {
-        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.descriptorPool))
-        VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
-    }
-    else if (allocatedLoopResources.contains(args.descriptorPool))
-    {
-        // Looping special case:
-        // This resource has been allocated WITHIN the loop range.
+    const bool allocated_within_loop = allocatedLoopResources.contains(args.descriptorPool);
+    GFXRECON_ASSERT(getFrameLoopInfo().IsLooping() || !allocated_within_loop);
 
-        // Check if this was the pool for any heretofore dangling descriptors
-        RemovePoolDanglingCreateDescriptors(args.descriptorPool);
-        VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
-        allocatedLoopResources.erase(args.descriptorPool);
-    }
-    else if (getFrameLoopInfo().IsFinalIteration())
+    if (getFrameLoopInfo().IsLooping() && !allocated_within_loop && !getFrameLoopInfo().IsFinalIteration())
     {
         // Looping special case:
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
-
-        // Check if this was the pool for any heretofore dangling descriptors
-        RemovePoolDanglingCreateDescriptors(args.descriptorPool);
-        VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
+        return;
     }
+
+    // The descriptor sets allocated from the pool are freed along with it. Without any pool info, no pool exists on
+    // replay, as the destroyed handle is VK_NULL_HANDLE or the pool failed to be created, so neither do its sets.
+    const VulkanDescriptorPoolInfo* pool_info = GetObjectInfoTable().GetVkDescriptorPoolInfo(args.descriptorPool);
+    if (pool_info != nullptr)
+    {
+        lifetime_tracker_.OnPoolDestroy(pool_info->child_ids);
+    }
+
+    VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
+
+    // A pool allocated WITHIN the loop range gets also destroyed within the same iteration.
+    // Therefore it should be allocated again by the next iteration.
+    allocatedLoopResources.erase(args.descriptorPool);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallInfo&        call_info,
@@ -1051,120 +1046,87 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
     }
 }
 
-void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
-{
-    std::vector<format::HandleId> handles_to_delete;
-    handles_to_delete.reserve(dangling_create_descriptor_sets_.size());
-    for (format::HandleId handle : dangling_create_descriptor_sets_)
-    {
-        VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(handle);
-        if (info != nullptr && info->pool_id == descriptorPool)
-        {
-            handles_to_delete.push_back(handle);
-        }
-    }
-    for (format::HandleId handle : handles_to_delete)
-    {
-        dangling_create_descriptor_sets_.erase(handle);
-    }
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
                                                                   args::ResetDescriptorPool& args)
 {
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsFinalIteration())
+    const VulkanDescriptorPoolInfo* pool_info = GetObjectInfoTable().GetVkDescriptorPoolInfo(args.descriptorPool);
+    if ((pool_info == nullptr) || lifetime_tracker_.OnPoolReset(pool_info->child_ids))
     {
-        // If any of the sets in this pool are dangling, skip pool reset
-        for (format::HandleId set_id : dangling_create_descriptor_sets_)
-        {
-            VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(set_id);
-            if (info != nullptr && info->pool_id == args.descriptorPool)
-            {
-                return;
-            }
-        }
+        VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, args);
     }
+}
 
-    if (frame_loop_info_.IsFinalIteration())
+/// Restricts a vkAllocateDescriptorSets call to the descriptor sets at `indices`. Every array indexed like
+/// pDescriptorSets is restricted as well, so that each remaining set keeps its own layout and variable count.
+/// The arguments are decoded again for every iteration, so restricting them in place does not leak into the next one.
+static void RestrictDescriptorSets(args::AllocateDescriptorSets& args, const std::vector<uint32_t>& indices)
+{
+    const uint32_t count = static_cast<uint32_t>(indices.size());
+
+    Decoded_VkDescriptorSetAllocateInfo* allocate_info = args.pAllocateInfo.GetMetaStructPointer();
+    GFXRECON_ASSERT(allocate_info->decoded_value->descriptorSetCount == args.pDescriptorSets.GetLength());
+    GFXRECON_ASSERT(allocate_info->pSetLayouts.GetLength() == args.pDescriptorSets.GetLength());
+
+    allocate_info->decoded_value->descriptorSetCount = count;
+
+    args.pDescriptorSets.KeepIndices(indices);
+
+    // The replay consumer maps the layout IDs to replay handles, so restricting the IDs is enough.
+    allocate_info->pSetLayouts.KeepIndices(indices);
+
+    auto* variable_counts =
+        GetPNextMetaStruct<Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo>(allocate_info->pNext);
+
+    // A descriptorSetCount of zero gives every set a variable descriptor count of zero, which still holds.
+    if ((variable_counts != nullptr) && (variable_counts->decoded_value->descriptorSetCount != 0))
     {
-        RemovePoolDanglingCreateDescriptors(args.descriptorPool);
-    }
+        GFXRECON_ASSERT(variable_counts->pDescriptorCounts.GetLength() ==
+                        variable_counts->decoded_value->descriptorSetCount);
 
-    VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, args);
+        variable_counts->decoded_value->descriptorSetCount = count;
+
+        // decoded_value->pDescriptorCounts points to the decoded counts, which are restricted in place.
+        variable_counts->pDescriptorCounts.KeepIndices(indices);
+    }
+}
+
+/// Restricts a vkFreeDescriptorSets call to the descriptor sets at `indices`.
+static void RestrictDescriptorSets(args::FreeDescriptorSets& args, const std::vector<uint32_t>& indices)
+{
+    GFXRECON_ASSERT(args.descriptorSetCount == args.pDescriptorSets.GetLength());
+    args.descriptorSetCount = static_cast<uint32_t>(indices.size());
+
+    args.pDescriptorSets.KeepIndices(indices);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(const ApiCallInfo&            call_info,
                                                                      args::AllocateDescriptorSets& args)
 {
-    if (frame_loop_info_.IsRepetition())
+    const FrameLoopLifetimeTracker::CallReplay replay = lifetime_tracker_.OnAllocate(args.pDescriptorSets.GetSpan());
+    if (!replay.IsSkipped())
     {
-        // Skip allocation of dangling descriptor sets
-        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
+        if (replay.IsRestricted())
         {
-            if (dangling_create_descriptor_sets_.contains(set_handle))
-            {
-                return;
-            }
+            RestrictDescriptorSets(args, replay.indices);
         }
-    }
 
-    VulkanReplayConsumer::Process_vkAllocateDescriptorSets(call_info, args);
-
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        // During first iteration of looping range, record which descriptor sets are allocated
-        // They will be removed from the set if they are freed during the loop range
-        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
-        {
-            dangling_create_descriptor_sets_.insert(set_handle);
-        }
+        VulkanReplayConsumer::Process_vkAllocateDescriptorSets(call_info, args);
     }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallInfo&        call_info,
                                                                  args::FreeDescriptorSets& args)
 {
-    if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
+    const FrameLoopLifetimeTracker::CallReplay replay = lifetime_tracker_.OnFree(args.pDescriptorSets.GetSpan());
+    if (!replay.IsSkipped())
     {
-        // If any of the descriptor sets are in the dangling list,
-        // then we want to omit their destruction
-        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
+        if (replay.IsRestricted())
         {
-            if (dangling_destroy_descriptor_sets_.contains(set_handle))
-            {
-                return;
-            }
+            RestrictDescriptorSets(args, replay.indices);
         }
+
+        VulkanReplayConsumer::Process_vkFreeDescriptorSets(call_info, args);
     }
-
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        bool skip_call = false;
-        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
-        {
-            if (dangling_create_descriptor_sets_.contains(set_handle))
-            {
-                // Any descriptor set that was freed during the loop range is not dangling
-                dangling_create_descriptor_sets_.erase(set_handle);
-            }
-            else
-            {
-                // Descriptor set freed during loop range but created before
-                dangling_destroy_descriptor_sets_.insert(set_handle);
-                skip_call = true;
-            }
-        }
-        if (skip_call)
-        {
-            return;
-        }
-    }
-
-    // For pools that contain dangling descriptor sets, this code will only be reached once,
-    // during the final iteration of the loop range.
-    RemovePoolDanglingCreateDescriptors(args.descriptorPool);
-
-    VulkanReplayConsumer::Process_vkFreeDescriptorSets(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& call_info, args::CreateFence& args)
@@ -1447,6 +1409,7 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
             CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
             FixupDeviceObjects(queue_info->parent_id, queue);
+            lifetime_tracker_.OnFrameEnd();
         }
     }
 }
@@ -2338,6 +2301,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
         FixupDeviceObjects(queue_info->parent_id, args.queue);
+        lifetime_tracker_.OnFrameEnd();
     }
 }
 

@@ -67,6 +67,13 @@ class HandlePointerDecoder
 
     std::span<const format::HandleId> GetSpan() const { return decoder_.GetSpan(); }
 
+    // See PointerDecoder::KeepIndices(). The handles are not kept, so this has to be called before SetHandleLength().
+    void KeepIndices(std::span<const uint32_t> indices)
+    {
+        GFXRECON_ASSERT(handle_data_len_ == 0);
+        decoder_.KeepIndices(indices);
+    }
+
     void SetExternalMemory(T* data, size_t capacity)
     {
         assert(handle_data_ == nullptr);

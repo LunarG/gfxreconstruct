@@ -81,6 +81,12 @@ const T* GetPNextMetaStruct(const PNextNode* pnext)
     return nullptr;
 }
 
+template <typename T>
+T* GetPNextMetaStruct(PNextNode* pnext)
+{
+    return const_cast<T*>(GetPNextMetaStruct<T>(static_cast<const PNextNode*>(pnext)));
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

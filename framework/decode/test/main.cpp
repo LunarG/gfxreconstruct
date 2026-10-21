@@ -32,6 +32,7 @@
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
+#include "decode/frame_loop_lifetime_tracker.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "graphics/vulkan_submit_info_util.h"
@@ -43,6 +44,8 @@
 #include "decode/vulkan_pnext_node.h"
 
 #include <limits>
+#include <algorithm>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -886,5 +889,401 @@ TEST_CASE("An aliasing group that cannot be allocated is rejected", "[rebind]")
             128);
 
         REQUIRE_FALSE(layout.valid);
+    }
+}
+
+// Ends an iteration of the loop frame. The tracker has to see the end of the frame before the loop moves on to the
+// next iteration, as the end of the first iteration is when it learns which handles outlive the frame.
+static void EndIteration(gfxrecon::graphics::FrameLoopInfo&          frame_loop_info,
+                         gfxrecon::decode::FrameLoopLifetimeTracker& tracker)
+{
+    tracker.OnFrameEnd();
+    frame_loop_info.DecrementLoopIterations();
+}
+
+static bool Contains(const std::vector<gfxrecon::format::HandleId>& handles, gfxrecon::format::HandleId handle)
+{
+    return std::find(handles.begin(), handles.end(), handle) != handles.end();
+}
+
+// Returns the handles at `indices`.
+static std::vector<gfxrecon::format::HandleId> Select(const std::vector<gfxrecon::format::HandleId>& handles,
+                                                      const std::vector<uint32_t>&                   indices)
+{
+    std::vector<gfxrecon::format::HandleId> selected;
+    for (uint32_t index : indices)
+    {
+        selected.push_back(handles[index]);
+    }
+    return selected;
+}
+
+// Tracks a call allocating `handles`. Returns the handles whose allocation is replayed.
+static std::vector<gfxrecon::format::HandleId> Allocate(gfxrecon::decode::FrameLoopLifetimeTracker&    tracker,
+                                                        const std::vector<gfxrecon::format::HandleId>& handles)
+{
+    return Select(handles, tracker.OnAllocate(handles).indices);
+}
+
+// Tracks a call freeing `handles`. Returns the handles whose free is replayed.
+static std::vector<gfxrecon::format::HandleId> Free(gfxrecon::decode::FrameLoopLifetimeTracker&    tracker,
+                                                    const std::vector<gfxrecon::format::HandleId>& handles)
+{
+    return Select(handles, tracker.OnFree(handles).indices);
+}
+
+TEST_CASE("FrameLoopLifetimeTracker skips a call left without handles and restricts a call left with some",
+          "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    constexpr HandleId kInLoop    = 1; // Allocated and freed within the loop
+    constexpr HandleId kAfterLoop = 2; // Allocated within the loop, freed after it
+
+    FrameLoopInfo            frame_loop_info(1, 3);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    frame_loop_info.SetLooping(true);
+    tracker.OnAllocate(std::vector<HandleId>{ kInLoop, kAfterLoop });
+    tracker.OnFree(std::vector<HandleId>{ kInLoop });
+    EndIteration(frame_loop_info, tracker);
+
+    SECTION("a call whose handles are all replayed is replayed as captured")
+    {
+        const FrameLoopLifetimeTracker::CallReplay replay = tracker.OnAllocate(std::vector<HandleId>{ kInLoop });
+        CHECK_FALSE(replay.IsSkipped());
+        CHECK_FALSE(replay.IsRestricted());
+    }
+
+    SECTION("a call whose handles are partly replayed is restricted to them")
+    {
+        const FrameLoopLifetimeTracker::CallReplay replay =
+            tracker.OnAllocate(std::vector<HandleId>{ kAfterLoop, kInLoop });
+        CHECK_FALSE(replay.IsSkipped());
+        CHECK(replay.IsRestricted());
+        CHECK(replay.indices == std::vector<uint32_t>{ 1 });
+    }
+
+    SECTION("a call whose handles are not replayed is skipped")
+    {
+        const FrameLoopLifetimeTracker::CallReplay replay = tracker.OnAllocate(std::vector<HandleId>{ kAfterLoop });
+        CHECK(replay.IsSkipped());
+        CHECK_FALSE(replay.IsRestricted());
+    }
+
+    SECTION("a call without handles is replayed as captured")
+    {
+        const FrameLoopLifetimeTracker::CallReplay replay = tracker.OnFree(std::vector<HandleId>{});
+        CHECK_FALSE(replay.IsSkipped());
+        CHECK_FALSE(replay.IsRestricted());
+    }
+}
+
+TEST_CASE("FrameLoopLifetimeTracker replays every call before the loop starts", "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    const std::vector<HandleId> sets = { 1, 2 };
+
+    FrameLoopInfo            frame_loop_info(2, 3);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    CHECK(Allocate(tracker, sets) == sets); // vkAllocateDescriptorSets
+    CHECK(Free(tracker, sets) == sets);     // vkFreeDescriptorSets
+}
+
+TEST_CASE("FrameLoopLifetimeTracker replays a call depending on where its handle is allocated and freed",
+          "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    const std::vector<HandleId> sets = { 1 };
+
+    // With a loop count of 2, the final iteration directly follows the first one.
+    const uint32_t loop_count = GENERATE(2u, 3u);
+    CAPTURE(loop_count);
+
+    FrameLoopInfo            frame_loop_info(1, loop_count);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    SECTION("allocated within the loop and freed within it: both calls replay on every iteration")
+    {
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < loop_count; ++iteration)
+        {
+            CAPTURE(iteration);
+            CHECK(Allocate(tracker, sets) == sets);
+            CHECK(Free(tracker, sets) == sets);
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+
+    SECTION("allocated within the loop and freed after it: the allocation replays on the first iteration only")
+    {
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < loop_count; ++iteration)
+        {
+            CAPTURE(iteration);
+            const std::vector<HandleId> allocated = Allocate(tracker, sets);
+            if (iteration == 0)
+            {
+                CHECK(allocated == sets);
+            }
+            else
+            {
+                // Repetitions keep using the set allocated by the first iteration.
+                CHECK(allocated.empty());
+            }
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+
+    SECTION("allocated before the loop and freed within it: the free replays on the final iteration only")
+    {
+        Allocate(tracker, sets); // Before the loop starts
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < loop_count; ++iteration)
+        {
+            CAPTURE(iteration);
+            const std::vector<HandleId> freed = Free(tracker, sets);
+            if (iteration == loop_count - 1)
+            {
+                CHECK(freed == sets);
+            }
+            else
+            {
+                // Repetitions still use the set, as it is not allocated again.
+                CHECK(freed.empty());
+            }
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+}
+
+TEST_CASE("FrameLoopLifetimeTracker decides per handle when a call holds handles with different lifetimes",
+          "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    // For each iteration, the handles a call is expected to replay, in the order the call lists them.
+    using HandlesPerIteration = std::vector<std::vector<HandleId>>;
+
+    constexpr HandleId kInLoop     = 1; // Allocated and freed within the loop
+    constexpr HandleId kAfterLoop  = 2; // Allocated within the loop, freed after it
+    constexpr HandleId kBeforeLoop = 3; // Allocated before the loop, freed within it
+    constexpr uint32_t kLoopCount  = 3;
+
+    FrameLoopInfo            frame_loop_info(1, kLoopCount);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    SECTION("vkAllocateDescriptorSets of a set freed within the loop and a set freed after it")
+    {
+        const std::vector<HandleId> to_allocate = { kInLoop, kAfterLoop };
+        const std::vector<HandleId> to_free     = { kInLoop };
+
+        // Skipping the whole allocation on repetitions would replay the free of a set that was not allocated again.
+        const HandlesPerIteration expected_allocated = { { kInLoop, kAfterLoop }, { kInLoop }, { kInLoop } };
+        const HandlesPerIteration expected_freed     = { { kInLoop }, { kInLoop }, { kInLoop } };
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+            CHECK(Allocate(tracker, to_allocate) == expected_allocated[iteration]);
+            CHECK(Free(tracker, to_free) == expected_freed[iteration]);
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+
+    SECTION("vkFreeDescriptorSets of a set allocated within the loop and a set allocated before it")
+    {
+        const std::vector<HandleId> before_loop = { kBeforeLoop };
+        const std::vector<HandleId> to_allocate = { kInLoop };
+        const std::vector<HandleId> to_free     = { kInLoop, kBeforeLoop };
+
+        // Deferring the whole free to the final iteration would allocate kInLoop again on every repetition, without
+        // freeing the set allocated by the previous iteration.
+        const HandlesPerIteration expected_allocated = { { kInLoop }, { kInLoop }, { kInLoop } };
+        const HandlesPerIteration expected_freed     = { { kInLoop }, { kInLoop }, { kInLoop, kBeforeLoop } };
+
+        Allocate(tracker, before_loop); // Before the loop starts
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+            CHECK(Allocate(tracker, to_allocate) == expected_allocated[iteration]);
+            CHECK(Free(tracker, to_free) == expected_freed[iteration]);
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+
+    SECTION("a set replaced every frame: the set of the previous frame is freed, the set of the next one allocated")
+    {
+        const std::vector<HandleId> before_loop = { kBeforeLoop };
+        const std::vector<HandleId> to_free     = { kBeforeLoop };
+        const std::vector<HandleId> to_allocate = { kAfterLoop };
+
+        const HandlesPerIteration expected_freed     = { {}, {}, { kBeforeLoop } };
+        const HandlesPerIteration expected_allocated = { { kAfterLoop }, {}, {} };
+
+        Allocate(tracker, before_loop); // Before the loop starts
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+            CHECK(Free(tracker, to_free) == expected_freed[iteration]);
+            CHECK(Allocate(tracker, to_allocate) == expected_allocated[iteration]);
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+}
+
+TEST_CASE("FrameLoopLifetimeTracker does not let a null handle delay a free", "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    constexpr HandleId kSet       = 1;
+    constexpr uint32_t kLoopCount = 3;
+
+    FrameLoopInfo            frame_loop_info(1, kLoopCount);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    const std::vector<HandleId> to_allocate = { kSet };
+    const std::vector<HandleId> to_free     = { gfxrecon::format::kNullHandleId, kSet };
+
+    // vkFreeDescriptorSets ignores VK_NULL_HANDLE entries, so whether the tracker returns the null handle does not
+    // matter, but the other sets of the call must still be freed on every iteration.
+    frame_loop_info.SetLooping(true);
+    for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+    {
+        CAPTURE(iteration);
+        Allocate(tracker, to_allocate);
+        CHECK(Contains(Free(tracker, to_free), kSet));
+        EndIteration(frame_loop_info, tracker);
+    }
+}
+
+TEST_CASE("FrameLoopLifetimeTracker keeps deferring frees when looping forever", "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    constexpr HandleId kInLoop     = 1;
+    constexpr HandleId kBeforeLoop = 2;
+    constexpr uint32_t kFrames     = 4;
+
+    // Without a loop count, the loop never reaches its final iteration.
+    FrameLoopInfo            frame_loop_info(1, FrameLoopInfo::INFINITE_ITERATIONS);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    const std::vector<HandleId> before_loop = { kBeforeLoop };
+    const std::vector<HandleId> to_allocate = { kInLoop };
+    const std::vector<HandleId> to_free     = { kInLoop, kBeforeLoop };
+
+    Allocate(tracker, before_loop); // Before the loop starts
+
+    frame_loop_info.SetLooping(true);
+    for (uint32_t iteration = 0; iteration < kFrames; ++iteration)
+    {
+        CAPTURE(iteration);
+        Allocate(tracker, to_allocate);
+        // Only the set allocated within the loop is freed: kBeforeLoop waits for a final iteration that never comes.
+        CHECK(Free(tracker, to_free) == to_allocate);
+        EndIteration(frame_loop_info, tracker);
+    }
+}
+
+TEST_CASE("FrameLoopLifetimeTracker replays a call depending on whether its handle is freed along with its pool",
+          "[frame_loop]")
+{
+    using gfxrecon::decode::FrameLoopLifetimeTracker;
+    using gfxrecon::format::HandleId;
+    using gfxrecon::graphics::FrameLoopInfo;
+
+    // For each iteration, the handles a call is expected to replay, in the order the call lists them.
+    using HandlesPerIteration = std::vector<std::vector<HandleId>>;
+
+    constexpr HandleId kSet       = 1;
+    constexpr uint32_t kLoopCount = 3;
+
+    const std::vector<HandleId> sets = { kSet };
+
+    FrameLoopInfo            frame_loop_info(1, kLoopCount);
+    FrameLoopLifetimeTracker tracker(frame_loop_info);
+
+    // The sets that the consumer's object info table holds for the pool.
+    std::unordered_set<HandleId> pool_sets;
+
+    SECTION("allocated from a pool destroyed within the loop: the allocation replays on every iteration")
+    {
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+            CHECK(Allocate(tracker, sets) == sets);
+            tracker.OnPoolDestroy({ kSet }); // vkDestroyDescriptorPool
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+
+    SECTION("allocated from a pool reset at the start of the loop: the reset and the allocation replay on the first "
+            "and final iterations")
+    {
+        // Repetitions skip the reset, as it would free the set they keep using. The final iteration replays the
+        // reset, so it has to allocate the set again.
+        const bool                expected_reset[kLoopCount] = { true, false, true };
+        const HandlesPerIteration expected_allocated         = { { kSet }, {}, { kSet } };
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+
+            const bool reset = tracker.OnPoolReset(pool_sets); // vkResetDescriptorPool
+            CHECK(reset == expected_reset[iteration]);
+            if (reset)
+            {
+                pool_sets.clear();
+            }
+
+            CHECK(Allocate(tracker, sets) == expected_allocated[iteration]); // vkAllocateDescriptorSets
+            pool_sets.insert(kSet);
+
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
+
+    SECTION("allocated before the loop, freed within it, then freed with its pool: the free never replays")
+    {
+        Allocate(tracker, sets); // Before the loop starts
+        pool_sets.insert(kSet);
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+
+            // The free is deferred, then the reset frees the set for real, so the final iteration must not free it
+            // again.
+            CHECK(Free(tracker, sets).empty());    // vkFreeDescriptorSets
+            CHECK(tracker.OnPoolReset(pool_sets)); // vkResetDescriptorPool
+            pool_sets.clear();
+
+            EndIteration(frame_loop_info, tracker);
+        }
     }
 }

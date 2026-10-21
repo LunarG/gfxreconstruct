@@ -75,6 +75,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/frame_loop_lifetime_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/frame_loop_lifetime_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/info_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/info_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/info_decoder.cpp
