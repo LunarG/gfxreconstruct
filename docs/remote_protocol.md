@@ -38,11 +38,11 @@ remote option is set but the channel cannot be established (connection failure o
 accept timeout), replay exits with failure and does not fall back to local
 playback. Local CLI args are used only when neither remote option is present.
 
-On Android these are bridged to the PC over adb:
+On Android these can be bridged to the PC over adb:
 
-- Listen mode: `adb reverse localabstract:gfxrecon tcp:<port>` (adbd binds the
-  abstract name on the device).
-- Connect mode: `adb forward tcp:<port> localabstract:gfxrecon` (adbd only
+- `--remote-connect`: `adb reverse localabstract:gfxrecon tcp:<port>` (adbd
+  binds the abstract name on the device).
+- `--remote-listen`: `adb forward tcp:<port> localabstract:gfxrecon` (adbd only
   connects to the name).
 
 ## Wire Format

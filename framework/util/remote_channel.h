@@ -136,7 +136,6 @@ class RemoteChannel
     bool RecvExact(void* buf, size_t size);
 
     SocketHandle fd_{ kInvalidSocket };
-    SocketHandle listen_fd_{ kInvalidSocket }; // Closed once a connection is accepted.
 
     std::thread                      sender_thread_;
     std::mutex                       queue_mutex_;

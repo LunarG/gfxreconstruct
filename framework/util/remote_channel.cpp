@@ -20,12 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// winsock2.h must come before any windows.h; WSAPoll() requires a Vista or later SDK target.
+// winsock2.h must come before any windows.h.
 #if defined(_WIN32)
-#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600)
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
-#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
@@ -34,6 +30,7 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -336,7 +333,18 @@ SocketHandle ListenUnix(const std::string& name)
     // Filesystem-backed sockets fail to bind if a stale node remains; abstract names (leading '@') need no unlink.
     if (name.empty() || name[0] != '@')
     {
-        unlink(name.c_str());
+        struct stat info = {};
+        if (lstat(name.c_str(), &info) == 0)
+        {
+            if (!S_ISSOCK(info.st_mode))
+            {
+                GFXRECON_LOG_ERROR("Remote channel: refusing to replace '%s', which exists and is not a socket",
+                                   name.c_str());
+                CloseSocket(fd);
+                return kInvalidSocket;
+            }
+            unlink(name.c_str());
+        }
     }
 
     if (bind(fd, reinterpret_cast<sockaddr*>(&addr), addrlen) != 0 || listen(fd, 1) != 0)
@@ -575,13 +583,14 @@ bool RemoteChannel::Listen(const std::string& address)
     constexpr const char kTcpPrefix[]  = "tcp:";
     constexpr const char kUnixPrefix[] = "unix:";
 
+    SocketHandle listen_fd = kInvalidSocket;
     if (address.rfind(kTcpPrefix, 0) == 0)
     {
-        listen_fd_ = ListenTcp(address.substr(sizeof(kTcpPrefix) - 1));
+        listen_fd = ListenTcp(address.substr(sizeof(kTcpPrefix) - 1));
     }
     else if (address.rfind(kUnixPrefix, 0) == 0)
     {
-        listen_fd_ = ListenUnix(address.substr(sizeof(kUnixPrefix) - 1));
+        listen_fd = ListenUnix(address.substr(sizeof(kUnixPrefix) - 1));
     }
     else
     {
@@ -590,15 +599,15 @@ bool RemoteChannel::Listen(const std::string& address)
         return false;
     }
 
-    if (listen_fd_ == kInvalidSocket)
+    if (listen_fd == kInvalidSocket)
     {
         return false;
     }
 
-    fd_ = AcceptWithTimeout(listen_fd_, kAcceptTimeoutSeconds);
+    fd_ = AcceptWithTimeout(listen_fd, kAcceptTimeoutSeconds);
 
     // The listening socket is no longer needed once a single controller has connected.
-    CloseSocket(listen_fd_);
+    CloseSocket(listen_fd);
 
     if (fd_ == kInvalidSocket)
     {
@@ -635,12 +644,6 @@ void RemoteChannel::Disconnect()
     if (fd_ != kInvalidSocket)
     {
         CloseSocket(fd_);
-    }
-
-    // Covers the Listen() paths that fail before a connection is accepted (bind/listen failure or accept timeout).
-    if (listen_fd_ != kInvalidSocket)
-    {
-        CloseSocket(listen_fd_);
     }
 
     send_queue_.clear();
