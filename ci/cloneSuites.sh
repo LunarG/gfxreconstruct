@@ -29,7 +29,8 @@ rm -rf ci-gfxr-suites
 
 if [ -z "${TEST_SUITE_BRANCH:-}" ]; then
   if [ -f "test_suite.ref" ]; then
-    IFS= read -r TEST_SUITE_BRANCH < test_suite.ref
+    # read returns 1 when the file has no newline at the end, also when it read the value.
+    IFS= read -r TEST_SUITE_BRANCH < test_suite.ref || [ -n "$TEST_SUITE_BRANCH" ]
   else
     TEST_SUITE_BRANCH="master"
   fi
