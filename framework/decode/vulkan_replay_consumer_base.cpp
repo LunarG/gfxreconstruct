@@ -5404,8 +5404,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         for (const auto& submit_iter : altered_submits)
         {
             // Shallow copy with filtered copy of pWaitSemaphores for submission info with removed semaphores.
-            VkSubmitInfo&            modified_submit_info = modified_submit_infos[submit_iter.first];
-            const SemaphoreFilter&   removed_semaphores   = submit_iter.second;
+            VkSubmitInfo&          modified_submit_info = modified_submit_infos[submit_iter.first];
+            const SemaphoreFilter& removed_semaphores   = submit_iter.second;
 
             std::vector<VkSemaphore>& wait_semaphores   = per_submit_wait_semaphores[&modified_submit_info];
             std::vector<VkSemaphore>& signal_semaphores = per_submit_signal_semaphores[&modified_submit_info];
@@ -5681,8 +5681,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         for (const auto& submit_iter : altered_submits)
         {
             // Shallow copy with filtered copy of pWaitSemaphores for submission info with removed semaphores.
-            VkSubmitInfo2&           modified_submit_info = modified_submit_infos[submit_iter.first];
-            const SemaphoreFilter&   removed_semaphores   = submit_iter.second;
+            VkSubmitInfo2&         modified_submit_info = modified_submit_infos[submit_iter.first];
+            const SemaphoreFilter& removed_semaphores   = submit_iter.second;
 
             std::vector<VkSemaphoreSubmitInfo>& wait_semaphore_infos =
                 per_submit_wait_semaphore_infos[&modified_submit_info];
