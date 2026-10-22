@@ -102,7 +102,7 @@ def CreateReplayParser():
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
 
     parser.add_argument('--loop-frame', metavar='N', default=0, help='Enable frame repeat (experimental). N specifies the frame number to repeat, where 1 is the first frame. (forwarded to replay tool)')
-    parser.add_argument('--loop-count', metavar='N', default=0, help='Specify the total number of times to play the loop frame. Default is to repeat the frame until replay is interrupted. (forwarded to replay tool)')
+    parser.add_argument('--loop-count', metavar='N', default=0, help='Specify the total number of times to play the loop frame. N must be greater than 1. Default is to repeat the frame until replay is interrupted. (forwarded to replay tool)')
 
     parser.add_argument('--cpu-mask', metavar='binary_mask', help='Set of CPU cores used by the replayer. `binary-mask` is a succession of "0" and "1" that specifies used/unused cores read from left to right. For example "10010" activates the first and fourth cores and deactivate all other cores. If the option is not set, all cores can be used. If the option is set only for some cores, the other cores are not used. (forwarded to replay tool)')
     parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')

@@ -692,8 +692,8 @@ Optional arguments:
                         N specifies the frame number to repeat, where 1 is
                         the first frame.
   --loop-count <N>      Specify the total number of times to play the loop
-                        frame. Default is to repeat the frame until replay
-                        is interrupted.
+                        frame. N must be greater than 1. Default is to
+                        repeat the frame until replay is interrupted.
   --screenshot-all
                         Generate screenshots for all frames.  When this
                         option is specified, --screenshots is ignored.
@@ -1129,8 +1129,8 @@ and then replays frame `N` again for each iteration. Replay exits once the
 final iteration finishes.
 
 `--loop-count <N>` sets how many times the loop frame is replayed, counting the
-first play of that frame as the first iteration. When it is not given, the
-frame repeats until replay is interrupted.
+first play of that frame as the first iteration, so `N` must be greater than 1.
+When it is not given, the frame repeats until replay is interrupted.
 
 ```bash
 gfxrecon-replay --loop-frame 100 --loop-count 500 capture.gfxr
