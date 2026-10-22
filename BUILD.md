@@ -187,7 +187,7 @@ Visual Studio configuration will include support for capturing and replaying Dir
 At this point, you can build the solution from the command line or open the
 generated solution with Visual Studio.
 
-**Note: The D3D12 build uses Windows 10 SDK 10.0.26100.0. Other Windows SDK versions may not be compatible. If you need to specify a Windows SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.26100.0`. If Python code generation is required, the shell used to run it should set the environment variable `WindowsSDKVersion=10.0.26100.0`.**
+**Note: The D3D12 build uses Windows 10 SDK 10.0.26100.0. Other Windows SDK versions may not be compatible. If you need to specify a Windows SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.26100.0`. If Python code generation is required, the shell used to run it should set the environment variable `WindowsSDKVersion=10.0.26100.0`. CI generates the D3D12 code from Windows SDK build 10.0.26100.8249 (NuGet package `Microsoft.Windows.SDK.CPP`). Other 10.0.26100 builds can produce different generated code.**
 
 When generating a native build on an ARM64 Windows host the Visual Studio
 Installer can be used to install the required Windows SDK version, `10.0.26100.0`.
