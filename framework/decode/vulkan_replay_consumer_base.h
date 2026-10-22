@@ -2044,7 +2044,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                             DescriptorUpdateTemplateDecoder*          decoder);
 
     // Wait and signal semaphores to omit from one submission.
-    struct RemovedSemaphores
+    struct SemaphoreFilter
     {
         std::unordered_set<VkSemaphore> waits;
         std::unordered_set<VkSemaphore> signals;
