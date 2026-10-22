@@ -26,6 +26,7 @@
 #include "util/logging.h"
 
 #include <algorithm>
+#include <type_traits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -291,6 +292,87 @@ SubmitInfoTranslator::SubmitInfoTranslator(std::span<const VkSubmitInfo2> submit
                           submit_info_2.signalSemaphoreInfoCount ? signal_semaphores_[i].data() : nullptr };
     }
 }
+
+static VkSemaphore GetSemaphore(VkSemaphore semaphore)
+{
+    return semaphore;
+}
+
+static VkSemaphore GetSemaphore(const VkSemaphoreSubmitInfo& semaphore_info)
+{
+    return semaphore_info.semaphore;
+}
+
+// Copies the entries of a semaphore array whose semaphore the filter does not name.
+template <typename SemaphoreEntry>
+static void CopyUnfilteredSemaphores(const SemaphoreEntry*                  semaphores,
+                                     uint32_t                               count,
+                                     const std::unordered_set<VkSemaphore>& removed,
+                                     std::vector<SemaphoreEntry>&           kept)
+{
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        if (!removed.contains(GetSemaphore(semaphores[i])))
+        {
+            kept.push_back(semaphores[i]);
+        }
+    }
+}
+
+template <typename SubmitInfo, typename SemaphoreEntry>
+void FilterSemaphores(std::vector<SubmitInfo>&                                            submit_infos,
+                      const std::unordered_map<uint32_t, SemaphoreFilter>&                filters,
+                      std::unordered_map<const SubmitInfo*, std::vector<SemaphoreEntry>>& wait_semaphores,
+                      std::unordered_map<const SubmitInfo*, std::vector<SemaphoreEntry>>& signal_semaphores)
+{
+    for (const auto& [index, filter] : filters)
+    {
+        GFXRECON_ASSERT(index < submit_infos.size());
+
+        SubmitInfo&                  submit_info = submit_infos[index];
+        std::vector<SemaphoreEntry>& waits       = wait_semaphores[&submit_info];
+        std::vector<SemaphoreEntry>& signals     = signal_semaphores[&submit_info];
+
+        // VkSubmitInfo2
+        if constexpr (std::is_same_v<SubmitInfo, VkSubmitInfo2>)
+        {
+            CopyUnfilteredSemaphores(
+                submit_info.pWaitSemaphoreInfos, submit_info.waitSemaphoreInfoCount, filter.waits, waits);
+            CopyUnfilteredSemaphores(
+                submit_info.pSignalSemaphoreInfos, submit_info.signalSemaphoreInfoCount, filter.signals, signals);
+
+            submit_info.waitSemaphoreInfoCount   = static_cast<uint32_t>(waits.size());
+            submit_info.pWaitSemaphoreInfos      = waits.data();
+            submit_info.signalSemaphoreInfoCount = static_cast<uint32_t>(signals.size());
+            submit_info.pSignalSemaphoreInfos    = signals.data();
+        }
+        // VkSubmitInfo and VkBindSparseInfo
+        else
+        {
+            CopyUnfilteredSemaphores(submit_info.pWaitSemaphores, submit_info.waitSemaphoreCount, filter.waits, waits);
+            CopyUnfilteredSemaphores(
+                submit_info.pSignalSemaphores, submit_info.signalSemaphoreCount, filter.signals, signals);
+
+            submit_info.waitSemaphoreCount   = static_cast<uint32_t>(waits.size());
+            submit_info.pWaitSemaphores      = waits.data();
+            submit_info.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
+            submit_info.pSignalSemaphores    = signals.data();
+        }
+    }
+}
+
+template void FilterSemaphores(std::vector<VkSubmitInfo>&,
+                               const std::unordered_map<uint32_t, SemaphoreFilter>&,
+                               std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>>&,
+                               std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>>&);
+template void FilterSemaphores(std::vector<VkSubmitInfo2>&,
+                               const std::unordered_map<uint32_t, SemaphoreFilter>&,
+                               std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>>&,
+                               std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>>&);
+template void FilterSemaphores(std::vector<VkBindSparseInfo>&,
+                               const std::unordered_map<uint32_t, SemaphoreFilter>&,
+                               std::unordered_map<const VkBindSparseInfo*, std::vector<VkSemaphore>>&,
+                               std::unordered_map<const VkBindSparseInfo*, std::vector<VkSemaphore>>&);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

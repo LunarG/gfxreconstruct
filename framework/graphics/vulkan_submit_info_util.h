@@ -28,6 +28,8 @@
 #include "vulkan/vulkan.h"
 
 #include <span>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <cstdint>
 
@@ -104,6 +106,19 @@ class SubmitInfoTranslator
     std::vector<VkDeviceGroupSubmitInfo>       device_group_submit_infos_;
     std::vector<VkProtectedSubmitInfo>         protected_submit_infos_;
 };
+
+// Wait and signal semaphores to omit from one submission.
+struct SemaphoreFilter
+{
+    std::unordered_set<VkSemaphore> waits;
+    std::unordered_set<VkSemaphore> signals;
+};
+
+template <typename SubmitInfo, typename SemaphoreEntry>
+void FilterSemaphores(std::vector<SubmitInfo>&                                            submit_infos,
+                      const std::unordered_map<uint32_t, SemaphoreFilter>&                filters,
+                      std::unordered_map<const SubmitInfo*, std::vector<SemaphoreEntry>>& wait_semaphores,
+                      std::unordered_map<const SubmitInfo*, std::vector<SemaphoreEntry>>& signal_semaphores);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
