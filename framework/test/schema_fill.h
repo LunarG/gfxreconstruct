@@ -122,11 +122,11 @@ class FillAction
 
     template <typename Field, typename Storage>
     requires schema::AnyCountedField<Field> && schema::HasMember<Storage, Field> &&
-        schema::HasFieldCount<Storage, Field>
+        schema::HasFieldLength<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         using Element      = schema::FieldElementType<Field>;
-        const size_t count = static_cast<size_t>(schema::FieldCount<Field>::Get(storage));
+        const size_t count = static_cast<size_t>(schema::FieldLength<Field>::Get(storage));
 
         if constexpr (schema::PointerArrayField<Field>)
         {

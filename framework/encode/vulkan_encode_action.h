@@ -212,15 +212,15 @@ class EncodeStructAction
     // encoder needs, so it is read as a value like any other; nothing here takes the member's address.
     template <typename Field, typename Storage>
     requires schema::AnyCountedField<Field> && schema::HasMember<Storage, Field> &&
-        schema::HasFieldCount<Storage, Field>
+        schema::HasFieldLength<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
-        using FieldCount = schema::FieldCount<Field>;
+        using FieldLength = schema::FieldLength<Field>;
 
         static_assert(Field::pointer_count == (schema::ArrayField<Field> ? 1 : 2),
                       "A pointer to a run has one level of indirection, a run of pointers two");
 
-        const size_t count = GFXRECON_NARROWING_CAST(size_t, FieldCount::Get(storage));
+        const size_t count = GFXRECON_NARROWING_CAST(size_t, FieldLength::Get(storage));
         EncoderAdapter()(field, encoder_, schema::Get(storage, field), count);
     }
 
@@ -248,17 +248,17 @@ class EncodeStructAction
 
         if constexpr (std::rank_v<ArrayType> == 2)
         {
-            static_assert(!(schema::HasFieldCount<Storage, Field>),
+            static_assert(!(schema::HasFieldLength<Storage, Field>),
                           "A multi-dimensional fixed-extent array with a count field is not yet schema enabled");
             EncoderAdapter()(field, encoder_, &array_ref[0][0], count);
         }
         else
         {
-            if constexpr (schema::HasFieldCount<Storage, Field>)
+            if constexpr (schema::HasFieldLength<Storage, Field>)
             {
-                using FieldCount = schema::FieldCount<Field>;
+                using FieldLength = schema::FieldLength<Field>;
                 // The count member's value in its own type; the clamp bounds it by the capacity and reports.
-                const auto count_value = FieldCount::Get(storage);
+                const auto count_value = FieldLength::Get(storage);
                 count = ParameterEncoder::ClampStaticArrayLength(count_value, count, Field::field_name.data());
             }
             EncoderAdapter()(field, encoder_, &array_ref[0], count);

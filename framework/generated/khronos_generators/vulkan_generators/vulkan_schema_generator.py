@@ -1012,8 +1012,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         return emit(tree)
 
-    def get_field_count(self, value, members):
-        """The field_count expression, or None when no Action can evaluate the registry length."""
+    def get_field_length(self, value, members):
+        """The length expression, or None when no Action can evaluate the registry length."""
         count_field = self.get_count_field(value, members)
 
         if count_field:
@@ -1036,7 +1036,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         if self.parse_count_expression(value, members) is None:
             return None
 
-        return '// NOTE: field_count evaluates {}'.format(value.array_length)
+        return '// NOTE: length evaluates {}'.format(value.array_length)
 
     def get_static_array_extents(self, value):
         """The declared extents of a fixed-extent array member, in declaration order, as the registry spells them."""
@@ -1084,10 +1084,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 )
             )
 
-        field_count = self.get_field_count(value, members)
+        length = self.get_field_length(value, members)
 
-        if field_count:
-            parts.append('using field_count = {};'.format(field_count))
+        if length:
+            parts.append('using length = {};'.format(length))
         elif value.array_length and shape in ('Array', 'StaticArray'):
             parts.append(
                 'static constexpr std::string_view length_expression = "{}";'.
@@ -1150,7 +1150,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         generic_handles = self.get_generic_handles(owner, is_command, members)
 
-        # A field_count or a selector_field names a sibling, and the Vulkan registry always declares that sibling
+        # A length or a selector_field names a sibling, and the Vulkan registry always declares that sibling
         # before the member that names it, so the API elements are written in declaration order with no forward
         # declarations. That is a Vulkan-derived rule: a sibling named before its declaration fails to compile at
         # that line, and an API that breaks the rule needs a "references" fact in the IR and a backend that emits

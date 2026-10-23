@@ -139,7 +139,7 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, for
 static_assert(schema::HandleValueField<barrier_field::buffer>);
 static_assert(schema::StructField<cmd_field::pBufferMemoryBarriers>);
 static_assert(schema::ArrayField<cmd_field::pBufferMemoryBarriers>);
-static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::field_count,
+static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::length,
                              schema::FieldValue<cmd_field::bufferMemoryBarrierCount>>);
 static_assert(schema::ExtensionChainField<barrier_field::pNext>);
 
@@ -1474,7 +1474,7 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
 TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "[schema][encode]")
 {
     // Two migrated structures whose fixed-extent arrays carry a count sibling. The procedural bodies encode the
-    // count, not the extent, and the schema records the sibling as field_count, so the static-array overload reads
+    // count, not the extent, and the schema records the sibling as length, so the static-array overload reads
     // it. VkPhysicalDeviceMemoryProperties holds two structure arrays; VkPhysicalDeviceGroupProperties holds the
     // registry's one handle static array, the only exercise the handle array adapter entry's static-array half
     // gets. Counts sit below the extents so a full-extent run lands on different bytes. The over-extent cases have
@@ -1491,17 +1491,17 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
     namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
     static_assert(schema::StaticArrayField<group_field::physicalDevices>);
     static_assert(schema::HandleField<group_field::physicalDevices>);
-    static_assert(schema::HasFieldCount<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
-    static_assert(std::is_same_v<schema::FieldCount<group_field::physicalDevices>,
+    static_assert(schema::HasFieldLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
+    static_assert(std::is_same_v<schema::FieldLength<group_field::physicalDevices>,
                                  schema::FieldValue<group_field::physicalDeviceCount>>);
     static_assert(encode::HasCaptureWrapper<schema::vulkan::api_elements::VkPhysicalDevice>);
     static_assert(schema::StaticArrayField<memory_field::memoryTypes>);
     static_assert(schema::StaticArrayField<memory_field::memoryHeaps>);
-    static_assert(schema::HasFieldCount<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
-    static_assert(schema::HasFieldCount<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
-    static_assert(std::is_same_v<schema::FieldCount<memory_field::memoryTypes>,
+    static_assert(schema::HasFieldLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
+    static_assert(schema::HasFieldLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
+    static_assert(std::is_same_v<schema::FieldLength<memory_field::memoryTypes>,
                                  schema::FieldValue<memory_field::memoryTypeCount>>);
-    static_assert(std::is_same_v<schema::FieldCount<memory_field::memoryHeaps>,
+    static_assert(std::is_same_v<schema::FieldLength<memory_field::memoryHeaps>,
                                  schema::FieldValue<memory_field::memoryHeapCount>>);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
@@ -1676,13 +1676,13 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     static_assert(schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
     static_assert(schema::TextField<instance_field::ppEnabledLayerNames>);
     static_assert(instance_field::ppEnabledLayerNames::pointer_count == 2);
-    static_assert(std::is_same_v<schema::FieldCount<instance_field::ppEnabledExtensionNames>,
+    static_assert(std::is_same_v<schema::FieldLength<instance_field::ppEnabledExtensionNames>,
                                  schema::FieldValue<instance_field::enabledExtensionCount>>);
 
     static_assert(schema::PointerArrayField<micromap_field::ppUsageCounts>);
     static_assert(schema::StructField<micromap_field::ppUsageCounts>);
     static_assert(micromap_field::ppUsageCounts::pointer_count == 2);
-    static_assert(std::is_same_v<schema::FieldCount<micromap_field::ppUsageCounts>,
+    static_assert(std::is_same_v<schema::FieldLength<micromap_field::ppUsageCounts>,
                                  schema::FieldValue<micromap_field::usageCountsCount>>);
     static_assert(schema::ArrayField<micromap_field::pUsageCounts>);
 
@@ -1849,7 +1849,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     // a size_t sibling over a constant (VkShaderModuleCreateInfo, codeSize / 4), an enum sibling plus a constant over
     // a constant (VkPipelineMultisampleStateCreateInfo, (rasterizationSamples + 31) / 32), and two constants with no
     // sibling at all (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The API element carries the expression as a
-    // StoreValue type, the Action's counted-run Apply evaluates it through FieldCount::Get, and the procedural body
+    // StoreValue type, the Action's counted-run Apply evaluates it through FieldLength::Get, and the procedural body
     // each replaced is the oracle. Two retained partners: VkPipelineRasterizationStateCreateInfo has the same scalar,
     // enum and float fields as the multisample state with no run, and VkAccelerationStructureVersionInfoKHR is the
     // micromap version's byte-identical twin on its procedural body.
@@ -1859,14 +1859,14 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
 
     // The API elements state the registry's arithmetic in prefix form, literals unsigned beside an unsigned
     // sibling or constant and int beside an enum.
-    static_assert(std::is_same_v<schema::FieldCount<shader_field::pCode>,
+    static_assert(std::is_same_v<schema::FieldLength<shader_field::pCode>,
                                  schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Literal<4u>>>);
     static_assert(
-        std::is_same_v<schema::FieldCount<multisample_field::pSampleMask>,
+        std::is_same_v<schema::FieldLength<multisample_field::pSampleMask>,
                        schema::Quotient<schema::Sum<schema::FieldValue<multisample_field::rasterizationSamples>,
                                                     schema::Literal<31>>,
                                         schema::Literal<32>>>);
-    static_assert(std::is_same_v<schema::FieldCount<micromap_field::pVersionData>,
+    static_assert(std::is_same_v<schema::FieldLength<micromap_field::pVersionData>,
                                  schema::Product<schema::Literal<2u>, schema::Literal<VK_UUID_SIZE>>>);
 
     // Every operand is a StoreValue, nothing else is, and a count yields an integer or an enum but never a bool.
@@ -1875,22 +1875,22 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     static_assert(schema::StoreValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
     static_assert(!schema::StoreValue<int>);
     static_assert(!schema::StoreValue<shader_field::codeSize>);
-    static_assert(schema::CountValue<size_t>);
-    static_assert(schema::CountValue<VkSampleCountFlagBits>);
-    static_assert(!schema::CountValue<bool>);
-    static_assert(!schema::CountValue<float>);
+    static_assert(schema::LengthValue<size_t>);
+    static_assert(schema::LengthValue<VkSampleCountFlagBits>);
+    static_assert(!schema::LengthValue<bool>);
+    static_assert(!schema::LengthValue<float>);
 
     // A constant-only count evaluates on any store, and the arithmetic runs in the operands' own types.
-    static_assert(schema::HasFieldCount<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
-    static_assert(schema::HasFieldCount<VkShaderModuleCreateInfo, shader_field::pCode>);
-    static_assert(schema::HasFieldCount<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
-    static_assert(std::is_same_v<decltype(schema::FieldCount<shader_field::pCode>::Get(
+    static_assert(schema::HasFieldLength<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
+    static_assert(schema::HasFieldLength<VkShaderModuleCreateInfo, shader_field::pCode>);
+    static_assert(schema::HasFieldLength<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
+    static_assert(std::is_same_v<decltype(schema::FieldLength<shader_field::pCode>::Get(
                                      std::declval<const VkShaderModuleCreateInfo&>())),
                                  size_t>);
-    static_assert(std::is_same_v<decltype(schema::FieldCount<multisample_field::pSampleMask>::Get(
+    static_assert(std::is_same_v<decltype(schema::FieldLength<multisample_field::pSampleMask>::Get(
                                      std::declval<const VkPipelineMultisampleStateCreateInfo&>())),
                                  int>);
-    static_assert(schema::FieldCount<micromap_field::pVersionData>::Get(VkMicromapVersionInfoEXT{}) == 32u);
+    static_assert(schema::FieldLength<micromap_field::pVersionData>::Get(VkMicromapVersionInfoEXT{}) == 32u);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
@@ -1918,7 +1918,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
             VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, nullptr, 0u, code_size, code_size ? words : nullptr
         };
 
-        CHECK(schema::FieldCount<shader_field::pCode>::Get(shader) == code_size / 4);
+        CHECK(schema::FieldLength<shader_field::pCode>::Get(shader) == code_size / 4);
         CHECK(matches(shader, [&](encode::ParameterEncoder& oracle) {
             oracle.EncodeEnumValue(shader.sType);
             encode::EncodePNextStruct(&oracle, shader.pNext);
@@ -1943,7 +1943,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
                                                           VK_FALSE,
                                                           VK_TRUE };
 
-        CHECK(schema::FieldCount<multisample_field::pSampleMask>::Get(multisample) == (samples + 31) / 32);
+        CHECK(schema::FieldLength<multisample_field::pSampleMask>::Get(multisample) == (samples + 31) / 32);
         CHECK(matches(multisample, [&](encode::ParameterEncoder& oracle) {
             oracle.EncodeEnumValue(multisample.sType);
             encode::EncodePNextStruct(&oracle, multisample.pNext);
@@ -2036,7 +2036,7 @@ TEST_CASE("Get yields a Field's value in place or by copy", "[schema]")
     CHECK(schema::Get(flags, flag{}) == 1u);
 }
 
-TEST_CASE("A field_count reads a length through a pointer sibling", "[schema]")
+TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
 {
     // Three command parameters have a registry length of the form sibling->member, with no sibling holding the
     // count itself. The generator records the two-argument FieldValue for each, and its Get reads the sibling's
@@ -2049,24 +2049,24 @@ TEST_CASE("A field_count reads a length through a pointer sibling", "[schema]")
     namespace build_field      = schema::vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR;
 
     static_assert(schema::PointerField<alloc_field::pAllocateInfo>);
-    static_assert(std::is_same_v<schema::FieldCount<alloc_field::pCommandBuffers>,
+    static_assert(std::is_same_v<schema::FieldLength<alloc_field::pCommandBuffers>,
                                  schema::FieldValue<alloc_field::pAllocateInfo, alloc_info_field::commandBufferCount>>);
-    static_assert(std::is_same_v<schema::FieldCount<set_field::pDescriptorSets>,
+    static_assert(std::is_same_v<schema::FieldLength<set_field::pDescriptorSets>,
                                  schema::FieldValue<set_field::pAllocateInfo, set_info_field::descriptorSetCount>>);
-    static_assert(std::is_same_v<schema::FieldCount<sizes_field::pMaxPrimitiveCounts>,
+    static_assert(std::is_same_v<schema::FieldLength<sizes_field::pMaxPrimitiveCounts>,
                                  schema::FieldValue<sizes_field::pBuildInfo, build_field::geometryCount>>);
 
     // The two-argument form is a count the Action can evaluate on a store that holds the pointer sibling, and the
     // store the member is read from is the pointee.
-    static_assert(schema::HasFieldCount<AllocateCallStore, alloc_field::pCommandBuffers>);
-    static_assert(std::is_same_v<schema::FieldCount<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
+    static_assert(schema::HasFieldLength<AllocateCallStore, alloc_field::pCommandBuffers>);
+    static_assert(std::is_same_v<schema::FieldLength<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
                                  VkCommandBufferAllocateInfo>);
 
     VkCommandBufferAllocateInfo info{};
     info.commandBufferCount = 3u;
     AllocateCallStore store{ VK_NULL_HANDLE, &info, nullptr };
 
-    CHECK(schema::FieldCount<alloc_field::pCommandBuffers>::Get(store) == 3u);
+    CHECK(schema::FieldLength<alloc_field::pCommandBuffers>::Get(store) == 3u);
     CHECK(schema::FieldValue<alloc_field::pAllocateInfo>::Get(store) == &info);
 
     // The Action's counted-run Apply evaluates the same count. No command goes through the encode Action yet, but
