@@ -56,6 +56,8 @@ class VulkanConsumerBase : public CommonConsumerBase
 
     virtual void StartLooping() {}
 
+    virtual void OnFrameEnd() {}
+
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
                                                            args::UpdateDescriptorSetWithTemplate& args)
     {}

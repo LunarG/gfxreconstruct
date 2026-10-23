@@ -60,6 +60,8 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void StartLooping() override;
 
+    virtual void OnFrameEnd() override;
+
     virtual bool IsComplete(uint64_t block_index) override
     {
         return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);

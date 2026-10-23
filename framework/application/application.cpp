@@ -338,6 +338,8 @@ bool Application::PlaySingleFrame()
         {
             replay_event_sink_->FrameEnd();
         }
+
+        file_processor_->OnFrameEnd();
     }
 
     return success;
