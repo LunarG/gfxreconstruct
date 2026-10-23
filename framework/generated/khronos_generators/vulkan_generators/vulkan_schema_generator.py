@@ -53,7 +53,7 @@ Two Field properties differ from the design text, because the registry forces th
     share the name of its enclosing class.
     The shape vocabulary adds Pointer, StaticArray, PointerArray, and ExtensionChain to Value, Array, and VoidReturn. The
     design names field_shape::Value, field_shape::Array, and field_shape::VoidReturn, and it names an
-    ExtensionChainShapeField concept, but it does not define the complete set.
+    ExtensionChainField concept, but it does not define the complete set.
 """
 
 import json

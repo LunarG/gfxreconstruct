@@ -55,32 +55,32 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // adapter and in the schema, and the same Action would serve another API given its adapter.
 struct EncoderAdapter
 {
-    // Scalar and address kinds: value, pointer, run. GeneralScalarKindField admits the address kind because its bits
+    // Scalar and address kinds: value, pointer, run. GeneralScalarField admits the address kind because its bits
     // are the value recorded, and Encode converts a pointer with the cast it needs. The value entry takes the
     // member's declared type rather than the element type. An address member is declared void*, const void*, or a
     // platform type's pointer (CAMetalLayer*), all one Address kind whose element type is void*; a scalar member
     // may be declared as a platform typedef of its element type's width (DWORD for uint32_t); the encoder records
     // the bits of any of them.
     template <typename Field, typename DeclaredType>
-    requires schema::GeneralScalarKindField<Field> && schema::ValueShapeField<Field>
+    requires schema::GeneralScalarField<Field> && schema::ValueField<Field>
     void operator()(Field, ParameterEncoder* encoder, const DeclaredType& value) const
     {
         using ElementType = schema::FieldElementType<Field>;
-        static_assert(schema::AddressKindField<Field> || std::is_same_v<DeclaredType, ElementType> ||
+        static_assert(schema::AddressField<Field> || std::is_same_v<DeclaredType, ElementType> ||
                           (std::is_integral_v<DeclaredType> && sizeof(DeclaredType) == sizeof(ElementType)),
                       "A scalar member is declared as its element type or a same-width integral typedef of it");
         encoder->Encode(schema::FieldKind<Field>{}, value);
     }
 
     template <typename Field>
-    requires schema::GeneralScalarKindField<Field> && schema::PointerShapeField<Field>
+    requires schema::GeneralScalarField<Field> && schema::PointerField<Field>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* pointer) const
     {
         encoder->EncodePointer(schema::FieldKind<Field>{}, pointer);
     }
 
     template <typename Field, typename DeclaredType>
-    requires schema::GeneralScalarKindField<Field> && schema::AnyArrayShapeField<Field>
+    requires schema::GeneralScalarField<Field> && schema::AnyArrayField<Field>
     void operator()(Field, ParameterEncoder* encoder, const DeclaredType* array, size_t count) const
     {
         // We encode the schema's element type, not the member's declared type. This is to support
@@ -93,7 +93,7 @@ struct EncoderAdapter
     // Handle kind: value, pointer, run. A handle is recorded as its capture wrapper's id, so each entry needs the
     // wrapper type CaptureWrapperFor maps its API element to, and requires HasCaptureWrapper.
     template <typename Field>
-    requires schema::HandleKindField<Field> && schema::ValueShapeField<Field> &&
+    requires schema::HandleField<Field> && schema::ValueField<Field> &&
         HasCaptureWrapper<typename Field::api_element>
     void operator()(Field field, ParameterEncoder* encoder, const schema::FieldElementType<Field>& handle) const
     {
@@ -102,7 +102,7 @@ struct EncoderAdapter
     }
 
     template <typename Field>
-    requires schema::HandleKindField<Field> && schema::PointerShapeField<Field> &&
+    requires schema::HandleField<Field> && schema::PointerField<Field> &&
         HasCaptureWrapper<typename Field::api_element>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* handle_pointer) const
     {
@@ -115,7 +115,7 @@ struct EncoderAdapter
     }
 
     template <typename Field>
-    requires schema::HandleKindField<Field> && schema::AnyArrayShapeField<Field> &&
+    requires schema::HandleField<Field> && schema::AnyArrayField<Field> &&
         HasCaptureWrapper<typename Field::api_element>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* array, size_t count) const
     {
@@ -125,21 +125,21 @@ struct EncoderAdapter
 
     // Struct kind: value, pointer, run. Each calls the EncodeStruct overload for the element's type.
     template <typename Field>
-    requires schema::StructKindField<Field> && schema::ValueShapeField<Field>
+    requires schema::StructField<Field> && schema::ValueField<Field>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>& value) const
     {
         EncodeStruct(encoder, value);
     }
 
     template <typename Field>
-    requires schema::StructKindField<Field> && schema::PointerShapeField<Field>
+    requires schema::StructField<Field> && schema::PointerField<Field>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* pointer) const
     {
         EncodeStructPtr(encoder, pointer);
     }
 
     template <typename Field>
-    requires schema::StructKindField<Field> && schema::AnyArrayShapeField<Field>
+    requires schema::StructField<Field> && schema::AnyArrayField<Field>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* array, size_t count) const
     {
         EncodeStructArray(encoder, array, count);
@@ -149,7 +149,7 @@ struct EncoderAdapter
     // two-dimensional structure array with every row of length 1. The 1 is the encoder's spelling of the shape, not a
     // schema fact, which is why the API element carries no extent for it.
     template <typename Field>
-    requires schema::StructKindField<Field> && schema::PointerArrayShapeField<Field>
+    requires schema::StructField<Field> && schema::PointerArrayField<Field>
     void
     operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* const* rows, size_t count) const
     {
@@ -160,14 +160,14 @@ struct EncoderAdapter
     // each entry passes it as a tag. A fixed-extent string passes its extent as the strnlen bound, and
     // a run of strings is a run of null-terminated pointees, so no row length exists to pass.
     template <typename Field>
-    requires schema::TextKindField<Field> && schema::PointerShapeField<Field>
+    requires schema::TextField<Field> && schema::PointerField<Field>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* text) const
     {
         encoder->EncodeString(schema::FieldKind<Field>{}, text);
     }
 
     template <typename Field>
-    requires schema::TextKindField<Field> && schema::StaticArrayShapeField<Field>
+    requires schema::TextField<Field> && schema::StaticArrayField<Field>
     void
     operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* text, size_t capacity) const
     {
@@ -176,7 +176,7 @@ struct EncoderAdapter
     }
 
     template <typename Field>
-    requires schema::TextKindField<Field> && schema::PointerArrayShapeField<Field>
+    requires schema::TextField<Field> && schema::PointerArrayField<Field>
     void operator()(Field,
                     ParameterEncoder*                             encoder,
                     const schema::FieldElementType<Field>* const* strings,
@@ -194,13 +194,13 @@ class EncodeStructAction
     // A value-shaped field of any kind the adapter encodes. Get references an ordinary member in place, or yields the
     // value of a non-addressable one (e.g. a bitfield), so one overload serves both.
     template <typename Field, typename Storage>
-    requires schema::ValueShapeField<Field> && schema::HasMember<Storage, Field>
+    requires schema::ValueField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field field, const Storage& storage) { EncoderAdapter()(field, encoder_, schema::Get(storage, field)); }
 
     // A pointer to one element. The member holds the pointer, and the pointer is what the encoder needs, so it is
     // read as a value like any other; nothing here takes the member's address.
     template <typename Field, typename Storage>
-    requires schema::PointerShapeField<Field> && schema::HasMember<Storage, Field>
+    requires schema::PointerField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
         static_assert(Field::pointer_count == 1, "A pointer to one element has one level of indirection");
@@ -211,13 +211,13 @@ class EncodeStructAction
     // pointers each to one element (PointerArray). Either way the member holds a pointer, and the pointer is what the
     // encoder needs, so it is read as a value like any other; nothing here takes the member's address.
     template <typename Field, typename Storage>
-    requires schema::AnyCountedShapeField<Field> && schema::HasMember<Storage, Field> &&
+    requires schema::AnyCountedField<Field> && schema::HasMember<Storage, Field> &&
         schema::HasFieldCount<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
         using FieldCount = schema::FieldCount<Field>;
 
-        static_assert(Field::pointer_count == (schema::ArrayShapeField<Field> ? 1 : 2),
+        static_assert(Field::pointer_count == (schema::ArrayField<Field> ? 1 : 2),
                       "A pointer to a run has one level of indirection, a run of pointers two");
 
         const size_t count = GFXRECON_NARROWING_CAST(size_t, FieldCount::Get(storage));
@@ -232,7 +232,7 @@ class EncodeStructAction
     // If a count field is present the static extent is treated as the capacity, and count elements up to capacity are
     // written.
     template <typename Field, typename Storage>
-    requires schema::StaticArrayShapeField<Field> && schema::Addressable<Storage, Field>
+    requires schema::StaticArrayField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
         const auto& array_ref = schema::GetRef(storage, field);
@@ -271,7 +271,7 @@ class EncodeStructAction
     // the spec then usually says the pointer is null, driver-written memory may hold garbage there, and vendors
     // chain unregistered structures anyway. Both walks resolve each node's type at run time from its sType.
     template <typename Field, typename Storage>
-    requires schema::ExtensionChainShapeField<Field> && schema::HasMember<Storage, Field>
+    requires schema::ExtensionChainField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
         const void* chain = schema::Get(storage, field);

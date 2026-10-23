@@ -84,31 +84,31 @@ class FillAction
     explicit FillAction(FillContext& context) : context_(context) {}
 
     template <typename Field, typename Storage>
-    requires schema::ValueShapeField<Field> && schema::HasMember<Storage, Field>
+    requires schema::ValueField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         using Element = schema::FieldElementType<Field>;
 
-        if constexpr (schema::StructKindField<Field>)
+        if constexpr (schema::StructField<Field>)
         {
             if constexpr (schema::HasSchemaFields<typename Field::api_element> && schema::Addressable<Storage, Field>)
             {
                 Fill<typename Field::api_element>(context_, schema::GetRef(storage, field));
             }
         }
-        else if constexpr (!schema::HandleKindField<Field> && IsPatternable<Element>)
+        else if constexpr (!schema::HandleField<Field> && IsPatternable<Element>)
         {
             schema::Set(storage, field, static_cast<Element>(kPattern));
         }
     }
 
     template <typename Field, typename Storage>
-    requires schema::PointerShapeField<Field> && schema::HasMember<Storage, Field>
+    requires schema::PointerField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         using Element = schema::FieldElementType<Field>;
 
-        if constexpr (schema::TextKindField<Field>)
+        if constexpr (schema::TextField<Field>)
         {
             schema::Set(storage, field, context_.MakeText<Element>());
         }
@@ -121,19 +121,19 @@ class FillAction
     }
 
     template <typename Field, typename Storage>
-    requires schema::AnyCountedShapeField<Field> && schema::HasMember<Storage, Field> &&
+    requires schema::AnyCountedField<Field> && schema::HasMember<Storage, Field> &&
         schema::HasFieldCount<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         using Element      = schema::FieldElementType<Field>;
         const size_t count = static_cast<size_t>(schema::FieldCount<Field>::Get(storage));
 
-        if constexpr (schema::PointerArrayShapeField<Field>)
+        if constexpr (schema::PointerArrayField<Field>)
         {
             const Element** rows = context_.Make<const Element*>(count);
             for (size_t i = 0; i < count; ++i)
             {
-                if constexpr (schema::TextKindField<Field>)
+                if constexpr (schema::TextField<Field>)
                 {
                     rows[i] = context_.MakeText<Element>();
                 }
@@ -158,13 +158,13 @@ class FillAction
     }
 
     template <typename Field, typename Storage>
-    requires schema::StaticArrayShapeField<Field> && schema::Addressable<Storage, Field>
+    requires schema::StaticArrayField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& array     = schema::GetRef(storage, field);
         using ArrayType = std::remove_cvref_t<decltype(array)>;
 
-        if constexpr (schema::TextKindField<Field>)
+        if constexpr (schema::TextField<Field>)
         {
             constexpr size_t extent = std::extent_v<ArrayType, 0>;
             using Char              = std::remove_extent_t<ArrayType>;
@@ -197,7 +197,7 @@ class FillAction
     }
 
     template <typename Field, typename Storage>
-    requires schema::ExtensionChainShapeField<Field> && schema::HasMember<Storage, Field>
+    requires schema::ExtensionChainField<Field> && schema::HasMember<Storage, Field>
     void Apply(Field, Storage&) {}
 
   private:
@@ -207,14 +207,14 @@ class FillAction
     template <typename Field, typename Element>
     void FillElement(Element& element)
     {
-        if constexpr (schema::StructKindField<Field>)
+        if constexpr (schema::StructField<Field>)
         {
             if constexpr (schema::HasSchemaFields<typename Field::api_element>)
             {
                 Fill<typename Field::api_element>(context_, element);
             }
         }
-        else if constexpr (!schema::HandleKindField<Field> && IsPatternable<Element>)
+        else if constexpr (!schema::HandleField<Field> && IsPatternable<Element>)
         {
             element = static_cast<Element>(kPattern);
         }
